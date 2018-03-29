@@ -56,6 +56,9 @@ sourceSets {
 repositories {
 	mavenCentral()
 	maven {
+		url = "https://www.e-contract.be/maven2/"
+	}
+	maven {
 		url = "http://repo.ehealth.fgov.be/artifactory/maven2/"
 	}
 	maven {
@@ -235,6 +238,5 @@ configurations.all {
 	exclude group: 'asm', module: 'asm'
 	exclude group: 'javax', module: 'javaee-api'
 	exclude group: 'org.apache.openejb', module: 'javaee-api'
-	exclude group: 'be.fedict.commons-eid', module: 'commons-eid-jca'
 }
 
