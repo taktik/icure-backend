@@ -54,6 +54,7 @@ sourceSets {
 }
 
 repositories {
+	mavenCentral()
 	maven {
 		url = "http://repo.ehealth.fgov.be/artifactory/maven2/"
 	}
@@ -126,16 +127,13 @@ dependencies {
 	compile group: 'com.github.rvesse', name: 'airline', version: '1.0.1'
 	compile group: 'com.google.guava', name: 'guava', version: '20.0'
 	compile group: 'org.jdom', name: 'jdom-legacy', version: '1.1.3'
-	compile group: 'com.rometools', name: 'rome', version: '2.0.0.patched-SNAPSHOT'
-	compile group: 'com.rometools', name: 'rome-modules', version: '2.0.0-SNAPSHOT'
-	compile group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
 	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.3.3'
 	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.3'
 	compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.3.3'
 	compile group: 'com.eaio.uuid', name: 'uuid', version: '3.2'
 	compile group: 'org.apache.tika', name: 'tika-parsers', version: '1.17'
 	compile group: 'com.googlecode.jmapper-framework', name: 'jmapper-core', version: '1.2.0'
-	compile group: 'ma.glasnost.orika', name: 'orika-core', version: '1.4.6-SNAPSHOT'
+	compile group: 'ma.glasnost.orika', name: 'orika-core', version: '1.4.6'
 	compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.0-api', version: '1.0.1.Final'
 	compile group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '3.1.3'
 	compile group: 'de.danielbechler', name: 'java-object-diff', version: '0.13.1'
@@ -237,5 +235,6 @@ configurations.all {
 	exclude group: 'asm', module: 'asm'
 	exclude group: 'javax', module: 'javaee-api'
 	exclude group: 'org.apache.openejb', module: 'javaee-api'
+	exclude group: 'be.fedict.commons-eid', module: 'commons-eid-jca'
 }
 
