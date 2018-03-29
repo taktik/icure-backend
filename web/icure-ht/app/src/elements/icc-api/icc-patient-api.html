@@ -1,0 +1,275 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-patient-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="countOfPatients" method="GET" headers="[[headers]]" url="/patient/hcParty/{hcPartyId}/count" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="createPatient" method="POST" headers="[[headers]]" url="/patient" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deletePatient" method="DELETE" headers="[[headers]]" url="/patient/{patientIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="filterBy" method="POST" headers="[[headers]]" url="/patient/filter" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByAccessLogUserAfterDate" method="GET" headers="[[headers]]" url="/patient/byAccess/{userId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByAccessLogUserAfterDate_1" method="GET" headers="[[headers]]" url="/patient/byExternalId/{externalId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByNameBirthSsinAuto" method="GET" headers="[[headers]]" url="/patient/byNameBirthSsinAuto" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="forceLog" method="POST" headers="[[headers]]" url="/patient/forceLog" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="fuzzySearch" method="GET" headers="[[headers]]" url="/patient/fuzzy" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getPatient" method="GET" headers="[[headers]]" url="/patient/{patientId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getPatientSummary" method="GET" headers="[[headers]]" url="/patient/{patientId}/summary" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getPatients" method="POST" headers="[[headers]]" url="/patient/byIds" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listDeletedPatients" method="GET" headers="[[headers]]" url="/patient/deleted/by_date" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listDeletedPatients_2" method="GET" headers="[[headers]]" url="/patient/deleted/by_name" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listPatients" method="GET" headers="[[headers]]" url="/patient" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listPatientsByHcParty" method="GET" headers="[[headers]]" url="/patient/hcParty/{hcPartyId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listPatientsOfHcParty" method="GET" headers="[[headers]]" url="/patient/ofHcParty/{hcPartyId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="matchBy" method="POST" headers="[[headers]]" url="/patient/match" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="mergeInto" method="PUT" headers="[[headers]]" url="/patient/mergeInto/{toId}/from/{fromIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyPatient" method="PUT" headers="[[headers]]" url="/patient" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyPatientReferral" method="PUT" headers="[[headers]]" url="/patient/{patientId}/referral/{referralId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyPatientSummary" method="PUT" headers="[[headers]]" url="/patient/{patientId}/summary" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="newDelegations" method="POST" headers="[[headers]]" url="/patient/{patientId}/delegate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="undeletePatient" method="PUT" headers="[[headers]]" url="/patient/undelete/{patientIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-patient-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				countOfPatients: function (hcPartyId) {
+					var xhr = this.$.countOfPatients
+
+					xhr.url = this.host+"/patient/hcParty/{hcPartyId}/count".replace("{hcPartyId}", hcPartyId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				createPatient: function (body) {
+					var xhr = this.$.createPatient
+					xhr.body = body
+					xhr.url = this.host+"/patient" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deletePatient: function (patientIds) {
+					var xhr = this.$.deletePatient
+
+					xhr.url = this.host+"/patient/{patientIds}".replace("{patientIds}", patientIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				filterBy: function (startKey, startDocumentId, limit, skip, sort, desc, body) {
+					var xhr = this.$.filterBy
+					xhr.body = body
+					xhr.url = this.host+"/patient/filter" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (skip ? "&skip=" + skip : "") + (sort ? "&sort=" + sort : "") + (desc ? "&desc=" + desc : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByAccessLogUserAfterDate: function (userId, accessType, startDate, startKey, startDocumentId, limit) {
+					var xhr = this.$.findByAccessLogUserAfterDate
+
+					xhr.url = this.host+"/patient/byAccess/{userId}".replace("{userId}", userId) + "?ts=" + (new Date).getTime()  + (accessType ? "&accessType=" + accessType : "") + (startDate ? "&startDate=" + startDate : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByAccessLogUserAfterDate_1: function (externalId) {
+					var xhr = this.$.findByAccessLogUserAfterDate_1
+
+					xhr.url = this.host+"/patient/byExternalId/{externalId}".replace("{externalId}", externalId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByNameBirthSsinAuto: function (filterValue, startKey, startDocumentId, limit, sortDirection) {
+					var xhr = this.$.findByNameBirthSsinAuto
+
+					xhr.url = this.host+"/patient/byNameBirthSsinAuto" + "?ts=" + (new Date).getTime()  + (filterValue ? "&filterValue=" + filterValue : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				forceLog: function () {
+					var xhr = this.$.forceLog
+
+					xhr.url = this.host+"/patient/forceLog" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				fuzzySearch: function (firstName, lastName, dateOfBirth) {
+					var xhr = this.$.fuzzySearch
+
+					xhr.url = this.host+"/patient/fuzzy" + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "") + (dateOfBirth ? "&dateOfBirth=" + dateOfBirth : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getPatient: function (patientId) {
+					var xhr = this.$.getPatient
+
+					xhr.url = this.host+"/patient/{patientId}".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getPatientSummary: function (patientId) {
+					var xhr = this.$.getPatientSummary
+
+					xhr.url = this.host+"/patient/{patientId}/summary".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getPatients: function (body) {
+					var xhr = this.$.getPatients
+					xhr.body = body
+					xhr.url = this.host+"/patient/byIds" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listDeletedPatients: function (startDate, endDate, desc, startDocumentId, limit) {
+					var xhr = this.$.listDeletedPatients
+
+					xhr.url = this.host+"/patient/deleted/by_date" + "?ts=" + (new Date).getTime()  + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (desc ? "&desc=" + desc : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listDeletedPatients_2: function (firstName, lastName) {
+					var xhr = this.$.listDeletedPatients_2
+
+					xhr.url = this.host+"/patient/deleted/by_name" + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listPatients: function (hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection) {
+					var xhr = this.$.listPatients
+
+					xhr.url = this.host+"/patient" + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (sortField ? "&sortField=" + sortField : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listPatientsByHcParty: function (hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection) {
+					var xhr = this.$.listPatientsByHcParty
+
+					xhr.url = this.host+"/patient/hcParty/{hcPartyId}".replace("{hcPartyId}", hcPartyId) + "?ts=" + (new Date).getTime()  + (sortField ? "&sortField=" + sortField : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listPatientsOfHcParty: function (hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection) {
+					var xhr = this.$.listPatientsOfHcParty
+
+					xhr.url = this.host+"/patient/ofHcParty/{hcPartyId}".replace("{hcPartyId}", hcPartyId) + "?ts=" + (new Date).getTime()  + (sortField ? "&sortField=" + sortField : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				matchBy: function (body) {
+					var xhr = this.$.matchBy
+					xhr.body = body
+					xhr.url = this.host+"/patient/match" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				mergeInto: function (toId, fromIds) {
+					var xhr = this.$.mergeInto
+
+					xhr.url = this.host+"/patient/mergeInto/{toId}/from/{fromIds}".replace("{toId}", toId).replace("{fromIds}", fromIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyPatient: function (body) {
+					var xhr = this.$.modifyPatient
+					xhr.body = body
+					xhr.url = this.host+"/patient" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyPatientReferral: function (patientId, referralId, start, end) {
+					var xhr = this.$.modifyPatientReferral
+
+					xhr.url = this.host+"/patient/{patientId}/referral/{referralId}".replace("{patientId}", patientId).replace("{referralId}", referralId) + "?ts=" + (new Date).getTime()  + (start ? "&start=" + start : "") + (end ? "&end=" + end : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyPatientSummary: function (patientId, body) {
+					var xhr = this.$.modifyPatientSummary
+					xhr.body = body
+					xhr.url = this.host+"/patient/{patientId}/summary".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				newDelegations: function (patientId, body) {
+					var xhr = this.$.newDelegations
+					xhr.body = body
+					xhr.url = this.host+"/patient/{patientId}/delegate".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				undeletePatient: function (patientIds) {
+					var xhr = this.$.undeletePatient
+
+					xhr.url = this.host+"/patient/undelete/{patientIds}".replace("{patientIds}", patientIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

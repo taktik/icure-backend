@@ -1,0 +1,52 @@
+**********************************
+Version 1.1/Kmehr release 20010901
+**********************************
+
+Bug fixing
+----------
+cd file
+
+CD-UNIT : remove double occurence of 'mm'
+
+Evolutions
+----------
+
+1 Integration of the elements related to hub-metahub system (draft status)
+
+1.1 id file 
+
+ID-HCPARTY: add scheme: ID-ENCRYPTION-APPLICATION, ID-ENCRYPTION-ACTOR (support ETEE) 
+	
+1.2 cd file	
+
+new table: CD-CONSENT, CD-THERAPEUTICLINK
+new table: CD-ENCRYPTION-ACTOR, CD-ENCRYPTION-METHOD
+ 
+1.3 kmehr file
+
+kmehrMessageType: add element: Base64EncryptedData   
+
+2 GP software migration format
+
+2.1 cd file
+
+CD-STANDARD : add value : 2010091 
+CD-TRANSACTION : add value : clinicalsummary, preventionplan
+CD-ITEM : add values : insurancystatus, patientwill, professionalrisk, familyrisk, parameter
+		: add scheme : CD-PARAMETER
+CD-CONTENT: add scheme: CD-PATIENTWILL
+CD-CONTACT-PERSON : add value : brother, sister, brotherinlaw, tutor, notary, lawyer, employer, grandparent
+
+new table: CD-PATIENTWILL
+new table: CD-PARAMETER 
+new table: CD-MESSAGE 
+
+2.3 kmehr file
+
+standardType : add element: specialisation
+personType : add element : profession
+itemType : add element : recorddatetime, isrelevant
+ 		
+
+
+	

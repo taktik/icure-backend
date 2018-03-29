@@ -1,0 +1,31 @@
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='civility_full_name']"><TKDisplayableKey key="civilityAndFullName"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='prenom']"><TKDisplayableKey key="firstName"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='nom']"><TKDisplayableKey key="lastName"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='full_name']"><TKDisplayableKey key="fullName"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='detailed_contact_info']"><TKDisplayableKey key="detailedContactInformation"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='email']"><TKDisplayableKey key="mainEmail"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='address']"><TKDisplayableKey key="mainAddressInformation"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='inami']"><TKDisplayableKey key="nihii"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='specialite']"><TKDisplayableKey key="speciality"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKMeReportObject/TKArray/TKDisplayableKey[@key='city']"><TKDisplayableKey key="mainCity"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='full_name']"><TKDisplayableKey key="civilityAndFullName"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='nomEpouse']"><TKDisplayableKey key="spouseName"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='birth_date']"><TKDisplayableKey key="formattedDateOfBirth"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='address']"><TKDisplayableKey key="mainStreet"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='fullAddress']"><TKDisplayableKey key="mainAddress"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='fullPostalCode']"><TKDisplayableKey key="mainPostCodeAndCity"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='detailed_contact_info']"><TKDisplayableKey key="detailedContactInformation"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='insurance_info']"><TKDisplayableKey key="insuranceInformation"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='matricule']"><TKDisplayableKey key="insuranceMembershipNumber"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='email']"><TKDisplayableKey key="mainEmail"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+    <xsl:template match="TKKeyValueReportObject/TKArray/TKDisplayableKey[@key='age']"><TKDisplayableKey key="formattedAge"><xsl:apply-templates select="@displayed"/></TKDisplayableKey></xsl:template>
+
+    <!-- identity template -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+
+</xsl:stylesheet>

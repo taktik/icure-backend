@@ -1,0 +1,75 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-beefact-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createBatchAndSend" method="POST" headers="[[headers]]" url="/be_efact/{token}/{insuranceId}/{batchRef}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getRawInvoiceMessageContent" method="GET" headers="[[headers]]" url="/be_efact/message/{docId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTackContent" method="GET" headers="[[headers]]" url="/be_efact/tack/{docId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="loadPendingMessages" method="GET" headers="[[headers]]" url="/be_efact/{token}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-beefact-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createBatchAndSend: function (token, insuranceId, batchRef, body) {
+					var xhr = this.$.createBatchAndSend
+					xhr.body = body
+					xhr.url = this.host+"/be_efact/{token}/{insuranceId}/{batchRef}".replace("{token}", token).replace("{insuranceId}", insuranceId).replace("{batchRef}", batchRef) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getRawInvoiceMessageContent: function (docId) {
+					var xhr = this.$.getRawInvoiceMessageContent
+
+					xhr.url = this.host+"/be_efact/message/{docId}".replace("{docId}", docId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTackContent: function (docId) {
+					var xhr = this.$.getTackContent
+
+					xhr.url = this.host+"/be_efact/tack/{docId}".replace("{docId}", docId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				loadPendingMessages: function (token) {
+					var xhr = this.$.loadPendingMessages
+
+					xhr.url = this.host+"/be_efact/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

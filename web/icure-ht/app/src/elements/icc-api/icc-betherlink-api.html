@@ -1,0 +1,115 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-betherlink-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="doesLinkExist" method="POST" headers="[[headers]]" url="/be_therlink/therlink/check/{token}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getAllTherapeuticLinks" method="GET" headers="[[headers]]" url="/be_therlink/therlink/{token}/{hcPartyId}/{patientId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getPatientConsent" method="GET" headers="[[headers]]" url="/be_therlink/consent/{token}/{niss}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="registerPatientConsent" method="POST" headers="[[headers]]" url="/be_therlink/consent/{token}/{niss}/{eid}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="registerTherapeuticLink" method="POST" headers="[[headers]]" url="/be_therlink/therlink/{token}/{hcPartyId}/{patientId}/{eid}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="revokePatientConsent" method="PUT" headers="[[headers]]" url="/be_therlink/consent/{token}/{eid}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="revokeTherapeuticLink" method="PUT" headers="[[headers]]" url="/be_therlink/therlink/revoke/{token}/{eid}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="setMapper" method="DELETE" headers="[[headers]]" url="/be_therlink" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-betherlink-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				doesLinkExist: function (token, body) {
+					var xhr = this.$.doesLinkExist
+					xhr.body = body
+					xhr.url = this.host+"/be_therlink/therlink/check/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getAllTherapeuticLinks: function (token, hcPartyId, patientId, eid, startDate, endDate, type, sign) {
+					var xhr = this.$.getAllTherapeuticLinks
+
+					xhr.url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}".replace("{token}", token).replace("{hcPartyId}", hcPartyId).replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (eid ? "&eid=" + eid : "") + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (sign ? "&sign=" + sign : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getPatientConsent: function (token, niss) {
+					var xhr = this.$.getPatientConsent
+
+					xhr.url = this.host+"/be_therlink/consent/{token}/{niss}".replace("{token}", token).replace("{niss}", niss) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				registerPatientConsent: function (token, niss, eid, firstName, lastName) {
+					var xhr = this.$.registerPatientConsent
+
+					xhr.url = this.host+"/be_therlink/consent/{token}/{niss}/{eid}".replace("{token}", token).replace("{niss}", niss).replace("{eid}", eid) + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				registerTherapeuticLink: function (token, hcPartyId, patientId, eid, startDate, endDate, type, comment, sign) {
+					var xhr = this.$.registerTherapeuticLink
+
+					xhr.url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}/{eid}".replace("{token}", token).replace("{hcPartyId}", hcPartyId).replace("{patientId}", patientId).replace("{eid}", eid) + "?ts=" + (new Date).getTime()  + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (comment ? "&comment=" + comment : "") + (sign ? "&sign=" + sign : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				revokePatientConsent: function (token, eid, body) {
+					var xhr = this.$.revokePatientConsent
+					xhr.body = body
+					xhr.url = this.host+"/be_therlink/consent/{token}/{eid}".replace("{token}", token).replace("{eid}", eid) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				revokeTherapeuticLink: function (token, eid, body) {
+					var xhr = this.$.revokeTherapeuticLink
+					xhr.body = body
+					xhr.url = this.host+"/be_therlink/therlink/revoke/{token}/{eid}".replace("{token}", token).replace("{eid}", eid) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				setMapper: function (body) {
+					var xhr = this.$.setMapper
+					xhr.body = body
+					xhr.url = this.host+"/be_therlink" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

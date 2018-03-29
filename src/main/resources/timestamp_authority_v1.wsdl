@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s2:definitions targetNamespace="http://www.behealth.be/webservices/tsa" xmlns:s0="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:s1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s2="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:s3="urn:oasis:names:tc:dss:1.0:core:schema" xmlns:s4="http://www.behealth.be/webservices/tsa" xmlns:s5="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+  <s2:types>
+    <xsd:schema targetNamespace="urn:oasis:names:tc:dss:1.0:core:schema:xsd" xmlns:dss="urn:oasis:names:tc:dss:1.0:core:schema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s0="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+      xmlns:s1="urn:oasis:names:tc:dss:1.0:core:schema" xmlns:s2="http://www.behealth.be/webservices/tsa" xmlns:s3="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+      xmlns:tns="http://www.behealth.be/webservices/tsa" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="urn:oasis:names:tc:dss:1.0:core:schema" schemaLocation="../XSD/external/dss-core-1_0.xsd" />
+    </xsd:schema>
+  </s2:types>
+  <s2:message name="stamp">
+    <s2:part element="s3:SignRequest" name="signRequest" />
+  </s2:message>
+  <s2:message name="stampResponse">
+    <s2:part element="s3:SignResponse" name="result" />
+  </s2:message>
+  <s2:portType name="timestampauthorityPort">
+    <s2:operation name="stamp">
+      <s2:input message="s4:stamp" />
+      <s2:output message="s4:stampResponse" />
+    </s2:operation>
+  </s2:portType>
+  <s2:binding name="timestampauthorityPort" type="s4:timestampauthorityPort">
+    <s5:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <s2:operation name="stamp">
+      <s5:operation style="document" />
+      <s2:input>
+        <s5:body use="literal" />
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#Wssp1.2-2007-Wss1.0-X509-Basic256.xml" />
+        </wsp:Policy>
+      </s2:input>
+      <s2:output>
+        <s5:body use="literal" />
+      </s2:output>
+    </s2:operation>
+  </s2:binding>
+  <s2:service name="TimeStampAuthority">
+    <s2:port binding="s4:timestampauthorityPort" name="timestampauthorityPort">
+      <s5:address location="https://wwwacc.ehealth.fgov.be:443/timestampauthority_1_5/timestampauthority" />
+    </s2:port>
+  </s2:service>
+</s2:definitions>

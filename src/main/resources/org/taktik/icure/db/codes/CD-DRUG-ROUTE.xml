@@ -1,0 +1,372 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-10-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Drug administration route</NAME>
+  <VALUE>
+    <CODE>00001</CODE>
+    <DESCRIPTION L='fr'>auric.</DESCRIPTION>
+    <DESCRIPTION L='nl'>auric.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00002</CODE>
+    <DESCRIPTION L='fr'>derm.</DESCRIPTION>
+    <DESCRIPTION L='nl'>derm.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00003</CODE>
+    <DESCRIPTION L='fr'>derm./rect.</DESCRIPTION>
+    <DESCRIPTION L='nl'>derm./rect.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00004</CODE>
+    <DESCRIPTION L='fr'>derm./vag.</DESCRIPTION>
+    <DESCRIPTION L='nl'>derm./vag.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00005</CODE>
+    <DESCRIPTION L='fr'>e.dur.</DESCRIPTION>
+    <DESCRIPTION L='nl'>p.dur.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00006</CODE>
+    <DESCRIPTION L='fr'>e.dur./i.thec./lokaal</DESCRIPTION>
+    <DESCRIPTION L='nl'>p.dur./i.théc./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00007</CODE>
+    <DESCRIPTION L='fr'>e.dur./lokaal</DESCRIPTION>
+    <DESCRIPTION L='nl'>p.dur./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00008</CODE>
+    <DESCRIPTION L='fr'>e.trach.</DESCRIPTION>
+    <DESCRIPTION L='nl'>e.trach.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00009</CODE>
+    <DESCRIPTION L='fr'>endocerv.</DESCRIPTION>
+    <DESCRIPTION L='nl'>endocerv.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00010</CODE>
+    <DESCRIPTION L='fr'>i.arter.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.artér.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00011</CODE>
+    <DESCRIPTION L='fr'>i.cavern.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.cavern.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00012</CODE>
+    <DESCRIPTION L='fr'>i.derm.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.derm.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00013</CODE>
+    <DESCRIPTION L='fr'>i.m.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00014</CODE>
+    <DESCRIPTION L='fr'>i.m./i.thec./e.dur./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.théc./p.dur./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00015</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00016</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00017</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf./e.dur./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf./p.dur./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00018</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf./i.arter./i.thec.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf./i.artér./i.théc.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00019</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf./i.arter./lokaal/s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf./i.artér./local/s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00020</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf./i.thec.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf./i.théc.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00021</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf./rect.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf./rect.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00022</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inf./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./perf./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00023</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./inhal.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./inhal.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00024</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./lokaal</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00025</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./or.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./or.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00026</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./rect.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./rect.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00027</CODE>
+    <DESCRIPTION L='fr'>i.m./i.v./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./i.v./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00028</CODE>
+    <DESCRIPTION L='fr'>i.m./inf.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./perf.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00029</CODE>
+    <DESCRIPTION L='fr'>i.m./inf./lokaal</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./perf./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00030</CODE>
+    <DESCRIPTION L='fr'>i.m./lokaal</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00031</CODE>
+    <DESCRIPTION L='fr'>i.m./lokaal/rect.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./rect./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00032</CODE>
+    <DESCRIPTION L='fr'>i.m./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.m./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00033</CODE>
+    <DESCRIPTION L='fr'>i.thec.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.théc.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00034</CODE>
+    <DESCRIPTION L='fr'>i.ut.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.ut.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00035</CODE>
+    <DESCRIPTION L='fr'>i.v.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00036</CODE>
+    <DESCRIPTION L='fr'>i.v./e.dur./lokaal</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./p.dur./local</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00037</CODE>
+    <DESCRIPTION L='fr'>i.v./i.arter./i.ves.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./i.artér./i.vés.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00038</CODE>
+    <DESCRIPTION L='fr'>i.v./perf.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./inf.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00039</CODE>
+    <DESCRIPTION L='fr'>i.v./perf./p.dur.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./inf./e.dur.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00040</CODE>
+    <DESCRIPTION L='fr'>i.v./perf./i.artér.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./inf./i.arter.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00041</CODE>
+    <DESCRIPTION L='fr'>i.v./perf./i.théc./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./inf./i.thec./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00042</CODE>
+    <DESCRIPTION L='fr'>i.v./perf./inhal.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./inf./inhal.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00043</CODE>
+    <DESCRIPTION L='fr'>i.v./perf./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./inf./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00044</CODE>
+    <DESCRIPTION L='fr'>i.v./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.v./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00045</CODE>
+    <DESCRIPTION L='fr'>i.vés.</DESCRIPTION>
+    <DESCRIPTION L='nl'>i.ves.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00046</CODE>
+    <DESCRIPTION L='fr'>perf.</DESCRIPTION>
+    <DESCRIPTION L='nl'>inf.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00047</CODE>
+    <DESCRIPTION L='fr'>perf./i.vés.</DESCRIPTION>
+    <DESCRIPTION L='nl'>inf./i.ves.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00048</CODE>
+    <DESCRIPTION L='fr'>perf./s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>inf./s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00049</CODE>
+    <DESCRIPTION L='fr'>inhal.</DESCRIPTION>
+    <DESCRIPTION L='nl'>inhal.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00050</CODE>
+    <DESCRIPTION L='fr'>inhal./nas./local</DESCRIPTION>
+    <DESCRIPTION L='nl'>inhal./nas./lokaal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00051</CODE>
+    <DESCRIPTION L='fr'>inj.</DESCRIPTION>
+    <DESCRIPTION L='nl'>inj.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00052</CODE>
+    <DESCRIPTION L='fr'>lèvre</DESCRIPTION>
+    <DESCRIPTION L='nl'>lip</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00053</CODE>
+    <DESCRIPTION L='fr'>local</DESCRIPTION>
+    <DESCRIPTION L='nl'>lokaal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00054</CODE>
+    <DESCRIPTION L='fr'>muc.</DESCRIPTION>
+    <DESCRIPTION L='nl'>muc.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00055</CODE>
+    <DESCRIPTION L='fr'>nas.</DESCRIPTION>
+    <DESCRIPTION L='nl'>nas.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00056</CODE>
+    <DESCRIPTION L='fr'>opht.</DESCRIPTION>
+    <DESCRIPTION L='nl'>oft.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00057</CODE>
+    <DESCRIPTION L='fr'>opht./auric.</DESCRIPTION>
+    <DESCRIPTION L='nl'>oft./auric.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00058</CODE>
+    <DESCRIPTION L='fr'>opht./auric./nas.</DESCRIPTION>
+    <DESCRIPTION L='nl'>oft./auric./nas.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00059</CODE>
+    <DESCRIPTION L='fr'>opht./auric./nas./local</DESCRIPTION>
+    <DESCRIPTION L='nl'>oft./auric./nas./lokaal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00060</CODE>
+    <DESCRIPTION L='fr'>or.</DESCRIPTION>
+    <DESCRIPTION L='nl'>or.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00061</CODE>
+    <DESCRIPTION L='fr'>or./bucco-phar./derm.</DESCRIPTION>
+    <DESCRIPTION L='nl'>or./orofar./derm.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00062</CODE>
+    <DESCRIPTION L='fr'>or./rect.</DESCRIPTION>
+    <DESCRIPTION L='nl'>or./rect.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00063</CODE>
+    <DESCRIPTION L='fr'>or./s.l.</DESCRIPTION>
+    <DESCRIPTION L='nl'>or./s.l.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00064</CODE>
+    <DESCRIPTION L='fr'>bucco-phar.</DESCRIPTION>
+    <DESCRIPTION L='nl'>orofar.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00065</CODE>
+    <DESCRIPTION L='fr'>bucco-phar./derm.</DESCRIPTION>
+    <DESCRIPTION L='nl'>orofar./derm.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00066</CODE>
+    <DESCRIPTION L='fr'>bucco-phar./nas.</DESCRIPTION>
+    <DESCRIPTION L='nl'>orofar./nas.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00067</CODE>
+    <DESCRIPTION L='fr'>rect.</DESCRIPTION>
+    <DESCRIPTION L='nl'>rect.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00068</CODE>
+    <DESCRIPTION L='fr'>s.c.</DESCRIPTION>
+    <DESCRIPTION L='nl'>s.c.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00069</CODE>
+    <DESCRIPTION L='fr'>s.c./i.derm.</DESCRIPTION>
+    <DESCRIPTION L='nl'>s.c./i.derm.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00070</CODE>
+    <DESCRIPTION L='fr'>s.l.</DESCRIPTION>
+    <DESCRIPTION L='nl'>s.l.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00071</CODE>
+    <DESCRIPTION L='fr'>dents</DESCRIPTION>
+    <DESCRIPTION L='nl'>tand</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00072</CODE>
+    <DESCRIPTION L='fr'>urethr.</DESCRIPTION>
+    <DESCRIPTION L='nl'>urethr.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>00073</CODE>
+    <DESCRIPTION L='fr'>vag.</DESCRIPTION>
+    <DESCRIPTION L='nl'>vag.</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

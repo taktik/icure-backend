@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Ortho Type</NAME>
+  <VALUE>
+    <CODE>amputation</CODE>
+    <DESCRIPTION L='en'>Amputation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>arthrodesis</CODE>
+    <DESCRIPTION L='en'>Arthrodesis</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>osteosynthesis</CODE>
+    <DESCRIPTION L='en'>Osteosynthesis</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>primaryprocedure</CODE>
+    <DESCRIPTION L='en'>Primary Procedure</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>resection</CODE>
+    <DESCRIPTION L='en'>Resection</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>revisionwithprosthesis</CODE>
+    <DESCRIPTION L='en'>Revision With Prosthesis</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

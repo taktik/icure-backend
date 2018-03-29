@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-07-30</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>eBirth special values</NAME>
+  <VALUE>
+    <CODE>noanswer</CODE>
+    <DESCRIPTION L='de'>Der Patientin nicht bekannt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pas de réponse du patient</DESCRIPTION>
+    <DESCRIPTION L='en'>No answer from the patient</DESCRIPTION>
+    <DESCRIPTION L='nl'>Geen antwoord van de patient</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nottested</CODE>
+    <DESCRIPTION L='de'>Nicht getestet</DESCRIPTION>
+    <DESCRIPTION L='fr'>Non testé</DESCRIPTION>
+    <DESCRIPTION L='en'>Not tested</DESCRIPTION>
+    <DESCRIPTION L='nl'>Niet getest</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>unknown</CODE>
+    <DESCRIPTION L='de'>Unbekannt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Inconnu</DESCRIPTION>
+    <DESCRIPTION L='en'>Unknown</DESCRIPTION>
+    <DESCRIPTION L='nl'>Onbekend</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

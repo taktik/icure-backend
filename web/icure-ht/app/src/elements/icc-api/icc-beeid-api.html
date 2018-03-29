@@ -1,0 +1,55 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-beeid-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="asyncLongPoll" method="GET" headers="[[headers]]" url="/be_eid/poll/{id}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="pushData" method="GET" headers="[[headers]]" url="/be_eid/push/{token}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-beeid-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				asyncLongPoll: function (id) {
+					var xhr = this.$.asyncLongPoll
+
+					xhr.url = this.host+"/be_eid/poll/{id}".replace("{id}", id) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				pushData: function (token, body) {
+					var xhr = this.$.pushData
+					xhr.body = body
+					xhr.url = this.host+"/be_eid/push/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

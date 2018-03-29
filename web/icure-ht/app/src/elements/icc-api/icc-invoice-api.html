@@ -1,0 +1,255 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-invoice-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="appendCodes" method="POST" headers="[[headers]]" url="/invoice/byauthor/{userId}/append/{type}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="createInvoice" method="POST" headers="[[headers]]" url="/invoice" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteInvoice" method="DELETE" headers="[[headers]]" url="/invoice/{invoiceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByAuthor" method="GET" headers="[[headers]]" url="/invoice/byauthor/{userId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByHCPartyPatientSecretFKeys" method="GET" headers="[[headers]]" url="/invoice/byHcPartySecretForeignKeys" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getInvoice" method="GET" headers="[[headers]]" url="/invoice/{invoiceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getInvoices" method="POST" headers="[[headers]]" url="/invoice/byIds" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listAllHcpsByStatus" method="POST" headers="[[headers]]" url="/invoice/allHcpsByStatus/{status}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listByContactIds" method="POST" headers="[[headers]]" url="/invoice/byCtcts" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listByIds" method="GET" headers="[[headers]]" url="/invoice/byIds/{invoiceIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listByRecipientsIds" method="GET" headers="[[headers]]" url="/invoice/to/{recipientIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listByServiceIds" method="GET" headers="[[headers]]" url="/invoice/byServiceIds/{serviceIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listToInsurances" method="GET" headers="[[headers]]" url="/invoice/toInsurances" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listToInsurancesUnsent" method="GET" headers="[[headers]]" url="/invoice/toInsurances/unsent" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listToPatients" method="GET" headers="[[headers]]" url="/invoice/toPatients" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listToPatientsUnsent" method="GET" headers="[[headers]]" url="/invoice/toPatients/unsent" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="mergeTo" method="POST" headers="[[headers]]" url="/invoice/mergeTo/{invoiceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyInvoice" method="PUT" headers="[[headers]]" url="/invoice" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="newDelegations" method="PUT" headers="[[headers]]" url="/invoice/{invoiceId}/delegate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="reassignInvoice" method="POST" headers="[[headers]]" url="/invoice/reassign" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="removeCodes" method="POST" headers="[[headers]]" url="/invoice/byauthor/{userId}/service/{serviceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="validate" method="POST" headers="[[headers]]" url="/invoice/validate/{invoiceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-invoice-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				appendCodes: function (userId, type, insuranceId, secretFKeys, invoiceId, gracePriod, body) {
+					var xhr = this.$.appendCodes
+					xhr.body = body
+					xhr.url = this.host+"/invoice/byauthor/{userId}/append/{type}".replace("{userId}", userId).replace("{type}", type) + "?ts=" + (new Date).getTime()  + (insuranceId ? "&insuranceId=" + insuranceId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "") + (invoiceId ? "&invoiceId=" + invoiceId : "") + (gracePriod ? "&gracePriod=" + gracePriod : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				createInvoice: function (body) {
+					var xhr = this.$.createInvoice
+					xhr.body = body
+					xhr.url = this.host+"/invoice" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteInvoice: function (invoiceId) {
+					var xhr = this.$.deleteInvoice
+
+					xhr.url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByAuthor: function (userId, fromDate, toDate, startKey, startDocumentId, limit) {
+					var xhr = this.$.findByAuthor
+
+					xhr.url = this.host+"/invoice/byauthor/{userId}".replace("{userId}", userId) + "?ts=" + (new Date).getTime()  + (fromDate ? "&fromDate=" + fromDate : "") + (toDate ? "&toDate=" + toDate : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByHCPartyPatientSecretFKeys: function (hcPartyId, secretFKeys) {
+					var xhr = this.$.findByHCPartyPatientSecretFKeys
+
+					xhr.url = this.host+"/invoice/byHcPartySecretForeignKeys" + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getInvoice: function (invoiceId) {
+					var xhr = this.$.getInvoice
+
+					xhr.url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getInvoices: function (body) {
+					var xhr = this.$.getInvoices
+					xhr.body = body
+					xhr.url = this.host+"/invoice/byIds" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listAllHcpsByStatus: function (status, from, to, body) {
+					var xhr = this.$.listAllHcpsByStatus
+					xhr.body = body
+					xhr.url = this.host+"/invoice/allHcpsByStatus/{status}".replace("{status}", status) + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listByContactIds: function (body) {
+					var xhr = this.$.listByContactIds
+					xhr.body = body
+					xhr.url = this.host+"/invoice/byCtcts" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listByIds: function (invoiceIds) {
+					var xhr = this.$.listByIds
+
+					xhr.url = this.host+"/invoice/byIds/{invoiceIds}".replace("{invoiceIds}", invoiceIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listByRecipientsIds: function (recipientIds) {
+					var xhr = this.$.listByRecipientsIds
+
+					xhr.url = this.host+"/invoice/to/{recipientIds}".replace("{recipientIds}", recipientIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listByServiceIds: function (serviceIds) {
+					var xhr = this.$.listByServiceIds
+
+					xhr.url = this.host+"/invoice/byServiceIds/{serviceIds}".replace("{serviceIds}", serviceIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listToInsurances: function (userIds) {
+					var xhr = this.$.listToInsurances
+
+					xhr.url = this.host+"/invoice/toInsurances" + "?ts=" + (new Date).getTime()  + (userIds ? "&userIds=" + userIds : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listToInsurancesUnsent: function (userIds) {
+					var xhr = this.$.listToInsurancesUnsent
+
+					xhr.url = this.host+"/invoice/toInsurances/unsent" + "?ts=" + (new Date).getTime()  + (userIds ? "&userIds=" + userIds : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listToPatients: function () {
+					var xhr = this.$.listToPatients
+
+					xhr.url = this.host+"/invoice/toPatients" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listToPatientsUnsent: function () {
+					var xhr = this.$.listToPatientsUnsent
+
+					xhr.url = this.host+"/invoice/toPatients/unsent" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				mergeTo: function (invoiceId, body) {
+					var xhr = this.$.mergeTo
+					xhr.body = body
+					xhr.url = this.host+"/invoice/mergeTo/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyInvoice: function (body) {
+					var xhr = this.$.modifyInvoice
+					xhr.body = body
+					xhr.url = this.host+"/invoice" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				newDelegations: function (invoiceId, body) {
+					var xhr = this.$.newDelegations
+					xhr.body = body
+					xhr.url = this.host+"/invoice/{invoiceId}/delegate".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				reassignInvoice: function (body) {
+					var xhr = this.$.reassignInvoice
+					xhr.body = body
+					xhr.url = this.host+"/invoice/reassign" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				removeCodes: function (userId, serviceId, secretFKeys, body) {
+					var xhr = this.$.removeCodes
+					xhr.body = body
+					xhr.url = this.host+"/invoice/byauthor/{userId}/service/{serviceId}".replace("{userId}", userId).replace("{serviceId}", serviceId) + "?ts=" + (new Date).getTime()  + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				validate: function (invoiceId, scheme, forcedValue) {
+					var xhr = this.$.validate
+
+					xhr.url = this.host+"/invoice/validate/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime()  + (scheme ? "&scheme=" + scheme : "") + (forcedValue ? "&forcedValue=" + forcedValue : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

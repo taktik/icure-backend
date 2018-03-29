@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s0:definitions name="RecipeTechnicalWebservice" targetNamespace="urn:be:fgov:ehealth:recipe:protocol:v1" xmlns:s0="http://schemas.xmlsoap.org/wsdl/" xmlns:s1="urn:be:fgov:ehealth:recipe:protocol:v1" xmlns:s2="http://schemas.xmlsoap.org/wsdl/soap/">
+  <s0:documentation>Version 1.0</s0:documentation>
+  <s0:types>
+    <xsd:schema xmlns:recipe="urn:be:fgov:ehealth:recipe:protocol:v1" xmlns:soap11="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="urn:be:fgov:ehealth:recipe:protocol:v1" schemaLocation="../XSD/recipe_v1/recipeservices_protocol-1_0.xsd"/>
+    </xsd:schema>
+  </s0:types>
+  <s0:message name="UploadFilePatientRequest">
+    <s0:part element="s1:UploadFilePatientRequest" name="body"/>
+  </s0:message>
+  <s0:message name="UploadFilePatientResponse">
+    <s0:part element="s1:UploadFilePatientResponse" name="body"/>
+  </s0:message>
+  <s0:message name="UploadFilePrescriberRequest">
+    <s0:part element="s1:UploadFilePrescriberRequest" name="body"/>
+  </s0:message>
+  <s0:message name="UploadFilePrescriberResponse">
+    <s0:part element="s1:UploadFilePrescriberResponse" name="body"/>
+  </s0:message>
+  <s0:message name="UploadFileExecutorRequest">
+    <s0:part element="s1:UploadFileExecutorRequest" name="body"/>
+  </s0:message>
+  <s0:message name="UploadFileExecutorResponse">
+    <s0:part element="s1:UploadFileExecutorResponse" name="body"/>
+  </s0:message>
+  <s0:portType name="RecipeTechnicalPortType">
+    <s0:operation name="uploadFilePatient">
+      <s0:input message="s1:UploadFilePatientRequest"/>
+      <s0:output message="s1:UploadFilePatientResponse"/>
+    </s0:operation>
+    <s0:operation name="uploadFilePrescriber">
+      <s0:input message="s1:UploadFilePrescriberRequest"/>
+      <s0:output message="s1:UploadFilePrescriberResponse"/>
+    </s0:operation>
+    <s0:operation name="uploadFileExecutor">
+      <s0:input message="s1:UploadFileExecutorRequest"/>
+      <s0:output message="s1:UploadFileExecutorResponse"/>
+    </s0:operation>
+  </s0:portType>
+  <s0:binding name="RecipeTechnicalSoapBinding" type="s1:RecipeTechnicalPortType">
+    <s2:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <s0:operation name="uploadFilePatient">
+      <s2:operation soapAction="urn:be:fgov:ehealth:recipe:protocol:v1:UploadFilePatient" style="document"/>
+      <s0:input>
+        <s2:body use="literal"/>
+      </s0:input>
+      <s0:output>
+        <s2:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="uploadFilePrescriber">
+      <s2:operation soapAction="urn:be:fgov:ehealth:recipe:protocol:v1:UploadFilePrescriber" style="document"/>
+      <s0:input>
+        <s2:body use="literal"/>
+      </s0:input>
+      <s0:output>
+        <s2:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="uploadFileExecutor">
+      <s2:operation soapAction="urn:be:fgov:ehealth:recipe:protocol:v1:UploadFileExecutor" style="document"/>
+      <s0:input>
+        <s2:body use="literal"/>
+      </s0:input>
+      <s0:output>
+        <s2:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+  </s0:binding>
+  <s0:service name="RecipeTechnicalService">
+    <s0:port binding="s1:RecipeTechnicalSoapBinding" name="RecipeTechnicalServiceSOAP11">
+      <s2:address location="https://services-acpt.ehealth.fgov.be/Recip-e/v1/Technical_v1"/>
+    </s0:port>
+  </s0:service>
+</s0:definitions>

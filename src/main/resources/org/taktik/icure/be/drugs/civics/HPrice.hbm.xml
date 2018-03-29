@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.HPrice" table="hprice" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="amppId" type="java.lang.Long">
+            <column name="ampp_id" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="deliveryEnvironment" type="java.lang.String">
+            <column name="delivery_environment" length="1" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="priceAmnt" type="java.lang.Double">
+            <column name="price_amnt" scale="4" />
+        </property>
+        <property name="referenceBasePrice" type="java.lang.Double">
+            <column name="reference_base_price" scale="4" />
+        </property>
+        <property name="reimbBasePrice" type="java.lang.Double">
+            <column name="reimb_base_price" scale="4" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 27, 2008 11:38:03 AM by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Composition" table="COMPOSITION" catalog="DRUGS">
+        <composite-id name="id" class="org.taktik.icure.be.drugs.dto.CompositionId">
+            <key-property name="mppId" type="string">
+                <column name="MPP_ID" />
+            </key-property>
+            <key-property name="rank" type="int">
+                <column name="RANK" />
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG" />
+            </key-property>
+            <key-property name="ppid" type="string">
+                <column name="PPID" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="doc" class="org.taktik.icure.be.drugs.Doc" update="false" insert="false" fetch="select">
+            <column name="DOC_ID" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <many-to-one name="ingredient" class="org.taktik.icure.be.drugs.Ingredient" update="false" insert="false" fetch="select">
+            <column name="INGREDIENT_ID" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <many-to-one name="mpp" class="org.taktik.icure.be.drugs.Mpp" update="false" insert="false" fetch="select">
+            <column name="MPP_ID" not-null="true" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <property name="unitsquantity" type="java.lang.Float">
+            <column name="UNITSQUANTITY" precision="7" scale="0" />
+        </property>
+        <property name="ingredientquantity" type="java.lang.Float">
+            <column name="INGREDIENTQUANTITY" precision="7" scale="0" />
+        </property>
+        <property name="ingredientunits" type="string">
+            <column name="INGREDIENTUNITS" />
+        </property>
+        <property name="separator" type="string">
+            <column name="SEPARATOR" />
+        </property>
+        <property name="inbasq" type="java.lang.Float">
+            <column name="INBASQ" precision="7" scale="0" />
+        </property>
+        <property name="inbasu" type="string">
+            <column name="INBASU" />
+        </property>
+        <property name="inq2" type="java.lang.Float">
+            <column name="INQ2" precision="7" scale="0" />
+        </property>
+        <property name="inu2" type="string">
+            <column name="INU2" />
+        </property>
+        <property name="dim" type="string">
+            <column name="DIM" />
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE" />
+        </property>
+    </class>
+</hibernate-mapping>

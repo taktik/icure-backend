@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Mpp" table="MPP" catalog="DRUGS">
+        <composite-id name="id" class="org.taktik.icure.be.drugs.dto.MppId">
+            <key-property name="id" type="string">
+                <column name="ID"/>
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG"/>
+            </key-property>
+        </composite-id>
+        <many-to-one name="mp" class="org.taktik.icure.be.drugs.Mp" update="false" insert="false" fetch="select">
+            <column name="MP_ID"/>
+            <column name="LANG" not-null="true"/>
+        </many-to-one>
+        <many-to-one name="doc" class="org.taktik.icure.be.drugs.Doc" update="false" insert="false" fetch="select">
+            <column name="DOC_ID"/>
+            <column name="LANG" not-null="true"/>
+        </many-to-one>
+        <many-to-one name="gal" class="org.taktik.icure.be.drugs.Gal" update="false" insert="false" fetch="select">
+            <column name="GAL_ID"/>
+            <column name="LANG" not-null="true"/>
+        </many-to-one>
+        <property name="rrsstate" type="string">
+            <column name="RRSSTATE"/>
+        </property>
+        <property name="ouc" type="string">
+            <column name="OUC"/>
+        </property>
+        <property name="name" type="string">
+            <column name="NAME"/>
+        </property>
+        <property name="inncluster" type="string">
+            <column name="INN_CLUSTER"/>
+        </property>
+        <property name="ranking" type="java.lang.Integer">
+            <column name="RANKING"/>
+        </property>
+        <property name="specifier" type="string">
+            <column name="SPECIFIER"/>
+        </property>
+        <property name="contentquantity" type="java.lang.Float">
+            <column name="CONTENTQUANTITY" precision="7" scale="0"/>
+        </property>
+        <property name="contentunits" type="string">
+            <column name="CONTENTUNITS"/>
+        </property>
+        <property name="contentfluidquantity" type="java.lang.Float">
+            <column name="CONTENTFLUIDQUANTITY" precision="7" scale="0"/>
+        </property>
+        <property name="contentfluidunits" type="string">
+            <column name="CONTENTFLUIDUNITS"/>
+        </property>
+        <property name="contentquantitytoadd" type="java.lang.Float">
+            <column name="CONTENTQUANTITYTOADD" precision="7" scale="0"/>
+        </property>
+        <property name="contentunitstoadd" type="string">
+            <column name="CONTENTUNITSTOADD"/>
+        </property>
+        <property name="contentfluidquantitytoadd" type="java.lang.Float">
+            <column name="CONTENTFLUIDQUANTITYTOADD" precision="7" scale="0"/>
+        </property>
+        <property name="contentfluidunitstoadd" type="string">
+            <column name="CONTENTFLUIDUNITSTOADD"/>
+        </property>
+        <property name="cmucomb" type="string">
+            <column name="CMUCOMB"/>
+        </property>
+        <property name="law" type="string">
+            <column name="LAW"/>
+        </property>
+        <property name="ssec" type="string">
+            <column name="SSEC"/>
+        </property>
+        <property name="pubprice" type="java.lang.Integer">
+            <column name="PUBPRICE"/>
+        </property>
+        <property name="pricepatstd" type="java.lang.Integer">
+            <column name="PRICEPATSTD"/>
+        </property>
+        <property name="pricepatomnio" type="java.lang.Integer">
+            <column name="PRICEPATOMNIO"/>
+        </property>
+        <property name="index" type="java.lang.Integer">
+            <column name="INDEX"/>
+        </property>
+        <property name="blacktriangle" type="string">
+            <column name="BLACKTRIANGLE"/>
+        </property>
+        <property name="use" type="string">
+            <column name="USE"/>
+        </property>
+        <property name="note" type="string">
+            <column name="NOTE"/>
+        </property>
+        <property name="pos" type="string">
+            <column name="POS"/>
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE"/>
+        </property>
+        <list name="compositions" cascade="all">
+            <key>
+                <column name="MPP_ID"/>
+                <column name="LANG" not-null="true"/>
+            </key>
+            <list-index column="rank" base="1"/>
+            <one-to-many class="org.taktik.icure.be.drugs.Composition"/>
+        </list>
+        <map name="mppprops" inverse="true">
+            <key>
+                <column name="MPP_ID" not-null="true"/>
+                <column name="LANG" not-null="true"/>
+            </key>
+            <map-key column="propkey" type="string"/>
+            <one-to-many class="org.taktik.icure.be.drugs.Mppprop"/>
+        </map>
+    </class>
+</hibernate-mapping>

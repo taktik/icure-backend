@@ -1,0 +1,406 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-10-28</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Periodicity</NAME>
+  <VALUE>
+    <CODE>D</CODE>
+    <DESCRIPTION L='de'>Pro Tag</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par jour </DESCRIPTION>
+    <DESCRIPTION L='en'>per day</DESCRIPTION>
+    <DESCRIPTION L='nl'>per dag </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DA</CODE>
+    <DESCRIPTION L='de'>Pro 8 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 8 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 8 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 8 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DD</CODE>
+    <DESCRIPTION L='de'>Pro 3 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>par 3 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 3 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 3 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DE</CODE>
+    <DESCRIPTION L='de'>Pro 11 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 11 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 11 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 11 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DN</CODE>
+    <DESCRIPTION L='de'>Pro 9 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 9 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 9 days </DESCRIPTION>
+    <DESCRIPTION L='nl'>per 9 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DQ</CODE>
+    <DESCRIPTION L='de'>Pro 5 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 5 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 5 days </DESCRIPTION>
+    <DESCRIPTION L='nl'>per 5 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DT</CODE>
+    <DESCRIPTION L='de'>Pro 2 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 2 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 2 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 2 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DV</CODE>
+    <DESCRIPTION L='de'>Pro 4 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 4 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 4 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 4 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DW</CODE>
+    <DESCRIPTION L='de'>Pro 12 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 12 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 12 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 12 dagen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DX</CODE>
+    <DESCRIPTION L='de'>Pro 10 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 10 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 10 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 10 dagen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>DZ</CODE>
+    <DESCRIPTION L='de'>Pro 6 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 6 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 6 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 6 dagen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>J</CODE>
+    <DESCRIPTION L='de'>Pro Jahre</DESCRIPTION>
+    <DESCRIPTION L='fr'>per jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per Year</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par an </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JD</CODE>
+    <DESCRIPTION L='de'>Pro 3 Jahren </DESCRIPTION>
+    <DESCRIPTION L='fr'>per 3 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 3 years </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 3 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JH2</CODE>
+    <DESCRIPTION L='de'>Pro halbes Jahre</DESCRIPTION>
+    <DESCRIPTION L='fr'>per half jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>per half year</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par demi amée</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JQ</CODE>
+    <DESCRIPTION L='de'>Pro 5 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 5 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 5 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 5 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JT</CODE>
+    <DESCRIPTION L='de'>Pro 2 Jahren </DESCRIPTION>
+    <DESCRIPTION L='fr'>per 2 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 2 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 2 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JV</CODE>
+    <DESCRIPTION L='de'>Pro 4 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 4 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 4 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 4 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JZ</CODE>
+    <DESCRIPTION L='de'>Pro 6 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 6 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 6  years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 6 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>M</CODE>
+    <DESCRIPTION L='de'>Pro Monat</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par mois</DESCRIPTION>
+    <DESCRIPTION L='en'>Per month </DESCRIPTION>
+    <DESCRIPTION L='nl'>per maand </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MA</CODE>
+    <DESCRIPTION L='de'>Pro 8 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 8 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 8 months </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 8 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MC</CODE>
+    <DESCRIPTION L='de'>Pro 18 Monaten </DESCRIPTION>
+    <DESCRIPTION L='fr'>per 18 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 18 months </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 18 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MD</CODE>
+    <DESCRIPTION L='de'>Pro 3 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 3 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 3  months</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 3 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ME</CODE>
+    <DESCRIPTION L='de'>Pro 11 Monaten </DESCRIPTION>
+    <DESCRIPTION L='fr'>per 11 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 11 months </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 11 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MN</CODE>
+    <DESCRIPTION L='de'>Pro 9 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 9 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 9 months </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 9 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MQ</CODE>
+    <DESCRIPTION L='de'>Pro 5 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 5 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 5 months </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 5 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MS</CODE>
+    <DESCRIPTION L='de'>Pro 7 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 7 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 7 months</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 7 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MT</CODE>
+    <DESCRIPTION L='de'>Pro 2 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 2 mois</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 2 months</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 2 maanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MV</CODE>
+    <DESCRIPTION L='de'>Pro 4 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 4 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 4 months</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 4 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MX</CODE>
+    <DESCRIPTION L='de'>Pro 10 Monaten </DESCRIPTION>
+    <DESCRIPTION L='fr'>per 10 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 10 months</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 10 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>MZ2</CODE>
+    <DESCRIPTION L='de'>Pro 6 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 6 maanden</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 6 months </DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 6 mois</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>O1</CODE>
+    <DESCRIPTION L='de'>Jeden 2 Tagen</DESCRIPTION>
+    <DESCRIPTION L='fr'>tout les 2 jours</DESCRIPTION>
+    <DESCRIPTION L='en'>Every 2 days </DESCRIPTION>
+    <DESCRIPTION L='nl'>om de dag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>U</CODE>
+    <DESCRIPTION L='de'>Pro Uhr</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par heure</DESCRIPTION>
+    <DESCRIPTION L='en'>Per hour</DESCRIPTION>
+    <DESCRIPTION L='nl'>per uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UA</CODE>
+    <DESCRIPTION L='de'>Pro 8 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 8 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 8 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 8 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UD</CODE>
+    <DESCRIPTION L='de'>Pro 3 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 3 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 3 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 3 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UE</CODE>
+    <DESCRIPTION L='de'>Pro 11 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 11 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per11 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 11 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UH</CODE>
+    <DESCRIPTION L='de'>Pro halbe Stunde</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par demi heure</DESCRIPTION>
+    <DESCRIPTION L='en'>per half hour</DESCRIPTION>
+    <DESCRIPTION L='nl'>per half uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UN</CODE>
+    <DESCRIPTION L='de'>Pro 9 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 9 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 9 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 9 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UQ</CODE>
+    <DESCRIPTION L='de'>Pro 5 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 5 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 5 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 5 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>US</CODE>
+    <DESCRIPTION L='de'>Pro 7 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 7 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 7 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 7 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UT</CODE>
+    <DESCRIPTION L='de'>Pro 2 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 2 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 2 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 2 uur </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UV</CODE>
+    <DESCRIPTION L='de'>Pro 4 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 4 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 4 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 4 uur </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UW</CODE>
+    <DESCRIPTION L='de'>Pro 12 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 12 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 12 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 12 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UX</CODE>
+    <DESCRIPTION L='de'>Pro 10 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 10 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 10 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 10 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>UZ</CODE>
+    <DESCRIPTION L='de'>Pro 6 Uhren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 6 heures</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 6 hours</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 6 uur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>W</CODE>
+    <DESCRIPTION L='de'>Pro Woche</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par semaine </DESCRIPTION>
+    <DESCRIPTION L='en'>Per 7 days</DESCRIPTION>
+    <DESCRIPTION L='nl'>per week</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WA</CODE>
+    <DESCRIPTION L='de'>Pro 8 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 8 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 8 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 8 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WD</CODE>
+    <DESCRIPTION L='de'>Pro 3 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 3 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 3 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 3 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WE</CODE>
+    <DESCRIPTION L='de'>Pro 11 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 11 weken</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 11 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 11 semaines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WN</CODE>
+    <DESCRIPTION L='de'>Pro 9 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 9 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 9 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 9 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WP</CODE>
+    <DESCRIPTION L='de'>Pro 24 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 24 weken</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 24 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 24 semaines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WQ</CODE>
+    <DESCRIPTION L='de'>Pro 5 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 5 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 5 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 5 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WS</CODE>
+    <DESCRIPTION L='de'>Pro 7 Wochen </DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 7 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 7 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 7 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WT</CODE>
+    <DESCRIPTION L='de'>Pro 2 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 2 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 2 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 2 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WV</CODE>
+    <DESCRIPTION L='de'>Pro 4 Wochen </DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 4 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 4 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 4 weken </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WW</CODE>
+    <DESCRIPTION L='de'>Pro 12 Wochen </DESCRIPTION>
+    <DESCRIPTION L='fr'>per 12 weken</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 12 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 12 semaines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WX</CODE>
+    <DESCRIPTION L='de'>Pro 10 Wochen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 10 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 10 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 10 weken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>WZ</CODE>
+    <DESCRIPTION L='de'>Pro 6 Wochen </DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 6 semaines</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 6 weeks</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 6 weken </DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

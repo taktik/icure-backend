@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.VtmIngredient" table="vtm_ingredient" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <many-to-one name="cas" class="org.taktik.icure.be.drugs.civics.Substance">
+            <column name="cas_id" not-null="true" />
+        </many-to-one>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="rank" type="java.lang.Long">
+            <column name="rank" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <many-to-one name="vtm" class="org.taktik.icure.be.drugs.civics.Vtm">
+            <column name="vtm_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>

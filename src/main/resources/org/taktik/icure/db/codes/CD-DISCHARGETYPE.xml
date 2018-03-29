@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Discharge Type</NAME>
+  <VALUE>
+    <CODE>alive</CODE>
+    <DESCRIPTION L='en'>Alive</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dead</CODE>
+    <DESCRIPTION L='en'>Dead</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

@@ -1,0 +1,42 @@
+<!--Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Oracle JAX-WS 2.1.3-07/10/2008 08:41 PM(bt). -->
+<definitions targetNamespace="urn:be:fgov:ehealth:sts:protocol:v1" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:sts="urn:be:fgov:ehealth:sts:protocol:v1" xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wssutil="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+  <documentation>Version 1.1</documentation>
+  <types>
+    <xsd:schema targetNamespace="urn:be:fgov:ehealth:sts:protocol:v1">
+      <xsd:import namespace="urn:oasis:names:tc:SAML:1.0:protocol" schemaLocation="../XSD/external/saml_protocol.xsd" />
+    </xsd:schema>
+  </types>
+  <message name="RequestMessage">
+    <part name="body" element="samlp:Request" />
+  </message>
+  <message name="ResponseMessage">
+    <part name="body" element="samlp:Response" />
+  </message>
+  <portType name="SecureTokenServicePortType">
+    <operation name="RequestSecureToken">
+      <input message="sts:RequestMessage" />
+      <output message="sts:ResponseMessage" />
+    </operation>
+  </portType>
+  <binding name="SecureTokenServiceSoapBinding" type="sts:SecureTokenServicePortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="RequestSecureToken">
+      <soap:operation soapAction="urn:be:fgov:ehealth:sts:protocol:v1:RequestSecureToken" />
+      <input>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#Wssp1.2-2007-Wss1.0-X509-Basic256.xml" />
+        </wsp:Policy>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+  <service name="SecureTokenService">
+    <port name="SecureTokenServicePort" binding="sts:SecureTokenServiceSoapBinding">
+      <soap:address location="https://wwwacc.ehealth.fgov.be:443/sts_1_1/SecureTokenService" />
+    </port>
+  </service>
+</definitions>

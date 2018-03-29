@@ -1,0 +1,115 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-tarification-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createTarification" method="POST" headers="[[headers]]" url="/tarification" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findPaginatedTarifications" method="GET" headers="[[headers]]" url="/tarification" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findPaginatedTarificationsByLabel" method="GET" headers="[[headers]]" url="/tarification/byLabel" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findTarifications" method="GET" headers="[[headers]]" url="/tarification/byRegionTypeTarification" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTarification" method="GET" headers="[[headers]]" url="/tarification/{tarificationId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTarificationWithParts" method="GET" headers="[[headers]]" url="/tarification/{type}/{tarification}/{version}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTarifications" method="POST" headers="[[headers]]" url="/tarification/byIds" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyTarification" method="PUT" headers="[[headers]]" url="/tarification" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-tarification-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createTarification: function (body) {
+					var xhr = this.$.createTarification
+					xhr.body = body
+					xhr.url = this.host+"/tarification" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findPaginatedTarifications: function (region, type, tarification, version, startDocumentId, limit) {
+					var xhr = this.$.findPaginatedTarifications
+
+					xhr.url = this.host+"/tarification" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "") + (tarification ? "&tarification=" + tarification : "") + (version ? "&version=" + version : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findPaginatedTarificationsByLabel: function (region, types, language, label, startDocumentId, limit) {
+					var xhr = this.$.findPaginatedTarificationsByLabel
+
+					xhr.url = this.host+"/tarification/byLabel" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (types ? "&types=" + types : "") + (language ? "&language=" + language : "") + (label ? "&label=" + label : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findTarifications: function (region, type, tarification, version) {
+					var xhr = this.$.findTarifications
+
+					xhr.url = this.host+"/tarification/byRegionTypeTarification" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "") + (tarification ? "&tarification=" + tarification : "") + (version ? "&version=" + version : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTarification: function (tarificationId) {
+					var xhr = this.$.getTarification
+
+					xhr.url = this.host+"/tarification/{tarificationId}".replace("{tarificationId}", tarificationId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTarificationWithParts: function (type, tarification, version) {
+					var xhr = this.$.getTarificationWithParts
+
+					xhr.url = this.host+"/tarification/{type}/{tarification}/{version}".replace("{type}", type).replace("{tarification}", tarification).replace("{version}", version) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTarifications: function (body) {
+					var xhr = this.$.getTarifications
+					xhr.body = body
+					xhr.url = this.host+"/tarification/byIds" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyTarification: function (body) {
+					var xhr = this.$.modifyTarification
+					xhr.body = body
+					xhr.url = this.host+"/tarification" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

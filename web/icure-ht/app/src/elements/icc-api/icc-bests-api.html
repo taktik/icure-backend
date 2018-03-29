@@ -1,0 +1,85 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-bests-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="checkOrObtainToken" method="GET" headers="[[headers]]" url="/be_sts/token/{password}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="checkToken" method="GET" headers="[[headers]]" url="/be_sts/token" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="isSessionAvailable" method="GET" headers="[[headers]]" url="/be_sts/ready" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="revokeToken" method="DELETE" headers="[[headers]]" url="/be_sts/token" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="updateEndPoints" method="PUT" headers="[[headers]]" url="/be_sts/setup" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-bests-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				checkOrObtainToken: function (password, keystore) {
+					var xhr = this.$.checkOrObtainToken
+
+					xhr.url = this.host+"/be_sts/token/{password}".replace("{password}", password) + "?ts=" + (new Date).getTime()  + (keystore ? "&keystore=" + keystore : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				checkToken: function () {
+					var xhr = this.$.checkToken
+
+					xhr.url = this.host+"/be_sts/token" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				isSessionAvailable: function () {
+					var xhr = this.$.isSessionAvailable
+
+					xhr.url = this.host+"/be_sts/ready" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				revokeToken: function () {
+					var xhr = this.$.revokeToken
+
+					xhr.url = this.host+"/be_sts/token" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				updateEndPoints: function (body) {
+					var xhr = this.$.updateEndPoints
+					xhr.body = body
+					xhr.url = this.host+"/be_sts/setup" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

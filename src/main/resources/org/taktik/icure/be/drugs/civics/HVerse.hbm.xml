@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.HVerse" table="hverse" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="agreementRenewalMax" type="java.lang.Long">
+            <column name="agreement_renewal_max" />
+        </property>
+        <property name="agreementTerm" type="java.lang.Long">
+            <column name="agreement_term" />
+        </property>
+        <property name="agreementTermUnit" type="java.lang.String">
+            <column name="agreement_term_unit" length="1" />
+        </property>
+        <property name="agreementYearMax" type="java.lang.Long">
+            <column name="agreement_year_max" />
+        </property>
+        <property name="andClauseNum" type="java.lang.Long">
+            <column name="and_clause_num" />
+        </property>
+        <property name="chapterName" type="java.lang.String">
+            <column name="chapter_name" length="10" not-null="true" />
+        </property>
+        <property name="checkBoxInd" type="java.lang.String">
+            <column name="check_box_ind" length="1" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="legalReference" type="java.lang.String">
+            <column name="legal_reference" length="100" />
+        </property>
+        <property name="maxPackageNumber" type="java.lang.Long">
+            <column name="max_package_number" />
+        </property>
+        <property name="maximumAgeAuthorized" type="java.lang.Double">
+            <column name="maximum_age_authorized" scale="1" />
+        </property>
+        <property name="maximumAgeAuthorizedUnit" type="java.lang.String">
+            <column name="maximum_age_authorized_unit" length="5" />
+        </property>
+        <property name="maximumContentQuantity" type="java.lang.Double">
+            <column name="maximum_content_quantity" scale="3" />
+        </property>
+        <property name="maximumContentUnit" type="java.lang.String">
+            <column name="maximum_content_unit" length="5" />
+        </property>
+        <property name="maximumDurationQuantity" type="java.lang.Double">
+            <column name="maximum_duration_quantity" scale="3" />
+        </property>
+        <property name="maximumDurationUnit" type="java.lang.String">
+            <column name="maximum_duration_unit" length="5" />
+        </property>
+        <property name="maximumStrengthQuantity" type="java.lang.Double">
+            <column name="maximum_strength_quantity" scale="3" />
+        </property>
+        <property name="maximumStrengthUnit" type="java.lang.String">
+            <column name="maximum_strength_unit" length="15" />
+        </property>
+        <property name="minCheckNum" type="java.lang.Long">
+            <column name="min_check_num" />
+        </property>
+        <property name="minimumAgeAuthorized" type="java.lang.Double">
+            <column name="minimum_age_authorized" scale="1" />
+        </property>
+        <property name="minimumAgeAuthorizedUnit" type="java.lang.String">
+            <column name="minimum_age_authorized_unit" length="5" />
+        </property>
+        <property name="modificationDate" type="java.util.Date">
+            <column name="modification_date" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="otherAddedDocumentInd" type="java.lang.String">
+            <column name="other_added_document_ind" length="1" />
+        </property>
+        <property name="paragraphName" type="java.lang.String">
+            <column name="paragraph_name" length="10" not-null="true" />
+        </property>
+        <property name="purchasingAdvisorQualList" type="java.lang.String">
+            <column name="purchasing_advisor_qual_list" length="10" />
+        </property>
+        <property name="requestType" type="java.lang.String">
+            <column name="request_type" length="1" />
+        </property>
+        <property name="sexRestricted" type="java.lang.String">
+            <column name="sex_restricted" length="1" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <property name="textFr" type="java.lang.String">
+            <column name="text_fr" length="4000" not-null="true" />
+        </property>
+        <property name="textNl" type="java.lang.String">
+            <column name="text_nl" length="4000" not-null="true" />
+        </property>
+        <property name="verseLevel" type="java.lang.Long">
+            <column name="verse_level" not-null="true" />
+        </property>
+        <property name="verseNum" type="java.lang.Long">
+            <column name="verse_num" not-null="true" />
+        </property>
+        <property name="verseSeq" type="java.lang.Long">
+            <column name="verse_seq" not-null="true" />
+        </property>
+        <property name="verseSeqParent" type="java.lang.Long">
+            <column name="verse_seq_parent" not-null="true" />
+        </property>
+        <property name="verseType" type="java.lang.String">
+            <column name="verse_type" length="2" />
+        </property>
+    </class>
+</hibernate-mapping>

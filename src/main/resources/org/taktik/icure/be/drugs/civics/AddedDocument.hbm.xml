@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.AddedDocument" table="added_document" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="addressUrl" type="java.lang.String">
+            <column name="address_url" />
+        </property>
+        <many-to-one name="appendixType" class="org.taktik.icure.be.drugs.civics.AppendixType">
+            <column name="appendix_type_id" not-null="true" />
+        </many-to-one>
+        <property name="chapterName" type="java.lang.String">
+            <column name="chapter_name" length="10" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="documentContent" type="byte[]" lazy="true">
+            <column name="document_content" />
+        </property>
+        <property name="documentSeq" type="java.lang.Long">
+            <column name="document_seq" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <many-to-one name="formType" class="org.taktik.icure.be.drugs.civics.FormType">
+            <column name="form_type_id" not-null="true" />
+        </many-to-one>
+        <property name="mimeType" type="java.lang.String">
+            <column name="mime_type" length="10" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="nameId" type="java.lang.Long">
+            <column name="name_id" not-null="true" />
+        </property>
+        <property name="paragraphName" type="java.lang.String">
+            <column name="paragraph_name" length="10" not-null="true" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <property name="verseSeq" type="java.lang.Long">
+            <column name="verse_seq" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

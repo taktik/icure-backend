@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>Swagger UI Login</title>
+	<link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,70" rel="stylesheet" type="text/css"/>
+	<link href="swagger-ui.css" rel="stylesheet" type="text/css"/>
+	<style>
+		body {
+			/*background: url(https://dl.dropboxusercontent.com/u/23299152/Wallpapers/wallpaper-22705.jpg) no-repeat center center fixed;*/
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+			font-family: 'Droid Sans', sans-serif;
+			color: #75a504;
+		}
+
+		.login-card {
+			padding: 40px;
+			width: 274px;
+			background-color: #FaFaFa;
+			margin: 120px auto 10px;
+			border-radius: 2px;
+			box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+			overflow: hidden;
+		}
+
+		.login-card h1 {
+			font-weight: 100;
+			text-align: center;
+			font-size: 2.3em;
+		}
+
+		.login-card input[type=submit] {
+			width: 100%;
+			display: block;
+			margin-bottom: 10px;
+			position: relative;
+		}
+
+		.login-card input[type=text], input[type=password] {
+			height: 44px;
+			font-size: 16px;
+			width: 100%;
+			margin-bottom: 10px;
+			-webkit-appearance: none;
+			background: #fff;
+			border: 1px solid #d9d9d9;
+			border-top: 1px solid #c0c0c0;
+			/* border-radius: 2px; */
+			padding: 0 8px;
+			box-sizing: border-box;
+			-moz-box-sizing: border-box;
+		}
+
+		.login-card input[type=text]:hover, input[type=password]:hover {
+			border: 1px solid #b9b9b9;
+			border-top: 1px solid #a0a0a0;
+			-moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+			-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+			box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+		}
+
+		.login {
+			text-align: center;
+			font-size: 14px;
+			font-family: 'Arial', sans-serif;
+			font-weight: 700;
+			height: 36px;
+			padding: 0 8px;
+			/* border-radius: 3px; */
+			/* -webkit-user-select: none;
+              user-select: none; */
+		}
+
+		.login-submit {
+			/* border: 1px solid #3079ed; */
+			border: 0px;
+			color: #fff;
+			text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+			background-color: #89bf04;
+			/* background-image: -webkit-gradient(linear, 0 0, 0 100%,   from(#4d90fe), to(#4787ed)); */
+		}
+
+		.login-submit:hover {
+			/* border: 1px solid #2f5bb7; */
+			border: 0px;
+			text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+			background-color: #496c04;
+			/* background-image: -webkit-gradient(linear, 0 0, 0 100%,   from(#4d90fe), to(#357ae8)); */
+		}
+
+		.login-card a {
+			text-decoration: none;
+			color: #666;
+			font-weight: 400;
+			text-align: center;
+			display: inline-block;
+			opacity: 0.6;
+			transition: opacity ease 0.5s;
+		}
+
+		.login-card a:hover {
+			opacity: 1;
+		}
+
+		.login-help {
+			width: 100%;
+			text-align: center;
+			font-size: 12px;
+		}
+	</style>
+</head>
+<body class="swagger-ui swagger-container">
+<div class="topbar">
+	<div class="wrapper"><div class="topbar-wrapper">
+		<a href="#" title="Swagger UX" class="link" style="">
+			<img height="30" width="30" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=" alt="Swagger UX">
+			<span>swagger</span>
+		</a>
+		</div>
+	</div>
+</div>
+
+<div class="login-card">
+	<h1>Log-in</h1><br>
+	<form id="loginForm" action="/login" method="post" accept-charset="UTF-8">
+		<input type="hidden" id="destination" name="destination" value="/api/index.html"/>
+		<input type="text" id="username" name="username" placeholder="Username">
+		<input type="password" id="password" name="password" placeholder="Password">
+		<input type="submit" name="login" class="login login-submit" value="Login">
+	</form>
+</div>
+</body>
+</html>

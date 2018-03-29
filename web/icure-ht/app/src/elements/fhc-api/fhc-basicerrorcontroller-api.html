@@ -1,0 +1,112 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="fhc-basicerrorcontroller-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="errorHtmlUsingDELETE" method="DELETE"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="errorHtmlUsingGET" method="GET"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="errorHtmlUsingHEAD" method="HEAD"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="errorHtmlUsingOPTIONS" method="OPTIONS"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="errorHtmlUsingPATCH" method="PATCH"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="errorHtmlUsingPOST" method="POST"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="errorHtmlUsingPUT" method="PUT"  headers="[[headers]]" url="/error" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'fhc-basicerrorcontroller-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				errorHtmlUsingDELETE: function () {
+					var xhr = this.$.errorHtmlUsingDELETE
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				errorHtmlUsingGET: function () {
+					var xhr = this.$.errorHtmlUsingGET
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				errorHtmlUsingHEAD: function () {
+					var xhr = this.$.errorHtmlUsingHEAD
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				errorHtmlUsingOPTIONS: function () {
+					var xhr = this.$.errorHtmlUsingOPTIONS
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				errorHtmlUsingPATCH: function () {
+					var xhr = this.$.errorHtmlUsingPATCH
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				errorHtmlUsingPOST: function () {
+					var xhr = this.$.errorHtmlUsingPOST
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				errorHtmlUsingPUT: function () {
+					var xhr = this.$.errorHtmlUsingPUT
+
+
+					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

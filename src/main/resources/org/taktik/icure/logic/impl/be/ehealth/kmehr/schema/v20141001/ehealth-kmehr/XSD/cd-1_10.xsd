@@ -1,0 +1,4556 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+  <!-- 
+  Kmehr-Bis
+  
+  Reference tables
+ -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.ehealth.fgov.be/standards/kmehr/cd/v1" xmlns:DT="http://www.ehealth.fgov.be/standards/kmehr/dt/v1" targetNamespace="http://www.ehealth.fgov.be/standards/kmehr/cd/v1"
+  elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.10">
+  <xsd:import namespace="http://www.ehealth.fgov.be/standards/kmehr/dt/v1" schemaLocation="dt-1_10.xsd" />
+	<!-- Common Transactions, headings, items  -->
+	<xsd:simpleType name="CD-TRANSACTIONschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-TRANSACTION"/>
+			<xsd:enumeration value="CD-TRANSACTION-CARENET"/>
+			<xsd:enumeration value="CD-TRANSACTION-MAA"/>
+			<xsd:enumeration value="CD-CHAPTER4APPENDIX"/>
+            <xsd:enumeration value="CD-TRANSACTION-REG"/>
+            <xsd:enumeration value="CD-TRANSACTION-MYCARENET"/>
+            <xsd:enumeration value="CD-TRANSACTION-TYPE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-TRANSACTIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="admission"/>
+			<xsd:enumeration value="alert"/>
+			<xsd:enumeration value="contactreport"/>
+			<xsd:enumeration value="death"/>
+			<xsd:enumeration value="discharge"/>
+			<xsd:enumeration value="dischargereport"/>
+			<xsd:enumeration value="epidemiology"/>
+			<xsd:enumeration value="labrequest"/>
+			<xsd:enumeration value="labresult"/>
+			<xsd:enumeration value="note"/>
+			<xsd:enumeration value="hospitalpharmaceuticalprescription"/>
+			<xsd:enumeration value="pharmaceuticalprescription"/>
+			<xsd:enumeration value="productdelivery"/>
+			<xsd:enumeration value="quickdischargereport"/>
+			<xsd:enumeration value="referral"/>
+			<xsd:enumeration value="request"/>
+			<xsd:enumeration value="result"/>
+			<xsd:enumeration value="vaccination"/>
+			<xsd:enumeration value="sumehr"/>
+			<xsd:enumeration value="ecare-safe-consultation"/>
+			<xsd:enumeration value="ebirth-mother-notification"/>
+			<xsd:enumeration value="ebirth-baby-notification"/>
+			<xsd:enumeration value="ebirth-baby-medicalform"/>
+			<xsd:enumeration value="ebirth-mother-medicalform"/>
+			<!-- For GPSMF -->
+			<xsd:enumeration value="clinicalsummary"/>
+			<!-- End GPSMF -->
+			<!-- For ChapterIV-->
+			<xsd:enumeration value="medicaladvisoragreement"/>
+			<!-- End ChapterIV-->
+			<!-- For Biobank -->
+			<xsd:enumeration value="bvt-sample"/>			
+			<!-- End Biobank -->
+            <!-- For Hubs -->
+            <xsd:enumeration value="clinicalpath"/>     
+            <xsd:enumeration value="telemonitoring"/> 
+            <xsd:enumeration value="radiationexposuremonitoring"/>
+            <!-- End Hubs -->
+            <!-- For Tuco -->
+			<xsd:enumeration value="intervention"/>
+			<!-- End Tuco -->
+            <!-- For Vitalnk -->
+            <xsd:enumeration value="medicationschemeelement"/>
+            <xsd:enumeration value="treatmentsuspension"/>
+            <!-- End Vitalink -->
+            <xsd:enumeration value="prescription"/>
+            <xsd:enumeration value="notification"/>
+            <xsd:enumeration value="report"/>
+            <xsd:enumeration value="medicationscheme"/>
+            <xsd:enumeration value="vaccinationscheme"/>
+            <xsd:enumeration value="vaccinationschemeelement"/> 
+            <xsd:enumeration value="ecare-tardis-consultation"/> 
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TRANSACTION">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-TRANSACTIONschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-HEADINGschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-HEADING"/>
+			<xsd:enumeration value="CD-HEADING-LAB"/>
+			<xsd:enumeration value="CD-SITE"/>
+			<xsd:enumeration value="LOCAL"/>
+            <!-- Tuco --> 
+            <xsd:enumeration value="CD-HEADING-REG"/>
+            <!-- Tuco End -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-HEADINGvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="assessment"/>
+			<xsd:enumeration value="clinical"/>
+			<xsd:enumeration value="clinicalplan"/>
+			<xsd:enumeration value="subjective"/>
+			<xsd:enumeration value="technical"/>
+			<xsd:enumeration value="technicalplan"/>
+			<xsd:enumeration value="treatment"/>
+			<xsd:enumeration value="userdefined"/>
+			<xsd:enumeration value="history"/>
+			<xsd:enumeration value="familyhistory"/>
+			<xsd:enumeration value="prescription"/>
+			<xsd:enumeration value="medication"/>
+            <xsd:enumeration value="anamnesis"/>
+            <xsd:enumeration value="examination"/>
+            <xsd:enumeration value="plan"/>
+            <xsd:enumeration value="outcomeevaluation"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-HEADING">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-HEADINGschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ITEMschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-ITEM"/>
+			<xsd:enumeration value="CD-ITEM-MAA"/>
+			<xsd:enumeration value="CD-ITEM-CARENET"/>
+			<xsd:enumeration value="CD-LAB"/>
+			<xsd:enumeration value="CD-TECHNICAL"/>
+			<xsd:enumeration value="CD-CONTACT-PERSON"/>
+			<xsd:enumeration value="ICD"/>
+			<xsd:enumeration value="ICPC"/>
+			<xsd:enumeration value="LOCAL"/>
+			<xsd:enumeration value="CD-VACCINE"/>
+			<xsd:enumeration value="CD-ECG"/>
+			<xsd:enumeration value="CD-ECARE-CLINICAL"/>
+			<xsd:enumeration value="CD-ECARE-LAB"/>
+			<xsd:enumeration value="CD-ECARE-HAQ"/>
+			<xsd:enumeration value="CD-ITEM-EBIRTH"/>
+			<xsd:enumeration value="CD-PARAMETER"/>		
+			<!-- For Chapter IV -->
+			<!-- End Chapter IV -->
+			<!-- For Biobank -->
+            <xsd:enumeration value="CD-ITEM-BVT"/>
+            <xsd:enumeration value="CD-BVT-AVAILABLEMATERIALS"/>
+            <xsd:enumeration value="CD-BVT-CONSERVATIONDELAY"/>
+            <xsd:enumeration value="CD-BVT-CONSERVATIONMODE"/>
+            <xsd:enumeration value="CD-BVT-SAMPLETYPE"/>
+            <xsd:enumeration value="CD-BCR-DIFFERENTATIONDEGREE"/>
+            <xsd:enumeration value="CD-BVT-LATERALITY"/>
+            <xsd:enumeration value="CD-BVT-PATIENTOPPOSITION"/>
+            <xsd:enumeration value="CD-BVT-STATUS"/>
+			<!-- End Biobank -->
+            <!-- For Tuco -->
+            <xsd:enumeration value="CD-ITEM-REG"/>
+            <!-- End Tuco -->
+            <xsd:enumeration value="CD-ITEM-MYCARENET"/>
+            <xsd:enumeration value="CD-DEFIB-DIAGNOSIS"/>
+            <xsd:enumeration value="CD-MYCARENET-JUSTIFICATION"/>
+            <xsd:enumeration value="CD-ACTS-NURSING"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ITEM">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-ITEMschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ITEMvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="admissiontype"/>
+			<xsd:enumeration value="adr"/>
+			<xsd:enumeration value="allergy"/>
+			<xsd:enumeration value="autonomy"/>
+			<xsd:enumeration value="bloodtransfusionrefusal"/>
+			<xsd:enumeration value="clinical"/>
+			<xsd:enumeration value="complaint"/>
+            <xsd:enumeration value="complementaryproduct"/>
+			<xsd:enumeration value="conclusion"/>
+			<xsd:enumeration value="contactperson"/>
+			<xsd:enumeration value="dischargedatetime"/>
+			<xsd:enumeration value="dischargedestination"/>
+			<xsd:enumeration value="dischargetype"/>
+            <xsd:enumeration value="emergencyevaluation"/>
+			<xsd:enumeration value="encounterdatetime"/>
+			<xsd:enumeration value="encounterlegalservice"/>
+            <xsd:enumeration value="encounterlocation"/>
+			<xsd:enumeration value="encounterresponsible"/>
+            <xsd:enumeration value="encountersafetyissue"/>
+			<xsd:enumeration value="encountertype"/>
+			<xsd:enumeration value="evolution"/>
+			<xsd:enumeration value="expirationdatetime"/>
+			<xsd:enumeration value="gmdmanager"/>
+			<xsd:enumeration value="habit"/>
+			<xsd:enumeration value="hcpartyavailability"/>
+			<xsd:enumeration value="healthcareelement"/>
+            <xsd:enumeration value="healthissue"/>
+			<xsd:enumeration value="incapacity"/>
+            <xsd:enumeration value="lab"/>
+            <xsd:enumeration value="medication"/>
+			<xsd:enumeration value="ntbr"/>
+            <xsd:enumeration value="referrer"/>
+            <xsd:enumeration value="referringtype"/>
+            <xsd:enumeration value="reimbursementcertificate"/>
+			<xsd:enumeration value="requestdatetime"/>
+			<xsd:enumeration value="requesteddecisionsharing"/>
+			<xsd:enumeration value="requesteddischargedestination"/>
+            <xsd:enumeration value="requestedencountertype"/>
+            <xsd:enumeration value="requestedrecipient"/>
+            <xsd:enumeration value="requestnumber"/>
+            <xsd:enumeration value="requestor"/>
+			<xsd:enumeration value="risk"/>
+			<xsd:enumeration value="socialrisk"/>
+			<xsd:enumeration value="specimendatetime"/>
+			<xsd:enumeration value="technical"/>
+			<xsd:enumeration value="transactionreason"/>
+			<xsd:enumeration value="transcriptionist"/>
+            <xsd:enumeration value="transferdatetime"/>
+			<xsd:enumeration value="treatment"/>
+			<xsd:enumeration value="vaccine"/>
+            <!-- For GPSMF 1.1-->
+            <xsd:enumeration value="actionplan"/>
+            <xsd:enumeration value="acts"/>
+            <xsd:enumeration value="careplansubscription"/>
+            <xsd:enumeration value="contacthcparty"/>
+            <xsd:enumeration value="diagnosis"/>
+            <xsd:enumeration value="familyrisk"/>
+            <xsd:enumeration value="healthcareapproach"/>  
+			<xsd:enumeration value="insurancystatus"/>
+			<xsd:enumeration value="memberinsurancystatus"/>
+            <xsd:enumeration value="parameter"/>
+			<xsd:enumeration value="patientwill"/>
+			<xsd:enumeration value="professionalrisk"/>		    
+			<!-- End GPSMF 1.1 -->
+            <xsd:enumeration value="encounternumber"/>   
+            <xsd:enumeration value="claim"/>
+            <xsd:enumeration value="outcome"/>
+            <xsd:enumeration value="agreementwithpatient"/>
+            <xsd:enumeration value="patientcooperation"/>
+            <xsd:enumeration value="reimbursementclass"/>  
+            <xsd:enumeration value="financialcontract"/>
+            <xsd:enumeration value="justification"/>  
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- Hcparty -->
+	<xsd:simpleType name="CD-HCPARTYschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-HCPARTY"/>
+			<xsd:enumeration value="CD-APPLICATION"/>
+			<xsd:enumeration value="CD-ENCRYPTION-ACTOR"/>
+            <xsd:enumeration value="CD-ROLE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-HCPARTYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="deptanatomopathology"/>
+			<xsd:enumeration value="deptanesthesiology"/>
+			<xsd:enumeration value="deptbacteriology"/>
+			<xsd:enumeration value="deptcardiology"/>
+			<xsd:enumeration value="deptdermatology"/>
+			<xsd:enumeration value="deptdietetics"/>
+			<xsd:enumeration value="deptemergency"/>
+			<xsd:enumeration value="deptgastroenterology"/>
+			<xsd:enumeration value="deptgeneralpractice"/>
+			<xsd:enumeration value="deptgenetics"/>
+			<xsd:enumeration value="deptgeriatry"/>
+			<xsd:enumeration value="deptgynecology"/>
+			<xsd:enumeration value="depthematology"/>
+			<xsd:enumeration value="deptintensivecare"/>
+			<xsd:enumeration value="deptkinesitherapy"/>
+			<xsd:enumeration value="deptlaboratory"/>
+			<xsd:enumeration value="deptmedicine"/>
+			<xsd:enumeration value="deptmolecularbiology"/>
+			<xsd:enumeration value="deptneonatalogy"/>
+			<xsd:enumeration value="deptnephrology"/>
+			<xsd:enumeration value="deptneurology"/>
+			<xsd:enumeration value="deptnte"/>
+			<xsd:enumeration value="deptnuclear"/>
+			<xsd:enumeration value="deptoncology"/>
+			<xsd:enumeration value="deptophtalmology"/>
+			<xsd:enumeration value="deptpediatry"/>
+			<xsd:enumeration value="deptpharmacy"/>
+			<xsd:enumeration value="deptphysiotherapy"/>
+			<xsd:enumeration value="deptpneumology"/>
+			<xsd:enumeration value="deptpsychiatry"/>
+			<xsd:enumeration value="deptradiology"/>
+			<xsd:enumeration value="deptradiotherapy"/>
+			<xsd:enumeration value="deptrhumatology"/>
+            <xsd:enumeration value="deptrheumatology"/>
+			<xsd:enumeration value="deptstomatology"/>
+			<xsd:enumeration value="deptsurgery"/>
+			<xsd:enumeration value="depturology"/>
+			<xsd:enumeration value="orghospital"/>
+			<xsd:enumeration value="orginsurance"/>
+			<xsd:enumeration value="orglaboratory"/>
+            <xsd:enumeration value="orgpractice"/>
+			<xsd:enumeration value="orgpublichealth"/>
+            <xsd:enumeration value="orgpharmacy"/>
+			<xsd:enumeration value="persbiologist"/>
+			<xsd:enumeration value="persdentist"/>
+			<xsd:enumeration value="persnurse"/>
+			<xsd:enumeration value="persparamedical"/>
+			<xsd:enumeration value="perspharmacist"/>
+			<xsd:enumeration value="persphysician"/>
+			<xsd:enumeration value="perssocialworker"/>
+			<xsd:enumeration value="perstechnician"/>
+			<xsd:enumeration value="persadministrative"/>
+			<xsd:enumeration value="persmidwife"/>
+			<xsd:enumeration value="ecaresafe"/>
+			<xsd:enumeration value="application"/>
+			<xsd:enumeration value="hub"/>
+            <!-- Ortho -->
+            <xsd:enumeration value="deptorthopedy"/>
+            <!-- Ortho End -->
+            <xsd:enumeration value="deptalgology"/>
+			<xsd:enumeration value="deptcardiacsurgery"/>
+			<xsd:enumeration value="depthandsurgery"/>
+			<xsd:enumeration value="deptmaxillofacialsurgery"/>
+			<xsd:enumeration value="deptpediatricsurgery"/>
+			<xsd:enumeration value="deptplasticandreparatorysurgery"/>
+			<xsd:enumeration value="deptthoracicsurgery"/>
+			<xsd:enumeration value="deptvascularsurgery"/>
+			<xsd:enumeration value="deptvisceraldigestiveabdominalsurgery"/>
+			<xsd:enumeration value="deptdentistry"/>
+			<xsd:enumeration value="deptdiabetology"/>
+			<xsd:enumeration value="deptendocrinology"/>
+			<xsd:enumeration value="deptoccupationaltherapy"/>
+			<xsd:enumeration value="deptmajorburns"/>
+			<xsd:enumeration value="deptinfectiousdisease"/>
+			<xsd:enumeration value="deptspeechtherapy"/>
+			<xsd:enumeration value="deptsportsmedecine"/>
+			<xsd:enumeration value="deptphysicalmedecine"/>
+			<xsd:enumeration value="depttropicalmedecine"/>
+			<xsd:enumeration value="deptneurosurgery"/>
+			<xsd:enumeration value="deptnutritiondietetics"/>
+			<xsd:enumeration value="deptobstetrics"/>
+			<xsd:enumeration value="deptchildandadolescentpsychiatry"/>
+			<xsd:enumeration value="deptpodiatry"/>
+			<xsd:enumeration value="deptpsychology"/>
+			<xsd:enumeration value="deptrevalidation"/>
+			<xsd:enumeration value="deptsenology"/>
+			<xsd:enumeration value="deptsocialservice"/>
+			<xsd:enumeration value="deptpediatricintensivecare"/>
+			<xsd:enumeration value="deptpalliativecare"/>
+			<xsd:enumeration value="depttoxicology"/>
+            <xsd:enumeration value="persambulancefirstaid"/>
+            <xsd:enumeration value="persaudician"/>
+            <xsd:enumeration value="persaudiologist"/>
+            <xsd:enumeration value="perscaregiver"/>
+            <xsd:enumeration value="persdietician"/>
+            <xsd:enumeration value="perseducator"/>
+            <xsd:enumeration value="perslogopedist"/>
+            <xsd:enumeration value="persoccupationaltherapist"/>
+            <xsd:enumeration value="persorthopedist"/>
+            <xsd:enumeration value="persorthoptist"/>
+            <xsd:enumeration value="persoptician"/>
+            <xsd:enumeration value="perspharmacyassistant"/>
+            <xsd:enumeration value="persphysiotherapist"/>
+            <xsd:enumeration value="perspodologist"/>
+            <xsd:enumeration value="perspracticalnurse"/>
+            <xsd:enumeration value="perspsychologist"/>
+            <xsd:enumeration value="orgprimaryhealthcarecenter"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-HCPARTY">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-HCPARTYschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+                <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ENCRYPTION-ACTORvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="NIHII"/>
+			<xsd:enumeration value="NIHII-HOSPITAL"/>
+			<xsd:enumeration value="NIHII-PHARMACY"/>
+			<xsd:enumeration value="CBE"/>
+			<xsd:enumeration value="INSS"/>
+			<!-- For hubs- metahub -->
+            <xsd:enumeration value="EHP"/>      
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ENCRYPTION-ACTOR">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ENCRYPTION-ACTORvalues">
+				<xsd:attribute name="S" type="CD-HCPARTYschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ENCRYPTION-METHODschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-ENCRYPTION-METHOD"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-ENCRYPTION-METHODvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CMS"/>
+			<!-- For hubs- metahub -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ENCRYPTION-METHOD">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ENCRYPTION-METHODvalues">
+				<xsd:attribute name="S" type="CD-ENCRYPTION-METHODschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+  	<!-- Content schemes -->
+	<xsd:simpleType name="CD-CONTENTschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-LAB"/>
+			<xsd:enumeration value="CD-TECHNICAL"/>
+			<xsd:enumeration value="CD-HCPARTY"/>
+			<xsd:enumeration value="CD-DRUG-CNK"/>
+			<xsd:enumeration value="CD-ENCOUNTER"/>
+			<xsd:enumeration value="CD-MKG-ADMISSION"/>
+			<xsd:enumeration value="CD-MKG-DISCHARGE"/>
+			<xsd:enumeration value="CD-MKG-ORIGIN"/>
+			<xsd:enumeration value="CD-MKG-REFERRER"/>
+			<xsd:enumeration value="CD-MKG-DESTINATION"/>
+			<xsd:enumeration value="CD-LEGAL-SERVICE"/>
+			<xsd:enumeration value="CD-CONTACT-PERSON"/>
+			<xsd:enumeration value="CD-ENCOUNTER-TYPE"/>
+			<xsd:enumeration value="CD-CARENET-ACCIDENT-TYPE"/>
+			<xsd:enumeration value="CD-CARENET-AGREEMENT-TYPE"/>
+			<xsd:enumeration value="CD-CARENET-SISCARD-ERROR"/>
+			<xsd:enumeration value="CD-CARENET-SOCIAL-CODE"/>
+			<xsd:enumeration value="CD-CARENET-REFUSAL-REASON"/>
+			<xsd:enumeration value="CD-CARENET-NATIONAL-INSURANCE"/>
+			<xsd:enumeration value="CD-CARENET-MESSAGE"/>
+			<xsd:enumeration value="CD-CARENET-MUTATION-INDICATOR"/>
+			<xsd:enumeration value="CD-CARENET-DOCUMENT"/>
+			<xsd:enumeration value="CD-CARENET-INSURANCY-STATUS"/>
+			<xsd:enumeration value="CD-CARENET-TYPE"/>
+			<xsd:enumeration value="CD-MAA-TYPE"/>
+			<xsd:enumeration value="CD-MAA-REQUESTTYPE"/>
+			<xsd:enumeration value="CD-MAA-RESPONSETYPE"/>
+			<xsd:enumeration value="CD-MAA-REFUSALJUSTIFICATION"/>
+			<xsd:enumeration value="CD-MAA-COVERAGE-TYPE"/>
+			<xsd:enumeration value="CD-SITE"/>
+			<xsd:enumeration value="CD-INCAPACITY"/>
+			<xsd:enumeration value="CD-ENCOUNTERSAFETYISSUE"/>
+			<xsd:enumeration value="CD-EMERGENCYEVALUATION"/>
+			<xsd:enumeration value="ICD"/>
+			<xsd:enumeration value="ICPC"/>
+			<xsd:enumeration value="CD-CLINICAL"/>
+			<xsd:enumeration value="LOCAL"/>
+			<xsd:enumeration value="CD-ECARE-HAQVALUE"/>
+			<xsd:enumeration value="CD-EBIRTH-PREGNANCYORIGIN"/>
+			<xsd:enumeration value="CD-EBIRTH-SPECIALVALUES"/>
+			<xsd:enumeration value="CD-EBIRTH-CHILDPOSITION"/>
+			<xsd:enumeration value="CD-EBIRTH-FOETALMONITORING"/>
+			<xsd:enumeration value="CD-EBIRTH-DELIVERYWAY"/>
+			<xsd:enumeration value="CD-EBIRTH-CAESEREANINDICATION"/>
+			<xsd:enumeration value="CD-EBIRTH-ARTIFICIALRESPIRATIONTYPE"/>
+			<xsd:enumeration value="CD-EBIRTH-NEONATALDEPTTYPE"/>
+			<xsd:enumeration value="CD-EBIRTH-CONGENITALMALFORMATION"/>
+			<xsd:enumeration value="CD-VACCINEINDICATION"/>
+			<xsd:enumeration value="CD-ATC"/>
+			<xsd:enumeration value="CD-CAREPATH"/>
+			<xsd:enumeration value="CD-CLINICALPLAN"/>
+			<xsd:enumeration value="CD-PATIENTWILL"/>
+			<xsd:enumeration value="CD-CONSENT"/>
+			<!-- For hubs-metahub -->
+			<!-- For hubs-metahub -->
+			<!-- For Chapter IV -->
+            <xsd:enumeration value="CD-CHAPTER4PARAGRAPH"/>
+            <xsd:enumeration value="CD-CHAPTER4CATEGORY"/>
+            <xsd:enumeration value="CD-CHAPTER4CRITERIA"/>
+            <xsd:enumeration value="CD-CHAPTER4VERSESEQAPPENDIX"/>
+            <xsd:enumeration value="CD-CHAPTER4DOCUMENTSEQAPPENDIX"/>
+            <xsd:enumeration value="CD-CHAPTER4VERSE"/>
+			<!-- End Chapter IV -->
+			<!-- For Biobank -->
+            <xsd:enumeration value="CD-BVT-CONSERVATIONMODE"/>
+            <xsd:enumeration value="CD-BVT-CONSERVATIONDELAY"/>
+            <xsd:enumeration value="CD-BVT-AVAILABLEMATERIALS"/>
+            <xsd:enumeration value="CD-BCR-DIFFERENTATIONDEGREE"/>
+            <xsd:enumeration value="CD-BVT-SAMPLETYPE"/>
+            <xsd:enumeration value="CD-BVT-LATERALITY"/>
+            <xsd:enumeration value="CD-BVT-PATIENTOPPOSITION"/>
+            <xsd:enumeration value="CD-BVT-STATUS"/>
+			<!-- End Biobank -->
+            <!-- For Tuco -->
+            <xsd:enumeration value="CD-ITEM-REG"/>
+            <xsd:enumeration value="CD-STENT-DOMINANCE"/>
+            <xsd:enumeration value="CD-STENT-BRIDGETYPE"/>
+            <xsd:enumeration value="CD-STENT-LESIONTYPE"/>
+            <xsd:enumeration value="CD-STENT-SEGMENT"/>
+            <xsd:enumeration value="CD-STENT-DEVICE"/>
+            <xsd:enumeration value="CD-TUCO-PATHOLOGYTYPE"/>
+            <xsd:enumeration value="CD-TUCO-STEMITYPE"/>
+            <xsd:enumeration value="CD-BALLON-DEVICE"/>
+            <xsd:enumeration value="CD-DISCHARGETYPE"/>
+            <xsd:enumeration value="CD-REIMBURSEMENT-NOMENCLATURE"/>
+            <xsd:enumeration value="ID-STENT-DEVICE"/>
+            <!-- End Tuco -->
+            <!-- For Ortho -->
+            <xsd:enumeration value="CD-ORTHO-TYPE"/>
+            <xsd:enumeration value="CD-ORTHO-DIAGNOSIS"/>
+            <xsd:enumeration value="CD-ORTHO-APPROACH"/>
+            <xsd:enumeration value="CD-ORTHO-NAVCOM"/>
+            <xsd:enumeration value="CD-IMPLANTATION-DEVICE"/>
+            <xsd:enumeration value="CD-BEARING-SURFACE"/>
+            <xsd:enumeration value="CD-ORTHO-GRAFT"/>
+            <xsd:enumeration value="CD-ORTHO-INTERFACE"/>
+            <xsd:enumeration value="CD-ORTHO-TECHREVISION"/>
+            <xsd:enumeration value="CD-IMPLANTATION-TYPE"/>
+            <xsd:enumeration value="CD-ORTHO-KNEE-INSERT"/>
+            <xsd:enumeration value="CD-REV-COMPONENT"/>
+            <!-- End Ortho -->  
+            <!-- For Vitalink -->
+            <xsd:enumeration value="CD-ITEM-MS"/>
+            <xsd:enumeration value="CD-EAN"/>
+            <xsd:enumeration value="CD-MS-ORIGIN"/>
+            <xsd:enumeration value="CD-MS-ADAPTATION"/>
+            <xsd:enumeration value="CD-MS-MEDICATIONTYPE"/>
+            <!-- End Vitalink -->
+            <xsd:enumeration value="CD-NIHDI"/>
+            <xsd:enumeration value="CD-SNOMED"/>
+            <!-- For Defib -->
+            <xsd:enumeration value="CD-DEFIB-TYPE"/>
+            <xsd:enumeration value="CD-DEFIB-ARRHYTHMIA"/>
+            <xsd:enumeration value="CD-DEFIB-SYMPTOM"/>
+            <xsd:enumeration value="CD-DEFIB-AETIOLOGY"/>
+            <xsd:enumeration value="CD-DEFIB-ANTECEDENT"/>
+            <xsd:enumeration value="CD-DEFIB-PARAM"/>
+            <xsd:enumeration value="CD-DEFIB-MEDICALCARE"/>
+            <xsd:enumeration value="CD-DEFIB-AFFECTIONTYPE"/>
+            <xsd:enumeration value="CD-DEFIB-RISK"/>
+            <xsd:enumeration value="CD-DEFIB-INFARCTMOMENT"/>
+            <xsd:enumeration value="CD-DEFIB-REVASCULARISATION"/>
+            <xsd:enumeration value="CD-DEFIB-DRUGCARE"/>
+            <xsd:enumeration value="CD-DEFIB-SYNCOPE"/>
+            <xsd:enumeration value="CD-DEFIB-COMPLICATION"/>
+            <xsd:enumeration value="CD-DEFIB-DIAGNOSIS"/>
+            <xsd:enumeration value="CD-DEFIB-CONFIG"/>
+            <xsd:enumeration value="CD-DEFIB-INDICATION"/>
+            <xsd:enumeration value="CD-DEFIB-SURGERY"/>
+            <xsd:enumeration value="CD-DEFIB-REASON"/>
+            <xsd:enumeration value="CD-DEFIB-FIRM"/>
+            <xsd:enumeration value="CD-DEFIB-ELEC-REASON"/>
+            <xsd:enumeration value="CD-DEFIB-MODEL"/>
+            <xsd:enumeration value="CD-DEFIB-ELEC-TYPE"/>
+            <xsd:enumeration value="CD-DEFIB-RESULT"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CONTENT">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-CONTENTschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Common  tables -->
+	<xsd:complexType name="LOCAL">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="LOCAL"/>
+				<xsd:attribute name="SL" type="xsd:string" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="required"/>
+				<xsd:attribute name="L" type="xsd:language" use="required"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="EMPTY" abstract="true">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="xsd:string"/>
+				<xsd:attribute name="SL" type="xsd:string"/>
+				<xsd:attribute name="SV" type="xsd:string"/>
+				<xsd:attribute name="DN" type="xsd:string"/>
+				<xsd:attribute name="L" type="xsd:language"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CONTACT-PERSONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="mother"/>
+			<xsd:enumeration value="father"/>
+			<xsd:enumeration value="child"/>
+			<xsd:enumeration value="familymember"/>
+			<xsd:enumeration value="spouse"/>
+			<xsd:enumeration value="husband"/>
+			<xsd:enumeration value="partner"/>
+			<xsd:enumeration value="other"/>
+			<xsd:enumeration value="brother"/>
+			<xsd:enumeration value="sister"/>
+			<xsd:enumeration value="brotherinlaw"/>
+			<xsd:enumeration value="tutor"/>
+			<xsd:enumeration value="notary"/>
+			<xsd:enumeration value="lawyer"/>
+			<xsd:enumeration value="employer"/>
+			<xsd:enumeration value="grandparent"/>
+            <xsd:enumeration value="son"/>
+            <xsd:enumeration value="daughter"/>
+            <xsd:enumeration value="grandchild"/>
+            <xsd:enumeration value="neighbour"/>
+            <xsd:enumeration value="stepson"/>
+            <xsd:enumeration value="stepdaughter"/>
+            <xsd:enumeration value="stepfather"/>
+            <xsd:enumeration value="stepmother"/>
+            <xsd:enumeration value="sisterinlaw"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CONTACT-PERSON">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CONTACT-PERSONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CONTACT-PERSON"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MEDIATYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="application/msword"/>
+			<xsd:enumeration value="application/pdf"/>
+			<xsd:enumeration value="audio/basic"/>
+			<xsd:enumeration value="audio/k32adpcm"/>
+			<xsd:enumeration value="audio/mp3"/>
+			<xsd:enumeration value="image/g3fax"/>
+			<xsd:enumeration value="image/gif"/>
+			<xsd:enumeration value="image/jpeg"/>
+			<xsd:enumeration value="image/png"/>
+			<xsd:enumeration value="image/tiff"/>
+			<xsd:enumeration value="model/vrml"/>
+			<xsd:enumeration value="multipart/x-hl7-cda-level1"/>
+			<xsd:enumeration value="text/html"/>
+			<xsd:enumeration value="text/plain"/>
+			<xsd:enumeration value="text/rtf"/>
+			<xsd:enumeration value="text/sgml"/>
+			<xsd:enumeration value="text/x-hl7-ft"/>
+			<xsd:enumeration value="text/xml"/>
+			<xsd:enumeration value="video/mpeg"/>
+			<xsd:enumeration value="video/x-avi"/>
+			<xsd:enumeration value="kmb/transaction"/>
+            <xsd:enumeration value="image/dicom"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-ACKNOWLEDGMENTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="always"/>
+			<xsd:enumeration value="never"/>
+			<xsd:enumeration value="onerror"/>
+			<xsd:enumeration value="onsuccess"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ACKNOWLEDGMENT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ACKNOWLEDGMENTvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ACKNOWLEDGMENT"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ADDRESSvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="home"/>
+			<xsd:enumeration value="other"/>
+			<xsd:enumeration value="vacation"/>
+			<xsd:enumeration value="work"/>
+            <xsd:enumeration value="careaddress"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-ADDRESSschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-ADDRESS"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ADDRESS">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-ADDRESSschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CERTAINTYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="excluded"/>
+			<xsd:enumeration value="probable"/>
+			<xsd:enumeration value="proven"/>
+			<xsd:enumeration value="unprobable"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CERTAINTY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CERTAINTYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CERTAINTY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-COUNTRYschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-COUNTRY"/>
+			<xsd:enumeration value="CD-FED-COUNTRY"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-COUNTRY">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-COUNTRYschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-COUNTRYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ad"/>
+			<xsd:enumeration value="ae"/>
+			<xsd:enumeration value="af"/>
+			<xsd:enumeration value="ag"/>
+			<xsd:enumeration value="ai"/>
+			<xsd:enumeration value="al"/>
+			<xsd:enumeration value="am"/>
+			<xsd:enumeration value="an"/>
+			<xsd:enumeration value="ao"/>
+			<xsd:enumeration value="aq"/>
+			<xsd:enumeration value="ar"/>
+			<xsd:enumeration value="arpa"/>
+			<xsd:enumeration value="as"/>
+			<xsd:enumeration value="at"/>
+			<xsd:enumeration value="au"/>
+			<xsd:enumeration value="aw"/>
+			<xsd:enumeration value="az"/>
+			<xsd:enumeration value="ba"/>
+			<xsd:enumeration value="bb"/>
+			<xsd:enumeration value="bd"/>
+			<xsd:enumeration value="be"/>
+			<xsd:enumeration value="bf"/>
+			<xsd:enumeration value="bg"/>
+			<xsd:enumeration value="bh"/>
+			<xsd:enumeration value="bi"/>
+			<xsd:enumeration value="bj"/>
+			<xsd:enumeration value="bm"/>
+			<xsd:enumeration value="bn"/>
+			<xsd:enumeration value="bo"/>
+			<xsd:enumeration value="br"/>
+			<xsd:enumeration value="bs"/>
+			<xsd:enumeration value="bt"/>
+			<xsd:enumeration value="bv"/>
+			<xsd:enumeration value="bw"/>
+			<xsd:enumeration value="by"/>
+			<xsd:enumeration value="bz"/>
+			<xsd:enumeration value="ca"/>
+			<xsd:enumeration value="cc"/>
+			<xsd:enumeration value="cf"/>
+			<xsd:enumeration value="cd"/>
+			<xsd:enumeration value="cg"/>
+			<xsd:enumeration value="ch"/>
+			<xsd:enumeration value="ci"/>
+			<xsd:enumeration value="ck"/>
+			<xsd:enumeration value="cl"/>
+			<xsd:enumeration value="cm"/>
+			<xsd:enumeration value="cn"/>
+			<xsd:enumeration value="co"/>
+			<xsd:enumeration value="com"/>
+			<xsd:enumeration value="cr"/>
+			<xsd:enumeration value="cs"/>
+			<xsd:enumeration value="cu"/>
+			<xsd:enumeration value="cv"/>
+			<xsd:enumeration value="cx"/>
+			<xsd:enumeration value="cy"/>
+			<xsd:enumeration value="cz"/>
+			<xsd:enumeration value="de"/>
+			<xsd:enumeration value="dj"/>
+			<xsd:enumeration value="dk"/>
+			<xsd:enumeration value="dm"/>
+			<xsd:enumeration value="do"/>
+			<xsd:enumeration value="dz"/>
+			<xsd:enumeration value="ec"/>
+			<xsd:enumeration value="edu"/>
+			<xsd:enumeration value="ee"/>
+			<xsd:enumeration value="eg"/>
+			<xsd:enumeration value="eh"/>
+			<xsd:enumeration value="er"/>
+			<xsd:enumeration value="es"/>
+			<xsd:enumeration value="et"/>
+			<xsd:enumeration value="fi"/>
+			<xsd:enumeration value="fj"/>
+			<xsd:enumeration value="fk"/>
+			<xsd:enumeration value="fm"/>
+			<xsd:enumeration value="fo"/>
+			<xsd:enumeration value="fr"/>
+			<xsd:enumeration value="fx"/>
+			<xsd:enumeration value="ga"/>
+			<xsd:enumeration value="gb"/>
+			<xsd:enumeration value="gd"/>
+			<xsd:enumeration value="ge"/>
+			<xsd:enumeration value="gf"/>
+			<xsd:enumeration value="gh"/>
+			<xsd:enumeration value="gi"/>
+			<xsd:enumeration value="gl"/>
+			<xsd:enumeration value="gm"/>
+			<xsd:enumeration value="gn"/>
+			<xsd:enumeration value="gov"/>
+			<xsd:enumeration value="gp"/>
+			<xsd:enumeration value="gr"/>
+			<xsd:enumeration value="gs"/>
+			<xsd:enumeration value="gt"/>
+			<xsd:enumeration value="gu"/>
+			<xsd:enumeration value="gw"/>
+			<xsd:enumeration value="gy"/>
+			<xsd:enumeration value="hk"/>
+			<xsd:enumeration value="hm"/>
+			<xsd:enumeration value="hn"/>
+			<xsd:enumeration value="hr"/>
+			<xsd:enumeration value="ht"/>
+			<xsd:enumeration value="hu"/>
+			<xsd:enumeration value="id"/>
+			<xsd:enumeration value="ie"/>
+			<xsd:enumeration value="il"/>
+			<xsd:enumeration value="in"/>
+			<xsd:enumeration value="int"/>
+			<xsd:enumeration value="io"/>
+			<xsd:enumeration value="iq"/>
+			<xsd:enumeration value="ir"/>
+			<xsd:enumeration value="is"/>
+			<xsd:enumeration value="it"/>
+			<xsd:enumeration value="jm"/>
+			<xsd:enumeration value="jo"/>
+			<xsd:enumeration value="jp"/>
+			<xsd:enumeration value="ke"/>
+			<xsd:enumeration value="kg"/>
+			<xsd:enumeration value="kh"/>
+			<xsd:enumeration value="ki"/>
+			<xsd:enumeration value="km"/>
+			<xsd:enumeration value="kn"/>
+			<xsd:enumeration value="kp"/>
+			<xsd:enumeration value="kr"/>
+			<xsd:enumeration value="kw"/>
+			<xsd:enumeration value="ky"/>
+			<xsd:enumeration value="kz"/>
+			<xsd:enumeration value="la"/>
+			<xsd:enumeration value="lb"/>
+			<xsd:enumeration value="lc"/>
+			<xsd:enumeration value="li"/>
+			<xsd:enumeration value="lk"/>
+			<xsd:enumeration value="ls"/>
+			<xsd:enumeration value="lt"/>
+			<xsd:enumeration value="lu"/>
+			<xsd:enumeration value="lv"/>
+			<xsd:enumeration value="ly"/>
+			<xsd:enumeration value="ma"/>
+			<xsd:enumeration value="mc"/>
+			<xsd:enumeration value="md"/>
+			<xsd:enumeration value="mg"/>
+			<xsd:enumeration value="mh"/>
+			<xsd:enumeration value="mil"/>
+			<xsd:enumeration value="mk"/>
+			<xsd:enumeration value="ml"/>
+			<xsd:enumeration value="mm"/>
+			<xsd:enumeration value="mn"/>
+			<xsd:enumeration value="mo"/>
+			<xsd:enumeration value="mp"/>
+			<xsd:enumeration value="mq"/>
+			<xsd:enumeration value="mr"/>
+			<xsd:enumeration value="ms"/>
+			<xsd:enumeration value="mt"/>
+			<xsd:enumeration value="mu"/>
+			<xsd:enumeration value="mv"/>
+			<xsd:enumeration value="mw"/>
+			<xsd:enumeration value="mx"/>
+			<xsd:enumeration value="my"/>
+			<xsd:enumeration value="mz"/>
+			<xsd:enumeration value="na"/>
+			<xsd:enumeration value="nato"/>
+			<xsd:enumeration value="nc"/>
+			<xsd:enumeration value="ne"/>
+			<xsd:enumeration value="net"/>
+			<xsd:enumeration value="nf"/>
+			<xsd:enumeration value="ng"/>
+			<xsd:enumeration value="ni"/>
+			<xsd:enumeration value="nl"/>
+			<xsd:enumeration value="no"/>
+			<xsd:enumeration value="np"/>
+			<xsd:enumeration value="nr"/>
+			<xsd:enumeration value="nt"/>
+			<xsd:enumeration value="nu"/>
+			<xsd:enumeration value="nz"/>
+			<xsd:enumeration value="om"/>
+			<xsd:enumeration value="org"/>
+			<xsd:enumeration value="pa"/>
+			<xsd:enumeration value="pe"/>
+			<xsd:enumeration value="pf"/>
+			<xsd:enumeration value="pg"/>
+			<xsd:enumeration value="ph"/>
+			<xsd:enumeration value="pk"/>
+			<xsd:enumeration value="pl"/>
+			<xsd:enumeration value="pm"/>
+			<xsd:enumeration value="pn"/>
+			<xsd:enumeration value="pr"/>
+			<xsd:enumeration value="pt"/>
+			<xsd:enumeration value="pw"/>
+			<xsd:enumeration value="py"/>
+			<xsd:enumeration value="qa"/>
+			<xsd:enumeration value="re"/>
+			<xsd:enumeration value="ro"/>
+			<xsd:enumeration value="ru"/>
+			<xsd:enumeration value="rw"/>
+			<xsd:enumeration value="sa"/>
+			<xsd:enumeration value="sb"/>
+			<xsd:enumeration value="sc"/>
+			<xsd:enumeration value="sd"/>
+			<xsd:enumeration value="se"/>
+			<xsd:enumeration value="sg"/>
+			<xsd:enumeration value="sh"/>
+			<xsd:enumeration value="si"/>
+			<xsd:enumeration value="sj"/>
+			<xsd:enumeration value="sk"/>
+			<xsd:enumeration value="sl"/>
+			<xsd:enumeration value="sm"/>
+			<xsd:enumeration value="sn"/>
+			<xsd:enumeration value="so"/>
+			<xsd:enumeration value="sr"/>
+			<xsd:enumeration value="st"/>
+			<xsd:enumeration value="su"/>
+			<xsd:enumeration value="sv"/>
+			<xsd:enumeration value="sy"/>
+			<xsd:enumeration value="sz"/>
+			<xsd:enumeration value="tc"/>
+			<xsd:enumeration value="td"/>
+			<xsd:enumeration value="tf"/>
+			<xsd:enumeration value="tg"/>
+			<xsd:enumeration value="th"/>
+			<xsd:enumeration value="tj"/>
+			<xsd:enumeration value="tk"/>
+			<xsd:enumeration value="tm"/>
+			<xsd:enumeration value="tn"/>
+			<xsd:enumeration value="to"/>
+			<xsd:enumeration value="tp"/>
+			<xsd:enumeration value="tr"/>
+			<xsd:enumeration value="tt"/>
+			<xsd:enumeration value="tv"/>
+			<xsd:enumeration value="tw"/>
+			<xsd:enumeration value="tz"/>
+			<xsd:enumeration value="ua"/>
+			<xsd:enumeration value="ug"/>
+			<xsd:enumeration value="uk"/>
+			<xsd:enumeration value="um"/>
+			<xsd:enumeration value="us"/>
+			<xsd:enumeration value="uy"/>
+			<xsd:enumeration value="uz"/>
+			<xsd:enumeration value="va"/>
+			<xsd:enumeration value="vc"/>
+			<xsd:enumeration value="ve"/>
+			<xsd:enumeration value="vg"/>
+			<xsd:enumeration value="vi"/>
+			<xsd:enumeration value="vn"/>
+			<xsd:enumeration value="vu"/>
+			<xsd:enumeration value="wf"/>
+			<xsd:enumeration value="ws"/>
+			<xsd:enumeration value="ye"/>
+			<xsd:enumeration value="yt"/>
+			<xsd:enumeration value="yu"/>
+			<xsd:enumeration value="za"/>
+			<xsd:enumeration value="zm"/>
+			<xsd:enumeration value="zr"/>
+			<xsd:enumeration value="zw"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-FED-COUNTRYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="al"/>
+			<xsd:enumeration value="ad"/>
+			<xsd:enumeration value="de"/>
+			<xsd:enumeration value="at"/>
+			<xsd:enumeration value="bg"/>
+			<xsd:enumeration value="cy"/>
+			<xsd:enumeration value="dk"/>
+			<xsd:enumeration value="es"/>
+			<xsd:enumeration value="fi"/>
+			<xsd:enumeration value="fr"/>
+			<xsd:enumeration value="yt"/>
+			<xsd:enumeration value="re"/>
+			<xsd:enumeration value="pm"/>
+			<xsd:enumeration value="gp"/>
+			<xsd:enumeration value="mq"/>
+			<xsd:enumeration value="gf"/>
+			<xsd:enumeration value="nc"/>
+			<xsd:enumeration value="pf"/>
+			<xsd:enumeration value="wf"/>
+			<xsd:enumeration value="gb"/>
+			<xsd:enumeration value="bm"/>
+			<xsd:enumeration value="vg"/>
+			<xsd:enumeration value="tc"/>
+			<xsd:enumeration value="ai"/>
+			<xsd:enumeration value="ky"/>
+			<xsd:enumeration value="ms"/>
+			<xsd:enumeration value="fk"/>
+			<xsd:enumeration value="pn"/>
+			<xsd:enumeration value="lu"/>
+			<xsd:enumeration value="gr"/>
+			<xsd:enumeration value="hu"/>
+			<xsd:enumeration value="ie"/>
+			<xsd:enumeration value="is"/>
+			<xsd:enumeration value="li"/>
+			<xsd:enumeration value="mt"/>
+			<xsd:enumeration value="mc"/>
+			<xsd:enumeration value="no"/>
+			<xsd:enumeration value="pt"/>
+			<xsd:enumeration value="ro"/>
+			<xsd:enumeration value="sm"/>
+			<xsd:enumeration value="se"/>
+			<xsd:enumeration value="ch"/>
+			<xsd:enumeration value="it"/>
+			<xsd:enumeration value="nl"/>
+			<xsd:enumeration value="an"/>
+			<xsd:enumeration value="cs"/>
+			<xsd:enumeration value="va"/>
+			<xsd:enumeration value="lv"/>
+			<xsd:enumeration value="ee"/>
+			<xsd:enumeration value="lt"/>
+			<xsd:enumeration value="pl"/>
+			<xsd:enumeration value="cz"/>
+			<xsd:enumeration value="sk"/>
+			<xsd:enumeration value="by"/>
+			<xsd:enumeration value="ua"/>
+			<xsd:enumeration value="md"/>
+			<xsd:enumeration value="ru"/>
+			<xsd:enumeration value="hr"/>
+			<xsd:enumeration value="si"/>
+			<xsd:enumeration value="mk"/>
+			<xsd:enumeration value="ba"/>
+			<xsd:enumeration value="be"/>
+			<xsd:enumeration value="me"/>
+			<xsd:enumeration value="rs"/>
+			<xsd:enumeration value="xk"/>
+			<xsd:enumeration value="xi"/>
+			<xsd:enumeration value="xs"/>
+			<xsd:enumeration value="lk"/>
+			<xsd:enumeration value="tw"/>
+			<xsd:enumeration value="sg"/>
+			<xsd:enumeration value="kr"/>
+			<xsd:enumeration value="in"/>
+			<xsd:enumeration value="id"/>
+			<xsd:enumeration value="jp"/>
+			<xsd:enumeration value="la"/>
+			<xsd:enumeration value="kh"/>
+			<xsd:enumeration value="my"/>
+			<xsd:enumeration value="np"/>
+			<xsd:enumeration value="ph"/>
+			<xsd:enumeration value="cn"/>
+			<xsd:enumeration value="kp"/>
+			<xsd:enumeration value="vn"/>
+			<xsd:enumeration value="mn"/>
+			<xsd:enumeration value="mv"/>
+			<xsd:enumeration value="bt"/>
+			<xsd:enumeration value="bn"/>
+			<xsd:enumeration value="kz"/>
+			<xsd:enumeration value="kg"/>
+			<xsd:enumeration value="uz"/>
+			<xsd:enumeration value="tj"/>
+			<xsd:enumeration value="tm"/>
+			<xsd:enumeration value="th"/>
+			<xsd:enumeration value="mm"/>
+			<xsd:enumeration value="bd"/>
+			<xsd:enumeration value="am"/>
+			<xsd:enumeration value="az"/>
+			<xsd:enumeration value="af"/>
+			<xsd:enumeration value="sa"/>
+			<xsd:enumeration value="ge"/>
+			<xsd:enumeration value="iq"/>
+			<xsd:enumeration value="ir"/>
+			<xsd:enumeration value="il"/>
+			<xsd:enumeration value="jo"/>
+			<xsd:enumeration value="lb"/>
+			<xsd:enumeration value="pk"/>
+			<xsd:enumeration value="ae"/>
+			<xsd:enumeration value="sy"/>
+			<xsd:enumeration value="tr"/>
+			<xsd:enumeration value="kw"/>
+			<xsd:enumeration value="om"/>
+			<xsd:enumeration value="qa"/>
+			<xsd:enumeration value="bh"/>
+			<xsd:enumeration value="ye"/>
+			<xsd:enumeration value="tl"/>
+			<xsd:enumeration value="ps"/>
+			<xsd:enumeration value="ls"/>
+			<xsd:enumeration value="bw"/>
+			<xsd:enumeration value="bi"/>
+			<xsd:enumeration value="cm"/>
+			<xsd:enumeration value="cf"/>
+			<xsd:enumeration value="cd"/>
+			<xsd:enumeration value="cg"/>
+			<xsd:enumeration value="bf"/>
+			<xsd:enumeration value="ci"/>
+			<xsd:enumeration value="bj"/>
+			<xsd:enumeration value="et"/>
+			<xsd:enumeration value="ga"/>
+			<xsd:enumeration value="gm"/>
+			<xsd:enumeration value="gh"/>
+			<xsd:enumeration value="gn"/>
+			<xsd:enumeration value="mu"/>
+			<xsd:enumeration value="lr"/>
+			<xsd:enumeration value="ml"/>
+			<xsd:enumeration value="sn"/>
+			<xsd:enumeration value="ne"/>
+			<xsd:enumeration value="ng"/>
+			<xsd:enumeration value="ug"/>
+			<xsd:enumeration value="mg"/>
+			<xsd:enumeration value="za"/>
+			<xsd:enumeration value="rw"/>
+			<xsd:enumeration value="sl"/>
+			<xsd:enumeration value="so"/>
+			<xsd:enumeration value="sz"/>
+			<xsd:enumeration value="tz"/>
+			<xsd:enumeration value="td"/>
+			<xsd:enumeration value="tg"/>
+			<xsd:enumeration value="zm"/>
+			<xsd:enumeration value="ke"/>
+			<xsd:enumeration value="gq"/>
+			<xsd:enumeration value="gw"/>
+			<xsd:enumeration value="cv"/>
+			<xsd:enumeration value="mz"/>
+			<xsd:enumeration value="ao"/>
+			<xsd:enumeration value="sc"/>
+			<xsd:enumeration value="km"/>
+			<xsd:enumeration value="zw"/>
+			<xsd:enumeration value="dj"/>
+			<xsd:enumeration value="st"/>
+			<xsd:enumeration value="er"/>
+			<xsd:enumeration value="dz"/>
+			<xsd:enumeration value="eg"/>
+			<xsd:enumeration value="ly"/>
+			<xsd:enumeration value="ma"/>
+			<xsd:enumeration value="mr"/>
+			<xsd:enumeration value="sd"/>
+			<xsd:enumeration value="tn"/>
+			<xsd:enumeration value="mw"/>
+			<xsd:enumeration value="na"/>
+			<xsd:enumeration value="eh"/>
+			<xsd:enumeration value="sh"/>
+			<xsd:enumeration value="ca"/>
+			<xsd:enumeration value="us"/>
+			<xsd:enumeration value="vi"/>
+			<xsd:enumeration value="pr"/>
+			<xsd:enumeration value="gu"/>
+			<xsd:enumeration value="as"/>
+			<xsd:enumeration value="cr"/>
+			<xsd:enumeration value="cu"/>
+			<xsd:enumeration value="gt"/>
+			<xsd:enumeration value="hn"/>
+			<xsd:enumeration value="jm"/>
+			<xsd:enumeration value="mx"/>
+			<xsd:enumeration value="ni"/>
+			<xsd:enumeration value="pa"/>
+			<xsd:enumeration value="ht"/>
+			<xsd:enumeration value="do"/>
+			<xsd:enumeration value="sv"/>
+			<xsd:enumeration value="tt"/>
+			<xsd:enumeration value="bb"/>
+			<xsd:enumeration value="bs"/>
+			<xsd:enumeration value="gd"/>
+			<xsd:enumeration value="dm"/>
+			<xsd:enumeration value="lc"/>
+			<xsd:enumeration value="vc"/>
+			<xsd:enumeration value="bz"/>
+			<xsd:enumeration value="kn"/>
+			<xsd:enumeration value="ag"/>
+			<xsd:enumeration value="ar"/>
+			<xsd:enumeration value="bo"/>
+			<xsd:enumeration value="br"/>
+			<xsd:enumeration value="cl"/>
+			<xsd:enumeration value="co"/>
+			<xsd:enumeration value="ec"/>
+			<xsd:enumeration value="py"/>
+			<xsd:enumeration value="pe"/>
+			<xsd:enumeration value="uy"/>
+			<xsd:enumeration value="ve"/>
+			<xsd:enumeration value="gy"/>
+			<xsd:enumeration value="sr"/>
+			<xsd:enumeration value="mh"/>
+			<xsd:enumeration value="au"/>
+			<xsd:enumeration value="hm"/>
+			<xsd:enumeration value="nz"/>
+			<xsd:enumeration value="nu"/>
+			<xsd:enumeration value="tk"/>
+			<xsd:enumeration value="ck"/>
+			<xsd:enumeration value="ws"/>
+			<xsd:enumeration value="nr"/>
+			<xsd:enumeration value="to"/>
+			<xsd:enumeration value="fj"/>
+			<xsd:enumeration value="pg"/>
+			<xsd:enumeration value="tv"/>
+			<xsd:enumeration value="ki"/>
+			<xsd:enumeration value="sb"/>
+			<xsd:enumeration value="vu"/>
+			<xsd:enumeration value="pw"/>
+			<xsd:enumeration value="fm"/>
+			<xsd:enumeration value="mp"/>
+			<xsd:enumeration value="xr"/>
+			<xsd:enumeration value="xa"/>
+			<xsd:enumeration value="xe"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-MKG-ORIGINvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+			<xsd:enumeration value="6"/>
+			<xsd:enumeration value="7"/>
+			<xsd:enumeration value="8"/>
+			<xsd:enumeration value="9"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MKG-ORIGIN">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MKG-ORIGINvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MKG-ORIGIN"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MKG-REFERRERvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+			<xsd:enumeration value="6"/>
+			<xsd:enumeration value="8"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MKG-REFERRER">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MKG-REFERRERvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MKG-REFERRER"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MKG-ADMISSIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+			<xsd:enumeration value="6"/>
+			<xsd:enumeration value="8"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MKG-ADMISSION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MKG-ADMISSIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MKG-ADMISSION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MKG-DESTINATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+			<xsd:enumeration value="6"/>
+			<xsd:enumeration value="7"/>
+			<xsd:enumeration value="8"/>
+			<xsd:enumeration value="9"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MKG-DESTINATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MKG-DESTINATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MKG-DESTINATION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MKG-DISCHARGEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+			<xsd:enumeration value="6"/>
+			<xsd:enumeration value="D"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MKG-DISCHARGE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MKG-DISCHARGEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MKG-DISCHARGE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ECGvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="VR"/>
+			<xsd:enumeration value="AR"/>
+			<xsd:enumeration value="PR"/>
+			<xsd:enumeration value="QRS"/>
+			<xsd:enumeration value="QT"/>
+			<xsd:enumeration value="QTc"/>
+			<xsd:enumeration value="P"/>
+			<xsd:enumeration value="R"/>
+			<xsd:enumeration value="T"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ECG">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ECGvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ECG"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ENCOUNTERvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="homevisit"/>
+			<xsd:enumeration value="consultation"/>
+			<xsd:enumeration value="telephonicconsultation"/>
+			<xsd:enumeration value="emergency"/>
+			<xsd:enumeration value="hospital"/>
+			<xsd:enumeration value="oneday"/>
+			<xsd:enumeration value="technical"/>
+            <xsd:enumeration value="resthomevisit"/>
+            <xsd:enumeration value="consult"/>
+            <xsd:enumeration value="multidisciplinaryconsult"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ENCOUTER">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ENCOUNTERvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ENCOUTER"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ENCOUNTERSAFETYISSUEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="verbal"/>
+			<xsd:enumeration value="fysical"/>
+			<xsd:enumeration value="material"/>
+			<xsd:enumeration value="notificationtopolice"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ENCOUNTERSAFETYISSUE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ENCOUNTERSAFETYISSUEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ENCOUNTERSAFETYISSUE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EMERGENCYEVALUATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="couldwaitafterwe"/>
+			<xsd:enumeration value="noturgent"/>
+			<xsd:enumeration value="urgent"/>
+			<xsd:enumeration value="lifethreathning"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EMERGENCYEVALUATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EMERGENCYEVALUATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EMERGENCYEVALUATION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ERRORvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-ERRORschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-ERROR"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ERROR">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-ERRORschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+    <xsd:simpleType name="CD-REFUSAL-MYCARENETvalues">
+      <xsd:restriction base="xsd:string">
+        <!-- Not defined -->
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="CD-ERROR-MYCARENETschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="CD-ERROR"/>
+        <xsd:enumeration value="CD-REFUSAL-MYCARENET"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ERROR-MYCARENET">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-ERROR-MYCARENETschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-WEEKDAYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="sunday"/>
+			<xsd:enumeration value="monday"/>
+			<xsd:enumeration value="tuesday"/>
+			<xsd:enumeration value="wednesday"/>
+			<xsd:enumeration value="thursday"/>
+			<xsd:enumeration value="friday"/>
+			<xsd:enumeration value="saturday"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-WEEKDAY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-WEEKDAYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-WEEKDAY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="CD-LEGAL-SERVICE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-LEGAL-SERVICEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-LEGAL-SERVICE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-LEGAL-SERVICEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="190"/>
+			<xsd:enumeration value="200"/>
+			<xsd:enumeration value="210"/>
+			<xsd:enumeration value="220"/>
+			<xsd:enumeration value="230"/>
+			<xsd:enumeration value="240"/>
+			<xsd:enumeration value="250"/>
+			<xsd:enumeration value="260"/>
+			<xsd:enumeration value="270"/>
+			<xsd:enumeration value="280"/>
+			<xsd:enumeration value="290"/>
+			<xsd:enumeration value="300"/>
+			<xsd:enumeration value="320"/>
+			<xsd:enumeration value="340"/>
+			<xsd:enumeration value="350"/>
+			<xsd:enumeration value="360"/>
+			<xsd:enumeration value="370"/>
+			<xsd:enumeration value="380"/>
+			<xsd:enumeration value="390"/>
+			<xsd:enumeration value="400"/>
+			<xsd:enumeration value="410"/>
+			<xsd:enumeration value="420"/>
+			<xsd:enumeration value="430"/>
+			<xsd:enumeration value="440"/>
+			<xsd:enumeration value="450"/>
+			<xsd:enumeration value="460"/>
+			<xsd:enumeration value="470"/>
+			<xsd:enumeration value="480"/>
+			<xsd:enumeration value="490"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-LIFECYCLEvalues">
+		<xsd:restriction base="xsd:string">
+            <xsd:enumeration value="aborted"/>
+			<xsd:enumeration value="active"/>
+			<xsd:enumeration value="added"/>
+			<xsd:enumeration value="administrated"/>
+			<xsd:enumeration value="cancelled"/>
+			<xsd:enumeration value="completed"/>
+			<xsd:enumeration value="corrected"/>
+			<xsd:enumeration value="delivered"/>
+			<xsd:enumeration value="substituted"/>
+			<xsd:enumeration value="inactive"/>
+			<xsd:enumeration value="planned"/>
+			<xsd:enumeration value="prescribed"/>
+			<xsd:enumeration value="reported"/>
+			<xsd:enumeration value="refused"/>
+			<xsd:enumeration value="switched"/>
+            <!-- For Vitalink -->
+            <xsd:enumeration value="suspended"/>
+            <xsd:enumeration value="stopped"/>
+            <!-- Vitalink End -->
+            <xsd:enumeration value="excluded"/>
+            <xsd:enumeration value="notpresent"/>
+            <xsd:enumeration value="ordered"/>
+            <xsd:enumeration value="scheduled"/>
+            <xsd:enumeration value="todo"/>
+            <xsd:enumeration value="postponed"/>
+            <xsd:enumeration value="pending"/>
+            <xsd:enumeration value="expected"/>
+            <xsd:enumeration value="obtained"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-LIFECYCLE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-LIFECYCLEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-LIFECYCLE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-LNKvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="isachildof"/>
+			<xsd:enumeration value="isaconsequenceof"/>
+			<xsd:enumeration value="isanewversionof"/>
+			<xsd:enumeration value="isareplyto"/>
+			<xsd:enumeration value="multimedia"/>
+			<xsd:enumeration value="thumbnail"/>
+			<!-- For Chapter IV-->
+			<xsd:enumeration value="isanappendixof"/>			
+			<!-- End Chapter IV-->
+			<!-- For GP Migration Format 1.1-->
+			<xsd:enumeration value="isaservicefor"/>
+			<xsd:enumeration value="isrealisationof"/>
+			<xsd:enumeration value="isapproachfor"/>
+			<xsd:enumeration value="isplannedfor"/>
+			<xsd:enumeration value="isattestationof"/>
+			<!-- End GP Migration Format 1.1-->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="lnkType">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:base64Binary">
+				<xsd:attribute name="TYPE" type="CD-LNKvalues" use="required"/>
+				<xsd:attribute name="MEDIATYPE" type="CD-MEDIATYPEvalues" use="optional"/>
+				<xsd:attribute name="URL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="SIZE" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-DAYPERIODvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="afterbreakfast"/>
+			<xsd:enumeration value="afterdinner"/>
+			<xsd:enumeration value="afterlunch"/>
+			<xsd:enumeration value="aftermeal"/>
+			<xsd:enumeration value="afternoon"/>
+			<xsd:enumeration value="beforebreakfast"/>
+			<xsd:enumeration value="beforedinner"/>
+			<xsd:enumeration value="beforelunch"/>
+			<xsd:enumeration value="betweenbreakfastandlunch"/>
+			<xsd:enumeration value="betweendinnerandsleep"/>
+			<xsd:enumeration value="betweenlunchanddinner"/>
+			<xsd:enumeration value="betweenmeals"/>
+			<xsd:enumeration value="evening"/>
+			<xsd:enumeration value="morning"/>
+			<xsd:enumeration value="night"/>
+			<xsd:enumeration value="thehourofsleep"/>    
+            <xsd:enumeration value="duringbreakfast"/>
+            <xsd:enumeration value="duringlunch"/>
+            <xsd:enumeration value="duringdinner"/>       
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-DAYPERIOD">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-DAYPERIODvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-DAYPERIOD"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-REFSCOPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="age"/>
+			<xsd:enumeration value="sex"/>
+			<xsd:enumeration value="gestationnal"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-REFSCOPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-REFSCOPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-REFSCOPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-SEVERITYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="abnormal"/>
+			<xsd:enumeration value="high"/>
+			<xsd:enumeration value="low"/>
+			<xsd:enumeration value="normal"/>
+			<xsd:enumeration value="resistent"/>
+			<xsd:enumeration value="susceptible"/>
+			<xsd:enumeration value="susceptibleintermediate"/>
+			<xsd:enumeration value="veryabnormal"/>
+			<xsd:enumeration value="veryhigh"/>
+			<xsd:enumeration value="verylow"/>
+			<xsd:enumeration value="extremelyhigh"/>
+			<xsd:enumeration value="extremelylow"/>
+			<xsd:enumeration value="verysusceptible"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-SEVERITYschemes">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="CD-SEVERITY"/>
+          <xsd:enumeration value="CD-NYHA"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+        <xsd:complexType name="CD-SEVERITY">
+          <xsd:simpleContent>
+              <xsd:extension base="xsd:string">
+              <xsd:attribute name="S" type="CD-SEVERITYschemes" use="required"/>
+              <xsd:attribute name="SV" type="xsd:string" use="required"/>
+              <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+              <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+    </xsd:complexType>
+	<xsd:simpleType name="CD-SEXvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="changed"/>
+			<xsd:enumeration value="female"/>
+			<xsd:enumeration value="male"/>
+			<xsd:enumeration value="unknown"/>
+            <xsd:enumeration value="undefined"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-SEX">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-SEXvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-SEX"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-SITEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="BE"/>
+			<xsd:enumeration value="blood"/>
+			<xsd:enumeration value="BN"/>
+			<xsd:enumeration value="BU"/>
+			<xsd:enumeration value="CT"/>
+			<xsd:enumeration value="LA"/>
+			<xsd:enumeration value="LAC"/>
+			<xsd:enumeration value="LACF"/>
+			<xsd:enumeration value="LD"/>
+			<xsd:enumeration value="LE"/>
+			<xsd:enumeration value="LEJ"/>
+			<xsd:enumeration value="LF"/>
+			<xsd:enumeration value="LG"/>
+			<xsd:enumeration value="LH"/>
+			<xsd:enumeration value="LIJ"/>
+			<xsd:enumeration value="LLAQ"/>
+			<xsd:enumeration value="LLFA"/>
+			<xsd:enumeration value="LMFA"/>
+			<xsd:enumeration value="LN"/>
+			<xsd:enumeration value="LPC"/>
+			<xsd:enumeration value="LSC"/>
+			<xsd:enumeration value="LT"/>
+			<xsd:enumeration value="LUA"/>
+			<xsd:enumeration value="LUAQ"/>
+			<xsd:enumeration value="LUFA"/>
+			<xsd:enumeration value="LVG"/>
+			<xsd:enumeration value="LVL"/>
+			<xsd:enumeration value="NB"/>
+			<xsd:enumeration value="OD"/>
+			<xsd:enumeration value="OS"/>
+			<xsd:enumeration value="OU"/>
+			<xsd:enumeration value="PA"/>
+			<xsd:enumeration value="PERIN"/>
+			<xsd:enumeration value="RA"/>
+			<xsd:enumeration value="RAC"/>
+			<xsd:enumeration value="RACF"/>
+			<xsd:enumeration value="RD"/>
+			<xsd:enumeration value="RE"/>
+			<xsd:enumeration value="REJ"/>
+			<xsd:enumeration value="RF"/>
+			<xsd:enumeration value="RG"/>
+			<xsd:enumeration value="RH"/>
+			<xsd:enumeration value="RIJ"/>
+			<xsd:enumeration value="RLAQ"/>
+			<xsd:enumeration value="RLFA"/>
+			<xsd:enumeration value="RMFA"/>
+			<xsd:enumeration value="RN"/>
+			<xsd:enumeration value="RPC"/>
+			<xsd:enumeration value="RSC"/>
+			<xsd:enumeration value="RT"/>
+			<xsd:enumeration value="RUA"/>
+			<xsd:enumeration value="RUAQ"/>
+			<xsd:enumeration value="RUFA"/>
+			<xsd:enumeration value="RVG"/>
+			<xsd:enumeration value="RVL"/>
+            <!-- Ortho -->
+            <xsd:enumeration value="lk"/>
+            <xsd:enumeration value="rk"/>
+            <xsd:enumeration value="lhip"/>
+            <xsd:enumeration value="rhip"/>
+            <!-- Ortho End -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-SITEschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="CD-SITE"/>
+        <xsd:enumeration value="CD-DEFIB-SITE"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-SITE">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:string">
+            <xsd:attribute name="S" type="CD-SITEschemes" use="required"/>
+            <xsd:attribute name="SV" type="xsd:string" use="required"/>
+            <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+            <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+	<xsd:simpleType name="CD-STANDARDvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="20010424"/>
+			<xsd:enumeration value="20021205"/>
+			<xsd:enumeration value="20030909"/>
+			<xsd:enumeration value="20090101"/>
+			<xsd:enumeration value="20100601"/>
+			<xsd:enumeration value="20100901"/>
+			<xsd:enumeration value="20110701"/>
+			<!-- Chapter IV, GP Migration Format 1.1, Hub/Metahub 1.1 -->
+            <!-- Vitalink, Tuco, Ortho -->
+            <xsd:enumeration value="20120401"/>
+            <xsd:enumeration value="20120701"/>
+            <xsd:enumeration value="20121001"/>
+            <xsd:enumeration value="20130701"/>
+            <xsd:enumeration value="20131001"/>
+            <xsd:enumeration value="20140401"/>
+            <xsd:enumeration value="20140701"/>
+            <xsd:enumeration value="20141001"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-STANDARD">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-STANDARDvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-STANDARD"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="CD-MESSAGE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MESSAGEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MESSAGE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MESSAGEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="gpsoftwaremigration"/>
+            <xsd:enumeration value="gppatientmigration"/>
+            <xsd:enumeration value="ptsoftwaremigration"/>
+            <xsd:enumeration value="ptpatientmigration"/>
+            <xsd:enumeration value="nursingsoftwaremigration"/>
+            <xsd:enumeration value="nursingpatientmigration"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-TEMPORALITYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="oneshot"/>
+			<xsd:enumeration value="acute"/>
+			<xsd:enumeration value="chronic"/>
+			<xsd:enumeration value="reactivation"/>
+			<xsd:enumeration value="remission"/>
+			<xsd:enumeration value="subacute"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TEMPORALITY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-TEMPORALITYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TEMPORALITY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-TELECOMvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="phone"/>
+			<xsd:enumeration value="mobile"/>
+			<xsd:enumeration value="fax"/>
+			<xsd:enumeration value="email"/>
+			<xsd:enumeration value="carenet"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-TELECOMschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-ADDRESS"/>
+			<xsd:enumeration value="CD-TELECOM"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TELECOM">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-TELECOMschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+    <xsd:simpleType name="CD-UNITschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="CD-UNIT"/>
+        <xsd:enumeration value="CD-CURRENCY"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+	<xsd:simpleType name="CD-UNITvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="%"/>
+			<xsd:enumeration value="%vv"/>
+			<xsd:enumeration value="%wv"/>
+			<xsd:enumeration value="%ww"/>
+			<xsd:enumeration value="1000/mm3"/>
+			<xsd:enumeration value="mg/dl"/>
+			<xsd:enumeration value="amp"/>
+			<xsd:enumeration value="bag"/>
+			<xsd:enumeration value="bitperminute"/>
+			<xsd:enumeration value="bol"/>
+			<xsd:enumeration value="bot"/>
+			<xsd:enumeration value="box"/>
+			<xsd:enumeration value="c"/>
+			<xsd:enumeration value="can"/>
+			<xsd:enumeration value="cap"/>
+			<xsd:enumeration value="cc"/>
+			<xsd:enumeration value="cm"/>
+			<xsd:enumeration value="cmm"/>
+			<xsd:enumeration value="cnt"/>
+			<xsd:enumeration value="ctr"/>
+			<xsd:enumeration value="daily"/>
+			<xsd:enumeration value="day"/>
+			<xsd:enumeration value="spoon"/>
+			<xsd:enumeration value="week"/>
+			<xsd:enumeration value="month"/>
+			<xsd:enumeration value="degree"/>
+			<xsd:enumeration value="dis"/>
+			<xsd:enumeration value="drm"/>
+			<xsd:enumeration value="fl"/>
+			<xsd:enumeration value="fld"/>
+			<xsd:enumeration value="flo"/>
+			<xsd:enumeration value="ftc"/>
+			<xsd:enumeration value="fts"/>
+			<xsd:enumeration value="g/dl"/>
+			<xsd:enumeration value="mg"/>
+			<xsd:enumeration value="mg/ml"/>
+			<xsd:enumeration value="mg/l"/>
+			<xsd:enumeration value="mg/m2"/>
+			<xsd:enumeration value="minute"/>
+			<xsd:enumeration value="mm"/>
+			<xsd:enumeration value="mm/h"/>
+			<xsd:enumeration value="mmhg"/>
+			<xsd:enumeration value="second"/>
+			<xsd:enumeration value="millisecond"/>
+			<xsd:enumeration value="hour"/>
+			<xsd:enumeration value="goutte"/>
+			<xsd:enumeration value="ml"/>
+			<xsd:enumeration value="ctg"/>
+			<xsd:enumeration value="gal"/>
+			<xsd:enumeration value="gm"/>
+			<xsd:enumeration value="gr"/>
+			<xsd:enumeration value="in"/>
+			<xsd:enumeration value="inc"/>
+			<xsd:enumeration value="jar"/>
+			<xsd:enumeration value="kg"/>
+            <xsd:enumeration value="kg/m2"/>
+			<xsd:enumeration value="kit"/>
+			<xsd:enumeration value="l"/>
+			<xsd:enumeration value="lb"/>
+			<xsd:enumeration value="lm"/>
+			<xsd:enumeration value="loz"/>
+			<xsd:enumeration value="mcg"/>
+			<xsd:enumeration value="mcl"/>
+			<xsd:enumeration value="mcm"/>
+			<xsd:enumeration value="mcn"/>
+			<xsd:enumeration value="meq"/>
+			<xsd:enumeration value="mic"/>
+			<xsd:enumeration value="mil"/>
+			<xsd:enumeration value="min"/>
+			<xsd:enumeration value="mis"/>
+			<xsd:enumeration value="mmo"/>
+			<xsd:enumeration value="mol"/>
+			<xsd:enumeration value="nl"/>
+			<xsd:enumeration value="nmg"/>
+			<xsd:enumeration value="nmo"/>
+			<xsd:enumeration value="ns"/>
+			<xsd:enumeration value="oz"/>
+			<xsd:enumeration value="pel"/>
+			<xsd:enumeration value="pg"/>
+			<xsd:enumeration value="pkg"/>
+			<xsd:enumeration value="pnu"/>
+			<xsd:enumeration value="ppm"/>
+			<xsd:enumeration value="pt"/>
+			<xsd:enumeration value="qs"/>
+			<xsd:enumeration value="qt"/>
+			<xsd:enumeration value="sat"/>
+			<xsd:enumeration value="spr"/>
+			<xsd:enumeration value="sqc"/>
+			<xsd:enumeration value="stp"/>
+			<xsd:enumeration value="sup"/>
+			<xsd:enumeration value="syr"/>
+			<xsd:enumeration value="tab"/>
+			<xsd:enumeration value="tbl"/>
+			<xsd:enumeration value="tes"/>
+			<xsd:enumeration value="ton"/>
+			<xsd:enumeration value="tpn"/>
+			<xsd:enumeration value="trc"/>
+			<xsd:enumeration value="tro"/>
+			<xsd:enumeration value="tsp"/>
+			<xsd:enumeration value="tub"/>
+			<xsd:enumeration value="umg"/>
+			<xsd:enumeration value="unt"/>
+			<xsd:enumeration value="vil"/>
+			<xsd:enumeration value="vpr"/>
+			<xsd:enumeration value="waf"/>
+			<xsd:enumeration value="x"/>
+			<xsd:enumeration value="ydl"/>
+			<xsd:enumeration value="yds"/>
+			<xsd:enumeration value="ondemand"/>
+            <xsd:enumeration value="mgper100ml"/>
+            <xsd:enumeration value="ml/min"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-UNIT">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-UNITschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-TIMEUNITschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-TIMEUNIT"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+		<xsd:simpleType name="CD-TIMEUNITvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="a"/>
+			<xsd:enumeration value="mo"/>
+			<xsd:enumeration value="wk"/>
+			<xsd:enumeration value="d"/>
+			<xsd:enumeration value="hr"/>
+			<xsd:enumeration value="min"/>
+			<xsd:enumeration value="s"/>
+			<xsd:enumeration value="ms"/>
+			<xsd:enumeration value="us"/>
+			<xsd:enumeration value="ns"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TIMEUNIT">
+		<xsd:annotation>
+			<xsd:documentation>ISO 2955-1983 and extensions restricted to time units - v2</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-TIMEUNITschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>	
+	</xsd:complexType>
+    <xsd:simpleType name="CD-CURRENCYvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="eur"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="CD-CURRENCY">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CURRENCY"/>
+        <xsd:attribute name="SV" type="xsd:string" use="required"/>
+        <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+        <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+        <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+      </xsd:extension>
+    </xsd:simpleContent>  
+  </xsd:complexType>
+	<xsd:simpleType name="CD-URGENCYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="asap"/>
+			<xsd:enumeration value="hour"/>
+			<xsd:enumeration value="4hours"/>
+			<xsd:enumeration value="12hours"/>
+			<xsd:enumeration value="day"/>
+			<xsd:enumeration value="week"/>
+			<xsd:enumeration value="month"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-URGENCY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-URGENCYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-URGENCY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-INCAPACITYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="work"/>
+			<xsd:enumeration value="swim"/>
+			<xsd:enumeration value="sport"/>
+			<xsd:enumeration value="school"/>
+            <xsd:enumeration value="schoolsports"/>
+            <xsd:enumeration value="travel"/>
+            <xsd:enumeration value="vote"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-INCAPACITY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-INCAPACITYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-INCAPACITY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-INCAPACITYREASONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="sickness"/>
+			<xsd:enumeration value="accident"/>
+			<xsd:enumeration value="family"/>
+			<xsd:enumeration value="other"/>
+            <xsd:enumeration value="careencounter"/>
+            <xsd:enumeration value="illness"/>
+			<xsd:enumeration value="hospitalisation"/>
+			<xsd:enumeration value="pregnancy"/>
+			<xsd:enumeration value="workaccident"/>
+			<xsd:enumeration value="occupationaldisease"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-INCAPACITYREASON">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-INCAPACITYREASONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-INCAPACITYREASON"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CAREPATHvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="001"/>
+			<xsd:enumeration value="002"/>
+			<xsd:enumeration value="003"/>
+			<xsd:enumeration value="101"/>
+			<xsd:enumeration value="102"/>
+			<xsd:enumeration value="103"/>
+			<xsd:enumeration value="010"/>
+			<!-- GPSMF 1.1 -->
+			<!-- End GPSMF 1.1 -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CAREPATH">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CAREPATHvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CAREPATH"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CLINICALPLANvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="breastcancerprevention"/>
+			<xsd:enumeration value="cervixutericancer"/>
+			<xsd:enumeration value="colrectalcancerprevention"/>
+			<xsd:enumeration value="primaryprevention"/>
+			<xsd:enumeration value="prostatecancerprevention"/>
+            <xsd:enumeration value="gmdplus"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CLINICALPLAN">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CLINICALPLANvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CLINICALPLAN"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-PATIENTWILLvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ntbr"/>
+			<xsd:enumeration value="bloodtransfusionrefusal"/>
+			<xsd:enumeration value="intubationrefusal"/>
+			<xsd:enumeration value="euthanasiarequest"/>
+            <xsd:enumeration value="vaccinationrefusal"/>
+            <xsd:enumeration value="organdonationconsent"/>
+            <xsd:enumeration value="datareuseforclinicalresearchconsent"/>
+            <xsd:enumeration value="datareuseforclinicaltrialsconsent"/>
+            <xsd:enumeration value="clinicaltrialparticipationconsent"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-PATIENTWILL">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-PATIENTWILLvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-PATIENTWILL"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-PARAMETERvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="weight"/>
+			<xsd:enumeration value="height"/>
+			<xsd:enumeration value="bmi"/>
+			<xsd:enumeration value="sbp"/>
+			<xsd:enumeration value="dbp"/>
+			<xsd:enumeration value="pulsecharacter"/>
+			<xsd:enumeration value="heartrate"/>
+			<xsd:enumeration value="peakflow"/>
+			<xsd:enumeration value="gpa"/>
+			<xsd:enumeration value="headcircumference"/>
+			<xsd:enumeration value="hipcircumference"/>
+			<xsd:enumeration value="apgar"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-PARAMETER">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-PARAMETERvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-PARAMETER"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Non enumerated table  -->
+	<xsd:simpleType name="CD-TECHNICALvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TECHNICAL">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-TECHNICALvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TECHNICAL"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="ICDvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="ICD">
+		<xsd:simpleContent>
+			<xsd:extension base="ICDvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="ICD"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="ICPCvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="ICPC">
+		<xsd:simpleContent>
+			<xsd:extension base="ICPCvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="ICPC"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CLINICALvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CLINICAL">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CLINICALvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CLINICAL"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Drugs and vaccines  -->
+	<xsd:simpleType name="CD-MEDICATIONschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-DRUG-CNK"/>
+			<xsd:enumeration value="CD-VACCINE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MEDICATION">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="CD-MEDICATIONschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-DRUG-PRESENTATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-DRUG-PRESENTATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-DRUG-PRESENTATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-DRUG-PRESENTATION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-DRUG-ROUTEvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-DRUG-ROUTE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-DRUG-ROUTEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-DRUG-ROUTE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ADMINISTRATIONUNITvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="00001"/>
+			<xsd:enumeration value="00002"/>
+			<xsd:enumeration value="00003"/>
+			<xsd:enumeration value="00004"/>
+			<xsd:enumeration value="00005"/>
+			<xsd:enumeration value="00006"/>
+			<xsd:enumeration value="00007"/>
+			<xsd:enumeration value="00008"/>
+			<xsd:enumeration value="00009"/>
+			<xsd:enumeration value="00010"/>
+			<xsd:enumeration value="00011"/>
+            <xsd:enumeration value="00012"/>
+            <xsd:enumeration value="00013"/>
+            <xsd:enumeration value="00014"/>
+            <xsd:enumeration value="00015"/>
+            <xsd:enumeration value="00016"/>
+            <xsd:enumeration value="00017"/>
+            <xsd:enumeration value="00018"/>
+            <xsd:enumeration value="00019"/>
+            <xsd:enumeration value="00020"/>
+            <xsd:enumeration value="00021"/>
+            <xsd:enumeration value="00022"/>
+            <xsd:enumeration value="00023"/>
+            <xsd:enumeration value="00024"/>
+            <xsd:enumeration value="00025"/>
+            <xsd:enumeration value="00026"/>
+            <xsd:enumeration value="00027"/>
+            <xsd:enumeration value="00028"/>
+            <xsd:enumeration value="00029"/>
+            <xsd:enumeration value="00030"/>
+            <xsd:enumeration value="cm"/>
+            <xsd:enumeration value="dropsperminute"/>
+            <xsd:enumeration value="gm"/>
+            <xsd:enumeration value="internationalunits"/>
+            <xsd:enumeration value="mck/h"/>
+            <xsd:enumeration value="mck/kg/minute"/>
+            <xsd:enumeration value="measure"/>
+            <xsd:enumeration value="mg/h"/>
+            <xsd:enumeration value="ml/h"/>
+            <xsd:enumeration value="tbl"/>
+            <xsd:enumeration value="tsp"/>
+            <xsd:enumeration value="unt/h"/>
+            <xsd:enumeration value="mg"/>
+            <xsd:enumeration value="mg/ml"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ADMINISTRATIONUNIT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ADMINISTRATIONUNITvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ADMINISTRATIONUNIT"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-PERIODICITYvalues">
+		<xsd:restriction base="xsd:string"/>
+		<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+	</xsd:simpleType>
+	<xsd:complexType name="CD-PERIODICITY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-PERIODICITYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-PERIODICITY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-INNCLUSTERvalues">
+		<xsd:restriction base="xsd:string"/>
+		<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+	</xsd:simpleType>
+	<xsd:complexType name="CD-INNCLUSTER">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-INNCLUSTERvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-INNCLUSTER"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+    <xsd:simpleType name="CD-DRUG-CNKschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="CD-DRUG-CNK"/>
+        <xsd:enumeration value="CD-CNK-CLUSTER"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+	<xsd:simpleType name="CD-DRUG-CNKvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-DRUG-CNK">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-DRUG-CNKvalues">
+				<xsd:attribute name="S" type="CD-DRUG-CNKschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-VACCINEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="polio"/>
+			<xsd:enumeration value="diteper"/>
+			<xsd:enumeration value="haemo"/>
+			<xsd:enumeration value="mmr"/>
+			<xsd:enumeration value="hepatitiesb"/>
+			<xsd:enumeration value="mmr12"/>
+			<xsd:enumeration value="dite12"/>
+			<xsd:enumeration value="meningitisc"/>
+			<xsd:enumeration value="influenza"/>
+			<xsd:enumeration value="pneumonia"/>
+			<xsd:enumeration value="ditepro"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-VACCINE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-VACCINEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-VACCINE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-VACCINEINDICATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="poliomyelitis"/>
+			<xsd:enumeration value="measles"/>
+			<xsd:enumeration value="rubella"/>
+			<xsd:enumeration value="mumps"/>
+			<xsd:enumeration value="seasonalinfluenza"/>
+			<xsd:enumeration value="hepatitisa"/>
+			<xsd:enumeration value="hepatitisb"/>
+			<xsd:enumeration value="rabies"/>
+			<xsd:enumeration value="varicella"/>
+			<xsd:enumeration value="rotavirus"/>
+			<xsd:enumeration value="papillomavirus"/>
+			<xsd:enumeration value="yellowfever"/>
+			<xsd:enumeration value="tickborneencephalitis"/>
+			<xsd:enumeration value="ej"/>
+			<xsd:enumeration value="diphteria"/>
+			<xsd:enumeration value="tetanus"/>
+			<xsd:enumeration value="pertussis"/>
+			<xsd:enumeration value="hib"/>
+			<xsd:enumeration value="meningitisc"/>
+			<xsd:enumeration value="meningitis"/>
+			<xsd:enumeration value="pneumonia23"/>
+			<xsd:enumeration value="pneumonia7"/>
+			<xsd:enumeration value="tuberculosis"/>
+			<xsd:enumeration value="typhoid"/>
+			<xsd:enumeration value="pandemics"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-VACCINEINDICATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-VACCINEINDICATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-VACCINE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ATCvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ATC">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ATCvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ATC"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- 
+Carenet elements 
+-->
+	<xsd:simpleType name="CD-ITEM-CARENETvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="accidenttype"/>
+			<xsd:enumeration value="advisingphysician"/>
+			<xsd:enumeration value="agreement"/>
+			<xsd:enumeration value="authorisedextensionenddatetime"/>
+			<xsd:enumeration value="begindatetime"/>
+			<xsd:enumeration value="billingdestinationnumber"/>
+			<xsd:enumeration value="insurancydetails"/>
+			<xsd:enumeration value="insurancystatus"/>
+			<xsd:enumeration value="messagenumber"/>
+			<xsd:enumeration value="messagetype"/>
+			<xsd:enumeration value="missingdocument"/>
+			<xsd:enumeration value="mutationbegindatetime"/>
+			<xsd:enumeration value="mutationdestination"/>
+			<xsd:enumeration value="nationalinsurance"/>
+			<xsd:enumeration value="otheradmission"/>
+			<xsd:enumeration value="protectionmeasure"/>
+			<xsd:enumeration value="refusalreason"/>
+			<xsd:enumeration value="requestedextensiondatetime"/>
+			<xsd:enumeration value="requestedextensionenddatetime"/>
+			<xsd:enumeration value="siscardadjustment"/>
+			<xsd:enumeration value="siscarderror"/>
+			<xsd:enumeration value="socialcategory"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ITEM-CARENET">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ITEM-CARENETvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-CARENET"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-TRANSACTION-CARENETvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="admission"/>
+			<xsd:enumeration value="732"/>
+			<xsd:enumeration value="discharge"/>
+			<xsd:enumeration value="725"/>
+			<xsd:enumeration value="..."/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TRANSACTION-CARENET">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-TRANSACTION-CARENETvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TRANSACTION-CARENET"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="CD-CARENET-MESSAGE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-MESSAGEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-MESSAGE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-MESSAGEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="721000"/>
+			<xsd:enumeration value="721100"/>
+			<xsd:enumeration value="721200"/>
+			<xsd:enumeration value="721900"/>
+			<xsd:enumeration value="721999"/>
+			<xsd:enumeration value="721008"/>
+			<xsd:enumeration value="721009"/>
+			<xsd:enumeration value="723000"/>
+			<xsd:enumeration value="723900"/>
+			<xsd:enumeration value="723999"/>
+			<xsd:enumeration value="723009"/>
+			<xsd:enumeration value="727100"/>
+			<xsd:enumeration value="727200"/>
+			<xsd:enumeration value="727008"/>
+			<xsd:enumeration value="727009"/>
+			<xsd:enumeration value="727208"/>
+			<xsd:enumeration value="727209"/>
+			<xsd:enumeration value="791000"/>
+			<xsd:enumeration value="725000"/>
+			<xsd:enumeration value="725008"/>
+			<xsd:enumeration value="725009"/>
+			<xsd:enumeration value="730000"/>
+			<xsd:enumeration value="800000"/>
+			<xsd:enumeration value="800900"/>
+			<xsd:enumeration value="777000"/>
+			<xsd:enumeration value="777900"/>
+			<xsd:enumeration value="700000"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-TYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-TYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-TYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-TYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="11"/>
+			<xsd:enumeration value="12"/>
+			<xsd:enumeration value="21"/>
+			<xsd:enumeration value="22"/>
+			<xsd:enumeration value="91"/>
+			<xsd:enumeration value="92"/>
+			<xsd:enumeration value="93"/>
+			<xsd:enumeration value="94"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-ACCIDENT-TYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-ACCIDENT-TYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-ACCIDENT-TYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-ACCIDENT-TYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-AGREEMENT-TYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-AGREEMENT-TYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-AGREEMENT-TYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-AGREEMENT-TYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-PERSONAL-PART">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-PERSONAL-PARTvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-PERSONAL-PART"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-PERSONAL-PARTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="code1"/>
+			<xsd:enumeration value="code2"/>
+			<xsd:enumeration value="future"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-THIRDPAYER-CONTRACT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-THIRDPAYER-CONTRACTvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-THIRDPAYER-CONTRACT"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-THIRDPAYER-CONTRACTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-SISCARD-ERROR">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-SISCARD-ERRORvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-SISCARD-ERROR"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-SISCARD-ERRORvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="20"/>
+			<xsd:enumeration value="21"/>
+			<xsd:enumeration value="22"/>
+			<xsd:enumeration value="23"/>
+			<xsd:enumeration value="24"/>
+			<xsd:enumeration value="26"/>
+			<xsd:enumeration value="27"/>
+			<xsd:enumeration value="28"/>
+			<xsd:enumeration value="29"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-REFUSAL-REASON">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-REFUSAL-REASONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-REFUSAL-REASON"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-REFUSAL-REASONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="100"/>
+			<xsd:enumeration value="200"/>
+			<xsd:enumeration value="201"/>
+			<xsd:enumeration value="300"/>
+			<xsd:enumeration value="410"/>
+			<xsd:enumeration value="420"/>
+			<xsd:enumeration value="500"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-MUTATION-INDICATOR">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-MUTATION-INDICATORvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-MUTATION-INDICATOR"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-MUTATION-INDICATORvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-DOCUMENT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-DOCUMENTvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-DOCUMENT"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-DOCUMENTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="723000"/>
+			<xsd:enumeration value="727100"/>
+			<xsd:enumeration value="727200"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-INSURANCY-STATUS">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-INSURANCY-STATUSvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-INSURANCY-STATUS"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-INSURANCY-STATUSvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CARENET-NATIONAL-INSURANCE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CARENET-NATIONAL-INSURANCEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CARENET-NATIONAL-INSURANCE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CARENET-NATIONAL-INSURANCEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="100"/>
+			<xsd:enumeration value="200"/>
+			<xsd:enumeration value="300"/>
+			<xsd:enumeration value="400"/>
+			<xsd:enumeration value="500"/>
+			<xsd:enumeration value="600"/>
+			<xsd:enumeration value="900"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- Laboratory elements -->
+	<xsd:simpleType name="CD-LABvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-LAB">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-LABvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-LAB"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-HEADING-LABvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Pattern not defined at publishing time ! Could become more restrictive. ! -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- eCare elements -->
+	<!-- eBirth elements -->
+	<xsd:simpleType name="CD-ITEM-EBIRTHvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="multiparity"/>
+			<xsd:enumeration value="samesex"/>
+			<xsd:enumeration value="stillborn"/>
+			<xsd:enumeration value="birthplace"/>
+			<xsd:enumeration value="birthrank"/>
+			<xsd:enumeration value="partusnumber"/>
+			<xsd:enumeration value="beforepregnancyweight"/>
+			<xsd:enumeration value="atdeliveryweight"/>
+			<xsd:enumeration value="height"/>
+			<xsd:enumeration value="previouschildbirth"/>
+			<xsd:enumeration value="previousbornalive"/>
+			<xsd:enumeration value="lastbabybirthdate"/>
+			<xsd:enumeration value="intermediatestillborndelivery"/>
+			<xsd:enumeration value="previouscaesarean"/>
+			<xsd:enumeration value="parity"/>
+			<xsd:enumeration value="pregnancyorigin"/>
+			<xsd:enumeration value="hypertensiondiagnose"/>
+			<xsd:enumeration value="diabetesdiagnose"/>
+			<xsd:enumeration value="HIVdiagnose"/>
+			<xsd:enumeration value="pregnancyduration"/>
+			<xsd:enumeration value="childposition"/>
+			<xsd:enumeration value="inductiondelivery"/>
+			<xsd:enumeration value="epiduralanalgesia"/>
+			<xsd:enumeration value="rachianalagesia"/>
+			<xsd:enumeration value="foetalmonitoring"/>
+			<xsd:enumeration value="streptococcusbcolonization"/>
+			<xsd:enumeration value="intrapartalsbgprophylaxis"/>
+			<xsd:enumeration value="deliveryway"/>
+			<xsd:enumeration value="episiotomy"/>
+			<xsd:enumeration value="caesareanindication"/>
+			<xsd:enumeration value="breastfeeding"/>
+			<xsd:enumeration value="atbirthweight"/>
+			<xsd:enumeration value="apgarscore1"/>
+			<xsd:enumeration value="apgarscore5"/>
+			<xsd:enumeration value="artificialrespiration"/>
+			<xsd:enumeration value="neonataldept"/>
+			<xsd:enumeration value="congenitalmalformation"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ITEM-EBIRTH">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ITEM-EBIRTHvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-EBIRTH"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="CD-EBIRTH-PLACE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-PLACEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-PLACE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-PLACEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="home"/>
+			<xsd:enumeration value="hospital"/>
+			<xsd:enumeration value="other"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-PREGNANCYORIGIN">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-PREGNANCYORIGINvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-PREGNANCYORIGIN"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-PREGNANCYORIGINvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="spontaneous"/>
+			<xsd:enumeration value="hormonal"/>
+			<xsd:enumeration value="IVF"/>
+			<xsd:enumeration value="ICSI"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-SPECIALVALUES">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-SPECIALVALUESvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-SPECIALVALUES"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-SPECIALVALUESvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="noanswer"/>
+			<xsd:enumeration value="unknown"/>
+			<xsd:enumeration value="nottested"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-CHILDPOSITION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-CHILDPOSITIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-CHILDPOSITION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-CHILDPOSITIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="head-down"/>
+			<xsd:enumeration value="other-head"/>
+			<xsd:enumeration value="breech"/>
+			<xsd:enumeration value="transverse"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-FOETALMONITORING">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-FOETALMONITORINGvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-FOETALMONITORING"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-FOETALMONITORINGvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CTG"/>
+			<xsd:enumeration value="STAN"/>
+			<xsd:enumeration value="MBE"/>
+			<xsd:enumeration value="intermittent-auscultation"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-DELIVERYWAY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-DELIVERYWAYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-DELIVERYWAY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-DELIVERYWAYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="spontaneous"/>
+			<xsd:enumeration value="vacuum-extraction"/>
+			<xsd:enumeration value="forceps"/>
+			<xsd:enumeration value="primary-caesarean"/>
+			<xsd:enumeration value="secondary-caesarean"/>
+			<xsd:enumeration value="vaginal breech"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-CAESAREANINDICATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-CAESAREANINDICATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-CAESAREANINDICATION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-CAESAREANINDICATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="previouscaesareansection"/>
+			<xsd:enumeration value="breechpresentation"/>
+			<xsd:enumeration value="transversepresentation"/>
+			<xsd:enumeration value="foetaldistress"/>
+			<xsd:enumeration value="dystocienotinlabour"/>
+			<xsd:enumeration value="dystocieinlabourinsufficientdilatation"/>
+			<xsd:enumeration value="dystocieinlabourinsufficientexpulsion"/>
+			<xsd:enumeration value="maternalindication"/>
+			<xsd:enumeration value="abruptioplacentae"/>
+			<xsd:enumeration value="requestedbypatient"/>
+			<xsd:enumeration value="multiplepregnancy"/>
+			<xsd:enumeration value="other"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-ARTIFICIALRESPIRATIONTYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-ARTIFICIALRESPIRATIONTYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-ARTIFICIALRESPIRATIONTYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-ARTIFICIALRESPIRATIONTYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="intubation"/>
+			<xsd:enumeration value="balloon-mask"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-NEONATALDEPTTYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-NEONATALDEPTTYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-NEONATALDEPTTYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-NEONATALDEPTTYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="nstar"/>
+			<xsd:enumeration value="nic"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-EBIRTH-CONGENITALMALFORMATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-EBIRTH-CONGENITALMALFORMATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-EBIRTH-CONGENITALMALFORMATION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-EBIRTH-CONGENITALMALFORMATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="anencephalia"/>
+			<xsd:enumeration value="spinabifida"/>
+			<xsd:enumeration value="hydrocephalia"/>
+			<xsd:enumeration value="splitlippalate"/>
+			<xsd:enumeration value="analatresia"/>
+			<xsd:enumeration value="membersreduction"/>
+			<xsd:enumeration value="diaphragmatichernia"/>
+			<xsd:enumeration value="omphalocele"/>
+			<xsd:enumeration value="gastroschisis"/>
+			<xsd:enumeration value="transpositiegrotevaten"/>
+			<xsd:enumeration value="afwijkinglong"/>
+			<xsd:enumeration value="atresiedundarm"/>
+			<xsd:enumeration value="nieragenese"/>
+			<xsd:enumeration value="craniosynostosis"/>
+			<xsd:enumeration value="turnersyndrom"/>
+			<xsd:enumeration value="obstructievedefecten"/>
+			<xsd:enumeration value="tetralogiefallot"/>
+			<xsd:enumeration value="oesofagaleatresie"/>
+			<xsd:enumeration value="atresieanus"/>
+			<xsd:enumeration value="twintotwintransfusionsyndrome"/>
+			<xsd:enumeration value="skeletdysplasie"/>
+			<xsd:enumeration value="hydropsfoetalis"/>
+			<xsd:enumeration value="polymultikystischenierdysplasie"/>
+			<xsd:enumeration value="VSD"/>
+			<xsd:enumeration value="atresiegalwegen"/>
+			<xsd:enumeration value="hypospadias"/>
+			<xsd:enumeration value="cystischhygroma"/>
+			<xsd:enumeration value="trisomie21"/>
+			<xsd:enumeration value="trisomie18"/>
+			<xsd:enumeration value="trisomie13"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- unreferenced tables -->
+	<xsd:simpleType name="CD-COMPRESSIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="DF"/>
+			<xsd:enumeration value="GZ"/>
+			<xsd:enumeration value="Z"/>
+			<xsd:enumeration value="ZL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-ENCODINGvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="B64"/>
+			<xsd:enumeration value="TXT"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-MICROORGANISMvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="legionella"/>
+			<xsd:enumeration value="salmonella"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MICROORGANISM">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MICROORGANISMvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MICROORGANISM"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Tables for hubs-metahub services-->
+	<!-- Draft -->
+	<xsd:complexType name="CD-CONSENT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CONSENTvalues">
+				<xsd:attribute name="S" type="CD-CONSENTschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CONSENTschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-CONSENTTYPE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-CONSENTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="local"/>
+			<xsd:enumeration value="prospective"/>
+			<xsd:enumeration value="retrospective"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-THERAPEUTICLINK">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-THERAPEUTICLINKvalues">
+				<xsd:attribute name="S" type="CD-THERAPEUTICLINKschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-THERAPEUTICLINKschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-THERAPEUTICLINKTYPE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-THERAPEUTICLINKvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- The values can be found at this address https://www.ehealth.fgov.be/standards/kmehr/content/page/tables -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-PROOF">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-PROOFvalues">
+				<xsd:attribute name="S" type="CD-PROOFschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-PROOFschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-PROOFTYPE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-PROOFvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="eidreading"/>
+			<xsd:enumeration value="sisreading"/>
+            <xsd:enumeration value="isireading"/>
+			<xsd:enumeration value="eidsigning"/>
+			<xsd:enumeration value="authenticsource"/>
+			<!-- GMD -->
+			<xsd:enumeration value="patientmanagement"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ACCESSRIGHT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ACCESSRIGHTvalues">
+				<xsd:attribute name="S" type="CD-ACCESSRIGHTschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ACCESSRIGHTschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CD-ACCESSRIGHT"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="CD-ACCESSRIGHTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="allow"/>
+			<xsd:enumeration value="disallow"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- ChapterIV elements -->
+	<xsd:simpleType name="CD-TRANSACTION-MAAvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="agreementrequest"/>
+			<xsd:enumeration value="agreementresponse"/>
+			<xsd:enumeration value="freeappendix"/>
+			<xsd:enumeration value="reglementaryappendix"/>
+			<xsd:enumeration value="consultationrequest"/>
+			<xsd:enumeration value="consultationresponse"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-TRANSACTION-MAA">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-TRANSACTION-MAAvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TRANSACTION-MAA"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-ITEM-MAAvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="agreementtype"/>
+			<xsd:enumeration value="requesttype"/>
+			<xsd:enumeration value="responsetype"/>
+			<xsd:enumeration value="agreementstartdate"/>
+			<xsd:enumeration value="agreementenddate"/>
+			<xsd:enumeration value="consultationstartdate"/>
+			<xsd:enumeration value="consultationenddate"/>
+			<xsd:enumeration value="careproviderreference"/>
+			<xsd:enumeration value="iorequestreference"/>
+			<xsd:enumeration value="decisionreference"/>
+			<xsd:enumeration value="refusaljustification"/>
+			<xsd:enumeration value="chapter4reference"/>
+			<xsd:enumeration value="chapter4annexreference"/>
+			<xsd:enumeration value="unitnumber"/>
+			<xsd:enumeration value="strength"/>
+			<xsd:enumeration value="restunitnumber"/>
+			<xsd:enumeration value="reststrength"/>
+			<xsd:enumeration value="orphandrugdeliveryplace"/>
+			<xsd:enumeration value="orphandrugdeliveryid"/>
+			<xsd:enumeration value="coveragetype"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ITEM-MAA">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ITEM-MAAvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-MAA"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MAA-TYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="chapter4"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MAA-TYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MAA-TYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MAA-TYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MAA-REQUESTTYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="newrequest"/>
+			<xsd:enumeration value="extension"/>
+			<xsd:enumeration value="noncontinuousextension"/>
+			<xsd:enumeration value="complimentaryannex"/>
+			<xsd:enumeration value="cancellation"/>
+			<xsd:enumeration value="closure"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MAA-REQUESTTYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MAA-REQUESTTYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MAA-REQUESTTYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MAA-RESPONSETYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="agreement"/>
+			<xsd:enumeration value="refusal"/>
+			<xsd:enumeration value="intreatment"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MAA-RESPONSETYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MAA-RESPONSETYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MAA-RESPONSETYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MAA-REFUSALJUSTIFICATIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="200"/>
+			<xsd:enumeration value="401"/>
+			<xsd:enumeration value="404"/>
+			<xsd:enumeration value="406"/>
+			<xsd:enumeration value="409"/>
+			<xsd:enumeration value="413"/>
+			<xsd:enumeration value="414"/>
+			<xsd:enumeration value="415"/>
+			<xsd:enumeration value="416"/>
+			<xsd:enumeration value="502"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MAA-REFUSALJUSTIFICATION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MAA-REFUSALJUSTIFICATIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MAA-REFUSALJUSTIFICATION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-MAA-COVERAGETYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="chapter4limited"/>
+			<xsd:enumeration value="chapter4unlimited"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-MAA-COVERAGETYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-MAA-COVERAGETYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MAA-COVERAGETYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Chapter IV external tables -->
+	<xsd:simpleType name="CD-CHAPTER4PARAGRAPHvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+			<!--
+				Position 1 = _1_
+				Positions 2 � 11 = Paragraphe (10 positions num�riques) (10 pos Char)
+				(pour info : = Zone _paragraph_name_ de la table _paragraph_).
+				Positions 12 � 15 = Version DB m�dicaments chapitre IV (4 pos num)
+				(pour info : = Zone _paragraph_version_ de la table _paragraph_).
+		-->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CHAPTER4PARAGRAPH">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CHAPTER4PARAGRAPHvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CHAPTER4PARAGRAPH"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CHAPTER4VERSEvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+			<!--
+				Positions 15 � 100 = Verse_num (pr�voir plusieurs valeurs) (x fois 6 pos num)
+				(pour info : = Zone _verse_num_ de la table _verse_).
+		-->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CHAPTER4VERSE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CHAPTER4VERSEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CHAPTER4VERSE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CHAPTER4CATEGORYvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CHAPTER4CATEGORY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CHAPTER4CATEGORYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CHAPTER4CATEGORY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CHAPTER4CRITERIAvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CHAPTER4CRITERIA">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CHAPTER4CRITERIAvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CHAPTER4CRITERIA"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CHAPTER4VERSESEQAPPENDIXvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CHAPTER4VERSESEQAPPENDIX">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CHAPTER4VERSESEQAPPENDIXvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CHAPTER4VERSESEQAPPENDIX"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-CHAPTER4DOCUMENTSEQAPPENDIXvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Enumeration to be defined -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-CHAPTER4DOCUMENTSEQAPPENDIX">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-CHAPTER4DOCUMENTSEQAPPENDIXvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-CHAPTER4DOCUMENTSEQAPPENDIX"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Chapter IV external tables -->
+	<!-- ChapterIV elements end -->
+	<!-- Biobank -->
+	<xsd:simpleType name="CD-ITEM-BVTvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="referenceid"/>
+			<xsd:enumeration value="patientopposition"/>
+			<xsd:enumeration value="sample"/>
+			<xsd:enumeration value="biopsynumber"/>
+			<xsd:enumeration value="technicalremarks"/>
+			<xsd:enumeration value="lab"/>
+			<xsd:enumeration value="error"/>
+			<xsd:enumeration value="status"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-ITEM-BVT">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-ITEM-BVTvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-BVT"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-AVAILABLEMATERIALSvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="cytology"/>
+			<xsd:enumeration value="dna"/>
+			<xsd:enumeration value="rna"/>
+			<xsd:enumeration value="proteins"/>
+			<xsd:enumeration value="correspondingnormaltissue"/>
+			<xsd:enumeration value="tissue"/>
+			<xsd:enumeration value="serum"/>
+			<xsd:enumeration value="plasma"/>
+			<xsd:enumeration value="blood"/>
+			<xsd:enumeration value="urine"/>
+			<xsd:enumeration value="other"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-AVAILABLEMATERIALS">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-AVAILABLEMATERIALSvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-AVAILABLEMATERIALS"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-CONSERVATIONDELAYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="lessthan30min"/>
+			<xsd:enumeration value="morethan30min"/>
+			<xsd:enumeration value="unknown"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-CONSERVATIONDELAY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-CONSERVATIONDELAYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-CONSERVATIONDELAY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-CONSERVATIONMODEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="minus20degreesc"/>
+			<xsd:enumeration value="minus80degreesc"/>
+			<xsd:enumeration value="minus120degreesorcolder"/>
+			<xsd:enumeration value="liquidnitrogen"/>
+			<xsd:enumeration value="inclusioninparaffin"/>
+			<xsd:enumeration value="other"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-CONSERVATIONMODE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-CONSERVATIONMODEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-CONSERVATIONMODE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-SAMPLETYPEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="primarytumor"/>
+			<xsd:enumeration value="metastasis"/>
+			<xsd:enumeration value="normaltissue"/>
+			<xsd:enumeration value="other"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-SAMPLETYPE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-SAMPLETYPEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-SAMPLETYPE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BCR-DIFFERENTATIONDEGREEvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="welldifferentiated"/>
+			<xsd:enumeration value="moderatelydifferentiated"/>
+			<xsd:enumeration value="poorlydifferentiated"/>
+			<xsd:enumeration value="undifferentiatedanaplastic"/>
+			<xsd:enumeration value="tcell"/>
+			<xsd:enumeration value="bcell"/>
+			<xsd:enumeration value="nullcell"/>
+			<xsd:enumeration value="nkcell"/>
+			<xsd:enumeration value="unknown"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BCR-DIFFERENTATIONDEGREE">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BCR-DIFFERENTATIONDEGREEvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BCR-DIFFERENTATIONDEGREE"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-LATERALITYvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="left"/>
+			<xsd:enumeration value="right"/>
+			<xsd:enumeration value="odd"/>
+			<xsd:enumeration value="unknown"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-LATERALITY">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-LATERALITYvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-LATERALITY"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-PATIENTOPPOSITIONvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="nopatientopposition"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-PATIENTOPPOSITION">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-PATIENTOPPOSITIONvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-PATIENTOPPOSITION"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="CD-BVT-STATUSvalues">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="saved"/>
+			<xsd:enumeration value="submitted"/>
+			<xsd:enumeration value="rejected"/>
+			<xsd:enumeration value="inactive"/>
+			<xsd:enumeration value="published"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-BVT-STATUS">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-BVT-STATUSvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BVT-STATUS"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- Biobank End -->
+    <!-- Tuco & Ortho -->
+    <xsd:simpleType name="CD-TRANSACTION-REGvalues">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="qermid-stent-intervention"/>
+        <xsd:enumeration value="orthopride-intervention"/>
+        <xsd:enumeration value="defib-intervention"/>
+      </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CD-TRANSACTION-REG">
+        <xsd:simpleContent>
+          <xsd:extension base="CD-TRANSACTION-REGvalues">
+            <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TRANSACTION-REG"/>
+            <xsd:attribute name="SV" type="xsd:string" use="required"/>
+            <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+            <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+            <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:simpleType name="CD-ITEM-REGvalues">
+      <xsd:restriction base="xsd:string">
+        <!-- Tuco -->
+        <xsd:enumeration value="isinitialintervention"/>
+        <xsd:enumeration value="dominance"/>
+        <xsd:enumeration value="existingbridge"/>
+        <xsd:enumeration value="observedlesion"/>
+        <xsd:enumeration value="segment"/>
+        <xsd:enumeration value="totaltreatedlength"/>
+        <xsd:enumeration value="bloodvesseldiameter"/>
+        <xsd:enumeration value="procedure-device"/>
+        <xsd:enumeration value="contrastproductused"/>
+        <xsd:enumeration value="reimbursementnomenclaturetype"/>
+        <!-- Tuco End -->
+        <!-- Ortho -->
+        <xsd:enumeration value="intervention-type"/>
+        <xsd:enumeration value="intervention-site"/>
+        <xsd:enumeration value="approach"/>
+        <xsd:enumeration value="navigationcomputer"/>
+        <xsd:enumeration value="intervention-device"/>
+        <xsd:enumeration value="bearingsurface"/>
+        <xsd:enumeration value="graftused"/>
+        <xsd:enumeration value="acetabularinterface"/>
+        <xsd:enumeration value="femoralinterface"/>
+        <xsd:enumeration value="stem"/>
+        <xsd:enumeration value="cup"/>
+        <xsd:enumeration value="head"/>
+        <xsd:enumeration value="neck"/>
+        <xsd:enumeration value="insert"/>
+        <xsd:enumeration value="prosthesis-other"/>
+        <xsd:enumeration value="brand"/>
+        <xsd:enumeration value="producer"/>
+        <xsd:enumeration value="size"/>
+        <xsd:enumeration value="revisiontechnic"/>
+        <xsd:enumeration value="kneeimplanttype"/>
+        <xsd:enumeration value="kneeinsert"/>
+        <xsd:enumeration value="tibialinterface"/>
+        <xsd:enumeration value="patellarinterface"/>
+        <xsd:enumeration value="patella"/>
+        <xsd:enumeration value="femur"/>
+        <xsd:enumeration value="tibia"/>
+        <xsd:enumeration value="tickness"/>
+        <xsd:enumeration value="kneeprosthesis"/>
+        <xsd:enumeration value="revisioncomponent"/>
+        <xsd:enumeration value="doctorsremark"/>
+        <!-- Ortho End -->
+        <xsd:enumeration value="resynchronisation"/>
+        <xsd:enumeration value="pacingindication"/>
+        <xsd:enumeration value="issecondoperator"/>
+        <xsd:enumeration value="postpcitimi"/>
+        <xsd:enumeration value="poststenosis"/>
+      </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CD-ITEM-REG">
+        <xsd:simpleContent>
+          <xsd:extension base="CD-ITEM-REGvalues">
+            <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-REG"/>
+            <xsd:attribute name="SV" type="xsd:string" use="required"/>
+            <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+            <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+            <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:simpleType name="CD-HEADING-REGvalues">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="coronaryanatomy"/>
+      </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CD-HEADING-REG">
+        <xsd:simpleContent>
+          <xsd:extension base="CD-HEADING-REGvalues">
+            <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-HEADING-REG"/>
+            <xsd:attribute name="SV" type="xsd:string" use="required"/>
+            <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+            <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+            <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+    <!-- Tuco -->   
+    <xsd:simpleType name="CD-STENT-DOMINANCEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="left"/>
+      <xsd:enumeration value="right"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-STENT-DOMINANCE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-STENT-DOMINANCEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-STENT-DOMINANCE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-STENT-BRIDGETYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="saphena1"/>
+      <xsd:enumeration value="saphena2"/>
+      <xsd:enumeration value="saphena3"/>
+      <xsd:enumeration value="saphena4"/>
+      <xsd:enumeration value="saphena5"/>
+      <xsd:enumeration value="lima"/>
+      <xsd:enumeration value="rima"/>
+      <xsd:enumeration value="gepa"/>
+      <xsd:enumeration value="freeima"/>
+      <xsd:enumeration value="radialis"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-STENT-BRIDGETYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-STENT-BRIDGETYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-STENT-BRIDGETYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-STENT-LESIONTYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="simple"/>
+      <xsd:enumeration value="multi-segment"/>
+      <xsd:enumeration value="aorto-ostiale"/>
+      <xsd:enumeration value="bifurcation"/>
+      <xsd:enumeration value="occlusionchroniquetotplus3m"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-STENT-LESIONTYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-STENT-LESIONTYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-STENT-LESIONTYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-STENT-SEGMENTvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="proxrca"/>
+      <xsd:enumeration value="midrca"/>
+      <xsd:enumeration value="distrca"/>
+      <xsd:enumeration value="rightposteriordescending"/>
+      <xsd:enumeration value="leftmain"/>
+      <xsd:enumeration value="proxlad"/>
+      <xsd:enumeration value="midlad"/>
+      <xsd:enumeration value="distlad"/>
+      <xsd:enumeration value="d1"/>
+      <xsd:enumeration value="d2"/>
+      <xsd:enumeration value="d3"/>
+      <xsd:enumeration value="proxcx"/>
+      <xsd:enumeration value="intermediatebissectrice"/>
+      <xsd:enumeration value="m1"/>
+      <xsd:enumeration value="m2"/>
+      <xsd:enumeration value="distcx"/>
+      <xsd:enumeration value="pl1"/>
+      <xsd:enumeration value="pl2"/>
+      <xsd:enumeration value="pl3"/>
+      <xsd:enumeration value="leftposteriordescending"/>
+      <xsd:enumeration value="rv"/>
+      <xsd:enumeration value="rightpl2"/>
+      <xsd:enumeration value="rightpl3"/>
+      <xsd:enumeration value="pl4"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-STENT-SEGMENT">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-STENT-SEGMENTvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-STENT-SEGMENT"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-STENT-DEVICEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="bms"/>
+      <xsd:enumeration value="des"/>
+      <xsd:enumeration value="bvs"/>
+      <xsd:enumeration value="other"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-STENT-DEVICE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-STENT-DEVICEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-STENT-DEVICE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-TUCO-PATHOLOGYTYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="diabetedietarycontrol"/>
+      <xsd:enumeration value="diabeteoralmedication"/>
+      <xsd:enumeration value="diabeteinsulin"/>
+      <xsd:enumeration value="diabetenewlydiagnosed"/>
+      <xsd:enumeration value="diabete"/>
+      <xsd:enumeration value="renalfailurelessthan30ml"/>
+      <xsd:enumeration value="instentrestenosis"/>
+      <xsd:enumeration value="cardioshockatstartpci"/>
+      <xsd:enumeration value="stroke"/>
+      <xsd:enumeration value="peripheralvasculardisease"/>
+      <xsd:enumeration value="stentthrombosis"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-TUCO-PATHOLOGYTYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-TUCO-PATHOLOGYTYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TUCO-PATHOLOGYTYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-TUCO-STEMITYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="stemipci"/>
+      <xsd:enumeration value="stemirescue"/>
+      <xsd:enumeration value="stemilate"/>
+      <xsd:enumeration value="nonstemiurgent"/>
+      <xsd:enumeration value="nonstemielective"/>
+      <xsd:enumeration value="nonstemilate"/>
+      <xsd:enumeration value="emergentpci"/>
+      <xsd:enumeration value="electivepci"/>
+      <xsd:enumeration value="outofhospitalarrest"/>
+      <xsd:enumeration value="stagedpci"/>
+      <xsd:enumeration value="complicationpriorpci"/>
+      <xsd:enumeration value="recurrendischaemia"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-TUCO-STEMITYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-TUCO-STEMITYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TUCO-STEMITYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-BALLON-DEVICEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="ballon"/>
+      <xsd:enumeration value="deb"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-BALLON-DEVICE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-BALLON-DEVICEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BALLON-DEVICE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-DISCHARGETYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="alive"/>
+      <xsd:enumeration value="dead"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-DISCHARGETYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-DISCHARGETYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-DISCHARGETYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-REIMBURSEMENT-NOMENCLATUREvalues">
+    <xsd:restriction base="xsd:string">
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-REIMBURSEMENT-NOMENCLATURE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-REIMBURSEMENT-NOMENCLATUREvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-REIMBURSEMENT-NOMENCLATURE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <!-- Tuco End -->
+    <!-- Ortho -->
+    <xsd:simpleType name="CD-ORTHO-TYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="primaryprocedure"/>
+      <xsd:enumeration value="revisionwithprosthesis"/>
+      <xsd:enumeration value="osteosynthesis"/>
+      <xsd:enumeration value="resection"/>
+      <xsd:enumeration value="arthrodesis"/>
+      <xsd:enumeration value="amputation"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-TYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-TYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-TYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-DIAGNOSISvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="primaryarthrosis"/>
+      <xsd:enumeration value="necrosisavascular"/>
+      <xsd:enumeration value="fracture"/>
+      <xsd:enumeration value="inflamatory"/>
+      <xsd:enumeration value="posttraumaticarthrosis"/>
+      <xsd:enumeration value="arthrosisafterinfection"/>
+      <xsd:enumeration value="secondaryarthrosis"/>
+      <xsd:enumeration value="rheumatoidarthritis"/>
+      <xsd:enumeration value="tumor"/>
+      <xsd:enumeration value="hipdysplasia"/>
+      <xsd:enumeration value="other"/>
+      <xsd:enumeration value="asepticloosening"/>
+      <xsd:enumeration value="infection"/>
+      <xsd:enumeration value="instability"/>
+      <xsd:enumeration value="periprostheticfracture"/>
+      <xsd:enumeration value="pain"/>
+      <xsd:enumeration value="wearpolyethylene"/>
+      <xsd:enumeration value="wrongalignment"/>
+      <xsd:enumeration value="fractureofimplant"/>
+      <xsd:enumeration value="progressionarthrosis"/>
+      <xsd:enumeration value="rigidity"/>
+      <xsd:enumeration value="wear"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-DIAGNOSIS">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-DIAGNOSISvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-DIAGNOSIS"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-APPROACHvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="lateral"/>
+      <xsd:enumeration value="posterior"/>
+      <xsd:enumeration value="anterior"/>
+      <xsd:enumeration value="bytrochanterotomy"/>
+      <xsd:enumeration value="withfemoralosteotomy"/>
+      <xsd:enumeration value="other"/>
+      <xsd:enumeration value="subvastus"/>
+      <xsd:enumeration value="midvastus"/>
+      <xsd:enumeration value="parapatellarlateral"/>
+      <xsd:enumeration value="parapatellarmedial"/>
+      <xsd:enumeration value="tuberositasosteotomie"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-APPROACH">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-APPROACHvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-APPROACH"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-NAVCOMvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="navigationcomputerglobal"/>
+      <xsd:enumeration value="navigationcomputerstem"/>
+      <xsd:enumeration value="navigationcomputercup"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-NAVCOM">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-NAVCOMvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-NAVCOM"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-IMPLANTATION-DEVICEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="spacer"/>
+      <xsd:enumeration value="hipprosthesis"/>
+      <xsd:enumeration value="kneeprosthesis"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-IMPLANTATION-DEVICE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-IMPLANTATION-DEVICEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-IMPLANTATION-DEVICE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-BEARING-SURFACEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="metalpoly"/>
+      <xsd:enumeration value="cerampoly"/>
+      <xsd:enumeration value="metalmetal"/>
+      <xsd:enumeration value="ceramceram"/>
+      <xsd:enumeration value="other"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-BEARING-SURFACE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-BEARING-SURFACEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-BEARING-SURFACE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-GRAFTvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="allograft"/>
+      <xsd:enumeration value="homograft"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-GRAFT">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-GRAFTvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-GRAFT"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-INTERFACEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="hacoated"/>
+      <xsd:enumeration value="porous"/>
+      <xsd:enumeration value="smouth"/>
+      <xsd:enumeration value="cementwithab"/>
+      <xsd:enumeration value="cementwithoutab"/>
+      <xsd:enumeration value="allpoly"/>
+      <xsd:enumeration value="none"/>
+      <xsd:enumeration value="other"/>
+      <xsd:enumeration value="metalbacked"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-INTERFACE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-INTERFACEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-INTERFACE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-TECHREVISIONvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="femoralheadneck"/>
+      <xsd:enumeration value="femoralcomplete"/>
+      <xsd:enumeration value="acetabularinsert"/>
+      <xsd:enumeration value="acetabularcomplete"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-TECHREVISION">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-TECHREVISIONvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-TECHREVISION"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-IMPLANTATION-TYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="unimedial"/>
+      <xsd:enumeration value="unilateral"/>
+      <xsd:enumeration value="bicompartimental"/>
+      <xsd:enumeration value="femoropatellar"/>
+      <xsd:enumeration value="totalcr"/>
+      <xsd:enumeration value="totalps"/>
+      <xsd:enumeration value="totalcck"/>
+      <xsd:enumeration value="hinge"/>
+      <xsd:enumeration value="totaluc"/>
+      <xsd:enumeration value="other"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-IMPLANTATION-TYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-IMPLANTATION-TYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-IMPLANTATION-TYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ORTHO-KNEE-INSERTvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="fixed"/>
+      <xsd:enumeration value="mobile"/>
+      <xsd:enumeration value="none"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-ORTHO-KNEE-INSERT">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ORTHO-KNEE-INSERTvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ORTHO-KNEE-INSERT"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-REV-COMPONENTvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="patella"/>
+      <xsd:enumeration value="femur"/>
+      <xsd:enumeration value="tibia"/>
+      <xsd:enumeration value="insert"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-REV-COMPONENT">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-REV-COMPONENTvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-REV-COMPONENT"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <!-- Ortho End -->
+    <!-- Vitalink -->
+    <xsd:simpleType name="CD-ITEM-MSvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="origin"/>
+      <xsd:enumeration value="adaptationflag"/>
+      <xsd:enumeration value="medicationuse"/>
+      <xsd:enumeration value="medicationtype"/>
+      <xsd:enumeration value="begincondition"/>
+      <xsd:enumeration value="endcondition"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+    <xsd:complexType name="CD-ITEM-MS">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ITEM-MSvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-MS"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-MS-ORIGINvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="regularprocess"/>
+      <xsd:enumeration value="recorded"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-MS-ORIGIN">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-MS-ORIGINvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MS-ORIGIN"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-MS-ADAPTATIONvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="nochanges"/>
+      <xsd:enumeration value="medication"/>
+      <xsd:enumeration value="posology"/>
+      <xsd:enumeration value="treatmentsuspension"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-MS-ADAPTATION">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-MS-ADAPTATIONvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MS-ADAPTATION"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-MS-MEDICATIONTYPEvalues">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="onprescription"/>
+      <xsd:enumeration value="otc"/>
+      <xsd:enumeration value="other"/>
+    </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-MS-MEDICATIONTYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-MS-MEDICATIONTYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MS-MEDICATIONTYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <!-- Vitalink End -->
+    <xsd:simpleType name="CD-SUBSTANCEschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="CD-INNCLUSTER"/>
+        <xsd:enumeration value="CD-ATC"/>
+        <xsd:enumeration value="CD-EAN"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-SUBSTANCE">
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string">
+          <xsd:attribute name="S" type="CD-SUBSTANCEschemes" use="required"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-FORMULARYschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="CD-FORMULARY"/>
+        <xsd:enumeration value="CD-FORMULARYREFERENCE"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-FORMULARY">
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string">
+          <xsd:attribute name="S" type="CD-FORMULARYschemes" use="required"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-QUANTITYPREFIXvalues">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="ana"/>
+        <xsd:enumeration value="anaad"/>
+        <xsd:enumeration value="ad"/>
+        <xsd:enumeration value="qs"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="CD-QUANTITYPREFIX">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-QUANTITYPREFIXvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-QUANTITYPREFIX"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-TRANSACTION-MYCARENETvalues">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="gmd"/>
+        <xsd:enumeration value="gmdclosure"/>
+        <xsd:enumeration value="gmdextension"/>
+        <xsd:enumeration value="tariff"/>
+      </xsd:restriction>
+     </xsd:simpleType>
+     <xsd:complexType name="CD-TRANSACTION-MYCARENET">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-TRANSACTION-MYCARENETvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TRANSACTION-MYCARENET"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-ITEM-MYCARENETvalues">
+      <xsd:restriction base="xsd:string">
+      	<xsd:enumeration value="fee"/>
+      	<xsd:enumeration value="financialcontract"/>
+      	<xsd:enumeration value="patientfee"/>
+        <xsd:enumeration value="payment"/>        
+        <xsd:enumeration value="reimbursement"/>               
+      </xsd:restriction>
+     </xsd:simpleType>
+     <xsd:complexType name="CD-ITEM-MYCARENET">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ITEM-MYCARENETvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ITEM-MYCARENET"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-SNOMEDvalues">
+		<xsd:restriction base="xsd:string">
+			<!-- Snomed codes -->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="CD-SNOMED">
+		<xsd:simpleContent>
+			<xsd:extension base="CD-SNOMEDvalues">
+				<xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-SNOMED"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="DN" type="xsd:string" use="optional"/>
+				<xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+    <xsd:simpleType name="CD-TRANSACTION-TYPEvalues">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="incapacity"/>
+        <xsd:enumeration value="incapacityextension"/>
+        <xsd:enumeration value="incapacityrelapse"/>
+        <xsd:enumeration value="nursing"/>
+        <xsd:enumeration value="physiotherapy"/>
+        <xsd:enumeration value="intermediarynursing"/>
+        <xsd:enumeration value="intermediaryphysiotherapy"/>
+      </xsd:restriction>
+     </xsd:simpleType>
+     <xsd:complexType name="CD-TRANSACTION-TYPE">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-TRANSACTION-TYPEvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-TRANSACTION-TYPE"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:simpleType name="CD-MYCARENET-JUSTIFICATIONvalues">
+      <xsd:restriction base="xsd:string">
+      </xsd:restriction>
+     </xsd:simpleType>
+     <xsd:complexType name="CD-MYCARENET-JUSTIFICATION">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-MYCARENET-JUSTIFICATIONvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-MYCARENET-JUSTIFICATION"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+     <xsd:simpleType name="CD-ACTS-NURSINGvalues">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="NMF001"/>
+        <xsd:enumeration value="NMF002"/>
+        <xsd:enumeration value="NMF011"/>
+        <xsd:enumeration value="NMF012"/>
+        <xsd:enumeration value="NMF013"/>
+        <xsd:enumeration value="NMF021"/>
+        <xsd:enumeration value="NMF022"/>
+        <xsd:enumeration value="NMF031"/>
+        <xsd:enumeration value="NMF040"/>
+        <xsd:enumeration value="NMF041"/>
+        <xsd:enumeration value="NMF042"/>
+        <xsd:enumeration value="NMF043"/>
+        <xsd:enumeration value="NMF044"/>
+        <xsd:enumeration value="NMF045"/>
+        <xsd:enumeration value="NMF046"/>
+        <xsd:enumeration value="NMF047"/>
+        <xsd:enumeration value="NMF051"/>
+        <xsd:enumeration value="NMF052"/>
+        <xsd:enumeration value="NMF061"/>
+        <xsd:enumeration value="NMF062"/>
+        <xsd:enumeration value="NMF071"/>
+        <xsd:enumeration value="NMF072"/>
+        <xsd:enumeration value="NMF073"/>
+        <xsd:enumeration value="NMF074"/>
+        <xsd:enumeration value="NMF081"/>
+        <xsd:enumeration value="NMF082"/>
+        <xsd:enumeration value="NMF091"/>
+        <xsd:enumeration value="NMF092"/>
+        <xsd:enumeration value="NMF093"/>
+        <xsd:enumeration value="NMF101"/>
+        <xsd:enumeration value="NMF111"/>
+        <xsd:enumeration value="NMF112"/>
+        <xsd:enumeration value="NMF113"/>
+        <xsd:enumeration value="NMF114"/>
+        <xsd:enumeration value="NMF115"/>
+        <xsd:enumeration value="NMF116"/>
+        <xsd:enumeration value="NMF121"/>
+        <xsd:enumeration value="NMF999"/>
+      </xsd:restriction>
+     </xsd:simpleType>
+     <xsd:complexType name="CD-ACTS-NURSING">
+      <xsd:simpleContent>
+        <xsd:extension base="CD-ACTS-NURSINGvalues">
+          <xsd:attribute name="S" type="xsd:string" use="required" fixed="CD-ACTS-NURSING"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+          <xsd:attribute name="DN" type="xsd:string" use="optional"/>
+          <xsd:attribute name="L" type="xsd:language" use="optional" default="en"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+</xsd:schema>

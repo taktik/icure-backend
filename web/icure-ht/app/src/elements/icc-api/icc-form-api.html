@@ -1,0 +1,185 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-form-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="convertLegacyFormTemplates" method="PUT" headers="[[headers]]" url="/form/template/legacy" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="createForm" method="POST" headers="[[headers]]" url="/form" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="createFormTemplate" method="POST" headers="[[headers]]" url="/form/template" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteFormTemplate" method="DELETE" headers="[[headers]]" url="/form/template/{formTemplateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByHCPartyPatientSecretFKeys" method="GET" headers="[[headers]]" url="/form/byHcPartySecretForeignKeys" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findFormTemplates" method="GET" headers="[[headers]]" url="/form/template" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findFormTemplatesBySpeciality" method="GET" headers="[[headers]]" url="/form/template/bySpecialty/{specialityCode}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getChildren" method="GET" headers="[[headers]]" url="/form/childrenOf/{formId}/{hcPartyId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getForm" method="GET" headers="[[headers]]" url="/form/{formId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getFormTemplate" method="GET" headers="[[headers]]" url="/form/template/{formTemplateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getFormTemplatesByGuid" method="GET" headers="[[headers]]" url="/form/template/{specialityCode}/guid/{formTemplateGuid}" handle-as="json"
+					   				on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getForms" method="POST" headers="[[headers]]" url="/form/byIds" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyForm" method="PUT" headers="[[headers]]" url="/form" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="newDelegations" method="POST" headers="[[headers]]" url="/form/delegate/{formId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="updateFormTemplate" method="PUT" headers="[[headers]]" url="/form/template/{formTemplateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-form-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				convertLegacyFormTemplates: function (body) {
+					var xhr = this.$.convertLegacyFormTemplates
+					xhr.body = body
+					xhr.url = this.host+"/form/template/legacy" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				createForm: function (body) {
+					var xhr = this.$.createForm
+					xhr.body = body
+					xhr.url = this.host+"/form" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				createFormTemplate: function (body) {
+					var xhr = this.$.createFormTemplate
+					xhr.body = body
+					xhr.url = this.host+"/form/template" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteFormTemplate: function (formTemplateId) {
+					var xhr = this.$.deleteFormTemplate
+
+					xhr.url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByHCPartyPatientSecretFKeys: function (hcPartyId, secretFKeys, healthElementId, planOfActionId, formTemplateId) {
+					var xhr = this.$.findByHCPartyPatientSecretFKeys
+
+					xhr.url = this.host+"/form/byHcPartySecretForeignKeys" + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "") + (healthElementId ? "&healthElementId=" + healthElementId : "") + (planOfActionId ? "&planOfActionId=" + planOfActionId : "") + (formTemplateId ? "&formTemplateId=" + formTemplateId : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findFormTemplates: function () {
+					var xhr = this.$.findFormTemplates
+
+					xhr.url = this.host+"/form/template" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findFormTemplatesBySpeciality: function (specialityCode) {
+					var xhr = this.$.findFormTemplatesBySpeciality
+
+					xhr.url = this.host+"/form/template/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getChildren: function (formId, hcPartyId) {
+					var xhr = this.$.getChildren
+
+					xhr.url = this.host+"/form/childrenOf/{formId}/{hcPartyId}".replace("{formId}", formId).replace("{hcPartyId}", hcPartyId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getForm: function (formId) {
+					var xhr = this.$.getForm
+
+					xhr.url = this.host+"/form/{formId}".replace("{formId}", formId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getFormTemplate: function (formTemplateId) {
+					var xhr = this.$.getFormTemplate
+
+					xhr.url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getFormTemplatesByGuid: function (formTemplateGuid, specialityCode) {
+					var xhr = this.$.getFormTemplatesByGuid
+
+					xhr.url = this.host+"/form/template/{specialityCode}/guid/{formTemplateGuid}".replace("{formTemplateGuid}", formTemplateGuid).replace("{specialityCode}", specialityCode) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getForms: function (body) {
+					var xhr = this.$.getForms
+					xhr.body = body
+					xhr.url = this.host+"/form/byIds" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyForm: function (body) {
+					var xhr = this.$.modifyForm
+					xhr.body = body
+					xhr.url = this.host+"/form" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				newDelegations: function (formId, body) {
+					var xhr = this.$.newDelegations
+					xhr.body = body
+					xhr.url = this.host+"/form/delegate/{formId}".replace("{formId}", formId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				updateFormTemplate: function (formTemplateId, body) {
+					var xhr = this.$.updateFormTemplate
+					xhr.body = body
+					xhr.url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

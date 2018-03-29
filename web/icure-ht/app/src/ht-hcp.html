@@ -1,0 +1,55 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="./shared-styles.html">
+
+<link rel="import" href="elements/ht-hcp/ht-hcp-list.html">
+<link rel="import" href="elements/ht-hcp/ht-hcp-detail.html">
+
+<script src="../bower_components/moment/moment.js"></script>
+<script src="../bower_components/base64-js/base64js.min.js"></script>
+
+<dom-module id="ht-hcp">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+				height: calc(100% - 20px);
+				padding: 10px;
+			}
+    </style>
+
+		<template is="dom-if" if="{{selectedHcp}}">
+			<ht-hcp-detail api="[[api]]" user="[[user]]" hcp="{{selectedHcp}}"></ht-hcp-detail>
+		</template>
+		<template is="dom-if" if="{{!selectedHcp}}">
+			<ht-hcp-list api="[[api]]" user="[[user]]" selected-hcp="{{selectedHcp}}"></ht-hcp-list>
+		</template>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'ht-hcp',
+			properties: {
+				api: {
+					type: Object
+				},
+				user: {
+					type: Object
+				},
+				selectedHcp: {
+					type: Object,
+					value: null
+				}
+			}
+    });
+  </script>
+</dom-module>

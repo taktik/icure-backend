@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 27, 2008 11:38:03 AM by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Mp" table="MP" catalog="DRUGS">
+        <composite-id name="id" class="org.taktik.icure.be.drugs.dto.MpId">
+            <key-property name="id" type="string">
+                <column name="ID" />
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="doc" class="org.taktik.icure.be.drugs.Doc" update="false" insert="false" fetch="select">
+            <column name="DOC_ID" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <many-to-one name="infoResp" class="org.taktik.icure.be.drugs.Informationresponsible" update="false" insert="false" fetch="select">
+            <column name="INFORESP_ID" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <property name="name" type="string">
+            <column name="NAME" />
+        </property>
+        <property name="vaccinecode" type="string">
+            <column name="VACCINECODE" />
+        </property>
+        <property name="pos" type="string">
+            <column name="POS" />
+        </property>
+        <property name="note" type="string">
+            <column name="NOTE" />
+        </property>
+        <property name="equiv" type="string">
+            <column name="EQUIV" />
+        </property>
+        <property name="dopingcode" type="string">
+            <column name="DOPINGCODE" />
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE" />
+        </property>
+        
+        <set name="equivalencesForTargetequivalence" inverse="true">
+            <key>
+                <column name="EQMP_ID" not-null="true" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Equivalence" />
+        </set>
+        <set name="mpps" inverse="true" sort="natural">
+            <key>
+                <column name="MP_ID" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Mpp" />
+        </set>
+        <set name="equivalencesForSourceequivalence" inverse="true">
+            <key>
+                <column name="MP_ID" not-null="true" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Equivalence" />
+        </set>
+    </class>
+</hibernate-mapping>

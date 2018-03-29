@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-11-04</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Clinical codes</NAME>
+  <VALUE>
+    <CODE>10000907</CODE>
+    <DESCRIPTION L='en'>This code corresponds to the ICPC 2 A70 and to the ICD 10 A16.2 code</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>10115767</CODE>
+    <DESCRIPTION L='en'>This code corresponds to the ICPC 2 K92 and to the ICD 10 170.2 code</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

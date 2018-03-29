@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>MAA Refusal Justification</NAME>
+  <VALUE>
+    <CODE>200</CODE>
+    <DESCRIPTION L='fr'>Patient décédé avant  la date de début de période demandée</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>401</CODE>
+    <DESCRIPTION L='fr'>Il existe déjà un accord dont la date de fin est plus grande que la date de début demandée. (Dans ce cas, il est conseillé de refaire une consultation d’accord afin d’obtenir les détails de l’accord existant).</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>404</CODE>
+    <DESCRIPTION L='fr'>Demande non gérable par le médecin-conseil</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>406</CODE>
+    <DESCRIPTION L='fr'>Refus médical</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>409</CODE>
+    <DESCRIPTION L='fr'>Refus suite à la présence d’une autre demande en cours de traitement pour le même paragraphe.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>413</CODE>
+    <DESCRIPTION L='fr'>Il ne s’agit pas d’une nouvelle demande. Veuillez réintroduire une prolongation.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>415</CODE>
+    <DESCRIPTION L='fr'>Il ne s’agit pas d’une prolongation. Veuillez réintroduire une nouvelle demande.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>416</CODE>
+    <DESCRIPTION L='fr'>Prestataire non habilité pour ce type de demande durant la période concernée</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>502</CODE>
+    <DESCRIPTION L='fr'>Nombre / Durée maximum d’accord déjà atteint. </DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

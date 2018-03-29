@@ -1,0 +1,424 @@
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output indent="yes"/>
+    <xsl:template match="TKConsult">
+        <FormLayout>
+            <xsl:attribute name="group">
+                <xsl:value-of select="@group"/>
+            </xsl:attribute>
+            <xsl:attribute name="guid">
+                <xsl:value-of select="@guid"/>
+            </xsl:attribute>
+            <xsl:attribute name="height">
+                <xsl:choose>
+                    <xsl:when test="@height"><xsl:value-of select="@height"/></xsl:when>
+                    <xsl:otherwise>400</xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
+            <xsl:attribute name="name">
+                <xsl:value-of select="@name"/>
+            </xsl:attribute>
+            <xsl:attribute name="width">
+                <xsl:choose>
+                    <xsl:when test="@width"><xsl:value-of select="@width"/></xsl:when>
+                    <xsl:otherwise>600</xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
+
+            <xsl:apply-templates select="TKDefaultServicesList"/>
+
+            <FormSection columns="1">
+                <FormColumn columns="1">
+                    <xsl:apply-templates select="TKConsultAction|TKConsultData|TKSubConsultData">
+                        <xsl:sort select="@top"/>
+                    </xsl:apply-templates>
+                </FormColumn>
+            </FormSection>
+        </FormLayout>
+    </xsl:template>
+
+    <xsl:template match="TKDefaultServicesList">
+        <xsl:for-each select="TKString">
+            <ImportedServiceXPath>
+                <xsl:value-of select="."/>
+            </ImportedServiceXPath>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="TKDefaultServicesList/TKString">
+        <ImportedServiceXPath>
+            <xsl:value-of select="."/>
+        </ImportedServiceXPath>
+    </xsl:template>
+
+    <xsl:template match="TKConsultData">
+        <FormLayoutData>
+            <xsl:attribute name="name">
+                <xsl:value-of select="TKLabel/text()"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="@sortOrder|@irrelevant|@type"/>
+            <xsl:apply-templates select="@*" mode="options"/>
+            <label>
+                <xsl:value-of select="@name"></xsl:value-of>
+            </label>
+            <xsl:apply-templates select="node()"/>
+            <xsl:if test="@suggestThesaurus and (@suggestThesaurus!='false')">
+                <CodeType type="BE-THESAURUS"/>
+            </xsl:if>
+        </FormLayoutData>
+    </xsl:template>
+
+    <xsl:template match="TKConsultAction">
+        <FormLayoutData class="FormAction">
+            <xsl:attribute name="name">
+                <xsl:value-of select="TKLabel/text()"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="@sortOrder|@irrelevant|@type|@name"/>
+            <xsl:apply-templates select="@*" mode="options"/>
+            <label>
+                <xsl:value-of select="@name"></xsl:value-of>
+            </label>
+            <xsl:apply-templates select="node()"/>
+        </FormLayoutData>
+    </xsl:template>
+
+    <xsl:template match="TKSubConsultData">
+        <FormLayoutData subForm="true">
+            <xsl:attribute name="name">
+                <xsl:value-of select="TKLabel/text()"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="@sortOrder|@irrelevant|@type"/>
+            <xsl:apply-templates select="@*" mode="options"/>
+            <label>
+                <xsl:value-of select="@name"></xsl:value-of>
+            </label>
+            <xsl:apply-templates select="node()"/>
+        </FormLayoutData>
+    </xsl:template>
+
+    <xsl:template match="TKConsultLabel">
+        <FormLayoutData class="FormLabel">
+            <xsl:attribute name="name">
+                <xsl:value-of select="TKLabel/text()"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="@sortOrder|@irrelevant|@type|@name"/>
+            <xsl:apply-templates select="@*" mode="options"/>
+            <label>
+                <xsl:value-of select="@name"></xsl:value-of>
+            </label>
+            <xsl:apply-templates select="node()"/>
+        </FormLayoutData>
+    </xsl:template>
+
+    <xsl:template match="TKConsultData/@name"/>
+    <xsl:template match="TKConsultAction/@name"/>
+    <xsl:template match="TKSubConsultData/@name"/>
+    <xsl:template match="TKConsultLabel/@name"/>
+
+    <xsl:template match="TKLabel"/>
+
+    <xsl:template match="TKConsultData/@type[.='SKTDrawDocument']">
+        <xsl:attribute name="type">TKSchema</xsl:attribute>
+    </xsl:template>
+
+
+    <xsl:template match="TKDictionary"/>
+    <xsl:template match="@sortOrder|@irrelevant|@type|@name|@suggestPreviousEntries|@suggestThesaurus" mode="options"/>
+
+    <xsl:template match="@*" mode="options">
+        <xsl:if test=".!='false'">
+            <option>
+                <xsl:attribute name="key">
+                    <xsl:value-of select="name(.)"/>
+                </xsl:attribute>
+                <xsl:value-of select="."/>
+            </option>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="TKFormula">
+        <Formula>
+            <xsl:choose>
+                <xsl:when test="@computeFormulaOnlyOnce='true'"><xsl:attribute name="lifecycle">OnCreate</xsl:attribute></xsl:when>
+                <xsl:when test="@computeFormulaOnlyOnce='true'"><xsl:attribute name="lifecycle">OnLoad</xsl:attribute></xsl:when>
+                <xsl:otherwise><xsl:attribute name="lifecycle">OnChange</xsl:attribute></xsl:otherwise>
+            </xsl:choose>
+            <xsl:apply-templates select="node()"/>
+        </Formula>
+    </xsl:template>
+
+    <xsl:template match="TKDescription">
+        <description>
+            <xsl:apply-templates select="@*|node()"/>
+        </description>
+    </xsl:template>
+
+    <xsl:template match="defaultValue[TKNumber]">
+        <defaultValue><numberValue>
+            <xsl:if test="./TKNumber/@value"><xsl:value-of select="./TKNumber/@value"/></xsl:if>
+        </numberValue></defaultValue>
+    </xsl:template>
+
+    <xsl:template match="defaultValue[TKString]">
+        <defaultValue><stringValue>
+            <xsl:if test="./TKString/@value"><xsl:value-of select="./TKString/@value"/></xsl:if>
+        </stringValue></defaultValue>
+    </xsl:template>
+
+    <xsl:template match="defaultValue[SKTDrawDocument]">
+        <defaultValue><binaryValue>
+            <xsl:value-of select="./SKTDrawDocument"/>
+        </binaryValue></defaultValue>
+    </xsl:template>
+
+    <xsl:template match="defaultValue[TKMeasure]">
+        <defaultValue><measureValue>
+            <unit><xsl:value-of select="./TKMeasure/@unit"/></unit>
+            <xsl:if test="./TKMeasure/@value"><value><xsl:value-of select="./TKMeasure/@value"/></value></xsl:if>
+        </measureValue></defaultValue>
+    </xsl:template>
+
+    <xsl:template match="defaultValue[name(child::*[1])='TKTitle']">
+        <defaultValue class="TKLabel">
+            <xsl:apply-templates select="child::*[1]/@*"/>
+        </defaultValue>
+    </xsl:template>
+
+    <xsl:template match="defaultValue">
+    </xsl:template>
+
+    <xsl:template match="TKString" mode="DefaultValue">
+        <value><xsl:apply-templates select="node()"/></value>
+    </xsl:template>
+
+    <xsl:template match="TKActionButtonEditor">
+        <editor class="ActionButton">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKAttributedStringEditor">
+        <editor class="StyledStringEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKBooleanEditor">
+        <editor class="CheckBoxEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKTitleEditor">
+        <editor class="Label">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKLabelEditor">
+        <editor class="Label">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKNumberEditor">
+        <editor class="NumberEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKSliderIntegerEditor">
+        <editor class="NumberEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKSchemaEditor">
+        <editor class="SchemaEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKHealthcarePartyEditor">
+        <editor class="HealthcarePartyEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKStringTable">
+        <editor class="StringTableEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKTableEditor">
+        <editor class="StringTableEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKPopupButtonEditor">
+        <editor class="PopupMenuEditor">
+            <xsl:apply-templates select="@*"/>
+            <xsl:for-each select="TKContentList/*">
+                <menuOption>
+                    <xsl:value-of select="."/>
+                </menuOption>
+            </xsl:for-each>
+            <xsl:apply-templates select="*[name(.)!='TKContentList']"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKPopupButtonValueDateEditor">
+        <editor class="PopupMenuEditor" displayValueDate="true">
+            <xsl:apply-templates select="@*"/>
+            <xsl:for-each select="TKContentList/*">
+                <menuOption>
+                    <xsl:value-of select="."/>
+                </menuOption>
+            </xsl:for-each>
+            <xsl:apply-templates select="*[name(.)!='TKContentList']"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKSubConsultEditor">
+        <editor class="SubFormEditor">
+            <xsl:apply-templates select="@*"/>
+            <xsl:for-each select="TKContentList/*">
+                <xsl:choose>
+                    <xsl:when test="position()=1 and ../@shouldaddfirstelement='true'">
+                        <CompulsoryForm>
+                            <xsl:value-of select="."/>
+                        </CompulsoryForm>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <OptionalForm>
+                            <xsl:value-of select="."/>
+                        </OptionalForm>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+            <xsl:apply-templates select="*[name(.)!='TKContentList']"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKStringEditor">
+        <editor class="StringEditor" multiline="false">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKFloatingPointNumberEditor">
+        <editor class="NumberEditor" precision="3">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKTextEditor">
+        <editor class="StringEditor" multiline="true">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKStringValueDateEditor">
+        <editor class="StringEditor" multiline="false" displayValueDate="true">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKValueDateEditor">
+        <editor class="CheckBoxEditor" displayValueDate="true">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKDrugTableEditor">
+        <editor class="MedicationTableEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKTokenFieldEditor">
+        <editor class="TokenFieldEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKAudiometry">
+        <editor class="Audiometry">
+            <xsl:apply-templates select="@*|*[name(.)!='TKContentList']"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKMeasureEditor">
+        <editor class="MeasureEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKMeasureValueDateEditor">
+        <editor class="MeasureEditor" displayValueDate="true">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKDateEditor">
+        <editor class="DateTimeEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKDateTimeEditor">
+        <editor class="DateTimeEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKDateTimePickerEditor">
+        <editor class="DateTimeEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKDatePickerEditor">
+        <editor class="DateTimeEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKTarificationTableEditor"/>
+    <xsl:template match="TKMedicationEditor">
+        <editor class="MedicationEditor">
+            <xsl:apply-templates select="@*|*"/>
+        </editor>
+    </xsl:template>
+    <xsl:template match="TKConsultPlanning">
+        <FormPlanning>
+            <xsl:apply-templates select="@*|node()"/>
+        </FormPlanning>
+    </xsl:template>
+    <xsl:template match="@labelPosition">
+        <xsl:attribute name="labelPosition">
+            <xsl:choose>
+                <xsl:when test=".='TKPlaceLabelUp'">Up</xsl:when>
+                <xsl:when test=".='TKPlaceLabelDown'">Down</xsl:when>
+                <xsl:when test=".='TKPlaceLabelLeft'">Left</xsl:when>
+                <xsl:when test=".='TKPlaceLabelRight'">Right</xsl:when>
+            </xsl:choose>
+        </xsl:attribute>
+    </xsl:template>
+    <xsl:template match="@heigth">
+        <xsl:attribute name="height">
+            <xsl:value-of select="."/>
+        </xsl:attribute>
+    </xsl:template>
+
+
+    <xsl:template match="TKTag">
+        <Tag>
+            <xsl:attribute name="type">
+                <xsl:value-of select="@type"/>
+            </xsl:attribute>
+            <xsl:attribute name="code">
+                <xsl:value-of select="@value"/>
+            </xsl:attribute>
+        </Tag>
+    </xsl:template>
+    <xsl:template match="TKCode">
+        <Code>
+            <xsl:attribute name="type">
+                <xsl:value-of select="@type"/>
+            </xsl:attribute>
+            <xsl:attribute name="code">
+                <xsl:value-of select="@value"/>
+            </xsl:attribute>
+        </Code>
+    </xsl:template>
+    <xsl:template match="TKCodeType">
+        <CodeType>
+            <xsl:attribute name="type">
+                <xsl:value-of select="@type"/>
+            </xsl:attribute>
+        </CodeType>
+    </xsl:template>
+
+
+    <!-- identity template -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+
+</xsl:stylesheet>

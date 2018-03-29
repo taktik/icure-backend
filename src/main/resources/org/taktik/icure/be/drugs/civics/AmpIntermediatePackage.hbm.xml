@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.AmpIntermediatePackage" table="amp_intermediate_package" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="addedMultiplier" type="java.lang.Long">
+            <column name="added_multiplier" />
+        </property>
+        <property name="addedQuantity" type="java.lang.Double">
+            <column name="added_quantity" scale="3" />
+        </property>
+        <property name="addedType" type="java.lang.String">
+            <column name="added_type" length="1" />
+        </property>
+        <property name="addedUnit" type="java.lang.String">
+            <column name="added_unit" length="5" />
+        </property>
+        <many-to-one name="amp" class="org.taktik.icure.be.drugs.civics.Amp">
+            <column name="amp_id" not-null="true" />
+        </many-to-one>
+        <property name="contentQuantity" type="java.lang.Double">
+            <column name="content_quantity" scale="3" not-null="true" />
+        </property>
+        <property name="contentUnit" type="java.lang.String">
+            <column name="content_unit" length="5" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="innerPackageCv" type="java.lang.String">
+            <column name="inner_package_cv" length="2" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="packageTxt" type="java.lang.String">
+            <column name="package_txt" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

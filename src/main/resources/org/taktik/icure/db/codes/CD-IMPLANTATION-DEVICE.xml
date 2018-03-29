@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Implantation Device</NAME>
+  <VALUE>
+    <CODE>hipprosthesis</CODE>
+    <DESCRIPTION L='en'>Hip Prosthesis</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kneeprosthesis</CODE>
+    <DESCRIPTION L='en'>Knee Prosthesis</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>spacer</CODE>
+    <DESCRIPTION L='en'>Spacer</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

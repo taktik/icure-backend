@@ -1,0 +1,185 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-message-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createMessage" method="POST" headers="[[headers]]" url="/message" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteDelegation" method="DELETE" headers="[[headers]]" url="/message/{messageId}/delegate/{delegateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteMessages" method="DELETE" headers="[[headers]]" url="/message/{messageIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteMessagesBatch" method="POST" headers="[[headers]]" url="/message/delete/byIds" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByHCPartyPatientSecretFKeys" method="GET" headers="[[headers]]" url="/message/byHcPartySecretForeignKeys" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findMessages" method="GET" headers="[[headers]]" url="/message" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findMessagesByFromAddress" method="GET" headers="[[headers]]" url="/message/byFromAddress" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findMessagesByToAddress" method="GET" headers="[[headers]]" url="/message/byToAddress" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findMessagesByTransportGuid" method="GET" headers="[[headers]]" url="/message/byTransportGuid" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getChildren" method="GET" headers="[[headers]]" url="/message/{messageId}/children" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getMessage" method="GET" headers="[[headers]]" url="/message/{messageId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listMessagesByInvoiceIds" method="POST" headers="[[headers]]" url="/message/byInvoiceId" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyMessage" method="PUT" headers="[[headers]]" url="/message" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="newDelegations" method="PUT" headers="[[headers]]" url="/message/{messageId}/delegate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="setMessagesStatusBits" method="PUT" headers="[[headers]]" url="/message/status/{status}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-message-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createMessage: function (body) {
+					var xhr = this.$.createMessage
+					xhr.body = body
+					xhr.url = this.host+"/message" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteDelegation: function (messageId, delegateId) {
+					var xhr = this.$.deleteDelegation
+
+					xhr.url = this.host+"/message/{messageId}/delegate/{delegateId}".replace("{messageId}", messageId).replace("{delegateId}", delegateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteMessages: function (messageIds) {
+					var xhr = this.$.deleteMessages
+
+					xhr.url = this.host+"/message/{messageIds}".replace("{messageIds}", messageIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteMessagesBatch: function (body) {
+					var xhr = this.$.deleteMessagesBatch
+					xhr.body = body
+					xhr.url = this.host+"/message/delete/byIds" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByHCPartyPatientSecretFKeys: function (secretFKeys) {
+					var xhr = this.$.findByHCPartyPatientSecretFKeys
+
+					xhr.url = this.host+"/message/byHcPartySecretForeignKeys" + "?ts=" + (new Date).getTime()  + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findMessages: function (startKey, startDocumentId, limit) {
+					var xhr = this.$.findMessages
+
+					xhr.url = this.host+"/message" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findMessagesByFromAddress: function (fromAddress, startKey, startDocumentId, limit) {
+					var xhr = this.$.findMessagesByFromAddress
+
+					xhr.url = this.host+"/message/byFromAddress" + "?ts=" + (new Date).getTime()  + (fromAddress ? "&fromAddress=" + fromAddress : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findMessagesByToAddress: function (toAddress, startKey, startDocumentId, limit, reverse) {
+					var xhr = this.$.findMessagesByToAddress
+
+					xhr.url = this.host+"/message/byToAddress" + "?ts=" + (new Date).getTime()  + (toAddress ? "&toAddress=" + toAddress : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (reverse ? "&reverse=" + reverse : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findMessagesByTransportGuid: function (transportGuid, startKey, startDocumentId, limit) {
+					var xhr = this.$.findMessagesByTransportGuid
+
+					xhr.url = this.host+"/message/byTransportGuid" + "?ts=" + (new Date).getTime()  + (transportGuid ? "&transportGuid=" + transportGuid : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getChildren: function (messageId) {
+					var xhr = this.$.getChildren
+
+					xhr.url = this.host+"/message/{messageId}/children".replace("{messageId}", messageId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getMessage: function (messageId) {
+					var xhr = this.$.getMessage
+
+					xhr.url = this.host+"/message/{messageId}".replace("{messageId}", messageId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listMessagesByInvoiceIds: function (body) {
+					var xhr = this.$.listMessagesByInvoiceIds
+					xhr.body = body
+					xhr.url = this.host+"/message/byInvoiceId" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyMessage: function (body) {
+					var xhr = this.$.modifyMessage
+					xhr.body = body
+					xhr.url = this.host+"/message" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				newDelegations: function (messageId, body) {
+					var xhr = this.$.newDelegations
+					xhr.body = body
+					xhr.url = this.host+"/message/{messageId}/delegate".replace("{messageId}", messageId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				setMessagesStatusBits: function (status, body) {
+					var xhr = this.$.setMessagesStatusBits
+					xhr.body = body
+					xhr.url = this.host+"/message/status/{status}".replace("{status}", status) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

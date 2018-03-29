@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N0:definitions name="Chap4AgreementAdmissionWebservice" targetNamespace="urn:be:fgov:ehealth:chap4:protocol:v1" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:WL5G3N2="urn:be:fgov:ehealth:chap4:protocol:v1" xmlns:WL5G3N3="urn:be:fgov:ehealth:errors:soa:v1" xmlns:WL5G3N4="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+  <WL5G3N0:documentation>Version 1.0</WL5G3N0:documentation>
+  <WL5G3N0:types>
+    <xsd:schema xmlns:WL5G3N1="urn:be:fgov:ehealth:chap4:protocol:v1" xmlns:WL5G3N2="urn:be:fgov:ehealth:errors:soa:v1" xmlns:WL5G3N3="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:chiv="urn:be:fgov:ehealth:chap4:protocol:v1" xmlns:err="urn:be:fgov:ehealth:errors:soa:v1" xmlns:soap11="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="urn:be:fgov:ehealth:chap4:protocol:v1" schemaLocation="../XSD/chapterIV_v1/chap4services-protocol-1_0.xsd"/>
+      <xsd:import namespace="urn:be:fgov:ehealth:errors:soa:v1" schemaLocation="../XSD/common/ehealth-errors-schema-soa-1_0.xsd"/>
+    </xsd:schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="AskChap4MedicalAdvisorAgreementRequest">
+    <WL5G3N0:part element="WL5G3N2:AskChap4MedicalAdvisorAgreementRequest" name="body"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="AskChap4MedicalAdvisorAgreementResponse">
+    <WL5G3N0:part element="WL5G3N2:AskChap4MedicalAdvisorAgreementResponse" name="body"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="SystemError">
+    <WL5G3N0:part element="WL5G3N3:SystemError" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="Chap4AgreementAdmissionPortType">
+    <WL5G3N0:operation name="askChap4MedicalAdvisorAgreement">
+      <WL5G3N0:input message="WL5G3N2:AskChap4MedicalAdvisorAgreementRequest"/>
+      <WL5G3N0:output message="WL5G3N2:AskChap4MedicalAdvisorAgreementResponse"/>
+      <WL5G3N0:fault message="WL5G3N2:SystemError" name="SystemError"/>
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="Chap4AgreementAdmissionSoapBinding" type="WL5G3N2:Chap4AgreementAdmissionPortType">
+    <WL5G3N4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <WL5G3N0:operation name="askChap4MedicalAdvisorAgreement">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:chap4:protocol:v1:AskChap4MedicalAdvisorAgreement" style="document"/>
+      <WL5G3N0:input>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#samlPolicy-holder-of-key-signed-Smals"/>
+        </wsp:Policy>
+        <WL5G3N4:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N4:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="Chap4AgreementAdmissionService">
+    <WL5G3N0:port binding="WL5G3N2:Chap4AgreementAdmissionSoapBinding" name="Chap4AgreementAdmissionServiceSOAP11">
+      <WL5G3N4:address location="https://lrehtapp901b.ehealth.fgov.be:11001/ChapterIV/ChapterIVAgreementAdmission/v1"/>
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N1:definitions targetNamespace="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2" xmlns:WL5G3N0="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:WL5G3N1="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:WL5G3N2="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2" xmlns:WL5G3N3="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" xmlns:WL5G3N4="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:p="http://www.w3.org/2001/XMLSchema"
+  xmlns:error="urn:be:fgov:ehealth:errors:soa:v1">
+  <WL5G3N1:types>
+    <xsd:schema xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2" xmlns:WL5G3N2="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" xmlns:WL5G3N3="http://schemas.xmlsoap.org/wsdl/soap/"
+      xmlns:ehboxp="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2" xmlns:err="urn:be:fgov:ehealth:errors:service:v1" xmlns:mon="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+      xmlns:error="urn:be:fgov:ehealth:errors:soa:v1">
+      <xsd:import namespace="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2" schemaLocation="../XSD/ehbox_v2/ehealth-ehBox-consultation-schema-protocol-2_0.xsd" />
+      <xsd:import namespace="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" schemaLocation="../XSD/ehbox_v2/ehealth-ehBox-monitoring-schema-protocol-2_0.xsd" />
+      <xsd:import namespace="urn:be:fgov:ehealth:errors:soa:v1" schemaLocation="../XSD/common/ehealth-errors-schema-soa-1_0.xsd" />
+    </xsd:schema>
+  </WL5G3N1:types>
+  <WL5G3N1:message name="GetBoxInfoRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:GetBoxInfoRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetBoxInfoResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:GetBoxInfoResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetMessagesListRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:GetMessagesListRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetMessagesListResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:GetMessagesListResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetAllEhboxesMessagesListRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:GetAllEhboxesMessagesListRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetAllEhboxesMessagesListResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:GetAllEhboxesMessagesListResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetFullMessageRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:GetFullMessageRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetFullMessageResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:GetFullMessageResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="MoveMessageRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:MoveMessageRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="MoveMessageResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:MoveMessageResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetMessageHistoryRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:GetHistoryRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetMessageHistoryResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:GetHistoryResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetMessageAcknowledgmentsStatusRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:GetMessageAcknowledgmentsStatusRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="GetMessageAcknowledgmentsStatusResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:GetMessageAcknowledgmentsStatusResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="PingRequest">
+    <WL5G3N1:part element="WL5G3N3:PingRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="PingResponse">
+    <WL5G3N1:part element="WL5G3N3:PingResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="BusinessError">
+    <WL5G3N1:part name="parameters" element="error:BusinessError"></WL5G3N1:part>
+  </WL5G3N1:message>
+  <WL5G3N1:message name="SystemError">
+    <WL5G3N1:part name="parameters" element="error:SystemError"></WL5G3N1:part>
+  </WL5G3N1:message>
+  <WL5G3N1:portType name="ehBoxConsultationPortType">
+    <WL5G3N1:operation name="getBoxInfo">
+      <WL5G3N1:input message="WL5G3N2:GetBoxInfoRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:GetBoxInfoResponseMessage" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getMessagesList">
+      <WL5G3N1:input message="WL5G3N2:GetMessagesListRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:GetMessagesListResponseMessage" />
+
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getAllEhboxesMessagesList">
+      <WL5G3N1:input message="WL5G3N2:GetAllEhboxesMessagesListRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:GetAllEhboxesMessagesListResponseMessage" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getFullMessage">
+      <WL5G3N1:input message="WL5G3N2:GetFullMessageRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:GetFullMessageResponseMessage" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="moveMessage">
+      <WL5G3N1:input message="WL5G3N2:MoveMessageRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:MoveMessageResponseMessage" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getMessageHistory">
+      <WL5G3N1:input message="WL5G3N2:GetMessageHistoryRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:GetMessageHistoryResponseMessage" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getMessageAcknowledgmentsStatus">
+      <WL5G3N1:input message="WL5G3N2:GetMessageAcknowledgmentsStatusRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:GetMessageAcknowledgmentsStatusResponseMessage" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="ping">
+      <WL5G3N1:input message="WL5G3N2:PingRequest" />
+      <WL5G3N1:output message="WL5G3N2:PingResponse" />
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+  </WL5G3N1:portType>
+  <WL5G3N1:binding name="ehBoxConsultationBinding" type="WL5G3N2:ehBoxConsultationPortType">
+    <WL5G3N4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <WL5G3N1:operation name="getBoxInfo">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:getBoxInfo" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getMessagesList">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:getMessagesList" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getAllEhboxesMessagesList">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:getAllEhboxesMessagesList" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getFullMessage">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:getFullMessage" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="moveMessage">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:moveMessage" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getMessageHistory">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:getMessageHistory" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="getMessageAcknowledgmentsStatus">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:getMessageAcknowledgmentsStatus" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="ping">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:consultation:protocol:v2:Ping" style="document" />
+      <WL5G3N1:input>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+  </WL5G3N1:binding>
+  <WL5G3N1:service name="ehBoxConsultationService">
+    <WL5G3N1:port binding="WL5G3N2:ehBoxConsultationBinding" name="ehBoxConsultationPort">
+      <WL5G3N4:address location="https://ehtilia1.ehealth.fgov.be:10011/ehBoxConsultation/v2" />
+    </WL5G3N1:port>
+  </WL5G3N1:service>
+</WL5G3N1:definitions>

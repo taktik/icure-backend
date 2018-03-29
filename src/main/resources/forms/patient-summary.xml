@@ -1,0 +1,117 @@
+<FormLayout name="Vue d'ensemble du patient" width="640.0" height="840.0" guid="DF4A7784-8500-11E4-86F1-E96695DB5880"
+            group="Patient">
+	<FormSection columns="1">
+		<FormColumn columns="1">
+
+			<FormLayoutData irrelevant="false" type="TKString" name="lastName" sortOrder="0.0">
+				<label>Last Name</label>
+				<editor class="StringEditor" left="80.0" top="60.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="false" type="TKString" name="firstName" sortOrder="0.0">
+				<label>First Name</label>
+				<editor class="StringEditor" left="400.0" top="60.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="false" type="TKDateTimeEditor" name="dateOfBirth" sortOrder="0.0">
+				<label>D. of birth</label>
+				<editor class="StringEditor" left="80.0" top="90.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="placeOfBirth" sortOrder="0.0">
+				<label>Pl. of birth</label>
+				<editor class="StringEditor" left="280.0" top="90.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="false" type="TKString" name="gender" sortOrder="0.0">
+				<label>Gender</label>
+				<editor class="StringEditor" left="580.0" top="90.0" width="60.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="false" type="TKString" name="ssin" sortOrder="0.0">
+				<label>NISS</label>
+				<editor class="StringEditor" left="80.0" top="120.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="shortId" sortOrder="0.0">
+				<label>External ID</label>
+				<editor class="StringEditor" left="400.0" top="120.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="nationality" sortOrder="0.0">
+				<label>Nationality</label>
+				<editor class="StringEditor" left="80.0" top="150.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="profession" sortOrder="0.0">
+				<label>Job</label>
+				<editor class="StringEditor" left="400.0" top="150.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="languages" sortOrder="0.0">
+				<label>Languages</label>
+				<editor class="StringEditor" left="80.0" top="180.0" width="560.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<!-- partnerName: if in France, we use the maidenName. If in Belgium, we use the spouse name. So we'll probably have to do 2 forms? -->
+			<FormLayoutData irrelevant="true" type="TKString" name="personalStatus" sortOrder="0.0">
+				<label>Status</label>
+				<editor class="StringEditor" left="80.0" top="210.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="spouseName" sortOrder="0.0">
+				<label>Partn. name</label>
+				<editor class="StringEditor" left="400.0" top="210.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="alias" sortOrder="0.0">
+				<label>Alias</label>
+				<editor class="StringEditor" left="80.0" top="240.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="education" sortOrder="0.0">
+				<label>Education</label>
+				<editor class="StringEditor" left="400.0" top="240.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKDateTimeEditor" name="dateOfDeath" sortOrder="0.0">
+				<label>D. of death</label>
+				<editor class="StringEditor" left="80.0" top="270.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="placeOfDeath" sortOrder="0.0">
+				<label>Pl. of death</label>
+				<editor class="StringEditor" left="280.0" top="270.0" width="240.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<!-- Partnerships -->
+
+			<FormLayoutData irrelevant="true" type="TKSubForm" name="partnerships" sortOrder="0.0">
+				<label>Partnerships</label>
+				<editor class="SubFormEditor" left="80.0" top="330.0" width="560.0" multiline="false" heigth="60.0"
+				        labelPosition="Left">
+					<CompulsoryForm>subforms/partnership</CompulsoryForm>
+				</editor>
+			</FormLayoutData>
+
+			<!-- Insurabilities -->
+
+			<FormLayoutData irrelevant="true" type="TKSubForm" name="insurabilities" sortOrder="0.0">
+				<label>Insurances</label>
+				<editor class="SubFormEditor" left="80.0" top="420.0" width="560.0" multiline="false" heigth="120.0"
+				        labelPosition="Left">
+					<CompulsoryForm>subforms/insurability</CompulsoryForm>
+				</editor>
+			</FormLayoutData>
+
+			<!-- Addresses -->
+
+			<FormLayoutData irrelevant="true" type="TKSubForm" name="addresses" sortOrder="0.0">
+				<label>Addresses</label>
+				<editor class="SubFormEditor" left="80.0" top="570.0" width="560.0" multiline="false" heigth="150.0"
+				        labelPosition="Left">
+					<CompulsoryForm>subforms/address</CompulsoryForm>
+				</editor>
+			</FormLayoutData>
+
+			<!-- Notes -->
+
+			<FormLayoutData irrelevant="true" type="TKString" name="note" sortOrder="0.0">
+				<label>Notes</label>
+				<editor class="StringEditor" left="80.0" top="750.0" width="560.0" multiline="true" heigth="90.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+		</FormColumn>
+	</FormSection>
+</FormLayout>

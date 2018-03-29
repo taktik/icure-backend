@@ -1,0 +1,115 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-doctemplate-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createDocumentTemplate" method="POST" headers="[[headers]]" url="/doctemplate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findAllDocumentTemplates" method="GET" headers="[[headers]]" url="/doctemplate/find/all" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findDocumentTemplates" method="GET" headers="[[headers]]" url="/doctemplate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findDocumentTemplatesBySpeciality" method="GET" headers="[[headers]]" url="/doctemplate/bySpecialty/{specialityCode}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getAttachment" method="GET" headers="[[headers]]" url="/doctemplate/{documentTemplateId}/attachment/{attachmentId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getDocumentTemplate" method="GET" headers="[[headers]]" url="/doctemplate/{documentTemplateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="setAttachment" method="PUT" headers="[[headers]]" url="/doctemplate/{documentTemplateId}/attachment" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="updateDocumentTemplate" method="PUT" headers="[[headers]]" url="/doctemplate/{documentTemplateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-doctemplate-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createDocumentTemplate: function (body) {
+					var xhr = this.$.createDocumentTemplate
+					xhr.body = body
+					xhr.url = this.host+"/doctemplate" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findAllDocumentTemplates: function () {
+					var xhr = this.$.findAllDocumentTemplates
+
+					xhr.url = this.host+"/doctemplate/find/all" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findDocumentTemplates: function () {
+					var xhr = this.$.findDocumentTemplates
+
+					xhr.url = this.host+"/doctemplate" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findDocumentTemplatesBySpeciality: function (specialityCode) {
+					var xhr = this.$.findDocumentTemplatesBySpeciality
+
+					xhr.url = this.host+"/doctemplate/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getAttachment: function (documentTemplateId, attachmentId) {
+					var xhr = this.$.getAttachment
+
+					xhr.url = this.host+"/doctemplate/{documentTemplateId}/attachment/{attachmentId}".replace("{documentTemplateId}", documentTemplateId).replace("{attachmentId}", attachmentId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getDocumentTemplate: function (documentTemplateId) {
+					var xhr = this.$.getDocumentTemplate
+
+					xhr.url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				setAttachment: function (documentTemplateId, body) {
+					var xhr = this.$.setAttachment
+					xhr.body = body
+					xhr.url = this.host+"/doctemplate/{documentTemplateId}/attachment".replace("{documentTemplateId}", documentTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				updateDocumentTemplate: function (documentTemplateId, body) {
+					var xhr = this.$.updateDocumentTemplate
+					xhr.body = body
+					xhr.url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

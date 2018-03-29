@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Oracle JAX-WS 2.1.5. --><wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sea="urn:be:fgov:ehealth:seals:protocol:v1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:err="urn:be:fgov:ehealth:errors:service:v1" name="seals" targetNamespace="urn:be:fgov:ehealth:seals:protocol:v1" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wssutil="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsp:UsingPolicy wssutil:Required="true"/><wsp:Policy wssutil:Id="Wssp1.2-2007-Wss1.0-X509-Basic256.xml"><ns0:AsymmetricBinding xmlns:ns0="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"><wsp:Policy><ns0:InitiatorToken><wsp:Policy><ns0:X509Token ns0:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient"><wsp:Policy><ns0:WssX509V3Token10/></wsp:Policy></ns0:X509Token></wsp:Policy></ns0:InitiatorToken><ns0:RecipientToken><wsp:Policy><ns0:X509Token ns0:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never"><wsp:Policy><ns0:WssX509V3Token10/></wsp:Policy></ns0:X509Token></wsp:Policy></ns0:RecipientToken><ns0:AlgorithmSuite><wsp:Policy><ns0:Basic256/></wsp:Policy></ns0:AlgorithmSuite><ns0:Layout><wsp:Policy><ns0:Lax/></wsp:Policy></ns0:Layout><ns0:IncludeTimestamp/><ns0:ProtectTokens/><ns0:OnlySignEntireHeadersAndBody/></wsp:Policy></ns0:AsymmetricBinding><ns1:SignedParts xmlns:ns1="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"><ns1:Body/></ns1:SignedParts><ns2:Wss10 xmlns:ns2="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"><wsp:Policy><ns2:MustSupportRefKeyIdentifier/><ns2:MustSupportRefIssuerSerial/></wsp:Policy></ns2:Wss10></wsp:Policy>
+
+  <wsdl:types>
+    <xsd:schema>
+      <xsd:import namespace="urn:be:fgov:ehealth:seals:protocol:v1" schemaLocation="../XSD/seals_v1/ehealth-seals-schema-protocol-1_0.xsd"/>
+      <xsd:import namespace="urn:be:fgov:ehealth:errors:service:v1" schemaLocation="../XSD/common/ehealth-errors-schema-service-1_0.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="EncodeRequestMsg">
+    <wsdl:part element="sea:EncodeRequest" name="request"/>
+  </wsdl:message>
+  <wsdl:message name="EncodeResponseMsg">
+    <wsdl:part element="sea:EncodeResponse" name="response"/>
+  </wsdl:message>
+  <wsdl:message name="DecodeRequestMsg">
+    <wsdl:part element="sea:DecodeRequest" name="request"/>
+  </wsdl:message>
+  <wsdl:message name="DecodeResponseMsg">
+    <wsdl:part element="sea:DecodeResponse" name="response"/>
+  </wsdl:message>
+  <wsdl:message name="SystemError">
+    <wsdl:part name="fault" element="err:SystemError"/>
+  </wsdl:message>
+
+  <wsdl:portType name="SealsPortType">
+    <wsdl:operation name="encode">
+      <wsdl:input message="sea:EncodeRequestMsg"/>
+      <wsdl:output message="sea:EncodeResponseMsg"/>
+      <wsdl:fault message="sea:SystemError" name="SystemError"/>
+    </wsdl:operation>
+    <wsdl:operation name="decode">
+      <wsdl:input message="sea:DecodeRequestMsg"/>
+      <wsdl:output message="sea:DecodeResponseMsg"/>
+      <wsdl:fault message="sea:SystemError" name="SystemError"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  
+  <wsdl:binding name="SealsSOAPBinding" type="sea:SealsPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="encode">
+      <soap:operation soapAction="urn:be:fgov:ehealth:seals:protocol:v1:Encode" style="document"/>
+      <wsdl:input><wsp:PolicyReference URI="#Wssp1.2-2007-Wss1.0-X509-Basic256.xml"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="SystemError">
+        <soap:fault name="SystemError" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="decode">
+      <soap:operation soapAction="urn:be:fgov:ehealth:seals:protocol:v1:Decode" style="document"/>
+      <wsdl:input><wsp:PolicyReference URI="#Wssp1.2-2007-Wss1.0-X509-Basic256.xml"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="SystemError">
+        <soap:fault name="SystemError" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  
+  <wsdl:service name="EncodingService">
+    <wsdl:port binding="sea:SealsSOAPBinding" name="SealsPort">
+      <soap:address location="https://wwwacc.ehealth.fgov.be:443/seals/v2/EncodingService"/>
+    </wsdl:port>
+  </wsdl:service>
+
+</wsdl:definitions>

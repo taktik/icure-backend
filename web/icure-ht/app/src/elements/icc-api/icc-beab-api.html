@@ -1,0 +1,65 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-beab-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="getHealthcarePartyByNihii" method="GET" headers="[[headers]]" url="/be_ab/nihii/{nihii}/{language}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getHealthcarePartyBySsin" method="GET" headers="[[headers]]" url="/be_ab/ssin/{ssin}/{language}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="searchHealthcareParties" method="GET" headers="[[headers]]" url="/be_ab/find" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-beab-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				getHealthcarePartyByNihii: function (nihii, language) {
+					var xhr = this.$.getHealthcarePartyByNihii
+
+					xhr.url = this.host+"/be_ab/nihii/{nihii}/{language}".replace("{nihii}", nihii).replace("{language}", language) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getHealthcarePartyBySsin: function (ssin, language) {
+					var xhr = this.$.getHealthcarePartyBySsin
+
+					xhr.url = this.host+"/be_ab/ssin/{ssin}/{language}".replace("{ssin}", ssin).replace("{language}", language) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				searchHealthcareParties: function (lastName, firstName) {
+					var xhr = this.$.searchHealthcareParties
+
+					xhr.url = this.host+"/be_ab/find" + "?ts=" + (new Date).getTime()  + (lastName ? "&lastName=" + lastName : "") + (firstName ? "&firstName=" + firstName : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

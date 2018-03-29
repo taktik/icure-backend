@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Proof Type</NAME>
+  <VALUE>
+    <CODE>authenticsource</CODE>
+    <DESCRIPTION L='en'>Authentic Source</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>eidreading</CODE>
+    <DESCRIPTION L='en'>eID Card Reading</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>eidsigning</CODE>
+    <DESCRIPTION L='en'>eID Card Signing</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>patientmanagement</CODE>
+    <DESCRIPTION L='en'>Patient Management</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sisreading</CODE>
+    <DESCRIPTION L='en'>SIS card reading</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

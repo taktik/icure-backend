@@ -1,0 +1,28 @@
+<FormLayout name="Partnership" width="560.0" height="60.0" guid="DF4A7784-8500-11E4-86F1-E96695DB5880"
+            group="">
+	<FormSection columns="1">
+		<FormColumn columns="1">
+
+			<FormLayoutData irrelevant="true" type="TKString" name="partnershipDescription" sortOrder="0.0">
+				<editor class="StringEditor" left="0.0" top="0.0" width="200.0" multiline="false" heigth="22.0" readonly="true" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKDropDown" name="type" sortOrder="0.0">
+				<editor class="StringEditor" left="200.0" top="0.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKDropDown" name="status" sortOrder="0.0">
+				<label>Partnership status</label>
+				<editor class="StringEditor" left="440.0" top="0.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="meToOtherRelationshipDescription" sortOrder="0.0">
+				<label>Partner is patient's...</label>
+				<editor class="StringEditor" left="120.0" top="30.0" width="160.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="otherToMeRelationshipDescription" sortOrder="0.0">
+				<label>Patient is partner's...</label>
+				<editor class="StringEditor" left="400.0" top="30.0" width="160.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+		</FormColumn>
+	</FormSection>
+</FormLayout>

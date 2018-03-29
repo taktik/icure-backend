@@ -1,0 +1,151 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../qrcode-manager/qrcode-printer.html">
+
+<dom-module id="ht-export-key">
+	<template>
+		<style>
+			paper-dialog {
+				width: 60%;
+				height: 90%;
+			}
+
+			qrcode-printer {
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+
+		<paper-dialog id="dialog" opened="{{opened}}">
+			<h2>Scan the following code with your tablet</h2>
+			<div id="printable"><qrcode-printer id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+			<div class="buttons">
+				<paper-button dialog-dismiss>Cancel</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirm">Select</paper-button>
+			</div>
+		</paper-dialog>
+	</template>
+	<script>
+		class HtExportKey extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+			static get is() {
+				return 'ht-export-key'
+			}
+
+			static get properties() {
+				return {
+					api: {
+						type: Object,
+						value: null
+					},
+					user: {
+						type: Object,
+						value: null
+					},
+					privateKey: {
+						type: String
+					},
+					qrCodeWidth: {
+						type: Number,
+						value: 200
+					},
+					privateKeyPart: {
+						type: String,
+						value: null,
+						observer: ''
+					},
+					opened: {
+						type: Boolean,
+						value: false
+					},
+					segments: {
+						type: Number,
+						value: 8
+					},
+					verbose: {
+						type: Boolean,
+						value: true
+					}
+				}
+			}
+
+			static get observers() {
+				return [ 'apiReady(api,user,opened)' ]
+			}
+
+			ready() {
+				super.ready()
+				this.addEventListener('iron-resize', () => this.onWidthChange())
+			}
+
+			apiReady() {
+				if (!this.api || !this.user || !this.user.id || !this.opened) return
+
+				try {
+					const pair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
+					if (pair) {
+						const pk = _.cloneDeep(pair.privateKey)
+						delete pk.n
+						delete pk.e
+
+						if (this.verbose) {
+							this.set('privateKey', JSON.stringify(pk).replace(/ /g, ''))
+						} else {
+							const a = this.api.crypto().utils.text2ua([pk.d,pk.dp,pk.dq,pk.p,pk.q,pk.qi].join(' '))
+							this.set('privateKey', this.api.crypto().utils.ua2hex(pako.deflate(a)))
+							//const jwk = {alg: 'RSA-OAEP', key_ops: ['decrypt'], kty: 'RSA', ext: true};
+							//[jwk.d,jwk.dp,jwk.dq,jwk.p,jwk.q,jwk.qi] = String.fromCharCode.apply(null, pako.inflate(this.api.crypto().utils.text2ua(this.privateKey))).split(' ')
+							console.log("Check code: ", this.privateKey)
+						}
+						this._privateKeyChanged() //Force even if the key hasn't changed
+					}
+				} catch (e) {
+					console.log(e)
+				}
+			}
+
+			_switchKey() {
+				if (!this.privateKeyPart) {
+					this.set('privateKeyPart', '1'+this.segments+this.privateKey.substr(0,this.privateKey.length/this.segments))
+				} else {
+					const step = (parseInt(this.privateKeyPart.substr(0,1))%this.segments)+1
+					this.set('privateKeyPart', '' + step + this.segments + (step === this.segments? this.privateKey.substr((step-1)*this.privateKey.length/this.segments) : this.privateKey.substr((step-1)*this.privateKey.length/this.segments,this.privateKey.length/this.segments)))
+				}
+				if (this.opened) {
+					setTimeout(this._switchKey.bind(this), 2000)
+				}
+			}
+
+			_privateKeyChanged() {
+				if (this.privateKey) { this._switchKey() }
+			}
+
+			attached() {
+				super.attached()
+				this.async(this.notifyResize, 1)
+			}
+
+			onWidthChange() {
+				const offsetWidth = this.$.dialog.offsetWidth
+				const offsetHeight = this.$.dialog.offsetHeight
+				if (!offsetWidth || !offsetHeight) {
+					return
+				}
+				this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160))
+			}
+
+			open() {
+				this.$.dialog.open()
+			}
+
+			close() {
+				this.$.dialog.close()
+			}
+		}
+		customElements.define(HtExportKey.is, HtExportKey)
+	</script>
+</dom-module>

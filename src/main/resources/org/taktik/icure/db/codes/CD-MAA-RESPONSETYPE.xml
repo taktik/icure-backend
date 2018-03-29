@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>MAA Response Type</NAME>
+  <VALUE>
+    <CODE>agreement</CODE>
+    <DESCRIPTION L='fr'>Accord</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>intreatment</CODE>
+    <DESCRIPTION L='fr'>En traitement</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>refusal</CODE>
+    <DESCRIPTION L='fr'>Refus</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

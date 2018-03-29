@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 27, 2008 11:38:03 AM by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Equivalence" table="EQUIVALENCE" catalog="DRUGS">
+        <composite-id name="id" class="org.taktik.icure.be.drugs.dto.EquivalenceId">
+            <key-property name="mpId" type="string">
+                <column name="MP_ID" />
+            </key-property>
+            <key-property name="eqmpId" type="string">
+                <column name="EQMP_ID" />
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="mpBySourceequivalence" class="org.taktik.icure.be.drugs.Mp" update="false" insert="false" fetch="select">
+            <column name="MP_ID" not-null="true" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <many-to-one name="mpByTargetequivalence" class="org.taktik.icure.be.drugs.Mp" update="false" insert="false" fetch="select">
+            <column name="EQMP_ID" not-null="true" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <property name="type" type="string">
+            <column name="TYPE" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,105 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-insurance-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createInsurance" method="POST" headers="[[headers]]" url="/insurance" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteInsurance" method="DELETE" headers="[[headers]]" url="/insurance/{insuranceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getInsurance" method="GET" headers="[[headers]]" url="/insurance/{insuranceId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getInsurances" method="POST" headers="[[headers]]" url="/insurance/byIds" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listInsurancesByCode" method="GET" headers="[[headers]]" url="/insurance/byCode/{insuranceCode}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listInsurancesByName" method="GET" headers="[[headers]]" url="/insurance/byName/{insuranceName}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyInsurance" method="PUT" headers="[[headers]]" url="/insurance" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-insurance-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createInsurance: function (body) {
+					var xhr = this.$.createInsurance
+					xhr.body = body
+					xhr.url = this.host+"/insurance" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteInsurance: function (insuranceId) {
+					var xhr = this.$.deleteInsurance
+
+					xhr.url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getInsurance: function (insuranceId) {
+					var xhr = this.$.getInsurance
+
+					xhr.url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getInsurances: function (body) {
+					var xhr = this.$.getInsurances
+					xhr.body = body
+					xhr.url = this.host+"/insurance/byIds" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listInsurancesByCode: function (insuranceCode) {
+					var xhr = this.$.listInsurancesByCode
+
+					xhr.url = this.host+"/insurance/byCode/{insuranceCode}".replace("{insuranceCode}", insuranceCode) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listInsurancesByName: function (insuranceName) {
+					var xhr = this.$.listInsurancesByName
+
+					xhr.url = this.host+"/insurance/byName/{insuranceName}".replace("{insuranceName}", insuranceName) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyInsurance: function (body) {
+					var xhr = this.$.modifyInsurance
+					xhr.body = body
+					xhr.url = this.host+"/insurance" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

@@ -1,0 +1,2040 @@
+[
+  {
+    "name": {
+      "fr": "Alliance nationale des mutualités chrétiennes",
+      "nl": "Landsbond der christelijke mutualiteiten"
+    },
+    "_id": "000000000-0000-0000-0100-0000000000000",
+    "code": "100",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Chaussée de Haecht 579, boite 40",
+      "postalCode": 1031,
+      "city": "Bruxelles",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 246 41 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "alliance@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 243 20 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit van het arrondissement Antwerpen"},
+    "_id": "000000000-0000-0000-0101-0000000000000",
+    "code": "101",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Molenbergstraat 2",
+      "postalCode": 2000,
+      "city": "ANTWERPEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(03) 221 93 39"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "antwerpen@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(03) 221 96 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit regio Mechelen - Turnhout"},
+    "_id": "000000000-0000-0000-0105-0000000000000",
+    "code": "105",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Korte Begijnenstraat 22",
+      "postalCode": 2300,
+      "city": "TURNHOUT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(014) 40 31 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "regiomechelenturnhout@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(014) 40 34 09"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijk ziekenfonds - Sint-Pietersbond"},
+    "_id": "000000000-0000-0000-0108-0000000000000",
+    "code": "108",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Platte Lostraat 541",
+      "postalCode": 3010,
+      "city": "KESSEL-LO",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(016) 35 96 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "leuven@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(016) 35 95 55"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité chrétienne du Brabant wallon"},
+    "_id": "000000000-0000-0000-0109-0000000000000",
+    "code": "109",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Boulevard des Archers 54",
+      "postalCode": 1400,
+      "city": "NIVELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(067) 89 36 36"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "brabant.wallon@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(067) 21 42 69"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit"},
+    "_id": "000000000-0000-0000-0110-0000000000000",
+    "code": "110",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Oude Burg 19",
+      "postalCode": 8000,
+      "city": "BRUGGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(050) 44 05 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "brugge@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(050) 44 05 21"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit Zuid-West-Vlaanderen"},
+    "_id": "000000000-0000-0000-0111-0000000000000",
+    "code": "111",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Beneluxpark 22",
+      "postalCode": 8500,
+      "city": "KORTRIJK",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(056) 52 60 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "zwvl@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(056) 52 63 10"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit Oostende - Veurne - Diksmuide"},
+    "_id": "000000000-0000-0000-0112-0000000000000",
+    "code": "112",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Ieperstraat 12",
+      "postalCode": 8400,
+      "city": "OOSTENDE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(059) 55 26 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "oostende@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(059) 55 26 12"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit Roeselare - Tielt"},
+    "_id": "000000000-0000-0000-0113-0000000000000",
+    "code": "113",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Beversesteenweg 35",
+      "postalCode": 8800,
+      "city": "ROESELARE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(051) 26 53 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "roeselaretielt@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(051) 22 59 80"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit Middden- Vlaanderen"},
+    "_id": "000000000-0000-0000-0120-0000000000000",
+    "code": "120",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Martelaarslaan 17",
+      "postalCode": 9000,
+      "city": "GENT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(09) 224 77 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "midden-vlaanderen@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(09) 223 19 45"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit van het land van Waas en Dendermonde"},
+    "_id": "000000000-0000-0000-0121-0000000000000",
+    "code": "121",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "De Castrodreef 1",
+      "postalCode": 9100,
+      "city": "SINT-NIKLAAS",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(03) 760 38 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "waasendender@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(03) 766 38 17"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Christelijk ziekenfonds Sint-Michielsbond"},
+    "_id": "000000000-0000-0000-0126-0000000000000",
+    "code": "126",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Haachtsesteenweg 1805",
+      "postalCode": 1130,
+      "city": "BRUSSEL",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 240 85 31"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "st.michielsbond@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 240 87 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité chrétienne du Hainaut Oriental"},
+    "_id": "000000000-0000-0000-0128-0000000000000",
+    "code": "128",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue du Douaire 40",
+      "postalCode": 6150,
+      "city": "ANDERLUES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(071) 54 85 48"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "MCHO@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(071) 54 83 00"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité chrétienne Hainaut-Picardie"},
+    "_id": "000000000-0000-0000-0129-0000000000000",
+    "code": "129",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue St-Brice 44",
+      "postalCode": 7500,
+      "city": "TOURNAI",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(069) 25 62 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "MCHP@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(069) 21 25 65"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité chrétienne de Liège"},
+    "_id": "000000000-0000-0000-0130-0000000000000",
+    "code": "130",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Place du XX Août 38",
+      "postalCode": 4000,
+      "city": "LIEGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(04) 221 73 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "liege@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(04) 221 74 09"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Christelijke mutualiteit Limburg"},
+    "_id": "000000000-0000-0000-0131-0000000000000",
+    "code": "131",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Prins-Bisschopssingel 75",
+      "postalCode": 3500,
+      "city": "HASSELT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(011) 28 02 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "limburg@cm.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(011) 28 35 59"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité chrétienne de la Province de Luxembourg"},
+    "_id": "000000000-0000-0000-0132-0000000000000",
+    "code": "132",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue de la Moselle 7-9",
+      "postalCode": 6700,
+      "city": "ARLON",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(063) 21 17 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "arlon@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(063) 21 19 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité chrétienne de la Province de Namur"},
+    "_id": "000000000-0000-0000-0134-0000000000000",
+    "code": "134",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue des Tanneries 55",
+      "postalCode": 5000,
+      "city": "NAMUR",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(081) 24 48 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "namur@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(081) 23 08 94"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité Saint-Michel"},
+    "_id": "000000000-0000-0000-0135-0000000000000",
+    "code": "135",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Boulevard Anspach 111-115",
+      "postalCode": 1000,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 501 58 58"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "st.michel@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 501 58 38"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité Chrétienne de Verviers - Eupen"},
+    "_id": "000000000-0000-0000-0137-0000000000000",
+    "code": "137",
+    "parent": "000000000-0000-0000-0100-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Laoureux 25-29",
+      "postalCode": 4800,
+      "city": "VERVIERS",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(087) 30 51 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "verviers@mc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(087) 30 51 10"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Union nationale des mutualités neutres",
+      "nl": "Landsbond van de neutrale ziekenfondsen"
+    },
+    "_id": "000000000-0000-0000-0200-0000000000000",
+    "code": "200",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Chaussée de Charleroi 145",
+      "postalCode": 1060,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 538 83 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@unmn.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 538 50 18"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Vlaams & Neutraal ziekenfonds - Vlaanderen"},
+    "_id": "000000000-0000-0000-0203-0000000000000",
+    "code": "203",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Hoogstratenplein 1",
+      "postalCode": 2800,
+      "city": "MECHELEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(015) 28 90 90"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@vnz.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(015) 20 96 66"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Symbio "},
+    "_id": "000000000-0000-0000-0206-0000000000000",
+    "code": "206",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue de Tervueren 68-70",
+      "postalCode": 1040,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 733 97 40"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@symbio.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 743 16 94"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité neutre du Hainaut"},
+    "_id": "000000000-0000-0000-0216-0000000000000",
+    "code": "216",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue de Waterloo 23",
+      "postalCode": 6000,
+      "city": "CHARLEROI",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(071) 20 52 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "web@mut216.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(071) 32 87 98"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité neutre de la Santé"},
+    "_id": "000000000-0000-0000-0226-0000000000000",
+    "code": "226",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue de Chestret 4-6",
+      "postalCode": 4000,
+      "city": "LIEGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(04) 254 58 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "coordination@mut226.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(04) 254 54 39"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualia - Mutualité neutre"},
+    "_id": "000000000-0000-0000-0228-0000000000000",
+    "code": "228",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Place Verte 41",
+      "postalCode": 4800,
+      "city": "VERVIERS",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(087) 31 34 45"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@mutualia.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(087) 31 37 41"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "MUNALUX"},
+    "_id": "000000000-0000-0000-0232-0000000000000",
+    "code": "232",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue des Dames Blanches 24",
+      "postalCode": 5000,
+      "city": "NAMUR",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(081) 25 07 60"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@munalux.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(081) 22 18 04"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Neutraal ziekenfonds Vlaanderen"},
+    "_id": "000000000-0000-0000-0235-0000000000000",
+    "code": "235",
+    "parent": "000000000-0000-0000-0200-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Statieplein 12",
+      "postalCode": 9300,
+      "city": "AALST",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(053) 76 99 99"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "klantendienst@nzvl.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(053) 77 09 02"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Union nationale des mutualités socialistes",
+      "nl": "Nationaal verbond van socialistiche mutualiteiten"
+    },
+    "_id": "000000000-0000-0000-0300-0000000000000",
+    "code": "300",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Saint-Jean 32-38",
+      "postalCode": 1000,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 515 02 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "unms@mutsoc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 515 02 07"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "De VoorZorg, Socialistische mutualiteit van de provincie Antwerpen"},
+    "_id": "000000000-0000-0000-0304-0000000000000",
+    "code": "304",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Sint Bernardsesteenweg 200",
+      "postalCode": 2020,
+      "city": "ANTWERPEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(03) 285 44 44"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info.304@devoorzorg.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(03) 285 46 16"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité socialiste du Brabant wallon"},
+    "_id": "000000000-0000-0000-0305-0000000000000",
+    "code": "305",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Chaussée de Mons 228",
+      "postalCode": 1480,
+      "city": "TUBIZE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 391 09 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "msbw@mutsoc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 355 46 80"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Fédération des mutualités socialistes du Brabant",
+      "nl": "Federatie van socialistische mutualiteiten van Brabant"
+    },
+    "_id": "000000000-0000-0000-0306-0000000000000",
+    "code": "306",
+    "parent": "000000000-0000-0000-0306-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue du Midi 111",
+      "postalCode": 1000,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 506 96 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "mail@fmsb.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 514 59 26"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Bond moyson West-Vlaanderen"},
+    "_id": "000000000-0000-0000-0309-0000000000000",
+    "code": "309",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "President Kennedypark 2",
+      "postalCode": 8500,
+      "city": "KORTRIJK",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(056) 23 02 30"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@bondmoyson.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(056) 23 02 06"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Bond moyson Oost-Vlaanderen"},
+    "_id": "000000000-0000-0000-0311-0000000000000",
+    "code": "311",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Tramstraat 69",
+      "postalCode": 9052,
+      "city": "ZWIJNAARDE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(09) 333 50 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "vragen@bondmoyson.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(09) 333 50 59"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité Solidaris Mons-Wallonie Picarde"},
+    "_id": "000000000-0000-0000-0315-0000000000000",
+    "code": "315",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue du Fort 48",
+      "postalCode": 7800,
+      "city": "ATH",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(068) 84 84 84"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info.smwp@solidaris.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(068) 84 88 48"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Solidaris Mutualité socialiste du Centre, Charleroi et Soignies"},
+    "_id": "000000000-0000-0000-0317-0000000000000",
+    "code": "317",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue des Alliés 2",
+      "postalCode": 6000,
+      "city": "CHARLEROI",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(071) 50 77 77"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "infoccs@solidaris.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(071) 50 77 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Solidaris - Mutualité socialiste et syndicale de la Province de Liège"},
+    "_id": "000000000-0000-0000-0319-0000000000000",
+    "code": "319",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Douffet 36",
+      "postalCode": 4020,
+      "city": "LIEGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(04) 341 62 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "contacts.liege@solidaris.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(04) 341 64 16"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "De Voorzorg mutualiteitsverbond van Limburg"},
+    "_id": "000000000-0000-0000-0322-0000000000000",
+    "code": "322",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Capucienenstraat 10",
+      "postalCode": 3500,
+      "city": "HASSELT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(011) 24 99 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@devoorzorg.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(011) 23 35 62"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité socialiste du Luxembourg"},
+    "_id": "000000000-0000-0000-0323-0000000000000",
+    "code": "323",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Place de la Mutualité 1",
+      "postalCode": 6870,
+      "city": "SAINT-HUBERT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(061) 23 11 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "contact.lux@mutsoc.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(061) 61 28 67"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Solidaris mutualité Province de Namur"},
+    "_id": "000000000-0000-0000-0325-0000000000000",
+    "code": "325",
+    "parent": "000000000-0000-0000-0300-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Chaussée de Waterloo 182",
+      "postalCode": 5002,
+      "city": "NAMUR",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(081) 77 77 77"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@solidarisnamur.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(081) 74 25 25"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Union nationale des mutualités libérales/Landsbond van liberale mutualiteiten"},
+    "_id": "000000000-0000-0000-0400-0000000000000",
+    "code": "400",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue de Livourne 25",
+      "postalCode": 1050,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 542 86 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@mut400.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 542 86 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Liberale mutualiteit provincie Antwerpen"},
+    "_id": "000000000-0000-0000-0401-0000000000000",
+    "code": "401",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Lange Nieuwstraat 109",
+      "postalCode": 2000,
+      "city": "ANTWERPEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(03) 203 76 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@lmpa.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(03) 225 02 35"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Mutualité libérale du Brabant",
+      "nl": "Liberale mutualiteit van Brabant"
+    },
+    "_id": "000000000-0000-0000-0403-0000000000000",
+    "code": "403",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Place de la Reine 51-52",
+      "postalCode": 1030,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 209 48 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@mut403.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 219 01 54"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Liberale mutualiteit West - Vlaanderen"},
+    "_id": "000000000-0000-0000-0404-0000000000000",
+    "code": "404",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Revillpark 1",
+      "postalCode": 8000,
+      "city": "BRUGGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(050) 45 01 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@lmwvl.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(050) 45 01 02"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Liberale mutualiteit van Oost-Vlaanderen"},
+    "_id": "000000000-0000-0000-0407-0000000000000",
+    "code": "407",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Brabantdam 109",
+      "postalCode": 9000,
+      "city": "GENT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(09) 223 19 79"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "infocomm@libmutov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(09) 224 11 74"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité libérale Hainaut-Namur"},
+    "_id": "000000000-0000-0000-0409-0000000000000",
+    "code": "409",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Anatole France 8-14",
+      "postalCode": 7100,
+      "city": "LA LOUVIERE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(064) 23 61 90"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "contact@mut409.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(064) 23 61 91"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité libérale Hainaut - Ouest"},
+    "_id": "000000000-0000-0000-0413-0000000000000",
+    "code": "413",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Childéric 15",
+      "postalCode": 7500,
+      "city": "TOURNAI",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(069) 34 38 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "mutlib413@mlho.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(069) 21 67 20"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité libérale de Liège"},
+    "_id": "000000000-0000-0000-0414-0000000000000",
+    "code": "414",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue de Hermée, 177D",
+      "postalCode": 4040,
+      "city": "HERSTAL",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "0800 144 48 "
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "secretariat@libramut.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(04) 253 22 02"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Liberale mutualiteit Limburg"},
+    "_id": "000000000-0000-0000-0415-0000000000000",
+    "code": "415",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Geraetsstraat 20",
+      "postalCode": 3500,
+      "city": "HASSELT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(011) 29 10 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@lml.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(011) 22 20 67"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Liberale mutualiteit - Vlaams Gewest",
+      "nl": "Mutualité Libérale Région Flamande"
+    },
+    "_id": "000000000-0000-0000-0417-0000000000000",
+    "code": "417",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Prieelstraat 22",
+      "postalCode": 1730,
+      "city": "ASSE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 452 90 10 - 454 06 70"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@lmvlg.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 452 62 20"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Mutualité libérale du Luxembourg"},
+    "_id": "000000000-0000-0000-0418-0000000000000",
+    "code": "418",
+    "parent": "000000000-0000-0000-0400-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue de la Gare 37",
+      "postalCode": 6700,
+      "city": "ARLON",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(063) 24 53 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "contact@mutualiteliberale.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(063) 21 73 29"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Union nationale des mutualités libres",
+      "nl": "Landsbond van de onafhankelijke ziekenfondsen"
+    },
+    "_id": "000000000-0000-0000-0500-0000000000000",
+    "code": "500",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue St-Hubert 19",
+      "postalCode": 1150,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 778 92 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@mloz.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 778 94 00"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "OZ Onafhankelijk Ziekenfonds"},
+    "_id": "000000000-0000-0000-0501-0000000000000",
+    "code": "501",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Boomsesteenweg 5",
+      "postalCode": 2610,
+      "city": "ANTWERPEN / WILRIJK",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(03) 201 84 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@oz501.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(03) 201 86 00"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Omnimut mutualité libre de Wallonie"},
+    "_id": "000000000-0000-0000-0506-0000000000000",
+    "code": "506",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Natalis 47 B",
+      "postalCode": 4020,
+      "city": "LIEGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(04) 344 86 11"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "correspondance@omnimut.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(04) 341 01 82"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Partena - Mutualité libre "},
+    "_id": "000000000-0000-0000-0506-0000000000000",
+    "code": "509,527",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Boulevard Louis Mettewie 74-76",
+      "postalCode": 1080,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 444 41 11 (fr)"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "-"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 444 49 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Freie Krankenkasse"},
+    "_id": "000000000-0000-0000-0515-0000000000000",
+    "code": "515",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Hauptstrasse 2",
+      "postalCode": 4760,
+      "city": "BULLINGEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(080) 64 05 15"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@freie.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(080) 64 05 00"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Mutualité SECUREX",
+      "nl": "Ziekenfonds SECUREX"
+    },
+    "_id": "000000000-0000-0000-0516-0000000000000",
+    "code": "516",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue de Tervuren 43",
+      "postalCode": 1040,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(078) 15 93 00 (Fr)"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "mutualite@securex.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 729 92 12"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "PARTENA - Onafhankelijk ziekenfonds "},
+    "_id": "000000000-0000-0000-0526-0000000000000",
+    "code": "526",
+    "parent": "000000000-0000-0000-0500-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Sluisweg 2",
+      "postalCode": 9000,
+      "city": "GENT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 201 42 42"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "-"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(09) 269 85 48"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Caisse auxiliaire d'assurance maladie-invalidité",
+      "nl": "Hulpkas voor Ziekte-en Invaliditeitsverzekering"
+    },
+    "_id": "000000000-0000-0000-0600-0000000000000",
+    "code": "600",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue du Trône 30 boîte A",
+      "postalCode": 1000,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 229 35 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "info@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 229 35 58"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Gewestelijke dienst Antwerpen"},
+    "_id": "000000000-0000-0000-0601-0000000000000",
+    "code": "601",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Maritiem Huis - Olijftakstraat 7-13 (bus 4)",
+      "postalCode": 2060,
+      "city": "ANTWERPEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(03) 220 75 55"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "beheerder601@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(03) 220 75 65"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Bruxelles-Capitale",
+      "nl": "Brussel-Hoofdstad"
+    },
+    "_id": "000000000-0000-0000-0602-0000000000000",
+    "code": "602",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue du Trône 30 (bte B)",
+      "postalCode": 1000,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 229 34 80"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur602@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 229 34 99"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Gewestelijke dienst West-Vlaanderen"},
+    "_id": "000000000-0000-0000-0603-0000000000000",
+    "code": "603",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Torhoutsesteenweg 126 (bus 00/01)",
+      "postalCode": 8200,
+      "city": "BRUGGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(050) 33 04 10"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "beheerder603@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(050) 33 28 52"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Gewestelijke dienst Oost-Vlaanderen"},
+    "_id": "000000000-0000-0000-0604-0000000000000",
+    "code": "604",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Franklin Rooseveltlaan 91",
+      "postalCode": 9000,
+      "city": "GENT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(09) 269 54 00"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "beheerder604@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(09) 225 82 51"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Office régional du Hainaut"},
+    "_id": "000000000-0000-0000-0605-0000000000000",
+    "code": "605",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Neuve 20",
+      "postalCode": 7000,
+      "city": "MONS",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(065) 35 22 44"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur605@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(065) 84 25 36"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Office régional de Liège"},
+    "_id": "000000000-0000-0000-0606-0000000000000",
+    "code": "606",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue des Augustins 18",
+      "postalCode": 4000,
+      "city": "LIEGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(04) 222 02 36 - 230 58 10"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur606@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(04) 222 12 28"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Gewestelijke dienst Limburg"},
+    "_id": "000000000-0000-0000-0607-0000000000000",
+    "code": "607",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Maastrichtersteenweg 214 (bus 1)",
+      "postalCode": 3500,
+      "city": "HASSELT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(011) 27 13 13"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "beheerder607@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(011) 27 58 22"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Office régional du Luxembourg"},
+    "_id": "000000000-0000-0000-0608-0000000000000",
+    "code": "608",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue de la Gare 2",
+      "postalCode": 6700,
+      "city": "ARLON",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(063) 22 60 92"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur608@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(063) 23 43 00"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Office régional de Namur"},
+    "_id": "000000000-0000-0000-0609-0000000000000",
+    "code": "609",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Avenue Reine Astrid 47-49",
+      "postalCode": 5000,
+      "city": "NAMUR",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(081) 73 29 33"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur609@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(081) 73 84 36"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Office régional d'Eupen"},
+    "_id": "000000000-0000-0000-0610-0000000000000",
+    "code": "610",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Neuve 42",
+      "postalCode": 4700,
+      "city": "EUPEN",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(087) 55 37 91 - 55 37 92"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur610@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(087) 55 73 85"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Section de Charleroi"},
+    "_id": "000000000-0000-0000-0615-0000000000000",
+    "code": "615",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue de la Rivelaine 4",
+      "postalCode": 6061,
+      "city": "MONTIGNIES-SUR-SAMBRE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(071) 32 91 98"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur615@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(071) 32 51 85"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Section de Malmedy"},
+    "_id": "000000000-0000-0000-0620-0000000000000",
+    "code": "620",
+    "parent": "000000000-0000-0000-0600-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Wibald 5",
+      "postalCode": 4960,
+      "city": "MALMEDY",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(080) 33 08 96"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "administrateur620@caami-hziv.fgov.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(080) 77 06 31"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Caisse des Soins de santé de HR Rail",
+      "nl": "Kas der Geneeskundige Verzorging van HR Rail"
+    },
+    "_id": "000000000-0000-0000-0900-0000000000000",
+    "code": "900",
+    "parent": "000000000-0000-0000-0900-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue de France 85",
+      "postalCode": 1060,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 525 35 57 - (02) 525 35 56 (Tiers payant)"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "900.css-kgv@hr-rail.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 525 35 61"
+        }
+      ]
+    }
+  },
+  {
+    "name": {
+      "fr": "Caisse des Soins de santé de HR Rail Centre Médical Régional Bruxelles",
+      "nl": "Kas der geneeskundige verzorging van HR Rail Gewestelijk Geneeskundig Centrum Brussel"
+    },
+    "_id": "000000000-0000-0000-0910-0000000000000",
+    "code": "910",
+    "parent": "000000000-0000-0000-0900-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue du Progrès 86",
+      "postalCode": 1030,
+      "city": "BRUXELLES",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(02) 224 63 85"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "cmrbruxelles@hr-rail.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(02) 224 66 61"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Kas der geneeskundige verzorging van HR Rail Gewestelijk Geneeskundig Centrum Hasselt"},
+    "_id": "000000000-0000-0000-0920-0000000000000",
+    "code": "920,921,922",
+    "parent": "000000000-0000-0000-0900-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "de Schiervellaan 26",
+      "postalCode": 3500,
+      "city": "HASSELT",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(011) 29 80 22"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "ggchasselt@hr-rail.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(011) 29 80 30"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"nl": "Kas der geneeskundige verzorging van HR Rail Gewestelijk Geneeskundig Centrum Brugge"},
+    "_id": "000000000-0000-0000-0930-0000000000000",
+    "code": "930,931",
+    "parent": "000000000-0000-0000-0900-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Stationsplein 5",
+      "postalCode": 8000,
+      "city": "BRUGGE",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(050) 30 24 54"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "ggcbrugge@hr-rail.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(050) 30 22 57"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Caisse des Soins de santé de HR Rail Centre Médical Régional Namur"},
+    "_id": "000000000-0000-0000-0940-0000000000000",
+    "code": "940,941,942",
+    "parent": "000000000-0000-0000-0900-0000000000000",
+    "address": {
+      "addressType": "HQ",
+      "street": "Rue Léanne 15",
+      "postalCode": 5000,
+      "city": "NAMUR",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(081) 25 24 87"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "cmrnamur@hr-rail.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(081) 25 25 02"
+        }
+      ]
+    }
+  },
+  {
+    "name": {"fr": "Caisse des Soins de santé de HR Rail Centre Médical Régional Mons"},
+    "_id": "000000000-0000-0000-0950-0000000000000",
+    "code": "950,951",
+    "parent": "000000000-0000-0000-0900-0000000000000",
+   "address": {
+      "addressType": "HQ",
+      "street": "Boulevard Charles-Quint 29A",
+      "postalCode": 7000,
+      "city": "MONS",
+      "telecoms": [
+        {
+          "telecomType": "PHONE",
+          "telecomNumber": "(065) 58 25 81"
+        },
+        {
+          "telecomType": "EMAIL",
+          "telecomNumber": "cmrmons@hr-rail.be"
+        },
+        {
+          "telecomType": "FAX",
+          "telecomNumber": "(065) 58 25 78"
+        }
+      ]
+    }
+  }
+]

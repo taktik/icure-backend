@@ -1,0 +1,15 @@
+<FormLayout name="Telecom" width="480.0" height="30.0" guid="DF4A7784-8500-11E4-86F1-E96695DB5880"
+            group="">
+	<FormSection columns="1">
+		<FormColumn columns="1">
+
+			<FormLayoutData irrelevant="true" type="TKString" name="telecomType" sortOrder="0.0">
+				<editor class="StringEditor" left="0.0" top="0.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="telecomNumber" sortOrder="0.0">
+				<editor class="StringEditor" left="120.0" top="0.0" width="360.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+		</FormColumn>
+	</FormSection>
+</FormLayout>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 27, 2008 11:38:03 AM by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Doc" table="DOC" catalog="DRUGS">
+        <composite-id name="id" class="org.taktik.icure.be.drugs.dto.DocId">
+            <key-property name="id" type="string">
+                <column name="ID" />
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="parent" class="org.taktik.icure.be.drugs.Doc" update="false" insert="false" fetch="select">
+            <column name="PARENT_ID" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <property name="hierarchy" type="string">
+            <column name="HIERARCHY" />
+        </property>
+        <property name="docindex" type="java.lang.Integer">
+            <column name="DOCINDEX" />
+        </property>
+        <property name="mpgrp" type="java.lang.Boolean">
+            <column name="MPGRP" />
+        </property>
+        <property name="title" type="string">
+            <column name="TITLE" />
+        </property>
+        <property name="content" type="string">
+            <column name="CONTENT" />
+        </property>
+        <property name="pos" type="string">
+            <column name="POS" />
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE" />
+        </property>
+   <!--     <set name="mpps" inverse="true">
+            <key>
+                <column name="DOC_ID" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Mpp" />
+        </set> -->
+        <list name="children" cascade="all">
+            <key>
+                <column name="PARENT_ID" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <list-index column="docindex" base="1"/>
+            <one-to-many class="org.taktik.icure.be.drugs.Doc"/>
+        </list>
+       <!--  <set name="docs" inverse="true">
+            <key>
+                <column name="PARENT_ID" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Doc" />
+        </set> -->
+        <set name="compositions" inverse="true">
+            <key>
+                <column name="DOC_ID" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Composition" />
+        </set>
+        <set name="mps" inverse="true" sort="natural">
+            <key>
+                <column name="DOC_ID" />
+                <column name="LANG" not-null="true" />
+            </key>
+            <one-to-many class="org.taktik.icure.be.drugs.Mp" />
+        </set>
+    </class>
+</hibernate-mapping>

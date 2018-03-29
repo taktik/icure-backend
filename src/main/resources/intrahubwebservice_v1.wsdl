@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="IntraHubWebservice" targetNamespace="http://www.ehealth.fgov.be/interhub/protocol/v1" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:interhub="http://www.ehealth.fgov.be/interhub/protocol/v1"
+  xmlns:type="http://www.ehealth.fgov.be/hubservices/protocol/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <documentation>Version 1.0</documentation>
+
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="http://www.ehealth.fgov.be/hubservices/protocol/v1" schemaLocation="../XSD/intrahub_v1/hubservices_protocol-1_1.xsd" />
+    </xsd:schema>
+  </types>
+
+  <!-- GetTransactionList -->
+  <message name="GetTransactionListRequest">
+    <part name="body" element="type:GetTransactionListRequest" />
+  </message>
+  <message name="GetTransactionListResponse">
+    <part name="body" element="type:GetTransactionListResponse" />
+  </message>
+  <!-- GetTransaction -->
+  <message name="GetTransactionRequest">
+    <part name="body" element="type:GetTransactionRequest" />
+  </message>
+  <message name="GetTransactionResponse">
+    <part name="body" element="type:GetTransactionResponse" />
+  </message>
+  <!--GetPatientAuditTrail -->
+  <message name="GetPatientAuditTrailRequest">
+    <part name="body" element="type:GetPatientAuditTrailRequest" />
+  </message>
+  <message name="GetPatientAuditTrailResponse">
+    <part name="body" element="type:GetPatientAuditTrailResponse" />
+  </message>
+  <!--RequestPublication -->
+  <message name="RequestPublicationRequest">
+    <part name="body" element="type:RequestPublicationRequest" />
+  </message>
+  <message name="RequestPublicationResponse">
+    <part name="body" element="type:RequestPublicationResponse" />
+  </message>
+  <!-- DeclareTransaction -->
+  <message name="DeclareTransactionRequest">
+    <part name="body" element="type:DeclareTransactionRequest" />
+  </message>
+  <message name="DeclareTransactionResponse">
+    <part name="body" element="type:DeclareTransactionResponse" />
+  </message>
+  <!-- PutTransaction -->
+  <message name="PutTransactionRequest">
+    <part name="body" element="type:PutTransactionRequest" />
+  </message>
+  <message name="PutTransactionResponse">
+    <part name="body" element="type:PutTransactionResponse" />
+  </message>
+  <!-- RevokeTransaction -->
+  <message name="RevokeTransactionRequest">
+    <part name="body" element="type:RevokeTransactionRequest" />
+  </message>
+  <message name="RevokeTransactionResponse">
+    <part name="body" element="type:RevokeTransactionResponse" />
+  </message>
+  <!-- PutPatient -->
+  <message name="PutPatientRequest">
+    <part name="body" element="type:PutPatientRequest" />
+  </message>
+  <message name="PutPatientResponse">
+    <part name="body" element="type:PutPatientResponse" />
+  </message>
+  <!-- GetPatient -->
+  <message name="GetPatientRequest">
+    <part name="body" element="type:GetPatientRequest" />
+  </message>
+  <message name="GetPatientResponse">
+    <part name="body" element="type:GetPatientResponse" />
+  </message>
+  <!-- PutPatientConsent -->
+  <message name="PutPatientConsentRequest">
+    <part name="body" element="type:PutPatientConsentRequest" />
+  </message>
+  <message name="PutPatientConsentResponse">
+    <part name="body" element="type:PutPatientConsentResponse" />
+  </message>
+  <!-- GetPatientConsent -->
+  <message name="GetPatientConsentRequest">
+    <part name="body" element="type:GetPatientConsentRequest" />
+  </message>
+  <message name="GetPatientConsentResponse">
+    <part name="body" element="type:GetPatientConsentResponse" />
+  </message>
+  <!-- RevokePatientConsent -->
+  <message name="RevokePatientConsentRequest">
+    <part name="body" element="type:RevokePatientConsentRequest" />
+  </message>
+  <message name="RevokePatientConsentResponse">
+    <part name="body" element="type:RevokePatientConsentResponse" />
+  </message>
+  <!-- PutHCParty -->
+  <message name="PutHCPartyRequest">
+    <part name="body" element="type:PutHCPartyRequest" />
+  </message>
+  <message name="PutHCPartyResponse">
+    <part name="body" element="type:PutHCPartyResponse" />
+  </message>
+  <!-- GetHCParty -->
+  <message name="GetHCPartyRequest">
+    <part name="body" element="type:GetHCPartyRequest" />
+  </message>
+  <message name="GetHCPartyResponse">
+    <part name="body" element="type:GetHCPartyResponse" />
+  </message>
+  <!-- PutHCPartyConsent -->
+  <message name="PutHCPartyConsentRequest">
+    <part name="body" element="type:PutHCPartyConsentRequest" />
+  </message>
+  <message name="PutHCPartyConsentResponse">
+    <part name="body" element="type:PutHCPartyConsentResponse" />
+  </message>
+  <!-- GetHCPartyConsent -->
+  <message name="GetHCPartyConsentRequest">
+    <part name="body" element="type:GetHCPartyConsentRequest" />
+  </message>
+  <message name="GetHCPartyConsentResponse">
+    <part name="body" element="type:GetHCPartyConsentResponse" />
+  </message>
+  <!-- RevokeHCPartyConsent -->
+  <message name="RevokeHCPartyConsentRequest">
+    <part name="body" element="type:RevokeHCPartyConsentRequest" />
+  </message>
+  <message name="RevokeHCPartyConsentResponse">
+    <part name="body" element="type:RevokeHCPartyConsentResponse" />
+  </message>
+  <!-- PutTherapeuticLink -->
+  <message name="PutTherapeuticLinkRequest">
+    <part name="body" element="type:PutTherapeuticLinkRequest" />
+  </message>
+  <message name="PutTherapeuticLinkResponse">
+    <part name="body" element="type:PutTherapeuticLinkResponse" />
+  </message>
+  <!-- GetTherapeuticLink -->
+  <message name="GetTherapeuticLinkRequest">
+    <part name="body" element="type:GetTherapeuticLinkRequest" />
+  </message>
+  <message name="GetTherapeuticLinkResponse">
+    <part name="body" element="type:GetTherapeuticLinkResponse" />
+  </message>
+  <!-- RevokeTherapeuticLink -->
+  <message name="RevokeTherapeuticLinkRequest">
+    <part name="body" element="type:RevokeTherapeuticLinkRequest" />
+  </message>
+  <message name="RevokeTherapeuticLinkResponse">
+    <part name="body" element="type:RevokeTherapeuticLinkResponse" />
+  </message>
+  <!-- PutAccessRight -->
+  <message name="PutAccessRightRequest">
+    <part name="body" element="type:PutAccessRightRequest" />
+  </message>
+  <message name="PutAccessRightResponse">
+    <part name="body" element="type:PutAccessRightResponse" />
+  </message>
+  <!-- GetAccessRight -->
+  <message name="GetAccessRightRequest">
+    <part name="body" element="type:GetAccessRightRequest" />
+  </message>
+  <message name="GetAccessRightResponse">
+    <part name="body" element="type:GetAccessRightResponse" />
+  </message>
+  <!-- RevokeAccessRight -->
+  <message name="RevokeAccessRightRequest">
+    <part name="body" element="type:RevokeAccessRightRequest" />
+  </message>
+  <message name="RevokeAccessRightResponse">
+    <part name="body" element="type:RevokeAccessRightResponse" />
+  </message>
+
+  <portType name="IntraHubPortType">
+    <!-- GetTransaction -->
+    <operation name="GetTransaction">
+      <input message="interhub:GetTransactionRequest" />
+      <output message="interhub:GetTransactionResponse" />
+    </operation>
+    <!-- GetTransactionList -->
+    <operation name="GetTransactionList">
+      <input message="interhub:GetTransactionListRequest" />
+      <output message="interhub:GetTransactionListResponse" />
+    </operation>
+    <!--GetPatientAuditTrail -->
+    <operation name="GetPatientAuditTrail">
+      <input message="interhub:GetPatientAuditTrailRequest" />
+      <output message="interhub:GetPatientAuditTrailResponse" />
+    </operation>
+    <!--RequestPublication -->
+    <operation name="RequestPublication">
+      <input message="interhub:RequestPublicationRequest" />
+      <output message="interhub:RequestPublicationResponse" />
+    </operation>
+    <!-- DeclareTransaction -->
+    <operation name="DeclareTransaction">
+      <input message="interhub:DeclareTransactionRequest" />
+      <output message="interhub:DeclareTransactionResponse" />
+    </operation>
+    <!-- PutTransaction -->
+    <operation name="PutTransaction">
+      <input message="interhub:PutTransactionRequest" />
+      <output message="interhub:PutTransactionResponse" />
+    </operation>
+    <!-- RevokeTransaction -->
+    <operation name="RevokeTransaction">
+      <input message="interhub:RevokeTransactionRequest" />
+      <output message="interhub:RevokeTransactionResponse" />
+    </operation>
+    <!-- PutPatient -->
+    <operation name="PutPatient">
+      <input message="interhub:PutPatientRequest" />
+      <output message="interhub:PutPatientResponse" />
+    </operation>
+    <!-- GetPatient -->
+    <operation name="GetPatient">
+      <input message="interhub:GetPatientRequest" />
+      <output message="interhub:GetPatientResponse" />
+    </operation>
+    <!-- PutPatientConsent -->
+    <operation name="PutPatientConsent">
+      <input message="interhub:PutPatientConsentRequest" />
+      <output message="interhub:PutPatientConsentResponse" />
+    </operation>
+    <!-- GetPatientConsent -->
+    <operation name="GetPatientConsent">
+      <input message="interhub:GetPatientConsentRequest" />
+      <output message="interhub:GetPatientConsentResponse" />
+    </operation>
+    <!-- RevokePatientConsent -->
+    <operation name="RevokePatientConsent">
+      <input message="interhub:RevokePatientConsentRequest" />
+      <output message="interhub:RevokePatientConsentResponse" />
+    </operation>
+    <!-- PutHCParty -->
+    <operation name="PutHCParty">
+      <input message="interhub:PutHCPartyRequest" />
+      <output message="interhub:PutHCPartyResponse" />
+    </operation>
+    <!-- GetHCParty -->
+    <operation name="GetHCParty">
+      <input message="interhub:GetHCPartyRequest" />
+      <output message="interhub:GetHCPartyResponse" />
+    </operation>
+    <!-- PutHCPartyConsent -->
+    <operation name="PutHCPartyConsent">
+      <input message="interhub:PutHCPartyConsentRequest" />
+      <output message="interhub:PutHCPartyConsentResponse" />
+    </operation>
+    <!-- GetHCPartyConsent -->
+    <operation name="GetHCPartyConsent">
+      <input message="interhub:GetHCPartyConsentRequest" />
+      <output message="interhub:GetHCPartyConsentResponse" />
+    </operation>
+    <!-- RevokeHCPartyConsent -->
+    <operation name="RevokeHCPartyConsent">
+      <input message="interhub:RevokeHCPartyConsentRequest" />
+      <output message="interhub:RevokeHCPartyConsentResponse" />
+    </operation>
+    <!-- PutTherapeuticLink -->
+    <operation name="PutTherapeuticLink">
+      <input message="interhub:PutTherapeuticLinkRequest" />
+      <output message="interhub:PutTherapeuticLinkResponse" />
+    </operation>
+    <!-- GetTherapeuticLink -->
+    <operation name="GetTherapeuticLink">
+      <input message="interhub:GetTherapeuticLinkRequest" />
+      <output message="interhub:GetTherapeuticLinkResponse" />
+    </operation>
+    <!-- RevokeTherapeuticLink -->
+    <operation name="RevokeTherapeuticLink">
+      <input message="interhub:RevokeTherapeuticLinkRequest" />
+      <output message="interhub:RevokeTherapeuticLinkResponse" />
+    </operation>
+    <!-- PutAccessRight -->
+    <operation name="PutAccessRight">
+      <input message="interhub:PutAccessRightRequest" />
+      <output message="interhub:PutAccessRightResponse" />
+    </operation>
+    <!-- GetAccessRight -->
+    <operation name="GetAccessRight">
+      <input message="interhub:GetAccessRightRequest" />
+      <output message="interhub:GetAccessRightResponse" />
+    </operation>
+    <!-- RevokeAccessRight -->
+    <operation name="RevokeAccessRight">
+      <input message="interhub:RevokeAccessRightRequest" />
+      <output message="interhub:RevokeAccessRightResponse" />
+    </operation>
+  </portType>
+
+  <binding name="IntraHubSoapBinding" type="interhub:IntraHubPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <!-- GetTransaction -->
+    <operation name="GetTransaction">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetTransaction" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetTransactionList -->
+    <operation name="GetTransactionList">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetTransactionList" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!--GetPatientAuditTrail -->
+    <operation name="GetPatientAuditTrail">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetPatientAuditTrail" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!--RequestPublication -->
+    <operation name="RequestPublication">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:RequestPublication" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- DeclareTransaction -->
+    <operation name="DeclareTransaction">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:DeclareTransaction" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutTransaction -->
+    <operation name="PutTransaction">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutTransaction" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- RevokeTransaction -->
+    <operation name="RevokeTransaction">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:RevokeTransaction" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutPatient -->
+    <operation name="PutPatient">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutPatient" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetPatient -->
+    <operation name="GetPatient">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetPatient" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutPatientConsent -->
+    <operation name="PutPatientConsent">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutPatientConsent" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetPatientConsent -->
+    <operation name="GetPatientConsent">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetPatientConsent" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- RevokePatientConsent -->
+    <operation name="RevokePatientConsent">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:RevokePatientConsent" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutHCParty -->
+    <operation name="PutHCParty">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutHCParty" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetHCParty -->
+    <operation name="GetHCParty">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetHCParty" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutHCPartyConsent -->
+    <operation name="PutHCPartyConsent">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutHCPartyConsent" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetHCPartyConsent -->
+    <operation name="GetHCPartyConsent">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetHCPartyConsent" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- RevokeHCPartyConsent -->
+    <operation name="RevokeHCPartyConsent">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:RevokeHCPartyConsent" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutTherapeuticLink -->
+    <operation name="PutTherapeuticLink">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutTherapeuticLink" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetTherapeuticLink -->
+    <operation name="GetTherapeuticLink">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetTherapeuticLink" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- RevokeTherapeuticLink -->
+    <operation name="RevokeTherapeuticLink">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:RevokeTherapeuticLink" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- PutAccessRight -->
+    <operation name="PutAccessRight">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:PutAccessRight" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- GetAccessRight -->
+    <operation name="GetAccessRight">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:GetAccessRight" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <!-- RevokeAccessRight -->
+    <operation name="RevokeAccessRight">
+      <soap:operation style="document" soapAction="urn:be:fgov:ehealth:interhub:protocol:v1:RevokeAccessRight" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+
+  <service name="IntraHubService">
+    <port name="IntraHubPort" binding="interhub:IntraHubSoapBinding">
+      <soap:address location="https://hubDN/standards/hubservices/intrahub" />
+    </port>
+  </service>
+
+</definitions>

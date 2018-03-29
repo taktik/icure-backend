@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.Paragraph" table="paragraph" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="agreementType" type="java.lang.String">
+            <column name="agreement_type" length="1" />
+        </property>
+        <property name="agreementTypePro" type="java.lang.String">
+            <column name="agreement_type_pro" length="1" />
+        </property>
+        <property name="chapterName" type="java.lang.String">
+            <column name="chapter_name" length="10" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="keyStringFr" type="java.lang.String">
+            <column name="key_string_fr" length="500" />
+        </property>
+        <property name="keyStringNl" type="java.lang.String">
+            <column name="key_string_nl" length="500" />
+        </property>
+        <property name="legalReference" type="java.lang.String">
+            <column name="legal_reference" length="100" />
+        </property>
+        <property name="modificationDate" type="java.util.Date">
+            <column name="modification_date" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="paragraphName" type="java.lang.String">
+            <column name="paragraph_name" length="10" not-null="true" />
+        </property>
+        <property name="paragraphVersion" type="java.lang.Long">
+            <column name="paragraph_version" not-null="true" />
+        </property>
+        <property name="processType" type="java.lang.Long">
+            <column name="process_type" />
+        </property>
+        <property name="processTypeOverrule" type="java.lang.String">
+            <column name="process_type_overrule" length="10" />
+        </property>
+        <property name="publicationDate" type="java.util.Date">
+            <column name="publication_date" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

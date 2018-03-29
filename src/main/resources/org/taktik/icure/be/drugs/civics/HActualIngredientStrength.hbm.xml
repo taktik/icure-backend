@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.HActualIngredientStrength" table="hactual_ingredient_strength" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="ampId" type="java.lang.Long">
+            <column name="amp_id" not-null="true" />
+        </property>
+        <property name="casId" type="java.lang.Long">
+            <column name="cas_id" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="excInd" type="java.lang.String">
+            <column name="exc_ind" length="1" not-null="true" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="nameId" type="java.lang.Long">
+            <column name="name_id" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <property name="strengthDenomQuantity" type="java.lang.Double">
+            <column name="strength_denom_quantity" scale="3" />
+        </property>
+        <property name="strengthDenomUnit" type="java.lang.String">
+            <column name="strength_denom_unit" length="15" />
+        </property>
+        <property name="strengthQuantity" type="java.lang.Double">
+            <column name="strength_quantity" scale="3" />
+        </property>
+        <property name="strengthQuantity_2" type="java.lang.Double">
+            <column name="strength_quantity_2" scale="3" />
+        </property>
+        <property name="strengthUnit" type="java.lang.String">
+            <column name="strength_unit" length="15" />
+        </property>
+        <property name="virtualIngredientCasId" type="java.lang.Long">
+            <column name="virtual_ingredient_cas_id" />
+        </property>
+    </class>
+</hibernate-mapping>

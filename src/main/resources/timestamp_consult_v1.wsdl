@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s1:definitions targetNamespace="http://www.behealth.be/webservices/tsa" xmlns:s0="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s1="http://schemas.xmlsoap.org/wsdl/" xmlns:s2="http://www.behealth.be/webservices/tsa"
+  xmlns:s3="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+  <s1:types>
+    <xsd:schema targetNamespace="http://www.behealth.be/webservices/tsa" xmlns:dss="urn:oasis:names:tc:dss:1.0:core:schema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+      xmlns:tns="http://www.behealth.be/webservices/tsa" xmlns:tsa="http://www.behealth.be/webservices/tsa" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="http://www.behealth.be/webservices/tsa" schemaLocation="../XSD/timestamp_consult_v1/timestampconsult.xsd" />
+    </xsd:schema>
+  </s1:types>
+  <s1:message name="verifyStatus" wsp:PolicyURIs="#Wssp1.2-SignBody.xml #Wssp1.2-Wss1.0-X509-Basic256.xml">
+    <s1:part element="s2:TSConsultRequest" name="tsConsultRequest" />
+  </s1:message>
+  <s1:message name="verifyStatusResponse">
+    <s1:part element="s2:TSConsultResponse" name="tsConsultResponse" />
+  </s1:message>
+  <s1:message name="getSignResponses" wsp:PolicyURIs="#Wssp1.2-SignBody.xml #Wssp1.2-Wss1.0-X509-Basic256.xml">
+    <s1:part element="s2:TSConsultTSBagRequest" name="tsConsultTSBagRequest" />
+  </s1:message>
+  <s1:message name="getSignResponsesResponse">
+    <s1:part element="s2:TSConsultTSBagResponse" name="tsConsultTSBagResponse" />
+  </s1:message>
+  <s1:portType name="timestampconsultPort">
+    <s1:operation name="verifyStatus">
+      <s1:input message="s2:verifyStatus" />
+      <s1:output message="s2:verifyStatusResponse" />
+    </s1:operation>
+    <s1:operation name="getSignResponses">
+      <s1:input message="s2:getSignResponses" />
+      <s1:output message="s2:getSignResponsesResponse" />
+    </s1:operation>
+  </s1:portType>
+  <s1:binding name="timestampconsultPort" type="s2:timestampconsultPort">
+    <s3:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <s1:operation name="verifyStatus">
+      <s3:operation style="document" />
+      <s1:input>
+        <s3:body use="literal" />
+      </s1:input>
+      <s1:output>
+        <s3:body use="literal" />
+      </s1:output>
+    </s1:operation>
+    <s1:operation name="getSignResponses">
+      <s3:operation style="document" />
+      <s1:input>
+        <s3:body use="literal" />
+      </s1:input>
+      <s1:output>
+        <s3:body use="literal" />
+      </s1:output>
+    </s1:operation>
+  </s1:binding>
+  <s1:service name="TimeStampConsult">
+    <s1:port binding="s2:timestampconsultPort" name="timestampconsultPort">
+      <s3:address location="https://wwwacc.ehealth.fgov.be:443/timestampconsult_1_3/timestampconsult" />
+    </s1:port>
+  </s1:service>
+</s1:definitions>

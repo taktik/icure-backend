@@ -1,0 +1,85 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-entitytemplate-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createEntityTemplate" method="POST" headers="[[headers]]" url="/entitytemplate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findEntityTemplates" method="GET" headers="[[headers]]" url="/entitytemplate/find/{userId}/{type}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getEntityTemplate" method="GET" headers="[[headers]]" url="/entitytemplate/{entityTemplateId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getEntityTemplates" method="GET" headers="[[headers]]" url="/entitytemplate/byIds/{entityTemplateIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyEntityTemplate" method="PUT" headers="[[headers]]" url="/entitytemplate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-entitytemplate-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createEntityTemplate: function (body) {
+					var xhr = this.$.createEntityTemplate
+					xhr.body = body
+					xhr.url = this.host+"/entitytemplate" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findEntityTemplates: function (userId, type, searchString, includeEntities) {
+					var xhr = this.$.findEntityTemplates
+
+					xhr.url = this.host+"/entitytemplate/find/{userId}/{type}".replace("{userId}", userId).replace("{type}", type) + "?ts=" + (new Date).getTime()  + (searchString ? "&searchString=" + searchString : "") + (includeEntities ? "&includeEntities=" + includeEntities : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getEntityTemplate: function (entityTemplateId) {
+					var xhr = this.$.getEntityTemplate
+
+					xhr.url = this.host+"/entitytemplate/{entityTemplateId}".replace("{entityTemplateId}", entityTemplateId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getEntityTemplates: function (entityTemplateIds) {
+					var xhr = this.$.getEntityTemplates
+
+					xhr.url = this.host+"/entitytemplate/byIds/{entityTemplateIds}".replace("{entityTemplateIds}", entityTemplateIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyEntityTemplate: function (body) {
+					var xhr = this.$.modifyEntityTemplate
+					xhr.body = body
+					xhr.url = this.host+"/entitytemplate" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

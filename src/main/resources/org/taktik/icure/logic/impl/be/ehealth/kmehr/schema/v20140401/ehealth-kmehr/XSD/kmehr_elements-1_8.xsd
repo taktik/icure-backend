@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+  Kmehr-Bis Message elements
+  
+  XSchema
+ -->
+
+ 
+<xsd:schema 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1" 
+targetNamespace="http://www.ehealth.fgov.be/standards/kmehr/schema/v1"  
+elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+  <xsd:include schemaLocation="kmehr-1_8.xsd"/>
+  <xsd:element name="kmehrmessage" type="kmehrmessageType"/>
+</xsd:schema>

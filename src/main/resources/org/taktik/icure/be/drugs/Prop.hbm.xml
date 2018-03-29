@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 27, 2008 11:38:03 AM by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Prop" table="PROP" catalog="DRUGS">
+        <id name="key" type="string">
+            <column name="KEY" />
+            <generator class="assigned" />
+        </id>
+        <property name="value" type="string">
+            <column name="VALUE" />
+        </property>
+    </class>
+</hibernate-mapping>

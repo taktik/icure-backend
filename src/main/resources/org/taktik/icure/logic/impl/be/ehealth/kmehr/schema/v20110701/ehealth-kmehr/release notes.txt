@@ -1,0 +1,135 @@
+**********************************
+Version 1.2/Kmehr release 20110701
+**********************************
+
+Bug fixing
+----------
+(1.2.1) CD-TIMEUNIT : replaced with new case-sensitive version 2.0, which is not backward compatible.
+(1.2.1) CD-TIMEUNITscheme : added CD-TIMEUNIT, LOCAL.
+(1.2.2) Base64EncryptedValue: now accepts base64 data again. 
+(1.2.2) CD-ITEM : added missing contacthcparty
+
+Evolutions
+----------
+0 Release related changes
+0.1 cd file
+CD-STANDARD : added value ‘20110701’
+CD-ENCRYPTION-ACTOR: added value 'EHP'
+
+1 Integration of the elements related to Medical Advisor Agreements (Chapter IV) 
+	
+1.2 cd file	
+CD-TRANSACTIONschemes : added 'CD-TRANSACTION-MAA'
+CD-TRANSACTION : added value 'medicaladvisoragreement'
+
+CD-CONTENTschemes : added 'CD-MAA-TYPE', 'CD-MAA-REQUESTTYPE',
+                    'CD-MAA-RESPONSETYPE', 'CD-MAA-REFUSALJUSTIFICATION', 
+                    'CD-CHAPTER4PARAGRAPH', 'CD-CHAPTER4VERSET', 'CD-CHAPTER4APPENDIX'
+
+Added tables   ‘CD-MAA-COVERAGETYPE’, ‘CD-MAA-REQUESTTYPE’, ‘CD-MAA-RESPONSETYPE’, 
+			   ‘CD-MAA-COVERAGETYPE’, ‘CD-MAA-TYPE’, ‘CD-MAAREFUSALJUSTIFICATION’, 
+			   ‘CD-CHAPTER4PARAGRAPH, ‘CD-CHAPTER4CATEGORY, ‘CD-CHAPTER4CRITERIA’,
+			   ‘CD-CHAPTER4VERSESEQAPPENDIX, ‘CD-CHAPTER4DOCUMENTSEQAPPENDIX’, 
+			   ‘CD-CHAPTER4VERSE’
+
+1.3 kmehr file
+No changes
+
+2 Integration of the elements related to the GPSMF Release 1.1
+2.1 id file 
+
+2.2 cd file
+CD-TRANSACTION : removed ‘preventionplan’
+
+CD-CAREPATH :  added '010'
+
+CD-LNKvalues : added ‘isaservicefor’, ‘isrealisationof’, ’isapproachfor’, 
+			   ’isplannedfor’, ’ isattestationof’
+
+added tables : ‘CD-CAREPATH’, ‘CD-CLINICALPLAN’
+
+2.3 kmehr file
+No changes
+
+3 Integration of the elements related to the BCR Biobank project.
+3.1 id file
+No changes
+
+3.2 cd file
+CD-TRANSACTION : added ‘bvt-sample’
+CD-ITEMschemes : added 'CD-ITEM-BVT', 'CD-BVT-AVAILABLEMATERIALS', 
+				 'CD-BVT-CONSERVATIONDELAY', 'CD-BVT-CONSERVATIONMODE', 
+				 'CD-BVT-SAMPLETYPE', 'CD-BCR-DIFFERENTATIONDEGREE', 
+				 'CD-BVT-LATERALITY', 'CD-BVT-PATIENTOPPOSITION', 'CD-BVT-STATUS'
+
+Added tables 	 ‘CD-BVT-CONSERVATIONMODE’, ‘CD-BVT-CONSERVATIONDELAY’, 
+				 ‘CD-BVT-AVAILABLEMATERIALS’, ‘CD-BCR-DIFFERENTATIONDEGREE’,
+				 ‘CD-BVT-SAMPLETYPE’, ‘CD-BVT-LATERALITY’,‘CD-BVT-PATIENTOPPOSITION’,
+				 ‘CD-BVT-STATUS’
+                   
+3.3 kmehr file
+No changes
+
+4 Integration of the elements related to the Hub/Metahub 1.1 release
+4.1 id file
+ID-PATIENTschemes: added 'EID-CARDNO', 'SIS-CARDNO'
+
+4.2 cd file
+No changes
+
+4.3 kmehr file
+Added attribute 'encoding' to element Base64EncryptedValue.
+
+
+**********************************
+Version 1.1/Kmehr release 2010901
+**********************************
+
+Bug fixing
+----------
+cd file
+
+CD-UNIT : remove double occurrence of 'mm'
+
+Evolutions
+----------
+
+1 Integration of the elements related to hub-metahub system (draft status)
+
+1.1 id file 
+
+ID-HCPARTY: add scheme: ID-ENCRYPTION-APPLICATION, ID-ENCRYPTION-ACTOR (support ETEE) 
+	
+1.2 cd file	
+
+new table: CD-CONSENT, CD-THERAPEUTICLINK
+new table: CD-ENCRYPTION-ACTOR, CD-ENCRYPTION-METHOD
+ 
+1.3 kmehr file
+
+kmehrMessageType: add element: Base64EncryptedData   
+
+2 GP software migration format
+
+2.1 cd file
+
+CD-STANDARD : add value : 2010091 
+CD-TRANSACTION : add value : clinicalsummary, preventionplan
+CD-ITEM : add values : insurancystatus, patientwill, professionalrisk, familyrisk, parameter
+		: add scheme : CD-PARAMETER
+CD-CONTENT: add scheme: CD-PATIENTWILL
+CD-CONTACT-PERSON : add value : brother, sister, brotherinlaw, tutor, notary, lawyer, employer, grandparent
+
+new table: CD-PATIENTWILL
+new table: CD-PARAMETER 
+new table: CD-MESSAGE 
+
+2.3 kmehr file
+
+standardType : add element: specialisation
+personType : add element : profession
+itemType : add element : recorddatetime, isrelevant
+ 		
+
+
+	

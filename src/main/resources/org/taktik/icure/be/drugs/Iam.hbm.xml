@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Iam" table="IAM" catalog="DRUGS">
+        <composite-id name="iamId" class="org.taktik.icure.be.drugs.dto.IamId">
+            <key-property name="id" type="java.lang.Integer">
+                <column name="ID"/>
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG"/>
+            </key-property>
+        </composite-id>
+        <property name="atc1" type="string">
+            <column name="ATC1"/>
+        </property>
+        <property name="atc2" type="string">
+            <column name="ATC2"/>
+        </property>
+        <property name="description" type="string">
+            <column name="DESC"/>
+        </property>
+        <property name="management" type="string">
+            <column name="MNGMT"/>
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE"/>
+        </property>
+     </class>
+</hibernate-mapping>

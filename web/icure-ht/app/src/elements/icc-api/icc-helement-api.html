@@ -1,0 +1,95 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-helement-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="createHealthElement" method="POST" headers="[[headers]]" url="/helement" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="deleteHealthElements" method="DELETE" headers="[[headers]]" url="/helement/{healthElementIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="findByHCPartyPatientSecretFKeys" method="GET" headers="[[headers]]" url="/helement/byHcPartySecretForeignKeys" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getHealthElement" method="GET" headers="[[headers]]" url="/helement/{healthElementId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="modifyHealthElement" method="PUT" headers="[[headers]]" url="/helement" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="newDelegations" method="POST" headers="[[headers]]" url="/helement/{healthElementId}/delegate" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-helement-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				createHealthElement: function (body) {
+					var xhr = this.$.createHealthElement
+					xhr.body = body
+					xhr.url = this.host+"/helement" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				deleteHealthElements: function (healthElementIds) {
+					var xhr = this.$.deleteHealthElements
+
+					xhr.url = this.host+"/helement/{healthElementIds}".replace("{healthElementIds}", healthElementIds) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				findByHCPartyPatientSecretFKeys: function (hcPartyId, secretFKeys) {
+					var xhr = this.$.findByHCPartyPatientSecretFKeys
+
+					xhr.url = this.host+"/helement/byHcPartySecretForeignKeys" + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getHealthElement: function (healthElementId) {
+					var xhr = this.$.getHealthElement
+
+					xhr.url = this.host+"/helement/{healthElementId}".replace("{healthElementId}", healthElementId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				modifyHealthElement: function (body) {
+					var xhr = this.$.modifyHealthElement
+					xhr.body = body
+					xhr.url = this.host+"/helement" + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				newDelegations: function (healthElementId, body) {
+					var xhr = this.$.newDelegations
+					xhr.body = body
+					xhr.url = this.host+"/helement/{healthElementId}/delegate".replace("{healthElementId}", healthElementId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

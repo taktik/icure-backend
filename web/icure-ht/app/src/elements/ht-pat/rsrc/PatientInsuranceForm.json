@@ -1,0 +1,137 @@
+{
+	"sections": [
+		{
+			"formColumns": [
+				{
+					"formDataList": [
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 299,
+								"multiline" : false,
+								"left" : 66,
+								"top" : 7,
+								"key" : "PopupMenuEditor",
+								"dataSource": "insurances"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [],
+							"label" : "Insurance",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "insuranceId"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 212,
+								"multiline" : false,
+								"left" : 460,
+								"top" : 7,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "Membership",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "membership"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 99,
+								"multiline" : false,
+								"left" : 66,
+								"top" : 35,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "tc1",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "parameters.tc1"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 109,
+								"multiline" : false,
+								"left" : 256,
+								"top" : 36,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "tc2",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKString",
+							"name" : "parameters.tc2"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 20,
+								"labelPosition" : "Left",
+								"width" : 20,
+								"multiline" : false,
+								"left" : 460,
+								"top" : 37,
+								"key" : "CheckBoxEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "Pref. status",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKBoolean",
+							"name" : "parameters.preferentialstatus"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 20,
+								"labelPosition" : "Left",
+								"width" : 20,
+								"multiline" : false,
+								"left" : 562,
+								"top" : 36,
+								"key" : "CheckBoxEditor"
+							},
+							"sortOrder" : -201,
+							"codeTypes" : [
+
+							],
+							"label" : "Pay. OK",
+							"irrelevant" : true,
+							"subForm" : false,
+							"type" : "TKBoolean",
+							"name" : "parameters.paymentapproval"
+						}
+					]
+				}
+			]
+		}
+	]
+}

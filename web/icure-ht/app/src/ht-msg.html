@@ -1,0 +1,267 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<!--<link rel="import" href="./elements/collapse-button/collapse-button.html">-->
+<link rel="import" href="./shared-styles.html">
+
+<dom-module id="ht-msg">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+	  }
+
+	  :host *:focus{
+		 outline:0!important;
+	  }
+
+		.col-left{
+			position:fixed;
+			box-sizing: border-box;
+			height:100%;
+			width:20%;
+			background:white;
+			float:left;
+			@apply --shadow-elevation-2dp;
+			padding:20px;
+			display:flex;
+			flex-flow: column nowrap;
+			align-items: flex-start;
+			z-index:0;
+		}
+
+		.new-msg-btn{
+			--paper-button: {
+				background: var(--app-secondary-color);
+				color: var(--app-text-color);
+				width: 80%;
+				margin: 0 auto;
+				height: 48px;
+			}
+			--paper-button-ink-color: var(--app-secondary-color-dark);
+		}
+		.boxes-list{
+			margin:20px auto;
+			padding:0;
+			min-width:80%;
+		}
+		.col-right{
+			box-sizing: border-box;
+			padding:20px;
+			width:80%;
+			float:right;
+			margin-left:300px;
+		}
+		.has-unread{
+			font-weight:bold;
+		}
+		paper-item{
+			outline:0;
+			cursor:pointer;
+			--paper-item: {
+				margin: 0;
+			};
+			--paper-item-selected: {
+				background:rgba(0,0,0,0);
+				color:var(--app-secondary-color);
+			};
+			--paper-item-focused: {
+				background:rgba(0,0,0,0);
+				color:var(--app-secondary-color);
+			};
+			--paper-item-focused-before: {
+				background:rgba(0,0,0,0);
+			}
+		}
+
+
+		paper-listbox:focus{
+			outline:0;
+		}
+
+		.sublist{
+			padding-left:20px;
+			outline:0;
+
+		}
+
+		.sublist paper-item{
+			--paper-item-min-height: 28px;
+		}
+
+	  vaadin-grid.material {
+		  outline: 0!important;
+		  font-family: Roboto, sans-serif;
+		  background:rgba(0,0,0,0);
+		  border:none;
+		  --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+		  --vaadin-grid-cell: {
+			  padding: 8px;
+		  };
+
+		  --vaadin-grid-header-cell: {
+			  height: 48px;
+			  padding:11.2px;
+			  color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+			  font-size: 12px;
+			  background:rgba(0,0,0,0);
+			  border-top:0;
+		  };
+
+		  --vaadin-grid-body-cell: {
+			  height: 48px;
+			  color: rgba(0, 0, 0, var(--dark-primary-opacity));
+			  font-size: 13px;
+		  };
+
+		  --vaadin-grid-body-row-hover-cell: {
+			  background-color: var(--paper-grey-200);
+		  };
+
+		  --vaadin-grid-body-row-selected-cell: {
+			  background-color: var(--paper-grey-100);
+		  };
+
+		  --vaadin-grid-focused-cell: {
+			  box-shadow: none;
+			  font-weight: bold;
+		  };
+
+	  }
+	  vaadin-grid.material .cell {
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  padding-right: 56px;
+	  }
+
+	  vaadin-grid.material .cell.last {
+		  padding-right: 24px;
+		  text-al
+	  }
+
+	  vaadin-grid.material .cell.numeric {
+		  text-align: right;
+	  }
+
+	  vaadin-grid.material paper-checkbox {
+		  --primary-color: var(--paper-indigo-500);
+		  margin: 0 24px;
+	  }
+
+	  vaadin-grid.material vaadin-grid-sorter {
+		  --vaadin-grid-sorter-arrow: {
+			  display: none !important;
+		  };
+	  }
+
+	  vaadin-grid.material vaadin-grid-sorter .cell {
+		  flex: 1;
+		  display: flex;
+		  justify-content: space-between;
+		  align-items: center;
+	  }
+
+	  vaadin-grid.material vaadin-grid-sorter iron-icon {
+		  transform: scale(0.8);
+	  }
+
+	  vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+		  color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+	  }
+
+	  vaadin-grid.material vaadin-grid-sorter[direction] {
+		  color: rgba(0, 0, 0, var(--dark-primary-opacity));
+	  }
+
+	  vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+		  transform: scale(0.8) rotate(180deg);
+	  }
+
+
+	  vaadin-grid.material ::slotted(div){
+			outline:0 !important;
+		  background:red;
+		}
+
+	  paper-checkbox{
+		  --paper-checkbox-unchecked-color: var(--app-text-color);
+		  --paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
+		  --paper-checkbox-checkmark-color: var(--app-secondary-color);
+		  --paper-checkbox-checked-color: var(--app-primary-color);
+	  }
+    </style>
+
+    <div class="col-left">
+		<paper-button class="new-msg-btn"> New Message </paper-button>
+		<paper-listbox class="boxes-list">
+			<collapse-button>
+				<paper-item class="has-unread">Inbox (7)</paper-item>
+				<paper-listbox class="sublist">
+					<paper-item  class="has-unread">Lab Results (3)</paper-item>
+					<paper-item>Personal</paper-item>
+					<paper-item class="has-unread">Patients (4)</paper-item>
+				</paper-listbox>
+			</collapse-button>
+			<paper-item>Sent Messages</paper-item>
+			<paper-item>Archived</paper-item>
+			<paper-item>Spam</paper-item>
+			<paper-item>Trash</paper-item>
+		</paper-listbox>
+	</div>
+	  <div class="col-right">
+		  <vaadin-grid id="grid" class="material" page-size="10">
+
+			  <vaadin-grid-column width="66px" flex="0" >
+				  <template class="header">
+					  <paper-checkbox ></paper-checkbox>
+				  </template>
+				 m>Spam</paper-item>
+			<papeeckbox ></paper-checkbox>
+				  </template>
+			  </vaadin-grid-column>
+
+			  <vaadin-grid-column >
+				  <template class="header">Recipient</template>
+				  <template>
+					  [[item.name.first]]
+				  </template>
+			  </vaadin-grid-column>
+
+			  <vaadin-grid-column>
+				  <template class="header">Subject</template>
+				  <template>
+					  [[item.name.last]]
+				  </template>
+			  </vaadin-grid-column>
+
+			  <vaadin-grid-column style="width:100px;" flex="0">
+				  <template class="header">Date</template>
+				  <template>
+					  <div>[[item.name.first]].[[item.name.last]]@example.com</div>
+				  </template>
+			  </vaadin-grid-column>
+
+		  </vaadin-grid>
+	  </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'ht-msg'
+    });
+  </script>
+</dom-module>

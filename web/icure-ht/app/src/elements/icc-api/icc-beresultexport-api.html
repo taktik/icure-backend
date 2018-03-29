@@ -1,0 +1,55 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-beresultexport-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="exportHealthOne" method="POST" headers="[[headers]]" url="/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="exportMedidoc" method="POST" headers="[[headers]]" url="/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-beresultexport-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				exportHealthOne: function (fromHcpId, toHcpId, patId, date, ref, mustCrypt, body) {
+					var xhr = this.$.exportHealthOne
+					xhr.body = body
+					xhr.url = this.host+"/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId).replace("{toHcpId}", toHcpId).replace("{patId}", patId).replace("{date}", date).replace("{ref}", ref) + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				exportMedidoc: function (fromHcpId, toHcpId, patId, date, ref, mustCrypt, body) {
+					var xhr = this.$.exportMedidoc
+					xhr.body = body
+					xhr.url = this.host+"/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId).replace("{toHcpId}", toHcpId).replace("{patId}", patId).replace("{date}", date).replace("{ref}", ref) + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

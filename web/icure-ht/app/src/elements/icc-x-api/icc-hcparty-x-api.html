@@ -1,0 +1,44 @@
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+	<dom-module id="icc-hcparty-x-api">
+		<template>
+			<style>
+			</style>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-hcparty-x-api',
+				properties: {
+					api: {
+						type: Object
+					},
+					crypto: {
+						type: Object
+					}
+				},
+				behaviors: [],
+
+				hcPartyKeysCache: {},
+
+				init: function() {
+					this.baseApi = this.api.hcparty()
+					Object.getOwnPropertyNames(this.baseApi.$).forEach((p)=>{
+						if (this.baseApi[p] && typeof this.baseApi[p] === 'function' && !this[p]) {
+							this[p] = this.baseApi[p].bind(this.baseApi)
+						}
+					})
+				},
+
+				getHcPartyKeysForDelegate: function(healthcarePartyId) {
+					const cached = this.hcPartyKeysCache[healthcarePartyId]
+					return cached ? Promise.resolve(cached) : this.api.hcparty().getHcPartyKeysForDelegate(healthcarePartyId).then(r=>this.hcPartyKeysCache[healthcarePartyId] = r)
+				}
+
+			});
+		})();
+	</script>
+
+@end

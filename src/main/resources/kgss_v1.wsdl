@@ -1,0 +1,60 @@
+<s2:definitions targetNamespace="urn:be:fgov:ehealth:etee:kgss:1_0:protocol" xmlns:s0="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:s1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s2="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:s3="urn:be:fgov:ehealth:etee:kgss:1_0:protocol" xmlns:s4="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+  <s2:types>
+    <xs:schema xmlns:kgss="urn:be:fgov:ehealth:etee:kgss:1_0:protocol" xmlns:s0="http://schemas.xmlsoap.org/wsdl/" xmlns:s1="urn:be:fgov:ehealth:etee:kgss:1_0:protocol" xmlns:s2="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+      xmlns:types="urn:be:fgov:ehealth:etee:kgss:1_0:protocol" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="urn:be:fgov:ehealth:etee:kgss:1_0:protocol" schemaLocation="../XSD/etee_v1/ehealth-etee-kgss-schema-protocol-3_1.xsd" />
+    </xs:schema>
+  </s2:types>
+  <s2:message name="GetNewKeyRequestMessage">
+    <s2:part element="s3:GetNewKeyRequest" name="body" />
+  </s2:message>
+  <s2:message name="GetNewKeyResponseMessage">
+    <s2:part element="s3:GetNewKeyResponse" name="body" />
+  </s2:message>
+  <s2:message name="GetKeyRequestMessage">
+    <s2:part element="s3:GetKeyRequest" name="body" />
+  </s2:message>
+  <s2:message name="GetKeyResponseMessage">
+    <s2:part element="s3:GetKeyResponse" name="body" />
+  </s2:message>
+  <s2:portType name="KgssPortType">
+    <s2:operation name="GetNewKey">
+      <s2:input message="s3:GetNewKeyRequestMessage" />
+      <s2:output message="s3:GetNewKeyResponseMessage" />
+    </s2:operation>
+    <s2:operation name="GetKey">
+      <s2:input message="s3:GetKeyRequestMessage" />
+      <s2:output message="s3:GetKeyResponseMessage" />
+    </s2:operation>
+  </s2:portType>
+  <s2:binding name="KgssSoapBinding" type="s3:KgssPortType">
+    <s4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <s2:operation name="GetNewKey">
+      <s4:operation />
+      <s2:input>
+        <s4:body use="literal" />
+      </s2:input>
+      <s2:output>
+        <s4:body use="literal" />
+      </s2:output>
+    </s2:operation>
+    <s2:operation name="GetKey">
+      <s4:operation />
+      <s2:input>
+        <s4:body use="literal" />
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#samlPolicy-holder-of-key-signed-Smals" />
+        </wsp:Policy>
+      </s2:input>
+      <s2:output>
+        <s4:body use="literal" />
+      </s2:output>
+    </s2:operation>
+  </s2:binding>
+  <s2:service name="KgssService">
+    <s2:port binding="s3:KgssSoapBinding" name="KgssPort">
+      <s4:address location="https://services-acpt.ehealth.fgov.be/Kgss/v1" />
+    </s2:port>
+  </s2:service>
+</s2:definitions>

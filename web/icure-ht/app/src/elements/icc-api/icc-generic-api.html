@@ -1,0 +1,75 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-generic-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="deleteDoc" method="DELETE" headers="[[headers]]" url="/generic/doc/{className}/{ids}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getDoc" method="GET" headers="[[headers]]" url="/generic/doc/{className}/{id}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listDocs" method="GET" headers="[[headers]]" url="/generic/doc/{className}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listEnum" method="GET" headers="[[headers]]" url="/generic/enum/{className}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-generic-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				deleteDoc: function (className, ids) {
+					var xhr = this.$.deleteDoc
+
+					xhr.url = this.host+"/generic/doc/{className}/{ids}".replace("{className}", className).replace("{ids}", ids) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getDoc: function (className, id) {
+					var xhr = this.$.getDoc
+
+					xhr.url = this.host+"/generic/doc/{className}/{id}".replace("{className}", className).replace("{id}", id) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listDocs: function (className) {
+					var xhr = this.$.listDocs
+
+					xhr.url = this.host+"/generic/doc/{className}".replace("{className}", className) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listEnum: function (className) {
+					var xhr = this.$.listEnum
+
+					xhr.url = this.host+"/generic/enum/{className}".replace("{className}", className) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

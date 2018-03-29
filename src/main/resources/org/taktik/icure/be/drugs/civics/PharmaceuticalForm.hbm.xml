@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.PharmaceuticalForm" table="pharmaceutical_form" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="pharm_form_id" />
+        </id>
+        <property name="aerosolType" type="java.lang.String">
+            <column name="aerosol_type" length="2" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="crushableInd" type="java.lang.String">
+            <column name="crushable_ind" length="1" />
+        </property>
+        <property name="dividableInd" type="java.lang.String">
+            <column name="dividable_ind" length="1" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="entericCoatedInd" type="java.lang.String">
+            <column name="enteric_coated_ind" length="1" />
+        </property>
+        <property name="nameId" type="java.lang.Long">
+            <column name="name_id" not-null="true" />
+        </property>
+        <property name="noInnInd" type="java.lang.String">
+            <column name="no_inn_ind" length="1" />
+        </property>
+        <property name="retardedInd" type="java.lang.String">
+            <column name="retarded_ind" length="1" />
+        </property>
+        <property name="solidToLiquid" type="java.lang.String">
+            <column name="solid_to_liquid" length="2" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <property name="tool" type="java.lang.String">
+            <column name="tool" length="2" />
+        </property>
+        <property name="vehicInd" type="java.lang.String">
+            <column name="vehic_ind" length="1" />
+        </property>
+    </class>
+</hibernate-mapping>

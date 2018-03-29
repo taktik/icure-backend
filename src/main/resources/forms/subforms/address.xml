@@ -1,0 +1,50 @@
+<FormLayout name="Address" width="560.0" height="180.0" guid="DF4A7784-8500-11E4-86F1-E96695DB5880"
+            group="">
+	<FormSection columns="1">
+		<FormColumn columns="1">
+
+			<FormLayoutData irrelevant="true" type="TKString" name="street" sortOrder="0.0">
+				<label>Street Add</label>
+				<editor class="StringEditor" left="80.0" top="0.0" width="320.0" multiline="false" heigth="22.0"
+				        labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="houseNumber" sortOrder="0.0">
+				<label>Number</label>
+				<editor class="StringEditor" left="480.0" top="0.0" width="80.0" multiline="false" heigth="22.0"
+				        labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="postalCode" sortOrder="0.0">
+				<label>Post code</label>
+				<editor class="StringEditor" left="80.0" top="30.0" width="80.0" multiline="false" heigth="22.0"
+				        labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="city" sortOrder="0.0">
+				<label>City</label>
+				<editor class="StringEditor" left="240.0" top="30.0" width="160.0" multiline="false" heigth="22.0"
+				        labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="postboxNumber" sortOrder="0.0">
+				<label>Box</label>
+				<editor class="StringEditor" left="480.0" top="30.0" width="80.0" multiline="false" heigth="22.0"
+				        labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="country" sortOrder="0.0">
+				<label>Country</label>
+				<editor class="StringEditor" left="80.0" top="60.0" width="320.0" multiline="false" heigth="22.0"
+				        labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<!-- Telecom -->
+
+			<FormLayoutData irrelevant="true" type="TKSubForm" name="telecoms" sortOrder="0.0">
+				<label>Telecom</label>
+				<editor class="SubFormEditor" left="80.0" top="90.0" width="480.0" multiline="false" heigth="30.0"
+				        labelPosition="Left">
+					<CompulsoryForm>subforms/telecom</CompulsoryForm>
+				</editor>
+			</FormLayoutData>
+		</FormColumn>
+	</FormSection>
+</FormLayout>

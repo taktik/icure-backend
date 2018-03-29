@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-07-10</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Message</NAME>
+  <VALUE>
+    <CODE>gppatientmigration</CODE>
+    <DESCRIPTION L='fr'>GP patient migration format</DESCRIPTION>
+    <DESCRIPTION L='en'>GP patient migration format</DESCRIPTION>
+    <DESCRIPTION L='nl'>GP patient migration format</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gpsoftwaremigration</CODE>
+    <DESCRIPTION L='fr'>GP software migration format</DESCRIPTION>
+    <DESCRIPTION L='en'>GP software migration format</DESCRIPTION>
+    <DESCRIPTION L='nl'>GP software migration format</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nursingpatientmigration</CODE>
+    <DESCRIPTION L='fr'>Nursing patient migration format</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nursing patient migration format</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nursingsoftwaremigration</CODE>
+    <DESCRIPTION L='fr'>Nursing software migration format</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nursing software migration format</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ptpatientmigration</CODE>
+    <DESCRIPTION L='fr'>PT patient migration format</DESCRIPTION>
+    <DESCRIPTION L='nl'>PT patient migration format</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ptsoftwaremigration</CODE>
+    <DESCRIPTION L='fr'>PT software migration format</DESCRIPTION>
+    <DESCRIPTION L='nl'>PT software migration format</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

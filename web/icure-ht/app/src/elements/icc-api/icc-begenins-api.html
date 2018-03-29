@@ -1,0 +1,55 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-begenins-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="getGeneralInsurability" method="GET" headers="[[headers]]" url="/be_genins/{token}/{niss}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getGeneralInsurabilityWithRegNumber" method="GET" headers="[[headers]]" url="/be_genins/{token}/{insurance}/{regNumber}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-begenins-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				getGeneralInsurability: function (token, niss, date, hospitalized) {
+					var xhr = this.$.getGeneralInsurability
+
+					xhr.url = this.host+"/be_genins/{token}/{niss}".replace("{token}", token).replace("{niss}", niss) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getGeneralInsurabilityWithRegNumber: function (token, insurance, regNumber, hospitalized, date) {
+					var xhr = this.$.getGeneralInsurabilityWithRegNumber
+
+					xhr.url = this.host+"/be_genins/{token}/{insurance}/{regNumber}".replace("{token}", token).replace("{insurance}", insurance).replace("{regNumber}", regNumber) + "?ts=" + (new Date).getTime()  + (hospitalized ? "&hospitalized=" + hospitalized : "") + (date ? "&date=" + date : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

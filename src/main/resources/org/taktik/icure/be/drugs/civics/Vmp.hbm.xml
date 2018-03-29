@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.Vmp" table="vmp" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="vmp_id" />
+        </id>
+        <property name="administrationMultiplier" type="java.lang.Long">
+            <column name="administration_multiplier" />
+        </property>
+        <property name="administrationQuantity" type="java.lang.Double">
+            <column name="administration_quantity" scale="3" />
+        </property>
+        <property name="administrationUnit" type="java.lang.String">
+            <column name="administration_unit" length="5" />
+        </property>
+        <property name="applicationCv" type="java.lang.String">
+            <column name="application_cv" length="15" not-null="true" />
+        </property>
+        <property name="blackTriangleInd" type="java.lang.String">
+            <column name="black_triangle_ind" length="1" />
+        </property>
+        <property name="closeDate" type="java.util.Date">
+            <column name="close_date" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="definedDailyDoseUnit" type="java.lang.String">
+            <column name="defined_daily_dose_unit" length="5" />
+        </property>
+        <property name="definedDailyDoseValue" type="java.lang.Double">
+            <column name="defined_daily_dose_value" scale="3" />
+        </property>
+        <property name="doseFormType" type="java.lang.String">
+            <column name="dose_form_type" length="1" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="hyrId" type="java.lang.Long">
+            <column name="hyr_id" />
+        </property>
+        <property name="initDate" type="java.util.Date">
+            <column name="init_date" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="nameId" type="java.lang.Long">
+            <column name="name_id" not-null="true" />
+        </property>
+        <property name="noInn" type="java.lang.Long">
+            <column name="no_inn" />
+        </property>
+        <property name="noSwitch" type="java.lang.Long">
+            <column name="no_switch" />
+        </property>
+        <property name="sequentialInd" type="java.lang.String">
+            <column name="sequential_ind" length="1" not-null="true" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <many-to-one name="vtm" class="org.taktik.icure.be.drugs.civics.Vtm">
+            <column name="vtm_id" not-null="true" />
+        </many-to-one>
+        <property name="wadaCv" type="java.lang.String">
+            <column name="wada_cv" length="6" />
+        </property>
+    </class>
+</hibernate-mapping>

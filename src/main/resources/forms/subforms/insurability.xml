@@ -1,0 +1,67 @@
+<FormLayout name="Insurance" width="560.0" height="120.0" guid="DF4A7784-8500-11E4-86F1-E96695DB5880"
+            group="">
+	<FormSection columns="1">
+		<FormColumn columns="1">
+
+			<FormLayoutData irrelevant="true" type="TKSelectPopup" name="insuranceDescription" sortOrder="0.0">
+				<label>Insurance</label>
+				<editor class="StringEditor" left="80.0" top="0.0" width="480.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<!--
+				TODO: it is really the insuranceId that should be returned when submitting the form
+			-->
+
+			<FormLayoutData irrelevant="true" type="TKBoolean" name="hospitalisation" sortOrder="0.0">
+				<label>Hospitalisation</label>
+				<editor class="CheckBoxEditor" left="80.0" top="30.0" width="22.0" multiline="false" heigth="22.0" labelPosition="Right" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKBoolean" name="ambulatory" sortOrder="0.0">
+				<label>Ambulatoire</label>
+				<editor class="CheckBoxEditor" left="200.0" top="30.0" width="22.0" multiline="false" heigth="22.0" labelPosition="Right" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKBoolean" name="dental" sortOrder="0.0">
+				<label>Dentaire</label>
+				<editor class="CheckBoxEditor" left="320.0" top="30.0" width="22.0" multiline="false" heigth="22.0" labelPosition="Right" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<FormLayoutData irrelevant="true" type="TKString" name="identificationNumber" sortOrder="0.0">
+				<label>N°</label>
+				<editor class="StringEditor" left="80.0" top="60.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="parameters.TC1" sortOrder="0.0">
+				<label>CTs</label>
+				<editor class="StringEditor" left="240.0" top="60.0" width="40.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="parameters.TC2" sortOrder="0.0">
+				<editor class="StringEditor" left="280.0" top="60.0" width="40.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKBoolean" name="parameters.CHRONICALDISEASE" sortOrder="0.0">
+				<label>Chron</label>
+				<editor class="CheckBoxEditor" left="360.0" top="60.0" width="22.0" multiline="false" heigth="22.0" labelPosition="Right" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKBoolean" name="parameters.PREFERENTIALSTATUS" sortOrder="0.0">
+				<label>Omnio</label>
+				<editor class="CheckBoxEditor" left="440.0" top="60.0" width="22.0" multiline="false" heigth="22.0" labelPosition="Right" displayValueDate="false"/>
+			</FormLayoutData>
+
+			<!--
+				TODO: the below might actually not be needed... ?
+			-->
+			<FormLayoutData irrelevant="true" type="TKDropDown" name="insuranceStatus" sortOrder="0.0">
+				<label>Ins. status</label>
+				<editor class="StringEditor" left="80.0" top="90.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKBoolean" name="dmg" sortOrder="0.0">
+				<label>DMG</label>
+				<editor class="CheckBoxEditor" left="240.0" top="90.0" width="22.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="dmgDescription" sortOrder="0.0">
+				<editor class="StringEditor" left="280.0" top="90.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+			<FormLayoutData irrelevant="true" type="TKString" name="first" sortOrder="0.0">
+				<label>1st</label>
+				<editor class="StringEditor" left="440.0" top="90.0" width="120.0" multiline="false" heigth="22.0" labelPosition="Left" displayValueDate="false"/>
+			</FormLayoutData>
+		</FormColumn>
+	</FormSection>
+</FormLayout>

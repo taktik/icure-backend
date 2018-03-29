@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s0:definitions name="Samcivics" targetNamespace="urn:be:fgov:ehealth:samcivics:service:v1" xmlns:s0="http://schemas.xmlsoap.org/wsdl/" xmlns:s1="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:s2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s3="urn:be:fgov:ehealth:samcivics:schemas:v1" xmlns:s4="urn:be:fgov:ehealth:samcivics:service:v1" xmlns:s5="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+  <s0:documentation>Version 1.0: initial version</s0:documentation>
+  <s1:Policy s2:Id="X509IdentifyAndSignMessage">
+    <wssp:Identity xmlns:wssp="http://www.bea.com/wls90/security/policy">
+      <wssp:SupportedTokens>
+        <wssp:SecurityToken TokenType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/>
+      </wssp:SupportedTokens>
+    </wssp:Identity>
+    <wssp:Integrity xmlns:wls="http://www.bea.com/wls90/security/policy/wsee#part" xmlns:wssp="http://www.bea.com/wls90/security/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+      <wssp:SignatureAlgorithm URI="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      <wssp:CanonicalizationAlgorithm URI="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+      <wssp:Target>
+        <wssp:DigestAlgorithm URI="http://www.w3.org/2000/09/xmldsig#sha1"/>
+        <wssp:MessageParts Dialect="http://www.bea.com/wls90/security/policy/wsee#part">
+  wls:SecurityHeader(wsu:Timestamp)
+  </wssp:MessageParts>
+      </wssp:Target>
+      <wssp:Target>
+        <wssp:DigestAlgorithm URI="http://www.w3.org/2000/09/xmldsig#sha1"/>
+        <wssp:MessageParts Dialect="http://schemas.xmlsoap.org/2002/12/wsse#part">
+   wsp:Body()
+  </wssp:MessageParts>
+      </wssp:Target>
+      <wssp:SupportedTokens>
+        <wssp:SecurityToken IncludeInMessage="true" TokenType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3">
+          <wssp:TokenIssuer>2.5.4.5=#1306323030353131,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373034,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383038,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393032,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363130,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393037,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373039,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353035,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303032,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363135,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383133,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363034,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383032,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303037,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373132,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393132,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373134,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383138,CN=Citizen CA,C=BE,1.2.840.113549.1.9.1=#161d7068696c697070652e7065657465727340736d616c732d6d766d2e6265,OU=Middleware,O=SmalS-MvM,ST=Brussels,L=Brussels,C=BE,CN=madrid.smals-mvm.be,2.5.4.5=#1306323030353130,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373033,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383037,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393031,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363039,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363230,CN=Citizen CA,C=BE,2.5.4.5=#130432303130,CN=Government CA,C=BE,2.5.4.5=#1306323030353135,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303132,CN=Citizen CA,C=BE,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373038,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393036,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353034,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303031,CN=Citizen CA,C=BE,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383132,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363134,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363033,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383031,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353039,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303036,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363139,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373133,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383137,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393131,CN=Citizen CA,C=BE,CN=GlobalSign Root CA,OU=Root CA,O=GlobalSign nv-sa,C=BE,2.5.4.5=#1306323030363038,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373032,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383036,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353134,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303131,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373037,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393035,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353033,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363133,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383131,CN=Citizen CA,C=BE,2.5.4.5=#130432303038,CN=Government CA,C=BE,CN=GlobalSign Domain Validation CA,O=GlobalSign nv-sa,OU=Domain Validation CA,C=BE,2.5.4.5=#1306323030353038,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363032,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303035,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373132,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383136,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393130,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363138,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363037,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373031,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383035,CN=Citizen CA,C=BE,CN=Belgium Root CA2,C=BE,2.5.4.5=#1306323030353133,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303130,CN=Citizen CA,C=BE,CN=Certipost E-Trust Primary Normalised CA,O=Certipost s.a./n.v.,C=BE,2.5.4.5=#1306323030373036,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393034,CN=Citizen CA,C=BE,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353032,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363132,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383130,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393039,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363031,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353037,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303034,CN=Citizen CA,C=BE,1.2.840.113549.1.9.1=#161b7765626c6f6769632e61646d696e40736d616c732d6d766d2e6265,OU=Middleware,O=SmalS-MvM,ST=Brussels,L=Brussels,C=BE,CN=Middleware Root CA 2006,2.5.4.5=#1306323030363137,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383135,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373131,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363036,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383034,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303039,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373136,CN=Citizen CA,C=BE,OU=Smals TO&amp;P,O=eHealth-platform,C=BE,CN=eHealth CA,2.5.4.5=#1306323030353132,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393033,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373035,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383039,CN=Citizen CA,C=BE,CN=OVH Secure Certification Authority,O=OVH SAS,OU=Low Assurance,C=FR,2.5.4.5=#1306323030383230,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353031,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363131,CN=Citizen CA,C=BE,2.5.4.5=#1306323030393038,CN=Citizen CA,C=BE,2.5.4.5=#1306323030353036,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303033,CN=Citizen CA,C=BE,O=Tests - Belgian Federal Government,OU=Fedict,L=Brussels,C=BE,CN=fsb.services.int.belgium.be,2.5.4.5=#1306323030373130,CN=Citizen CA,C=BE,2.5.4.5=#1306323030363136,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383134,CN=Citizen CA,C=BE,CN=UTN-USERFirst-Hardware,OU=http://www.usertrust.com,O=The USERTRUST Network,L=Salt Lake City,ST=UT,C=US,2.5.4.5=#1306323030363035,CN=Citizen CA,C=BE,2.5.4.5=#1306323030383033,CN=Citizen CA,C=BE,2.5.4.5=#1306323031303038,CN=Citizen CA,C=BE,O=Federal Government,OU=eHealth-platform Belgium,C=BE,CN=TRAIL eHealth CA TEST,2.5.4.5=#1306323030383139,CN=Citizen CA,C=BE,2.5.4.5=#1306323030373135,CN=Citizen CA,C=BE,</wssp:TokenIssuer>
+        </wssp:SecurityToken>
+      </wssp:SupportedTokens>
+    </wssp:Integrity>
+    <wssp:MessageAge Age="300" xmlns:wssp="http://www.bea.com/wls90/security/policy"/>
+  </s1:Policy>
+  <wsp:UsingPolicy s0:Required="true"/>
+  <s0:types>
+    <xsd:schema xmlns:s1="urn:be:fgov:ehealth:samcivics:schemas:v1" xmlns:s2="urn:be:fgov:ehealth:samcivics:service:v1" xmlns:s3="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:samcivics="urn:be:fgov:ehealth:samcivics:schemas:v1" xmlns:soap11="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="urn:be:fgov:ehealth:samcivics:schemas:v1" schemaLocation="../XSD/civics_v1/sam-civics-protocol.xsd"/>
+    </xsd:schema>
+  </s0:types>
+  <s0:message name="FindParagraphTextRequest">
+    <s0:part element="s3:FindParagraphTextRequest" name="body"/>
+  </s0:message>
+  <s0:message name="FindParagraphTextResponse">
+    <s0:part element="s3:FindParagraphTextResponse" name="body"/>
+  </s0:message>
+  <s0:message name="GetParagraphExclusionsRequest">
+    <s0:part element="s3:GetParagraphExclusionsRequest" name="body"/>
+  </s0:message>
+  <s0:message name="GetParagraphExclusionsResponse">
+    <s0:part element="s3:GetParagraphExclusionsResponse" name="body"/>
+  </s0:message>
+  <s0:message name="GetParagraphIncludedSpecialitiesRequest">
+    <s0:part element="s3:GetParagraphIncludedSpecialitiesRequest" name="body"/>
+  </s0:message>
+  <s0:message name="GetParagraphIncludedSpecialitiesResponse">
+    <s0:part element="s3:GetParagraphIncludedSpecialitiesResponse" name="body"/>
+  </s0:message>
+  <s0:message name="GetProfessionalAuthorisationsRequest">
+    <s0:part element="s3:GetProfessionalAuthorisationsRequest" name="body"/>
+  </s0:message>
+  <s0:message name="GetProfessionalAuthorisationsResponse">
+    <s0:part element="s3:GetProfessionalAuthorisationsResponse" name="body"/>
+  </s0:message>
+  <s0:message name="GetAddedDocumentsRequest">
+    <s0:part element="s3:GetAddedDocumentsRequest" name="body"/>
+  </s0:message>
+  <s0:message name="GetAddedDocumentsResponse">
+    <s0:part element="s3:GetAddedDocumentsResponse" name="body"/>
+  </s0:message>
+  <s0:message name="FindReimbursementConditionsRequest">
+    <s0:part element="s3:FindReimbursementConditionsRequest" name="body"/>
+  </s0:message>
+  <s0:message name="FindReimbursementConditionsResponse">
+    <s0:part element="s3:FindReimbursementConditionsResponse" name="body"/>
+  </s0:message>
+  <s0:portType name="SamcivicsPortType">
+    <s0:operation name="findParagraphText">
+      <s0:input message="s4:FindParagraphTextRequest"/>
+      <s0:output message="s4:FindParagraphTextResponse"/>
+    </s0:operation>
+    <s0:operation name="getParagraphExclusions">
+      <s0:input message="s4:GetParagraphExclusionsRequest"/>
+      <s0:output message="s4:GetParagraphExclusionsResponse"/>
+    </s0:operation>
+    <s0:operation name="getParagraphIncludedSpecialities">
+      <s0:input message="s4:GetParagraphIncludedSpecialitiesRequest"/>
+      <s0:output message="s4:GetParagraphIncludedSpecialitiesResponse"/>
+    </s0:operation>
+    <s0:operation name="getProfessionalAuthorisations">
+      <s0:input message="s4:GetProfessionalAuthorisationsRequest"/>
+      <s0:output message="s4:GetProfessionalAuthorisationsResponse"/>
+    </s0:operation>
+    <s0:operation name="getAddedDocuments">
+      <s0:input message="s4:GetAddedDocumentsRequest"/>
+      <s0:output message="s4:GetAddedDocumentsResponse"/>
+    </s0:operation>
+    <s0:operation name="findReimbursementConditions">
+      <s0:input message="s4:FindReimbursementConditionsRequest"/>
+      <s0:output message="s4:FindReimbursementConditionsResponse"/>
+    </s0:operation>
+  </s0:portType>
+  <s0:binding name="SamcivicsSOAPBinding" type="s4:SamcivicsPortType">
+    <s5:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <s0:operation name="findParagraphText">
+      <s5:operation style="document"/>
+      <s0:input>
+        <s5:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s0:input>
+      <s0:output>
+        <s5:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="getParagraphExclusions">
+      <s5:operation style="document"/>
+      <s0:input>
+        <s5:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s0:input>
+      <s0:output>
+        <s5:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="getProfessionalAuthorisations">
+      <s5:operation style="document"/>
+      <s0:input>
+        <s5:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s0:input>
+      <s0:output>
+        <s5:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="getParagraphIncludedSpecialities">
+      <s5:operation style="document"/>
+      <s0:input>
+        <s5:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s0:input>
+      <s0:output>
+        <s5:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="getAddedDocuments">
+      <s5:operation style="document"/>
+      <s0:input>
+        <s5:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s0:input>
+      <s0:output>
+        <s5:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+    <s0:operation name="findReimbursementConditions">
+      <s5:operation style="document"/>
+      <s0:input>
+        <s5:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s0:input>
+      <s0:output>
+        <s5:body use="literal"/>
+      </s0:output>
+    </s0:operation>
+  </s0:binding>
+  <s0:service name="SamcivicsService">
+    <s0:port binding="s4:SamcivicsSOAPBinding" name="SamcivicsServiceSOAP11">
+      <s5:address location="https://services-acpt.ehealth.fgov.be/ChapIVInformation/Consultation/v1"/>
+    </s0:port>
+  </s0:service>
+</s0:definitions>

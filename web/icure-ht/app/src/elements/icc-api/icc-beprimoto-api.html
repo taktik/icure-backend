@@ -1,0 +1,45 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-beprimoto-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="generateFile" method="GET" headers="[[headers]]" url="/be_primoto/{nihii}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-beprimoto-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				generateFile: function (nihii, version, serial, doctor, year, from, to) {
+					var xhr = this.$.generateFile
+
+					xhr.url = this.host+"/be_primoto/{nihii}".replace("{nihii}", nihii) + "?ts=" + (new Date).getTime()  + (version ? "&version=" + version : "") + (serial ? "&serial=" + serial : "") + (doctor ? "&doctor=" + doctor : "") + (year ? "&year=" + year : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

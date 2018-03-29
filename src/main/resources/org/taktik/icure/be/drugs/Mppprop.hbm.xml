@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 27, 2008 11:38:03 AM by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.Mppprop" table="MPPPROP" catalog="DRUGS">
+        <composite-id name="id" class="org.taktik.icure.be.drugs.dto.MpppropId">
+            <key-property name="mppId" type="string">
+                <column name="MPP_ID" />
+            </key-property>
+            <key-property name="propkey" type="string">
+                <column name="PROPKEY" />
+            </key-property>
+            <key-property name="lang" type="string">
+                <column name="LANG" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="mpp" class="org.taktik.icure.be.drugs.Mpp" update="false" insert="false" fetch="select">
+            <column name="MPP_ID" not-null="true" />
+            <column name="LANG" not-null="true" />
+        </many-to-one>
+        <property name="strprop" type="string">
+            <column name="STRPROP" />
+        </property>
+        <property name="nbprop" type="java.lang.Double">
+            <column name="NBPROP" precision="17" scale="0" />
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE" />
+        </property>
+    </class>
+</hibernate-mapping>

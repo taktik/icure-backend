@@ -1,0 +1,494 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+
+<link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../filter-panel/filter-panel.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
+
+<link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
+<link rel="import" href="../dynamic-form/entity-selector.html">
+
+<dom-module id="ht-pat-detail-ctc-detail-panel">
+	<template>
+		<style>
+			.details-panel {
+				/*width: calc(50% + 1px);*/
+				height: 100%;
+				background: var(--app-background-color-light);
+				/*position: fixed;*/
+				top: 64px;
+				width:100%;
+				/*left: calc(50% - 1px);
+				grid-column: 3 / 3;
+				grid-row:1 / 1;*/
+				z-index:1;
+
+			}
+			.contact-title{
+				display:block;
+				@apply --paper-font-body2;
+				@apply --padding-32;
+				padding-bottom:8px;
+				padding-top: 32px;
+			}
+			/*.contact-title:first-child{
+				padding-top:0;
+			}*/
+			.pat-details-card > .card-content {
+				padding: 16px 16px 32px !important;
+			}
+
+			.pat-details-card {
+				width: calc(100% - 64px);
+				margin: 0 32px;
+			}
+
+			.horizontal {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				flex-basis: 100%;
+			}
+
+			.justified {
+				justify-content: space-between;
+			}
+
+			.pat-details-input {
+				flex-grow: 1;
+				margin: 16px;
+			}
+
+			input {
+				border: none;
+				width: 100%;
+			}
+
+			paper-dialog {
+				margin: 0;
+			}
+
+			.contact-card-container {
+				overflow-y: auto;
+				height: calc(100% - 48px);
+				padding-bottom: 32px;
+			}
+
+
+
+			paper-fab-speed-dial {
+				--paper-fab-speed-dial-background: var(--app-secondary-color);
+				--paper-fab-speed-dial-keyboard-focus-background: var(--app-secondary-color-dark);
+				--paper-fab-speed-dial-action-background: var(--app-primary-color);
+				--paper-fab-speed-dial-action-keyboard-focus-background: var(--app-primary-color-dark);
+				position:absolute;
+				bottom:4em;
+				right:2em;
+				--paper-fab-iron-icon: {
+					color:var(--app-text-color);
+				}
+
+			}
+
+
+
+
+			paper-fab-speed-dial > div {
+				background-color: var(--app-background-color-light);
+				opacity: 0.8;
+				padding:8px 0;
+				border-radius:2px;
+			}
+			paper-fab-speed-dial-action {
+				--paper-fab-iron-icon: {
+					transform: scale(0.8);
+				};
+				--paper-fab-speed-dial-action-label-background: transparent;
+
+			}
+
+
+			paper-dialog {
+				min-width:30%;
+			}
+
+			.extra-info{
+				color:var(--app-text-color-disabled);
+				font-style: italic;
+				font-size: 80%;
+			}
+
+			vaadin-upload{
+				margin:16px;
+				min-height:280px;
+				background: var(--app-background-color);
+				--vaadin-upload-buttons-primary: {
+					padding:16px;
+				};
+				--vaadin-upload-button-add: {
+					background: var(--app-secondary-color);
+					color:var(--app-text-color);
+				};
+				--vaadin-upload-file-progress: {
+					--paper-progress-active-color:var(--app-secondary-color);
+				};
+				--vaadin-upload-file-commands: {
+					color: var(--app-primary-color);
+				}
+
+			}
+
+			.close-button-icon{
+				position: absolute;
+				top: 0;
+				right: 0;
+				margin: 0;
+				transform: translate(50%, -50%);
+				height: 32px;
+				width: 32px;
+				padding: 8px;
+				background: var(--app-primary-color);
+			}
+
+
+		</style>
+
+
+		<div class="details-panel" on-dragover="_onDrag">
+			<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
+			<div class="contact-card-container">
+				<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
+					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
+						<template is="dom-if" if="[[form.id]]">
+							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" services-map="[[servicesMap]]" language="[[language]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"></dynamically-loaded-form>
+						</template>
+						<template is="dom-repeat" items="[[form.docs]]">
+							<dynamic-doc api="[[api]]" user="[[user]]" service="[[item]]" language="[[language]]" title="[[item.label]]"></dynamic-doc>
+						</template>
+					</template>
+				</template>
+			</div>
+			<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
+				<paper-fab-speed-dial>
+					<div>
+					<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">Consultation</paper-fab-speed-dial-action>
+					<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">Dossier médical</paper-fab-speed-dial-action>
+					<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">Autre formulaire</paper-fab-speed-dial-action>
+					<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">Joindre un document</paper-fab-speed-dial-action>
+					</div>
+				</paper-fab-speed-dial>
+			</template>
+		</div>
+
+		<entity-selector id="add-form-dialog" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
+		<paper-dialog id="upload-dialog">
+			<h2>Upload files <span class="extra-info">(PDF, images and videos)</span></h2>
+			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
+			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
+		</paper-dialog>
+	</template>
+	<script>
+		Polymer({
+			is: 'ht-pat-detail-ctc-detail-panel',
+			properties: {
+				contacts: {
+					type: Array,
+					value: function() { return [] },
+					observer: '_contactsChanged'
+				},
+				allContacts: {
+					type: Array,
+					value: function() { return [] },
+					observer: '_allContactsChanged'
+				},
+				servicesMap: {
+					type: Object,
+					value: null
+				},
+				api: {
+					type: Object
+				},
+				language: {
+					type: String,
+					value: null,
+				},
+				user: {
+					type: Object
+				},
+				patient: {
+					type: Object,
+					value: null
+				},
+				currentContact: {
+					type: Object,
+					value: null
+				},
+				contactsFormsAndDocuments: {
+					type: Array,
+					value: function() { return [] }
+				},
+				healthElements: {
+					type: Array,
+					value: function() { return [] }
+				},
+				showDetailsFiltersPanel: {
+					type: Boolean,
+					value: false
+				},
+				detailPanelItems: {
+					type: Array,
+					value: function() { return [{icon: "icure-svg-icons:laboratory", title: "Lab Results", id: "LabResults"},
+						{icon: "icure-svg-icons:imaging", title: "Imaging", id: "Imaging"},
+						{icon: "editor:insert-drive-file", title: "Protocol", id: "Protocol"},
+						{icon: "icure-svg-icons:prescription", title: "Prescription", id: "Prescription"},
+						{icon: "icure-svg-icons:blood-sugar", title: "Blood Sugar", id: "BloodSugar"},
+						{icon: "icure-svg-icons:blood-pressure", title: "Blood Pressure", id: "BloodPressure"},
+						{icon: "icure-svg-icons:prescription-drugs", title: "Prescription Drugs", id: "PrescriptionDrugs"}] }
+				},
+				files: {
+					type: Array
+				}
+			},
+			observers: [
+				'_filesChanged(files.*)'
+			],
+
+			_onDrag: function(e) {
+				if(this._hasCurrentContact(this.contacts) && e && e.dataTransfer && e.dataTransfer.items && _.find(e.dataTransfer.items, i => i.kind === 'file')) {
+					this.addDocument()
+				}
+			},
+
+			_filesChanged: function() {
+				if (!this.currentContact) { return }
+				const files = _.clone(this.files)
+				const vaadinUpload = this.$['vaadin-upload']
+
+				Promise.all(files.filter(f => !f.attached).map(f => {
+					f.attached = true
+					return this.api.document().new(this.user, null, {documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name})
+						.then(d => this.api.document().createDocument(d))
+						.then(d => {
+							f.doc = d
+							f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/,d.id)
+							return f
+						})
+				})).then(files => {
+					files.length && vaadinUpload.uploadFiles(files)
+				})
+			},
+
+			_fileUploaded(e) {
+				if (!this.currentContact) { return }
+				const vaadinUpload = this.$['vaadin-upload']
+				const f = e.detail.file
+				const d = f.doc
+
+				let sc = this.currentContact.subContacts.find(sbc => ((sbc.status || 0) & 64))
+				if (!sc) {
+					sc = {status:64, services:[]}
+					this.currentContact.subContacts.push(sc)
+				}
+				const svc = this.api.contact().service().new(this.user, { content:_.fromPairs([[this.language,{documentId: d.id, stringValue: f.name}]]), label: 'document'})
+				this.currentContact.services.push(svc)
+				sc.services.push({serviceId:svc.id})
+				if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
+					this.saveCurrentContact().then(c => this._contactsChanged())
+				}
+			},
+
+			addForm: function(templateGuid) {
+				this.api.hcparty().getCurrentHealthcareParty()
+					.then(hcp => this.api.form().getFormTemplatesByGuid(templateGuid, (hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/,'deptgeneralpractice') ))
+					.then(formTemplates => {
+						console.log("FTs: "+formTemplates.size+" FTs loaded")
+						if (formTemplates[0] && formTemplates[0]) {
+							//Create a new form and link it to the currentContact
+							this.api.form().new(this.user, this.patient, {contactId: this.currentContact.id, formTemplateId: formTemplates[0].id, descr: formTemplates[0].name })
+								.then(f => this.api.form().createForm(f))
+								.then(f => {
+									this.currentContact.subContacts.push({formId: f.id, services: []})
+									return this.saveCurrentContact()
+								})
+								.then(c => this._contactsChanged())
+						}
+					}).catch(e => console.log("FTs: error "+e))
+			},
+
+			addConsultation: function() {
+				const prefForms = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.forms')
+				if (prefForms && prefForms.typedValue) {
+					const formsMap = JSON.parse(prefForms.typedValue.stringValue)
+					this.addForm(formsMap['org.taktik.icure.form.standard.consultation'])
+				}
+			},
+
+			addMedicalHistory: function() {
+				const prefForms = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.forms')
+				if (prefForms && prefForms.typedValue) {
+					const formsMap = JSON.parse(prefForms.typedValue.stringValue)
+					this.addForm(formsMap['org.taktik.icure.form.standard.medicalhistory'])
+				}
+			},
+
+			addOther: function() {
+				this.$['add-form-dialog'].open()
+			},
+
+			addDocument: function() {
+				this.$['upload-dialog'].open()
+			},
+
+			saveCurrentContact: function() {
+				return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
+			},
+
+			_addedFormSelected: function (e, formTemplate) {
+				formTemplate && this.addForm(e.detail.guid)
+			},
+
+			edit: function(e, form) {
+				if (!this.currentContact.subContacts.find(sc => sc.formId === form.id)) {
+					this.currentContact.subContacts.push({formId: form.id, services:[], healthElementId: form.healthElementId, planOfActionId: form.planOfActionId})
+				}
+				this.dispatchEvent(new CustomEvent('select-current-contact', {detail: form, composed: true}))
+			},
+
+			formDeleted: function(e, form) {
+				this.saveCurrentContact().then(c => this._contactsChanged())
+			},
+
+			_hasCurrentContact: function() {
+				return this.contacts.find(c => !c.closingDate) && true
+			},
+
+			_newService(event, detail) {
+				if (detail && detail.svc) {
+					if (this.servicesMap[detail.svc.label]) {
+						this.push(`servicesMap.${detail.svc.label}`, detail)
+					} else {
+						this.set(`servicesMap.${detail.svc.label}`, [detail])
+					}
+				}
+			},
+
+			_allContactsChanged: function () {
+				this.set('servicesMap', this.allContacts.reduce((map, ctc) => {
+					const svcMap = ctc.subContacts.reduce((svcMap, subContact) => {
+						subContact.services.reduce((svcMap, svcLink) => {
+							(svcMap[svcLink.serviceId] || (svcMap[svcLink.serviceId] = [])).push(subContact)
+							return svcMap
+						}, svcMap)
+						return svcMap
+					}, {})
+
+					ctc.services.reduce((map, svc) => {
+						(map[svc.label] || (map[svc.label] = [])).push({svc: svc, scs: svcMap[svc.id], ctc: ctc})
+						return map
+					}, map)
+
+					Object.values(map).forEach(arr => arr.sort((a, b) => b.svc.modified - a.svc.modified))
+
+					return map
+				}, {}))
+			},
+
+			_contactsChanged: function () {
+				this.set('contactsFormsAndDocuments', [])
+				if (!this.contacts) {
+					return
+				}
+
+				const formGroups = this.contacts.map(contact => ({
+					ctc: contact, forms: _.sortBy((contact.subContacts || []).map(sc => {
+						const serviceIds = sc.services.map(s => s.serviceId)
+						return {
+							id: sc.formId,
+							docs: contact.services.filter(s => serviceIds.includes(s.id) && Object.values(s.content).filter(c => c.documentId).length)
+						}
+					}),f=>-f.created)
+				}))
+
+				const climbFormHierarchy = function (formIds, formsCache) {
+					return (formIds.length ? this.api.form().getForms({ids:formIds}) : Promise.resolve([])).then(forms => {
+						forms.forEach(f => { formsCache[f.id] = f })
+						const formIds = _.uniq(_.flatten(formGroups.map(fg => fg.forms.filter(f => f.id).map(f => {
+							const theForm = formsCache[f.id]
+							if (theForm.parent) {
+								f.id = theForm.parent
+							} else {
+								f.form = formsCache[f.id]
+							}
+							return f
+						}).filter(f=>!f.form).map(f=>f.id))))
+
+						return formIds.length ? climbFormHierarchy(formIds.filter(id => !formsCache[id]), formsCache) : formsCache
+					})
+				}.bind(this)
+
+				climbFormHierarchy(_.uniq(_.flatten(formGroups.map(fg => fg.forms.filter(f => f.id).map(f => f.id)))), {}).then(() => {
+					formGroups.forEach(fg => {
+						fg.forms = fg.forms.reduce((acc,form) => {
+							const slot = acc.find(f => f.id === form.id)
+							if (slot) { _.concat(slot.docs, form.docs) } else { acc.push(form) }
+							return acc
+						},[])
+					})
+					this.set('contactsFormsAndDocuments', _.sortBy(formGroups,fg => -fg.ctc.openingDate))
+				})
+			},
+
+			toggleDetailsFiltersPanel: function () {
+				this.showDetailsFiltersPanel = !this.showDetailsFiltersPanel
+				this.root.querySelector('#detailsFiltersPanel').classList.toggle('filters-panel--collapsed')
+			},
+
+			formTemplatesSelectorColumns: function () {
+				return [{key: 'group.name', title: 'Groupe'}, {key: 'name', title: 'Nom'}, {key: 'guid', title: 'GUID'}]
+			},
+
+			formTemplatesSelectorDataProvider: function () {
+				return {
+					filter: function (filterValue, limit, offset, sortKey, descending) {
+						const regExp = filterValue && new RegExp(filterValue, "i")
+
+						return this.api.form().findFormTemplates().then(fts => {
+							const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp))
+							return {totalSize: fts.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}
+						})
+					}.bind(this)
+				}
+			},
+
+			refreshIcons() {
+				Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons()
+			}
+		})
+	</script>
+</dom-module>

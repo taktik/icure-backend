@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-10-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Patient's will</NAME>
+  <VALUE>
+    <CODE>bloodtransfusionrefusal</CODE>
+    <DESCRIPTION L='en'>blood transfusion refusal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>clinicaltrialparticipationconsent</CODE>
+    <DESCRIPTION L='en'>clinical trial participation consent</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>datareuseforclinicalresearchconsent</CODE>
+    <DESCRIPTION L='en'>data reuse for clinical research consent</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>datareuseforclinicaltrialsconsent</CODE>
+    <DESCRIPTION L='en'>data reuse for clinical trials consent</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>euthanasiarequest</CODE>
+    <DESCRIPTION L='en'>euthanasia request</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>intubationrefusal</CODE>
+    <DESCRIPTION L='en'>intubation refusal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ntbr</CODE>
+    <DESCRIPTION L='en'>not to be resuscitated</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>organdonationconsent</CODE>
+    <DESCRIPTION L='en'>organ donation consent</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vaccinationrefusal</CODE>
+    <DESCRIPTION L='en'>vaccination refusal</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

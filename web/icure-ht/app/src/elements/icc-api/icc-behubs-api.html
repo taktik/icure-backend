@@ -1,0 +1,135 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-behubs-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="checkHcPartyConsent" method="GET" headers="[[headers]]" url="/be_hubs/hcpconsent/{token}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getPatientConsent" method="GET" headers="[[headers]]" url="/be_hubs/consent/{token}/{ssinPatient}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTherapeuticLinks" method="GET" headers="[[headers]]" url="/be_hubs/therlinks/{token}/{ssinPatient}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTransaction" method="GET" headers="[[headers]]" url="/be_hubs/transaction/{token}/{ssinPatient}/{transactionSl}/{transactionSv}/{transactionId}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getTransactionsList" method="GET" headers="[[headers]]" url="/be_hubs/transactions/{token}/{ssinPatient}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="putPatient" method="POST" headers="[[headers]]" url="/be_hubs/patient/{token}/{idPatient}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="putTransaction" method="POST" headers="[[headers]]" url="/be_hubs/{token}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="registerPatientConsent" method="POST" headers="[[headers]]" url="/be_hubs/consent/{token}/{idPatient}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="registerTherapeuticLink" method="POST" headers="[[headers]]" url="/be_hubs/therlink/{token}/{ssinPatient}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="updateHubId" method="PUT" headers="[[headers]]" url="/be_hubs/setup" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-behubs-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				checkHcPartyConsent: function (token, inss, nihii) {
+					var xhr = this.$.checkHcPartyConsent
+
+					xhr.url = this.host+"/be_hubs/hcpconsent/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime()  + (inss ? "&inss=" + inss : "") + (nihii ? "&nihii=" + nihii : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getPatientConsent: function (token, ssinPatient) {
+					var xhr = this.$.getPatientConsent
+
+					xhr.url = this.host+"/be_hubs/consent/{token}/{ssinPatient}".replace("{token}", token).replace("{ssinPatient}", ssinPatient) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTherapeuticLinks: function (token, ssinPatient) {
+					var xhr = this.$.getTherapeuticLinks
+
+					xhr.url = this.host+"/be_hubs/therlinks/{token}/{ssinPatient}".replace("{token}", token).replace("{ssinPatient}", ssinPatient) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTransaction: function (token, ssinPatient, transactionId, transactionSv, transactionSl) {
+					var xhr = this.$.getTransaction
+
+					xhr.url = this.host+"/be_hubs/transaction/{token}/{ssinPatient}/{transactionSl}/{transactionSv}/{transactionId}".replace("{token}", token).replace("{ssinPatient}", ssinPatient).replace("{transactionId}", transactionId).replace("{transactionSv}", transactionSv).replace("{transactionSl}", transactionSl) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getTransactionsList: function (token, ssinPatient, documentType, from, to, hcPartyType, inamiHcParty, ssinHcParty, isGlobal) {
+					var xhr = this.$.getTransactionsList
+
+					xhr.url = this.host+"/be_hubs/transactions/{token}/{ssinPatient}".replace("{token}", token).replace("{ssinPatient}", ssinPatient) + "?ts=" + (new Date).getTime()  + (documentType ? "&documentType=" + documentType : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "") + (hcPartyType ? "&hcPartyType=" + hcPartyType : "") + (inamiHcParty ? "&inamiHcParty=" + inamiHcParty : "") + (ssinHcParty ? "&ssinHcParty=" + ssinHcParty : "") + (isGlobal ? "&isGlobal=" + isGlobal : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				putPatient: function (token, idPatient) {
+					var xhr = this.$.putPatient
+
+					xhr.url = this.host+"/be_hubs/patient/{token}/{idPatient}".replace("{token}", token).replace("{idPatient}", idPatient) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				putTransaction: function (token, body) {
+					var xhr = this.$.putTransaction
+					xhr.body = body
+					xhr.url = this.host+"/be_hubs/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				registerPatientConsent: function (token, idPatient) {
+					var xhr = this.$.registerPatientConsent
+
+					xhr.url = this.host+"/be_hubs/consent/{token}/{idPatient}".replace("{token}", token).replace("{idPatient}", idPatient) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				registerTherapeuticLink: function (token, ssinPatient, start, comment) {
+					var xhr = this.$.registerTherapeuticLink
+
+					xhr.url = this.host+"/be_hubs/therlink/{token}/{ssinPatient}".replace("{token}", token).replace("{ssinPatient}", ssinPatient) + "?ts=" + (new Date).getTime()  + (start ? "&start=" + start : "") + (comment ? "&comment=" + comment : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				updateHubId: function (identifier, name, wsdl, endpoint) {
+					var xhr = this.$.updateHubId
+
+					xhr.url = this.host+"/be_hubs/setup" + "?ts=" + (new Date).getTime()  + (identifier ? "&identifier=" + identifier : "") + (name ? "&name=" + name : "") + (wsdl ? "&wsdl=" + wsdl : "") + (endpoint ? "&endpoint=" + endpoint : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

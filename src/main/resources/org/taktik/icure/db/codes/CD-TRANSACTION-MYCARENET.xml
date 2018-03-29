@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-10-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Transaction MyCarenet</NAME>
+  <VALUE>
+    <CODE>gmd</CODE>
+    <DESCRIPTION L='en'>gmd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gmdclosure</CODE>
+    <DESCRIPTION L='en'>gmd closure</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gmdextension</CODE>
+    <DESCRIPTION L='en'>gmd extension</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

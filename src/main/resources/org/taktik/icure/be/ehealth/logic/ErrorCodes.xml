@@ -1,0 +1,2312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+    <error>
+        <context>EH</context>
+        <code>CO.INPUT.25</code>
+        <message lang="en">The signing date is mandatory</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>CO.INPUT.26</code>
+        <message lang="en">The revocation date is mandatory</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>CO.INPUT.30</code>
+        <message lang="en">The eID card number or SIS card number of the patient is mandatory</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>IDS2.ACCESS.15</code>
+        <message lang="en">Invalid Legal context – Missing.</message>
+        <message lang="fr">Contexte légal invalide - Manquant</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>IDS2.ACCESS.16</code>
+        <message lang="en">Invalid Legal context – Invalid.</message>
+        <message lang="fr">Contexte légal invalide - Invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>IDS2.INPUT.37</code>
+        <message lang="en">Identification data - Invalid type combination (expecting either [inss and carnumber] or [barcoded]).</message>
+        <message lang="fr">Donnée d'identification - Combinaison de types invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>IDS2.INPUT.52</code>
+        <message lang="en">Identification data - Invalid type.</message>
+        <message lang="fr">Donnée d'identification - Type invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>IDS2.INPUT.53</code>
+        <message lang="en">Identification data - Format error.</message>
+        <message lang="fr">Donnée d'identification - Erreur de format</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>IDS2.INPUT.54</code>
+        <message lang="en">Identification data - Checksum error.</message>
+        <message lang="fr">Donnée d'identification - Erreur dans la checksum</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.ACCESS.8</code>
+        <message lang="en">Consent already exists for the patient</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.ACCESS.8</code>
+        <message lang="en">Consent already exists for the patient</message>
+        <message lang="fr">Un consentement existe déjà pour ce patient</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.ACCESS.9</code>
+        <message lang="en">No active consent for the patient</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.15</code>
+        <message lang="en">Invalid signing date</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.15</code>
+        <message lang="en">Invalid signing date</message>
+        <message lang="fr">Date de signature incorrecte</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.16</code>
+        <message lang="en">The date of signing cannot be posterior to the current date</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.16</code>
+        <message lang="en">The date of signing cannot be posterior to the current date</message>
+        <message lang="fr">La date de signature ne peut être postérieure à la date du jour</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.17</code>
+        <message lang="en">Invalid revocation date</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.18</code>
+        <message lang="en">The date of revocation cannot be posterior to the current date</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.19</code>
+        <message lang="en">Invalid patient identifier</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.19</code>
+        <message lang="en">Invalid patient identifier</message>
+        <message lang="fr">Identifiant patient invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.2</code>
+        <message lang="en">Invalid request sender</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.2</code>
+        <message lang="en">Invalid request sender</message>
+        <message lang="fr">Expéditeur incorrect</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.20</code>
+        <message lang="en">Invalid Healthcare party identifier</message>
+        <message lang="fr">Identifiant prestataire de soin invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.22</code>
+        <message lang="en">Invalid transaction identifier</message>
+        <message lang="fr">Identifiant de transaction invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.22</code>
+        <message lang="en">Invalid transaction identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.24</code>
+        <message lang="en">Invalid consent type</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.24</code>
+        <message lang="en">Invalid consent type</message>
+        <message lang="fr">Type de consentement invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.31</code>
+        <message lang="en">Invalid eid-inss or sis-niss pair</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.31</code>
+        <message lang="en">Invalid eid-inss or sis-niss pair</message>
+        <message lang="fr">Paire eid/niss invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.32</code>
+        <message lang="en">Invalid revocation date</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.32</code>
+        <message lang="en">Invalid revocation date</message>
+        <message lang="fr">Date de révocation invalide</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>MH2.INPUT.33</code>
+        <message lang="en">Revocation date cannot be posterior to the current date</message>
+        <message lang="fr">La date de révocation ne peut être postérieure à la date du jour</message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>NIP.AUTH.license</code>
+        <message lang="en">License Invalid for siemens.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>NIP.GENERIC.TlProcessBean</code>
+        <message lang="en">an unexpected error occured with the message: be.cin.nippin.kernel.core.exception.GenericCanceli ngException: therapeutic link already revoked or could not be revoked.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>NIP.INPUT.RequestValidation</code>
+        <message lang="en">an unexpected error occured with the message: The proof element should not be provided.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>NIP.META.TlServiceBean</code>
+        <message lang="en">an unexpected error occured with the message: a valid therapeutic link exists: ...</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>NIP.META.TlServiceBean</code>
+        <message lang="en">an unexpected error occured with the message: no therapeutic link found.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL. ACCESS.20</code>
+        <message lang="en">Author - Authentic source failure for validation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL. ACCESS.21</code>
+        <message lang="en">Author - Authentic source failure for enrichment.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL. ACCESS.22</code>
+        <message lang="en">Therapeutic Link - Authentic source failure for enrichment.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.05</code>
+        <message lang="en">Author – The user is not authorized to perform the operation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.06</code>
+        <message lang="en">Author – The category of the author is different from the category of the healthcare professional concerned by the therapeutic link.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.07</code>
+        <message lang="en">Author – The patient performing the operation is different from the patient concerned by the therapeutic link.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.08</code>
+        <message lang="en">Author - The healthcare professional is excluded by the patient concerned by the therapeutic link.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.09</code>
+        <message lang="en">Author - Therapeutic link does not exist between the author and the concerned patient.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.10</code>
+        <message lang="en">Therapeutic Link – A valid therapeutic link exists.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.11</code>
+        <message lang="en">Therapeutic Link - Therapeutic link not found.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.12</code>
+        <message lang="en">Therapeutic Link - Therapeutic Link already revoked or could not be revoked.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.14</code>
+        <message lang="en">Therapeutic Link – Only therapeutic links between patient and healthcare professional are supported.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.ACCESS.15</code>
+        <message lang="en">The id of the provided author must be the same as the person starting the session (provided in STS token).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.05</code>
+        <message lang="en">Author - Missing patient identifier (SSIN).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.06</code>
+        <message lang="en">Author - Invalid patient identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.07</code>
+        <message lang="en">Author - Invalid eiD-SSIN or SIS-SSIN pair of the patient.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.10</code>
+        <message lang="en">Author - Missing healthcare professional identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.11</code>
+        <message lang="en">Author - Invalid SSIN of the healthcare professional.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.12</code>
+        <message lang="en">Author - Invalid NIHII.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.13</code>
+        <message lang="en">Author - NIHII does not correspond to the healthcare professional SSIN.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.14</code>
+        <message lang="en">Author - NIHII does not correspond to the professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.15</code>
+        <message lang="en">Author - Invalid professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.16</code>
+        <message lang="en">Author - Missing pharmacy identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.17</code>
+        <message lang="en">Author - Invalid pharmacy identifier (NIHII).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.18</code>
+        <message lang="en">Author - The pharmacy is not a recognized pharmacy.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.19</code>
+        <message lang="en">Author - Missing pharmacy holder identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.20</code>
+        <message lang="en">Author - Invalid SSIN of pharmacy holder.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.21</code>
+        <message lang="en">Author - Invalid NIHII of the pharmacy holder.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.22</code>
+        <message lang="en">Author - NIHII does not correspond to the pharmacy holder SSIN.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.23</code>
+        <message lang="en">Author - NIHII of the pharmacy holder does not correspond to the professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.24</code>
+        <message lang="en">Author - The pharmacy holder is not the certified pharmacy holder of the given pharmacy</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.25</code>
+        <message lang="en">Author - The pharmacist end-user is unknown of the pharmacy.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.26</code>
+        <message lang="en">Author - Missing organization identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.27</code>
+        <message lang="en">Author - Invalid organization identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.28</code>
+        <message lang="en">Author – Unsupported organization.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.29</code>
+        <message lang="en">Author – Missing organization’s healthcare professional identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.30</code>
+        <message lang="en">Therapeutic link - Missing patient identifier (SSIN).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.31</code>
+        <message lang="en">Therapeutic link - Invalid patient identifier.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.31.01</code>
+        <message lang="en">Therapeutic link - Invalid patient identifier (more than 1 INSS).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.31.02</code>
+        <message lang="en">Therapeutic link - Invalid patient identifier (INSS wrongly formatted).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.31.03</code>
+        <message lang="en">Therapeutic Link - Invalid patient identifier (more than 1 CARDNO).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.31.04</code>
+        <message lang="en">Therapeutic link - Invalid patient identifier (SIS- CARDNO wrongly formatted).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.31.05</code>
+        <message lang="en">Therapeutic link - Invalid patient identifier (EID- CARDNO wrongly formatted).</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.32</code>
+        <message lang="en">Therapeutic link - Missing patient eID card number.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.33</code>
+        <message lang="en">Therapeutic link - Missing patient SIS card number.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.34</code>
+        <message lang="en">Therapeutic link - Invalid eiD-SSIN or SIS-SSIN pair.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.35</code>
+        <message lang="en">Therapeutic link - Missing patient first name and family name.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.35</code>
+        <message lang="en">Therapeutic link - Missing patient first name or family name.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.40</code>
+        <message lang="en">Therapeutic link - Invalid SSIN of the healthcare professional.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.41</code>
+        <message lang="en">Therapeutic link - Invalid NIHII of the healthcare professional.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.42</code>
+        <message lang="en">Therapeutic link – NIHII does not correspond to the healthcare professional SSIN.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.43</code>
+        <message lang="en">Therapeutic link – Missing professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.44</code>
+        <message lang="en">Therapeutic link – Invalid professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.44.1</code>
+        <message lang="en">Therapeutic link – The professional category of the concerned professional is not supported.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.45</code>
+        <message lang="en">Therapeutic link - NIHII does not correspond to the professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.45</code>
+        <message lang="en">Therapeutic link – NIHII does not correspond to the professional category.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.46</code>
+        <message lang="en">Therapeutic link - The pharmacist is not the pharmacy holder.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.47</code>
+        <message lang="en">Therapeutic link – Healthcare professional not found.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.50</code>
+        <message lang="en">Therapeutic Link – Invalid type of therapeutic link.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.51</code>
+        <message lang="en">Therapeutic Link - The type of therapeutic link is not allowed for the operation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.52</code>
+        <message lang="en">Therapeutic Link – GMD is not supported.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.60</code>
+        <message lang="en">Therapeutic Link – Invalid period of relation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.61</code>
+        <message lang="en">Therapeutic Link - The start date of the relation must be equal or greater than the declaration date.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.62</code>
+        <message lang="en">Therapeutic Link - The start date must be equal to the declaration date.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.63</code>
+        <message lang="en">Therapeutic Link - The end date of the relation must be equal or greater than the start date.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.64</code>
+        <message lang="en">Therapeutic Link - The end date is anterior to the current date.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.64.01</code>
+        <message lang="en">Therapeutic Link - The end date must be equal to the start date plus three months.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.64.02</code>
+        <message lang="en">Therapeutic Link - The end date must be equal to the start date plus six months.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.65</code>
+        <message lang="en">Therapeutic Link – Invalid time period.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.66</code>
+        <message lang="en">Therapeutic Link – GMD does not support time period.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.67</code>
+        <message lang="en">Therapeutic Link – If the begin date (end date) is provided then the end date (begin date) must be also provided.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.67.01</code>
+        <message lang="en">Therapeutic Link – Revocation end date must be greater or equal to the original start date of relation and less than the original end date of the relation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.67.02</code>
+        <message lang="en">Therapeutic Link – Consultation ‘all’, ‘inactive’ are not supported with time period.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.69</code>
+        <message lang="en">Therapeutic Link – Missing patient for consultation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.70</code>
+        <message lang="en">Proof - Missing proof.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.71</code>
+        <message lang="en">Proof - Invalid proof.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.72</code>
+        <message lang="en">Proof - Invalid type of proof.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.73</code>
+        <message lang="en">Proof – The proof is not sufficient to perform the operation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.74</code>
+        <message lang="en">Proof - Missing binary proof.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.75</code>
+        <message lang="en">Proof - Invalid method of binary operation.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.76</code>
+        <message lang="en">Proof - Invalid value of the binary proof.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.77</code>
+        <message lang="en">Proof - The proof was not signed by the patient concerned by the therapeutic link.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.78</code>
+        <message lang="en">Proof – Certificate expired.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.79</code>
+        <message lang="en">Proof – Certificate invalid.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.80</code>
+        <message lang="en">Proof – Certificate is not made to be signed.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.81</code>
+        <message lang="en">Proof – Certificate does not trust CA.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.82</code>
+        <message lang="en">Proof – The binary value of the patient does not correspond to the concerned patient.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.83</code>
+        <message lang="en">Proof – The binary value of the healthcare professional does not correspond to the concerned healthcare professional.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.84</code>
+        <message lang="en">Proof- eID/SIS reading does not support binary proof.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.INPUT.85</code>
+        <message lang="en">The proof element should not be provided.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.OTHER.10</code>
+        <message lang="en">The maximum of rows that can be requested is 1000.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.OTHER.15</code>
+        <message lang="en">The maximum length of the comment is 256.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.OTHER.20</code>
+        <message lang="en">Invalid license.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>EH</context>
+        <code>TL.OTHER.5</code>
+        <message lang="en">More results than supported by the service.</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-00001</code>
+        <message lang="en">Service error</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-00001</code>
+        <message lang="en">Service error</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-01001</code>
+        <message lang="en">Service call not authenticated</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-01001</code>
+        <message lang="en">Service call not authenticated</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-01002</code>
+        <message lang="en">Service call not authorized</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-01002</code>
+        <message lang="en">Service call not authorized</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-02001</code>
+        <message lang="en">Service not available. Please contact service desk</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-02001</code>
+        <message lang="en">Service temporarily not available. Please try later</message>
+        <message lang="fr">Service momentanément indisponible.</message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-02002</code>
+        <message lang="en">Message must be SOAP</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-02002</code>
+        <message lang="en">Service temporarily not available. Please try later</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03001</code>
+        <message lang="en">Malformed message</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03001</code>
+        <message lang="en">Malformed message</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03002</code>
+        <message lang="en">Message must be SOAP</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03002</code>
+        <message lang="en">Message must be SOAP</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03003</code>
+        <message lang="en">Message must contain SOAP body</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03003</code>
+        <message lang="en">Message must contain SOAP body</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03004</code>
+        <message lang="en">WS-I compliance failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03004</code>
+        <message lang="en">WS-I compliance failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03005</code>
+        <message lang="en">WSDL compliance failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03005</code>
+        <message lang="en">WSDL compliance failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03006</code>
+        <message lang="en">XSD compliance failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03006</code>
+        <message lang="en">XSD compliance failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03007</code>
+        <message lang="en">Message content validation failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>SOA</context>
+        <code>SOA-03007</code>
+        <message lang="en">Message content validation failure</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>VL</context>
+        <code>365</code>
+        <message lang="en">Authorization failed: No consent is given by subject with SSIN</message>
+        <message lang="fr"></message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>112</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur check digit</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>113</code>
+        <message lang="en"></message>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>120</code>
+        <message lang="en"></message>
+        <message lang="fr">ID-PATIENT (NISS) pas connu à l’OA ou patient plus affilié à l'OA à la date de début de période</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>121</code>
+        <message lang="en"></message>
+        <message lang="fr">N° mutualité inconnu</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>122</code>
+        <message lang="en"></message>
+        <message lang="fr">N° inscription inconnu à l'OA ou patient plus affilié à l'OA à la date de début de période</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>136</code>
+        <message lang="en"></message>
+        <message lang="fr">Code sexe incompatible avec le NISS</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>140</code>
+        <message lang="en"></message>
+        <message lang="fr">Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>141</code>
+        <message lang="en"></message>
+        <message lang="fr">Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>145</code>
+        <message lang="en"></message>
+        <message lang="fr">Date de demande &lt; Date du jour – 2 ans.</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>146</code>
+        <message lang="en"></message>
+        <message lang="fr">Date &gt; Date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>156</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur author incohérente avec celle du Request/Author</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>158</code>
+        <message lang="en"></message>
+        <message lang="fr">Données d’identification incohérentes</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>160</code>
+        <message lang="en"></message>
+        <message lang="fr">Combinaison de critères de « Select » non supportée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>161</code>
+        <skip>true</skip>
+        <message lang="en"></message>
+        <message lang="fr">Le médecin ne peut envoyer une notification DMG pour ce patient car le patient a déjà un droit DMG chez lui pour cette année (soit par notification, soit via le paiement de la prolongation accélérée).</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>162</code>
+        <message lang="en"></message>
+        <message lang="fr">Le médecin ne peut envoyer une notification DMG pour ce patient car le patient a un contrat maison médicale</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>163</code>
+        <message lang="en"></message>
+        <message lang="fr">Le médecin ne peut pas envoyer une notification DMG car il n’est pas inscrit dans MyCareNet</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>165</code>
+        <message lang="en"></message>
+        <message lang="fr">Le médecin ne peut envoyer une notification pour ce patient à cette date (encounterdatetime identique) car une autre notification avec date de prestation identique pour le même patient a déjà été reçue par l'OA.</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <code>166</code>
+        <message lang="en"></message>
+        <message lang="fr">encounterdatetime &lt; date du jour - 7 jours</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>ID</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du message: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>ID</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du message: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>ID</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du message: Valeur de id incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/author</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Auteur du message: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/author</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Auteur du message: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/author</zone>
+        <code>140</code>
+        <message lang="en"></message>
+        <message lang="fr">Auteur du message: Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/author</zone>
+        <code>141</code>
+        <message lang="en"></message>
+        <message lang="fr">Auteur du message: Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/author</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Auteur du message: Valeur du author incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/date</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Date de la requête: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/date</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Date de la requête: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/time</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Moment de la requête: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Request/time</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Moment de la requête: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Corps du message: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select</zone>
+        <code>160</code>
+        <message lang="en"></message>
+        <message lang="fr">Corps du message: Combinaison de critères de « Select » non supportée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Patient: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient</zone>
+        <code>158</code>
+        <message lang="en"></message>
+        <message lang="fr">Patient: Données d’identification incohérentes</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du patient: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du patient: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/id</zone>
+        <code>112</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du patient: Erreur check digit</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/id</zone>
+        <code>120</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du patient: ID-PATIENT (NISS) pas connu à l’OA ou patient plus affilié à l'OA à la date de début de période</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/id</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification du patient: Valeur du ID-PATIENT (NISS) incohérente avec celle du Web Service (pour le routage)</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/sex</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Sexe du patient: Zone non complétée si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/sex</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Sexe du patient: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/sex</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Sexe du patient: Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/sex</zone>
+        <code>136</code>
+        <message lang="en"></message>
+        <message lang="fr">Sexe du patient: Code sexe incompatible avec le NISS</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Inscription mutulelle du patient: Zone non présente si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de la mutuelle: Zone non complétée si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de la mutuelle: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/id</zone>
+        <code>121</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de la mutuelle: N° mutualité inconnu</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/id</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de la mutuelle: Valeur de la mutualité incohérente avec celle du Web Service (pour le routage)</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/membership</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de l'inscription mutuelle: Zone non complétée si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/membership</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de l'inscription mutuelle: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-CONS</subcontext>
+        <zone>Select/patient/insurancymembership/membership</zone>
+        <code>112</code>
+        <message lang="en"></message>
+        <message lang="fr">Identification de l'inscription mutuelle: Erreur check digit</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/id: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/id</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/id: Valeur de id incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/author</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/author</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/author</zone>
+        <code>140</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/author</zone>
+        <code>141</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/author</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Valeur du author incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/date</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/date: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/date</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/date: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/time</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/time: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Request/time</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/time: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Select: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select</zone>
+        <code>160</code>
+        <message lang="en"></message>
+        <message lang="fr">Select: Combinaison de critères de « Select » non supportée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Select/transaction: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/cd</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/cd</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/cd</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/author</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Select/transaction/author: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/author</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Select/transaction/author: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/author</zone>
+        <code>156</code>
+        <message lang="en"></message>
+        <message lang="fr">Select/transaction/author: Valeur du author incohérente avec celle du Request/Author</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/begindate</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/begindate</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/begindate</zone>
+        <code>113</code>
+        <message lang="en"></message>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/begindate</zone>
+        <code>145</code>
+        <message lang="en"></message>
+        <message lang="fr">Date de demande &lt; Date du jour – 2 ans.</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-LISTREQ</subcontext>
+        <zone>Select/transaction/begindate</zone>
+        <code>146</code>
+        <message lang="en"></message>
+        <message lang="fr">Date &gt; Date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/id: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/id</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur de ID incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/author</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/author</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/author</zone>
+        <code>140</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/author</zone>
+        <code>141</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/author: Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/author</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur du author incohérente avec celle du Web Service</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/date</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/date: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/date</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/time</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Request/time: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Request/time</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/standard</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/standard: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/standard</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/standard: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/standard</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/date</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/date: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/date</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/time</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/time: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/time</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/sender</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/sender: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/sender</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/sender: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/sender</zone>
+        <code>156</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/Header/sender est différent de Request/author</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/recipient</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/header/recipient: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/header/recipient</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient</zone>
+        <code>158</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient: Données d’identification incohérentes</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient</zone>
+        <code>161</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient: Le médecin ne peut envoyer une notification DMG pour ce patient car le patient a déjà un droit DMG chez lui pour cette année (soit par notification, soit via le paiement de la prolongation accélérée).</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient</zone>
+        <code>162</code>
+        <message lang="en"></message>
+        <message lang="fr">Le médecin ne peut envoyer une notification DMG pour ce patient car le patient a un contrat maison médicale</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/id: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/id</zone>
+        <code>112</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/id: Erreur check digit</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/id</zone>
+        <code>120</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/id: ID-PATIENT (NISS) pas connu à l’OA ou patient plus affilié à l'OA à la date de début de période</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/id</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur du ID-PATIENT (NISS) incohérente avec celle du Web Service (pour le routage)</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/firstname</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/firstname: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/firstname</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/familyname</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/familyname: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/familyname</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/birthdate</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/birthdate: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/birthdate</zone>
+        <code>113</code>
+        <message lang="en"></message>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/sex</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/sex: Zone non complétée si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/sex</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/sex: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/sex</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/sex: Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/sex</zone>
+        <code>136</code>
+        <message lang="en"></message>
+        <message lang="fr">Code sexe incompatible avec le NISS</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone non présente si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/insurancymembership/id: Zone non complétée si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/insurancymembership/id: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/id</zone>
+        <code>121</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/insurancymembership/id: N° mutualité inconnu</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/id</zone>
+        <code>155</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur de la mutualité incohérente avec celle du Web Service (pour le routage)</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/membership</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/insurancymembership/membership: Zone non complétée si la zone ID-PATIENT est vide</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/membership</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/insurancymembership/membership: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/membership</zone>
+        <code>112</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/patient/insurancymembership/membership: Erreur check digit</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/patient/insurancymembership/membership</zone>
+        <code>122</code>
+        <message lang="en"></message>
+        <message lang="fr">N° inscription inconnu à l'OA ou patient plus affilié à l'OA à la date de début de période</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/transaction/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/cd</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/transaction/cd: Item obligatoire non complété</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/cd</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/transaction/cd: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/cd</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/date</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/transaction/date: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/date</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/time</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Kmehrmessage/folder/transaction/time: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>Kmehrmessage/folder/transaction/time</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/author</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/author: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/author</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/author: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/author</zone>
+        <code>140</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/author: Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/author</zone>
+        <code>141</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/author: Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/author</zone>
+        <code>156</code>
+        <message lang="en"></message>
+        <message lang="fr">Le kmehrmessage/folder/transaction/Author est différent de Kmehrmessage/Header/sender</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/iscomplete</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/iscomplete: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/iscomplete</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/iscomplete: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/iscomplete</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/isvalidated</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/isvalidated: Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/isvalidated</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/isvalidated: Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/isvalidated</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/id</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/id: Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/id</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager'</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager': Item obligatoire non complété</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager'</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager': Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager'</zone>
+        <code>156</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager': Le gmdmanager est différent de l’auteur de la transaction</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager'</zone>
+        <code>163</code>
+        <message lang="en"></message>
+        <message lang="fr">Le médecin ne peut pas envoyer une notification DMG car il n’est pas inscrit dans MyCareNet</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime'</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime': Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime'</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime': Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime'</zone>
+        <code>113</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime': Date invraisemblable</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime'</zone>
+        <code>146</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime': Date &gt; Date du jour</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime'</zone>
+        <code>165</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='encounterdatetime': Le médecin ne peut envoyer une notification pour ce patient à cette date (encounterdatetime identique) car une autre notification avec date de prestation identique pour le même patient a déjà été reçue par l'OA.</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager'</zone>
+        <code>166</code>
+        <message lang="en"></message>
+        <message lang="fr">encounterdatetime &lt; date du jour - 7 jours</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='claim'</zone>
+        <code>100</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='claim': Item obligatoire non complété</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='claim'</zone>
+        <code>111</code>
+        <message lang="en"></message>
+        <message lang="fr">kmehrmessage/folder/transaction/item/CD-ITEM='claim': Erreur format</message>
+    </error>
+    <error>
+        <context>CINNIC</context>
+        <subcontext>DMG-NOTIF</subcontext>
+        <zone>kmehrmessage/folder/transaction/item/CD-ITEM='gmdmanager'</zone>
+        <code>130</code>
+        <message lang="en"></message>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+</messages>

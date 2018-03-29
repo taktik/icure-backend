@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Implementation Type</NAME>
+  <VALUE>
+    <CODE>bicompartimental</CODE>
+    <DESCRIPTION L='en'>Bicompartimental</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cementwithoutab</CODE>
+    <DESCRIPTION L='en'>Cement Without AB</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>femoropatellar</CODE>
+    <DESCRIPTION L='en'>Femoropatellar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hinge</CODE>
+    <DESCRIPTION L='en'>Hinge</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>other</CODE>
+    <DESCRIPTION L='en'>Other</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>totalcck</CODE>
+    <DESCRIPTION L='en'>Total type CCK</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>totalcr</CODE>
+    <DESCRIPTION L='en'>Total PCL retaining (CR)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>totalps</CODE>
+    <DESCRIPTION L='en'>Total posterior-stabilized (PS)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>totaluc</CODE>
+    <DESCRIPTION L='en'>Total ultracongruent (UC)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>unilateral</CODE>
+    <DESCRIPTION L='en'>Uni lateral</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>unimedial</CODE>
+    <DESCRIPTION L='en'>Uni medial</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

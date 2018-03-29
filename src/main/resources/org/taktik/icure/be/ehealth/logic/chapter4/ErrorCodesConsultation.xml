@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+    <error>
+        <code>100</code>
+        <zone>transaction/iscomplete</zone>
+        <message lang="fr">Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <code>130</code>
+        <zone>transaction/iscomplete</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/isvalidated</zone>
+        <message lang="fr">Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <code>130</code>
+        <zone>transaction/isvalidated</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <code>111</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>112</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Erreur check-digit</message>
+    </error>
+    <error>
+        <code>140</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <code>141</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <code>156</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Le sender est différent de l’auteur</message>
+    </error>
+    <error>
+        <code>155</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Valeur du author incohérente avec celle du Web Service (HCP Common Input)</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/item</zone>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/item/id-kmehr</zone>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementtype'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementtype</zone>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementtype'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementtype</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementtype'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementtype</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">CD-DRUG-CNK obligatoire non complétée si auteur = pharmacien</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">CD-CHAPTER4PARAGRAPH complétée si (auteur = médecin et que est complétée) ou si auteur = pharmacien. Ou CD-DRUG-CNK complétée si auteur = médecin et que CD-CHAPTER4PARAGRAPH est complétée</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>154</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Data Base médicaments - Versions incohérentes</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationstartdate</zone>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationstartdate</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>113</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationstartdate</zone>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <code>115</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationstartdate</zone>
+        <message lang="fr">Date début &gt; date de fin (si date de fin remplie)</message>
+    </error>
+    <error>
+        <code>117</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationstartdate</zone>
+        <message lang="fr">Date de début &gt; date du jour et auteur = pharmacien</message>
+    </error>
+    <error>
+        <code>155</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationstartdate</zone>
+        <message lang="fr">Valeur du consultationstartdate incohérente avec celle du Web Service (pour le routage)</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationenddate</zone>
+        <message lang="fr">Item obligatoire non complété si auteur = médecin.</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationenddate</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>113</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationenddate</zone>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationenddate</zone>
+        <message lang="fr">Item complété si auteur = pharmacien.</message>
+    </error>
+    <error>
+        <code>126</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationenddate</zone>
+        <message lang="fr">Date de fin &gt; date de début + 2 ans.</message>
+    </error>
+    <error>
+        <code>157</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='consultationenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = consultationenddate</zone>
+        <message lang="fr">Trop d’accords dans la période consultée pour ce patient, veuillez préciser la demande.</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='careproviderreference'</pattern>
+        <zone>transaction/item/cd-item-maa = careproviderreference</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>157</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='careproviderreference'</pattern>
+        <zone>transaction/item/cd-item-maa = careproviderreference</zone>
+        <message lang="fr">Trop d’accords dans la période consultée pour ce patient, veuillez préciser la demande.</message>
+    </error>
+    <warning>
+        <code>601</code>
+        <message lang="fr">L’OA ne couvre pas totalement la période consultée d’un point de vue « affiliation » (il y a eu mutation IN ou OUT durant la période consultée). Dans ce cas, les accords renseignés seront limités à la période d’affiliation.</message>
+    </warning>
+</messages>

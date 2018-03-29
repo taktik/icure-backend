@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N1:definitions targetNamespace="urn:be:fgov:ehealth:ehbox:publication:protocol:v2" xmlns:WL5G3N0="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:WL5G3N1="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:WL5G3N2="urn:be:fgov:ehealth:ehbox:publication:protocol:v2" xmlns:WL5G3N3="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" xmlns:WL5G3N4="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+  xmlns:error="urn:be:fgov:ehealth:errors:soa:v1">
+  <WL5G3N1:types>
+    <xsd:schema xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="urn:be:fgov:ehealth:ehbox:publication:protocol:v2" xmlns:WL5G3N2="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" xmlns:WL5G3N3="http://schemas.xmlsoap.org/wsdl/soap/"
+      xmlns:ehboxp="urn:be:fgov:ehealth:ehbox:publication:protocol:v2" xmlns:err="urn:be:fgov:ehealth:errors:service:v1" xmlns:error="urn:be:fgov:ehealth:errors:soa:v1" xmlns:mon="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="urn:be:fgov:ehealth:ehbox:publication:protocol:v2" schemaLocation="../XSD/ehbox_v2/ehealth-ehBox-publication-schema-protocol-2_0.xsd" />
+      <xsd:import namespace="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v2" schemaLocation="../XSD/ehbox_v2/ehealth-ehBox-monitoring-schema-protocol-2_0.xsd" />
+      <xsd:import namespace="urn:be:fgov:ehealth:errors:soa:v1" schemaLocation="../XSD/common/ehealth-errors-schema-soa-1_0.xsd" />
+
+    </xsd:schema>
+  </WL5G3N1:types>
+  <WL5G3N1:message name="SendMessageRequestMessage">
+    <WL5G3N1:part element="WL5G3N2:SendMessageRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="SendMessageResponseMessage">
+    <WL5G3N1:part element="WL5G3N2:SendMessageResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="PingRequest">
+    <WL5G3N1:part element="WL5G3N3:PingRequest" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="PingResponse">
+    <WL5G3N1:part element="WL5G3N3:PingResponse" name="body" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="BusinessError">
+    <WL5G3N1:part name="parameters" element="error:BusinessError" />
+  </WL5G3N1:message>
+  <WL5G3N1:message name="SystemError">
+    <WL5G3N1:part name="parameters" element="error:SystemError" />
+  </WL5G3N1:message>
+  <WL5G3N1:portType name="ehBoxPublicationPortType">
+    <WL5G3N1:operation name="sendMessage">
+      <WL5G3N1:input message="WL5G3N2:SendMessageRequestMessage" />
+      <WL5G3N1:output message="WL5G3N2:SendMessageResponseMessage" />
+
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="ping">
+      <WL5G3N1:input message="WL5G3N2:PingRequest" />
+      <WL5G3N1:output message="WL5G3N2:PingResponse" />
+
+      <WL5G3N1:fault name="BusinessError" message="WL5G3N2:BusinessError" />
+      <WL5G3N1:fault name="SystemError" message="WL5G3N2:SystemError" />
+    </WL5G3N1:operation>
+  </WL5G3N1:portType>
+  <WL5G3N1:binding name="ehBoxPublicationBinding" type="WL5G3N2:ehBoxPublicationPortType">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#Mtom.xml" />
+    </wsp:Policy>
+    <WL5G3N4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <WL5G3N1:operation name="sendMessage">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:publication:protocol:v2:sendMessage" />
+      <WL5G3N1:input>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#samlPolicy-holder-of-key-signed-Smals" />
+        </wsp:Policy>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+    <WL5G3N1:operation name="ping">
+      <WL5G3N4:operation soapAction="urn:be:fgov:ehealth:ehbox:publication:protocol:v2:Ping" style="document" />
+      <WL5G3N1:input>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage" />
+        </wsp:Policy>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:input>
+      <WL5G3N1:output>
+        <WL5G3N4:body use="literal" />
+      </WL5G3N1:output>
+      <WL5G3N1:fault name="SystemError">
+        <WL5G3N4:fault name="SystemError" use="literal" />
+      </WL5G3N1:fault>
+      <WL5G3N1:fault name="BusinessError">
+        <WL5G3N4:fault name="BusinessError" use="literal" />
+      </WL5G3N1:fault>
+    </WL5G3N1:operation>
+  </WL5G3N1:binding>
+  <WL5G3N1:service name="ehBoxPublicationService">
+    <WL5G3N1:port binding="WL5G3N2:ehBoxPublicationBinding" name="ehBoxPublicationPort">
+      <WL5G3N4:address location="https://ehtilia1.ehealth.fgov.be:10011/ehBoxPublication/v2" />
+    </WL5G3N1:port>
+  </WL5G3N1:service>
+</WL5G3N1:definitions>

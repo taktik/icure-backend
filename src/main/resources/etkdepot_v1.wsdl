@@ -1,0 +1,43 @@
+<!--Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Oracle JAX-WS 2.1.3-07/10/2008 08:41 PM(bt).-->
+<definitions targetNamespace="urn:be:fgov:ehealth:etkdepot:1_0:protocol" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:etkdepot="urn:be:fgov:ehealth:etkdepot:1_0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:types="urn:be:fgov:ehealth:etkdepot:1_0:protocol" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wssu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200512">
+   <types>
+      <xs:schema>
+         <xs:import namespace="urn:be:fgov:ehealth:etkdepot:1_0:protocol" schemaLocation="./XSD/etee_v1/etkdepot_protocol.xsd"/>
+      </xs:schema>
+   </types>
+   <message name="GetEtkRequestMessage">
+      <part element="types:GetEtkRequest" name="body"/>
+   </message>
+   <message name="GetEtkResponseMessage">
+      <part element="types:GetEtkResponse" name="body"/>
+      <!--Possible status codes in the response:
+  200 = OK, the ETK for a given identifier has been found
+  400 = NOK, Bad request: the given ETK identifier type is unknown by the web service
+  404 = NOK, the ETK for a given identifier has not been found
+  500 = NOK, the request could not be completed due to internal server error-->
+   </message>
+   <portType name="EtkDepotPortType">
+      <operation name="GetEtk">
+         <input message="etkdepot:GetEtkRequestMessage"/>
+         <output message="etkdepot:GetEtkResponseMessage"/>
+      </operation>
+   </portType>
+   <binding name="EtkDepotSoapBinding" type="etkdepot:EtkDepotPortType">
+      <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="GetEtk">
+         <!--http://www.smals.be/etee/EtkDepot/getEtk-->
+         <soap:operation soapAction=""/>
+         <input>
+            <soap:body use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+      </operation>
+   </binding>
+   <service name="EtkDepotService">
+      <port name="EtkDepotPort" binding="etkdepot:EtkDepotSoapBinding">
+         <soap:address location="https://services-acpt.ehealth.fgov.be/EtkDepot/v1"/>
+      </port>
+   </service>
+</definitions>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s2:definitions targetNamespace="urn:be:fgov:ehealth:ehbox:publication:protocol:v1" xmlns:s0="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:s1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s2="http://schemas.xmlsoap.org/wsdl/" xmlns:s3="urn:be:fgov:ehealth:ehbox:publication:protocol:v1" xmlns:s4="urn:be:fgov:ehealth:errors:soa:v1" xmlns:s5="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v1" xmlns:s6="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+   <s2:types>
+    <xsd:schema xmlns:ehboxp="urn:be:fgov:ehealth:ehbox:publication:protocol:v1" xmlns:err="urn:be:fgov:ehealth:errors:soa:v1" xmlns:mon="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v1" xmlns:s0="http://schemas.xmlsoap.org/wsdl/" xmlns:s1="urn:be:fgov:ehealth:ehbox:publication:protocol:v1" xmlns:s2="urn:be:fgov:ehealth:errors:soa:v1" xmlns:s3="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v1" xmlns:s4="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+      <xsd:import namespace="urn:be:fgov:ehealth:ehbox:publication:protocol:v1" schemaLocation="../XSD/ehbox_v1/ehealth-ehBox-publication-schema-protocol-1_0.xsd"/>
+      <xsd:import namespace="urn:be:fgov:ehealth:ehbox:monitoring:protocol:v1" schemaLocation="../XSD/ehbox_v1/ehealth-ehBox-monitoring-schema-protocol-1_0.xsd"/>
+      <xsd:import namespace="urn:be:fgov:ehealth:errors:soa:v1" schemaLocation="../XSD/common/ehealth-errors-schema-soa-1_0.xsd"/>
+    </xsd:schema>
+  </s2:types>
+  <s2:message name="SendMessageRequestMessage">
+    <s2:part element="s3:SendMessageRequest" name="body"/>
+  </s2:message>
+  <s2:message name="SendMessageResponseMessage">
+
+    <s2:part element="s3:SendMessageResponse" name="body"/>
+  </s2:message>
+  <s2:message name="SystemError">
+    <s2:part element="s4:SystemError" name="fault"/>
+  </s2:message>
+  <s2:message name="PingRequest">
+    <s2:part element="s5:PingRequest" name="body"/>
+  </s2:message>
+  <s2:message name="PingResponse">
+
+    <s2:part element="s5:PingResponse" name="body"/>
+  </s2:message>
+  <s2:portType name="ehBoxPublicationPortType">
+    <s2:operation name="sendMessage">
+      <s2:input message="s3:SendMessageRequestMessage"/>
+      <s2:output message="s3:SendMessageResponseMessage"/>
+      <s2:fault message="s3:SystemError" name="SystemError"/>
+    </s2:operation>
+    <s2:operation name="ping">
+
+      <s2:input message="s3:PingRequest"/>
+      <s2:output message="s3:PingResponse"/>
+      <s2:fault message="s3:SystemError" name="SystemError"/>
+    </s2:operation>
+  </s2:portType>
+  <s2:binding name="ehBoxPublicationBinding" type="s3:ehBoxPublicationPortType">
+    <s6:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#Mtom.xml"/>
+
+    </wsp:Policy>
+    <s2:operation name="sendMessage">
+      <s6:operation soapAction="urn:be:fgov:ehealth:ehbox:publication:protocol:v1:sendMessage"/>
+      <s2:input>
+        <s6:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#samlPolicy-holder-of-key-signed-Smals"/>
+        </wsp:Policy>
+      </s2:input>
+
+      <s2:output>
+        <s6:body use="literal"/>
+      </s2:output>
+      <s2:fault name="SystemError">
+        <s6:fault name="SystemError" use="literal"/>
+      </s2:fault>
+    </s2:operation>
+    <s2:operation name="ping">
+      <s6:operation soapAction="urn:be:fgov:ehealth:ehbox:publication:protocol:v1:Ping" style="document"/>
+
+      <s2:input>
+        <s6:body use="literal"/>
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#X509IdentifyAndSignMessage"/>
+        </wsp:Policy>
+      </s2:input>
+      <s2:output>
+        <s6:body use="literal"/>
+      </s2:output>
+
+      <s2:fault name="SystemError">
+        <s6:fault name="SystemError" use="literal"/>
+      </s2:fault>
+    </s2:operation>
+  </s2:binding>
+  <s2:service name="ehBoxPublicationService">
+    <s2:port binding="s3:ehBoxPublicationBinding" name="ehBoxPublicationPort">
+      <s6:address location="https://services-acpt.ehealth.fgov.be:443/ehBoxPublication/v1"/>
+    </s2:port>
+
+  </s2:service>
+</s2:definitions>

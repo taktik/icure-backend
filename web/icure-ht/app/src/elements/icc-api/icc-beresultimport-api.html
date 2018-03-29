@@ -1,0 +1,65 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-beresultimport-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="canHandle" method="GET" headers="[[headers]]" url="/be_result_import/canhandle/{id}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="doImport" method="POST" headers="[[headers]]" url="/be_result_import/import/{documentId}/{hcpId}/{language}/{protocolIds}/{formIds}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="getInfos" method="GET" headers="[[headers]]" url="/be_result_import/infos/{id}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-beresultimport-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				canHandle: function (id) {
+					var xhr = this.$.canHandle
+
+					xhr.url = this.host+"/be_result_import/canhandle/{id}".replace("{id}", id) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				doImport: function (documentId, hcpId, language, protocolIds, formIds, planOfActionId, body) {
+					var xhr = this.$.doImport
+					xhr.body = body
+					xhr.url = this.host+"/be_result_import/import/{documentId}/{hcpId}/{language}/{protocolIds}/{formIds}".replace("{documentId}", documentId).replace("{hcpId}", hcpId).replace("{language}", language).replace("{protocolIds}", protocolIds).replace("{formIds}", formIds) + "?ts=" + (new Date).getTime()  + (planOfActionId ? "&planOfActionId=" + planOfActionId : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				getInfos: function (id) {
+					var xhr = this.$.getInfos
+
+					xhr.url = this.host+"/be_result_import/infos/{id}".replace("{id}", id) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

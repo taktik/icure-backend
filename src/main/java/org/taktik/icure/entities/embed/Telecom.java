@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2018 Taktik SA
+ *
+ * This file is part of iCureBackend.
+ *
+ * Foobar is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Foobar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.taktik.icure.entities.embed;
+
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jetbrains.annotations.Nullable;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * Created by aduchate on 21/01/13, 14:47
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Telecom implements Serializable, Comparable<Telecom> {
+
+    protected TelecomType telecomType;
+    protected String telecomNumber;
+
+	public Telecom() {
+	}
+
+	public Telecom(TelecomType telecomType, String telecomNumber) {
+		this.telecomType = telecomType;
+		this.telecomNumber = telecomNumber;
+	}
+
+	public @Nullable TelecomType getTelecomType() {
+        return telecomType;
+    }
+
+    public void setTelecomType(TelecomType telecomType) {
+        this.telecomType = telecomType;
+    }
+
+    public @Nullable String getTelecomNumber() {
+        return telecomNumber;
+    }
+
+    public void setTelecomNumber(String telecomNumber) {
+        this.telecomNumber = telecomNumber;
+    }
+
+	@Override
+	public int compareTo(Telecom other) {
+		return this.telecomType.compareTo(other.telecomType);
+	}
+
+	public void mergeFrom(Telecom other) {
+		if (this.telecomNumber == null && other.telecomNumber != null) { this.telecomNumber = other.telecomNumber; }
+	}
+
+	public void forceMergeFrom(Telecom other) {
+		if (other.telecomNumber != null) { this.telecomNumber = other.telecomNumber; }
+	}
+
+}

@@ -1,0 +1,115 @@
+
+	<link rel="import" href="../../../bower_components/polymer/polymer.html">
+	<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+	<dom-module id="icc-bedmg-api">
+		<template>
+    		<style>
+	    	</style>
+
+				<iron-ajax id="confirmDmgMessages" method="DELETE" headers="[[headers]]" url="/be_dmg/message/{token}/{names}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="consultDmg" method="GET" headers="[[headers]]" url="/be_dmg/{token}/{patientNiss}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="consultDmgWithRegNumber" method="GET" headers="[[headers]]" url="/be_dmg/{token}/{insurance}/{regNumber}/{gender}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="listDmgMessages" method="POST" headers="[[headers]]" url="/be_dmg/message/{token}/{names}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="notifyDmg" method="POST" headers="[[headers]]" url="/be_dmg/{token}/{patientNiss}/{code}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="notifyDmgWithRegNumber" method="POST" headers="[[headers]]" url="/be_dmg/{token}/{insurance}/{regNumber}/{code}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="postDmgsListRequest" method="GET" headers="[[headers]]" url="/be_dmg/message/request/{token}/{insurance}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+				<iron-ajax id="registerDoctor" method="POST" headers="[[headers]]" url="/be_dmg/register/{token}/{oa}/{bic}/{iban}" handle-as="json"
+									 on-error="handleError" with-credentials></iron-ajax>
+		</template>
+	</dom-module>
+
+	<script>
+		(function () {
+			Polymer({
+				is: 'icc-bedmg-api',
+				properties: {
+					headers: {
+						type: Object,
+						value: {"Content-Type": "application/json"}
+					},
+					host: {
+						type: String
+					}
+				},
+				behaviors: [],
+				confirmDmgMessages: function (token, names) {
+					var xhr = this.$.confirmDmgMessages
+
+					xhr.url = this.host+"/be_dmg/message/{token}/{names}".replace("{token}", token).replace("{names}", names) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				consultDmg: function (token, patientNiss, date) {
+					var xhr = this.$.consultDmg
+
+					xhr.url = this.host+"/be_dmg/{token}/{patientNiss}".replace("{token}", token).replace("{patientNiss}", patientNiss) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				consultDmgWithRegNumber: function (token, insurance, regNumber, gender, date) {
+					var xhr = this.$.consultDmgWithRegNumber
+
+					xhr.url = this.host+"/be_dmg/{token}/{insurance}/{regNumber}/{gender}".replace("{token}", token).replace("{insurance}", insurance).replace("{regNumber}", regNumber).replace("{gender}", gender) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				listDmgMessages: function (token, names) {
+					var xhr = this.$.listDmgMessages
+
+					xhr.url = this.host+"/be_dmg/message/{token}/{names}".replace("{token}", token).replace("{names}", names) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				notifyDmg: function (token, patientNiss, code, date, firstName, lastName, gender) {
+					var xhr = this.$.notifyDmg
+
+					xhr.url = this.host+"/be_dmg/{token}/{patientNiss}/{code}".replace("{token}", token).replace("{patientNiss}", patientNiss).replace("{code}", code) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "") + (gender ? "&gender=" + gender : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				notifyDmgWithRegNumber: function (token, insurance, regNumber, code, date, firstName, lastName, gender) {
+					var xhr = this.$.notifyDmgWithRegNumber
+
+					xhr.url = this.host+"/be_dmg/{token}/{insurance}/{regNumber}/{code}".replace("{token}", token).replace("{insurance}", insurance).replace("{regNumber}", regNumber).replace("{code}", code) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "") + (gender ? "&gender=" + gender : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				postDmgsListRequest: function (token, insurance, date) {
+					var xhr = this.$.postDmgsListRequest
+
+					xhr.url = this.host+"/be_dmg/message/request/{token}/{insurance}".replace("{token}", token).replace("{insurance}", insurance) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "")
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				registerDoctor: function (token, oa, bic, iban) {
+					var xhr = this.$.registerDoctor
+
+					xhr.url = this.host+"/be_dmg/register/{token}/{oa}/{bic}/{iban}".replace("{token}", token).replace("{oa}", oa).replace("{bic}", bic).replace("{iban}", iban) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				handleError: function (e) {
+					if (e.detail.request.status === 401) this.fire('auth-failed')
+					else this.fire('api-error', e)
+				}
+			});
+		})();
+	</script>
+
+@end

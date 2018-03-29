@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+    <error>
+        <code>100</code>
+        <zone>transaction/iscomplete</zone>
+        <message lang="fr">Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <code>130</code>
+        <zone>transaction/iscomplete</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/isvalidated</zone>
+        <message lang="fr">Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <code>130</code>
+        <zone>transaction/isvalidated</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Zone obligatoire non complétée</message>
+    </error>
+    <error>
+        <code>111</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>112</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Erreur check-digit</message>
+    </error>
+    <error>
+        <code>140</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Prestataire non habilité pour ce type de demande à la date du jour</message>
+    </error>
+    <error>
+        <code>141</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Prestataire pas connu à l’OA à la date du jour</message>
+    </error>
+    <error>
+        <code>156</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Le sender est différent de l’auteur</message>
+    </error>
+    <error>
+        <code>155</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Valeur du author incohérente avec celle du Web Service (HCP Common Input)</message>
+    </error>
+    <error>
+        <code>159</code>
+        <zone>transaction/author</zone>
+        <message lang="fr">Prestataire n’est pas l’auteur de la demande initiale et (CD-MAA- REQUESTTYPE = Complimentaryannex ou CD-MAA-REQUESTTYPE = Cancellation)</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/item</zone>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction/item/id-kmehr</zone>
+        <message lang="fr">Zone obligatoire non présente</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementtype'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementtype</zone>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementtype'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementtype</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementtype'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementtype</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='requesttype'</pattern>
+        <zone>transaction/item/cd-item-maa = requesttype</zone>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='requesttype'</pattern>
+        <zone>transaction/item/cd-item-maa = requesttype</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='requesttype'</pattern>
+        <zone>transaction/item/cd-item-maa = requesttype</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">Item obligatoire non complété si (CD-MAA-REQUESTTYPE = extension ou CD-MAA-REQUESTTYPE = noncontinuousextension ou CD-MAA- REQUESTTYPE = closure ou (iorequestreference non complété et (CD- MAA-REQUESTTYPE = Complimentaryannex ou CD-MAA- REQUESTTYPE = Cancellation))) et CD-MAA-TYPE = chapter4.</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>114</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">Pas de concordance retrouvée entre le n° de référence et l’identification du patient</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">Item complété alors que (CD-MAA-REQUESTTYPE = newrequest ou iorequestreference est complété) et CD-MAA-TYPE = chapter4.</message>
+    </error>
+    <error>
+        <code>152</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">Numéro de référence inconnu dans l’OA.</message>
+    </error>
+    <error>
+        <code>153</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">La référence OA ne correspond pas à un accord dont la date de début est supérieure ou égale à la date du jour et CD-MAA-REQUESTTYPE = Cancellation ou La référence OA ne correspond pas à un accord dont la date de début est inférieure ou égale à la date du jour et CD-MAA- REQUESTTYPE = Closure’.</message>
+    </error>
+    <error>
+        <code>201</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='decisionreference'</pattern>
+        <zone>transaction/item/cd-item-maa = decisionreference</zone>
+        <message lang="fr">La référence OA ne correspond pas au dernier accord ou refus motif 502.</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">Item obligatoire non complété si (CD-MAA-REQUESTTYPE = Complimentaryannex ou CD-MAA-REQUESTTYPE = Cancellation) et decisionreference non complété et CD-MAA-TYPE = chapter4</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>114</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">Pas de concordance retrouvée entre le n° de référence et l’identification du patient</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">Item complété alors que (CD-MAA-REQUESTTYPE = newrequest ou iorequestreference est complété) et CD-MAA-TYPE = chapter4.</message>
+    </error>
+    <error>
+        <code>152</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">Numéro de référence inconnu dans l’OA.</message>
+    </error>
+    <error>
+        <code>153</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">La référence OA ne correspond pas à un accord dont la date de début est supérieure ou égale à la date du jour et CD-MAA-REQUESTTYPE = Cancellation ou La référence OA ne correspond pas à un accord dont la date de début est inférieure ou égale à la date du jour et CD-MAA- REQUESTTYPE = Closure’.</message>
+    </error>
+    <error>
+        <code>201</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='iorequestreference'</pattern>
+        <zone>transaction/item/cd-item-maa = iorequestreference</zone>
+        <message lang="fr">La référence OA ne correspond pas au dernier accord ou refus motif 502.</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Item obligatoire non complété si item CD-MAA-REQUESTTYPE différente de complimentaryannex, cancellation et closure et CD-MAA-TYPE = chapter4</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>130</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Valeur non permise</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Item complété alors que (item CD-MAA-REQUESTTYPE = complimentaryannex ou cancellation ou closure) et CD-MAA-TYPE = chapter4.</message>
+    </error>
+    <error>
+        <code>143</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Demande incomplète</message>
+    </error>
+    <error>
+        <code>154</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='chapter4reference'</pattern>
+        <zone>transaction/item/cd-item-maa = chapter4reference</zone>
+        <message lang="fr">Data Base médicaments - Versions incohérentes</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>113</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <code>115</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Date début &gt; date de fin (si date de fin remplie)</message>
+    </error>
+    <error>
+        <code>124</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Si CD-MAA-REQUESTTYPE = extension, la date de début # de date de fin de l’accord précédent (dont la référence figure en item decisionreference) + 1 jour.</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Item complété alors que item CD-MAA-REQUESTTYPE = complimentaryannex ou cancellation ou closure et CD-MAA-TYPE = chapter4</message>
+    </error>
+    <error>
+        <code>145</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Date de début &lt; Date du jour – 2 ans.</message>
+    </error>
+    <error>
+        <code>146</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Date de début &gt; Date du jour + 3 mois.</message>
+    </error>
+    <error>
+        <code>149</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Date de début &gt; date de fin accord précédent + 3 ans et CD-MAA- REQUESTTYPE = noncontinuousextension.</message>
+    </error>
+    <error>
+        <code>150</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Si CD-MAA-REQUESTTYPE = noncontinuousextension, la date de début &lt; que date de fin de l’accord précédent (dont la référence figure en item decisionreference) + 2 jours.</message>
+    </error>
+    <error>
+        <code>155</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementstartdate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementstartdate</zone>
+        <message lang="fr">Valeur du agreementstartdate incohérente avec celle du Web Service (pour le routage)</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementenddate</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>113</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementenddate</zone>
+        <message lang="fr">Date invraisemblable</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='agreementenddate'</pattern>
+        <zone>transaction/item/cd-item-maa = agreementenddate</zone>
+        <message lang="fr">Item complété alors que CD-MAA-TYPE = chapter4 et CD-MAA- REQUESTTYPE = complimentaryannex ou cancellation ou closure</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='careproviderreference'</pattern>
+        <zone>transaction/item/cd-item-maa = careproviderreference</zone>
+        <message lang="fr">Item obligatoire non complété</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='careproviderreference'</pattern>
+        <zone>transaction/item/cd-item-maa = careproviderreference</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>100</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='orphandrugdeliveryplace'</pattern>
+        <zone>transaction/item/cd-item-maa = orphandrugdeliveryplace</zone>
+        <message lang="fr">Item obligatoire non complété dans la situation où : la demande porte sur un médicament orphelin, et CD-MAA-REQUESTTYPE différent de complimentaryannex, cancellation ou closure et CD-MAA-TYPE = chapter4.</message>
+    </error>
+    <error>
+        <code>111</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='orphandrugdeliveryplace'</pattern>
+        <zone>transaction/item/cd-item-maa = orphandrugdeliveryplace</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>112</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='orphandrugdeliveryplace'</pattern>
+        <zone>transaction/item/cd-item-maa = orphandrugdeliveryplace</zone>
+        <message lang="fr">Erreur check-digit</message>
+    </error>
+    <error>
+        <code>140</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='orphandrugdeliveryplace'</pattern>
+        <zone>transaction/item/cd-item-maa = orphandrugdeliveryplace</zone>
+        <message lang="fr">Etablissement non habilité à la date de début de la demande</message>
+    </error>
+    <error>
+        <code>141</code>
+        <pattern>@S='CD-ITEM-MAA' and text()='orphandrugdeliveryplace'</pattern>
+        <zone>transaction/item/cd-item-maa = orphandrugdeliveryplace</zone>
+        <message lang="fr">Etablissement pas connu à l’OA à la date de début de la demande</message>
+    </error>
+    <error>
+        <code>100</code>
+        <zone>transaction = annexe</zone>
+        <message lang="fr">Annexe manquante</message>
+    </error>
+    <error>
+        <code>111</code>
+        <zone>transaction = annexe</zone>
+        <message lang="fr">Erreur format</message>
+    </error>
+    <error>
+        <code>131</code>
+        <pattern>[local-name()='transaction' and namespace-uri()='http://www.ehealth.fgov.be/standards/kmehr/schema/v1' and *[local-name()='id' and namespace-uri()='http://www.ehealth.fgov.be/standards/kmehr/schema/v1' and @S='ID-KMEHR' and text()='2']</pattern>
+        <zone>transaction = annexe</zone>
+        <message lang="fr">Annexe présente alors que CD-MAA-REQUESTTYPE = cancellation ou closure ou alors qu’il s’agit d’un médicament de type 1 (qui ne nécessite pas d’annexe pour la procédure via MyCareNet)..</message>
+    </error>
+
+</messages>

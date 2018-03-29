@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>MAA Transactions</NAME>
+  <VALUE>
+    <CODE>agreementrequest</CODE>
+    <DESCRIPTION L='fr'>Demande d'accord</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>agreementresponse</CODE>
+    <DESCRIPTION L='fr'>Réponse à une demande d'accord</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>consultationrequest</CODE>
+    <DESCRIPTION L='fr'>demande de consultationµ</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>consultationresponse</CODE>
+    <DESCRIPTION L='fr'>demande de consultationµ</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>freeappendix</CODE>
+    <DESCRIPTION L='fr'>Annexe libre</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>reglementaryappendix</CODE>
+    <DESCRIPTION L='fr'>annexe réglementaire</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

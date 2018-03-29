@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 9 juin 2013 21:02:17 by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.HAmpp" table="hampp" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="ampId" type="java.lang.Long">
+            <column name="amp_id" not-null="true" />
+        </property>
+        <property name="amppId" type="java.lang.Long">
+            <column name="ampp_id" not-null="true" />
+        </property>
+        <property name="amppIdMaxPackSize" type="java.lang.Long">
+            <column name="ampp_id_max_pack_size" />
+        </property>
+        <property name="availability" type="java.util.Date">
+            <column name="availability" />
+        </property>
+        <property name="cheapest" type="java.lang.String">
+            <column name="cheapest" length="1" />
+        </property>
+        <property name="closeDate" type="java.util.Date">
+            <column name="close_date" />
+        </property>
+        <property name="contentMultiplier" type="java.lang.Long">
+            <column name="content_multiplier" not-null="true" />
+        </property>
+        <property name="contentQuantity" type="java.lang.Double">
+            <column name="content_quantity" scale="3" not-null="true" />
+        </property>
+        <property name="contentUnit" type="java.lang.String">
+            <column name="content_unit" length="5" not-null="true" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="distributorId" type="java.lang.Long">
+            <column name="distributor_id" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="inSupply" type="java.util.Date">
+            <column name="in_supply" />
+        </property>
+        <property name="initDate" type="java.util.Date">
+            <column name="init_date" />
+        </property>
+        <property name="modificationStatus" type="java.lang.String">
+            <column name="modification_status" length="1" not-null="true" />
+        </property>
+        <property name="nameId" type="java.lang.Long">
+            <column name="name_id" not-null="true" />
+        </property>
+        <property name="prescriptionInd" type="java.lang.String">
+            <column name="prescription_ind" length="1" not-null="true" />
+        </property>
+        <property name="socsecReimbCv" type="java.lang.String">
+            <column name="socsec_reimb_cv" length="9" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+        <property name="totalPackSizeValue" type="java.lang.Double">
+            <column name="total_pack_size_value" scale="3" not-null="true" />
+        </property>
+        <property name="treatmentDurationCatCv" type="java.lang.String">
+            <column name="treatment_duration_cat_cv" length="2" not-null="true" />
+        </property>
+        <property name="vmpId" type="java.lang.Long">
+            <column name="vmp_id" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

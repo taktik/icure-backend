@@ -1,0 +1,169 @@
+{
+	"sections": [
+		{
+			"formColumns": [
+				{
+					"formDataList": [
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 754,
+								"multiline" : false,
+								"left" : 299,
+								"top" : 5,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "Street",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "street",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 411,
+								"multiline" : false,
+								"left" : 774,
+								"top" : 35,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "Country",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "country",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 162,
+								"multiline" : false,
+								"left" : 88,
+								"top" : 35,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "Postal code",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "postalCode",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 412,
+								"multiline" : false,
+								"left" : 299,
+								"top" : 35,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "City",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "city",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 46,
+								"compulsoryFormGuids" : [
+
+								],
+								"labelPosition" : "Left",
+								"width" : 1180,
+								"multiline" : false,
+								"left" : 5,
+								"top" : 65,
+								"key" : "SubFormEditor",
+								"optionalFormGuids" : [
+									"2662246e-0db0-46d6-96f8-5db4363745b6"
+								]
+							},
+							"sortOrder" : 883971927,
+							"codeTypes" : [
+
+							],
+							"label" : "Telecoms",
+							"type" : "TKSubConsult",
+							"subForm" : true,
+							"name" : "telecoms",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 26,
+								"menuOptions" : [
+									"home", "work", "vacation", "hospital", "clinic", "hq", "other"
+								],
+								"labelPosition" : "Left",
+								"width" : 162,
+								"multiline" : false,
+								"left" : 88,
+								"top" : 5,
+								"key" : "PopupMenuEditor"
+							},
+							"sortOrder" : 1465333591,
+							"codeTypes" : [
+
+							],
+							"label" : "Type",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "addressType",
+							"irrelevant" : true
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 22,
+								"labelPosition" : "Left",
+								"width" : 74,
+								"multiline" : false,
+								"left" : 1111,
+								"top" : 5,
+								"key" : "StringEditor"
+							},
+							"sortOrder" : 1465341783,
+							"codeTypes" : [
+
+							],
+							"label" : "Number",
+							"type" : "TKString",
+							"subForm" : false,
+							"name" : "houseNumber",
+							"irrelevant" : true
+						}
+					]
+				}
+			]
+		}
+	]
+}
+

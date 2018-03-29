@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2002-07-17</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Emergency evaluation type</NAME>
+  <VALUE>
+    <CODE>couldwaitafterwe</CODE>
+    <DESCRIPTION L='fr'>could wait after the week-end</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lifethreathning</CODE>
+    <DESCRIPTION L='fr'>the situation was life threathning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>noturgent</CODE>
+    <DESCRIPTION L='fr'>this was not urgent</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>urgent</CODE>
+    <DESCRIPTION L='fr'>this was urgent</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

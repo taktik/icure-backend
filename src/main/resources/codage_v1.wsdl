@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s1:definitions name="eHealthCodage" targetNamespace="http://www.ehealth.be/webservices/cod" xmlns="" xmlns:s0="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s1="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:s2="http://beans.codage.ehealth.smals.be/" xmlns:s3="http://www.ehealth.be/webservices/cod" xmlns:s4="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+  <s1:types>
+    <xsd:schema targetNamespace="http://beans.codage.ehealth.smals.be/" xmlns:cod="http://beans.codage.ehealth.smals.be/" xmlns:dss="urn:oasis:names:tc:dss:1.0:core:schema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+      xmlns:s0="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:s1="http://schemas.xmlsoap.org/wsdl/" xmlns:s2="http://beans.codage.ehealth.smals.be/" xmlns:s3="http://www.ehealth.be/webservices/cod" xmlns:s4="http://schemas.xmlsoap.org/wsdl/soap/"
+      xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://www.ehealth.be/webservices/cod" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="http://beans.codage.ehealth.smals.be/" schemaLocation="../XSD/codage_v1/codage.xsd" />
+    </xsd:schema>
+  </s1:types>
+  <s1:message name="EncodeRequestMsg">
+    <s1:part element="s2:encodeRequest" name="request" />
+  </s1:message>
+  <s1:message name="EncodeResponseMsg">
+    <s1:part element="s2:encodeResponse" name="response" />
+  </s1:message>
+  <s1:message name="DecodeRequestMsg">
+    <s1:part element="s2:decodeRequest" name="request" />
+  </s1:message>
+  <s1:message name="DecodeResponseMsg">
+    <s1:part element="s2:decodeResponse" name="response" />
+  </s1:message>
+  <s1:portType name="CodagePort">
+    <s1:operation name="encode">
+      <s1:input message="s3:EncodeRequestMsg" />
+      <s1:output message="s3:EncodeResponseMsg" />
+    </s1:operation>
+    <s1:operation name="decode">
+      <s1:input message="s3:DecodeRequestMsg" />
+      <s1:output message="s3:DecodeResponseMsg" />
+    </s1:operation>
+  </s1:portType>
+  <s1:binding name="CodageSOAP" type="s3:CodagePort">
+    <s4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <s1:operation name="encode">
+      <s4:operation soapAction="http://www.ehealth.be/webservices/cod/encode" />
+      <s1:input>
+        <s4:body use="literal" />
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#Wssp1.2-SignBody.xml" />
+          <wsp:PolicyReference URI="#Wssp1.2-Wss1.0-X509-Basic256.xml" />
+        </wsp:Policy>
+      </s1:input>
+      <s1:output>
+        <s4:body use="literal" />
+      </s1:output>
+    </s1:operation>
+    <s1:operation name="decode">
+      <s4:operation soapAction="http://www.ehealth.be/webservices/cod/decode" />
+      <s1:input>
+        <s4:body use="literal" />
+        <wsp:Policy>
+          <wsp:PolicyReference URI="#Wssp1.2-SignBody.xml" />
+          <wsp:PolicyReference URI="#Wssp1.2-Wss1.0-X509-Basic256.xml" />
+        </wsp:Policy>
+      </s1:input>
+      <s1:output>
+        <s4:body use="literal" />
+      </s1:output>
+    </s1:operation>
+  </s1:binding>
+  <s1:service name="Codage">
+    <s1:port binding="s3:CodageSOAP" name="CodageSOAP">
+      <s4:address location="https://wwwacc.ehealth.fgov.be:443/codage_1_0/codage" />
+    </s1:port>
+  </s1:service>
+</s1:definitions>

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.taktik.icure.be.drugs.civics.Atc" table="cvcs_atc" catalog="DRUGS">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+        </id>
+        <property name="atcCv" type="java.lang.String">
+            <column name="atc_cv" length="7" not-null="true" />
+        </property>
+        <property name="atcCvParent" type="java.lang.String">
+            <column name="atc_cv_parent" length="7" />
+        </property>
+        <property name="createdTms" type="java.util.Date">
+            <column name="created_tms" not-null="true" />
+        </property>
+        <property name="createdUserId" type="java.lang.String">
+            <column name="created_user_id" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="java.util.Date">
+            <column name="end_date" />
+        </property>
+        <property name="finalLevelInd" type="java.lang.String">
+            <column name="final_level_ind" length="1" not-null="true" />
+        </property>
+        <property name="flatRateInd" type="java.lang.String">
+            <column name="flat_rate_ind" length="1" />
+        </property>
+        <property name="nameId" type="java.lang.Long">
+            <column name="name_id" not-null="true" />
+        </property>
+        <property name="startDate" type="java.util.Date">
+            <column name="start_date" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
