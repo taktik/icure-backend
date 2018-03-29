@@ -240,3 +240,7 @@ configurations.all {
 	exclude group: 'org.apache.openejb', module: 'javaee-api'
 }
 
+springBoot {
+    mainClass = "org.taktik.icure.ICureBackendApplication"
+}
+
