@@ -3,12 +3,12 @@
  *
  * This file is part of iCureBackend.
  *
- * Foobar is free software: you can redistribute it and/or modify
+ * iCureBackend is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * Foobar is distributed in the hope that it will be useful,
+ * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -57,19 +57,19 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
     protected Map<String,Set<Delegation>> cryptedForeignKeys = new HashMap<>();
 
     //This is typically filled in the patient
-    //When a document is created, the responsible generates a cryptographically random master key
+    //When a document is created, the responsible generates a cryptographically random master key (never to be used for something else than referencing from other entities)
     //He/she encrypts it using his own AES exchange key and stores it as a delegation
     //The responsible is thus always in the delegations as well
-    protected Map<String,List<Delegation>> delegations = new HashMap<>(); // TODO: replace list with Set: no added value for list
+    protected Map<String,Set<Delegation>> delegations = new HashMap<>();
+
+	//This is typically filled in the patient
+	//When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
+	//He/she encrypts it using his own AES exchange key and stores it as a delegation
+	protected Map<String,Set<Delegation>> encryptionKeys = new HashMap<>();
+
 
 	public void addDelegation(String healthcarePartyId, Delegation delegation) {
-		List<Delegation> delegationsForHealthcarePartyId = delegations.get(healthcarePartyId);
-		if (delegationsForHealthcarePartyId == null) {
-			delegationsForHealthcarePartyId = new ArrayList<>();
-			delegations.put(healthcarePartyId, delegationsForHealthcarePartyId);
-		}
-
-		delegations.get(healthcarePartyId).add(delegation);
+		delegations.computeIfAbsent(healthcarePartyId, k -> new HashSet<>()).add(delegation);
 	}
 
     @Override
@@ -149,11 +149,11 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
         this.tags = tags;
     }
 
-	public Map<String, List<Delegation>> getDelegations() {
+	public Map<String, Set<Delegation>> getDelegations() {
 		return delegations;
 	}
 
-	public void setDelegations(Map<String, List<Delegation>> delegations) {
+	public void setDelegations(Map<String, Set<Delegation>> delegations) {
 		this.delegations = delegations;
 	}
 
@@ -181,6 +181,14 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
 		}
 
 		secretForeignKeys.add(newKey);
+	}
+
+	public Map<String, Set<Delegation>> getEncryptionKeys() {
+		return encryptionKeys;
+	}
+
+	public void setEncryptionKeys(Map<String, Set<Delegation>> encryptionKeys) {
+		this.encryptionKeys = encryptionKeys;
 	}
 
 	@Override
@@ -211,6 +219,7 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
 		this.secretForeignKeys.addAll(other.secretForeignKeys);
 
 		this.cryptedForeignKeys = MergeUtil.mergeMapsOfSets(this.cryptedForeignKeys, other.cryptedForeignKeys, Objects::equals, (a,b)->a);
-		this.delegations  = MergeUtil.mergeMapsOfListsDistinct(this.delegations, other.delegations, Objects::equals, (a,b)->a);
+		this.delegations  = MergeUtil.mergeMapsOfSets(this.delegations, other.delegations, Objects::equals, (a,b)->a);
+		this.encryptionKeys  = MergeUtil.mergeMapsOfSets(this.encryptionKeys, other.encryptionKeys, Objects::equals, (a,b)->a);
 	}
 }

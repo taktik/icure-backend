@@ -3,12 +3,12 @@
  *
  * This file is part of iCureBackend.
  *
- * Foobar is free software: you can redistribute it and/or modify
+ * iCureBackend is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * Foobar is distributed in the hope that it will be useful,
+ * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -57,9 +57,9 @@ import javax.validation.constraints.NotNull;
 public class ContactLogicImpl extends VersionableLogicImpl<Contact, ContactDAO> implements ContactLogic {
 	private static final Logger logger = LoggerFactory.getLogger(ContactLogicImpl.class);
 
-	@Autowired
 	private Validator validator;
 
+	@Autowired
 	public void setValidator(Validator validator) {
 		this.validator = validator;
 	}
@@ -208,6 +208,7 @@ public class ContactLogicImpl extends VersionableLogicImpl<Contact, ContactDAO> 
 		s.setPlansOfActionIds(subContacts.stream().map(SubContact::getPlanOfActionId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setHealthElementsIds(subContacts.stream().map(SubContact::getHealthElementId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setDelegations(c.getDelegations());
+		s.setEncryptionKeys(c.getEncryptionKeys());
 
 		return s;
 	}
@@ -330,7 +331,6 @@ public class ContactLogicImpl extends VersionableLogicImpl<Contact, ContactDAO> 
 	@Override
 	public void solveConflicts() {
 		List<Contact> contactsInConflict = contactDAO.listConflicts().stream().map(it -> contactDAO.get(it.getId(), Option.CONFLICTS)).collect(Collectors.toList());
-
 		contactsInConflict.forEach(ctc -> {
 			Arrays.stream(ctc.getConflicts()).map(c -> contactDAO.get(ctc.getId(), c)).forEach(cp -> {
 				ctc.solveConflictWith(cp);

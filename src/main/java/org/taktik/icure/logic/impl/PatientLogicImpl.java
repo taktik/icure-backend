@@ -3,12 +3,12 @@
  *
  * This file is part of iCureBackend.
  *
- * Foobar is free software: you can redistribute it and/or modify
+ * iCureBackend is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * Foobar is distributed in the hope that it will be useful,
+ * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -397,8 +397,8 @@ public class PatientLogicImpl extends VersionableLogicImpl<Patient, PatientDAO> 
 			User user = userLogic.getUser(patient.getPreferredUserId());
 
 			if (user==null) {
-				patient.getDelegations().put(user.getHealthcarePartyId(), new ArrayList<>());
-				user.getAutoDelegations().values().forEach(ads -> ads.forEach(ad -> patient.getDelegations().put(ad, new ArrayList<>())));
+				patient.getDelegations().put(user.getHealthcarePartyId(), new HashSet<>());
+				user.getAutoDelegations().values().forEach(ads -> ads.forEach(ad -> patient.getDelegations().put(ad, new HashSet<>())));
 			}
 		}
 
@@ -505,9 +505,9 @@ public class PatientLogicImpl extends VersionableLogicImpl<Patient, PatientDAO> 
 	@Override
 	public Patient mergePatient(Patient patient, List<Patient> fromPatients) {
 		for (Patient from:fromPatients) {
-			Set<Map.Entry<String, List<Delegation>>> entries = from.getDelegations().entrySet();
-			for (Map.Entry<String, List<Delegation>> entry : entries) {
-				List<Delegation> secondMapValue = patient.getDelegations().get(entry.getKey());
+			Set<Map.Entry<String, Set<Delegation>>> entries = from.getDelegations().entrySet();
+			for (Map.Entry<String, Set<Delegation>> entry : entries) {
+				Set<Delegation> secondMapValue = patient.getDelegations().get(entry.getKey());
 				if (secondMapValue == null) {
 					patient.getDelegations().put(entry.getKey(), entry.getValue());
 				} else {

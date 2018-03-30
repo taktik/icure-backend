@@ -3,12 +3,12 @@
  *
  * This file is part of iCureBackend.
  *
- * Foobar is free software: you can redistribute it and/or modify
+ * iCureBackend is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * Foobar is distributed in the hope that it will be useful,
+ * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -59,7 +59,9 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	@JsonIgnore
 	private Map<String,Set<Delegation>> cryptedForeignKeys = new HashMap<>(); //Only used when the Service is emitted outside of its contact
 	@JsonIgnore
-	private Map<String, List<Delegation>> delegations = new HashMap<>(); //Only used when the Service is emitted outside of its contact
+	private Map<String, Set<Delegation>> delegations = new HashMap<>(); //Only used when the Service is emitted outside of its contact
+	@JsonIgnore
+	private Map<String, Set<Delegation>> encryptionKeys = new HashMap<>(); //Only used when the Service is emitted outside of its contact
 
 	@NotNull
 	protected String label;
@@ -212,12 +214,20 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.secretForeignKeys = secretForeignKeys;
 	}
 
-	public void setDelegations(Map<String, List<Delegation>> delegations) {
+	public void setDelegations(Map<String, Set<Delegation>> delegations) {
 		this.delegations = delegations;
 	}
 
-	public Map<String, List<Delegation>> getDelegations() {
+	public Map<String, Set<Delegation>> getDelegations() {
 		return delegations;
+	}
+
+	public Map<String, Set<Delegation>> getEncryptionKeys() {
+		return encryptionKeys;
+	}
+
+	public void setEncryptionKeys(Map<String, Set<Delegation>> encryptionKeys) {
+		this.encryptionKeys = encryptionKeys;
 	}
 
 	public @Nullable String getContactId() {
