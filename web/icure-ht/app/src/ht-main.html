@@ -126,6 +126,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				/*min-width: 30%;*/
 			}
 
+			.consultations-message-texte {
+				font-size: 14px;
+				margin-right: 16px;
+				/*min-width: 30%;*/
+			}
+
 			.consultations-patient-type{
 				color: var(--app-secondary-color);
 				font-size: 14px;
@@ -290,6 +296,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</template>
 					</div>
 				</div>
+				<div class="card latest-patients-card">
+					<div class="card-title-container">
+                            <h1 class="card-title">Messages</h1>
+                    </div>
+						<div class="card-body">
+                            <template is="dom-repeat" items="[[messages]]" as="msg">
+                                <div class="row latest-patients-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+                                    <div class="consultations-message-texte">[[msg.fromAddress]]</div>
+									<div class="divider"></div>
+                                    <div class="consultations-message-texte">[[msg.subject]]</div>
+									<div class="divider"></div>
+									<div class="consultations-time">[[_timeFormat(msg.received)]]</div>
+                                </div>
+                            </template>
+						</div>
+				</div>
+
 			</div>
 			<div class="flex">
 				<div class="card todays-consultations">
@@ -320,28 +343,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="lab-results-header-cell">Request’s Date</div>
 							<div class="lab-results-header-cell">institution / department</div>
 						</div>
-
-
-						<div class="row lab-results-table-row">
-							<div class="lab-results-table-cell">
-								<div class="consultations-patient-photo"><img
-									src="data:image/jpeg;base64,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"/>
-								</div>
-								<div class="consultations-patient-name">Daenerys Targaryen</div>
+						<template is="dom-repeat" items="[[labres]]" as="msg">
+							<div class="row lab-results-table-row" data-id$="[[msg.patient.id]]" on-tap="openPatient">
+								<div class="consultations-patient-photo"><img src$="[[picture(msg.patient)]]"></div>
+								<div class="consultations-patient-name">[[msg.patient.firstName]] [[msg.patient.lastName]] </div>
+								<div class="lab-results-table-cell">[[_timeFormat(msg.access.date)]]</div>
 							</div>
-							<div class="lab-results-table-cell">22/07/2017</div>
-							<div class="lab-results-table-cell"><a href="#">Oncology</a></div>
-						</div>
-						<div class="row lab-results-table-row">
-							<div class="lab-results-table-cell">
-								<div class="consultations-patient-photo"><img
-									src="data:image/jpeg;base64,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"/>
-								</div>
-								<div class="consultations-patient-name">Gregor Clegane</div>
-							</div>
-							<div class="lab-results-table-cell">22/07/2017</div>
-							<div class="lab-results-table-cell"><a href="#">haematology</a></div>
-						</div>
+						</template>
 					</div>
 				</div>
 
@@ -350,22 +358,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<h1 class="card-title">Planning</h1>
 					</div>
 					<div class="card-body">
-
-						<paper-listbox>
-							<paper-item>
-								<paper-checkbox>Todo 1</paper-checkbox>
-							</paper-item>
-							<paper-item>
-								<paper-checkbox>Todo 2</paper-checkbox>
-							</paper-item>
-							<paper-item>
-								<paper-checkbox>Todo 3</paper-checkbox>
-							</paper-item>
-							<paper-item>
-								<paper-checkbox>Todo 4</paper-checkbox>
-							</paper-item>
-
-						</paper-listbox>
+							<template is="dom-repeat" items="[[services]]" as="service">
+								<paper-listbox>
+								<paper-item>
+									<paper-checkbox>
+								<div class="row latest-patients-row" data-id$="[[service.service.id]]">
+									<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
+									<div class="consultations-patient-name">[[service.patient.firstName]] [[service..patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(service.service.valueDate)]]</span></div>
+									<div class="consultations-patient-name">[[service.service.content.language.stringValue]]</div>
+								</div>
+									</paper-checkbox>
+								</paper-item>
+									</paper-listbox>
+							</template>
 					</div>
 				</div>
 			</div>
@@ -400,6 +405,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					value: function () {
 						return []
 					}
+				},
+                messages: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                labres: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                services:{
+				    type: Array,
+					value: function(){
+				        return[]
+					}
 				}
 			},
 			ready() {
@@ -426,6 +449,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							})
 							.then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)))
 
+
+							this.api.message().findMessagesByToAddress('INBOX',null, null, 1000)
+								.then(messages => {
+							    	messages.rows.forEach(function(m, index, messages){if(m.status && (1 << 1) == 0){messages.splice(index, 1)}})//todo refaire reduce
+							    	messages.rows.sort(function(a,b){return (a.status && (1 << 0) - b.status && (1 << 0))} )
+									return messages.rows
+								})
+							.then(messages => this.set('messages', messages|| []))
+
 						this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD')))
 							.then(appointments => {
 								return appointments && this.api.patient().getPatients({ids: appointments.map(a => a.patientId)}).then(patients => {
@@ -435,13 +467,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							})
 							.then(appointments => this.set('appointments', appointments || []))
 
-						const start = parseInt(moment().subtract(1,'months').format('YYYYMMDD'))
-						const end = parseInt(moment().add(14,'days').format('YYYYMMDD'))
+						const start = parseInt(moment().subtract(1,'years').format('YYYYMMDD'))
+						const end = parseInt(moment().add(14,'years').format('YYYYMMDD'))
+						const maxplanningsize = 10
+                        const sort = 'valueDate'
+                        const desc = 'desc'
+
 						const planningFilter = {'$type':'UnionFilter','filters':[{'$type':'ServiceByHcPartyTagCodeDateFilter',healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start, endValueDate:end},{'$type':'ServiceByHcPartyTagCodeDateFilter', healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start*1000000, endValueDate:end*1000000}]}
 						this.api.contact().filterServicesBy(null,null,1000,{filter:planningFilter})
 							.then(planningList => {
+                                const svcDict = planningList.rows.reduce((acc,s) => {
+                                    const cs = acc[s.id]
+                                    if (!cs || !cs.modified || (s.modified && this.api.after(s.modified, cs.modified))) { acc[s.id] = s }
+                                    return acc
+                                }, {})
+                                const services = _.sortBy(Object.values(svcDict).filter(s=>!s.endOfLife), [s=>+this.api.moment(/*s.modified||s.created||*/s.valueDate)])
+                                const hcpId = this.user.healthcarePartyId
 
-							})
+                                const ownersOfDelegations = services.reduce((acc,s)=>{s.cryptedForeignKeys[hcpId].forEach(d=>acc[d.owner]=1); return acc},{})
+                                const importedAESHcPartyKeys = {}
+
+                                return this.api.hcparty().getHcPartyKeysForDelegate(hcpId)
+                                    .then(keys => Promise.all(
+                                        Object.keys(ownersOfDelegations).map(
+                                            ownerId=>this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId])
+												.then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey))))
+                                    .then(() => Promise.all(services.map(
+                                        s=>Promise.all(s.cryptedForeignKeys[hcpId].map(
+                                            k=>this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key)))).then(patIds=>{
+                                                const decodedPatIds = patIds.map(ua=>this.api.crypto().utils.ua2text(ua).split(':')[1])
+                                                s.patId = decodedPatIds.find(id=>id!=null); return decodedPatIds
+                                            }))))
+                                    .then(arraysOfArraysOfPatIdsAsUa => {
+                                        return this.api.patient().filterBy(null, null, maxplanningsize , /*index*/ null, sort, desc, {
+                                            filter: {
+                                                '$type': 'PatientByIdsFilter',
+                                                'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa)))
+                                            }
+                                        })
+                                    }).then(patients =>  services.map(s=>({service:s, patient:patients.rows.find(p=>p.id===s.patId)})))
+							}).then(services => this.set('services', services || []))
 					})
 
 			},
@@ -465,7 +530,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				let target = ev.target
 				while(target && !target.dataset.id) { target = target.parentNode }
 				location.replace(location.href.replace(/(.+?)\/#\/main.*/,  `$1/#/pat/${target.dataset.id}`));
-			}
+			},
+
+            openMessage: function(ev) {
+                let target = ev.target
+                while(target && !target.dataset.id) { target = target.parentNode }
+                location.replace(location.href.replace(/(.+?)\/#\/main.*/,  `$1/#/msg/${target.dataset.id}`));
+            }
 		})
 	</script>
 </dom-module>
