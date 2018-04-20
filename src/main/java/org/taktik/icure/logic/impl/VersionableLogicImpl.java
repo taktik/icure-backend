@@ -4,9 +4,8 @@
  * This file is part of iCureBackend.
  *
  * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
  *
  * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,7 +25,6 @@ import org.taktik.icure.dao.GenericDAO;
 import org.taktik.icure.entities.base.Versionable;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
 import org.taktik.icure.logic.VersionableLogic;
-import org.taktik.icure.utils.beans.Merger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,14 +42,6 @@ public abstract class VersionableLogicImpl<V extends Versionable<String>, D exte
 	private static Logger logger = LoggerFactory.getLogger(VersionableLogicImpl.class);
 
 	@Override
-	public V resolveConflict(V versionable, UpdateConflictException e) {
-		logger.debug(e.getMessage(), e);
-		logger.warn("UpdateConflictException was raised (" + e.getMessage() + "). Launching conflict resolution...");
-
-		return resolveConflict(versionable);
-	}
-
-	@Override
 	public List<V> updateEntities(Collection<V> entities) throws Exception {
 		try {
 			return new ArrayList<>(getGenericDAO().save(entities));
@@ -64,24 +54,6 @@ public abstract class VersionableLogicImpl<V extends Versionable<String>, D exte
 		}
 	}
 
-
-	V resolveConflict(V versionable) {
-		D dao = getGenericDAO();
-
-		String documentId = versionable.getId();
-
-		V leader = versionable;
-		V receiver = dao.get(documentId);
-		V original = getCommonOriginal(leader, receiver);
-
-		if (original != null) {
-			V merged = new Merger().merge(original, leader, receiver);
-			return dao.save(merged);
-		} else {
-			logger.warn("Documents of class {} with id {} and revs {}|{} could not be merged",leader.getClass().getSimpleName(),leader.getId(),leader.getRev(),receiver.getRev());
-			return null;
-		}
-	}
 
 	private V getCommonOriginal(V leader, V receiver) {
 

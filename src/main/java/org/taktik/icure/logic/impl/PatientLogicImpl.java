@@ -4,9 +4,8 @@
  * This file is part of iCureBackend.
  *
  * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
  *
  * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -49,7 +48,6 @@ import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto;
 import org.taktik.icure.utils.FuzzyValues;
-import org.taktik.icure.utils.beans.Beans;
 import org.taktik.icure.validation.aspect.Check;
 
 import javax.security.auth.login.LoginException;
@@ -78,10 +76,9 @@ import static org.taktik.icure.db.StringUtils.safeConcat;
 import static org.taktik.icure.db.StringUtils.sanitizeString;
 
 @org.springframework.stereotype.Service
-public class PatientLogicImpl extends VersionableLogicImpl<Patient, PatientDAO> implements PatientLogic {
+public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> implements PatientLogic {
 	private static final Logger log = LoggerFactory.getLogger(PatientLogicImpl.class);
 
-	private Beans<PatientDto> patientDtoBeans = new Beans<>();
 	private PatientDAO patientDAO;
 	private UUIDGenerator uuidGenerator;
 	private MapperFacade mapper;
@@ -457,14 +454,6 @@ public class PatientLogicImpl extends VersionableLogicImpl<Patient, PatientDAO> 
         }
 	}
 
-	@Override
-	public Patient modifyPatient(Patient patient, Map<String, Object> values) throws MissingRequirementsException {
-		PatientDto patientDto = mapper.map(patient, PatientDto.class);
-		patientDtoBeans.updateFromMapOfValues(patientDto, values);
-		Patient updatedPatient = mapper.map(patientDto, Patient.class);
-
-		return modifyPatient(updatedPatient);
-	}
 
 	@Override
 	public Patient modifyPatientReferral(@NotNull Patient patient, String referralId, Instant start, Instant end) throws MissingRequirementsException {

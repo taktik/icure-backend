@@ -172,7 +172,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display: flex;
 				flex-direction: row;
 				justify-content: center;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				align-items: center;
 				font-size: 14px;
 			}
@@ -182,6 +182,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.lab-results-table-row {
+				justify-content: space-around;
+				flex-wrap: nowrap;
+			}
+
+			.planning-table-header {
+				font-size: 10px;
+				text-transform: uppercase;
+				text-align: center;
+			}
+
+			.planning-table-header div, .planning-table-cell {
+				width: 30%;
+			}
+
+			.planning-table-row {
+				width: 100%;
+			}
+
+			.planning-table-cell {
+				text-align: center;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				flex-wrap: wrap;
+				align-items: center;
+				font-size: 14px;
+			}
+
+			.planning-table-cell:first-child {
+				justify-content: flex-start;
+			}
+
+			.planning-table-row {
 				justify-content: space-around;
 				flex-wrap: nowrap;
 			}
@@ -296,23 +329,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</template>
 					</div>
 				</div>
-				<div class="card latest-patients-card">
-					<div class="card-title-container">
-                            <h1 class="card-title">Messages</h1>
-                    </div>
-						<div class="card-body">
-                            <template is="dom-repeat" items="[[messages]]" as="msg">
-                                <div class="row latest-patients-row" data-id$="[[msg.formId]]" on-tap="openMessage">
-                                    <div class="consultations-message-texte">[[msg.fromAddress]]</div>
-									<div class="divider"></div>
-                                    <div class="consultations-message-texte">[[msg.subject]]</div>
-									<div class="divider"></div>
-									<div class="consultations-time">[[_timeFormat(msg.received)]]</div>
-                                </div>
-                            </template>
-						</div>
-				</div>
-
 			</div>
 			<div class="flex">
 				<div class="card todays-consultations">
@@ -339,15 +355,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</div>
 					<div class="card-body">
 						<div class="lab-results-table-header row">
-							<div class="lab-results-header-cell">Patient</div>
-							<div class="lab-results-header-cell">Request’s Date</div>
-							<div class="lab-results-header-cell">institution / department</div>
+							<div class="lab-results-header-cell">Sender</div>
+							<div class="lab-results-header-cell">Date</div>
+							<div class="lab-results-header-cell">Subject</div>
 						</div>
-						<template is="dom-repeat" items="[[labres]]" as="msg">
-							<div class="row lab-results-table-row" data-id$="[[msg.patient.id]]" on-tap="openPatient">
-								<div class="consultations-patient-photo"><img src$="[[picture(msg.patient)]]"></div>
-								<div class="consultations-patient-name">[[msg.patient.firstName]] [[msg.patient.lastName]] </div>
-								<div class="lab-results-table-cell">[[_timeFormat(msg.access.date)]]</div>
+						<template is="dom-repeat" items="[[messages]]" as="msg">
+							<div class="row lab-results-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+								<div class="lab-results-table-cell">[[msg.fromAddress]]</div>
+								<div class="lab-results-table-cell">[[msg.subject]] </div>
+								<div class="lab-results-table-cell">[[_timeFormat(msg.received)]]</div>
 							</div>
 						</template>
 					</div>
@@ -358,19 +374,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<h1 class="card-title">Planning</h1>
 					</div>
 					<div class="card-body">
-							<template is="dom-repeat" items="[[services]]" as="service">
-								<paper-listbox>
+						<div class="planning-table-header row">
+							<div class="planning-header-cell">Patient</div>
+							<div class="planning-header-cell">Due date</div>
+							<div class="planning-header-cell">Description</div>
+						</div>
+						<template is="dom-repeat" items="[[services]]" as="service">
+							<paper-listbox>
 								<paper-item>
-									<paper-checkbox>
-								<div class="row latest-patients-row" data-id$="[[service.service.id]]">
-									<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
-									<div class="consultations-patient-name">[[service.patient.firstName]] [[service..patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(service.service.valueDate)]]</span></div>
-									<div class="consultations-patient-name">[[service.service.content.language.stringValue]]</div>
-								</div>
-									</paper-checkbox>
+
+
+									<div class="row planning-table-row" data-id$="[[service.service.id]]">
+										<div class="lab-results-table-cell">
+											<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
+											<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
+										</div>
+										<div class="planning-table-cell">[[_timeFormat(service.service.valueDate)]]</div>
+										<div class="planning-table-cell">[[service.service.content.language.stringValue]]</div>
+									</div>
 								</paper-item>
-									</paper-listbox>
-							</template>
+							</paper-listbox>
+						</template>
 					</div>
 				</div>
 			</div>
@@ -506,7 +530,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             }
                                         })
                                     }).then(patients =>  services.map(s=>({service:s, patient:patients.rows.find(p=>p.id===s.patId)})))
-							}).then(services => this.set('services', services || []))
+							}).then(services => this.set('services', (services || []).filter(it=>it.patient)))
 					})
 
 			},
