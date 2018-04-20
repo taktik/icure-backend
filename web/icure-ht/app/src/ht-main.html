@@ -23,44 +23,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<style include="shared-styles">
 			:host {
 				display: block;
-				padding: 24px 12px 8px 12px;
+				padding: 12px;
 				height: calc(100vh - 64px);
 				box-sizing: border-box;
 			}
 
-			.fullbleed.layout.horizontal {
-				width: 100%;
-				height: 100%;
-				display: flex;
-				flex-direction: row;
-				flex-wrap: nowrap;
-				box-sizing: border-box;
+			.grid-container{
+				display:grid;
+				width:100%;
+				height:100%;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 1fr 1fr 1fr;
+				grid-column-gap: 16px;
+  				grid-row-gap: 16px;
 			}
 
-			.flex {
-				flex-grow: 1;
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				align-items: stretch;
-				flex-wrap: wrap;
-			}
+		
 
-			.todays-consultations {
-				margin-bottom: 16px !important;
-			}
 
 			.row {
 				cursor: pointer;
 			}
 
 			.card {
-				margin: 0 16px;
 				color: var(--app-text-color);
 				background: var(--app-background-color);
 				border-radius: 2px;
 				@apply --shadow-elevation-2dp;
-				min-width: calc(100% - 24px);
+				overflow:auto;
 			}
 
 			.card-title-container {
@@ -149,18 +139,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin-left: 16px;
 			}
 
-			.latest-lab-result {
-				margin-bottom: 16px;
-			}
-
 			.lab-results-table-header {
 				font-size: 10px;
 				text-transform: uppercase;
-				text-align: center;
+				text-align: left;
 			}
 
 			.lab-results-table-header div, .lab-results-table-cell {
-				width: 30%;
+				width: 40%;
+			}
+
+			.lab-results-header-cell--date, .lab-results-table-cell--date{
+				width:20%!important;
+			}
+
+			.lab-results-table-cell:last-child{
+				text-align:left;
+				width:40%;
 			}
 
 			.lab-results-table-row {
@@ -168,17 +163,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.lab-results-table-cell {
-				text-align: center;
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				flex-wrap: nowrap;
-				align-items: center;
 				font-size: 14px;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				text-align: left;
+				padding-right: 8px;
 			}
 
 			.lab-results-table-cell:first-child {
-				justify-content: flex-start;
+				font-weight:700;
 			}
 
 			.lab-results-table-row {
@@ -192,22 +186,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				text-align: center;
 			}
 
+			.planning-table-header.row, .lab-results-table-header.row{
+				margin-bottom:12px;
+			}
+
 			.planning-table-header div, .planning-table-cell {
 				width: 30%;
+			}
+
+			.planning-table-header div:last-child{
+				width:40%;
+				text-align:left;
+			}
+
+			.planning-table-row .planning-table-cell:last-child{
+				width:40%;
 			}
 
 			.planning-table-row {
 				width: 100%;
 			}
 
-			.planning-table-cell {
+			.planning-table-cell:first-child{
 				text-align: center;
 				display: flex;
 				flex-direction: row;
 				justify-content: center;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				align-items: center;
 				font-size: 14px;
+			}
+
+			.planning-table-cell {
+				font-size: 14px;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				text-align: left;
+				padding-right: 8px;
+			}
+
+			.planning-table-cell--date{
+				text-align:center;
 			}
 
 			.planning-table-cell:first-child {
@@ -220,8 +240,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.latest-patients-card{
-				max-height:calc(100% - 16px);
-				min-height:calc(100% - 16px);
+				grid-column-start:1;
+				grid-column-end: 1;
+				grid-row-start: 1;
+				grid-row-end: span 3;
 			}
 
 			.latest-patients-row {
@@ -247,13 +269,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.todays-consultations {
-				margin-bottom:16px !important;
-				max-height:calc(50% - 16px);
+				grid-column-start:2;
+				grid-column-end: 2;
+				grid-row-start: 1;
+				grid-row-end: 1;
+
 			}
 
-			.latest-lab-result, .todo-card {
-				max-height:calc(25% - 8px);
-				margin-bottom:8px !important;
+			.latest-lab-result{
+				grid-column-start:2;
+				grid-column-end: 2;
+				grid-row-start: 2;
+				grid-row-end: 2;
+			}
+
+			 .todo-card {
+				grid-column-start:2;
+				grid-column-end: 2;
+				grid-row-start: 3;
+				grid-row-end: 3;
 			}
 
 			a {
@@ -281,127 +315,141 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 			@media (max-width: 1024px) {
-				.fullbleed.layout.horizontal {
-					flex-direction: row;
-					flex-wrap:wrap;
-
-				}
-				.flex{
-					min-width:100%;
-					margin-bottom: 16px;
+				.grid-container{
+					display:grid;
+					width:100%;
+					height:100%;
+					grid-template-columns: 1fr 1fr;
+					grid-template-rows: 1fr 1fr;
+					grid-column-gap: 16px;
+					grid-row-gap: 16px;
 				}
 				.card{
 					overflow:hidden;
-					min-height: 220px!important;
+					/*min-height: 220px!important;*/
 				}
 				.latest-patients-card{
-					margin-bottom:8px!important;
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 1;
+					grid-row-end: span 1;
 				}
+				.todays-consultations{
+					grid-column-start:2;
+					grid-column-end: span 1;
+					grid-row-start: 1;
+					grid-row-end: span 1;
+				}
+				.latest-lab-result{
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 2;
+					grid-row-end: span 1;
+				}
+				
 				.todo-card{
-					margin-bottom:0!important;
-				}
-				.latest-patients-card{
-					max-height:420px;
-					overflow:hidden;
+					grid-column-start: 2;
+					grid-column-end: span 1;
+					grid-row-start: 2;
+					grid-row-end: span 1;
 				}
 				.card-body{
 					overflow:hidden;
 				}
 			}
 
+			
 
 		</style>
 
-		<div class="fullbleed horizontal layout">
-			<div class="flex">
-				<div class="card latest-patients-card">
-					<div class="card-title-container">
-						<h1 class="card-title">Latest Patients</h1>
-					</div>
-					<div class="card-body">
-						<template is="dom-repeat" items="[[accessLogs]]" as="access">
-							<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
-								<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-								<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+		<div class="grid-container">
+			<div class="card latest-patients-card">
+				<div class="card-title-container">
+					<h1 class="card-title">Latest Patients</h1>
+				</div>
+				<div class="card-body">
+					<template is="dom-repeat" items="[[accessLogs]]" as="access">
+						<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
+							<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
+							<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+							<div class="divider"></div>
+							<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
+						</div>
+					</template>
+				</div>
+			</div>
+			<div class="card todays-consultations">
+				<div class="card-title-container">
+					<h1 class="card-title">Today's Appointment</h1>
+				</div>
+				<div class="card-body">
+					<div class="consultations-list">
+						<template is="dom-repeat" items="[[appointments]]" as="appointment">
+							<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
+								<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
+								<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
+								<div class="consultations-patient-type">#[[appointment.type]]</div>
 								<div class="divider"></div>
-								<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
+								<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
 							</div>
 						</template>
 					</div>
 				</div>
 			</div>
-			<div class="flex">
-				<div class="card todays-consultations">
-					<div class="card-title-container">
-						<h1 class="card-title">Today's Appointment</h1>
-					</div>
-					<div class="card-body">
-						<div class="consultations-list">
-							<template is="dom-repeat" items="[[appointments]]" as="appointment">
-								<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
-									<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
-									<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
-									<div class="consultations-patient-type">#[[appointment.type]]</div>
-									<div class="divider"></div>
-									<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
-								</div>
-							</template>
-						</div>
-					</div>
+			<div class="card latest-lab-result">
+				<div class="card-title-container">
+					<h1 class="card-title">Latest Lab Results</h1>
 				</div>
-				<div class="card latest-lab-result">
-					<div class="card-title-container">
-						<h1 class="card-title">Latest Lab Results</h1>
+				<div class="card-body">
+					<div class="lab-results-table-header row">
+						<div class="lab-results-header-cell">Sender</div>
+						<div class="lab-results-header-cell lab-results-header-cell--date">Date</div>
+						<div class="lab-results-header-cell">Subject</div>
 					</div>
-					<div class="card-body">
-						<div class="lab-results-table-header row">
-							<div class="lab-results-header-cell">Sender</div>
-							<div class="lab-results-header-cell">Date</div>
-							<div class="lab-results-header-cell">Subject</div>
+					<template is="dom-repeat" items="[[messages]]" as="msg">
+						<div class="row lab-results-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+							<div class="lab-results-table-cell">[[msg.fromAddress]]</div>
+							<div class="lab-results-table-cell lab-results-table-cell--date">[[_timeFormat(msg.received)]]</div>
+							<div class="lab-results-table-cell">[[msg.subject]] </div>
 						</div>
-						<template is="dom-repeat" items="[[messages]]" as="msg">
-							<div class="row lab-results-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
-								<div class="lab-results-table-cell">[[msg.fromAddress]]</div>
-								<div class="lab-results-table-cell">[[msg.subject]] </div>
-								<div class="lab-results-table-cell">[[_timeFormat(msg.received)]]</div>
-							</div>
-						</template>
-					</div>
+					</template>
 				</div>
-
-				<div class="card todo-card">
-					<div class="card-title-container">
-						<h1 class="card-title">Planning</h1>
+			</div>
+			<div class="card todo-card">
+				<div class="card-title-container">
+					<h1 class="card-title">Planning</h1>
+				</div>
+				<div class="card-body">
+					<div class="planning-table-header row">
+						<div class="planning-header-cell">Patient</div>
+						<div class="planning-header-cell">Due date</div>
+						<div class="planning-header-cell">Description</div>
 					</div>
-					<div class="card-body">
-						<div class="planning-table-header row">
-							<div class="planning-header-cell">Patient</div>
-							<div class="planning-header-cell">Due date</div>
-							<div class="planning-header-cell">Description</div>
-						</div>
-						<template is="dom-repeat" items="[[services]]" as="service">
-							<paper-listbox>
-								<paper-item>
-
-
-									<div class="row planning-table-row" data-id$="[[service.service.id]]">
-										<div class="lab-results-table-cell">
-											<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
-											<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
-										</div>
-										<div class="planning-table-cell">[[_timeFormat(service.service.valueDate)]]</div>
-										<div class="planning-table-cell">[[service.service.content.language.stringValue]]</div>
+					<template is="dom-repeat" items="[[services]]" as="service">
+						<paper-listbox>
+							<paper-item>
+								<div class="row planning-table-row" data-id$="[[service.service.id]]">
+									<div class="planning-table-cell">
+										<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
+										<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
 									</div>
-								</paper-item>
-							</paper-listbox>
-						</template>
-					</div>
+									<div class="planning-table-cell planning-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
+									<div class="planning-table-cell">[[service.service.content.language.stringValue]]</div>
+								</div>
+							</paper-item>
+						</paper-listbox>
+					</template>
 				</div>
 			</div>
 		</div>
+
+		
+
 	</template>
 
 	<script>
+		// TODO 1 : collapse card
+
 		import moment from 'moment/src/moment'
 		import _ from 'lodash/lodash'
 
