@@ -119,10 +119,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
-				--paper-menu-dropdown-content: {
-					width: 300px;
-					margin-top: 48px;
+				--paper-menu-button-content: {
+					width:300px;
 				};
+				--paper-menu-button-dropdown: {
+					padding:0;
+				}
+			}
+
+			.extra-menu{
+				padding: 0;
+			}
+			.extra-menu-item{
+				--paper-item-focused: {
+					background: white;
+				}
+			}
+			.extra-menu-item:last-child{
+				border-top:1px solid var(--app-background-color-dark);				
 			}
 
 			paper-tabs {
@@ -293,7 +307,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</paper-tab>
 						</paper-tabs>
 						<div>
-							<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In  -->
 							<svg version="1.1"
 							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
 							x="0px" y="0px" width="92px" height="64px" viewBox="0 0 92 64" style="enable-background:new 0 0 92 64;" xml:space="preserve" class="icure-logo">
@@ -308,7 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</style>
 								<defs>
 								</defs>
-								<g>
+								<g style="transform: translateY(-5px);">
 									<g>
 										<rect x="44.3" y="32.2" class="st1" width="1.3" height="12.6"/>
 										<path class="st1" d="M45,27.6c-0.6,0-1,0.5-1,1.2c0,0.6,0.4,1.2,1,1.2h0c0.6,0,1-0.5,1-1.2C46,28.1,45.6,27.6,45,27.6z"/>
@@ -332,13 +345,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									c0.1,0,0.2,0,0.4,0c2.2,0,4.2-0.9,5.6-2.4C35.7,42.2,36.3,40.4,36.2,38.4z"/>
 								</g>
 							</svg>
-							<paper-menu-button horizontal-align="right" close-on-activate>
+							<paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
 								<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
-								<paper-listbox slot="dropdown-content"  selected="1">
-									<paper-item on-tap="_openExportKey">Transfer private key / Connect tablet</paper-item>
-									<paper-item on-tap="_importKeychain">Import my eHealth keychain</paper-item>
-									<hr>
-									<paper-item on-tap="_myProfile">My profile</paper-item>
+								<paper-listbox class="extra-menu" slot="dropdown-content"  stop-keyboard-event-propagation>
+									<div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
+									<paper-item class="extra-menu-item" on-tap="_openExportKey">Transfer private key / Connect tablet</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_importKeychain">Import my eHealth keychain</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_myProfile">My profile</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
 						</div>
