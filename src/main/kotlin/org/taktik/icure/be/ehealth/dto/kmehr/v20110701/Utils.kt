@@ -25,7 +25,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards
 
 import javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED
 
-class Utils {
+object Utils {
     fun makeXMLGregorianCalendarFromFuzzyLong(date : Long?) : XMLGregorianCalendarImpl? {
         return date?.let {
             if (it%10000000000 == 0L) it/10000000000 else if (it%100000000 == 0L) it/100000000 else if (it<99991231 && it%10000 == 0L) it/10000 else if (it<99991231 && it%100 == 0L) it/100 else it /*normalize*/

@@ -1535,7 +1535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 												let heIcd = he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10')
 												return heIcd && cc.subCodes.includes(heIcd.code)
 											}), sorter)
-											cc.healthElements.forEach((he,idx)=>(he.colour = cc.descr.colour))
+											cc.healthElements.forEach((he)=>(he.colour = cc.descr.colour))
 										})
 										this.set('healthTopics', _.sortBy(codes.filter(ht=>ht.healthElements.length > 1), (it=>this.localize(it))))
 

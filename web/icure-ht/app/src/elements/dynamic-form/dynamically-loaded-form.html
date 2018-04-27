@@ -548,6 +548,9 @@
 			},
 
 			linkForm: function (e, target) {
+				const he = this.healthElements.find(he=>he.id === e.id)
+			  	if (!he) {return}
+			  	if (he.serviceId) { this.promoteServiceToHealthElement(he) }
 				_.compact(this.dataProvider.servicesInHierarchy().map(svcLine => svcLine[0])) //Latest version of all services
 					.forEach(svc => {
 						this.promoteServiceInCurrentContact(svc.svc, this.form.id, target.id, null, null)

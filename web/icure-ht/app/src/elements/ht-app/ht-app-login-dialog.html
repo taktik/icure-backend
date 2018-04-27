@@ -24,6 +24,7 @@
 			}
 			paper-input{
 				--paper-input-container-focus-color: var(--app-secondary-color-dark);
+				--paper-input-container-invalid-color: var(--app-error-color);
 			}
 			paper-button{
 				margin:2em auto 0 auto;
@@ -40,12 +41,16 @@
 				justify-content: center!important;
 			}
 
+			.message.error{
+				color: var(--app-error-color);
+			}
+
 		</style>
 
 		<paper-dialog id="loginDialog" opened="{{opened}}" modal>
 			<div class="top-gradient">&nbsp;</div>
 			<div style="text-align: center;"><!--img src="images/logo.png" style="width: 100px;" /--><h1>HT</h1></div>
-			<div hidden$="{{!credentials.error}}" class="message">
+			<div hidden$="{{!credentials.error}}" class="message error">
 				Invalid username or password.
 			</div>
 			<div hidden$="{{!credentials.logout}}" class="message">
@@ -54,9 +59,9 @@
 			<form is="form" id="login-form">
 				<div class="layout vertical center flex">
 					<paper-input label="Username" name="username" always-float-label="true"
-								 value="{{credentials.username}}"></paper-input>
+								 value="{{credentials.username}}" invalid$={{credentials.error}}></paper-input>
 					<paper-input label="Password" name="password" type="password" always-float-label="true"
-								 value="{{credentials.password}}" on-keydown="checkForEnter"></paper-input>
+								 value="{{credentials.password}}" on-keydown="checkForEnter" invalid$={{credentials.error}}></paper-input>
 					<paper-input label="2FA (optional)" name="twofa" always-float-label="true"
 								 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"

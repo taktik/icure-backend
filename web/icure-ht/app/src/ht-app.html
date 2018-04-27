@@ -128,6 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-content: stretch;
 				width:calc(100% - 70px);
 				height:100%;
+				padding-left:8px;
 			}
 
 
@@ -175,6 +176,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-menu-dropdown-content: {
 					width: 300px;
 					margin-top: 48px;
+				};
+			}
+
+			.profile-icon{
+				color:var(--app-text-color-disabled);
+			}
+
+			.more-options-menu{
+				padding: 0;
+			}
+			.separator{
+				margin:0;
+			}
+
+			@media screen and (max-width: 768px){
+				
+				paper-button{
+					margin-right: 8px;
 				}
 			}
 		</style>
@@ -264,11 +283,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</svg>
 						<paper-menu-button horizontal-align="right" close-on-activate>
 							<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
-							<paper-listbox slot="dropdown-content"  selected="1">
+							<paper-listbox class="more-options-menu" slot="dropdown-content"  selected="1">
 								<paper-item on-tap="_openExportKey">Transfer private key / Connect tablet</paper-item>
 								<paper-item on-tap="_importKeychain">Import my eHealth keychain</paper-item>
-								<hr>
-								<paper-item on-tap="_myProfile">My profile</paper-item>
+								<hr class="separator">
+								<paper-item on-tap="_myProfile"><iron-icon class="profile-icon" icon="icons:account-circle"></iron-icon>My profile</paper-item>
 							</paper-listbox>
 						</paper-menu-button>
 						</div>
