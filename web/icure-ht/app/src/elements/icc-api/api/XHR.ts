@@ -30,7 +30,7 @@ export module XHR {
         return data;
     }
 
-    export function sendCommand(method: string, url: string, headers: Array<Header>, data: string = ""): Promise<Data> {
+    export function sendCommand(method: string, url: string, headers: Array<Header> | null, data: string | any = ""): Promise<Data> {
         return new Promise<Data>(function (resolve, reject) {
             var jsXHR = new XMLHttpRequest();
             jsXHR.open(method, url);
@@ -56,7 +56,7 @@ export module XHR {
         });
     }
 
-    export function get(url: string, headers: Array<Header> = null): Promise<Data> {
+    /*export function get(url: string, headers: Array<Header> = null): Promise<Data> {
         return sendCommand('GET', url, headers);
     }
 
@@ -70,5 +70,5 @@ export module XHR {
 
     export function del(url:string, headers:Array<Header> = null):Promise < Data > {
         return sendCommand('DELETE', url, headers);
-    }
+    }*/
 }

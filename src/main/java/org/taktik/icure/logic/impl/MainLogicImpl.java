@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.taktik.commons.collections.SortDir;
 import org.taktik.commons.collections.SortOrder;
 import org.taktik.icure.entities.*;
-import org.taktik.icure.entities.Locale;
 import org.taktik.icure.logic.*;
 
 import java.io.Serializable;
@@ -43,9 +42,7 @@ public class MainLogicImpl implements MainLogic {
 
 	private Set<EntityPersisterInfos<?, ?>> entityPersisterInfosList = new HashSet<EntityPersisterInfos<?, ?>>();
 
-	private LocaleLogic localeLogic;
 	private ReplicationLogic replicationLogic;
-	private LocalizedStringLogic localizedStringLogic;
 	private RoleLogic roleLogic;
 	private UserLogic userLogic;
 	private FormLogic formLogic;
@@ -234,8 +231,6 @@ public class MainLogicImpl implements MainLogic {
 	}
 
 	public void init() {
-		registerEntityPersister(localeLogic, Locale.class, String.class);
-		registerEntityPersister(localizedStringLogic, LocalizedString.class, String.class);
 		registerEntityPersister(roleLogic, Role.class, String.class);
 		registerEntityPersister(userLogic, User.class, String.class);
 		registerEntityPersister(formLogic, Form.class, String.class);
@@ -251,16 +246,6 @@ public class MainLogicImpl implements MainLogic {
 	@Autowired
 	public void setFormLogic(FormLogic formLogic) {
 		this.formLogic = formLogic;
-	}
-
-	@Autowired
-	public void setLocaleLogic(LocaleLogic localeLogic) {
-		this.localeLogic = localeLogic;
-	}
-
-	@Autowired
-	public void setLocalizedStringLogic(LocalizedStringLogic localizedStringLogic) {
-		this.localizedStringLogic = localizedStringLogic;
 	}
 
 	@Autowired

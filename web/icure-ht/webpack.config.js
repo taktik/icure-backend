@@ -8,7 +8,7 @@ var path = require('path');
 console.log(path.resolve(__dirname))
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname, 'app/src/ht-app.html'),
+    entry: path.resolve(__dirname, 'app/index.js'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
 	    filename: '[name].bundle.js',
@@ -46,7 +46,8 @@ module.exports = {
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
-	            use: [{ loader: 'babel-loader', options: { /*presets: ['es2015']*/ }}]
+	            use: [{ loader: 'babel-loader', options: { /*presets: ['es2015']*/ }}],
+                exclude: /(node_modules|bower_components)/
             },
             {
                 test: /\.ts$/,

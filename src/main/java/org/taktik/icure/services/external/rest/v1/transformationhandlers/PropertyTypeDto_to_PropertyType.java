@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v1.transformationhandlers;
 
-import org.taktik.icure.entities.LocalizedString;
 import org.taktik.icure.entities.PropertyType;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyTypeDto;
 import org.taktik.icure.services.internal.transformationservice.impl.AbstractTransformationHandler;
@@ -34,7 +33,6 @@ public class PropertyTypeDto_to_PropertyType extends AbstractTransformationHandl
 		for (PropertyTypeDto propertyTypeDto : webPropertyTypes) {
 			PropertyType propertyType = new PropertyType();
 			propertyType.setIdentifier(propertyTypeDto.getIdentifier());
-			propertyType.setName(transformationService.transform(propertyTypeDto.getName(), LocalizedString.class, context));
 			propertyType.setType(propertyTypeDto.getType());
 			propertyType.setScope(propertyTypeDto.getScope());
 			propertyType.setLocalized(propertyTypeDto.getLocalized());

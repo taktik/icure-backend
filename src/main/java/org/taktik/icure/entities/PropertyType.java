@@ -43,7 +43,6 @@ public class PropertyType extends StoredDocument implements Cloneable, Serializa
 
 	protected boolean localized;
 
-	protected LocalizedString name;
 
 	public PropertyType() {
 	}
@@ -105,14 +104,6 @@ public class PropertyType extends StoredDocument implements Cloneable, Serializa
 
 	public void setLocalized(boolean value) {
 		this.localized = value;
-	}
-
-	public org.taktik.icure.entities.LocalizedString getName() {
-		return name;
-	}
-
-	public void setName(org.taktik.icure.entities.LocalizedString value) {
-		this.name = value;
 	}
 
 	@Override
