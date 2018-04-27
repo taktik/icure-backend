@@ -1,151 +1,161 @@
 
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
-<link rel="import" href="icc-accesslog-api.html">
-<link rel="import" href="icc-auth-api.html">
-<link rel="import" href="icc-bechapter-api.html">
-<link rel="import" href="icc-bedmg-api.html">
-<link rel="import" href="icc-bedrugs-api.html">
-<link rel="import" href="icc-beefact-api.html">
-<link rel="import" href="icc-beehbox-api.html">
-<link rel="import" href="icc-beeid-api.html">
-<link rel="import" href="icc-beetarif-api.html">
-<link rel="import" href="icc-begenins-api.html">
-<link rel="import" href="icc-behubs-api.html">
-<link rel="import" href="icc-bekmehr-api.html">
-<link rel="import" href="icc-bemikrono-api.html">
-<link rel="import" href="icc-beprimoto-api.html">
-<link rel="import" href="icc-beprogenda-api.html">
-<link rel="import" href="icc-berecipe-api.html">
-<link rel="import" href="icc-beresultexport-api.html">
-<link rel="import" href="icc-beresultimport-api.html">
-<link rel="import" href="icc-bests-api.html">
-<link rel="import" href="icc-betherlink-api.html">
-<link rel="import" href="icc-bevitalink-api.html">
-<link rel="import" href="icc-code-api.html">
-<link rel="import" href="icc-contact-api.html">
-<link rel="import" href="icc-doctemplate-api.html">
-<link rel="import" href="icc-document-api.html">
-<link rel="import" href="icc-entitytemplate-api.html">
-<link rel="import" href="icc-filter-api.html">
-<link rel="import" href="icc-form-api.html">
-<link rel="import" href="icc-generic-api.html">
-<link rel="import" href="icc-hcparty-api.html">
-<link rel="import" href="icc-helement-api.html">
-<link rel="import" href="icc-icure-api.html">
-<link rel="import" href="icc-insurance-api.html">
-<link rel="import" href="icc-invoice-api.html">
-<link rel="import" href="icc-message-api.html">
-<link rel="import" href="icc-patient-api.html">
-<link rel="import" href="icc-replication-api.html">
-<link rel="import" href="icc-tarification-api.html">
-<link rel="import" href="icc-user-api.html">
+<link rel="import" href="./api/iccAccesslogApi.ts">
+<link rel="import" href="./api/iccAuthApi.ts">
+<link rel="import" href="./api/iccBeabApi.ts">
+<link rel="import" href="./api/iccBechapterApi.ts">
+<link rel="import" href="./api/iccBedmgApi.ts">
+<link rel="import" href="./api/iccBedrugsApi.ts">
+<link rel="import" href="./api/iccBeefactApi.ts">
+<link rel="import" href="./api/iccBeehboxApi.ts">
+<link rel="import" href="./api/iccBeeidApi.ts">
+<link rel="import" href="./api/iccBeetarifApi.ts">
+<link rel="import" href="./api/iccBegeninsApi.ts">
+<link rel="import" href="./api/iccBehubsApi.ts">
+<link rel="import" href="./api/iccBekmehrApi.ts">
+<link rel="import" href="./api/iccBemikronoApi.ts">
+<link rel="import" href="./api/iccBeprimotoApi.ts">
+<link rel="import" href="./api/iccBeprogendaApi.ts">
+<link rel="import" href="./api/iccBerecipeApi.ts">
+<link rel="import" href="./api/iccBeresultexportApi.ts">
+<link rel="import" href="./api/iccBeresultimportApi.ts">
+<link rel="import" href="./api/iccBestsApi.ts">
+<link rel="import" href="./api/iccBetherlinkApi.ts">
+<link rel="import" href="./api/iccBevitalinkApi.ts">
+<link rel="import" href="./api/iccCodeApi.ts">
+<link rel="import" href="./api/iccContactApi.ts">
+<link rel="import" href="./api/iccDoctemplateApi.ts">
+<link rel="import" href="./api/iccDocumentApi.ts">
+<link rel="import" href="./api/iccEntitytemplateApi.ts">
+<link rel="import" href="./api/iccFilterApi.ts">
+<link rel="import" href="./api/iccFormApi.ts">
+<link rel="import" href="./api/iccGenericApi.ts">
+<link rel="import" href="./api/iccGroupApi.ts">
+<link rel="import" href="./api/iccHcpartyApi.ts">
+<link rel="import" href="./api/iccHelementApi.ts">
+<link rel="import" href="./api/iccIcureApi.ts">
+<link rel="import" href="./api/iccInsuranceApi.ts">
+<link rel="import" href="./api/iccInvoiceApi.ts">
+<link rel="import" href="./api/iccMessageApi.ts">
+<link rel="import" href="./api/iccPatientApi.ts">
+<link rel="import" href="./api/iccReplicationApi.ts">
+<link rel="import" href="./api/iccTarificationApi.ts">
+<link rel="import" href="./api/iccTechnicaladminApi.ts">
+<link rel="import" href="./api/iccUserApi.ts">
+
 
 <dom-module id="icc-api">
-	<template>
-		<style>
-		</style>
-
-		<icc-accesslog-api id="icc-accesslog-api" host="[[host]]" headers="[[headers]]"></icc-accesslog-api>
-		<icc-auth-api id="icc-auth-api" host="[[host]]" headers="[[headers]]"></icc-auth-api>
-		<icc-bechapter-api id="icc-bechapter-api" host="[[host]]" headers="[[headers]]"></icc-bechapter-api>
-		<icc-bedmg-api id="icc-bedmg-api" host="[[host]]" headers="[[headers]]"></icc-bedmg-api>
-		<icc-bedrugs-api id="icc-bedrugs-api" host="[[host]]" headers="[[headers]]"></icc-bedrugs-api>
-		<icc-beefact-api id="icc-beefact-api" host="[[host]]" headers="[[headers]]"></icc-beefact-api>
-		<icc-beehbox-api id="icc-beehbox-api" host="[[host]]" headers="[[headers]]"></icc-beehbox-api>
-		<icc-beeid-api id="icc-beeid-api" host="[[host]]" headers="[[headers]]"></icc-beeid-api>
-		<icc-beetarif-api id="icc-beetarif-api" host="[[host]]" headers="[[headers]]"></icc-beetarif-api>
-		<icc-begenins-api id="icc-begenins-api" host="[[host]]" headers="[[headers]]"></icc-begenins-api>
-		<icc-behubs-api id="icc-behubs-api" host="[[host]]" headers="[[headers]]"></icc-behubs-api>
-		<icc-bekmehr-api id="icc-bekmehr-api" host="[[host]]" headers="[[headers]]"></icc-bekmehr-api>
-		<icc-bemikrono-api id="icc-bemikrono-api" host="[[host]]" headers="[[headers]]"></icc-bemikrono-api>
-		<icc-beprimoto-api id="icc-beprimoto-api" host="[[host]]" headers="[[headers]]"></icc-beprimoto-api>
-		<icc-beprogenda-api id="icc-beprogenda-api" host="[[host]]" headers="[[headers]]"></icc-beprogenda-api>
-		<icc-berecipe-api id="icc-berecipe-api" host="[[host]]" headers="[[headers]]"></icc-berecipe-api>
-		<icc-beresultexport-api id="icc-beresultexport-api" host="[[host]]" headers="[[headers]]"></icc-beresultexport-api>
-		<icc-beresultimport-api id="icc-beresultimport-api" host="[[host]]" headers="[[headers]]"></icc-beresultimport-api>
-		<icc-bests-api id="icc-bests-api" host="[[host]]" headers="[[headers]]"></icc-bests-api>
-		<icc-betherlink-api id="icc-betherlink-api" host="[[host]]" headers="[[headers]]"></icc-betherlink-api>
-		<icc-bevitalink-api id="icc-bevitalink-api" host="[[host]]" headers="[[headers]]"></icc-bevitalink-api>
-		<icc-code-api id="icc-code-api" host="[[host]]" headers="[[headers]]"></icc-code-api>
-		<icc-contact-api id="icc-contact-api" host="[[host]]" headers="[[headers]]"></icc-contact-api>
-		<icc-doctemplate-api id="icc-doctemplate-api" host="[[host]]" headers="[[headers]]"></icc-doctemplate-api>
-		<icc-document-api id="icc-document-api" host="[[host]]" headers="[[headers]]"></icc-document-api>
-		<icc-entitytemplate-api id="icc-entitytemplate-api" host="[[host]]" headers="[[headers]]"></icc-entitytemplate-api>
-		<icc-filter-api id="icc-filter-api" host="[[host]]" headers="[[headers]]"></icc-filter-api>
-		<icc-form-api id="icc-form-api" host="[[host]]" headers="[[headers]]"></icc-form-api>
-		<icc-generic-api id="icc-generic-api" host="[[host]]" headers="[[headers]]"></icc-generic-api>
-		<icc-hcparty-api id="icc-hcparty-api" host="[[host]]" headers="[[headers]]"></icc-hcparty-api>
-		<icc-helement-api id="icc-helement-api" host="[[host]]" headers="[[headers]]"></icc-helement-api>
-		<icc-icure-api id="icc-icure-api" host="[[host]]" headers="[[headers]]"></icc-icure-api>
-		<icc-insurance-api id="icc-insurance-api" host="[[host]]" headers="[[headers]]"></icc-insurance-api>
-		<icc-invoice-api id="icc-invoice-api" host="[[host]]" headers="[[headers]]"></icc-invoice-api>
-		<icc-message-api id="icc-message-api" host="[[host]]" headers="[[headers]]"></icc-message-api>
-		<icc-patient-api id="icc-patient-api" host="[[host]]" headers="[[headers]]"></icc-patient-api>
-		<icc-replication-api id="icc-replication-api" host="[[host]]" headers="[[headers]]"></icc-replication-api>
-		<icc-tarification-api id="icc-tarification-api" host="[[host]]" headers="[[headers]]"></icc-tarification-api>
-		<icc-user-api id="icc-user-api" host="[[host]]" headers="[[headers]]"></icc-user-api>
-
-	</template>
+    <template>
+        <style>
+        </style>
+        </template>
 </dom-module>
 
 <script>
-	(function () {
-		Polymer({
-			is: 'icc-api',
-			properties: {
-				headers: {
-					type: Object,
-					value: {"Content-Type": "application/json"}
-				},
-				host: {
-					type: String
-				}
-			},
-			behaviors: [],
-			accesslog: function() { return this.$['icc-accesslog-api']},
-			auth: function() { return this.$['icc-auth-api']},
-			bechapter: function() { return this.$['icc-bechapter-api']},
-			bedmg: function() { return this.$['icc-bedmg-api']},
-			bedrugs: function() { return this.$['icc-bedrugs-api']},
-			beefact: function() { return this.$['icc-beefact-api']},
-			beehbox: function() { return this.$['icc-beehbox-api']},
-			beeid: function() { return this.$['icc-beeid-api']},
-			beetarif: function() { return this.$['icc-beetarif-api']},
-			begenins: function() { return this.$['icc-begenins-api']},
-			behubs: function() { return this.$['icc-behubs-api']},
-			bekmehr: function() { return this.$['icc-bekmehr-api']},
-			bemikrono: function() { return this.$['icc-bemikrono-api']},
-			beprimoto: function() { return this.$['icc-beprimoto-api']},
-			beprogenda: function() { return this.$['icc-beprogenda-api']},
-			berecipe: function() { return this.$['icc-berecipe-api']},
-			beresultexport: function() { return this.$['icc-beresultexport-api']},
-			beresultimport: function() { return this.$['icc-beresultimport-api']},
-			bests: function() { return this.$['icc-bests-api']},
-			betherlink: function() { return this.$['icc-betherlink-api']},
-			bevitalink: function() { return this.$['icc-bevitalink-api']},
-			code: function() { return this.$['icc-code-api']},
-			contact: function() { return this.$['icc-contact-api']},
-			doctemplate: function() { return this.$['icc-doctemplate-api']},
-			document: function() { return this.$['icc-document-api']},
-			entitytemplate: function() { return this.$['icc-entitytemplate-api']},
-			filter: function() { return this.$['icc-filter-api']},
-			form: function() { return this.$['icc-form-api']},
-			generic: function() { return this.$['icc-generic-api']},
-			hcparty: function() { return this.$['icc-hcparty-api']},
-			helement: function() { return this.$['icc-helement-api']},
-			icure: function() { return this.$['icc-icure-api']},
-			insurance: function() { return this.$['icc-insurance-api']},
-			invoice: function() { return this.$['icc-invoice-api']},
-			message: function() { return this.$['icc-message-api']},
-			patient: function() { return this.$['icc-patient-api']},
-			replication: function() { return this.$['icc-replication-api']},
-			tarification: function() { return this.$['icc-tarification-api']},
-			user: function() { return this.$['icc-user-api']},
-
-		})
-		;
-	})();
+    (function () {
+        Polymer({
+            is: 'icc-api',
+            properties: {
+                headers: {
+                    type: Object,
+                    value: {"Content-Type": "application/json"}
+                },
+                host: {
+                    type: String
+                }
+            },
+            behaviors: [],
+            ready: function() {
+            this.Accesslog = new iccAccesslogApi(this.host);
+            this.Auth = new iccAuthApi(this.host);
+            this.Beab = new iccBeabApi(this.host);
+            this.Bechapter = new iccBechapterApi(this.host);
+            this.Bedmg = new iccBedmgApi(this.host);
+            this.Bedrugs = new iccBedrugsApi(this.host);
+            this.Beefact = new iccBeefactApi(this.host);
+            this.Beehbox = new iccBeehboxApi(this.host);
+            this.Beeid = new iccBeeidApi(this.host);
+            this.Beetarif = new iccBeetarifApi(this.host);
+            this.Begenins = new iccBegeninsApi(this.host);
+            this.Behubs = new iccBehubsApi(this.host);
+            this.Bekmehr = new iccBekmehrApi(this.host);
+            this.Bemikrono = new iccBemikronoApi(this.host);
+            this.Beprimoto = new iccBeprimotoApi(this.host);
+            this.Beprogenda = new iccBeprogendaApi(this.host);
+            this.Berecipe = new iccBerecipeApi(this.host);
+            this.Beresultexport = new iccBeresultexportApi(this.host);
+            this.Beresultimport = new iccBeresultimportApi(this.host);
+            this.Bests = new iccBestsApi(this.host);
+            this.Betherlink = new iccBetherlinkApi(this.host);
+            this.Bevitalink = new iccBevitalinkApi(this.host);
+            this.Code = new iccCodeApi(this.host);
+            this.Contact = new iccContactApi(this.host);
+            this.Doctemplate = new iccDoctemplateApi(this.host);
+            this.Document = new iccDocumentApi(this.host);
+            this.Entitytemplate = new iccEntitytemplateApi(this.host);
+            this.Filter = new iccFilterApi(this.host);
+            this.Form = new iccFormApi(this.host);
+            this.Generic = new iccGenericApi(this.host);
+            this.Group = new iccGroupApi(this.host);
+            this.Hcparty = new iccHcpartyApi(this.host);
+            this.Helement = new iccHelementApi(this.host);
+            this.Icure = new iccIcureApi(this.host);
+            this.Insurance = new iccInsuranceApi(this.host);
+            this.Invoice = new iccInvoiceApi(this.host);
+            this.Message = new iccMessageApi(this.host);
+            this.Patient = new iccPatientApi(this.host);
+            this.Replication = new iccReplicationApi(this.host);
+            this.Tarification = new iccTarificationApi(this.host);
+            this.Technicaladmin = new iccTechnicaladminApi(this.host);
+            this.User = new iccUserApi(this.host);
+            
+             },
+            Accesslog: function() { this.Accesslog},
+            Auth: function() { this.Auth},
+            Beab: function() { this.Beab},
+            Bechapter: function() { this.Bechapter},
+            Bedmg: function() { this.Bedmg},
+            Bedrugs: function() { this.Bedrugs},
+            Beefact: function() { this.Beefact},
+            Beehbox: function() { this.Beehbox},
+            Beeid: function() { this.Beeid},
+            Beetarif: function() { this.Beetarif},
+            Begenins: function() { this.Begenins},
+            Behubs: function() { this.Behubs},
+            Bekmehr: function() { this.Bekmehr},
+            Bemikrono: function() { this.Bemikrono},
+            Beprimoto: function() { this.Beprimoto},
+            Beprogenda: function() { this.Beprogenda},
+            Berecipe: function() { this.Berecipe},
+            Beresultexport: function() { this.Beresultexport},
+            Beresultimport: function() { this.Beresultimport},
+            Bests: function() { this.Bests},
+            Betherlink: function() { this.Betherlink},
+            Bevitalink: function() { this.Bevitalink},
+            Code: function() { this.Code},
+            Contact: function() { this.Contact},
+            Doctemplate: function() { this.Doctemplate},
+            Document: function() { this.Document},
+            Entitytemplate: function() { this.Entitytemplate},
+            Filter: function() { this.Filter},
+            Form: function() { this.Form},
+            Generic: function() { this.Generic},
+            Group: function() { this.Group},
+            Hcparty: function() { this.Hcparty},
+            Helement: function() { this.Helement},
+            Icure: function() { this.Icure},
+            Insurance: function() { this.Insurance},
+            Invoice: function() { this.Invoice},
+            Message: function() { this.Message},
+            Patient: function() { this.Patient},
+            Replication: function() { this.Replication},
+            Tarification: function() { this.Tarification},
+            Technicaladmin: function() { this.Technicaladmin},
+            User: function() { this.User},
+            
+        });
+    })();
 </script>
 
 @end

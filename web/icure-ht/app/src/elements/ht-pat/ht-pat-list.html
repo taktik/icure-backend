@@ -445,6 +445,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			confirm: function() {
 				this.api.patient().new(this.user, {lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g,''))}).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p))
 			},
+
 			picture: function (pat) {
 				if (!pat) {
 					return require('../../../images/Male-128.jpg')

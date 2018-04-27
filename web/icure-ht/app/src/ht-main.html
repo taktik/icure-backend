@@ -467,8 +467,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							})
 							.then(appointments => this.set('appointments', appointments || []))
 
-						const start = parseInt(moment().subtract(1,'years').format('YYYYMMDD'))
-						const end = parseInt(moment().add(14,'years').format('YYYYMMDD'))
+						const start = parseInt(moment().subtract(1,'month').format('YYYYMMDD'))
+						const end = parseInt(moment().add(1,'month').format('YYYYMMDD'))
 						const maxplanningsize = 10
                         const sort = 'valueDate'
                         const desc = 'desc'
