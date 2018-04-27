@@ -73,14 +73,14 @@ class AddressBookLogicImpl : AddressBookLogic {
 
 	}
 
-	override fun getHealthcarePartyByNihii(queryNihii: String, language: String): HealthcareParty {
-        val professionalContactInfo = AddressbookSessionServiceFactory.getAddressbookSessionService().getProfessionalContactInfo(GetProfessionalContactInfoRequest().apply { nihii = queryNihii; issueInstant = DateTime.now() })
+	override fun getHealthcarePartyByNihii(nihii: String, language: String): HealthcareParty {
+        val professionalContactInfo = AddressbookSessionServiceFactory.getAddressbookSessionService().getProfessionalContactInfo(GetProfessionalContactInfoRequest().apply { this.nihii = nihii; issueInstant = DateTime.now() })
         val it = professionalContactInfo.individualContactInformation
         return makeHealthcareParty(it, language)
     }
 
-    override fun getHealthcarePartyBySsin(querySsin: String, language: String): HealthcareParty {
-        val professionalContactInfo = AddressbookSessionServiceFactory.getAddressbookSessionService().getProfessionalContactInfo(GetProfessionalContactInfoRequest().apply { ssin = querySsin; issueInstant = DateTime.now() })
+    override fun getHealthcarePartyBySsin(ssin: String, language: String): HealthcareParty {
+        val professionalContactInfo = AddressbookSessionServiceFactory.getAddressbookSessionService().getProfessionalContactInfo(GetProfessionalContactInfoRequest().apply { this.ssin = ssin; issueInstant = DateTime.now() })
         val it = professionalContactInfo.individualContactInformation
         return makeHealthcareParty(it, language)
     }

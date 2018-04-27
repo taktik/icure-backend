@@ -37,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
@@ -70,19 +71,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			app-header {
 				color: var(--app-text-color-light);
 				background-color: var(--app-primary-color-dark);
-				/*
-				@apply --shadow-elevation-4dp;
-				@apply --padding-right-left-24;
-				padding-right: 0;
-				z-index:10;
-				position:fixed;
-				top:0;
-				left:0;
-				right:0;
-				margin-bottom:30px;*/
 				height:64px;
-
-
+				@apply --shadow-elevation-4dp;
 			}
 
 			app-header paper-icon-button {
@@ -92,24 +82,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			app-toolbar {
 				padding-right: 0;
 				height:64px;
-			}
-
-			.drawer-list {
-				margin: 0 20px;
-			}
-
-			.drawer-list a {
-				display: block;
-				padding: 0 16px;
-				text-decoration: none;
-				color: var(--app-secondary-color);
-				line-height: 40px;
-			}
-
-			.drawer-list a.iron-selected {
-				color: black;
-
-				font-weight: bold;
+				display:flex;
+				flex-flow: row nowrap;
+				justify-content: space-between;
+				align-items: stretch;
+				
 			}
 
 			:host iron-pages {
@@ -120,61 +97,142 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: 100%;
 			}
 
-			menu-bar{
-				display:flex;
-				flex-flow: row nowrap;
-				justify-content: flex-start;
-				align-items: center;
-				align-content: stretch;
-				width:calc(100% - 70px);
-				height:100%;
+			iron-icon {
+				max-height: 20px;
+				width: 20px;
+				margin-right: 8px;
+				color: rgba(255,255,255,0.5);
 			}
 
-
-			paper-button{
-				color:white;
-				margin-left:0;
-				margin-right:20px;
-				padding:26px 8px;
-				height:100%;
-				align-self: center;
-				border-radius:0;
-				--paper-button-ink-color: rgba(0,0,0,0);
-				@apply --paper-font-body2;
-				@apply --text-shadow;
-
+			iron-icon.smaller {
+				height: 16px!important;
+				width: 16px!important;
 			}
 
-			paper-button.iron-selected{
-
-				font-weight:bold;
-				padding-bottom:26px;
-				border-bottom:2px solid var(--app-secondary-color);
-				transition:border-bottom .1s ease-in;
-
-			}
-
-			paper-button.iron-selected > iron-icon{
-				color: var(--app-secondary-color);
-			}
-
-			iron-icon{
-				max-height:20px;
-				width:20px;
-				margin-right:8px;
-				color:rgba(255,255,255,0.5);
-			}
-
-			.icure-logo{
-				float:right;
+			.icure-logo {
+				float: left;
 				height: 64px;
-				margin-right:8px;
+				margin-right: 8px;
 			}
 
 			paper-menu-button {
-				--paper-menu-dropdown-content: {
-					width: 300px;
-					margin-top: 48px;
+				position: relative;
+				top: 50%;
+				transform: translateY(-50%);
+				--paper-menu-button-content: {
+					width:300px;
+				};
+				--paper-menu-button-dropdown: {
+					padding:0;
+				}
+			}
+
+			.extra-menu{
+				padding: 0;
+			}
+			.extra-menu-item{
+				--paper-item-focused: {
+					background: white;
+				}
+			}
+			.extra-menu-item:last-child{
+				border-top:1px solid var(--app-background-color-dark);				
+			}
+
+			paper-tabs {
+				--paper-tabs-selection-bar-color: var(--app-secondary-color);
+				height: 64px;
+			}
+
+			paper-tab {
+				--paper-tab-ink: var(--app-secondary-color);
+			}
+
+			paper-tab.iron-selected {
+				font-weight: bold;
+			}
+
+			paper-tab.iron-selected > iron-icon {
+				color: var(--app-secondary-color);
+			}
+
+			.mobile-menu-btn {
+				align-self: center;
+				display: none;
+			}
+			
+			.mobile-menu {
+				position: fixed;
+				top: 64px;
+				left: 0;
+				bottom: 0;
+				background: var(--app-light-color);
+				height: calc(100vh - 64px);
+				overflow: hidden;
+				width: 0;
+				transition: width .24s cubic-bezier(0.4, 0.0, 0.2, 1);
+				visibility: hidden;
+				@apply --shadow-elevation-6dp;
+				padding: 0 1em;
+			}
+
+			.mobile-menu.open {
+				visibility: visible;
+				width: 180px;
+			}
+
+			.mobile-menu paper-button {
+				font-size: 14px;
+				color: var(--app-text-color);
+				width: 100%;
+				margin: 8px 0;
+				justify-content: flex-start;
+				--paper-button-ink-color: var(--app-secondary-color);
+			}
+
+			.mobile-menu paper-button iron-icon {
+				color: var(--app-text-color-disabled);
+			}
+
+			.mobile-menu paper-button.iron-selected {
+				font-weight: 600;
+			}
+
+			.mobile-menu paper-button.iron-selected iron-icon {
+				color: var(--app-secondary-color);
+			}
+
+			.mobile-menu-overlay {
+				position: absolute;
+				top: 64px;
+				left: 0;
+				width: 100vw;
+				height: calc(100vh - 64px);
+				display: none;
+				background: var(--app-text-color-disabled);
+			}
+
+			.mobile-menu-overlay.open {
+				display: block;
+
+			}
+
+			.mobile-menu-container {
+				display: none;
+			}
+
+			@media (max-width: 768px) {
+				paper-button {
+					margin-right: 10px;
+				}
+				paper-tabs {
+					display: none;
+				}
+				.mobile-menu-btn {
+					display: block;
+				}
+				.mobile-menu-container {
+					display: block;
 				}
 			}
 		</style>
@@ -196,81 +254,106 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<!-- Main content -->
 			<app-header-layout fullbleed>
 				<app-header slot="header" fixed condenses effects="waterfall">
-					<app-toolbar id="mainToolbar" class="" sticky>
-
-						<!-- Toolbar icons -->
-						<menu-bar style="margin-right:40px">
-							<iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
-								<paper-button name="main" on-tap="doRoute">
-									<iron-icon class="iron-icon" icon="home"></iron-icon>
-									Summary
-								</paper-button>
-								<paper-button name="pat" on-tap="doRoute">
-									<iron-icon icon="vaadin:user-heart"></iron-icon>
-									Patients
-								</paper-button>
-								<paper-button name="hcp" on-tap="doRoute">
-									<iron-icon icon="vaadin:hospital"></iron-icon>
-									HC parties
-								</paper-button>
-								<paper-button name="msg" on-tap="doRoute">
-									<iron-icon icon="communication:email"></iron-icon>
-									Messages
-								</paper-button>
-								<paper-button name="logout" on-tap="doRoute">
-									<iron-icon icon="power-settings-new"></iron-icon>
-									Log out
-								</paper-button>
-							</iron-selector>
-						</menu-bar>
-						<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In  -->
-						<svg version="1.1"
-							 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
-							 x="0px" y="0px" width="92px" height="64px" viewBox="0 0 92 64" style="enable-background:new 0 0 92 64;" xml:space="preserve" class="icure-logo">
-						<style type="text/css">
-							.st1 {
+					<app-toolbar id="mainToolbar" class="" sticky>	
+						<!-- Mobile Menu -->
+						<paper-icon-button class="mobile-menu-btn" icon="menu" on-tap="_triggerMenu"></paper-icon-button>
+						<div class="mobile-menu-container">
+							<div id="overlayMenu" class="mobile-menu-overlay" on-tap="_triggerMenu"></div>
+								<paper-listbox  id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
+									<paper-button name="main" on-tap="doRoute">
+										<iron-icon class="iron-icon" icon="home"></iron-icon>
+										Summary
+									</paper-button>
+									<paper-button name="pat" on-tap="doRoute">
+										<iron-icon icon="vaadin:user-heart"></iron-icon>
+										Patients
+									</paper-button>
+									<paper-button name="hcp" on-tap="doRoute">
+										<iron-icon icon="vaadin:hospital"></iron-icon>
+										HC parties
+									</paper-button>
+									<paper-button name="msg" on-tap="doRoute">
+										<iron-icon icon="communication:email"></iron-icon>
+										Messages
+									</paper-button>
+									<paper-button name="logout" on-tap="doRoute">
+										<iron-icon icon="power-settings-new"></iron-icon>
+										Log out
+									</paper-button>
+								</paper-listbox>
+							</div>
+						</div>
+						<!-- Regular Tabs Menu -->
+						<paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
+							<paper-tab name="main" on-tap="doRoute">
+								<iron-icon class="iron-icon" icon="home"></iron-icon>
+								Summary
+							</paper-tab>
+							<paper-tab name="pat" on-tap="doRoute">
+								<iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
+								Patients
+							</paper-tab>
+							<paper-tab name="hcp" on-tap="doRoute">
+								<iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
+								HC parties
+							</paper-tab>
+							<paper-tab name="msg" on-tap="doRoute">
+								<iron-icon class="smaller" icon="communication:email"></iron-icon>
+								Messages
+							</paper-tab>
+							<paper-tab name="logout" on-tap="doRoute">
+								<iron-icon icon="power-settings-new"></iron-icon>
+								Log out
+							</paper-tab>
+						</paper-tabs>
+						<div>
+							<svg version="1.1"
+							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+							x="0px" y="0px" width="92px" height="64px" viewBox="0 0 92 64" style="enable-background:new 0 0 92 64;" xml:space="preserve" class="icure-logo">
+								<style type="text/css">
+								.st1 {
 								fill: #FFFFFF;
-							}
+								}
 
-							.st2 {
+								.st2 {
 								fill: #66DEA1;
-							}
-						</style>
-						<defs>
-						</defs>
-						<g>
-							<g>
-								<rect x="44.3" y="32.2" class="st1" width="1.3" height="12.6"/>
-								<path class="st1" d="M45,27.6c-0.6,0-1,0.5-1,1.2c0,0.6,0.4,1.2,1,1.2h0c0.6,0,1-0.5,1-1.2C46,28.1,45.6,27.6,45,27.6z"/>
-								<path class="st1" d="M60.2,43c-1,0.5-2.3,0.8-3.7,0.8c-4.3,0-6.9-2.9-6.9-7.7c0-5,2.6-8,7-8c1.3,0,2.5,0.3,3.4,0.7l0.1,0l0.4-1.2
-									l-0.1,0c-0.4-0.2-1.7-0.8-3.8-0.8c-5,0-8.4,3.7-8.4,9.2c0,6.6,4.2,9,7.9,9c2.1,0,3.7-0.5,4.5-0.9l0.1,0L60.2,43L60.2,43z"/>
-								<path class="st1" d="M72.3,41.7v-9.5H71V40c0,0.4-0.1,0.9-0.2,1.3c-0.5,1.1-1.6,2.4-3.4,2.4c-2,0-3-1.5-3-4.5v-7.1H63v7.3
-									c0,5,2.9,5.6,4.1,5.6c1.9,0,3.3-1.2,4-2.3l0.1,2.1h1.3l0-0.1C72.3,43.8,72.3,42.9,72.3,41.7z"/>
-								<path class="st1" d="M80.5,31.9c-1.4,0-2.7,1-3.3,2.6l0-2.3h-1.3l0,0.1C76,33.4,76,34.6,76,36v8.8h1.3v-6.9c0-0.5,0-0.9,0.1-1.2
-									c0.3-2.1,1.5-3.4,3-3.4c0.2,0,0.4,0,0.5,0l0.1,0V32L81,32C80.9,31.9,80.7,31.9,80.5,31.9z"/>
-								<path class="st1" d="M91.1,34.1c-0.8-1.4-2.1-2.2-3.8-2.2c-3.2,0-5.4,2.7-5.4,6.8c0,3.8,2.2,6.3,5.5,6.3c2.1,0,3.3-0.6,3.7-0.8
-									l0.1,0L91,43.1l-0.1,0c-0.7,0.4-1.6,0.7-3.2,0.7c-1.3,0-4.3-0.5-4.4-5.3h8.6l0-0.1C92,38.1,92,38,92,37.6
-									C92,37.1,91.9,35.5,91.1,34.1z M83.4,37.3c0.3-1.9,1.4-4.1,3.8-4.1c1,0,1.8,0.3,2.3,0.9c0.9,1,1.1,2.5,1.1,3.2H83.4z"/>
-							</g>
-							<path class="st2" d="M36.2,38.4c-0.4-4.3-2.9-6.6-7.4-6.6l-5.5,0c-0.2,0-0.4,0.1-0.5,0.3l-0.6,1.5l-1.9-8.4c0-0.3-0.3-0.5-0.6-0.5
-								c-0.3,0-0.5,0.2-0.6,0.5l-2.3,10.4L15.4,29c0-0.3-0.3-0.5-0.6-0.5c-0.3,0-0.5,0.2-0.6,0.4L13,31.8H8.3V33h5.2
-								c0.3,0,0.5-0.2,0.6-0.4l0.6-1.5l1.6,7.2c0.1,0.3,0.3,0.5,0.6,0.5c0.3,0,0.5-0.2,0.6-0.5l2.2-10.3l1.7,7.5c0,0.3,0.2,0.5,0.5,0.5
-								c0.2,0.1,0.5-0.1,0.6-0.3l1.2-2.7l5.1,0c3.8,0,5.8,1.5,6.3,4.7c0.3,2-0.2,3.8-1.3,5.1c-1.2,1.4-3,2-5,1.9H8.8
-								c-4.1,0-7.5-3.4-7.6-7.6C1,32.8,4,29.1,8,28.8c0.3,0,0.5-0.3,0.5-0.5c0.3-2.3,1.2-4.4,2.7-6c1.8-1.9,4.2-3,6.8-3c2.6,0,5,1.1,6.8,3
-								c1.2,1.3,2.3,3.7,2.7,6.4l0,0.2l0.2,0c0.2,0,0.7-0.1,0.8-0.1l0.2,0l0-0.2c-0.5-3-1.6-5.6-3-7.1c-2-2.1-4.7-3.3-7.6-3.3
-								c-2.9,0-5.6,1.2-7.6,3.3c-1.6,1.7-2.6,3.9-3,6.3C3.1,28.3-0.1,32.3,0,37c0.1,2.4,1,4.6,2.7,6.4C4.4,45.1,6.6,46,8.8,46l19.7,0
-								c0.1,0,0.2,0,0.4,0c2.2,0,4.2-0.9,5.6-2.4C35.7,42.2,36.3,40.4,36.2,38.4z"/>
-						</g>
-						</svg>
-						<paper-menu-button horizontal-align="right" close-on-activate>
-							<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
-							<paper-listbox slot="dropdown-content"  selected="1">
-								<paper-item on-tap="_openExportKey">Transfer private key / Connect tablet</paper-item>
-								<paper-item on-tap="_importKeychain">Import my eHealth keychain</paper-item>
-								<hr>
-								<paper-item on-tap="_myProfile">My profile</paper-item>
-							</paper-listbox>
-						</paper-menu-button>
+								}
+								</style>
+								<defs>
+								</defs>
+								<g style="transform: translateY(-5px);">
+									<g>
+										<rect x="44.3" y="32.2" class="st1" width="1.3" height="12.6"/>
+										<path class="st1" d="M45,27.6c-0.6,0-1,0.5-1,1.2c0,0.6,0.4,1.2,1,1.2h0c0.6,0,1-0.5,1-1.2C46,28.1,45.6,27.6,45,27.6z"/>
+										<path class="st1" d="M60.2,43c-1,0.5-2.3,0.8-3.7,0.8c-4.3,0-6.9-2.9-6.9-7.7c0-5,2.6-8,7-8c1.3,0,2.5,0.3,3.4,0.7l0.1,0l0.4-1.2
+											l-0.1,0c-0.4-0.2-1.7-0.8-3.8-0.8c-5,0-8.4,3.7-8.4,9.2c0,6.6,4.2,9,7.9,9c2.1,0,3.7-0.5,4.5-0.9l0.1,0L60.2,43L60.2,43z"/>
+										<path class="st1" d="M72.3,41.7v-9.5H71V40c0,0.4-0.1,0.9-0.2,1.3c-0.5,1.1-1.6,2.4-3.4,2.4c-2,0-3-1.5-3-4.5v-7.1H63v7.3
+											c0,5,2.9,5.6,4.1,5.6c1.9,0,3.3-1.2,4-2.3l0.1,2.1h1.3l0-0.1C72.3,43.8,72.3,42.9,72.3,41.7z"/>
+										<path class="st1" d="M80.5,31.9c-1.4,0-2.7,1-3.3,2.6l0-2.3h-1.3l0,0.1C76,33.4,76,34.6,76,36v8.8h1.3v-6.9c0-0.5,0-0.9,0.1-1.2
+											c0.3-2.1,1.5-3.4,3-3.4c0.2,0,0.4,0,0.5,0l0.1,0V32L81,32C80.9,31.9,80.7,31.9,80.5,31.9z"/>
+										<path class="st1" d="M91.1,34.1c-0.8-1.4-2.1-2.2-3.8-2.2c-3.2,0-5.4,2.7-5.4,6.8c0,3.8,2.2,6.3,5.5,6.3c2.1,0,3.3-0.6,3.7-0.8
+											l0.1,0L91,43.1l-0.1,0c-0.7,0.4-1.6,0.7-3.2,0.7c-1.3,0-4.3-0.5-4.4-5.3h8.6l0-0.1C92,38.1,92,38,92,37.6
+											C92,37.1,91.9,35.5,91.1,34.1z M83.4,37.3c0.3-1.9,1.4-4.1,3.8-4.1c1,0,1.8,0.3,2.3,0.9c0.9,1,1.1,2.5,1.1,3.2H83.4z"/>
+									</g>
+									<path class="st2" d="M36.2,38.4c-0.4-4.3-2.9-6.6-7.4-6.6l-5.5,0c-0.2,0-0.4,0.1-0.5,0.3l-0.6,1.5l-1.9-8.4c0-0.3-0.3-0.5-0.6-0.5
+									c-0.3,0-0.5,0.2-0.6,0.5l-2.3,10.4L15.4,29c0-0.3-0.3-0.5-0.6-0.5c-0.3,0-0.5,0.2-0.6,0.4L13,31.8H8.3V33h5.2
+									c0.3,0,0.5-0.2,0.6-0.4l0.6-1.5l1.6,7.2c0.1,0.3,0.3,0.5,0.6,0.5c0.3,0,0.5-0.2,0.6-0.5l2.2-10.3l1.7,7.5c0,0.3,0.2,0.5,0.5,0.5
+									c0.2,0.1,0.5-0.1,0.6-0.3l1.2-2.7l5.1,0c3.8,0,5.8,1.5,6.3,4.7c0.3,2-0.2,3.8-1.3,5.1c-1.2,1.4-3,2-5,1.9H8.8
+									c-4.1,0-7.5-3.4-7.6-7.6C1,32.8,4,29.1,8,28.8c0.3,0,0.5-0.3,0.5-0.5c0.3-2.3,1.2-4.4,2.7-6c1.8-1.9,4.2-3,6.8-3c2.6,0,5,1.1,6.8,3
+									c1.2,1.3,2.3,3.7,2.7,6.4l0,0.2l0.2,0c0.2,0,0.7-0.1,0.8-0.1l0.2,0l0-0.2c-0.5-3-1.6-5.6-3-7.1c-2-2.1-4.7-3.3-7.6-3.3
+									c-2.9,0-5.6,1.2-7.6,3.3c-1.6,1.7-2.6,3.9-3,6.3C3.1,28.3-0.1,32.3,0,37c0.1,2.4,1,4.6,2.7,6.4C4.4,45.1,6.6,46,8.8,46l19.7,0
+									c0.1,0,0.2,0,0.4,0c2.2,0,4.2-0.9,5.6-2.4C35.7,42.2,36.3,40.4,36.2,38.4z"/>
+								</g>
+							</svg>
+							<paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+								<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+								<paper-listbox class="extra-menu" slot="dropdown-content"  stop-keyboard-event-propagation>
+									<div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
+									<paper-item class="extra-menu-item" on-tap="_openExportKey">Transfer private key / Connect tablet</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_importKeychain">Import my eHealth keychain</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_myProfile">My profile</paper-item>
+								</paper-listbox>
+							</paper-menu-button>
 						</div>
 					</app-toolbar>
 
@@ -369,6 +452,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			},
 
+			_triggerMenu: function() {
+				let menu = this.$.mobileMenu
+				let overlay = this.$.overlayMenu
+
+				overlay.classList.toggle('open')
+				menu.classList.toggle('open')
+
+
+			},
+
 			_viewChanged: function (view) {
 				if (view.startsWith('auth')) {
 					this.$.loginDialog.opened = true
@@ -387,6 +480,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			doRoute: function (e) {
 				this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name'))+"/")
+				this._triggerMenu()
 			},
 
 			_openExportKey: function() {

@@ -4,9 +4,8 @@
  * This file is part of iCureBackend.
  *
  * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
  *
  * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -42,7 +41,7 @@ import javax.mail.internet.MimeMessage;
 import javax.validation.constraints.NotNull;
 
 @Service
-public class DocumentLogicImpl extends VersionableLogicImpl<Document, DocumentDAO> implements DocumentLogic {
+public class DocumentLogicImpl extends GenericLogicImpl<Document, DocumentDAO> implements DocumentLogic {
 	private static final Logger logger = LoggerFactory.getLogger(DocumentLogicImpl.class);
 
 	private DocumentDAO documentDAO;

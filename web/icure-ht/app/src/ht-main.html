@@ -23,31 +23,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<style include="shared-styles">
 			:host {
 				display: block;
-				padding: 24px 12px 8px 12px;
+				padding: 24px;
 				height: calc(100vh - 64px);
 				box-sizing: border-box;
 			}
 
-			.fullbleed.layout.horizontal {
-				width: 100%;
-				height: 100%;
-				display: flex;
-				flex-direction: row;
-				flex-wrap: nowrap;
-				box-sizing: border-box;
-			}
-
-			.flex {
-				flex-grow: 1;
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				align-items: stretch;
-				flex-wrap: wrap;
-			}
-
-			.todays-consultations {
-				margin-bottom: 16px !important;
+			.grid-container {
+				display:grid;
+				width:100%;
+				height:100%;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 1fr 1fr 1fr;
+				grid-column-gap: 24px;
+  				grid-row-gap: 24px;
 			}
 
 			.row {
@@ -55,12 +43,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.card {
-				margin: 0 16px;
 				color: var(--app-text-color);
 				background: var(--app-background-color);
 				border-radius: 2px;
 				@apply --shadow-elevation-2dp;
-				min-width: calc(100% - 24px);
+				overflow:auto;
 			}
 
 			.card-title-container {
@@ -132,7 +119,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				/*min-width: 30%;*/
 			}
 
-			.consultations-patient-type{
+			.consultations-patient-type {
 				color: var(--app-secondary-color);
 				font-size: 14px;
 				margin-right: 16px;
@@ -149,46 +136,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin-left: 16px;
 			}
 
-			.latest-lab-result {
-				margin-bottom: 16px;
-			}
-
-			.lab-results-table-header {
+			.card-table-header {
 				font-size: 10px;
 				text-transform: uppercase;
-				text-align: center;
+				text-align: left;
 			}
 
-			.lab-results-table-header div, .lab-results-table-cell {
-				width: 30%;
+			.card-table-header.row {
+				margin-bottom:12px;
+				position:sticky;
+				top:-16px;
+				background: var(--app-background-color);
+				z-index:900;
+				border-bottom: 1px dotted var(--app-background-color-dark);
+				padding:4px 0;
 			}
 
-			.lab-results-table-row {
+			.card-table-header div, .card-table-cell {
+				width: 40%;
+			}
+
+			.card-header-cell--date, .card-table-cell--date {
+				width: 20%!important ;
+			}
+
+
+			.card-table-row {
 				width: 100%;
 			}
 
-			.lab-results-table-cell {
+			.todo-card paper-listbox paper-item {
+				padding: 0;
+			}
+
+			.card-table-cell:first-child {
 				text-align: center;
 				display: flex;
 				flex-direction: row;
 				justify-content: center;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				align-items: center;
 				font-size: 14px;
+				font-weight:600;
 			}
 
-			.lab-results-table-cell:first-child {
+			.card-table-cell {
+				font-size: 14px;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				text-align: left;
+				padding-right: 8px;
+			}
+
+			.card-table-cell:first-child {
 				justify-content: flex-start;
 			}
 
-			.lab-results-table-row {
+			.card-table-row {
 				justify-content: space-around;
 				flex-wrap: nowrap;
+				height:48px;
+				margin:0;
 			}
 
-			.latest-patients-card{
-				max-height:calc(100% - 16px);
-				min-height:calc(100% - 16px);
+			.latest-patients-card {
+				grid-area: 1 / 1 / span 3 / span 1;
 			}
 
 			.latest-patients-row {
@@ -198,7 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.latest-patients-row:hover .consultations-patient-name,
 			.latest-patients-row:hover .consultations-time,
 			.latest-consultations-row:hover .consultations-patient-name,
-			.latest-consultations-row:hover .consultations-time{
+			.latest-consultations-row:hover .consultations-time {
 				text-shadow: 0 0 1px rgba(0,0,0,0.3);
 			}
 
@@ -206,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: flex-start;
 			}
 
-			.patient-dateofbirth{
+			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
 				font-size:14px;
@@ -214,13 +227,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.todays-consultations {
-				margin-bottom:16px !important;
-				max-height:calc(50% - 16px);
+				grid-area: 1 / 2 / span 1 / span 1;
+
 			}
 
-			.latest-lab-result, .todo-card {
-				max-height:calc(25% - 8px);
-				margin-bottom:8px !important;
+			.latest-lab-result {
+				grid-area: 2 / 2 / span 1 / span 1;
+			}
+
+			 .todo-card {
+				grid-area: 3 / 2 / span 1 / span 1;
 			}
 
 			a {
@@ -246,138 +262,215 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: var(--app-background-color);
 			}
 
-
-			@media (max-width: 1024px) {
-				.fullbleed.layout.horizontal {
-					flex-direction: row;
-					flex-wrap:wrap;
-
-				}
-				.flex{
-					min-width:100%;
-					margin-bottom: 16px;
-				}
-				.card{
-					overflow:hidden;
-					min-height: 220px!important;
-				}
-				.latest-patients-card{
-					margin-bottom:8px!important;
-				}
-				.todo-card{
-					margin-bottom:0!important;
-				}
-				.latest-patients-card{
-					max-height:420px;
-					overflow:hidden;
-				}
-				.card-body{
-					overflow:hidden;
-				}
+			.new-notif::after {
+				content: '';
+				display: inline-block;
+				width: 7px;
+				height: 7px;
+				margin-left: 6px;
+				margin-bottom: 8px;
+				border-radius: 3.5px;
+				background-color: var(--app-secondary-color);
 			}
 
 
+			@media (max-width: 1024px) {
+				.grid-container {
+					display:grid;
+					width:100%;
+					height:100%;
+					grid-template-columns: 1fr 1fr 1fr 1fr;
+					grid-template-rows: 1fr 1fr;
+					grid-column-gap: 24px;
+					grid-row-gap: 24px;
+				}
+				.card {
+					overflow:hidden;
+				}
+				.latest-patients-card {
+					grid-area: 1 / 1 / span 1 / span 3;
+				}
+				.todays-consultations {
+					grid-area: 1 / 4 / span 1 / span 1;
+				}
+				.latest-lab-result {
+					grid-area: 2 / 1 / span 1 / span 2;
+				}
+				
+				.todo-card {
+					grid-area: 2 / 3 / span 1 / span 2;
+				}
+				.card-body {
+					overflow-x: hidden;
+					overflow-y: scroll;
+				}
+				.card-table-cell .consultations-patient-photo, .todays-consultations .consultations-patient-photo{
+					display:none;
+				}
+
+				.card-table-cell:first-child {
+					text-align: left;
+					display: block;
+					font-weight:600;
+				}
+
+				.consultations-list {
+					width:100%;
+					margin:0;
+				}
+
+				.card-table-header.row{
+					top: 0;
+				}
+
+			}
+
+			@media (max-width: 768px) {
+				.grid-container {
+					grid-template-columns: 1fr 1fr 1fr 1fr;
+					grid-template-rows: 1fr 1fr 1fr;
+					grid-column-gap: 24px;
+					grid-row-gap: 24px;
+				}
+				.latest-patients-card {
+					grid-area: 1 / 1 / span 1 / span 4;	
+				}
+				.todays-consultations {
+					grid-area: 2 / 1 / span 1 / span 2;	
+				}
+				.latest-lab-result {
+					grid-area: 2 / 3 / span 1 / span 2 ;	
+				}
+				
+				.todo-card {
+					grid-area: 3  / 1 / span 1 / span 4;	
+				}
+			}
+
+			@media (max-width: 420px) {
+				.grid-container {
+					grid-template-columns: 1fr;
+					grid-template-rows: 1fr 1fr 1fr 1fr;
+					grid-column-gap: 24px;
+					grid-row-gap: 24px;
+				}
+				.latest-patients-card {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 1;
+					grid-row-end: span 1;
+				}
+				.todays-consultations {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 2;
+					grid-row-end: span 1;
+				}
+				.latest-lab-result {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 3;
+					grid-row-end: span 1;
+				}
+				
+				.todo-card {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 4;
+					grid-row-end: span 1;
+				}
+			}
+
 		</style>
 
-		<div class="fullbleed horizontal layout">
-			<div class="flex">
-				<div class="card latest-patients-card">
-					<div class="card-title-container">
-						<h1 class="card-title">Latest Patients</h1>
-					</div>
-					<div class="card-body">
-						<template is="dom-repeat" items="[[accessLogs]]" as="access">
-							<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
-								<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-								<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
-								<div class="divider"></div>
-								<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
-							</div>
-						</template>
-					</div>
+		<div class="grid-container">
+			<div class="card latest-patients-card">
+				<div class="card-title-container">
+					<h1 class="card-title">Latest Patients</h1>
 				</div>
-				<div class="card latest-patients-card">
-					<div class="card-title-container">
-                            <h1 class="card-title">Messages</h1>
-                    </div>
-						<div class="card-body">
-                            <template is="dom-repeat" items="[[messages]]" as="msg">
-                                <div class="row latest-patients-row" data-id$="[[msg.formId]]" on-tap="openMessage">
-                                    <div class="consultations-message-texte">[[msg.fromAddress]]</div>
-									<div class="divider"></div>
-                                    <div class="consultations-message-texte">[[msg.subject]]</div>
-									<div class="divider"></div>
-									<div class="consultations-time">[[_timeFormat(msg.received)]]</div>
-                                </div>
-                            </template>
+				<div class="card-body">
+					<template is="dom-repeat" items="[[accessLogs]]" as="access">
+						<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
+							<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
+							<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span></div>
+							<div class="divider"></div>
+							<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 						</div>
+					</template>
 				</div>
-
 			</div>
-			<div class="flex">
-				<div class="card todays-consultations">
-					<div class="card-title-container">
-						<h1 class="card-title">Today's Appointment</h1>
-					</div>
-					<div class="card-body">
-						<div class="consultations-list">
-							<template is="dom-repeat" items="[[appointments]]" as="appointment">
-								<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
-									<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
-									<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
-									<div class="consultations-patient-type">#[[appointment.type]]</div>
-									<div class="divider"></div>
-									<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
-								</div>
-							</template>
-						</div>
-					</div>
+			<div class="card todays-consultations">
+				<div class="card-title-container">
+					<h1 class="card-title">Today's Appointment</h1>
 				</div>
-				<div class="card latest-lab-result">
-					<div class="card-title-container">
-						<h1 class="card-title">Latest Lab Results</h1>
-					</div>
-					<div class="card-body">
-						<div class="lab-results-table-header row">
-							<div class="lab-results-header-cell">Patient</div>
-							<div class="lab-results-header-cell">Request’s Date</div>
-							<div class="lab-results-header-cell">institution / department</div>
-						</div>
-						<template is="dom-repeat" items="[[labres]]" as="msg">
-							<div class="row lab-results-table-row" data-id$="[[msg.patient.id]]" on-tap="openPatient">
-								<div class="consultations-patient-photo"><img src$="[[picture(msg.patient)]]"></div>
-								<div class="consultations-patient-name">[[msg.patient.firstName]] [[msg.patient.lastName]] </div>
-								<div class="lab-results-table-cell">[[_timeFormat(msg.access.date)]]</div>
+				<div class="card-body">
+					<div class="consultations-list">
+						<template is="dom-repeat" items="[[appointments]]" as="appointment">
+							<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
+								<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
+								<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
+								<div class="consultations-patient-type">#[[appointment.type]]</div>
+								<div class="divider"></div>
+								<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
 							</div>
 						</template>
 					</div>
 				</div>
-
-				<div class="card todo-card">
-					<div class="card-title-container">
-						<h1 class="card-title">Planning</h1>
+			</div>
+			<div class="card latest-lab-result">
+				<div class="card-title-container">
+					<h1 class="card-title new-notif">Latest Lab Results</h1>
+				</div>
+				<div class="card-body">
+					<div class="card-table-header row">
+						<div class="card-header-cell">Sender</div>
+						<div class="card-header-cell card-header-cell--date">Date</div>
+						<div class="card-header-cell">Subject</div>
 					</div>
-					<div class="card-body">
-							<template is="dom-repeat" items="[[services]]" as="service">
-								<paper-listbox>
-								<paper-item>
-									<paper-checkbox>
-								<div class="row latest-patients-row" data-id$="[[service.service.id]]">
-									<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
-									<div class="consultations-patient-name">[[service.patient.firstName]] [[service..patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(service.service.valueDate)]]</span></div>
-									<div class="consultations-patient-name">[[service.service.content.language.stringValue]]</div>
+					<template is="dom-repeat" items="[[messages]]" as="msg">
+						<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+							<div class="card-table-cell">[[msg.fromAddress]]</div>
+							<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.received)]]</div>
+							<div class="card-table-cell">[[msg.subject]] </div>
+						</div>
+					</template>
+				</div>
+			</div>
+			<div class="card todo-card">
+				<div class="card-title-container">
+					<h1 class="card-title">Planning</h1>
+				</div>
+				<div class="card-body">
+					<div class="card-table-header row">
+						<div class="card-header-cell">Patient</div>
+						<div class="card-header-cell card-header-cell--date">Due date</div>
+						<div class="card-header-cell">Description</div>
+					</div>
+					<template is="dom-repeat" items="[[services]]" as="service">
+						<paper-listbox>
+							<paper-item>
+								<div class="row card-table-row" data-id$="[[service.service.id]]">
+									<div class="card-table-cell">
+										<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
+										<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
+									</div>
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
+									<div class="card-table-cell">[[service.service.content.language.stringValue]]</div>
 								</div>
-									</paper-checkbox>
-								</paper-item>
-									</paper-listbox>
-							</template>
-					</div>
+							</paper-item>
+						</paper-listbox>
+					</template>
 				</div>
 			</div>
 		</div>
+
+		
+
 	</template>
 
 	<script>
+		// TODO 1 : collapse card
+
 		import moment from 'moment/src/moment'
 		import _ from 'lodash/lodash'
 
@@ -506,7 +599,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             }
                                         })
                                     }).then(patients =>  services.map(s=>({service:s, patient:patients.rows.find(p=>p.id===s.patId)})))
-							}).then(services => this.set('services', services || []))
+							}).then(services => this.set('services', (services || []).filter(it=>it.patient)))
 					})
 
 			},

@@ -4,9 +4,8 @@
  * This file is part of iCureBackend.
  *
  * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
  *
  * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,10 +19,15 @@
 package org.taktik.icure.dao.impl;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.ektorp.*;
+import org.ektorp.AttachmentInputStream;
+import org.ektorp.BulkDeleteDocument;
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.DocumentOperationResult;
+import org.ektorp.Options;
+import org.ektorp.UpdateConflictException;
+import org.ektorp.ViewQuery;
 import org.ektorp.support.DesignDocument;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,13 +40,16 @@ import org.taktik.icure.dao.impl.keymanagers.KeyManager;
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
-import org.taktik.icure.utils.beans.Beans;
 
 import javax.persistence.PersistenceException;
-import javax.ws.rs.core.MediaType;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -221,33 +228,6 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		}
 
 		return entity;
-	}
-
-	private void saveRevHistory(T entity, T currentlySavedEntity) {
-		String currentlySavedEntityRev = null;
-		try {
-			String attachmentId = UUID.randomUUID().toString();
-
-			// Add revision history info
-			currentlySavedEntity = currentlySavedEntity == null ? get(entity.getId()) : currentlySavedEntity;
-			currentlySavedEntityRev = currentlySavedEntity.getRev();
-
-			// Save the differences as an inline attachment
-			String differencesAsJSON = new Beans<>().getDifferencesAsJSON(currentlySavedEntity, SerializationUtils.clone(entity));
-			if (!differencesAsJSON.substring(1, differencesAsJSON.length() - 1).trim().isEmpty()) {
-				entity.getRevHistory().put(currentlySavedEntityRev, attachmentId);
-				Attachment attachment = new Attachment(attachmentId, org.ektorp.util.Base64.encodeBytes(differencesAsJSON.getBytes()), MediaType.APPLICATION_JSON);
-				entity.addInlineAttachment(attachment);
-			} else {
-				entity.getRevHistory().put(currentlySavedEntityRev, null);
-			}
-		} catch (Exception e) {
-			// If any exception occur, we remove the latest revision history entry from the entity
-			if (currentlySavedEntityRev != null) {
-				entity.getRevHistory().remove(currentlySavedEntityRev);
-			}
-			throw e;
-		}
 	}
 
 	protected void beforeSave(T entity) {

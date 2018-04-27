@@ -97,5 +97,7 @@
     "webpack-dev-server": "^2.9.1",
     "wiredep": "^4.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "bower": "^1.8.4"
+  }
 }

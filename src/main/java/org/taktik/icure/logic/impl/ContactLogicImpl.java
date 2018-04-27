@@ -4,9 +4,8 @@
  * This file is part of iCureBackend.
  *
  * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
  *
  * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -54,7 +53,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
 @org.springframework.stereotype.Service
-public class ContactLogicImpl extends VersionableLogicImpl<Contact, ContactDAO> implements ContactLogic {
+public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> implements ContactLogic {
 	private static final Logger logger = LoggerFactory.getLogger(ContactLogicImpl.class);
 
 	private Validator validator;

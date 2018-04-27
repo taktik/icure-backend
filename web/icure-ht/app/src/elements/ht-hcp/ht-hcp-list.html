@@ -105,6 +105,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					transform: scale(0.8) rotate(180deg);
 				}
 
+				paper-input{
+					--paper-input-container-focus-color: var(--app-primary-color);
+					--paper-input-container-label: {
+						color: var(--app-text-color);
+						opacity: 1;
+					};
+					--paper-input-container-underline-disabled: {
+						border-bottom: 1px solid var(--app-text-color);
+					};
+					--paper-input-container-color: var(--app-text-color);
+				}
+
 			</style>
 		</custom-style>
 
