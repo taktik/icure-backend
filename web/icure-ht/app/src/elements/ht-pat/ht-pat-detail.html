@@ -1252,7 +1252,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 				</div>
-				<ht-pat-detail-ctc-detail-panel contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" on-change="formsChanged" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact"></ht-pat-detail-ctc-detail-panel>
+				<ht-pat-detail-ctc-detail-panel contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-health-elements-change="patientChanged"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1282,7 +1282,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-input label="Description" value="[[shortServiceDescription(svcEntity, language)}}" on-value-changed="_svcEntityContentChanged"></paper-input>
 			</div>
 		</entity-selector>
-
 
 	</template>
 	<script>

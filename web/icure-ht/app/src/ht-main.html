@@ -28,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				box-sizing: border-box;
 			}
 
-			.grid-container{
+			.grid-container {
 				display:grid;
 				width:100%;
 				height:100%;
@@ -37,9 +37,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				grid-column-gap: 24px;
   				grid-row-gap: 24px;
 			}
-
-		
-
 
 			.row {
 				cursor: pointer;
@@ -122,7 +119,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				/*min-width: 30%;*/
 			}
 
-			.consultations-patient-type{
+			.consultations-patient-type {
 				color: var(--app-secondary-color);
 				font-size: 14px;
 				margin-right: 16px;
@@ -139,75 +136,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin-left: 16px;
 			}
 
-			.lab-results-table-header {
+			.card-table-header {
 				font-size: 10px;
 				text-transform: uppercase;
 				text-align: left;
 			}
 
-			.lab-results-table-header div, .lab-results-table-cell {
+			.card-table-header.row {
+				margin-bottom:12px;
+				position:sticky;
+				top:-16px;
+				background: var(--app-background-color);
+				z-index:900;
+				border-bottom: 1px dotted var(--app-background-color-dark);
+				padding:4px 0;
+			}
+
+			.card-table-header div, .card-table-cell {
 				width: 40%;
 			}
 
-			.lab-results-header-cell--date, .lab-results-table-cell--date{
-				width:20%!important;
+			.card-header-cell--date, .card-table-cell--date {
+				width: 20%!important ;
 			}
 
-			.lab-results-table-cell:last-child{
-				text-align:left;
-				width:40%;
-			}
 
-			.lab-results-table-row {
+			.card-table-row {
 				width: 100%;
 			}
 
-			.lab-results-table-cell {
-				font-size: 14px;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-				overflow: hidden;
-				text-align: left;
-				padding-right: 8px;
+			.todo-card paper-listbox paper-item {
+				padding: 0;
 			}
 
-			.lab-results-table-cell:first-child {
-				font-weight:700;
-			}
-
-			.lab-results-table-row {
-				justify-content: space-around;
-				flex-wrap: nowrap;
-			}
-
-			.planning-table-header {
-				font-size: 10px;
-				text-transform: uppercase;
-				text-align: center;
-			}
-
-			.planning-table-header.row, .lab-results-table-header.row{
-				margin-bottom:12px;
-			}
-
-			.planning-table-header div, .planning-table-cell {
-				width: 30%;
-			}
-
-			.planning-table-header div:last-child{
-				width:40%;
-				text-align:left;
-			}
-
-			.planning-table-row .planning-table-cell:last-child{
-				width:40%;
-			}
-
-			.planning-table-row {
-				width: 100%;
-			}
-
-			.planning-table-cell:first-child{
+			.card-table-cell:first-child {
 				text-align: center;
 				display: flex;
 				flex-direction: row;
@@ -215,9 +177,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				flex-wrap: nowrap;
 				align-items: center;
 				font-size: 14px;
+				font-weight:600;
 			}
 
-			.planning-table-cell {
+			.card-table-cell {
 				font-size: 14px;
 				white-space: nowrap;
 				text-overflow: ellipsis;
@@ -226,24 +189,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding-right: 8px;
 			}
 
-			.planning-table-cell--date{
-				text-align:center;
-			}
-
-			.planning-table-cell:first-child {
+			.card-table-cell:first-child {
 				justify-content: flex-start;
 			}
 
-			.planning-table-row {
+			.card-table-row {
 				justify-content: space-around;
 				flex-wrap: nowrap;
+				height:48px;
+				margin:0;
 			}
 
-			.latest-patients-card{
-				grid-column-start:1;
-				grid-column-end: 1;
-				grid-row-start: 1;
-				grid-row-end: span 3;
+			.latest-patients-card {
+				grid-area: 1 / 1 / span 3 / span 1;
 			}
 
 			.latest-patients-row {
@@ -253,7 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.latest-patients-row:hover .consultations-patient-name,
 			.latest-patients-row:hover .consultations-time,
 			.latest-consultations-row:hover .consultations-patient-name,
-			.latest-consultations-row:hover .consultations-time{
+			.latest-consultations-row:hover .consultations-time {
 				text-shadow: 0 0 1px rgba(0,0,0,0.3);
 			}
 
@@ -261,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: flex-start;
 			}
 
-			.patient-dateofbirth{
+			.patient-dateofbirth {
 				color:var(--app-text-color-disabled);
 				font-weight:400;
 				font-size:14px;
@@ -269,25 +227,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.todays-consultations {
-				grid-column-start:2;
-				grid-column-end: 2;
-				grid-row-start: 1;
-				grid-row-end: 1;
+				grid-area: 1 / 2 / span 1 / span 1;
 
 			}
 
-			.latest-lab-result{
-				grid-column-start:2;
-				grid-column-end: 2;
-				grid-row-start: 2;
-				grid-row-end: 2;
+			.latest-lab-result {
+				grid-area: 2 / 2 / span 1 / span 1;
 			}
 
 			 .todo-card {
-				grid-column-start:2;
-				grid-column-end: 2;
-				grid-row-start: 3;
-				grid-row-end: 3;
+				grid-area: 3 / 2 / span 1 / span 1;
 			}
 
 			a {
@@ -313,52 +262,124 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: var(--app-background-color);
 			}
 
+			.new-notif::after {
+				content: '';
+				display: inline-block;
+				width: 7px;
+				height: 7px;
+				margin-left: 6px;
+				margin-bottom: 8px;
+				border-radius: 3.5px;
+				background-color: var(--app-secondary-color);
+			}
+
 
 			@media (max-width: 1024px) {
-				.grid-container{
+				.grid-container {
 					display:grid;
 					width:100%;
 					height:100%;
-					grid-template-columns: 1fr 1fr;
+					grid-template-columns: 1fr 1fr 1fr 1fr;
 					grid-template-rows: 1fr 1fr;
 					grid-column-gap: 24px;
 					grid-row-gap: 24px;
 				}
-				.card{
+				.card {
 					overflow:hidden;
-					/*min-height: 220px!important;*/
 				}
-				.latest-patients-card{
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 1;
-					grid-row-end: span 1;
+				.latest-patients-card {
+					grid-area: 1 / 1 / span 1 / span 3;
 				}
-				.todays-consultations{
-					grid-column-start:2;
-					grid-column-end: span 1;
-					grid-row-start: 1;
-					grid-row-end: span 1;
+				.todays-consultations {
+					grid-area: 1 / 4 / span 1 / span 1;
 				}
-				.latest-lab-result{
-					grid-column-start:1;
-					grid-column-end: span 1;
-					grid-row-start: 2;
-					grid-row-end: span 1;
+				.latest-lab-result {
+					grid-area: 2 / 1 / span 1 / span 2;
 				}
 				
-				.todo-card{
-					grid-column-start: 2;
-					grid-column-end: span 1;
-					grid-row-start: 2;
-					grid-row-end: span 1;
+				.todo-card {
+					grid-area: 2 / 3 / span 1 / span 2;
 				}
-				.card-body{
-					overflow:hidden;
+				.card-body {
+					overflow-x: hidden;
+					overflow-y: scroll;
+				}
+				.card-table-cell .consultations-patient-photo, .todays-consultations .consultations-patient-photo{
+					display:none;
+				}
+
+				.card-table-cell:first-child {
+					text-align: left;
+					display: block;
+					font-weight:600;
+				}
+
+				.consultations-list {
+					width:100%;
+					margin:0;
+				}
+
+				.card-table-header.row{
+					top: 0;
+				}
+
+			}
+
+			@media (max-width: 768px) {
+				.grid-container {
+					grid-template-columns: 1fr 1fr 1fr 1fr;
+					grid-template-rows: 1fr 1fr 1fr;
+					grid-column-gap: 24px;
+					grid-row-gap: 24px;
+				}
+				.latest-patients-card {
+					grid-area: 1 / 1 / span 1 / span 4;	
+				}
+				.todays-consultations {
+					grid-area: 2 / 1 / span 1 / span 2;	
+				}
+				.latest-lab-result {
+					grid-area: 2 / 3 / span 1 / span 2 ;	
+				}
+				
+				.todo-card {
+					grid-area: 3  / 1 / span 1 / span 4;	
 				}
 			}
 
-			
+			@media (max-width: 420px) {
+				.grid-container {
+					grid-template-columns: 1fr;
+					grid-template-rows: 1fr 1fr 1fr 1fr;
+					grid-column-gap: 24px;
+					grid-row-gap: 24px;
+				}
+				.latest-patients-card {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 1;
+					grid-row-end: span 1;
+				}
+				.todays-consultations {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 2;
+					grid-row-end: span 1;
+				}
+				.latest-lab-result {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 3;
+					grid-row-end: span 1;
+				}
+				
+				.todo-card {
+					grid-column-start:1;
+					grid-column-end: span 1;
+					grid-row-start: 4;
+					grid-row-end: span 1;
+				}
+			}
 
 		</style>
 
@@ -398,19 +419,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card latest-lab-result">
 				<div class="card-title-container">
-					<h1 class="card-title">Latest Lab Results</h1>
+					<h1 class="card-title new-notif">Latest Lab Results</h1>
 				</div>
 				<div class="card-body">
-					<div class="lab-results-table-header row">
-						<div class="lab-results-header-cell">Sender</div>
-						<div class="lab-results-header-cell lab-results-header-cell--date">Date</div>
-						<div class="lab-results-header-cell">Subject</div>
+					<div class="card-table-header row">
+						<div class="card-header-cell">Sender</div>
+						<div class="card-header-cell card-header-cell--date">Date</div>
+						<div class="card-header-cell">Subject</div>
 					</div>
 					<template is="dom-repeat" items="[[messages]]" as="msg">
-						<div class="row lab-results-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
-							<div class="lab-results-table-cell">[[msg.fromAddress]]</div>
-							<div class="lab-results-table-cell lab-results-table-cell--date">[[_timeFormat(msg.received)]]</div>
-							<div class="lab-results-table-cell">[[msg.subject]] </div>
+						<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
+							<div class="card-table-cell">[[msg.fromAddress]]</div>
+							<div class="card-table-cell card-table-cell--date">[[_timeFormat(msg.received)]]</div>
+							<div class="card-table-cell">[[msg.subject]] </div>
 						</div>
 					</template>
 				</div>
@@ -420,21 +441,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<h1 class="card-title">Planning</h1>
 				</div>
 				<div class="card-body">
-					<div class="planning-table-header row">
-						<div class="planning-header-cell">Patient</div>
-						<div class="planning-header-cell">Due date</div>
-						<div class="planning-header-cell">Description</div>
+					<div class="card-table-header row">
+						<div class="card-header-cell">Patient</div>
+						<div class="card-header-cell card-header-cell--date">Due date</div>
+						<div class="card-header-cell">Description</div>
 					</div>
 					<template is="dom-repeat" items="[[services]]" as="service">
 						<paper-listbox>
 							<paper-item>
-								<div class="row planning-table-row" data-id$="[[service.service.id]]">
-									<div class="planning-table-cell">
+								<div class="row card-table-row" data-id$="[[service.service.id]]">
+									<div class="card-table-cell">
 										<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
 										<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
 									</div>
-									<div class="planning-table-cell planning-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
-									<div class="planning-table-cell">[[service.service.content.language.stringValue]]</div>
+									<div class="card-table-cell card-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
+									<div class="card-table-cell">[[service.service.content.language.stringValue]]</div>
 								</div>
 							</paper-item>
 						</paper-listbox>

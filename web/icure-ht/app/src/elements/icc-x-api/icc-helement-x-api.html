@@ -31,8 +31,8 @@
 					})
 				},
 
-				'new': function(user, patient, c) {
-					const contact = _.extend({
+				'new': function(user, patient, h) {
+					const helement = _.extend({
 						id: this.crypto.randomUuid(),
 						_type: 'org.taktik.icure.entities.HealthElement',
 						created: (new Date).getTime(),
@@ -43,18 +43,18 @@
 						tags: [],
 						healthElementId: this.crypto.randomUuid(),
 						openingDate: parseInt(moment().format('YYYYMMDDHHmmss'))
-					}, c || {})
+					}, h || {})
 
 					return this.crypto.extractDelegationsSFKs(patient, user.healthcarePartyId)
-						.then(secretForeignKeys => this.crypto.initObjectDelegations(contact, patient, user.healthcarePartyId, secretForeignKeys[0]))
+						.then(secretForeignKeys => this.crypto.initObjectDelegations(helement, patient, user.healthcarePartyId, secretForeignKeys[0]))
 						.then(initData => {
-							_.extend(contact, {delegations: initData.delegations, cryptedForeignKeys: initData.cryptedForeignKeys, secretForeignKeys: initData.secretForeignKeys})
+							_.extend(helement, {delegations: initData.delegations, cryptedForeignKeys: initData.cryptedForeignKeys, secretForeignKeys: initData.secretForeignKeys})
 
-							let promise = Promise.resolve(contact);
+							let promise = Promise.resolve(helement);
 							(user.autoDelegations ? (user.autoDelegations.all || []).concat(user.autoDelegations.medicalInformation || []) : []).forEach(delegateId =>
 								promise = promise
 									.then(contact => this.crypto.appendObjectDelegations(contact, patient, user.healthcarePartyId, delegateId, initData.secretId))
-									.then(extraData => _.extend(contact, {delegations: extraData.delegations, cryptedForeignKeys: extraData.cryptedForeignKeys}))
+									.then(extraData => _.extend(helement, {delegations: extraData.delegations, cryptedForeignKeys: extraData.cryptedForeignKeys}))
 							)
 							return promise
 						})

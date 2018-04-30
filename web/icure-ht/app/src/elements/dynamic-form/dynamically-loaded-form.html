@@ -550,7 +550,7 @@
 			linkForm: function (e, target) {
 				const he = this.healthElements.find(he=>he.id === e.id)
 			  	if (!he) {return}
-			  	if (he.serviceId) { this.promoteServiceToHealthElement(he) }
+			  	if (!he.id) { this.promoteServiceToHealthElement(he) }
 				_.compact(this.dataProvider.servicesInHierarchy().map(svcLine => svcLine[0])) //Latest version of all services
 					.forEach(svc => {
 						this.promoteServiceInCurrentContact(svc.svc, this.form.id, target.id, null, null)
@@ -594,7 +594,13 @@
 				return init && init(svc) || svc
 			},
 
-			promoteServiceInCurrentContact: function (svc, formId, poaId, heId, init) {
+		  	promoteServiceToHealthElement: function (heSvc) {
+				this.api.helement().new(this.api.user, this.patient, heSvc)
+				  .then(he => this.api.helement().createHealthElement(he))
+				  .then(he=>this.dispatchEvent(new CustomEvent('health-elements-change', {detail:{hes:[he]}, bubbles: true})))
+			},
+
+		  	promoteServiceInCurrentContact: function (svc, formId, poaId, heId, init) {
 				if (!this.currentContact) {
 					return null
 				}
