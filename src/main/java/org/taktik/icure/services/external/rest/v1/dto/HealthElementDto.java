@@ -45,7 +45,9 @@ public class HealthElementDto extends IcureDto {
 
     protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
 
-    protected List<PlanOfActionDto> plansOfAction;
+	protected String idService; //When a service is used to create the healthElement
+
+	protected List<PlanOfActionDto> plansOfAction;
 
 	public HealthElementDto() {
 	}
@@ -150,5 +152,13 @@ public class HealthElementDto extends IcureDto {
 
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+	public String getIdService() {
+		return idService;
+	}
+
+	public void setIdService(String idService) {
+		this.idService = idService;
 	}
 }

@@ -602,30 +602,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			.contact .ICD-10{
+			.ICD-10{
 				line-height: 12px;
 				margin-right:4px;
 			}
 
-			.contact.iron-selected .ICD-10{
+			.iron-selected .ICD-10{
 				color: var(--app-light-color);
 			}
 
-			.contact.iron-selected .ICD-10 span{
+			.iron-selected .ICD-10 span{
 				background: var(--app-light-color);
 			}
-			.contact .ICD-10:hover{
+			.ICD-10:hover{
 				font-weight:600;
 			}
 
-			.contact .ICD-10:hover:before{
+			.ICD-10:hover:before{
 				height:8px;
 				width:8px;
 				margin-bottom:0;
 				border-radius:4px;
 			}
 
-			.contact .ICD-10 span{
+			.ICD-10 span{
 				content: '';
 				display: inline-block;
 				height: 6px;
@@ -944,6 +944,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<collapse-button>
 											<paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 												<div class="one-line-menu">
+													<template is="dom-if" if="[[he.colour]]">
+														<label class$="ICD-10 [[he.colour]]"><span></span></label>
+													</template>
 													[[he.descr]]
 												</div>
 												<div>
@@ -991,6 +994,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<collapse-button>
 											<paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 												<div class="one-line-menu">
+													<template is="dom-if" if="[[he.colour]]">
+														<label class$="ICD-10 [[he.colour]]"><span></span></label>
+													</template>
 													[[he.descr]]
 												</div>
 												<div>
@@ -1212,11 +1218,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 													</p>
 
 												</template>
-												<div class="he-dots-container">
-													<template is="dom-repeat" items="[[contact.healthElements]]" as="he">
-														<label class$="ICD-10 [[he.colour]]"><span></span></label>
-													</template>
-												</div>
 											</div>
 											<div class="contact-text-row">
 												<template is="dom-repeat" items="[[contact.healthElements]]" as="he">
@@ -1504,8 +1505,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							.then( ([ctcs, hes]) => {
 								const descrPattern = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}"
 								const sorter = (x=>[-x.valueDate||-x.openingDate,-x.closingDate])
+								const idServicesInHes = _.compact(hes.map(he=>he.idService))
 
-								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (c.code === 'healthelement' || c.code === 'healthissue'))).then(hesAsServices => {
+								this.api.contact()
+								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (c.code === 'healthelement' || c.code === 'healthissue')) && idServicesInHes.indexOf(s.id)<0)
+								  .then(hesAsServices => {
 									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc=> ({
 										created:svc.created,
 										modified:svc.modified,
