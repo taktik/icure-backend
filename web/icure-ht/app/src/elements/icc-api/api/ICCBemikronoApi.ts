@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBemikronoApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccBemikronoApi {
         let _body = null
         
         
-        const _url = this.host+"/be_mikrono/appointments/byDate/{date}".replace("{date}", date) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_mikrono/appointments/byDate/{date}".replace("{date}", date+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.AppointmentDto(it)))
@@ -54,7 +54,7 @@ export class iccBemikronoApi {
         let _body = null
         
         
-        const _url = this.host+"/be_mikrono/appointments/byPatient/{patientId}".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "") + (from2 ? "&from2=" + from2 : "")
+        const _url = this.host+"/be_mikrono/appointments/byPatient/{patientId}".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "") + (from2 ? "&from2=" + from2 : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.AppointmentDto(it)))
@@ -66,7 +66,7 @@ export class iccBemikronoApi {
         let _body = null
         
         
-        const _url = this.host+"/be_mikrono/notify/{appointmentId}/{action}".replace("{appointmentId}", appointmentId).replace("{action}", action) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_mikrono/notify/{appointmentId}/{action}".replace("{appointmentId}", appointmentId+"").replace("{action}", action+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => true)
@@ -78,7 +78,7 @@ export class iccBemikronoApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_mikrono/user/{userId}/register".replace("{userId}", userId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_mikrono/user/{userId}/register".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
                 .then(doc => true)
@@ -102,7 +102,7 @@ export class iccBemikronoApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_mikrono/user/{userId}/credentials".replace("{userId}", userId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_mikrono/user/{userId}/credentials".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
                 .then(doc => true)
@@ -114,10 +114,10 @@ export class iccBemikronoApi {
         let _body = null
         
         
-        const _url = this.host+"/be_mikrono/sync/{url}/{from}/{user}/{password}".replace("{url}", url).replace("{from}", from).replace("{user}", user).replace("{password}", password) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_mikrono/sync/{url}/{from}/{user}/{password}".replace("{url}", url+"").replace("{from}", from+"").replace("{user}", user+"").replace("{password}", password+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 
@@ -126,10 +126,10 @@ export class iccBemikronoApi {
         let _body = null
         
         
-        const _url = this.host+"/be_mikrono/updateIds/{url}/{user}/{password}".replace("{url}", url).replace("{user}", user).replace("{password}", password) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_mikrono/updateIds/{url}/{user}/{password}".replace("{url}", url+"").replace("{user}", user+"").replace("{password}", password+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new boolean(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 

@@ -10,24 +10,26 @@ export module XHR {
         }
     }
 
-    export class Data {
-        headers: string;
-        body: JSON|Array<JSON>;
-        text: string;
-        type: string;
-        status: number;
-        statusText: string;
+export class Data {
+    headers: string;
+    body: JSON|Array<JSON>;
+    text: string;
+    type: string;
+    status: number;
+    statusText: string;
+
+    constructor(jsXHR: XMLHttpRequest) {
+    this.headers = jsXHR.getAllResponseHeaders();
+    this.body = jsXHR.response;
+    this.text = jsXHR.responseText;
+    this.type = jsXHR.responseType;
+    this.status = jsXHR.status;
+    this.statusText = jsXHR.statusText;
+    }
     }
 
     function dataFromJSXHR(jsXHR: XMLHttpRequest): Data {
-        var data = new Data();
-        data.headers = jsXHR.getAllResponseHeaders();
-        data.body = jsXHR.response;
-        data.text = jsXHR.responseText;
-        data.type = jsXHR.responseType;
-        data.status = jsXHR.status;
-        data.statusText = jsXHR.statusText;
-        return data;
+    return new Data(jsXHR);
     }
 
     export function sendCommand(method: string, url: string, headers: Array<Header> | null, data: string | any = ""): Promise<Data> {

@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccInvoiceApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccInvoiceApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/invoice/byauthor/{userId}/append/{type}".replace("{userId}", userId).replace("{type}", type) + "?ts=" + (new Date).getTime()  + (insuranceId ? "&insuranceId=" + insuranceId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "") + (invoiceId ? "&invoiceId=" + invoiceId : "") + (gracePriod ? "&gracePriod=" + gracePriod : "")
+        const _url = this.host+"/invoice/byauthor/{userId}/append/{type}".replace("{userId}", userId+"").replace("{type}", type+"") + "?ts=" + (new Date).getTime()  + (insuranceId ? "&insuranceId=" + insuranceId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "") + (invoiceId ? "&invoiceId=" + invoiceId : "") + (gracePriod ? "&gracePriod=" + gracePriod : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InvoiceDto(it)))
@@ -57,7 +57,7 @@ export class iccInvoiceApi {
         const _url = this.host+"/invoice" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,7 +66,7 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
                 .then(doc => true)
@@ -78,10 +78,10 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/byauthor/{userId}".replace("{userId}", userId) + "?ts=" + (new Date).getTime()  + (fromDate ? "&fromDate=" + fromDate : "") + (toDate ? "&toDate=" + toDate : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
+        const _url = this.host+"/invoice/byauthor/{userId}".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime()  + (fromDate ? "&fromDate=" + fromDate : "") + (toDate ? "&toDate=" + toDate : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.InvoicePaginatedList(doc.body as JSON))
+                .then(doc =>  new models.InvoicePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,10 +102,10 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -126,7 +126,7 @@ export class iccInvoiceApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/invoice/allHcpsByStatus/{status}".replace("{status}", status) + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
+        const _url = this.host+"/invoice/allHcpsByStatus/{status}".replace("{status}", status+"") + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InvoiceDto(it)))
@@ -150,7 +150,7 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/byIds/{invoiceIds}".replace("{invoiceIds}", invoiceIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/byIds/{invoiceIds}".replace("{invoiceIds}", invoiceIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InvoiceDto(it)))
@@ -162,7 +162,7 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/to/{recipientIds}".replace("{recipientIds}", recipientIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/to/{recipientIds}".replace("{recipientIds}", recipientIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InvoiceDto(it)))
@@ -174,7 +174,7 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/byServiceIds/{serviceIds}".replace("{serviceIds}", serviceIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/byServiceIds/{serviceIds}".replace("{serviceIds}", serviceIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InvoiceDto(it)))
@@ -234,10 +234,10 @@ export class iccInvoiceApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/invoice/mergeTo/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/mergeTo/{invoiceId}".replace("{invoiceId}", invoiceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -249,7 +249,7 @@ export class iccInvoiceApi {
         const _url = this.host+"/invoice" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -258,10 +258,10 @@ export class iccInvoiceApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/invoice/{invoiceId}/delegate".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/invoice/{invoiceId}/delegate".replace("{invoiceId}", invoiceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -273,7 +273,7 @@ export class iccInvoiceApi {
         const _url = this.host+"/invoice/reassign" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -282,7 +282,7 @@ export class iccInvoiceApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/invoice/byauthor/{userId}/service/{serviceId}".replace("{userId}", userId).replace("{serviceId}", serviceId) + "?ts=" + (new Date).getTime()  + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+        const _url = this.host+"/invoice/byauthor/{userId}/service/{serviceId}".replace("{userId}", userId+"").replace("{serviceId}", serviceId+"") + "?ts=" + (new Date).getTime()  + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InvoiceDto(it)))
@@ -294,10 +294,10 @@ export class iccInvoiceApi {
         let _body = null
         
         
-        const _url = this.host+"/invoice/validate/{invoiceId}".replace("{invoiceId}", invoiceId) + "?ts=" + (new Date).getTime()  + (scheme ? "&scheme=" + scheme : "") + (forcedValue ? "&forcedValue=" + forcedValue : "")
+        const _url = this.host+"/invoice/validate/{invoiceId}".replace("{invoiceId}", invoiceId+"") + "?ts=" + (new Date).getTime()  + (scheme ? "&scheme=" + scheme : "") + (forcedValue ? "&forcedValue=" + forcedValue : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.InvoiceDto(doc.body as JSON))
+                .then(doc =>  new models.InvoiceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

@@ -33,7 +33,7 @@ public class PropertyType_to_PropertyTypeDto extends AbstractTransformationHandl
 		for (PropertyType propertyType : propertyTypes) {
 			PropertyTypeDto propertyTypeDto = new PropertyTypeDto();
 			propertyTypeDto.setIdentifier(propertyType.getIdentifier());
-			propertyTypeDto.setName(transformationService.transform(propertyType.getName(), LocalizedStringDto.class, context));
+			propertyTypeDto.setName(transformationService.transform(null, LocalizedStringDto.class, context));
 			propertyTypeDto.setType(propertyType.getType());
 			propertyTypeDto.setScope(propertyType.getScope());
 			propertyTypeDto.setLocalized(propertyType.getLocalized());

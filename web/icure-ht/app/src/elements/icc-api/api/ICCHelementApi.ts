@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccHelementApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccHelementApi {
         const _url = this.host+"/helement" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.HealthElementDto(doc.body as JSON))
+                .then(doc =>  new models.HealthElementDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccHelementApi {
         let _body = null
         
         
-        const _url = this.host+"/helement/{healthElementIds}".replace("{healthElementIds}", healthElementIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/helement/{healthElementIds}".replace("{healthElementIds}", healthElementIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 
@@ -78,10 +78,10 @@ export class iccHelementApi {
         let _body = null
         
         
-        const _url = this.host+"/helement/{healthElementId}".replace("{healthElementId}", healthElementId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/helement/{healthElementId}".replace("{healthElementId}", healthElementId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.HealthElementDto(doc.body as JSON))
+                .then(doc =>  new models.HealthElementDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -93,7 +93,7 @@ export class iccHelementApi {
         const _url = this.host+"/helement" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.HealthElementDto(doc.body as JSON))
+                .then(doc =>  new models.HealthElementDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,10 +102,10 @@ export class iccHelementApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/helement/{healthElementId}/delegate".replace("{healthElementId}", healthElementId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/helement/{healthElementId}/delegate".replace("{healthElementId}", healthElementId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.HealthElementDto(doc.body as JSON))
+                .then(doc =>  new models.HealthElementDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

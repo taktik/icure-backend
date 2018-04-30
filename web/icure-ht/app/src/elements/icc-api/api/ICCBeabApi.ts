@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeabApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBeabApi {
         let _body = null
         
         
-        const _url = this.host+"/be_ab/nihii/{nihii}/{language}".replace("{nihii}", nihii).replace("{language}", language) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_ab/nihii/{nihii}/{language}".replace("{nihii}", nihii+"").replace("{language}", language+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.HealthcarePartyDto(doc.body as JSON))
+                .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccBeabApi {
         let _body = null
         
         
-        const _url = this.host+"/be_ab/ssin/{ssin}/{language}".replace("{ssin}", ssin).replace("{language}", language) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_ab/ssin/{ssin}/{language}".replace("{ssin}", ssin+"").replace("{language}", language+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.HealthcarePartyDto(doc.body as JSON))
+                .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

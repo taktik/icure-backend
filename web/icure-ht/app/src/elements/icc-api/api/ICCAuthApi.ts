@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccAuthApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccAuthApi {
         const _url = this.host+"/auth/login" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.AuthenticationResponse(doc.body as JSON))
+                .then(doc =>  new models.AuthenticationResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -57,7 +57,7 @@ export class iccAuthApi {
         const _url = this.host+"/auth/logout" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.AuthenticationResponse(doc.body as JSON))
+                .then(doc =>  new models.AuthenticationResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -69,7 +69,7 @@ export class iccAuthApi {
         const _url = this.host+"/auth/logout" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.AuthenticationResponse(doc.body as JSON))
+                .then(doc =>  new models.AuthenticationResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

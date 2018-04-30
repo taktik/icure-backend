@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccDoctemplateApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccDoctemplateApi {
         const _url = this.host+"/doctemplate" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.DocumentTemplateDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -78,7 +78,7 @@ export class iccDoctemplateApi {
         let _body = null
         
         
-        const _url = this.host+"/doctemplate/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/doctemplate/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocumentTemplateDto(it)))
@@ -90,7 +90,7 @@ export class iccDoctemplateApi {
         let _body = null
         
         
-        const _url = this.host+"/doctemplate/{documentTemplateId}/attachment/{attachmentId}".replace("{documentTemplateId}", documentTemplateId).replace("{attachmentId}", attachmentId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/doctemplate/{documentTemplateId}/attachment/{attachmentId}".replace("{documentTemplateId}", documentTemplateId+"").replace("{attachmentId}", attachmentId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => true)
@@ -102,10 +102,10 @@ export class iccDoctemplateApi {
         let _body = null
         
         
-        const _url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.DocumentTemplateDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -114,10 +114,10 @@ export class iccDoctemplateApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/doctemplate/{documentTemplateId}/attachment".replace("{documentTemplateId}", documentTemplateId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/doctemplate/{documentTemplateId}/attachment".replace("{documentTemplateId}", documentTemplateId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.DocumentTemplateDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -126,10 +126,10 @@ export class iccDoctemplateApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.DocumentTemplateDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

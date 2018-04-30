@@ -19,7 +19,6 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.constants.PropertyTypeScope;
 import org.taktik.icure.constants.TypedValuesType;
 import org.taktik.icure.entities.base.Identifiable;

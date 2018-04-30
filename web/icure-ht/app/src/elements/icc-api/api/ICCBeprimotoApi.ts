@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeprimotoApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccBeprimotoApi {
         let _body = null
         
         
-        const _url = this.host+"/be_primoto/{nihii}".replace("{nihii}", nihii) + "?ts=" + (new Date).getTime()  + (version ? "&version=" + version : "") + (serial ? "&serial=" + serial : "") + (doctor ? "&doctor=" + doctor : "") + (year ? "&year=" + year : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
+        const _url = this.host+"/be_primoto/{nihii}".replace("{nihii}", nihii+"") + "?ts=" + (new Date).getTime()  + (version ? "&version=" + version : "") + (serial ? "&serial=" + serial : "") + (doctor ? "&doctor=" + doctor : "") + (year ? "&year=" + year : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => true)

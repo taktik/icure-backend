@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccInsuranceApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccInsuranceApi {
         const _url = this.host+"/insurance" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.AccessLogDto(doc.body as JSON))
+                .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,7 +54,7 @@ export class iccInsuranceApi {
         let _body = null
         
         
-        const _url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
                 .then(doc => true)
@@ -66,10 +66,10 @@ export class iccInsuranceApi {
         let _body = null
         
         
-        const _url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.InsuranceDto(doc.body as JSON))
+                .then(doc =>  new models.InsuranceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -90,7 +90,7 @@ export class iccInsuranceApi {
         let _body = null
         
         
-        const _url = this.host+"/insurance/byCode/{insuranceCode}".replace("{insuranceCode}", insuranceCode) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/insurance/byCode/{insuranceCode}".replace("{insuranceCode}", insuranceCode+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InsuranceDto(it)))
@@ -102,7 +102,7 @@ export class iccInsuranceApi {
         let _body = null
         
         
-        const _url = this.host+"/insurance/byName/{insuranceName}".replace("{insuranceName}", insuranceName) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/insurance/byName/{insuranceName}".replace("{insuranceName}", insuranceName+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InsuranceDto(it)))
@@ -117,7 +117,7 @@ export class iccInsuranceApi {
         const _url = this.host+"/insurance" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.InsuranceDto(doc.body as JSON))
+                .then(doc =>  new models.InsuranceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

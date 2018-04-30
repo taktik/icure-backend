@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccTarificationApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccTarificationApi {
         const _url = this.host+"/tarification" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.TarificationDto(doc.body as JSON))
+                .then(doc =>  new models.TarificationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -57,7 +57,7 @@ export class iccTarificationApi {
         const _url = this.host+"/tarification" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "") + (tarification ? "&tarification=" + tarification : "") + (version ? "&version=" + version : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.TarificationPaginatedList(doc.body as JSON))
+                .then(doc =>  new models.TarificationPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -69,7 +69,7 @@ export class iccTarificationApi {
         const _url = this.host+"/tarification/byLabel" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (types ? "&types=" + types : "") + (language ? "&language=" + language : "") + (label ? "&label=" + label : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.TarificationPaginatedList(doc.body as JSON))
+                .then(doc =>  new models.TarificationPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -90,10 +90,10 @@ export class iccTarificationApi {
         let _body = null
         
         
-        const _url = this.host+"/tarification/{tarificationId}".replace("{tarificationId}", tarificationId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/tarification/{tarificationId}".replace("{tarificationId}", tarificationId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.TarificationDto(doc.body as JSON))
+                .then(doc =>  new models.TarificationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,10 +102,10 @@ export class iccTarificationApi {
         let _body = null
         
         
-        const _url = this.host+"/tarification/{type}/{tarification}/{version}".replace("{type}", type).replace("{tarification}", tarification).replace("{version}", version) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/tarification/{type}/{tarification}/{version}".replace("{type}", type+"").replace("{tarification}", tarification+"").replace("{version}", version+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.TarificationDto(doc.body as JSON))
+                .then(doc =>  new models.TarificationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -129,7 +129,7 @@ export class iccTarificationApi {
         const _url = this.host+"/tarification" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.TarificationDto(doc.body as JSON))
+                .then(doc =>  new models.TarificationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

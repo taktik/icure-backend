@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBevitalinkApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBevitalinkApi {
         let _body = null
         
         
-        const _url = this.host+"/be_vitalink/{niss}".replace("{niss}", niss) + "?ts=" + (new Date).getTime()  + (includeBusinessData ? "&includeBusinessData=" + includeBusinessData : "") + (breakTheGlass ? "&breakTheGlass=" + breakTheGlass : "") + (reason ? "&reason=" + reason : "")
+        const _url = this.host+"/be_vitalink/{niss}".replace("{niss}", niss+"") + "?ts=" + (new Date).getTime()  + (includeBusinessData ? "&includeBusinessData=" + includeBusinessData : "") + (breakTheGlass ? "&breakTheGlass=" + breakTheGlass : "") + (reason ? "&reason=" + reason : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.Prescription(doc.body as JSON))
+                .then(doc =>  new models.Prescription(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccBevitalinkApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_vitalink/{token}/{niss}".replace("{token}", token).replace("{niss}", niss) + "?ts=" + (new Date).getTime()  + (formatCode ? "&formatCode=" + formatCode : "") + (reference ? "&reference=" + reference : "") + (previousVersionId ? "&previousVersionId=" + previousVersionId : "") + (previousVersionNumber ? "&previousVersionNumber=" + previousVersionNumber : "")
+        const _url = this.host+"/be_vitalink/{token}/{niss}".replace("{token}", token+"").replace("{niss}", niss+"") + "?ts=" + (new Date).getTime()  + (formatCode ? "&formatCode=" + formatCode : "") + (reference ? "&reference=" + reference : "") + (previousVersionId ? "&previousVersionId=" + previousVersionId : "") + (previousVersionNumber ? "&previousVersionNumber=" + previousVersionNumber : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.Prescription(doc.body as JSON))
+                .then(doc =>  new models.Prescription(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

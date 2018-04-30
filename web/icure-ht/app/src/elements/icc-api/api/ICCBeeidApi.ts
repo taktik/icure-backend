@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeeidApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBeeidApi {
         let _body = null
         
         
-        const _url = this.host+"/be_eid/poll/{id}".replace("{id}", id) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_eid/poll/{id}".replace("{id}", id+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new string(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccBeeidApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_eid/push/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_eid/push/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new string(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 

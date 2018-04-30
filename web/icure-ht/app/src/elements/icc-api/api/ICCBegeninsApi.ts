@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBegeninsApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBegeninsApi {
         let _body = null
         
         
-        const _url = this.host+"/be_genins/{token}/{niss}".replace("{token}", token).replace("{niss}", niss) + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "")
+        const _url = this.host+"/be_genins/{token}/{niss}".replace("{token}", token+"").replace("{niss}", niss+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.InsurabilityInfo(doc.body as JSON))
+                .then(doc =>  new models.InsurabilityInfo(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccBegeninsApi {
         let _body = null
         
         
-        const _url = this.host+"/be_genins/{token}/{insurance}/{regNumber}".replace("{token}", token).replace("{insurance}", insurance).replace("{regNumber}", regNumber) + "?ts=" + (new Date).getTime()  + (hospitalized ? "&hospitalized=" + hospitalized : "") + (date ? "&date=" + date : "")
+        const _url = this.host+"/be_genins/{token}/{insurance}/{regNumber}".replace("{token}", token+"").replace("{insurance}", insurance+"").replace("{regNumber}", regNumber+"") + "?ts=" + (new Date).getTime()  + (hospitalized ? "&hospitalized=" + hospitalized : "") + (date ? "&date=" + date : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.InsurabilityInfo(doc.body as JSON))
+                .then(doc =>  new models.InsurabilityInfo(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

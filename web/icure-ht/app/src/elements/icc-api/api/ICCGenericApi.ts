@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccGenericApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccGenericApi {
         let _body = null
         
         
-        const _url = this.host+"/generic/doc/{className}/{ids}".replace("{className}", className).replace("{ids}", ids) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/generic/doc/{className}/{ids}".replace("{className}", className+"").replace("{ids}", ids+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
                 .then(doc => true)
@@ -54,10 +54,10 @@ export class iccGenericApi {
         let _body = null
         
         
-        const _url = this.host+"/generic/doc/{className}/{id}".replace("{className}", className).replace("{id}", id) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/generic/doc/{className}/{id}".replace("{className}", className+"").replace("{id}", id+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.StoredDto(doc.body as JSON))
+                .then(doc =>  new models.StoredDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,10 +66,10 @@ export class iccGenericApi {
         let _body = null
         
         
-        const _url = this.host+"/generic/doc/{className}".replace("{className}", className) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/generic/doc/{className}".replace("{className}", className+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new any(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 
@@ -78,10 +78,10 @@ export class iccGenericApi {
         let _body = null
         
         
-        const _url = this.host+"/generic/enum/{className}".replace("{className}", className) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/generic/enum/{className}".replace("{className}", className+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 

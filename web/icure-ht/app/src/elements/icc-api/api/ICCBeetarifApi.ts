@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeetarifApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBeetarifApi {
         let _body = null
         
         
-        const _url = this.host+"/be_etarif/{token}/{patientNiss}/{codes}".replace("{token}", token).replace("{patientNiss}", patientNiss).replace("{codes}", codes) + "?ts=" + (new Date).getTime()  + (justification ? "&justification=" + justification : "") + (date ? "&date=" + date : "") + (nihiiDmg ? "&nihiiDmg=" + nihiiDmg : "")
+        const _url = this.host+"/be_etarif/{token}/{patientNiss}/{codes}".replace("{token}", token+"").replace("{patientNiss}", patientNiss+"").replace("{codes}", codes+"") + "?ts=" + (new Date).getTime()  + (justification ? "&justification=" + justification : "") + (date ? "&date=" + date : "") + (nihiiDmg ? "&nihiiDmg=" + nihiiDmg : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.TarificationConsultationResultDto(doc.body as JSON))
+                .then(doc =>  new models.TarificationConsultationResultDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

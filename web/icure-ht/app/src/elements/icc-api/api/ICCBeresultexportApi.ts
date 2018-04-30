@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeresultexportApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccBeresultexportApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId).replace("{toHcpId}", toHcpId).replace("{patId}", patId).replace("{date}", date).replace("{ref}", ref) + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
+        const _url = this.host+"/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => true)
@@ -54,7 +54,7 @@ export class iccBeresultexportApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId).replace("{toHcpId}", toHcpId).replace("{patId}", patId).replace("{date}", date).replace("{ref}", ref) + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
+        const _url = this.host+"/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => true)

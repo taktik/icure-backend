@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeresultimportApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBeresultimportApi {
         let _body = null
         
         
-        const _url = this.host+"/be_result_import/canhandle/{id}".replace("{id}", id) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_result_import/canhandle/{id}".replace("{id}", id+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new boolean(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccBeresultimportApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_result_import/import/{documentId}/{hcpId}/{language}/{protocolIds}/{formIds}".replace("{documentId}", documentId).replace("{hcpId}", hcpId).replace("{language}", language).replace("{protocolIds}", protocolIds).replace("{formIds}", formIds) + "?ts=" + (new Date).getTime()  + (planOfActionId ? "&planOfActionId=" + planOfActionId : "")
+        const _url = this.host+"/be_result_import/import/{documentId}/{hcpId}/{language}/{protocolIds}/{formIds}".replace("{documentId}", documentId+"").replace("{hcpId}", hcpId+"").replace("{language}", language+"").replace("{protocolIds}", protocolIds+"").replace("{formIds}", formIds+"") + "?ts=" + (new Date).getTime()  + (planOfActionId ? "&planOfActionId=" + planOfActionId : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ContactDto(doc.body as JSON))
+                .then(doc =>  new models.ContactDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,7 +66,7 @@ export class iccBeresultimportApi {
         let _body = null
         
         
-        const _url = this.host+"/be_result_import/infos/{id}".replace("{id}", id) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_result_import/infos/{id}".replace("{id}", id+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.ResultInfoDto(it)))

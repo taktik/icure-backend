@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccAccesslogApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccAccesslogApi {
         const _url = this.host+"/accesslog" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.AccessLogDto(doc.body as JSON))
+                .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,7 +54,7 @@ export class iccAccesslogApi {
         let _body = null
         
         
-        const _url = this.host+"/accesslog/{accessLogIds}".replace("{accessLogIds}", accessLogIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/accesslog/{accessLogIds}".replace("{accessLogIds}", accessLogIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
                 .then(doc => true)
@@ -69,7 +69,7 @@ export class iccAccesslogApi {
         const _url = this.host+"/accesslog/byUser" + "?ts=" + (new Date).getTime()  + (userId ? "&userId=" + userId : "") + (accessType ? "&accessType=" + accessType : "") + (startDate ? "&startDate=" + startDate : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (descending ? "&descending=" + descending : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.AccessLogPaginatedList(doc.body as JSON))
+                .then(doc =>  new models.AccessLogPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -78,10 +78,10 @@ export class iccAccesslogApi {
         let _body = null
         
         
-        const _url = this.host+"/accesslog/{accessLogId}".replace("{accessLogId}", accessLogId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/accesslog/{accessLogId}".replace("{accessLogId}", accessLogId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.AccessLogDto(doc.body as JSON))
+                .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -105,7 +105,7 @@ export class iccAccesslogApi {
         const _url = this.host+"/accesslog" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.AccessLogDto(doc.body as JSON))
+                .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

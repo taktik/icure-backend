@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccTechnicaladminApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 

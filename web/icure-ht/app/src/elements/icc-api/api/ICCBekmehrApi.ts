@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBekmehrApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccBekmehrApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_kmehr/smf/{patientId}/export".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
+        const _url = this.host+"/be_kmehr/smf/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => true)
@@ -54,7 +54,7 @@ export class iccBekmehrApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_kmehr/sumehr/{patientId}/export".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
+        const _url = this.host+"/be_kmehr/sumehr/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => true)
@@ -66,7 +66,7 @@ export class iccBekmehrApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/export".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
+        const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => true)
@@ -78,10 +78,10 @@ export class iccBekmehrApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_kmehr/sumehr/{patientId}/content".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_kmehr/sumehr/{patientId}/content".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.SumehrContentDto(doc.body as JSON))
+                .then(doc =>  new models.SumehrContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -90,10 +90,10 @@ export class iccBekmehrApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/content".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/content".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.SumehrContentDto(doc.body as JSON))
+                .then(doc =>  new models.SumehrContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,10 +102,10 @@ export class iccBekmehrApi {
         let _body = null
         
         
-        const _url = this.host+"/be_kmehr/sumehr/{patientId}/md5".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+        const _url = this.host+"/be_kmehr/sumehr/{patientId}/md5".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.ContentDto(doc.body as JSON))
+                .then(doc =>  new models.ContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -114,10 +114,10 @@ export class iccBekmehrApi {
         let _body = null
         
         
-        const _url = this.host+"/be_kmehr/sumehr/{patientId}/valid".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
+        const _url = this.host+"/be_kmehr/sumehr/{patientId}/valid".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new string(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 
@@ -126,7 +126,7 @@ export class iccBekmehrApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_kmehr/sumehr/{patientId}/validate".replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
+        const _url = this.host+"/be_kmehr/sumehr/{patientId}/validate".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
                 .then(doc => true)

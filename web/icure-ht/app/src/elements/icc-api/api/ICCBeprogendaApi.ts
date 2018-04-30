@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBeprogendaApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,7 +42,7 @@ export class iccBeprogendaApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_progenda/user/{userId}/credentials".replace("{userId}", userId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_progenda/user/{userId}/credentials".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
                 .then(doc => true)
@@ -54,10 +54,10 @@ export class iccBeprogendaApi {
         let _body = null
         
         
-        const _url = this.host+"/be_progenda/sync/{url}/{user}/{token}/{centerId}".replace("{url}", url).replace("{user}", user).replace("{token}", token).replace("{centerId}", centerId) + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "")
+        const _url = this.host+"/be_progenda/sync/{url}/{user}/{token}/{centerId}".replace("{url}", url+"").replace("{user}", user+"").replace("{token}", token+"").replace("{centerId}", centerId+"") + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 

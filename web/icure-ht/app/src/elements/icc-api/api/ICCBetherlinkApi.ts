@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccBetherlinkApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccBetherlinkApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_therlink/therlink/check/{token}".replace("{token}", token) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_therlink/therlink/check/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new boolean(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 
@@ -54,7 +54,7 @@ export class iccBetherlinkApi {
         let _body = null
         
         
-        const _url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}".replace("{token}", token).replace("{hcPartyId}", hcPartyId).replace("{patientId}", patientId) + "?ts=" + (new Date).getTime()  + (eid ? "&eid=" + eid : "") + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (sign ? "&sign=" + sign : "")
+        const _url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}".replace("{token}", token+"").replace("{hcPartyId}", hcPartyId+"").replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (eid ? "&eid=" + eid : "") + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (sign ? "&sign=" + sign : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.TherapeuticLinkMessage(it)))
@@ -66,10 +66,10 @@ export class iccBetherlinkApi {
         let _body = null
         
         
-        const _url = this.host+"/be_therlink/consent/{token}/{niss}".replace("{token}", token).replace("{niss}", niss) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_therlink/consent/{token}/{niss}".replace("{token}", token+"").replace("{niss}", niss+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.ConsentMessage(doc.body as JSON))
+                .then(doc =>  new models.ConsentMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -78,10 +78,10 @@ export class iccBetherlinkApi {
         let _body = null
         
         
-        const _url = this.host+"/be_therlink/consent/{token}/{niss}/{eid}".replace("{token}", token).replace("{niss}", niss).replace("{eid}", eid) + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "")
+        const _url = this.host+"/be_therlink/consent/{token}/{niss}/{eid}".replace("{token}", token+"").replace("{niss}", niss+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ConsentMessage(doc.body as JSON))
+                .then(doc =>  new models.ConsentMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -90,10 +90,10 @@ export class iccBetherlinkApi {
         let _body = null
         
         
-        const _url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}/{eid}".replace("{token}", token).replace("{hcPartyId}", hcPartyId).replace("{patientId}", patientId).replace("{eid}", eid) + "?ts=" + (new Date).getTime()  + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (comment ? "&comment=" + comment : "") + (sign ? "&sign=" + sign : "")
+        const _url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}/{eid}".replace("{token}", token+"").replace("{hcPartyId}", hcPartyId+"").replace("{patientId}", patientId+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime()  + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (comment ? "&comment=" + comment : "") + (sign ? "&sign=" + sign : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.TherapeuticLinkMessage(doc.body as JSON))
+                .then(doc =>  new models.TherapeuticLinkMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,10 +102,10 @@ export class iccBetherlinkApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_therlink/consent/{token}/{eid}".replace("{token}", token).replace("{eid}", eid) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_therlink/consent/{token}/{eid}".replace("{token}", token+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.ConsentMessage(doc.body as JSON))
+                .then(doc =>  new models.ConsentMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -114,10 +114,10 @@ export class iccBetherlinkApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/be_therlink/therlink/revoke/{token}/{eid}".replace("{token}", token).replace("{eid}", eid) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_therlink/therlink/revoke/{token}/{eid}".replace("{token}", token+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.TherapeuticLinkMessage(doc.body as JSON))
+                .then(doc =>  new models.TherapeuticLinkMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

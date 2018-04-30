@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccContactApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -57,7 +57,7 @@ export class iccContactApi {
         const _url = this.host+"/contact" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ContactDto(doc.body as JSON))
+                .then(doc =>  new models.ContactDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,10 +66,10 @@ export class iccContactApi {
         let _body = null
         
         
-        const _url = this.host+"/contact/{contactIds}".replace("{contactIds}", contactIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/contact/{contactIds}".replace("{contactIds}", contactIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 
@@ -81,7 +81,7 @@ export class iccContactApi {
         const _url = this.host+"/contact/filter" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ContactPaginatedList(doc.body as JSON))
+                .then(doc =>  new models.ContactPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -93,7 +93,7 @@ export class iccContactApi {
         const _url = this.host+"/contact/service/filter" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ServicePaginatedList(doc.body as JSON))
+                .then(doc =>  new models.ServicePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -138,10 +138,10 @@ export class iccContactApi {
         let _body = null
         
         
-        const _url = this.host+"/contact/{contactId}".replace("{contactId}", contactId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/contact/{contactId}".replace("{contactId}", contactId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.ContactDto(doc.body as JSON))
+                .then(doc =>  new models.ContactDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -165,7 +165,7 @@ export class iccContactApi {
         const _url = this.host+"/contact/service/content/empty" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.ContentDto(doc.body as JSON))
+                .then(doc =>  new models.ContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -174,7 +174,7 @@ export class iccContactApi {
         let _body = null
         
         
-        const _url = this.host+"/contact/service/labels/{minOccurences}".replace("{minOccurences}", minOccurences) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/contact/service/labels/{minOccurences}".replace("{minOccurences}", minOccurences+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.LabelledOccurenceDto(it)))
@@ -189,7 +189,7 @@ export class iccContactApi {
         const _url = this.host+"/contact/match" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 
@@ -201,7 +201,7 @@ export class iccContactApi {
         const _url = this.host+"/contact" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.ContactDto(doc.body as JSON))
+                .then(doc =>  new models.ContactDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -210,10 +210,10 @@ export class iccContactApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/contact/{contactId}/delegate".replace("{contactId}", contactId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/contact/{contactId}/delegate".replace("{contactId}", contactId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ContactDto(doc.body as JSON))
+                .then(doc =>  new models.ContactDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccUserApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccUserApi {
         let _body = null
         
         
-        const _url = this.host+"/user/current/hcparty/{healthcarePartyId}".replace("{healthcarePartyId}", healthcarePartyId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/user/current/hcparty/{healthcarePartyId}".replace("{healthcarePartyId}", healthcarePartyId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -57,7 +57,7 @@ export class iccUserApi {
         const _url = this.host+"/user" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,10 +66,10 @@ export class iccUserApi {
         let _body = null
         
         
-        const _url = this.host+"/user/{userId}".replace("{userId}", userId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/user/{userId}".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
-                .then(doc => (doc.body as Array<JSON>).map(it=>new string(it)))
+                .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
 
@@ -81,7 +81,7 @@ export class iccUserApi {
         const _url = this.host+"/user/current" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -90,10 +90,10 @@ export class iccUserApi {
         let _body = null
         
         
-        const _url = this.host+"/user/{userId}".replace("{userId}", userId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/user/{userId}".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,10 +102,10 @@ export class iccUserApi {
         let _body = null
         
         
-        const _url = this.host+"/user/byEmail/{email}".replace("{email}", email) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/user/byEmail/{email}".replace("{email}", email+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -117,7 +117,7 @@ export class iccUserApi {
         const _url = this.host+"/user" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.UserPaginatedList(doc.body as JSON))
+                .then(doc =>  new models.UserPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -126,10 +126,10 @@ export class iccUserApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/user/{userId}/properties".replace("{userId}", userId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/user/{userId}/properties".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -141,7 +141,7 @@ export class iccUserApi {
         const _url = this.host+"/user" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

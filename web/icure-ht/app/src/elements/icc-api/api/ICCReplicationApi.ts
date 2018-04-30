@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccReplicationApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccReplicationApi {
         let _body = null
         
         
-        const _url = this.host+"/replication/group/{replicationHost}/{groupId}/{password}".replace("{replicationHost}", replicationHost).replace("{groupId}", groupId).replace("{password}", password) + "?ts=" + (new Date).getTime()  + (protocol ? "&protocol=" + protocol : "") + (port ? "&port=" + port : "")
+        const _url = this.host+"/replication/group/{replicationHost}/{groupId}/{password}".replace("{replicationHost}", replicationHost+"").replace("{groupId}", groupId+"").replace("{password}", password+"") + "?ts=" + (new Date).getTime()  + (protocol ? "&protocol=" + protocol : "") + (port ? "&port=" + port : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ReplicationDto(doc.body as JSON))
+                .then(doc =>  new models.ReplicationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -57,7 +57,7 @@ export class iccReplicationApi {
         const _url = this.host+"/replication" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.AccessLogDto(doc.body as JSON))
+                .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,10 +66,10 @@ export class iccReplicationApi {
         let _body = null
         
         
-        const _url = this.host+"/replication/standard/{replicationHost}".replace("{replicationHost}", replicationHost) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/replication/standard/{replicationHost}".replace("{replicationHost}", replicationHost+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.AccessLogDto(doc.body as JSON))
+                .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -78,10 +78,10 @@ export class iccReplicationApi {
         let _body = null
         
         
-        const _url = this.host+"/replication/template/{replicationHost}/{language}/{specialtyCode}".replace("{replicationHost}", replicationHost).replace("{language}", language).replace("{specialtyCode}", specialtyCode) + "?ts=" + (new Date).getTime()  + (protocol ? "&protocol=" + protocol : "") + (port ? "&port=" + port : "")
+        const _url = this.host+"/replication/template/{replicationHost}/{language}/{specialtyCode}".replace("{replicationHost}", replicationHost+"").replace("{language}", language+"").replace("{specialtyCode}", specialtyCode+"") + "?ts=" + (new Date).getTime()  + (protocol ? "&protocol=" + protocol : "") + (port ? "&port=" + port : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.ReplicationDto(doc.body as JSON))
+                .then(doc =>  new models.ReplicationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -90,7 +90,7 @@ export class iccReplicationApi {
         let _body = null
         
         
-        const _url = this.host+"/replication/{replicationId}".replace("{replicationId}", replicationId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/replication/{replicationId}".replace("{replicationId}", replicationId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
                 .then(doc => true)
@@ -102,10 +102,10 @@ export class iccReplicationApi {
         let _body = null
         
         
-        const _url = this.host+"/replication/{replicationId}".replace("{replicationId}", replicationId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/replication/{replicationId}".replace("{replicationId}", replicationId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.ReplicationDto(doc.body as JSON))
+                .then(doc =>  new models.ReplicationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -129,7 +129,7 @@ export class iccReplicationApi {
         const _url = this.host+"/replication" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.ReplicationDto(doc.body as JSON))
+                .then(doc =>  new models.ReplicationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

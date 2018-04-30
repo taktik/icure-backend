@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccDocumentApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -45,7 +45,7 @@ export class iccDocumentApi {
         const _url = this.host+"/document" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -54,10 +54,10 @@ export class iccDocumentApi {
         let _body = null
         
         
-        const _url = this.host+"/document/{documentId}/attachment".replace("{documentId}", documentId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/document/{documentId}/attachment".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -66,10 +66,10 @@ export class iccDocumentApi {
         let _body = null
         
         
-        const _url = this.host+"/document/{documentIds}".replace("{documentIds}", documentIds) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/document/{documentIds}".replace("{documentIds}", documentIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -102,7 +102,7 @@ export class iccDocumentApi {
         let _body = null
         
         
-        const _url = this.host+"/document/{documentId}/attachment/{attachmentId}".replace("{documentId}", documentId).replace("{attachmentId}", attachmentId) + "?ts=" + (new Date).getTime()  + (sfks ? "&sfks=" + sfks : "")
+        const _url = this.host+"/document/{documentId}/attachment/{attachmentId}".replace("{documentId}", documentId+"").replace("{attachmentId}", attachmentId+"") + "?ts=" + (new Date).getTime()  + (sfks ? "&sfks=" + sfks : "")
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => true)
@@ -114,10 +114,10 @@ export class iccDocumentApi {
         let _body = null
         
         
-        const _url = this.host+"/document/{documentId}".replace("{documentId}", documentId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/document/{documentId}".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -129,7 +129,7 @@ export class iccDocumentApi {
         const _url = this.host+"/document" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -138,10 +138,10 @@ export class iccDocumentApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/document/mailto/{recipients}/from/{sender}".replace("{sender}", sender).replace("{recipients}", recipients) + "?ts=" + (new Date).getTime()  + (bccs ? "&bccs=" + bccs : "")
+        const _url = this.host+"/document/mailto/{recipients}/from/{sender}".replace("{sender}", sender+"").replace("{recipients}", recipients+"") + "?ts=" + (new Date).getTime()  + (bccs ? "&bccs=" + bccs : "")
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.GenericResult(doc.body as JSON))
+                .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -150,10 +150,10 @@ export class iccDocumentApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/document/{documentId}/attachment".replace("{documentId}", documentId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/document/{documentId}/attachment".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -161,11 +161,11 @@ export class iccDocumentApi {
     setAttachmentMulti(documentId: string, attachment?: Array<string>) : Promise<models.DocumentDto|any> {
         let _body = null
         
-        ;(_body = (_body || new FormData())).append('attachment', )
-        const _url = this.host+"/document/{documentId}/attachment/multipart".replace("{documentId}", documentId) + "?ts=" + (new Date).getTime() 
+        ;attachment && (_body = (_body || new FormData())).append('attachment', new Blob(attachment, {type: "application/octet-stream"}))
+        const _url = this.host+"/document/{documentId}/attachment/multipart".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.DocumentDto(doc.body as JSON))
+                .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

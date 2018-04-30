@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccFormApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -57,7 +57,7 @@ export class iccFormApi {
         const _url = this.host+"/form" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.FormDto(doc.body as JSON))
+                .then(doc =>  new models.FormDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -69,7 +69,7 @@ export class iccFormApi {
         const _url = this.host+"/form/template" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.FormTemplateDto(doc.body as JSON))
+                .then(doc =>  new models.FormTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -78,10 +78,10 @@ export class iccFormApi {
         let _body = null
         
         
-        const _url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , [], _body )
-                .then(doc => new boolean(doc.body as JSON))
+                .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
 
@@ -114,7 +114,7 @@ export class iccFormApi {
         let _body = null
         
         
-        const _url = this.host+"/form/template/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/template/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.FormTemplateDto(it)))
@@ -126,7 +126,7 @@ export class iccFormApi {
         let _body = null
         
         
-        const _url = this.host+"/form/childrenOf/{formId}/{hcPartyId}".replace("{formId}", formId).replace("{hcPartyId}", hcPartyId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/childrenOf/{formId}/{hcPartyId}".replace("{formId}", formId+"").replace("{hcPartyId}", hcPartyId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.FormDto(it)))
@@ -138,10 +138,10 @@ export class iccFormApi {
         let _body = null
         
         
-        const _url = this.host+"/form/{formId}".replace("{formId}", formId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/{formId}".replace("{formId}", formId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
-                .then(doc => new models.FormDto(doc.body as JSON))
+                .then(doc =>  new models.FormDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -150,7 +150,7 @@ export class iccFormApi {
         let _body = null
         
         
-        const _url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.FormTemplateDto(it)))
@@ -162,7 +162,7 @@ export class iccFormApi {
         let _body = null
         
         
-        const _url = this.host+"/form/template/{specialityCode}/guid/{formTemplateGuid}".replace("{formTemplateGuid}", formTemplateGuid).replace("{specialityCode}", specialityCode) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/template/{specialityCode}/guid/{formTemplateGuid}".replace("{formTemplateGuid}", formTemplateGuid+"").replace("{specialityCode}", specialityCode+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , [], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.FormTemplateDto(it)))
@@ -189,7 +189,7 @@ export class iccFormApi {
         const _url = this.host+"/form" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.FormDto(doc.body as JSON))
+                .then(doc =>  new models.FormDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -198,10 +198,10 @@ export class iccFormApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/form/delegate/{formId}".replace("{formId}", formId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/delegate/{formId}".replace("{formId}", formId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.FormDto(doc.body as JSON))
+                .then(doc =>  new models.FormDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 
@@ -210,10 +210,10 @@ export class iccFormApi {
         let _body = null
         _body = body
         
-        const _url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/form/template/{formTemplateId}".replace("{formTemplateId}", formTemplateId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , [], _body )
-                .then(doc => new models.FormTemplateDto(doc.body as JSON))
+                .then(doc =>  new models.FormTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

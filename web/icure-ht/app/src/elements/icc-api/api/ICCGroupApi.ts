@@ -27,7 +27,7 @@ import * as models from '../model/models';
 
 export class iccGroupApi {
     host : string
-    constructor(host) {
+    constructor(host: string) {
         this.host = host
     }
 
@@ -42,10 +42,10 @@ export class iccGroupApi {
         let _body = null
         
         
-        const _url = this.host+"/group/{groupId}/{name}/{password}".replace("{groupId}", groupId).replace("{name}", name).replace("{password}", password) + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/group/{groupId}/{name}/{password}".replace("{groupId}", groupId+"").replace("{name}", name+"").replace("{password}", password+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , [], _body )
-                .then(doc => new models.UserDto(doc.body as JSON))
+                .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
 

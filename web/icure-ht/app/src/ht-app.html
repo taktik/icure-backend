@@ -52,9 +52,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
-<link rel="import" href="elements/menu-bar/menu-bar.html">
 
 <link rel="import" href="elements/icc-x-api/icc-x-api.html">
+<link rel="import" href="elements/icc-api/icc-api.html">
 
 <link rel="import" href="./app-theme.html">
 <link rel="import" href="./shared-styles.html">
@@ -238,6 +238,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhcacc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
+        <icc-api id="apiBis" headers="[[headers]]" host="/rest/v1"></icc-api>
 
 		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
@@ -382,6 +383,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					type: Object,
 					value: null
 				},
+                apiBis: {
+                    type: Object,
+                    value: null
+                },
 				user: {
 					type: Object,
 					value: null
@@ -426,6 +431,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			],
 
 			ready: function () {
+			    console.log("on arrive ici")
 				let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
 				let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
 				if (fullHref !== window.location.href) { window.location.href = fullHref }
