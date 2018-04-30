@@ -41,11 +41,6 @@
 
 			randomUuid: () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)),
 
-			loadDemoKey: function(keyId) {
-				this.$['get-key-ajax'].url = this.$['get-key-ajax'].url.replace(/rsrc\/.+/,"rsrc/"+keyId+"-icc-priv.2048.key")
-				return this.$['get-key-ajax'].generateRequest().completes.then(res => res.response)
-			},
-
 			decryptHcPartyKey: function (delegatorId, delegateHcPartyId, encryptedHcPartyKey, encryptedForDelegator) {
 				const cacheKey = delegatorId + '|' + delegateHcPartyId + '|' + (encryptedForDelegator ? '->' : '<-')
 				const res = this.hcPartyKeysCache[cacheKey]
@@ -153,7 +148,7 @@
 						// results[0]: must be the ID of the object, for checksum
 						// results[1]: secretForeignKey
 						if (results[0] !== masterId) {
-							console.log('Cryptographic mistake: patient ID is not equal to the concatenated id in SecretForeignKey')
+							console.log('Cryptographic mistake: patient ID is not equal to the concatenated id in SecretForeignKey, this may happen when patients have been merged')
 						}
 
 						return results[1]
@@ -212,15 +207,8 @@
 				return this.utils.base64toByteArray(localStorage.getItem('org.taktik.icure.ehealth.keychain.'+id))
 			},
 
-
-
 			AES: {
 				/********* AES Config **********/
-				// Random array as IV (16)
-				//TODO generate new one and concatenated to the enc
-				//TODO twice encryption of a thing have to be different with different IV's
-				//
-				//var iv = new Uint8Array([12, 127, 42, 84, 35, 36, 45, 36, 121, 89, 56, 117, 49, 64, 23, 92]);
 				ivLength: 16,
 				aesAlgorithmEncrypt: {
 					name: 'AES-CBC',

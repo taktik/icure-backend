@@ -99,7 +99,7 @@ open class KmehrExport {
 
     fun makePerson(p : Patient) : PersonType {
         return makePersonBase(p).apply {
-            p.dateOfDeath?.let { deathdate = Utils().makeDateTypeFromFuzzyLong(it.toLong()) }
+            p.dateOfDeath?.let { deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
@@ -119,7 +119,7 @@ open class KmehrExport {
             firstnames.add(p.firstName)
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN}}
-            p.dateOfBirth?.let { birthdate = Utils().makeDateTypeFromFuzzyLong(it.toLong()) }
+            p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             recorddatetime = makeXGC(p.modified)
         }
     }
@@ -138,8 +138,8 @@ open class KmehrExport {
                 else
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code)} ?: ACTIVE } }
             isIsrelevant = ((svc.status?: 0) and 2) == 0
-            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils().makeMomentTypeFromFuzzyLong(it) }
-            endmoment = svc.closingDate?.let { Utils().makeMomentTypeFromFuzzyLong(it)}
+            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
+            endmoment = svc.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
             recorddatetime = makeXGC(svc.modified)
         }
     }
@@ -167,8 +167,8 @@ open class KmehrExport {
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code)} ?: ACTIVE } }
             isIsrelevant = ((he.status?: 0) and 2) == 0
-            beginmoment = (he.valueDate ?: he.openingDate).let { Utils().makeMomentTypeFromFuzzyLong(it) }
-            endmoment = he.closingDate?.let { Utils().makeMomentTypeFromFuzzyLong(it)}
+            beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
+            endmoment = he.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
             recorddatetime = makeXGC(he.modified)
         }
     }

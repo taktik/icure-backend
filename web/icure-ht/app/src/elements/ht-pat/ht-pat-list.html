@@ -355,7 +355,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						console.log("Starting search for " + thisParams)
 						grid.latestPromise = svcFilter ?
 							this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter}).then(out=>{
-								const svcDict = out.rows.reduce((acc,s) => {
+							  let rows = out.rows
+
+							  const svcDict = rows.reduce((acc, s) => {
 									const cs = acc[s.id]
 									if (!cs || !cs.modified || (s.modified && this.api.after(s.modified, cs.modified))) { acc[s.id] = s }
 									return acc
