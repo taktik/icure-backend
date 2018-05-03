@@ -1040,10 +1040,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<template is="dom-if" if="[[!familyrisks.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No family risks</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
-									<template is="dom-repeat" items="[[familyrisks]]" as="familyrisk">
-										<paper-item class="submenu-item" id="_svc_[[familyrisk.id]]">
-											<iron-icon class="submenu-item-icon" icon="[[checkedUncheckedIcon(familyrisk, selectedFamily)]]"></iron-icon>
-											<span>[[shortServiceDescription(familyrisk, language)]]</span>
+									<template is="dom-repeat" items="[[familyrisks]]" as="risk">
+										<paper-item class="menu-item" id="_svc_[[risk.id]]">
+											<span>[[shortServiceDescription(risk, language)]]</span>
 										</paper-item>
 									</template>
 									<template is="dom-if" if="[[familyrisks.length]]">
@@ -1586,7 +1585,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							} )
 
 					//eHealth stuff
-
 					if (patient.ssin && this.api.tokenId) {
 						this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then( hcp =>
 							this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
@@ -1947,7 +1945,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 
 			serviceDescriptions : function(ctc, label) {
-				return this.api && this.api.contact().services(ctc, label).map(s=>this.shortServiceDescription(s, this.language)).filter(desc=>desc) || []
+				return this.api && this.api.contact().services(ctc, label).filter(s=>!s.endOfLife).map(s=>this.shortServiceDescription(s, this.language)).filter(desc=>desc) || []
 			},
 
 			shortServiceDescription : function(svc, lng) {
