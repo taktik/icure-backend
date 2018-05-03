@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccDocumentApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/{documentId}/attachment".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/{documentIds}".replace("{documentIds}", documentIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/byHcPartySecretForeignKeys" + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocumentDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/woDelegation" + "?ts=" + (new Date).getTime()  + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocumentDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/{documentId}/attachment/{attachmentId}".replace("{documentId}", documentId+"").replace("{attachmentId}", attachmentId+"") + "?ts=" + (new Date).getTime()  + (sfks ? "&sfks=" + sfks : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/{documentId}".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/mailto/{recipients}/from/{sender}".replace("{sender}", sender+"").replace("{recipients}", recipients+"") + "?ts=" + (new Date).getTime()  + (bccs ? "&bccs=" + bccs : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccDocumentApi {
         
         const _url = this.host+"/document/{documentId}/attachment".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -164,7 +166,7 @@ export class iccDocumentApi {
         ;attachment && (_body = (_body || new FormData())).append('attachment', new Blob(attachment, {type: "application/octet-stream"}))
         const _url = this.host+"/document/{documentId}/attachment/multipart".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.DocumentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

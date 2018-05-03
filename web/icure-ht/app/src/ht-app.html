@@ -237,8 +237,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		</style>
 
-		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhcacc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
-        <icc-api id="apiBis" headers="[[headers]]" host="/rest/v1"></icc-api>
+		<icc-api id="baseApi" headers="[[headers]]" host="/rest/v1"></icc-api>
+		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhcacc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]" baseApi="baseApi"></icc-x-api>
 
 		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
@@ -383,7 +383,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					type: Object,
 					value: null
 				},
-                apiBis: {
+                baseApi: {
                     type: Object,
                     value: null
                 },
@@ -508,7 +508,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				else if ((this.credentials.username && this.credentials.password)) { this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))) }
 
 				//Be careful not to use this.api here as it might not have been defined yet
-				this.$.api.user().getCurrentUser().then(u => {
+				this.$.baseApi.user().getCurrentUser().then(u => {
 					this.set('user', u)
 					this.$.loginDialog.opened = false
 

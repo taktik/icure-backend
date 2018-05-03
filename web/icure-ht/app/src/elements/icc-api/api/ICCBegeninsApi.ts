@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccBegeninsApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccBegeninsApi {
         
         const _url = this.host+"/be_genins/{token}/{niss}".replace("{token}", token+"").replace("{niss}", niss+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.InsurabilityInfo(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccBegeninsApi {
         
         const _url = this.host+"/be_genins/{token}/{insurance}/{regNumber}".replace("{token}", token+"").replace("{insurance}", insurance+"").replace("{regNumber}", regNumber+"") + "?ts=" + (new Date).getTime()  + (hospitalized ? "&hospitalized=" + hospitalized : "") + (date ? "&date=" + date : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.InsurabilityInfo(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

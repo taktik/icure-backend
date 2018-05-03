@@ -1,7 +1,7 @@
 
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
-<link rel="import" href="./api/iccAccesslogApi.ts">
+/*<link rel="import" href="./api/iccAccesslogApi.ts">
 <link rel="import" href="./api/iccAuthApi.ts">
 <link rel="import" href="./api/iccBeabApi.ts">
 <link rel="import" href="./api/iccBechapterApi.ts">
@@ -43,7 +43,7 @@
 <link rel="import" href="./api/iccTarificationApi.ts">
 <link rel="import" href="./api/iccTechnicaladminApi.ts">
 <link rel="import" href="./api/iccUserApi.ts">
-
+*/
 
 <dom-module id="icc-api">
     <template>
@@ -53,106 +53,112 @@
 </dom-module>
 
 <script>
+    import * as api from './iccApi'
     (function () {
         Polymer({
             is: 'icc-api',
             properties: {
                 headers: {
                     type: Object,
-                    value: {"Content-Type": "application/json"}
+                    value: {"Content-Type": "application/json"},
+                    notify: true
                 },
                 host: {
                     type: String
                 }
             },
             behaviors: [],
+            observers:["refresh(headers.*, host)"],
             ready: function() {
-            this.accesslogicc = new iccAccesslogApi(this.host);
-            this.authicc = new iccAuthApi(this.host);
-            this.beabicc = new iccBeabApi(this.host);
-            this.bechaptericc = new iccBechapterApi(this.host);
-            this.bedmgicc = new iccBedmgApi(this.host);
-            this.bedrugsicc = new iccBedrugsApi(this.host);
-            this.beefacticc = new iccBeefactApi(this.host);
-            this.beehboxicc = new iccBeehboxApi(this.host);
-            this.beeidicc = new iccBeeidApi(this.host);
-            this.beetarificc = new iccBeetarifApi(this.host);
-            this.begeninsicc = new iccBegeninsApi(this.host);
-            this.behubsicc = new iccBehubsApi(this.host);
-            this.bekmehricc = new iccBekmehrApi(this.host);
-            this.bemikronoicc = new iccBemikronoApi(this.host);
-            this.beprimotoicc = new iccBeprimotoApi(this.host);
-            this.beprogendaicc = new iccBeprogendaApi(this.host);
-            this.berecipeicc = new iccBerecipeApi(this.host);
-            this.beresultexporticc = new iccBeresultexportApi(this.host);
-            this.beresultimporticc = new iccBeresultimportApi(this.host);
-            this.bestsicc = new iccBestsApi(this.host);
-            this.betherlinkicc = new iccBetherlinkApi(this.host);
-            this.bevitalinkicc = new iccBevitalinkApi(this.host);
-            this.codeicc = new iccCodeApi(this.host);
-            this.contacticc = new iccContactApi(this.host);
-            this.doctemplateicc = new iccDoctemplateApi(this.host);
-            this.documenticc = new iccDocumentApi(this.host);
-            this.entitytemplateicc = new iccEntitytemplateApi(this.host);
-            this.filtericc = new iccFilterApi(this.host);
-            this.formicc = new iccFormApi(this.host);
-            this.genericicc = new iccGenericApi(this.host);
-            this.groupicc = new iccGroupApi(this.host);
-            this.hcpartyicc = new iccHcpartyApi(this.host);
-            this.helementicc = new iccHelementApi(this.host);
-            this.icureicc = new iccIcureApi(this.host);
-            this.insuranceicc = new iccInsuranceApi(this.host);
-            this.invoiceicc = new iccInvoiceApi(this.host);
-            this.messageicc = new iccMessageApi(this.host);
-            this.patienticc = new iccPatientApi(this.host);
-            this.replicationicc = new iccReplicationApi(this.host);
-            this.tarificationicc = new iccTarificationApi(this.host);
-            this.technicaladminicc = new iccTechnicaladminApi(this.host);
-            this.usericc = new iccUserApi(this.host);
-            
+                if(this.host != null) this.refresh()
              },
-            accesslog: function() { this.accesslogicc},
-            auth: function() { this.authicc},
-            beab: function() { this.beabicc},
-            bechapter: function() { this.bechaptericc},
-            bedmg: function() { this.bedmgicc},
-            bedrugs: function() { this.bedrugsicc},
-            beefact: function() { this.beefacticc},
-            beehbox: function() { this.beehboxicc},
-            beeid: function() { this.beeidicc},
-            beetarif: function() { this.beetarificc},
-            begenins: function() { this.begeninsicc},
-            behubs: function() { this.behubsicc},
-            bekmehr: function() { this.bekmehricc},
-            bemikrono: function() { this.bemikronoicc},
-            beprimoto: function() { this.beprimotoicc},
-            beprogenda: function() { this.beprogendaicc},
-            berecipe: function() { this.berecipeicc},
-            beresultexport: function() { this.beresultexporticc},
-            beresultimport: function() { this.beresultimporticc},
-            bests: function() { this.bestsicc},
-            betherlink: function() { this.betherlinkicc},
-            bevitalink: function() { this.bevitalinkicc},
-            code: function() { this.codeicc},
-            contact: function() { this.contacticc},
-            doctemplate: function() { this.doctemplateicc},
-            document: function() { this.documenticc},
-            entitytemplate: function() { this.entitytemplateicc},
-            filter: function() { this.filtericc},
-            form: function() { this.formicc},
-            generic: function() { this.genericicc},
-            group: function() { this.groupicc},
-            hcparty: function() { this.hcpartyicc},
-            helement: function() { this.helementicc},
-            icure: function() { this.icureicc},
-            insurance: function() { this.insuranceicc},
-            invoice: function() { this.invoiceicc},
-            message: function() { this.messageicc},
-            patient: function() { this.patienticc},
-            replication: function() { this.replicationicc},
-            tarification: function() { this.tarificationicc},
-            technicaladmin: function() { this.technicaladminicc},
-            user: function() { this.usericc},
+            refresh: function(){
+                this.accesslogicc = new api.iccAccesslogApi(this.host, this.headers);
+                this.authicc = new api.iccAuthApi(this.host, this.headers);
+                this.beabicc = new api.iccBeabApi(this.host, this.headers);
+                this.bechaptericc = new api.iccBechapterApi(this.host, this.headers);
+                this.bedmgicc = new api.iccBedmgApi(this.host, this.headers);
+                this.bedrugsicc = new api.iccBedrugsApi(this.host, this.headers);
+                this.beefacticc = new api.iccBeefactApi(this.host, this.headers);
+                this.beehboxicc = new api.iccBeehboxApi(this.host, this.headers);
+                this.beeidicc = new api.iccBeeidApi(this.host, this.headers);
+                this.beetarificc = new api.iccBeetarifApi(this.host, this.headers);
+                this.begeninsicc = new api.iccBegeninsApi(this.host, this.headers);
+                this.behubsicc = new api.iccBehubsApi(this.host, this.headers);
+                this.bekmehricc = new api.iccBekmehrApi(this.host, this.headers);
+                this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers);
+                this.beprimotoicc = new api.iccBeprimotoApi(this.host, this.headers);
+                this.beprogendaicc = new api.iccBeprogendaApi(this.host, this.headers);
+                this.berecipeicc = new api.iccBerecipeApi(this.host, this.headers);
+                this.beresultexporticc = new api.iccBeresultexportApi(this.host, this.headers);
+                this.beresultimporticc = new api.iccBeresultimportApi(this.host, this.headers);
+                this.bestsicc = new api.iccBestsApi(this.host, this.headers);
+                this.betherlinkicc = new api.iccBetherlinkApi(this.host, this.headers);
+                this.bevitalinkicc = new api.iccBevitalinkApi(this.host, this.headers);
+                this.codeicc = new api.iccCodeApi(this.host, this.headers);
+                this.contacticc = new api.iccContactApi(this.host, this.headers);
+                this.doctemplateicc = new api.iccDoctemplateApi(this.host, this.headers);
+                this.documenticc = new api.iccDocumentApi(this.host, this.headers);
+                this.entitytemplateicc = new api.iccEntitytemplateApi(this.host, this.headers);
+                this.filtericc = new api.iccFilterApi(this.host, this.headers);
+                this.formicc = new api.iccFormApi(this.host, this.headers);
+                this.genericicc = new api.iccGenericApi(this.host, this.headers);
+                this.groupicc = new api.iccGroupApi(this.host, this.headers);
+                this.hcpartyicc = new api.iccHcpartyApi(this.host, this.headers);
+                this.helementicc = new api.iccHelementApi(this.host, this.headers);
+                this.icureicc = new api.iccIcureApi(this.host, this.headers);
+                this.insuranceicc = new api.iccInsuranceApi(this.host, this.headers);
+                this.invoiceicc = new api.iccInvoiceApi(this.host, this.headers);
+                this.messageicc = new api.iccMessageApi(this.host, this.headers);
+                this.patienticc = new api.iccPatientApi(this.host, this.headers);
+                this.replicationicc = new api.iccReplicationApi(this.host, this.headers);
+                this.tarificationicc = new api.iccTarificationApi(this.host, this.headers);
+                this.technicaladminicc = new api.iccTechnicaladminApi(this.host, this.headers);
+                this.usericc = new api.iccUserApi(this.host, this.headers);
+                
+            },
+            accesslog: function() { return this.accesslogicc},
+            auth: function() { return this.authicc},
+            beab: function() { return this.beabicc},
+            bechapter: function() { return this.bechaptericc},
+            bedmg: function() { return this.bedmgicc},
+            bedrugs: function() { return this.bedrugsicc},
+            beefact: function() { return this.beefacticc},
+            beehbox: function() { return this.beehboxicc},
+            beeid: function() { return this.beeidicc},
+            beetarif: function() { return this.beetarificc},
+            begenins: function() { return this.begeninsicc},
+            behubs: function() { return this.behubsicc},
+            bekmehr: function() { return this.bekmehricc},
+            bemikrono: function() { return this.bemikronoicc},
+            beprimoto: function() { return this.beprimotoicc},
+            beprogenda: function() { return this.beprogendaicc},
+            berecipe: function() { return this.berecipeicc},
+            beresultexport: function() { return this.beresultexporticc},
+            beresultimport: function() { return this.beresultimporticc},
+            bests: function() { return this.bestsicc},
+            betherlink: function() { return this.betherlinkicc},
+            bevitalink: function() { return this.bevitalinkicc},
+            code: function() { return this.codeicc},
+            contact: function() { return this.contacticc},
+            doctemplate: function() { return this.doctemplateicc},
+            document: function() { return this.documenticc},
+            entitytemplate: function() { return this.entitytemplateicc},
+            filter: function() { return this.filtericc},
+            form: function() { return this.formicc},
+            generic: function() { return this.genericicc},
+            group: function() { return this.groupicc},
+            hcparty: function() { return this.hcpartyicc},
+            helement: function() { return this.helementicc},
+            icure: function() { return this.icureicc},
+            insurance: function() { return this.insuranceicc},
+            invoice: function() { return this.invoiceicc},
+            message: function() { return this.messageicc},
+            patient: function() { return this.patienticc},
+            replication: function() { return this.replicationicc},
+            tarification: function() { return this.tarificationicc},
+            technicaladmin: function() { return this.technicaladminicc},
+            user: function() { return this.usericc},
             
         });
     })();

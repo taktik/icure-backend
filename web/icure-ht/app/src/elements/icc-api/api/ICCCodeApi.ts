@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccCodeApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.CodeDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/codetype/byRegionType" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/byRegionTypeCode" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "") + (code ? "&code=" + code : "") + (version ? "&version=" + version : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.CodeDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "") + (code ? "&code=" + code : "") + (version ? "&version=" + version : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.CodePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/byLabel" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (types ? "&types=" + types : "") + (language ? "&language=" + language : "") + (label ? "&label=" + label : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.CodePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/tagtype/byRegionType" + "?ts=" + (new Date).getTime()  + (region ? "&region=" + region : "") + (type ? "&type=" + type : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/{codeId}".replace("{codeId}", codeId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.CodeDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/{type}/{code}/{version}".replace("{type}", type+"").replace("{code}", code+"").replace("{version}", version+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.CodeDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code/byIds/{codeIds}".replace("{codeIds}", codeIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.CodeDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccCodeApi {
         
         const _url = this.host+"/code" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.CodeDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

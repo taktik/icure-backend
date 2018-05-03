@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccFilterApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/{entityName}".replace("{entityName}", entityName+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.FilterDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/p/and/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.AndPredicate(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/complement/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ComplementFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/contact/byhcptcd/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ContactByHcPartyTagCodeDateFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/contact/bysvcids/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ContactByServiceIdsFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/intersect/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.IntersectionFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/p/kv/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.KeyValuePredicate(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/p/not/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.NotPredicate(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/p/or/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.OrPredicate(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/by/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByHcPartyFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -164,7 +166,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/byextid/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByHcPartyAndExternalIdFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -176,7 +178,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/byssin/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByHcPartyAndSsinFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -188,7 +190,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/bydob/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByHcPartyDateOfBirthFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -200,7 +202,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/bydobb/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByHcPartyDateOfBirthBetweenFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -212,7 +214,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/byname/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByHcPartyNameContainsFuzzyFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -224,7 +226,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/patient/byids/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientByIdsFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -236,7 +238,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/service/bycsc/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ServiceByContactsAndSubcontactsFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -248,7 +250,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/service/byhcptcd/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ServiceByHcPartyTagCodeDateFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -260,7 +262,7 @@ export class iccFilterApi {
         
         const _url = this.host+"/filter/f/union/empty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.UnionFilter(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

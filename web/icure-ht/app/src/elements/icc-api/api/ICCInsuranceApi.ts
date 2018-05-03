@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccInsuranceApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.AccessLogDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance/{insuranceId}".replace("{insuranceId}", insuranceId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.InsuranceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance/byIds" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InsuranceDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance/byCode/{insuranceCode}".replace("{insuranceCode}", insuranceCode+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InsuranceDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance/byName/{insuranceName}".replace("{insuranceName}", insuranceName+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.InsuranceDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccInsuranceApi {
         
         const _url = this.host+"/insurance" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.InsuranceDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccHcpartyApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/signup" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/replication/template/{replicationHost}/{language}/{specialtyCode}".replace("{replicationHost}", replicationHost+"").replace("{language}", language+"").replace("{specialtyCode}", specialtyCode+"") + "?ts=" + (new Date).getTime()  + (protocol ? "&protocol=" + protocol : "") + (port ? "&port=" + port : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.ReplicationDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/{healthcarePartyIds}".replace("{healthcarePartyIds}", healthcarePartyIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/byName" + "?ts=" + (new Date).getTime()  + (name ? "&name=" + name : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (desc ? "&desc=" + desc : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.HcPartyPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/bySpecialityAndPostCode/{type}/{spec}/{firstCode}/to/{lastCode}" + "?ts=" + (new Date).getTime()  + (type ? "&type=" + type : "") + (spec ? "&spec=" + spec : "") + (firstCode ? "&firstCode=" + firstCode : "") + (lastCode ? "&lastCode=" + lastCode : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.HcPartyPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/byNihiiOrSsin/{searchValue}".replace("{searchValue}", searchValue+"") + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (desc ? "&desc=" + desc : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.HcPartyPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/current" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/{healthcarePartyId}/keys".replace("{healthcarePartyId}", healthcarePartyId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/byIds/{healthcarePartyIds}".replace("{healthcarePartyIds}", healthcarePartyIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.HealthcarePartyDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -164,7 +166,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/{healthcarePartyId}".replace("{healthcarePartyId}", healthcarePartyId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -176,7 +178,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/{healthcarePartyId}/publicKey".replace("{healthcarePartyId}", healthcarePartyId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PublicKeyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -188,7 +190,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty/byNameStrict/{name}".replace("{name}", name+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.HealthcarePartyDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -200,7 +202,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (desc ? "&desc=" + desc : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.HcPartyPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -212,7 +214,7 @@ export class iccHcpartyApi {
         
         const _url = this.host+"/hcparty" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

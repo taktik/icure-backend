@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccPatientApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/bulk" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.IdWithRevDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/hcParty/{hcPartyId}/count".replace("{hcPartyId}", hcPartyId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/{patientIds}".replace("{patientIds}", patientIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/filter" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (skip ? "&skip=" + skip : "") + (sort ? "&sort=" + sort : "") + (desc ? "&desc=" + desc : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/byAccess/{userId}".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime()  + (accessType ? "&accessType=" + accessType : "") + (startDate ? "&startDate=" + startDate : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/byExternalId/{externalId}".replace("{externalId}", externalId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/byNameBirthSsinAuto" + "?ts=" + (new Date).getTime()  + (filterValue ? "&filterValue=" + filterValue : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/forceLog" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/fuzzy" + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "") + (dateOfBirth ? "&dateOfBirth=" + dateOfBirth : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.PatientDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -164,7 +166,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/{patientId}".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -176,7 +178,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/byIds" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.PatientDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -188,7 +190,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/deleted/by_date" + "?ts=" + (new Date).getTime()  + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (desc ? "&desc=" + desc : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -200,7 +202,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/deleted/by_name" + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.PatientPaginatedList(it)))
                 .catch(err => this.handleError(err))
 
@@ -212,7 +214,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/merges/{date}".replace("{date}", date+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.PatientDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -224,7 +226,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/modifiedAfter/{date}".replace("{date}", date+"") + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -236,7 +238,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient" + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (sortField ? "&sortField=" + sortField : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -248,7 +250,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/hcParty/{hcPartyId}".replace("{hcPartyId}", hcPartyId+"") + "?ts=" + (new Date).getTime()  + (sortField ? "&sortField=" + sortField : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -260,7 +262,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/ofHcParty/{hcPartyId}".replace("{hcPartyId}", hcPartyId+"") + "?ts=" + (new Date).getTime()  + (sortField ? "&sortField=" + sortField : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (sortDirection ? "&sortDirection=" + sortDirection : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -272,7 +274,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/match" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -284,7 +286,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/mergeInto/{toId}/from/{fromIds}".replace("{toId}", toId+"").replace("{fromIds}", fromIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -296,7 +298,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -308,7 +310,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/{patientId}/referral/{referralId}".replace("{patientId}", patientId+"").replace("{referralId}", referralId+"") + "?ts=" + (new Date).getTime()  + (start ? "&start=" + start : "") + (end ? "&end=" + end : "")
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -320,7 +322,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/{patientId}/delegate".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.PatientDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -332,7 +334,7 @@ export class iccPatientApi {
         
         const _url = this.host+"/patient/undelete/{patientIds}".replace("{patientIds}", patientIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 

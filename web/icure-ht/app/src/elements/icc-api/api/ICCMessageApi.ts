@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccMessageApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.MessageDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/{messageId}/delegate/{delegateId}".replace("{messageId}", messageId+"").replace("{delegateId}", delegateId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc =>  new models.MessageDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/{messageIds}".replace("{messageIds}", messageIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/delete/byIds" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/byHcPartySecretForeignKeys" + "?ts=" + (new Date).getTime()  + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MessageDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.MessagePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/byFromAddress" + "?ts=" + (new Date).getTime()  + (fromAddress ? "&fromAddress=" + fromAddress : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.MessagePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/byToAddress" + "?ts=" + (new Date).getTime()  + (toAddress ? "&toAddress=" + toAddress : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "") + (reverse ? "&reverse=" + reverse : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.MessagePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/byTransportGuid" + "?ts=" + (new Date).getTime()  + (transportGuid ? "&transportGuid=" + transportGuid : "") + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.MessagePaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/{messageId}/children".replace("{messageId}", messageId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MessageDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -164,7 +166,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/{messageId}".replace("{messageId}", messageId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.MessageDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -176,7 +178,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/byInvoiceId" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MessageDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -188,7 +190,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.MessageDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -200,7 +202,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/{messageId}/delegate".replace("{messageId}", messageId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc =>  new models.MessageDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -212,7 +214,7 @@ export class iccMessageApi {
         
         const _url = this.host+"/message/status/{status}".replace("{status}", status+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MessageDto(it)))
                 .catch(err => this.handleError(err))
 

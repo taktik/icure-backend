@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccGroupApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccGroupApi {
         
         const _url = this.host+"/group/{groupId}/{name}/{password}".replace("{groupId}", groupId+"").replace("{name}", name+"").replace("{password}", password+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccGroupApi {
         
         const _url = this.host+"/group" + "?ts=" + (new Date).getTime()  + (name ? "&name=" + name : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.UserDto(it)))
                 .catch(err => this.handleError(err))
 

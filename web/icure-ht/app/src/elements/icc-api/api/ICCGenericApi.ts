@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccGenericApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccGenericApi {
         
         const _url = this.host+"/generic/doc/{className}/{ids}".replace("{className}", className+"").replace("{ids}", ids+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [], _body )
+        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccGenericApi {
         
         const _url = this.host+"/generic/doc/{className}/{id}".replace("{className}", className+"").replace("{id}", id+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.StoredDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccGenericApi {
         
         const _url = this.host+"/generic/doc/{className}".replace("{className}", className+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccGenericApi {
         
         const _url = this.host+"/generic/enum/{className}".replace("{className}", className+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 

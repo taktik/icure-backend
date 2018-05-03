@@ -20,7 +20,7 @@ export class Data {
 
     constructor(jsXHR: XMLHttpRequest) {
     this.headers = jsXHR.getAllResponseHeaders();
-    this.body = jsXHR.response;
+    this.body = JSON.parse(jsXHR.response);
     this.text = jsXHR.responseText;
     this.type = jsXHR.responseType;
     this.status = jsXHR.status;

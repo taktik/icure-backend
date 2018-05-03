@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccTechnicaladminApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccTechnicaladminApi {
         
         const _url = this.host+"/technicaladmin/compressDataBase" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 

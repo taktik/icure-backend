@@ -8,7 +8,7 @@ var path = require('path');
 console.log(path.resolve(__dirname))
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname, 'app/index.js'),
+    entry: path.resolve(__dirname, 'app/src/ht-app.html'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
 	    filename: '[name].bundle.js',
@@ -33,6 +33,7 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
+
 				        options: {
 				        	/*presets: ['es2015'],*/
 					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
@@ -67,6 +68,7 @@ module.exports = {
 	        },
         ]
     },
+	mode: 'development',
     plugins: [
         // This plugin will generate an index.html file for us that can be used
         // by the Webpack dev server. We can give it a template file (written in EJS)

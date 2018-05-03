@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccIcureApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/e" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.ErrorDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/i" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.IndexingInfoDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/p" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/propertytypes/{type}".replace("{type}", type+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/r" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ReplicationInfoDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/u" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.UserStubDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/v" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/pok" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -140,7 +142,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/ok" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -152,7 +154,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/conflicts/contact" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -164,7 +166,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/conflicts/form" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -176,7 +178,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/conflicts/healthelement" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -188,7 +190,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/conflicts/invoice" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -200,7 +202,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/conflicts/message" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -212,7 +214,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/conflicts/patient" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -224,7 +226,7 @@ export class iccIcureApi {
         
         const _url = this.host+"/icure/views" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 

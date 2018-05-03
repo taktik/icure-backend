@@ -519,14 +519,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			},
 			ready() {
-				this.api.hcparty().getCurrentHealthcareParty()
+				this.api.baseApi.hcparty().getCurrentHealthcareParty()
 					.then(hcp => {
 						const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
 						language && this.set('language', language)
 						return hcp
 					})
 					.then(hcp => {
-						this.api.accesslog().findByUserAfterDate(this.user.id, 'USER_ACCESS', (+new Date()) - 1000 * 3600 * 24 * 365, null, null, 1000, true)
+						this.api.baseApi.accesslog().findByUserAfterDate(this.user.id, 'USER_ACCESS', (+new Date()) - 1000 * 3600 * 24 * 365, null, null, 1000, true)
 							.then(accessLogs => {
 								const accesses = accessLogs.rows.reduce((acc, access) => {
 									const latestAccessForPatId = (acc[access.patientId] || (acc[access.patientId] = {access: access}))
@@ -535,7 +535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									}
 									return acc
 								}, {})
-								return this.api.patient().getPatients({ids: Object.keys(accesses)}).then(patients => {
+								return this.api.baseApi.patient().getPatients({ids: Object.keys(accesses)}).then(patients => {
 									patients.forEach(p => accesses[p.id] && (accesses[p.id].patient = p))
 									return accesses
 								})
@@ -543,7 +543,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							.then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)))
 
 
-							this.api.message().findMessagesByToAddress('INBOX',null, null, 1000)
+							this.api.baseApi.message().findMessagesByToAddress('INBOX',null, null, 1000)
 								.then(messages => {
 							    	messages.rows.forEach(function(m, index, messages){if(m.status && (1 << 1) == 0){messages.splice(index, 1)}})//todo refaire reduce
 							    	messages.rows.sort(function(a,b){return (a.status && (1 << 0) - b.status && (1 << 0))} )
@@ -551,7 +551,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								})
 							.then(messages => this.set('messages', messages|| []))
 
-						this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD')))
+						this.api.baseApi.bemikrono().appointments(parseInt(moment().format('YYYYMMDD')))
 							.then(appointments => {
 								return appointments && this.api.patient().getPatients({ids: appointments.map(a => a.patientId)}).then(patients => {
 									patients.forEach((p,idx) => appointments[idx].patient = p)
@@ -567,7 +567,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const desc = 'desc'
 
 						const planningFilter = {'$type':'UnionFilter','filters':[{'$type':'ServiceByHcPartyTagCodeDateFilter',healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start, endValueDate:end},{'$type':'ServiceByHcPartyTagCodeDateFilter', healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start*1000000, endValueDate:end*1000000}]}
-						this.api.contact().filterServicesBy(null,null,1000,{filter:planningFilter})
+						this.api.baseApi.contact().filterServicesBy(null,null,1000,{filter:planningFilter})
 							.then(planningList => {
                                 const svcDict = planningList.rows.reduce((acc,s) => {
                                     const cs = acc[s.id]
@@ -592,7 +592,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                                 s.patId = decodedPatIds.find(id=>id!=null); return decodedPatIds
                                             }))))
                                     .then(arraysOfArraysOfPatIdsAsUa => {
-                                        return this.api.patient().filterBy(null, null, maxplanningsize , /*index*/ null, sort, desc, {
+                                        return this.api.baseApi.patient().filterBy(null, null, maxplanningsize , /*index*/ null, sort, desc, {
                                             filter: {
                                                 '$type': 'PatientByIdsFilter',
                                                 'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa)))

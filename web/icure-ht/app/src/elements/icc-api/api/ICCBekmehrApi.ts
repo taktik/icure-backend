@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccBekmehrApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/smf/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -68,7 +70,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -80,7 +82,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/content".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.SumehrContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -92,7 +94,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/content".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc =>  new models.SumehrContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -104,7 +106,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/md5".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  new models.ContentDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -116,7 +118,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/valid".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (hcPartyId ? "&hcPartyId=" + hcPartyId : "") + (secretFKeys ? "&secretFKeys=" + secretFKeys : "")
 
-        return XHR.sendCommand('GET', _url , [], _body )
+        return XHR.sendCommand('GET', _url , [this.headers], _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -128,7 +130,7 @@ export class iccBekmehrApi {
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/validate".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 

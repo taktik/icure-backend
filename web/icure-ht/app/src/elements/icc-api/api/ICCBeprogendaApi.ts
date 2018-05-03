@@ -27,8 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeprogendaApi {
     host : string
-    constructor(host: string) {
+    headers : XHR.Header
+    constructor(host: string, headers: any) {
         this.host = host
+        this.headers = new XHR.Header('Authorization',headers.Authorization)
     }
 
 
@@ -44,7 +46,7 @@ export class iccBeprogendaApi {
         
         const _url = this.host+"/be_progenda/user/{userId}/credentials".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [], _body )
+        return XHR.sendCommand('PUT', _url , [this.headers], _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -56,7 +58,7 @@ export class iccBeprogendaApi {
         
         const _url = this.host+"/be_progenda/sync/{url}/{user}/{token}/{centerId}".replace("{url}", url+"").replace("{user}", user+"").replace("{token}", token+"").replace("{centerId}", centerId+"") + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "")
 
-        return XHR.sendCommand('POST', _url , [], _body )
+        return XHR.sendCommand('POST', _url , [this.headers], _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
