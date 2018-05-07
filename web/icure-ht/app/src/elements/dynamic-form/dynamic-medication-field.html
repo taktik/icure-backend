@@ -451,7 +451,7 @@
 					const limit = endIndex || grid.pageSize
 					const offset = params.index
 
-					this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
+					this.api.baseApi.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
 						return {totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)}
 					}).then(function (res) {
 						if (this.filterValue !== latestSearchValue) {
@@ -597,7 +597,7 @@
 				this.splice('value',this.value.findIndex(s=>s.id===id), 1)
 			},
 			selectMedicationFromList: function(med) {
-				this.api.bedrugs().getMppInfos(med.id.id,this.language==='en'?'fr':this.language||'fr').then((mppInfos)=>{
+				this.api.baseApi.bedrugs().getMppInfos(med.id.id,this.language==='en'?'fr':this.language||'fr').then((mppInfos)=>{
 					this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {"intendedname":med.name, "intendedcds":[{type:"CD-DRUG-CNK",code:med.id.id}]})
 					this.set('selectedMedicationContentWithId.medicationValue.regimen', [{weekday:null,date:null,administratedQuantity:{quantity:1,unit:mppInfos.gal.name}}])
 					this.$['medication-detail'].open()

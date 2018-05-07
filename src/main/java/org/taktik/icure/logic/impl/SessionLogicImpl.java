@@ -37,7 +37,6 @@ import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.PropertyType;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.logic.LocaleLogic;
 import org.taktik.icure.logic.PropertyLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.security.PermissionSetIdentifier;
@@ -67,7 +66,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 	private AuthenticationManager authenticationManager;
 
-	private LocaleLogic localeLogic;
 	private UserLogic userLogic;
 	private PropertyLogic propertyLogic;
 
@@ -121,8 +119,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	/* Generic */
 
 	private String determineLocale(User user, HttpServletRequest httpRequest, String authLocale) {
-		// Retrieve the default locale from the properties
-		String defaultLocale = localeLogic.getDefaultLocale();
 
 		// Retrieve the preferred locale of the user if any
 		Set<Property> properties = user.getProperties();
@@ -152,33 +148,11 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 		// If locale selectable
 		List<String> localeIdentifiers = new ArrayList<>();
-		if (localeLogic.isLocaleSelectable()) {
-			// Retrieve the selected locale from the request parameters if any
-			String selectedLocale = (httpRequest != null) ? httpRequest.getParameter(SELECTED_LOCALE_REQUEST_PARAMETER_NAME) : null;
-			localeIdentifiers.add(selectedLocale);
-
-			localeIdentifiers.add(authLocale);
 			localeIdentifiers.add(preferredLocale);
 			localeIdentifiers.add(heritedLocale);
-
-			// Add the acceptable locales to the client based on the Accept-Language
-			Enumeration<Locale> autoLocales = (httpRequest != null) ? httpRequest.getLocales() : null;
-			if (autoLocales != null) {
-				while (autoLocales.hasMoreElements()) {
-					Locale autoLocale = autoLocales.nextElement();
-					localeIdentifiers.add(autoLocale.toString());
-				}
-			}
-
-			localeIdentifiers.add(defaultLocale);
-		} else {
-			localeIdentifiers.add(preferredLocale);
-			localeIdentifiers.add(heritedLocale);
-			localeIdentifiers.add(defaultLocale);
-		}
 
 		// Determine the best locale to use
-		List<String> validLocaleIdentifiers = localeLogic.getValidLocaleIdentifiers(localeIdentifiers.toArray(new String[localeIdentifiers.size()]));
+		List<String> validLocaleIdentifiers = null;
 		return (validLocaleIdentifiers != null && !validLocaleIdentifiers.isEmpty()) ? validLocaleIdentifiers.get(0) : null;
 	}
 
@@ -203,7 +177,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 				if (userDetails.isRealAuth()) {
 					// Save selectedLocale as new preferred locale if locale is selectable and this locale was chosen
 					String selectedLocale = httpRequest.getParameter(SELECTED_LOCALE_REQUEST_PARAMETER_NAME);
-					if (localeLogic.isLocaleSelectable() && Objects.equals(locale, selectedLocale)) {
+					if ( Objects.equals(locale, selectedLocale)) {
 						PropertyType propertyTypeLocale = new PropertyType(TypedValuesType.STRING, PropertyTypes.Preference.LOCALE.getIdentifier());
 						Set<Property> newProperties = new HashSet<>();
 						newProperties.add(new Property(propertyTypeLocale, selectedLocale));
@@ -418,7 +392,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 		@Override
 		public String[] getLocaleIdentifiers() {
-			return new String[]{getLocale(), localeLogic.getDefaultLocale()};
+			return new String[]{getLocale(), null};
 		}
 
 	}
@@ -428,11 +402,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 		this.authenticationManager = authenticationManager;
 	}
 
-
-	@Autowired
-	public void setLocaleLogic(LocaleLogic localeLogic) {
-		this.localeLogic = localeLogic;
-	}
 
 	@Autowired
 	public void setUserLogic(UserLogic userLogic) {

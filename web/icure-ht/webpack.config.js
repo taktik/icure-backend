@@ -33,6 +33,7 @@ module.exports = {
 		        use: [
 			        {
 				        loader: 'babel-loader',
+
 				        options: {
 				        	/*presets: ['es2015'],*/
 					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
@@ -46,7 +47,8 @@ module.exports = {
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
-	            use: [{ loader: 'babel-loader', options: { /*presets: ['es2015']*/ }}]
+	            use: [{ loader: 'babel-loader', options: { /*presets: ['es2015']*/ }}],
+                exclude: /(node_modules|bower_components)/
             },
             {
                 test: /\.ts$/,
@@ -66,6 +68,7 @@ module.exports = {
 	        },
         ]
     },
+	mode: 'development',
     plugins: [
         // This plugin will generate an index.html file for us that can be used
         // by the Webpack dev server. We can give it a template file (written in EJS)

@@ -55,13 +55,11 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
     //These keys are the public patient ids encrypted using the hcParty keys.
     protected Map<String,Set<Delegation>> cryptedForeignKeys = new HashMap<>();
 
-    //This is typically filled in the patient
     //When a document is created, the responsible generates a cryptographically random master key (never to be used for something else than referencing from other entities)
     //He/she encrypts it using his own AES exchange key and stores it as a delegation
     //The responsible is thus always in the delegations as well
     protected Map<String,Set<Delegation>> delegations = new HashMap<>();
 
-	//This is typically filled in the patient
 	//When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
 	//He/she encrypts it using his own AES exchange key and stores it as a delegation
 	protected Map<String,Set<Delegation>> encryptionKeys = new HashMap<>();

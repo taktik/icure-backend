@@ -293,7 +293,7 @@
 				Promise.all(files.filter(f => !f.attached).map(f => {
 					f.attached = true
 					return this.api.document().new(this.user, null, {documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name})
-						.then(d => this.api.document().createDocument(d))
+						.then(d => this.api.baseApi.document().createDocument(d))
 						.then(d => {
 							f.doc = d
 							f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/,d.id)
@@ -324,14 +324,14 @@
 			},
 
 			addForm: function(templateGuid) {
-				this.api.hcparty().getCurrentHealthcareParty()
-					.then(hcp => this.api.form().getFormTemplatesByGuid(templateGuid, (hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/,'deptgeneralpractice') ))
+				this.api.baseApi.hcparty().getCurrentHealthcareParty()
+					.then(hcp => this.api.baseApi.form().getFormTemplatesByGuid(templateGuid, (hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/,'deptgeneralpractice') ))
 					.then(formTemplates => {
 						console.log("FTs: "+formTemplates.size+" FTs loaded")
 						if (formTemplates[0] && formTemplates[0].id) {
 							//Create a new form and link it to the currentContact
 							this.api.form().new(this.user, this.patient, {contactId: this.currentContact.id, formTemplateId: formTemplates[0].id, descr: formTemplates[0].name })
-								.then(f => this.api.form().createForm(f))
+								.then(f => this.api.baseApi.form().createForm(f))
 								.then(f => {
 									this.currentContact.subContacts.push({formId: f.id, services: []})
 									return this.saveCurrentContact()
@@ -366,7 +366,7 @@
 			},
 
 			saveCurrentContact: function() {
-				return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
+				return (this.currentContact.rev ? this.api.baseApi.contact().modifyContact(this.currentContact) : this.api.baseApi.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
 			},
 
 			_addedFormSelected: function (e, formTemplate) {
@@ -436,7 +436,7 @@
 				}))
 
 				const climbFormHierarchy = function (formIds, formsCache) {
-					return (formIds.length ? this.api.form().getForms({ids:formIds}) : Promise.resolve([])).then(forms => {
+					return (formIds.length ? this.api.baseApi.form().getForms({ids:formIds}) : Promise.resolve([])).then(forms => {
 						forms.forEach(f => { formsCache[f.id] = f })
 						const formIds = _.uniq(_.flatten(formGroups.map(fg => fg.forms.filter(f => f.id).map(f => {
 							const theForm = formsCache[f.id]
@@ -478,7 +478,7 @@
 					filter: function (filterValue, limit, offset, sortKey, descending) {
 						const regExp = filterValue && new RegExp(filterValue, "i")
 
-						return this.api.form().findFormTemplates().then(fts => {
+						return this.api.baseApi.form().findFormTemplates().then(fts => {
 							const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp))
 							return {totalSize: fts.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}
 						})

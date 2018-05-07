@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "esnext", // Use esnext to enable lazy loading
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    //
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es2017",
+      "es6",
+      "es5",
+      "dom"
+    ],
+    "declaration": true,
+    /* Generates corresponding '.d.ts' file. */
+    "outDir": "./dist",
+    "strict": true,
+    "baseUrl": "./",
+    //"paths": {
+      //"polymer-redux": [
+        //"types/polymer-redux"
+      //]
+    //}
+  },
+  //"include": [
+  //  "./src",
+  //  "./types/*",
+    //"./bower_components/ozone-components/dist/ozone-api/**/*"
+  //]
+}
