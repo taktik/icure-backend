@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class MpppropInfos {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as MpppropInfos, json)
  }
     id?: models.MpppropId;

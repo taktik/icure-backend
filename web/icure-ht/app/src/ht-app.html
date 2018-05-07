@@ -509,7 +509,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				//Be careful not to use this.api here as it might not have been defined yet
 				this.$.baseApi.user().getCurrentUser().then(u => {
-					this.set('user', u)
+				    this.set('user', u)
 					this.$.loginDialog.opened = false
 
 					this.set('credentials.twofa',null)
@@ -529,7 +529,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							if (this.credentials.ehpassword) {
 								this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)).then(res => {
 									this.$.api.keystoreId = res.uuid
-									this.$.api.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
+									this.$.baseApi.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
 										this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
 											this.$.api.tokenId = res.tokenId
 											this.$.api.token = res.token

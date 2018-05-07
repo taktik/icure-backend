@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class AgreementTransaction {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as AgreementTransaction, json)
  }
     responseType?: string;

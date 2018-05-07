@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class BoxInfo {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as BoxInfo, json)
  }
     boxId?: string;

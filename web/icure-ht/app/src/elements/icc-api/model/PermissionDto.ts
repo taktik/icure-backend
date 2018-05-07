@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class PermissionDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as PermissionDto, json)
  }
     grant?: number;

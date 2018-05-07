@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TAckResponse {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TAckResponse, json)
  }
     xadesT?: string;

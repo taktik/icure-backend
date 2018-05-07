@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FormColumn {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FormColumn, json)
  }
     formDataList?: Array<models.FormLayoutData>;

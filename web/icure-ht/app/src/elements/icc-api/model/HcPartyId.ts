@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class HcPartyId {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as HcPartyId, json)
  }
     ids?: Array<models.KmehrId>;

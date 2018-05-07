@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Suggest {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Suggest, json)
  }
     filterKey?: string;

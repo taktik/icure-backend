@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class MapOfIdsDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as MapOfIdsDto, json)
  }
     mapOfIds?: { [key: string]: Array<string>; };

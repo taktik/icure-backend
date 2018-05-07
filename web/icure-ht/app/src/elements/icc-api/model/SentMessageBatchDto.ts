@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class SentMessageBatchDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as SentMessageBatchDto, json)
  }
     message?: models.MessageDto;

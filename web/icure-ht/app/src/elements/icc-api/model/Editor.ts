@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Editor {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Editor, json)
  }
     left?: number;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class InvoiceRecord {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as InvoiceRecord, json)
  }
     message?: string;

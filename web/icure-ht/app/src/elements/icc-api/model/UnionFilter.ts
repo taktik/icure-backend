@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class UnionFilter {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as UnionFilter, json)
  }
     desc?: string;

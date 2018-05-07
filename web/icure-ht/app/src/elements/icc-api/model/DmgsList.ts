@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class DmgsList {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as DmgsList, json)
  }
     complete?: boolean;

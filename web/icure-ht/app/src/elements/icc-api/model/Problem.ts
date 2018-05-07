@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Problem {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Problem, json)
  }
     cds?: Array<models.CDERROR>;

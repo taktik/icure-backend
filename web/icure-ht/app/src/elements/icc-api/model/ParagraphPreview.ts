@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ParagraphPreview {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ParagraphPreview, json)
  }
     chapterName?: string;

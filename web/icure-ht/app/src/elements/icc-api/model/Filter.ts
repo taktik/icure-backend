@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Filter {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Filter, json)
  }
     desc?: string;

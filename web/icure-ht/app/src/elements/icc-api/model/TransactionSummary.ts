@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TransactionSummary {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TransactionSummary, json)
  }
     ids?: Array<models.KmehrId>;

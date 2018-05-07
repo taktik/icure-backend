@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FormLayout {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FormLayout, json)
  }
     name?: string;

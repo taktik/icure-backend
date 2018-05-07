@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FullTextSearchResult {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FullTextSearchResult, json)
  }
     resultClass?: string;

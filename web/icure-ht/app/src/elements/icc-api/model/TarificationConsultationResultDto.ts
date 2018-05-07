@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TarificationConsultationResultDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TarificationConsultationResultDto, json)
  }
     birthdate?: Date;

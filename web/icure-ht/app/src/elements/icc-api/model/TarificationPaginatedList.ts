@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TarificationPaginatedList {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TarificationPaginatedList, json)
  }
     totalSize?: number;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class CompositionId {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as CompositionId, json)
  }
     mppId?: string;

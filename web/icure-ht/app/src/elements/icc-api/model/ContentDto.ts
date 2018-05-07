@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ContentDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ContentDto, json)
  }
     stringValue?: string;

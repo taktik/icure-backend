@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ConsentMessage {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ConsentMessage, json)
  }
     complete?: boolean;

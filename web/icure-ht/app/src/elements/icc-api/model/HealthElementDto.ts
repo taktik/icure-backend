@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class HealthElementDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as HealthElementDto, json)
  }
     id?: string;

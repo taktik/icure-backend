@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class OrPredicate {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as OrPredicate, json)
  }
     desc?: string;

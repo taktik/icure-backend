@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Prescription {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Prescription, json)
  }
     creationDate?: Date;

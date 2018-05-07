@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TarificationDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TarificationDto, json)
  }
     id?: string;

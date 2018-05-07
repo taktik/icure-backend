@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ComplementFilter {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ComplementFilter, json)
  }
     desc?: string;

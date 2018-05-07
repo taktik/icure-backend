@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class IamFullInfos {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as IamFullInfos, json)
  }
     iamId?: models.IamId;

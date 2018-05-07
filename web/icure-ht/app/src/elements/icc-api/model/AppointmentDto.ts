@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class AppointmentDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as AppointmentDto, json)
  }
     zoneId?: string;

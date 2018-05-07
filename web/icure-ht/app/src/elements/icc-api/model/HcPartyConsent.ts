@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class HcPartyConsent {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as HcPartyConsent, json)
  }
     hcparty?: models.HcPartyId;

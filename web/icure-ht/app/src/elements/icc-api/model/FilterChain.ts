@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FilterChain {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FilterChain, json)
  }
     filter?: models.Filter;

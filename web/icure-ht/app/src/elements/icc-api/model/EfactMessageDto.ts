@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class EfactMessageDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as EfactMessageDto, json)
  }
     detail?: string;

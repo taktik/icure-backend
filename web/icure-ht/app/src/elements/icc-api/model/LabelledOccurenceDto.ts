@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class LabelledOccurenceDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as LabelledOccurenceDto, json)
  }
     label?: string;

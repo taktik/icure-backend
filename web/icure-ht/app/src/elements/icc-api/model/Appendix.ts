@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Appendix {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Appendix, json)
  }
     verseSeq?: number;

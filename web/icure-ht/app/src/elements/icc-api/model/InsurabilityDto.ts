@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class InsurabilityDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as InsurabilityDto, json)
  }
     parameters?: { [key: string]: string; };

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class HubTherapeuticLink {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as HubTherapeuticLink, json)
  }
     patient?: models.PatientIdType;

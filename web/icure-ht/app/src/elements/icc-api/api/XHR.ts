@@ -19,12 +19,16 @@ export class Data {
     statusText: string;
 
     constructor(jsXHR: XMLHttpRequest) {
-    this.headers = jsXHR.getAllResponseHeaders();
-    this.body = JSON.parse(jsXHR.response);
-    this.text = jsXHR.responseText;
-    this.type = jsXHR.responseType;
-    this.status = jsXHR.status;
-    this.statusText = jsXHR.statusText;
+        this.headers = jsXHR.getAllResponseHeaders();
+        if(jsXHR.responseType == "json" || jsXHR.responseType == ""){
+            this.body = JSON.parse(jsXHR.response);
+        }else{
+            this.body = jsXHR.response;
+        }
+        this.text = jsXHR.responseText;
+        this.type = jsXHR.responseType;
+        this.status = jsXHR.status;
+        this.statusText = jsXHR.statusText;
     }
     }
 
@@ -36,10 +40,11 @@ export class Data {
         return new Promise<Data>(function (resolve, reject) {
             var jsXHR = new XMLHttpRequest();
             jsXHR.open(method, url);
-
-            if (headers != null)
-                headers.forEach(header =>
-                    jsXHR.setRequestHeader(header.header, header.data));
+            const contentType = headers && headers.find(it=>it.header==='Content-Type');
+            if (headers != null) {
+                headers.forEach(header => {
+                jsXHR.setRequestHeader(header.header, header.data)})
+            }
 
             jsXHR.onload = (ev) => {
                 if (jsXHR.status < 200 || jsXHR.status >= 300) {
@@ -51,10 +56,14 @@ export class Data {
                 reject('Error ' + method.toUpperCase() + 'ing data to url "');
             };
 
-            if (method == 'POST')
-                jsXHR.send(data);
-            else
+            if (method === 'POST' || method === 'PUT') {
+                if(!contentType){
+                    jsXHR.setRequestHeader("Content-Type", "application/json");
+                }
+                jsXHR.send(JSON.stringify(data));
+            }else {
                 jsXHR.send();
+            }
         });
     }
 

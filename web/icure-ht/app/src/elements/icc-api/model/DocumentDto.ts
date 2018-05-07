@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class DocumentDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as DocumentDto, json)
  }
     id?: string;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Bordereau95 {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Bordereau95, json)
  }
     accountARequestedAmount?: number;

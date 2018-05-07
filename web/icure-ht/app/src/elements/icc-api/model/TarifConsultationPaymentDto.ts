@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TarifConsultationPaymentDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TarifConsultationPaymentDto, json)
  }
     amount?: number;

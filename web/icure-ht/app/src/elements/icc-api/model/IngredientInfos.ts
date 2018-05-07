@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class IngredientInfos {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as IngredientInfos, json)
  }
     id?: models.IngredientId;

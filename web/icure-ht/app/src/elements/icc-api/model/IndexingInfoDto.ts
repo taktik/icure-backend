@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class IndexingInfoDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as IndexingInfoDto, json)
  }
     statuses?: { [key: string]: models.Number; };

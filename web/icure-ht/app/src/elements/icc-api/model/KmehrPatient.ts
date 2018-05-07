@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class KmehrPatient {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as KmehrPatient, json)
  }
     inss?: string;

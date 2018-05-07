@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ErrorCount {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ErrorCount, json)
  }
     contactPersonFirstName?: string;

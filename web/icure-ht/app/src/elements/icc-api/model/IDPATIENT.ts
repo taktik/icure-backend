@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class IDPATIENT {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as IDPATIENT, json)
  }
     value?: string;

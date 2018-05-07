@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FormGroupDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FormGroupDto, json)
  }
     guid?: string;

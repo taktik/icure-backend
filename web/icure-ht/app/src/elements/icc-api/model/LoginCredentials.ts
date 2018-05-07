@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class LoginCredentials {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as LoginCredentials, json)
  }
     username?: string;

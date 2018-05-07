@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class MedicalHouseInfo {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as MedicalHouseInfo, json)
  }
     periodStart?: number;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class PatientPaginatedList {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as PatientPaginatedList, json)
  }
     totalSize?: number;

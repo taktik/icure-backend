@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class HCPartyIdType {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as HCPartyIdType, json)
  }
     ids?: Array<models.IDHCPARTY>;

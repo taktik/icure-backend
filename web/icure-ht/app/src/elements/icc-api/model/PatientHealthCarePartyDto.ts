@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class PatientHealthCarePartyDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as PatientHealthCarePartyDto, json)
  }
     type?: PatientHealthCarePartyDto.TypeEnum;

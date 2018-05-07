@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class VirtualHostDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as VirtualHostDto, json)
  }
     id?: string;

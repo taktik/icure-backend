@@ -231,7 +231,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					if (grid.lastParams !== thisParams) {
 						grid.lastParams = thisParams
 						console.log("Starting search for " + thisParams)
-						grid.latestPromise = this.api.hcparty().findByName(latestSearchValue, keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc)
+						grid.latestPromise = this.api.baseApi.hcparty().findByName(latestSearchValue, keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc)
 					}
 
 					grid.latestPromise.then(function (res) {

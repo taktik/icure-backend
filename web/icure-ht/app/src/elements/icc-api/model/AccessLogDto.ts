@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class AccessLogDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as AccessLogDto, json)
  }
     id?: string;

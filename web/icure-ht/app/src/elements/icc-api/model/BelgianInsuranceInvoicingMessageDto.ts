@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class BelgianInsuranceInvoicingMessageDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as BelgianInsuranceInvoicingMessageDto, json)
  }
     acknowledgment?: models.Acknowledgment;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Formula {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Formula, json)
  }
     value?: string;

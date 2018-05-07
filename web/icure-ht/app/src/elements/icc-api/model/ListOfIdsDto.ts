@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ListOfIdsDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ListOfIdsDto, json)
  }
     ids?: Array<string>;

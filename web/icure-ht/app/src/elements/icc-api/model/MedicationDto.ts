@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class MedicationDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as MedicationDto, json)
  }
     compoundPrescription?: string;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Author {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Author, json)
  }
     hcparties?: Array<models.HcParty>;

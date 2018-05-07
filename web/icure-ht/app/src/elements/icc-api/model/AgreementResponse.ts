@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class AgreementResponse {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as AgreementResponse, json)
  }
     acknowledged?: boolean;

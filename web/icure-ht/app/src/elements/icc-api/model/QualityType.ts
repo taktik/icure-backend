@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class QualityType {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as QualityType, json)
  }
     quality?: string;

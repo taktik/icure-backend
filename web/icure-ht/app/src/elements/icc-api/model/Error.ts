@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Error {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Error, json)
  }
     code?: string;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Document {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Document, json)
  }
     title?: string;

@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class IDHCPARTY {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as IDHCPARTY, json)
  }
     value?: string;

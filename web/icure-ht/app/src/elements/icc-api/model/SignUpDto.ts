@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class SignUpDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as SignUpDto, json)
  }
     id?: string;

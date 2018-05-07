@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class TelecomDtoEmbed {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as TelecomDtoEmbed, json)
  }
     telecomType?: TelecomDtoEmbed.TelecomTypeEnum;

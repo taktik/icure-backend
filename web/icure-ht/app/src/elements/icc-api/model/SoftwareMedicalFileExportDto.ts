@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class SoftwareMedicalFileExportDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as SoftwareMedicalFileExportDto, json)
  }
     secretForeignKeys?: Array<string>;

@@ -157,7 +157,7 @@
 				if (!this.service) { return }
 				const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en')
 				const docId =  serviceContent && serviceContent.documentId
-				this.api.document().getDocument(docId).then(doc => {
+				this.api.baseApi.document().getDocument(docId).then(doc => {
 					this.set('document',doc)
 					if (doc.delegations && Object.keys(doc.delegations).length) {
 						this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {

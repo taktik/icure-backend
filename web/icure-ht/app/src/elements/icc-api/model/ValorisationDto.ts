@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ValorisationDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ValorisationDto, json)
  }
     startOfValidity?: number;

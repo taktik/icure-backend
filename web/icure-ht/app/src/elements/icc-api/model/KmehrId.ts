@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class KmehrId {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as KmehrId, json)
  }
     sv?: string;

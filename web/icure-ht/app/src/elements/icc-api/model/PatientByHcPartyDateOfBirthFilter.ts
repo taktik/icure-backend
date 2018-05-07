@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class PatientByHcPartyDateOfBirthFilter {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as PatientByHcPartyDateOfBirthFilter, json)
  }
     desc?: string;

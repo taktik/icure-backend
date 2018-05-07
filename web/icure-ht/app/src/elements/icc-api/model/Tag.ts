@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Tag {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Tag, json)
  }
     type?: string;

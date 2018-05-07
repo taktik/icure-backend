@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class UnitType {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as UnitType, json)
  }
     cd?: models.CDUNIT;

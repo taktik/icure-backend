@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class DmgExtension {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as DmgExtension, json)
  }
     complete?: boolean;

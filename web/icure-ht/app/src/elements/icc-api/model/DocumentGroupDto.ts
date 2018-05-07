@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class DocumentGroupDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as DocumentGroupDto, json)
  }
     guid?: string;

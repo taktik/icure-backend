@@ -473,6 +473,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		import moment from 'moment/src/moment'
 		import _ from 'lodash/lodash'
+        import * as models from './elements/icc-api/model/models';
 
 		Polymer({
 			is: 'ht-main',
@@ -553,7 +554,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 						this.api.baseApi.bemikrono().appointments(parseInt(moment().format('YYYYMMDD')))
 							.then(appointments => {
-								return appointments && this.api.patient().getPatients({ids: appointments.map(a => a.patientId)}).then(patients => {
+								return appointments && this.api.baseApi.patient().getPatients(new models.ListOfIdsDto({ids: appointments.map(a => a.patientId)})).then(patients => {//todo wtf JSON not valid
 									patients.forEach((p,idx) => appointments[idx].patient = p)
 									return appointments
 								})
@@ -567,7 +568,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const desc = 'desc'
 
 						const planningFilter = {'$type':'UnionFilter','filters':[{'$type':'ServiceByHcPartyTagCodeDateFilter',healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start, endValueDate:end},{'$type':'ServiceByHcPartyTagCodeDateFilter', healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start*1000000, endValueDate:end*1000000}]}
-						this.api.baseApi.contact().filterServicesBy(null,null,1000,{filter:planningFilter})
+						this.api.baseApi.contact().filterServicesBy(null,null,1000,new models.FilterChain({filter:planningFilter}))//todo wtf JSON not valid
 							.then(planningList => {
                                 const svcDict = planningList.rows.reduce((acc,s) => {
                                     const cs = acc[s.id]

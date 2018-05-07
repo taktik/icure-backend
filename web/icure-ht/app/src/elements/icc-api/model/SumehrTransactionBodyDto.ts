@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class SumehrTransactionBodyDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as SumehrTransactionBodyDto, json)
  }
     body?: string;

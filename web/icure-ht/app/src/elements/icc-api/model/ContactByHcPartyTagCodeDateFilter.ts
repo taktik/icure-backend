@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ContactByHcPartyTagCodeDateFilter {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ContactByHcPartyTagCodeDateFilter, json)
  }
     desc?: string;

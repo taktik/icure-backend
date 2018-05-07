@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class DmgAcknowledge {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as DmgAcknowledge, json)
  }
     complete?: boolean;

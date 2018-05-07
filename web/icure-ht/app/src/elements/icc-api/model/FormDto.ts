@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FormDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FormDto, json)
  }
     id?: string;

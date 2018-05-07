@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Period {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Period, json)
  }
     periodStart?: number;

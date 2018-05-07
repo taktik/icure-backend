@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class AgreementRequest {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as AgreementRequest, json)
  }
     patientId?: string;

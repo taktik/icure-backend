@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ServicePaginatedList {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ServicePaginatedList, json)
  }
     totalSize?: number;

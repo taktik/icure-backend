@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ErrorDetail {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ErrorDetail, json)
  }
     creationDate?: number;

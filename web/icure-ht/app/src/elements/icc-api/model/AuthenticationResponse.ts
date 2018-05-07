@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class AuthenticationResponse {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as AuthenticationResponse, json)
  }
     healthcarePartyId?: string;

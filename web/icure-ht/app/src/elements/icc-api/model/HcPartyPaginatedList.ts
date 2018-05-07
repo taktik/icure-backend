@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class HcPartyPaginatedList {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as HcPartyPaginatedList, json)
  }
     totalSize?: number;

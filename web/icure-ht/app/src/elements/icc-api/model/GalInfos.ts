@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class GalInfos {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as GalInfos, json)
  }
     id?: string;

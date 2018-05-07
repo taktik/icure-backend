@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ErrorDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ErrorDto, json)
  }
     domain?: string;

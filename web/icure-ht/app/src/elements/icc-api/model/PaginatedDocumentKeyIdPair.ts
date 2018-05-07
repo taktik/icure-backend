@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class PaginatedDocumentKeyIdPair {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as PaginatedDocumentKeyIdPair, json)
  }
     startKey?: any;

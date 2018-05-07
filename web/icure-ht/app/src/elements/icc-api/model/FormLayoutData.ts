@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class FormLayoutData {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as FormLayoutData, json)
  }
     subForm?: boolean;

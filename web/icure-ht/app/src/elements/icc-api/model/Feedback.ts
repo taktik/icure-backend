@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Feedback {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Feedback, json)
  }
     rid?: string;

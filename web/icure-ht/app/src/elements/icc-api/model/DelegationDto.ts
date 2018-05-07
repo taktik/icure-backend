@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class DelegationDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as DelegationDto, json)
  }
     owner?: string;

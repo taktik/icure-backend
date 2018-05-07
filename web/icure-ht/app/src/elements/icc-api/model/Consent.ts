@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Consent {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Consent, json)
  }
     patient?: models.PatientId;

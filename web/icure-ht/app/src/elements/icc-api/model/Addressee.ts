@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class Addressee {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as Addressee, json)
  }
     id?: string;

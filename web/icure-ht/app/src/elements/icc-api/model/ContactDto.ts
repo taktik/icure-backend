@@ -25,7 +25,7 @@
 import * as models from './models';
 
 export class ContactDto {
- constructor(json: JSON) {
+ constructor(json: JSON| any) {
     Object.assign(this as ContactDto, json)
  }
     id?: string;
