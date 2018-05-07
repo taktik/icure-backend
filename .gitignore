@@ -1,4 +1,7 @@
 # Compiled class file
+*.class
+build/
+out/
 
 # Log file
 *.log
@@ -22,6 +25,8 @@ hs_err_pid*
 #JS directories
 bower_components/
 node_modules/
+dist/
 
 #IntelliJ files
 *.iml
+.idea

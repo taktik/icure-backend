@@ -89,8 +89,7 @@
 					this.hcparty().init()
 					this.crypto().init()
 
-					Object.getOwnPropertyNames(this.baseApi.$).forEach((p)=>{
-						p = p.replace(/icc-(.+?)-api/,'$1')
+					Object.getOwnPropertyNames(Object.getPrototypeOf(this.baseApi)).forEach((p)=>{
 						if (typeof this.baseApi[p] === 'function' && !this[p]) {
 							this[p] = this.baseApi[p].bind(this.baseApi)
 						}
