@@ -172,21 +172,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 				// Determine locale and save it
 				String locale = determineLocale(user, httpRequest, authLocale);
 				httpRequest.getSession().setAttribute(SESSION_LOCALE_ATTRIBUTE, locale);
-
-				// Check if this is a real authentication
-				if (userDetails.isRealAuth()) {
-					// Save selectedLocale as new preferred locale if locale is selectable and this locale was chosen
-					String selectedLocale = httpRequest.getParameter(SELECTED_LOCALE_REQUEST_PARAMETER_NAME);
-					if ( Objects.equals(locale, selectedLocale)) {
-						PropertyType propertyTypeLocale = new PropertyType(TypedValuesType.STRING, PropertyTypes.Preference.LOCALE.getIdentifier());
-						Set<Property> newProperties = new HashSet<>();
-						newProperties.add(new Property(propertyTypeLocale, selectedLocale));
-						userLogic.modifyProperties(user.getId(), newProperties);
-					}
-
-					// Mark the user as logged
-					//userLogic.userLogged(user);
-				}
 			}
 		}
 	}

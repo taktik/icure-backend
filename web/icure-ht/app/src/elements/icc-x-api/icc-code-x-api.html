@@ -29,8 +29,9 @@
 
 				init: function () {
 					this.baseApi = this.api.code()
-					Object.getOwnPropertyNames(this.baseApi.$).forEach((p)=> {
-						if (this.baseApi[p] && typeof this.baseApi[p] === 'function') {
+                    const proto = Object.getPrototypeOf(this.baseApi);
+                    Object.getOwnPropertyNames(proto).forEach((p)=> {
+                        if (p !== 'constructor' && p !== 'handleError' && proto[p] && typeof proto[p] === 'function') {
 							this[p] = this.baseApi[p].bind(this.baseApi)
 						}
 					})

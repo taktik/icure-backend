@@ -16,7 +16,6 @@
 <link rel="import" href="./api/iccBekmehrApi.ts">
 <link rel="import" href="./api/iccBemikronoApi.ts">
 <link rel="import" href="./api/iccBeprimotoApi.ts">
-<link rel="import" href="./api/iccBeprogendaApi.ts">
 <link rel="import" href="./api/iccBerecipeApi.ts">
 <link rel="import" href="./api/iccBeresultexportApi.ts">
 <link rel="import" href="./api/iccBeresultimportApi.ts">
@@ -28,10 +27,8 @@
 <link rel="import" href="./api/iccDoctemplateApi.ts">
 <link rel="import" href="./api/iccDocumentApi.ts">
 <link rel="import" href="./api/iccEntitytemplateApi.ts">
-<link rel="import" href="./api/iccFilterApi.ts">
 <link rel="import" href="./api/iccFormApi.ts">
 <link rel="import" href="./api/iccGenericApi.ts">
-<link rel="import" href="./api/iccGroupApi.ts">
 <link rel="import" href="./api/iccHcpartyApi.ts">
 <link rel="import" href="./api/iccHelementApi.ts">
 <link rel="import" href="./api/iccIcureApi.ts">
@@ -41,7 +38,6 @@
 <link rel="import" href="./api/iccPatientApi.ts">
 <link rel="import" href="./api/iccReplicationApi.ts">
 <link rel="import" href="./api/iccTarificationApi.ts">
-<link rel="import" href="./api/iccTechnicaladminApi.ts">
 <link rel="import" href="./api/iccUserApi.ts">
 */
 
@@ -88,7 +84,6 @@
                 this.bekmehricc = new api.iccBekmehrApi(this.host, this.headers);
                 this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers);
                 this.beprimotoicc = new api.iccBeprimotoApi(this.host, this.headers);
-                this.beprogendaicc = new api.iccBeprogendaApi(this.host, this.headers);
                 this.berecipeicc = new api.iccBerecipeApi(this.host, this.headers);
                 this.beresultexporticc = new api.iccBeresultexportApi(this.host, this.headers);
                 this.beresultimporticc = new api.iccBeresultimportApi(this.host, this.headers);
@@ -100,10 +95,8 @@
                 this.doctemplateicc = new api.iccDoctemplateApi(this.host, this.headers);
                 this.documenticc = new api.iccDocumentApi(this.host, this.headers);
                 this.entitytemplateicc = new api.iccEntitytemplateApi(this.host, this.headers);
-                this.filtericc = new api.iccFilterApi(this.host, this.headers);
                 this.formicc = new api.iccFormApi(this.host, this.headers);
                 this.genericicc = new api.iccGenericApi(this.host, this.headers);
-                this.groupicc = new api.iccGroupApi(this.host, this.headers);
                 this.hcpartyicc = new api.iccHcpartyApi(this.host, this.headers);
                 this.helementicc = new api.iccHelementApi(this.host, this.headers);
                 this.icureicc = new api.iccIcureApi(this.host, this.headers);
@@ -113,7 +106,6 @@
                 this.patienticc = new api.iccPatientApi(this.host, this.headers);
                 this.replicationicc = new api.iccReplicationApi(this.host, this.headers);
                 this.tarificationicc = new api.iccTarificationApi(this.host, this.headers);
-                this.technicaladminicc = new api.iccTechnicaladminApi(this.host, this.headers);
                 this.usericc = new api.iccUserApi(this.host, this.headers);
                 
             },
@@ -132,7 +124,6 @@
             bekmehr: function() { return this.bekmehricc},
             bemikrono: function() { return this.bemikronoicc},
             beprimoto: function() { return this.beprimotoicc},
-            beprogenda: function() { return this.beprogendaicc},
             berecipe: function() { return this.berecipeicc},
             beresultexport: function() { return this.beresultexporticc},
             beresultimport: function() { return this.beresultimporticc},
@@ -144,10 +135,8 @@
             doctemplate: function() { return this.doctemplateicc},
             document: function() { return this.documenticc},
             entitytemplate: function() { return this.entitytemplateicc},
-            filter: function() { return this.filtericc},
             form: function() { return this.formicc},
             generic: function() { return this.genericicc},
-            group: function() { return this.groupicc},
             hcparty: function() { return this.hcpartyicc},
             helement: function() { return this.helementicc},
             icure: function() { return this.icureicc},
@@ -157,7 +146,6 @@
             patient: function() { return this.patienticc},
             replication: function() { return this.replicationicc},
             tarification: function() { return this.tarificationicc},
-            technicaladmin: function() { return this.technicaladminicc},
             user: function() { return this.usericc},
             
         });

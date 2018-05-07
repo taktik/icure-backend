@@ -273,7 +273,7 @@ public class FormFacade implements OpenApiFacade{
 	}
 
 
-	@ApiOperation(response = FormTemplateDto.class, responseContainer = "Array", value = "Gets a form template by guid")
+	@ApiOperation(response = FormTemplateDto.class, value = "Gets a form template by guid")
 	@GET
 	@Path("/template/{formTemplateId}")
 	public Response getFormTemplate(@PathParam("formTemplateId") String formTemplateId) {
