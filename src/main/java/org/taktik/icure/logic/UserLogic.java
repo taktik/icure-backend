@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic<User> {
-	void transferUsersIfNecessary();
 
 	void createDefaultUserIfNecessary();
 

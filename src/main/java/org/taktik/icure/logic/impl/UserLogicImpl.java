@@ -24,14 +24,12 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.taktik.icure.constants.Permissions;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.constants.TypedValuesType;
 import org.taktik.icure.constants.Users;
-import org.taktik.icure.dao.LegacyUserDAO;
 import org.taktik.icure.dao.UserDAO;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.db.PaginatedList;
@@ -83,7 +81,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	private static final Duration LOST_PASSWORD_TOKEN_EXPIRATION_DELAY = Duration.ofDays(3);
 
 	private UserDAO userDAO;
-	private LegacyUserDAO legacyUserDAO;
 
 	private HealthcarePartyLogic healthcarePartyLogic;
 	private PropertyLogic propertyLogic;
@@ -169,15 +166,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 				new Property(new PropertyType(TypedValuesType.JSON, "org.taktik.icure.tarification.favorites"),
 						new TypedValue(TypedValuesType.JSON, "{}")));
 
-	}
-
-	@Override
-	public void transferUsersIfNecessary() {
-		if (userDAO.getAll().size() == 0) {
-			List<User> users = legacyUserDAO.getAll();
-			users.forEach(u -> u.setRev(null));
-			userDAO.create(users);
-		}
 	}
 
 
@@ -848,11 +836,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	@Autowired
 	public void setUserDAO(UserDAO userDAO) {
 		this.userDAO = userDAO;
-	}
-
-	@Autowired
-	public void setLegacyUserDAO(LegacyUserDAO legacyUserDAO) {
-		this.legacyUserDAO = legacyUserDAO;
 	}
 
 }

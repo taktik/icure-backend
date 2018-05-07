@@ -19,10 +19,8 @@
 package org.taktik.icure.entities.embed;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.constants.Permissions;
 import org.taktik.icure.entities.User;
-import org.taktik.icure.entities.VirtualHost;
 import org.taktik.icure.security.PermissionSetIdentifier;
 
 import java.io.Serializable;
@@ -34,15 +32,12 @@ public class PermissionCriterion implements Cloneable, Serializable {
 
 	protected boolean negative;
 
-	protected VirtualHost virtualHost;
 	protected Permissions.CriterionTypeCurrentUser currentUser;
     protected Permissions.CriterionDataType dataType;
     protected String patientStatus;
 
 	public Permissions.CriterionType getType() {
-		if (virtualHost != null) {
-			return Permissions.CriterionType.VIRTUALHOST;
-		} else if (currentUser != null) {
+		if (currentUser != null) {
 			return Permissions.CriterionType.CURRENT_USER;
 		} else if (dataType != null) {
             return Permissions.CriterionType.DATA_TYPE;
@@ -54,7 +49,7 @@ public class PermissionCriterion implements Cloneable, Serializable {
 	}
 
 	public boolean isUseless() {
-		return (virtualHost == null && currentUser == null  && dataType==null && patientStatus == null);
+		return (currentUser == null  && dataType==null && patientStatus == null);
 	}
 
 	public boolean match(PermissionSetIdentifier permissionSetIdentifier,
@@ -99,14 +94,6 @@ public class PermissionCriterion implements Cloneable, Serializable {
 		return match;
 	}
 
-    public VirtualHost getVirtualHost() {
-        return virtualHost;
-    }
-
-    public void setVirtualHost(VirtualHost virtualHost) {
-        this.virtualHost = virtualHost;
-    }
-
     public Permissions.CriterionTypeCurrentUser getCurrentUser() {
         return currentUser;
     }
@@ -143,7 +130,6 @@ public class PermissionCriterion implements Cloneable, Serializable {
 	public PermissionCriterion clone() {
 		PermissionCriterion clone = new PermissionCriterion();
 		clone.setNegative(isNegative());
-		clone.setVirtualHost(getVirtualHost());
 		clone.setCurrentUser(getCurrentUser());
         clone.setDataType(getDataType());
         clone.setPatientStatus(getPatientStatus());
@@ -163,7 +149,6 @@ public class PermissionCriterion implements Cloneable, Serializable {
         if (dataType != that.dataType) return false;
         if (patientStatus != null ? !patientStatus.equals(that.patientStatus) : that.patientStatus != null)
             return false;
-        if (virtualHost != null ? !virtualHost.equals(that.virtualHost) : that.virtualHost != null) return false;
 
         return true;
     }
@@ -171,7 +156,6 @@ public class PermissionCriterion implements Cloneable, Serializable {
     @Override
     public int hashCode() {
         int result = (negative ? 1 : 0);
-        result = 31 * result + (virtualHost != null ? virtualHost.hashCode() : 0);
         result = 31 * result + (currentUser != null ? currentUser.hashCode() : 0);
         result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
         result = 31 * result + (patientStatus != null ? patientStatus.hashCode() : 0);

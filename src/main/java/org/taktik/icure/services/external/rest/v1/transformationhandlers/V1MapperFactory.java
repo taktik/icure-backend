@@ -38,7 +38,6 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.be.ehealth.dto.dmg.DmgAcknowledge;
 import org.taktik.icure.be.ehealth.dto.dmg.DmgClosure;
 import org.taktik.icure.be.ehealth.dto.dmg.DmgConsultation;

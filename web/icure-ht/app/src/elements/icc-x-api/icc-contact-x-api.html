@@ -168,7 +168,7 @@
 			},
 
 			shortServiceDescription: function (svc, lng) {
-				const c = svc && svc.content && (svc.content[lng] || svc.content['fr'] || Object.keys(svc.content)[0] ? svc.content[Object.keys(svc.content)[0]] : null)
+				const c = svc && svc.content && (svc.content[lng] || svc.content['fr'] || (Object.keys(svc.content)[0] ? svc.content[Object.keys(svc.content)[0]] : null))
 				return !c ? '' : (c.stringValue || ((c.numberValue || c.numberValue === 0) && c.numberValue) || c.measureValue || (c.booleanValue && svc.label) || (c.medicationValue ? this.medication().medicationToString(c.medicationValue, lng) : null))
 			},
 
