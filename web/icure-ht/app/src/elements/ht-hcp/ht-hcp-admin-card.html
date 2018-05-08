@@ -118,7 +118,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			scheduleSave: function(hcp) {
 				if (this.saveTimeout) { clearTimeout(this.saveTimeout) }
 				this.saveAction = function() {
-					this.api.baseApi.hcparty().modifyHealthcareParty(hcp).then(h => this.hcp.rev = h.rev).catch(e => this.api.baseApi.hcp().getHealthcareParty(this.hcp.id).then(p => this.hcp = p))
+					this.api.hcparty().modifyHealthcareParty(hcp).then(h => this.hcp.rev = h.rev).catch(e => this.api.hcp().getHealthcareParty(this.hcp.id).then(p => this.hcp = p))
 				}.bind(this)
 				this.saveTimeout = setTimeout(this.saveAction, 10000)
 			},

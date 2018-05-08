@@ -1455,7 +1455,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return this.saveCurrentContact()
 			},
 			saveCurrentContact: function() {
-				return (this.currentContact.rev ? this.api.baseApi.contact().modifyContact(this.currentContact) : this.api.baseApi.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
+				return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
 			},
 			filterEvents: function() {
 				this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s=>s.tags.find(t=>t.type==='CD-LIFECYCLE'&&t.code==='planned')),it=>-this.api.moment(it.valueDate)))
@@ -1586,7 +1586,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 					//eHealth stuff
 					if (patient.ssin && this.api.tokenId) {
-						this.api.baseApi.hcparty().getHealthcareParty(this.user.healthcarePartyId).then( hcp =>
+						this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then( hcp =>
 							this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
 								const genInsOk = (!gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length))
 								const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical&& this.api.before(gi.medicalHouseInfo.periodStart, +(new Date())) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd+(24*3600*1000), +(new Date())))
@@ -1602,7 +1602,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									//set gen ins info on patient
 									const pi = patient.insurabilities && _.assign({},patient.insurabilities[0] || {})
 									const ins = gi.insurabilities[0]
-									this.api.baseApi.insurance().listInsurancesByCode(ins.mutuality).then(out => {
+									this.api.insurance().listInsurancesByCode(ins.mutuality).then(out => {
 										if (out && out.length) {
 											pi.insuranceId = out[0].id
 										}
@@ -1631,7 +1631,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				if (contact) {
 					contact.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-					(contact.rev ? this.api.baseApi.contact().modifyContact(contact) : this.api.baseApi.contact().createContact(contact)).then(c => (contact.rev = c.rev)
+					(contact.rev ? this.api.contact().modifyContact(contact) : this.api.contact().createContact(contact)).then(c => (contact.rev = c.rev)
 						&& this.notifyPath('contactYears.'+(this.contactYears.indexOf(year))+'.contacts.'+(year.contacts.indexOf(contact))+'.closingDate'))
 					this.notifyPath('currentContact.closingDate')
 				}
@@ -1677,10 +1677,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			_archive: function(event,target) {
 				const model = this.$.activeHesDomRepeat.modelForElement(event.target) || this.$.inactiveHesDomRepeat.modelForElement(event.target)
 				if (model.he.id) {
-					this.api.baseApi.helement().getHealthElement(model.he.id).then(he => {
+					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (!he.closingDate && he.closingDate !== 0) { he.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
 						if ((he.status & 1) === 0) { he.status = he.status | 1 }
-						this.api.baseApi.helement().modifyHealthElement(he).then(() => { this.patientChanged() })
+						this.api.helement().modifyHealthElement(he).then(() => { this.patientChanged() })
 					})
 				} else if (model.he.idService) {
 					if (!this.currentContact) { return }
@@ -1694,10 +1694,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			_activate: function(event,target) {
 				const model = this.$.inactiveHesDomRepeat.modelForElement(event.target) || this.$.archivedHesDomRepeat.modelForElement(event.target)
 				if (model.he.id) {
-					this.api.baseApi.helement().getHealthElement(model.he.id).then(he => {
+					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (he.closingDate || he.closingDate === 0) { he.closingDate =  null }
 						if ((he.status & 1) === 1) { he.status = he.status - 1 }
-						this.api.baseApi.helement().modifyHealthElement(he).then(he => { this.patientChanged() })
+						this.api.helement().modifyHealthElement(he).then(he => { this.patientChanged() })
 					})
 				} else if (model.he.idService) {
 					if (!this.currentContact) { return }
@@ -1711,10 +1711,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			_inactivate: function(event,target) {
 				const model = this.$.activeHesDomRepeat.modelForElement(event.target) || this.$.archivedHesDomRepeat.modelForElement(event.target)
 				if (model.he.id) {
-					this.api.baseApi.helement().getHealthElement(model.he.id).then(he => {
+					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (!he.closingDate && he.closingDate !== 0) { he.closingDate =  parseInt(moment().format('YYYYMMDDHHmmss'))}
 						if ((he.status & 1) === 1) { he.status = he.status - 1 }
-						this.api.baseApi.helement().modifyHealthElement(he).then(he => {
+						this.api.helement().modifyHealthElement(he).then(he => {
 							this.patientChanged()
 						})
 					})
@@ -1988,7 +1988,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					filter: function (filterValue, limit, offset, sortKey, descending) {
 						const regExp = filterValue && new RegExp(filterValue, "i")
 
-						return Promise.all([this.api.baseApi.code().findPaginatedCodesByLabel('be','BE-THESAURUS','fr',filterValue,null,1000), this.api.baseApi.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)])
+						return Promise.all([this.api.code().findPaginatedCodesByLabel('be','BE-THESAURUS','fr',filterValue,null,1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)])
 							.then(results => {
 								const codes = results[0]
 								const entityTemplates = results[1]
@@ -2006,14 +2006,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					descr: healthElement.descr,
 					plansOfAction:(healthElement.plansOfAction||[]).map( poa => _.extend(poa, {id: this.api.crypto().randomUuid(), openingDate: parseInt(moment().format('YYYYMMDDHHmmss'))})),
 					codes: (healthElement.codes || []).map( c => ({id: c, type: c.split(/\|/)[0], code: c.split(/\|/)[1], version: c.split(/\|/)[2]}) )
-				}).then(he => this.api.baseApi.helement().createHealthElement(he)).then(he => this.patientChanged())
+				}).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged())
 			},
 			_editedHealthElementSelected: function(event, healthElement) {
-				this.api.baseApi.helement().getHealthElement(event.id).then(he => {
+				this.api.helement().getHealthElement(event.id).then(he => {
 					delete healthElement.plansOfActionDescr
 					_.assign(he,healthElement)
 					return he
-				}).then(he => this.api.baseApi.helement().modifyHealthElement(he)).then(he => this.patientChanged())
+				}).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
 			},
 
 			_servicesSelectorColumns: function () {
@@ -2025,7 +2025,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					filter: function (filterValue, limit, offset, sortKey, descending) {
 						const regExp = filterValue && new RegExp(filterValue, "i")
 
-						return this.api.baseApi.code().findPaginatedCodesByLabel('be','BE-THESAURUS','fr',filterValue,null,1000)
+						return this.api.code().findPaginatedCodesByLabel('be','BE-THESAURUS','fr',filterValue,null,1000)
 							.then(results => {
 								const filtered = results.rows.map(code => ({label:label, content:_.mapValues(code.label, v=>({stringValue:v})), codes: code.links && code.links.map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]})) || []}))
 								return {totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}

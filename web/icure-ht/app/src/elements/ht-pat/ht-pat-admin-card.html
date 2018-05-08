@@ -124,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			scheduleSave: function(patient) {
 				if (this.saveTimeout) { clearTimeout(this.saveTimeout) }
 				this.saveAction = function() {
-					this.api.baseApi.patient().modifyPatient(patient).then(p => this.patient && (this.patient.rev = p.rev)).catch(e => this.patient && this.api.baseApi.patient().getPatient(this.patient.id).then(p => {
+					this.api.patient().modifyPatient(patient).then(p => this.patient && (this.patient.rev = p.rev)).catch(e => this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
 						this.patient = p
 						this.saveTimeout = undefined
 						this.saveAction = undefined
@@ -181,8 +181,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					},
 					filter: (data,text,id) => {
 						if (data==='insurances') {
-							return (text||'').length>=2 ? this.api.baseApi.insurance().listInsurancesByName(text).then(res=>res.map(i=>({'id':i.id,'name':this.localize(i.name, this.language)}))) :
-								id ? this.api.baseApi.insurance().getInsurance(id).then(i=>({'id':i.id,'name':this.localize(i.name, this.language)})) : Promise.resolve([])
+							return (text||'').length>=2 ? this.api.insurance().listInsurancesByName(text).then(res=>res.map(i=>({'id':i.id,'name':this.localize(i.name, this.language)}))) :
+								id ? this.api.insurance().getInsurance(id).then(i=>({'id':i.id,'name':this.localize(i.name, this.language)})) : Promise.resolve([])
 						}
 					}
 				}

@@ -162,7 +162,7 @@
 					clearTimeout(this.saveTimeout)
 				}
 				this.saveAction = function () {
-					return (ctc.rev ? this.api.baseApi.contact().modifyContact(ctc) : this.api.baseApi.contact().createContact(ctc)).then(c => {
+					return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
 						ctc.rev = c.rev
 
 						this.saveTimeout = undefined
@@ -447,7 +447,7 @@
 							}
 						})
 
-						this.api.baseApi.form().modifyForm(_.extend(form, {deletionDate: (+new Date()) * 1000})).then(f => {
+						this.api.form().modifyForm(_.extend(form, {deletionDate: (+new Date()) * 1000})).then(f => {
 							this.dispatchEvent(new CustomEvent('form-deleted', {detail: form, composed: true}))
 						})
 
@@ -478,7 +478,7 @@
 							}
 						})
 
-						this.api.baseApi.form().modifyForm(_.extend(ff, {deletionDate: (+new Date()) * 1000})).then(f => {
+						this.api.form().modifyForm(_.extend(ff, {deletionDate: (+new Date()) * 1000})).then(f => {
 							this.$['dynamic-form'].notify((rootPath.length ? rootPath + '.' : '') + key + '.*')
 							this.scheduleSave(this.currentContact)
 						})
@@ -488,7 +488,7 @@
 							return
 						}
 						this.flushSave()
-						this.api.baseApi.hcparty().getCurrentHealthcareParty().then(hcp => this.api.baseApi.form().getFormTemplatesByGuid(guid, hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice'))
+						this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice'))
 							.then(formTemplates => {
 								if (formTemplates[0] && formTemplates[0]) {
 									//Create a new form and link it to the currentContact
@@ -498,7 +498,7 @@
 										formTemplateId: formTemplates[0].id,
 										parent: form.id
 									})
-										.then(f => this.api.baseApi.form().createForm(f))
+										.then(f => this.api.form().createForm(f))
 										.then(f => {
 											f.template = formTemplates[0]; //Important
 											(form.children || (form.children = [])).push(f)
@@ -524,14 +524,14 @@
 
 				const loadForms = function (templates, forms, root) {
 					const newFormTemplateIds = forms.map(f => f.formTemplateId).filter(id => id && !templates[id])
-					return Promise.all(newFormTemplateIds.map(id => this.api.baseApi.form().getFormTemplate(id)))
+					return Promise.all(newFormTemplateIds.map(id => this.api.form().getFormTemplate(id)))
 						.then(fts => {
 							fts.forEach(ft => {
 								templates[ft.id] = ft
 							})
 							forms.forEach(f => f.template = f.formTemplateId ? templates[f.formTemplateId] : {layout: null, name: "Dynamic"})
 						})
-						.then(() => Promise.all(forms.map(f => this.api.baseApi.form().getChildren(f.id, this.user.healthcarePartyId))))
+						.then(() => Promise.all(forms.map(f => this.api.form().getChildren(f.id, this.user.healthcarePartyId))))
 						.then(children => {
 							children.forEach((cs, idx) => {
 								forms[idx].children = cs
@@ -540,7 +540,7 @@
 							return children.length ? loadForms(templates, _.flatten(children), root) : root
 						})
 				}.bind(this)
-				this.api.baseApi.form().getForm(formId).then(f => loadForms({}, [f], f)).then(form => this.set('form', form))
+				this.api.form().getForm(formId).then(f => loadForms({}, [f], f)).then(form => this.set('form', form))
 			},
 
 			deleteForm: function () {
@@ -606,7 +606,7 @@
 
 		  	promoteServiceToHealthElement: function (heSvc) {
 				this.api.helement().new(this.user, this.patient, heSvc)
-				  .then(he => this.api.baseApi.helement().createHealthElement(he))
+				  .then(he => this.api.helement().createHealthElement(he))
 				  .then(he=>{
 				  	this.dispatchEvent(new CustomEvent('health-elements-change', {detail:{hes:[he]}, bubbles: true}))
                     return he
