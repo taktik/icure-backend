@@ -605,8 +605,7 @@
 			},
 
 		  	promoteServiceToHealthElement: function (heSvc) {
-				this.api.helement().new(this.user, this.patient, heSvc)
-				  .then(he => this.api.helement().createHealthElement(he))
+				this.api.helement.serviceToHealthElement(this.user, this.patient, heSvc)
 				  .then(he=>{
 				  	this.dispatchEvent(new CustomEvent('health-elements-change', {detail:{hes:[he]}, bubbles: true}))
                     return he

@@ -8,6 +8,7 @@
 	</dom-module>
 
 	<script>
+        import * as models from '../icc-api/model/models'
 		import moment from '../../../bower_components/moment/src/moment'
 		(function () {
 			Polymer({
@@ -127,6 +128,16 @@
 							}
 						})
 					}.bind(this))))
+				},
+
+                serviceToHealthElement: function (user, patient,heSvc) {
+                    return this.new(user, patient, heSvc)
+						.then(he => {return this.baseApi.createHealthElement(he)})
+				},
+
+				stringToCode: function(code){
+				    const c = code.split('|');
+				    return new models.CodeDto({type: c[0], version: c[1], code: c[2], id: code})
 				}
 			})
 		})();

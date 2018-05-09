@@ -1820,6 +1820,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					parentElement.classList.remove('open');
 					const model = this.$.activeHesDomRepeat.modelForElement(e.target) || this.$.inactiveHesDomRepeat.modelForElement(e.target) || this.$.archivedHesDomRepeat.modelForElement(e.target)
 
+					this.edithealtElement = model;
 					this.$['edit-healthelement-dialog'].set('entity', _.assign({plansOfAction:[]}, model.he))
 					this.$['edit-healthelement-dialog'].set('filterValue', model.he.descr)
 					this.$['edit-healthelement-dialog'].open()
@@ -2009,11 +2010,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged())
 			},
 			_editedHealthElementSelected: function(event, healthElement) {
-				this.api.helement().getHealthElement(event.id).then(he => {
-					delete healthElement.plansOfActionDescr
-					_.assign(he,healthElement)
-					return he
-				}).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
+			    if (this.edithealtElement.he.id) {
+                    this.api.helement().getHealthElement(this.edithealtElement.he.id).then(he => {
+                        delete healthElement.plansOfActionDescr
+                        const codes = healthElement.codes.reduce((acc, code) => {
+                            acc.push(this.api.helement().stringToCode(code))
+                            return acc
+                        }, [])
+                        _.assign(he,healthElement)
+						he.codes = codes;
+                        return he
+                    }).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
+                } else if (this.edithealtElement.he.idService) {
+                    const svc = this.edithealtElement.he.svc
+					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc).then(he =>{
+                        this.edithealtElement.he = he
+					    this._editedHealthElementSelected(event, healthElement)})
+                }
 			},
 
 			_servicesSelectorColumns: function () {
