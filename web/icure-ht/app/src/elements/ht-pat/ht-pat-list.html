@@ -354,7 +354,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						grid.lastParams = thisParams
 						console.log("Starting search for " + thisParams)
 						grid.latestPromise = svcFilter ?
-							this.api.baseApi.contact().filterServicesBy(null, null, 10000, {filter: svcFilter}).then(out=>{
+							this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter}).then(out=>{
 							  let rows = out.rows
 
 							  const svcDict = rows.reduce((acc, s) => {
@@ -371,7 +371,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									.then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId=>this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey))))
 									.then(() => Promise.all(services.map(s=>Promise.all(s.cryptedForeignKeys[hcpId].map(k=>this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key)))))))
 									.then(arraysOfArraysOfPatIdsAsUa => {
-										return this.api.baseApi.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+										return this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {
 											filter: {
 												'$type': 'PatientByIdsFilter',
 												'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua=>this.api.crypto().utils.ua2text(ua).split(':')[1])))
@@ -379,7 +379,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										})
 									})
 							})
-							: this.api.baseApi.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+							: this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
 					}
 
 					grid.latestPromise.then(function (res) {
@@ -445,7 +445,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 
 			confirm: function() {
-				this.api.baseApi.patient().new(this.user, {lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g,''))}).then(p => this.api.baseApi.patient().createPatient(p)).then(p => this.set('selectedPatient', p))
+				this.api.patient().new(this.user, {lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g,''))}).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p))
 			},
 
 			picture: function (pat) {

@@ -36,7 +36,7 @@ import org.taktik.icure.validation.NotNull;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HealthElement extends StoredICureDocument {
     @NotNull
-    String healthElementId; //The Unique UUID common to a group of HealthElements that form an history
+    String healthElementId; //The Unique UUID common to a group of HealthElements that forms an history
 
     //Usually one of the following is used (either valueDate or openingDate and closingDate)
     @NotNull(autoFix = AutoFix.FUZZYNOW)

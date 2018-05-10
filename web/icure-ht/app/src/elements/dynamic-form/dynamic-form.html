@@ -139,7 +139,7 @@
 															   unit="[[_unit(layoutItem,dataMap.*)]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-measure-field>
 									</template>
 									<template is="dom-if" if="[[_isPopupMenu(layoutItem)]]">
-										<dynamic-popup-menu id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" data-source="[[_dataSource(layoutItem.editor.dataSource)]]"
+										<dynamic-popup-menu id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" data-source="[[_popupDataSource(layoutItem, layoutItem.editor.menuOptions)]]"
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" options="[[layoutItem.editor.menuOptions]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-popup-menu>
 									</template>
 									<template is="dom-if" if="[[_isDateField(layoutItem)]]">
@@ -151,7 +151,7 @@
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_valueDate(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueDateChangedWithBooleanSet" read-only="[[readOnly]]"></dynamic-date-field>
 									</template>
 									<template is="dom-if" if="[[_isTokenField(layoutItem)]]">
-										<dynamic-token-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" language="[[language]]"
+										<dynamic-token-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" language="[[language]]" data-source="[[_tokenDataSource(layoutItem, layoutItem.codeTypes)]]"
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_valueContainers(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]"></dynamic-token-field>
 									</template>
 									<template is="dom-if" if="[[_isMedicationField(layoutItem)]]">
@@ -434,7 +434,10 @@
 				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target)
 				this.dataProvider.addSubForm && this.dataProvider.addSubForm(layoutItem.name, detail.guid)
 			},
-			_dataSource: function(d) {
+			_tokenDataSource: function(d) {
+				return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d,text) || Promise.resolve([])} || null
+			},
+			_popupSource: function(d) {
 				return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d,text) || Promise.resolve([]), get: id => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d,null,id) || Promise.resolve(null)} || null
 			}
 		})
