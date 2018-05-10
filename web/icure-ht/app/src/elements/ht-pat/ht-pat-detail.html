@@ -429,6 +429,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: 24px;
 				overflow: hidden;
 				transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+				cursor: pointer;
 			}
 
 			.he-edit-btn-container.open{
@@ -605,6 +606,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.ICD-10{
 				line-height: 12px;
 				margin-right:4px;
+				color: black;
 			}
 
 			.iron-selected .ICD-10{
@@ -633,6 +635,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border-radius: 3px;
 				margin-right: 3px;
 				margin-bottom: 1px;
+				background: lightgrey;
 			}
 
 			.contact .ICD-10:not(:first-child) {
@@ -2013,13 +2016,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			    if (this.edithealtElement.he.id) {
                     this.api.helement().getHealthElement(this.edithealtElement.he.id).then(he => {
                         delete healthElement.plansOfActionDescr
-                        const codes = healthElement.codes.reduce((acc, code) => {
-                            acc.push(this.api.helement().stringToCode(code))
-                            return acc
-                        }, [])
-                        _.assign(he,healthElement)
-						he.codes = codes;
-                        return he
+                        return this.api.code().getCodes(healthElement.codes.join(',')).then(cs => {
+	                        const codes = cs.reduce((acc, code) =>
+							   acc.concat([this.api.helement().stringToCode(code.id)]).concat(code.links ? code.links.map(c => this.api.helement().stringToCode(c)) : [])
+	                        , [])
+	                        _.assign(he,healthElement)
+	                        he.codes = codes;
+	                        return he
+                        })
                     }).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
                 } else if (this.edithealtElement.he.idService) {
                     const svc = this.edithealtElement.he.svc

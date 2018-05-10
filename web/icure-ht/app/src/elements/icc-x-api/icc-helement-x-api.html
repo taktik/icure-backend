@@ -137,7 +137,7 @@
 
 				stringToCode: function(code){
 				    const c = code.split('|');
-				    return new models.CodeDto({type: c[0], version: c[1], code: c[2], id: code})
+				    return new models.CodeDto({type: c[0], code: c[1], version: c[2], id: code})
 				}
 			})
 		})();
