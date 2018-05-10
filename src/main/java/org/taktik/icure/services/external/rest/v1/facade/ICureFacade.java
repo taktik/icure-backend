@@ -18,26 +18,37 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Collectors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.stereotype.Component;
 import org.taktik.icure.constants.PropertyTypes;
-import org.taktik.icure.entities.Error;
 import org.taktik.icure.entities.embed.DatabaseSynchronization;
-import org.taktik.icure.logic.*;
+import org.taktik.icure.logic.ContactLogic;
+import org.taktik.icure.logic.FormLogic;
+import org.taktik.icure.logic.HealthElementLogic;
+import org.taktik.icure.logic.InvoiceLogic;
+import org.taktik.icure.logic.MessageLogic;
+import org.taktik.icure.logic.PatientLogic;
+import org.taktik.icure.logic.PropertyLogic;
+import org.taktik.icure.logic.ReplicationLogic;
+import org.taktik.icure.logic.SessionLogic;
+import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.logic.impl.ICureLogicImpl;
-import org.taktik.icure.services.external.rest.v1.dto.*;
-import org.taktik.icure.services.external.rest.v1.dto.be.GenericResult;
+import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto;
+import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto;
+import org.taktik.icure.services.external.rest.v1.dto.UserStubDto;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/icure")

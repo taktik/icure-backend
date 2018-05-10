@@ -34,6 +34,8 @@ import javax.ws.rs.core.Context;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 import org.taktik.icure.be.drugs.dto.DocId;
 import org.taktik.icure.be.drugs.dto.DocPreview;
@@ -47,13 +49,20 @@ import org.taktik.icure.be.drugs.dto.MppId;
 import org.taktik.icure.be.drugs.dto.MppInfos;
 import org.taktik.icure.be.drugs.dto.MppPreview;
 import org.taktik.icure.be.drugs.logic.DrugsLogic;
+import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade;
 
 @Component
 @Path("/be_drugs")
 @Api(tags = { "be_drugs" } )
 @Consumes({"application/json"})
 @Produces({"application/json"})
-public class DrugsFacade  {
+public class DrugsFacade implements OpenApiFacade {
+    protected final Log log = LogFactory.getLog(getClass());
+
+    public DrugsFacade() {
+        log.info("Drugs initialised");
+    }
+
     protected DrugsLogic drugsLogic;
 
     @ApiOperation(
@@ -257,7 +266,7 @@ public class DrugsFacade  {
             httpMethod = "GET",
             notes = ""
     )
-    @Path("/doc")
+    @Path("/doc/{lang}")
     @GET
     public List<DocPreview> getRootDocs(@PathParam("lang") String lang) {
         return drugsLogic.getRootDocs(lang);

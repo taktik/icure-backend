@@ -26,6 +26,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.be.drugs.dto.DocExtendedInfos;
@@ -51,6 +52,7 @@ import org.taktik.icure.logic.CodeLogic;
 import java.io.IOException;
 import java.util.*;
 
+@Service
 @HibernateDatasource
 public class DrugsLogicImpl implements DrugsLogic {
 
@@ -176,94 +178,149 @@ public class DrugsLogicImpl implements DrugsLogic {
     };
 
     public List<MppPreview> getMedecinePackages(String searchString, String lang, List<String> types, int first, int count) {
-        Validate.noNullElements(new Object[]{searchString, lang});
-        log.debug("Asked language : " + lang);
-        lang = getAvailableLanguage(lang);
-        log.debug("Final language : " + lang);
-        List<Mpp> packages = drugsDAO.getMedecinePackages(searchString, lang, types, first, count);
-        return (List<MppPreview>) CollectionUtils.collect(packages, MPP_TO_MPPPREVIEW);
+        try {
+            drugsDAO.openDataStoreSession();
+            Validate.noNullElements(new Object[]{searchString, lang});
+            log.debug("Asked language : " + lang);
+            lang = getAvailableLanguage(lang);
+            log.debug("Final language : " + lang);
+            List<Mpp> packages = drugsDAO.getMedecinePackages(searchString, lang, types, first, count);
+            return (List<MppPreview>) CollectionUtils.collect(packages, MPP_TO_MPPPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
 
     public List<MppPreview> getMedecinePackagesFromIngredients(String searchString, String lang, List<String> types, int first, int count) {
-        Validate.noNullElements(new Object[]{searchString, lang});
-        log.debug("Asked language : " + lang);
-        lang = getAvailableLanguage(lang);
-        log.debug("Final language : " + lang);
-        List<Mpp> packages = drugsDAO.getMedecinePackagesFromIngredients(searchString, lang, types, first, count);
-        return (List<MppPreview>) CollectionUtils.collect(packages, MPP_TO_MPPPREVIEW);
+        try {
+            drugsDAO.openDataStoreSession();
+            Validate.noNullElements(new Object[]{searchString, lang});
+            log.debug("Asked language : " + lang);
+            lang = getAvailableLanguage(lang);
+            log.debug("Final language : " + lang);
+            List<Mpp> packages = drugsDAO.getMedecinePackagesFromIngredients(searchString, lang, types, first, count);
+            return (List<MppPreview>) CollectionUtils.collect(packages, MPP_TO_MPPPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     @Override
     public List<MppPreview> getMedecinePackagesFromInn(String inn, String lang) {
-        lang = getAvailableLanguage(lang);
+        try {
+            drugsDAO.openDataStoreSession();
+            lang = getAvailableLanguage(lang);
 
-        return (List<MppPreview>) CollectionUtils.collect(drugsDAO.getMppsWithInn(inn, lang), MPP_TO_MPPPREVIEW);
+            return (List<MppPreview>) CollectionUtils.collect(drugsDAO.getMppsWithInn(inn, lang), MPP_TO_MPPPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
 
     public MpExtendedInfos getExtendedMpInfos(MppId medecinePackageID) {
-        return getExtendedMpInfos(drugsDAO.getInfos(medecinePackageID).getMp().getId());
+        try {
+            drugsDAO.openDataStoreSession();
+            return getExtendedMpInfos(drugsDAO.getInfos(medecinePackageID).getMp().getId());
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public MpFullInfos getFullMpInfos(MppId medecinePackageID) {
-        Mpp mpp = drugsDAO.getInfos(medecinePackageID);
-        if (mpp == null) {
-            return null;
+        try {
+            drugsDAO.openDataStoreSession();
+            Mpp mpp = drugsDAO.getInfos(medecinePackageID);
+            if (mpp == null) {
+                return null;
+            }
+            return getFullMpInfos(mpp.getMp().getId());
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return getFullMpInfos(mpp.getMp().getId());
     }
 
     public List<MpPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID) {
         try {
-            Atc atc = drugsDAO.getAtc(medecinePackageID);
+            drugsDAO.openDataStoreSession();
+            try {
+                Atc atc = drugsDAO.getAtc(medecinePackageID);
 
-            return (List<MpPreview>) CollectionUtils.collect(drugsDAO.getMpsWithAtc(atc), MP_TO_MPPREVIEW);
-        } catch (Exception ignored) {
+                return (List<MpPreview>) CollectionUtils.collect(drugsDAO.getMpsWithAtc(atc), MP_TO_MPPREVIEW);
+            } catch (Exception ignored) {
+            }
+            return new ArrayList<>();
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return new ArrayList<>();
     }
 
     public List<MppPreview> getCheapAlternativesBasedOnInn(String innCluster, String lang) {
         try {
-            lang = getAvailableLanguage(lang);
-            return (List<MppPreview>) CollectionUtils.collect(drugsDAO.getCheapMppsWithInn(innCluster, lang), MPP_TO_MPPPREVIEW);
-        } catch (Exception ignored) {
+            drugsDAO.openDataStoreSession();
+            try {
+                lang = getAvailableLanguage(lang);
+                return (List<MppPreview>) CollectionUtils.collect(drugsDAO.getCheapMppsWithInn(innCluster, lang), MPP_TO_MPPPREVIEW);
+            } catch (Exception ignored) {
+            }
+            return new ArrayList<>();
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return new ArrayList<>();
     }
 
     @Override
     public List<ParagraphPreview> findParagraphs(String searchString, String lang) {
-        lang = getAvailableLanguage(lang);
-        return (List<ParagraphPreview>) CollectionUtils.collect(drugsDAO.findParagraphs(searchString, lang), PARAGRAPH_TO_PARAGRAPHPREVIEW);
+        try {
+            drugsDAO.openDataStoreSession();
+            lang = getAvailableLanguage(lang);
+            return (List<ParagraphPreview>) CollectionUtils.collect(drugsDAO.findParagraphs(searchString, lang), PARAGRAPH_TO_PARAGRAPHPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     @Override
     public List<ParagraphPreview> findParagraphsWithCnk(Long cnk, String lang) {
-        lang = getAvailableLanguage(lang);
-        return (List<ParagraphPreview>) CollectionUtils.collect(drugsDAO.findParagraphsWithCnk(cnk, lang), PARAGRAPH_TO_PARAGRAPHPREVIEW);
+        try {
+            drugsDAO.openDataStoreSession();
+            lang = getAvailableLanguage(lang);
+            return (List<ParagraphPreview>) CollectionUtils.collect(drugsDAO.findParagraphsWithCnk(cnk, lang), PARAGRAPH_TO_PARAGRAPHPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public MpExtendedInfos getExtendedMpInfos(MpId medecineID) {
-        Mp mp = drugsDAO.getExtendedInfos(medecineID);
-        return MP_TO_MPEXTENDEDINFOS.transform(mp);
+        try {
+            drugsDAO.openDataStoreSession();
+            Mp mp = drugsDAO.getExtendedInfos(medecineID);
+            return MP_TO_MPEXTENDEDINFOS.transform(mp);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public MppInfos getInfos(MppId medecinePackageID) {
-        Mpp mpp = drugsDAO.getInfos(medecinePackageID);
-        if (mpp==null) {
-            return null;
+        try {
+            drugsDAO.openDataStoreSession();
+            Mpp mpp = drugsDAO.getInfos(medecinePackageID);
+            if (mpp==null) {
+                return null;
+            }
+            MppInfos mppInfos = MPP_TO_MPPINFOS.transform(mpp);
+
+            Atc atc = drugsDAO.getAtc(medecinePackageID);
+
+            if (atc != null) {
+                mppInfos.setAtcCode(atc.getCode());
+            }
+
+            return mppInfos;
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        MppInfos mppInfos = MPP_TO_MPPINFOS.transform(mpp);
-
-        Atc atc = drugsDAO.getAtc(medecinePackageID);
-
-        if (atc != null) {
-            mppInfos.setAtcCode(atc.getCode());
-        }
-
-        return mppInfos;
     }
 
     public String getAvailableLanguage(String proposedLanguage) {
@@ -278,72 +335,87 @@ public class DrugsLogicImpl implements DrugsLogic {
     }
 
     public DocExtendedInfos getExtendedDocInfos(DocId docID) {
-        Doc doc = drugsDAO.getExtendedInfos(docID);
-        DocExtendedInfos result = DOC_TO_DOCEXTENDEDINFOS.transform(doc);
-        result.setNext(getNextDoc(docID));
-        result.setPrevious(getPreviousDoc(docID));
-        if ((doc.getChildren().size() > 0) && (doc.getChildren().get(0).getMpgrp())) {
-            result.setMpGroups((List<DocExtendedInfos>) CollectionUtils.collect(doc.getChildren(), DOC_TO_DOCEXTENDEDINFOS));
+        try {
+            drugsDAO.openDataStoreSession();
+            Doc doc = drugsDAO.getExtendedInfos(docID);
+            DocExtendedInfos result = DOC_TO_DOCEXTENDEDINFOS.transform(doc);
+            result.setNext(getNextDoc(docID));
+            result.setPrevious(getPreviousDoc(docID));
+            if ((doc.getChildren().size() > 0) && (doc.getChildren().get(0).getMpgrp())) {
+                result.setMpGroups((List<DocExtendedInfos>) CollectionUtils.collect(doc.getChildren(), DOC_TO_DOCEXTENDEDINFOS));
+            }
+            return result;
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return result;
     }
 
     public DocPreview getNextDoc(DocId docID) {
-        Doc doc = drugsDAO.getDoc(docID);
-        Doc result;
-        DocPreview resultPreview;
-        log.info("children size = " + doc.getChildren().size());
-        if ((doc.getChildren().size() > 0) && (!doc.getChildren().get(0).getMpgrp())) {
-            result = doc.getChildren().get(0);
-        } else {
-            result = doc;
-            boolean finished = false;
-            do {
-                Doc previous = result;
-                result = result.getParent();
-                if (result != null) {
-                    int index = result.getChildren().indexOf(previous);
-                    if ((index + 1) < result.getChildren().size()) {
-                        finished = true;
-                        result = result.getChildren().get(index + 1);
+        try {
+            drugsDAO.openDataStoreSession();
+            Doc doc = drugsDAO.getDoc(docID);
+            Doc result;
+            DocPreview resultPreview;
+            log.info("children size = " + doc.getChildren().size());
+            if ((doc.getChildren().size() > 0) && (!doc.getChildren().get(0).getMpgrp())) {
+                result = doc.getChildren().get(0);
+            } else {
+                result = doc;
+                boolean finished = false;
+                do {
+                    Doc previous = result;
+                    result = result.getParent();
+                    if (result != null) {
+                        int index = result.getChildren().indexOf(previous);
+                        if ((index + 1) < result.getChildren().size()) {
+                            finished = true;
+                            result = result.getChildren().get(index + 1);
+                        }
+                    } else {
+                        int index = previous.getDocindex() - 1;
+                        List<Doc> roots = drugsDAO.getRootDocs(docID.getLang());
+                        if ((index + 1) < roots.size()) {
+                            result = roots.get(index + 1);
+                        }
                     }
-                } else {
-                    int index = previous.getDocindex() - 1;
-                    List<Doc> roots = drugsDAO.getRootDocs(docID.getLang());
-                    if ((index + 1) < roots.size()) {
-                        result = roots.get(index + 1);
-                    }
-                }
-            } while ((result != null) && !finished);
+                } while ((result != null) && !finished);
+            }
+            if (result == null) {
+                resultPreview = null;
+            } else {
+                resultPreview = DOC_TO_DOCPREVIEW.transform(result);
+            }
+            return resultPreview;
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        if (result == null) {
-            resultPreview = null;
-        } else {
-            resultPreview = DOC_TO_DOCPREVIEW.transform(result);
-        }
-        return resultPreview;
     }
 
 
     public DocPreview getPreviousDoc(DocId docID) {
-        Doc doc = drugsDAO.getDoc(docID);
-        Doc result;
-        DocPreview resultPreview;
-        if (doc.getDocindex() > 1) {
-            if (doc.getParent() == null) {
-                result = drugsDAO.getRootDocs(docID.getLang()).get(doc.getDocindex() - 2);
+        try {
+            drugsDAO.openDataStoreSession();
+            Doc doc = drugsDAO.getDoc(docID);
+            Doc result;
+            DocPreview resultPreview;
+            if (doc.getDocindex() > 1) {
+                if (doc.getParent() == null) {
+                    result = drugsDAO.getRootDocs(docID.getLang()).get(doc.getDocindex() - 2);
+                } else {
+                    result = doc.getParent().getChildren().get(doc.getDocindex() - 2);
+                }
             } else {
-                result = doc.getParent().getChildren().get(doc.getDocindex() - 2);
+                result = doc.getParent();
             }
-        } else {
-            result = doc.getParent();
+            if (result == null) {
+                resultPreview = null;
+            } else {
+                resultPreview = DOC_TO_DOCPREVIEW.transform(result);
+            }
+            return resultPreview;
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        if (result == null) {
-            resultPreview = null;
-        } else {
-            resultPreview = DOC_TO_DOCPREVIEW.transform(result);
-        }
-        return resultPreview;
     }
 
     public DrugsDAO getDrugsDAO() {
@@ -351,52 +423,62 @@ public class DrugsLogicImpl implements DrugsLogic {
     }
 
     public MpFullInfos getFullMpInfos(MpId mpId) {
-        Mp fullMp = drugsDAO.getFullMpInfos(mpId);
-        MpFullInfos result = MP_TO_MPFULLINFOS.transform(fullMp);
-        if ((fullMp.getDoc() != null) && (fullMp.getDoc().getParent() != null)) {
-            result.setRelatedDoc(DOC_TO_DOCPREVIEW.transform(fullMp.getDoc().getParent()));
-        }
-        Set<Equivalence> mps = fullMp.getEquivalencesForSourceequivalence();
-        CollectionUtils.collect(mps, EQUIV_TO_MPPREVIEW, result.getEquivalences());
+        try {
+            drugsDAO.openDataStoreSession();
+            Mp fullMp = drugsDAO.getFullMpInfos(mpId);
+            MpFullInfos result = MP_TO_MPFULLINFOS.transform(fullMp);
+            if ((fullMp.getDoc() != null) && (fullMp.getDoc().getParent() != null)) {
+                result.setRelatedDoc(DOC_TO_DOCPREVIEW.transform(fullMp.getDoc().getParent()));
+            }
+            Set<Equivalence> mps = fullMp.getEquivalencesForSourceequivalence();
+            CollectionUtils.collect(mps, EQUIV_TO_MPPREVIEW, result.getEquivalences());
 
-        return result;
+            return result;
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public List<IamFullInfos> getInteractions(MppId newMppId, List<String> otherMpps) {
-        String language = newMppId.getLang();
-        Atc atc = drugsDAO.getAtc(newMppId);
+        try {
+            drugsDAO.openDataStoreSession();
+            String language = newMppId.getLang();
+            Atc atc = drugsDAO.getAtc(newMppId);
 
-        Map<String, List<MppId>> otherMeds = new HashMap<>();
-        for (String o : otherMpps) {
-            MppId medecinePackageID = new MppId(o, language);
-            Atc oAtc = drugsDAO.getAtc(medecinePackageID);
-            if (oAtc!=null) {
-            List<MppId> medsForAtc = otherMeds.get(oAtc.getCode());
-            if (medsForAtc == null) {
-                otherMeds.put(oAtc.getCode(), medsForAtc = new ArrayList<>());
+            Map<String, List<MppId>> otherMeds = new HashMap<>();
+            for (String o : otherMpps) {
+                MppId medecinePackageID = new MppId(o, language);
+                Atc oAtc = drugsDAO.getAtc(medecinePackageID);
+                if (oAtc!=null) {
+                List<MppId> medsForAtc = otherMeds.get(oAtc.getCode());
+                if (medsForAtc == null) {
+                    otherMeds.put(oAtc.getCode(), medsForAtc = new ArrayList<>());
+                }
+
+                medsForAtc.add(medecinePackageID);}
             }
 
-            medsForAtc.add(medecinePackageID);}
-        }
 
+            List<IamFullInfos> result = new ArrayList<>();
 
-        List<IamFullInfos> result = new ArrayList<>();
-
-        if (atc != null) {
-            List<Iam> iams = drugsDAO.getIams(atc.getCode(), language);
-            for (Iam iam : iams) {
-                List<MppId> mppIds = otherMeds.get(iam.getAtc2());
-                if (mppIds != null) {
-                    for (MppId id : mppIds) {
-                        IamFullInfos transform = IAM_TO_IAMFULL.transform(iam);
-                        transform.setMppInfos(MPP_TO_MPPINFOS.transform(drugsDAO.getMpp(id)));
-                        result.add(transform);
+            if (atc != null) {
+                List<Iam> iams = drugsDAO.getIams(atc.getCode(), language);
+                for (Iam iam : iams) {
+                    List<MppId> mppIds = otherMeds.get(iam.getAtc2());
+                    if (mppIds != null) {
+                        for (MppId id : mppIds) {
+                            IamFullInfos transform = IAM_TO_IAMFULL.transform(iam);
+                            transform.setMppInfos(MPP_TO_MPPINFOS.transform(drugsDAO.getMpp(id)));
+                            result.add(transform);
+                        }
                     }
                 }
             }
-        }
 
-        return result;
+            return result;
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public List<FullTextSearchResult> fullTextSearch(String search, String lang, List<String> classes, List<String> types, int from, int count) throws IOException {
@@ -406,83 +488,133 @@ public class DrugsLogicImpl implements DrugsLogic {
 
 
     public List<DocPreview> getRootDocs(String lang) {
-        lang = getAvailableLanguage(lang);
-        return (List<DocPreview>) CollectionUtils.collect(drugsDAO.getRootDocs(lang), DOC_TO_DOCPREVIEW);
+        try {
+            drugsDAO.openDataStoreSession();
+            lang = getAvailableLanguage(lang);
+            return (List<DocPreview>) CollectionUtils.collect(drugsDAO.getRootDocs(lang), DOC_TO_DOCPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public DocPreview getDocPreview(String id, String lang) {
-        lang = getAvailableLanguage(lang);
-        return DOC_TO_DOCPREVIEW.transform(drugsDAO.getDoc(new DocId(id, lang)));
+        try {
+            drugsDAO.openDataStoreSession();
+            lang = getAvailableLanguage(lang);
+            return DOC_TO_DOCPREVIEW.transform(drugsDAO.getDoc(new DocId(id, lang)));
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
 
     public List<DocPreview> getChildrenDocs(DocId docID) {
-        Doc aDoc = drugsDAO.getDoc(docID);
-        List<Doc> childrenDocs = aDoc.getChildren();
-        if (childrenDocs.size() > 0) {
-            if (childrenDocs.get(0).getMpgrp()) {
-                childrenDocs = new ArrayList<>();
+        try {
+            drugsDAO.openDataStoreSession();
+            Doc aDoc = drugsDAO.getDoc(docID);
+            List<Doc> childrenDocs = aDoc.getChildren();
+            if (childrenDocs.size() > 0) {
+                if (childrenDocs.get(0).getMpgrp()) {
+                    childrenDocs = new ArrayList<>();
+                }
             }
+            return (List<DocPreview>) CollectionUtils.collect(childrenDocs, DOC_TO_DOCPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return (List<DocPreview>) CollectionUtils.collect(childrenDocs, DOC_TO_DOCPREVIEW);
     }
 
     public List<MpPreview> getChildrenMps(DocId docID) {
-        Doc aDoc = drugsDAO.getDoc(docID);
-        SortedSet<Mp> childrenMps = aDoc.getMps();
-        List<Mp> resultMps = new ArrayList<>();
-        resultMps.addAll(childrenMps);
-        List<Doc> childrenDocs = aDoc.getChildren();
-        if (childrenDocs.size() > 0) {
-            if (childrenDocs.get(0).getMpgrp()) {
-                for (Doc child : childrenDocs) {
-                    resultMps.addAll(child.getMps());
+        try {
+            drugsDAO.openDataStoreSession();
+            Doc aDoc = drugsDAO.getDoc(docID);
+            SortedSet<Mp> childrenMps = aDoc.getMps();
+            List<Mp> resultMps = new ArrayList<>();
+            resultMps.addAll(childrenMps);
+            List<Doc> childrenDocs = aDoc.getChildren();
+            if (childrenDocs.size() > 0) {
+                if (childrenDocs.get(0).getMpgrp()) {
+                    for (Doc child : childrenDocs) {
+                        resultMps.addAll(child.getMps());
+                    }
                 }
             }
+            return (List<MpPreview>) CollectionUtils.collect(resultMps, MP_TO_MPPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return (List<MpPreview>) CollectionUtils.collect(resultMps, MP_TO_MPPREVIEW);
     }
 
     public List<TherapyInfos> getTherapiesInfos(MppId mppId) {
-        Ampp ampp = drugsDAO.getAmpp(mppId);
-        return (List<TherapyInfos>) CollectionUtils.collect(ampp.getAmp().getAtm().getTherapies(), THERAPY_TO_THERAPYINFOS);
+        try {
+            drugsDAO.openDataStoreSession();
+            Ampp ampp = drugsDAO.getAmpp(mppId);
+            return (List<TherapyInfos>) CollectionUtils.collect(ampp.getAmp().getAtm().getTherapies(), THERAPY_TO_THERAPYINFOS);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     public ParagraphInfos getParagraphInfos(Long therapyId) {
-        Therapy therapy = drugsDAO.getTherapy(therapyId);
-        Paragraph paragraph = drugsDAO.getParagraph(therapy);
+        try {
+            drugsDAO.openDataStoreSession();
+            Therapy therapy = drugsDAO.getTherapy(therapyId);
+            Paragraph paragraph = drugsDAO.getParagraph(therapy);
 
-        return PARAGRAPH_TO_PARAGRAPHINFOS.transform(paragraph);
+            return PARAGRAPH_TO_PARAGRAPHINFOS.transform(paragraph);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     @Override
     public ParagraphInfos getParagraphInfos(String chapterName, String paragraphName) {
-        Paragraph paragraph = drugsDAO.getParagraph(chapterName, paragraphName);
+        try {
+            drugsDAO.openDataStoreSession();
+            Paragraph paragraph = drugsDAO.getParagraph(chapterName, paragraphName);
 
-        return paragraph == null ? null : PARAGRAPH_TO_PARAGRAPHINFOS.transform(paragraph);
+            return paragraph == null ? null : PARAGRAPH_TO_PARAGRAPHINFOS.transform(paragraph);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     @Override
     public List<AddedDocumentPreview> getAddedDocuments(String chapterName, String paragraphName) {
-        List<AddedDocument> docs = drugsDAO.getAddedDocuments(chapterName, paragraphName);
-        return (List<AddedDocumentPreview>) CollectionUtils.collect(docs, ADDDOC_TO_ADDDOCPREVIEW);
+        try {
+            drugsDAO.openDataStoreSession();
+            List<AddedDocument> docs = drugsDAO.getAddedDocuments(chapterName, paragraphName);
+            return (List<AddedDocumentPreview>) CollectionUtils.collect(docs, ADDDOC_TO_ADDDOCPREVIEW);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
     @Override
     public List<MppPreview> getInnClusters(String region, String searchString, String lang, List<String> types, int first, int count) {
-        Validate.noNullElements(new Object[]{searchString, lang});
-        log.debug("Asked language : " + lang);
-        lang = getAvailableLanguage(lang);
-        log.debug("Final language : " + lang);
-        PaginatedList<Code> inns = codeLogic.findCodesByLabel(region, lang, "CD-INNCLUSTER", searchString, new PaginationOffset(first + count));
-        return (List<MppPreview>) CollectionUtils.collect(inns.getRows().subList(first, inns.getRows().size()), lang != null && lang.equals("nl") ? INN_TO_MPPPREVIEW_NL : INN_TO_MPPPREVIEW_FR);
+        try {
+            drugsDAO.openDataStoreSession();
+            Validate.noNullElements(new Object[]{searchString, lang});
+            log.debug("Asked language : " + lang);
+            lang = getAvailableLanguage(lang);
+            log.debug("Final language : " + lang);
+            PaginatedList<Code> inns = codeLogic.findCodesByLabel(region, lang, "CD-INNCLUSTER", searchString, new PaginationOffset(first + count));
+            return (List<MppPreview>) CollectionUtils.collect(inns.getRows().subList(first, inns.getRows().size()), lang != null && lang.equals("nl") ? INN_TO_MPPPREVIEW_NL : INN_TO_MPPPREVIEW_FR);
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
 
     public MpPreview getMpFromMpp(String mppId, String lang) {
-        lang = getAvailableLanguage(lang);
-        Mpp mpp = drugsDAO.getMpp(new MppId(mppId, lang));
-        return MP_TO_MPPREVIEW.transform(mpp.getMp());
+        try {
+            drugsDAO.openDataStoreSession();
+            lang = getAvailableLanguage(lang);
+            Mpp mpp = drugsDAO.getMpp(new MppId(mppId, lang));
+            return MP_TO_MPPREVIEW.transform(mpp.getMp());
+        } finally {
+            drugsDAO.closeDataStoreSession();
+        }
     }
 
 
@@ -506,24 +638,34 @@ public class DrugsLogicImpl implements DrugsLogic {
 
 
     public DocPreview getDocOfMp(MpId mpId) {
-        Mp mp = drugsDAO.getMp(mpId);
-        Doc mpGrp = mp.getDoc();
-        if (mpGrp == null) {
-            return null;
+        try {
+            drugsDAO.openDataStoreSession();
+            Mp mp = drugsDAO.getMp(mpId);
+            Doc mpGrp = mp.getDoc();
+            if (mpGrp == null) {
+                return null;
+            }
+            if (mpGrp.getParent() == null) {
+                return null;
+            }
+            return DOC_TO_DOCPREVIEW.transform(mpGrp.getParent());
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        if (mpGrp.getParent() == null) {
-            return null;
-        }
-        return DOC_TO_DOCPREVIEW.transform(mpGrp.getParent());
     }
 
 
     public DocPreview getParentDoc(DocId docID) {
-        Doc doc = drugsDAO.getDoc(docID);
-        if (doc.getParent() == null) {
-            return null;
+        try {
+            drugsDAO.openDataStoreSession();
+            Doc doc = drugsDAO.getDoc(docID);
+            if (doc.getParent() == null) {
+                return null;
+            }
+            return DOC_TO_DOCPREVIEW.transform(doc.getParent());
+        } finally {
+            drugsDAO.closeDataStoreSession();
         }
-        return DOC_TO_DOCPREVIEW.transform(doc.getParent());
     }
 
     @Autowired

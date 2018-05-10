@@ -22,6 +22,7 @@ package org.taktik.icure.be.drugs.logic.impl;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.taktik.icure.be.drugs.dao.DrugsDAO;
 
 
@@ -41,7 +42,7 @@ public class DatasourceInterceptor implements MethodInterceptor {
 	}
 
 	@Autowired
-public void setDrugsDAO(DrugsDAO drugsDAO) {
+	public void setDrugsDAO(DrugsDAO drugsDAO) {
 		this.drugsDAO = drugsDAO;
 	}
 

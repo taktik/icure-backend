@@ -70,7 +70,7 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE;
 @Api(tags = { "form" })
 @Consumes({"application/json"})
 @Produces({"application/json"})
-public class FormFacade implements OpenApiFacade{
+public class FormFacade implements OpenApiFacade {
 	private static Logger log = LoggerFactory.getLogger(FormFacade.class);
 
 	private MapperFacade mapper;

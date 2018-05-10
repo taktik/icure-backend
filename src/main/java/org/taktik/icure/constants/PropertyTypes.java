@@ -45,6 +45,9 @@ public interface PropertyTypes {
 		BUILD_DATE(Category.System + "build.date", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
 		INSTANCE_NAME(Category.System + "instance.name", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
 
+		ICURE_PATH_ROOT(Category.System + "path.root", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
+		ICURE_PATH_TEMP(Category.System + "path.temp", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
+
 		INDEX_TIMESTAMP(Category.System + "indexTimestamp", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
 		INDEX_IMMEDIATE_UPDATE(Category.System + "indexation.immediate", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
 		SEARCH_DEFAULT_SORT_ORDERS(Category.System + "search.default.sort.orders", PropertyTypeScope.SYSTEM, TypedValuesType.STRING),
