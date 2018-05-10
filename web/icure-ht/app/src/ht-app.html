@@ -508,7 +508,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				else if ((this.credentials.username && this.credentials.password)) { this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))) }
 
 				//Be careful not to use this.api here as it might not have been defined yet
-				this.$.baseApi.user().getCurrentUser().then(u => {
+				this.$.api.user().getCurrentUser().then(u => {
 				    this.set('user', u)
 					this.$.loginDialog.opened = false
 
@@ -529,7 +529,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							if (this.credentials.ehpassword) {
 								this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)).then(res => {
 									this.$.api.keystoreId = res.uuid
-									this.$.baseApi.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
+									this.$.api.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
 										this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
 											this.$.api.tokenId = res.tokenId
 											this.$.api.token = res.token
