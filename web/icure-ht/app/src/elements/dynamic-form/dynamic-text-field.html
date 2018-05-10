@@ -22,7 +22,7 @@
 			dynamic-link {
 				position: absolute;
 				right: 0;
-				top: 4px;
+				bottom: 8px;
 			}
 
 			.modified-icon {
@@ -101,7 +101,7 @@
 					<input type="text" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
-			<dynamic-link health-elements="[[healthElements]]"></dynamic-link>
+			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>

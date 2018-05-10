@@ -22,6 +22,13 @@
 				min-width: calc(var(--dynamic-field-width-percent, '100%') - 32px);
 				font-size: 12px;
 				margin: 0 16px;
+				position: relative;
+			}
+
+			dynamic-link {
+				position: absolute;
+				right: 0;
+				top: 4px;
 			}
 
 			.modified-icon {
@@ -243,6 +250,7 @@
 		<label hidden$="[[!label]]" aria-hidden="true">
 			<span>[[label]]</span>
 		</label>
+		<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 
 		<template is="dom-if" if="[[wasModified]]">
 			<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>

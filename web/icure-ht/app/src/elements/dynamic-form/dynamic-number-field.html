@@ -12,9 +12,16 @@
 	<template>
 		<style>
 			:host {
+				position: relative;
 				flex-grow: var(--dynamic-field-width, 25);
 				min-width: calc(var(--dynamic-field-width-percent, '25%') - 32px);
 				margin: 0 16px;
+			}
+
+			dynamic-link {
+				position: absolute;
+				right: 0;
+				bottom: 8px;
 			}
 
 			.modified-icon {
@@ -104,6 +111,7 @@
 					<input type="number" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
+			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>

@@ -26,7 +26,7 @@
 			dynamic-link {
 				position: absolute;
 				right: 0;
-				top: 4px;
+				bottom: 8px;
 			}
 
 			.modified-icon {
@@ -122,7 +122,7 @@
 				</template>
 			</span>
 		</tk-token-field>
-		<dynamic-link health-elements="[[healthElements]]"></dynamic-link>
+		<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 	</template>
 	<script>
 		Polymer({
@@ -185,11 +185,8 @@
 					value: 48,
 					observer: '_widthChanged'
 				},
-				healthElements: {
-					type: Array,
-					value: function () {
-						return []
-					}
+				linkables: {
+					type: Array
 				}
 			},
 			observers: ['_valueChanged(value.*)'],

@@ -39,8 +39,15 @@
 		<style>
 			:host {
 				flex-grow: var(--dynamic-field-width, 50);
+				position: relative;
 				min-width: calc(var(--dynamic-field-width-percent, '50%') - 32px);
 				margin: 0 16px;
+			}
+
+			dynamic-link {
+				position: absolute;
+				right: 0;
+				top: 8px;
 			}
 
 			.modified-icon {
@@ -153,8 +160,9 @@
 			</paper-input-container>
 			</template>
 			<template is="dom-if" if="[[dataSource]]">
-				<vaadin-combo-box  filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[label]]" value="{{value}}"></vaadin-combo-box>
+				<vaadin-combo-box filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[_label(label)]]" value="{{value}}"></vaadin-combo-box>
 			</template>
+			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>
@@ -261,7 +269,9 @@
 				this.dataSource && this.dataSource.filter(text).then(items => this.value ? this.dataSource.get(this.value).then(res => res ? [res].concat(items) : items) : items).then(items=>this.set('items', items))
 			}
 
-
+			_label(label) {
+				return label || "\u00a0"
+			}
 		}
 		customElements.define(DynamicPopupMenu.is, DynamicPopupMenu);
 	</script>

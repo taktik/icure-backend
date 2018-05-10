@@ -22,7 +22,7 @@
 			dynamic-link {
 				position: absolute;
 				right: 0;
-				top: 4px;
+				bottom: 8px;
 			}
 
 			.modified-icon {
@@ -84,8 +84,7 @@
 			</label>
 			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]"></iron-autogrow-textarea>
 		</paper-input-container>
-		<dynamic-link health-elements="[[healthElements]]"></dynamic-link>
-
+		<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 	</template>
 	<script>
 		Polymer({

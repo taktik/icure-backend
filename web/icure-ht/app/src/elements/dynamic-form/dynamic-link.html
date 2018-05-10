@@ -8,7 +8,7 @@
 
 <dom-module id="dynamic-link">
     <template>
-        <style>
+        <style include="icd-styles">
             paper-menu-button {
                 padding: 0;
             }
@@ -29,12 +29,16 @@
                 margin-bottom: 1px;
             }
 
+            paper-item {
+                font-size: 14px;
+                min-height: 30px;
+            }
         </style>
 
         <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
             <paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
             <paper-listbox slot="dropdown-content">
-                <template is="dom-repeat" items="[[healthElements]]" as="he">
+                <template is="dom-repeat" items="[[linkables]]" as="he">
                     <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
                 </template>
             </paper-listbox>
@@ -48,7 +52,7 @@
 
             static get properties() {
                 return {
-                    healthElements: {
+                    linkables: {
                         type: Array,
                         value: function () {
                             return []
@@ -75,9 +79,9 @@
             }
 
             link(e, target) {
-                const he = this.healthElements.find(he=>he.id === e.target.id)
+                const he = this.linkables.find(he=>he.id === e.target.id)
                 if (!he) {return}
-                this.dispatchEvent(new CustomEvent('link-to-health-element', {detail: {representedObject: this.representedObject, healthElement:he}}));
+                this.dispatchEvent(new CustomEvent('link-to-health-element', {bubbles: true, composed: true, detail: {representedObject: this.representedObject, healthElement:he}}));
             }
 
         }

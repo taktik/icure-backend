@@ -18,6 +18,13 @@
 				flex-grow: var(--dynamic-field-width, 25);
 				min-width: calc(var(--dynamic-field-width-percent, '25%') - 32px);
 				margin: 0 16px;
+				position: relative;
+			}
+
+			dynamic-link {
+				position: absolute;
+				right: 0;
+				bottom: 8px;
 			}
 
 			.modified-icon {
@@ -108,6 +115,7 @@
 				</vaadin-date-picker-light>
 				<iron-icon icon="icons:today" slot="suffix" on-tap="_openDatePicker"></iron-icon>
 			</paper-input-container>
+			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>
