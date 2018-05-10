@@ -118,7 +118,7 @@
 								<template id="layoutitems-repeat" is="dom-repeat" items="[[_sortedGroupedFormDataList(column.formDataList)]]" as="layoutItem">
 									<template is="dom-if" if="[[_shouldDisplay(layoutItem, readOnly, compact)]]">
 									<template is="dom-if" if="[[_isTextField(layoutItem)]]">
-										<dynamic-text-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-text-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" health-elements="[[healthElements]]"
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-text-field>
 									</template>
 									<template is="dom-if" if="[[_isTextArea(layoutItem)]]">
@@ -135,8 +135,8 @@
 									</template>
 									<template is="dom-if" if="[[_isMeasureField(layoutItem)]]">
 										<dynamic-measure-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
-															   last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]"
-															   unit="[[_unit(layoutItem,dataMap.*)]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-measure-field>
+															   last-modified="[[_lastModified(layoutItem)]]" value-with-unit="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]"
+															   on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-measure-field>
 									</template>
 									<template is="dom-if" if="[[_isPopupMenu(layoutItem)]]">
 										<dynamic-popup-menu id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" data-source="[[_popupDataSource(layoutItem, layoutItem.editor.menuOptions)]]"
@@ -152,7 +152,7 @@
 									</template>
 									<template is="dom-if" if="[[_isTokenField(layoutItem)]]">
 										<dynamic-token-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" language="[[language]]" data-source="[[_tokenDataSource(layoutItem, layoutItem.codeTypes)]]"
-															last-modified="[[_lastModified(layoutItem)]]" value="[[_valueContainers(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]"></dynamic-token-field>
+															last-modified="[[_lastModified(layoutItem)]]" health-elements="[[healthElements]]" value="[[_valueContainers(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]"></dynamic-token-field>
 									</template>
 									<template is="dom-if" if="[[_isMedicationField(layoutItem)]]">
 										<dynamic-medication-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" language="[[language]]"
@@ -223,6 +223,12 @@
 				showEdit: {
 					type: String,
 					computed: "_showEdit(isSubForm, readOnly)"
+				},
+				healthElements: {
+					type: Array,
+					value: function () {
+						return []
+					}
 				}
 			},
 			observers: [],
@@ -263,7 +269,7 @@
 			_rawValue: function (layoutItem) {
 				if (!this.dataProvider) { return null }
 				return this._isDateField(layoutItem)? this.dataProvider.getDateValue(layoutItem.name) :
-					this._isMeasureField(layoutItem)? (() => { const v = this.dataProvider.getMeasureValue(layoutItem.name); return v && v.value } )() :
+					this._isMeasureField(layoutItem)? this.dataProvider.getMeasureValue(layoutItem.name) :
 							this._isCheckboxField(layoutItem) ? this.dataProvider.getBooleanValue(layoutItem.name) :
 								this._isNumberField(layoutItem) ? this.dataProvider.getNumberValue(layoutItem.name) : this.dataProvider.getStringValue(layoutItem.name)
 			},
@@ -302,7 +308,7 @@
 				const layoutItem = this.layoutItemPerName[event.target.id]
 				if (layoutItem) {
 					this._isDateField(layoutItem) ? this.dataProvider.setDateValue(layoutItem.name, change.value) :
-						this._isMeasureField(layoutItem) ? this.dataProvider.setMeasureValue(layoutItem.name, {value: change.value}) :
+						this._isMeasureField(layoutItem) ? this.dataProvider.setMeasureValue(layoutItem.name, typeof change.value === "object" ? change.value : {value: change.value}) :
 							this._isCheckboxField(layoutItem) ? this.dataProvider.setBooleanValue(layoutItem.name, change.value && change.value !== 'false') :
 								this._isNumberField(layoutItem) ? this.dataProvider.setNumberValue(layoutItem.name, change.value) : this.dataProvider.setStringValue(layoutItem.name, change.value)
 				}

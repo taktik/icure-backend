@@ -8,7 +8,7 @@
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/tk-token-field/tk-token-field.html">
-
+<link rel="import" href="dynamic-link.html">
 
 <dom-module id="dynamic-token-field">
 	<template>
@@ -17,9 +17,16 @@
 
 			:host {
 				display: block;
+				position: relative;
 				flex-grow: var(--dynamic-field-width, 100);
 				min-width: calc(var(--dynamic-field-width-percent, '100%') - 32px);
 				margin: 0 16px;
+			}
+
+			dynamic-link {
+				position: absolute;
+				right: 0;
+				top: 4px;
 			}
 
 			.modified-icon {
@@ -99,15 +106,14 @@
 				padding: 16px 16px;
 			}
 
-			label,
-			.container {
+			label, .container {
 				cursor: text;
 			}
 
 		</style>
 
-		<tk-token-field label="[[label]]" value="{{localizedValue}}" on-value-splices-change="_localizedValueChanged" data-value-path="id"  data-label-path="stringValue" always-float-label>
-			<span	 slot="label-suffix">
+		<tk-token-field label="[[label]]" value="{{localizedValue}}" on-value-splices-change="_localizedValueChanged" data-value-path="id"  data-label-path="stringValue" data-source="[[dataSource]]" always-float-label>
+			<span slot="label-suffix">
 				<template is="dom-if" if="[[wasModified]]">
 					<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 				</template>
@@ -116,6 +122,7 @@
 				</template>
 			</span>
 		</tk-token-field>
+		<dynamic-link health-elements="[[healthElements]]"></dynamic-link>
 	</template>
 	<script>
 		Polymer({
@@ -142,6 +149,10 @@
 				},
 				context: {
 					type: String
+				},
+				dataSource: {
+					type: Object,
+					value: null
 				},
 				value: {
 					type: Array,
@@ -173,6 +184,12 @@
 					type: Number,
 					value: 48,
 					observer: '_widthChanged'
+				},
+				healthElements: {
+					type: Array,
+					value: function () {
+						return []
+					}
 				}
 			},
 			observers: ['_valueChanged(value.*)'],

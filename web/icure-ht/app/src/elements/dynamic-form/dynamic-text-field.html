@@ -13,9 +13,16 @@
 	<template>
 		<style>
 			:host {
+				position: relative;
 				flex-grow: var(--dynamic-field-width, 50);
 				min-width: calc(var(--dynamic-field-width-percent, '50%') - 32px);
 				margin: 0 16px;
+			}
+
+			dynamic-link {
+				position: absolute;
+				right: 0;
+				top: 4px;
 			}
 
 			.modified-icon {
@@ -94,6 +101,7 @@
 					<input type="text" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
+			<dynamic-link health-elements="[[healthElements]]"></dynamic-link>
 		</template>
 
 	</template>
@@ -132,6 +140,10 @@
 					type: Number,
 					value: 48,
 					observer: '_widthChanged'
+				},
+				healthElements: {
+					type: Array,
+					value: function () { return [] }
 				}
 			},
 			observers: [],

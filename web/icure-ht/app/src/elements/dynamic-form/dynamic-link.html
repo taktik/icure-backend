@@ -1,0 +1,86 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../../icd-styles.html">
+
+<dom-module id="dynamic-link">
+    <template>
+        <style>
+            paper-menu-button {
+                padding: 0;
+            }
+
+            paper-icon-button {
+                padding: 0 4px 8px 4px;
+                width: 20px;
+                height: 20px;
+            }
+
+            .link .ICD-10 span {
+                content: '';
+                display: inline-block;
+                height: 6px;
+                width: 6px;
+                border-radius: 3px;
+                margin-right: 3px;
+                margin-bottom: 1px;
+            }
+
+        </style>
+
+        <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
+            <paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
+            <paper-listbox slot="dropdown-content">
+                <template is="dom-repeat" items="[[healthElements]]" as="he">
+                    <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+                </template>
+            </paper-listbox>
+        </paper-menu-button>
+    </template>
+    <script>
+        class DynamicLink extends Polymer.mixinBehaviors([], Polymer.Element) {
+            static get is() {
+                return 'dynamic-link'
+            }
+
+            static get properties() {
+                return {
+                    healthElements: {
+                        type: Array,
+                        value: function () {
+                            return []
+                        }
+                    },
+                    representedObject: {
+                        type: Object
+                    }
+                }
+            }
+
+            static get observers() {
+                return [  ]
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            _show(e) {
+            	e.preventDefault()
+                e.stopPropagation()
+            	this.$.mb.open()
+            }
+
+            link(e, target) {
+                const he = this.healthElements.find(he=>he.id === e.target.id)
+                if (!he) {return}
+                this.dispatchEvent(new CustomEvent('link-to-health-element', {detail: {representedObject: this.representedObject, healthElement:he}}));
+            }
+
+        }
+        customElements.define(DynamicLink.is, DynamicLink)
+    </script>
+</dom-module>

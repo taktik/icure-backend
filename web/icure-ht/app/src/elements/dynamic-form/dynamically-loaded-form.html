@@ -38,7 +38,7 @@
 			}
 		</style>
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" template="[[form.template.layout]]" data-provider="[[dataProvider]]"
-                      data-map="[[dataMap]]" title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true">
+                      data-map="[[dataMap]]" title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]">
 			<div slot="titlebar">
 				<paper-icon-button class="form-title-bar-btn" icon="delete" on-tap="deleteForm"></paper-icon-button>
 				<paper-menu-button horizontal-align="right" dynamic-align="true">
@@ -510,18 +510,20 @@
 								}
 							})
 					},
-					filter: (data, text) => {
-							return data.codeTypes && data.codeTypes.length ? Promise.all(
-								data.codeTypes.map(ct=>
-                                    this.api.code().findPaginatedCodesByLabel('be' ,ct ,this.language || 'fr', text , null, 50)
-                                        .then(results => {
-                                            const filtered = results.rows.map(code => ({label:label, content:_.mapValues(code.label, v=>({stringValue:v})), codes: code.links && code.links.map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]})) || []}))
-                                            return {totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}
-                                        })
-                                )
-                            ).then(responses => _.flatMap(responses)) : Promise.resolve([])
-					}
-				}
+                    filter: (data, text) => {
+                        return data.codeTypes && data.codeTypes.length && text && text.length > 1 ? Promise.all(
+                            data.codeTypes.map(ct => {
+                                    const typeLng = this.api.code().languageForType(ct.type, this.language)
+                                    return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, text, null, 50)
+                                        .then(results => results.rows.map(code => ({
+                                            id: code.id, stringValue: code.label[typeLng],
+                                            codes: code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || []
+                                        })))
+                                }
+                            )
+                        ).then(responses => _.flatMap(responses)) : Promise.resolve([])
+                    }
+                }
 				return self
 			},
 

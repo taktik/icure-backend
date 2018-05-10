@@ -12,10 +12,17 @@
 	<template>
 		<style>
 			:host {
-				flex-grow: var(--dynamic-field-width, 25);
+                position: relative;
+                flex-grow: var(--dynamic-field-width, 25);
 				min-width: calc(var(--dynamic-field-width-percent, '25%') - 32px);
 				margin: 0 16px;
 			}
+
+            dynamic-link {
+                position: absolute;
+                right: 0;
+                top: 4px;
+            }
 
 			.modified-icon {
 				width: 18px;
@@ -64,7 +71,6 @@
 				font-size: var(--form-font-size);
 
 			}
-
 		</style>
 
 		<template is="dom-if" if="[[readOnly]]">
@@ -77,28 +83,27 @@
 						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
-					<input type="number" value="{{value::input}}" readonly>
+				<iron-input slot="input" bind-value="{{inputValue}}">
+					<input value="{{value::input}}" readonly>
 				</iron-input>
-				<div suffix>[[unit]]</div>
 			</paper-input-container>
 		</template>
 		<template is="dom-if" if="[[!readOnly]]">
 			<paper-input-container always-float-label="true">
 				<label slot="label">[[label]]
-					<template is="dom-if" if="[[wasModified]]">
+                    <template is="dom-if" if="[[wasModified]]">
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
 						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
-					<input type="number" value="{{value::input}}">
+				<iron-input slot="input" bind-value="{{inputValue}}">
+					<input value="{{inputValue::input}}">
 				</iron-input>
-				<div suffix>[[unit]]</div>
 			</paper-input-container>
-		</template>
+            <dynamic-link health-elements="[[healthElements]]"></dynamic-link>
+        </template>
 
 	</template>
 	<script>
@@ -121,14 +126,14 @@
 				label: {
 					type: String
 				},
-				value: {
-					type: Number,
+				valueWithUnit: {
+					type: Object,
 					notify: true,
 					observer: '_valueChanged'
 				},
-				unit: {
+				inputValue: {
 					type: String,
-					notify: true
+					observer: '_inputValueChanged'
 				},
 				width: {
 					type: Number,
@@ -141,8 +146,23 @@
 				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
 			},
 			_valueChanged: function(value) {
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:value}}));
-			}
+                const normalizedInputValue = this.valueWithUnit ?
+                  (this.valueWithUnit.value != null ? this.valueWithUnit.value : '') + (this.valueWithUnit.unit ? ' ' + this.valueWithUnit.unit : '') : ''
+                if ((this.inputValue || '').trim() !== normalizedInputValue) {
+					this.set('inputValue', normalizedInputValue)
+				}
+			},
+		    _inputValueChanged: function(value) {
+			  if (this.inputValue !== this.value + ' ' + this.unit) {
+			  	const match = /^ *([+-]?[0-9]+(?:\.[0-9]+)?)(?: *([a-zA-Z].*?))? *$/.exec(this.inputValue)
+                this.set('valueWithUnit', {
+                  value:match && (match[1] ? parseFloat(match[1]) : null) || (isNaN(parseFloat(this.inputValue)) ? null : parseFloat(this.inputValue)),
+                  unit:match && match[2] || null
+                })
+
+				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:this.valueWithUnit}}));
+			  }
+		    }
 		})
 	</script>
 </dom-module>
