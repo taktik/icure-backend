@@ -1067,7 +1067,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									</template>
 									<template is="dom-repeat" items="[[risks]]" as="risk">
 										<paper-item class="menu-item" id="_svc_[[risk.id]]">
-											<span>[[shortServiceDescription(risk, language)]]</span>
+											<span>[[risk.label]]: [[shortServiceDescription(risk, language)]]</span>
 										</paper-item>
 									</template>
 									<template is="dom-if" if="[[risks.length]]">
@@ -1544,9 +1544,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										})
 										this.set('healthTopics', _.sortBy(codes.filter(ht=>ht.healthElements.length > 1), (it=>this.localize(it))))
 
-										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>!it.closingDate), 'descr'));
-										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>it.closingDate && ((it.status & 1) === 0)), 'descr'));
-										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>it.closingDate && ((it.status & 1) === 1)), 'descr'));
+										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>!it.closingDate && ((it.status & 1) === 0)), 'descr'));
+										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>(it.closingDate || ((it.status & 1) === 1)) && ((it.status & 2) === 0)), 'descr'));
+										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>it.closingDate && ((it.status & 2) === 2)), 'descr'));
 									})
 
 									const unclosedContact = ctcs.find(c=>!c.closingDate)
@@ -1690,7 +1690,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					const svc = model.he.svc
 
 					if (!svc.closingDate && svc.closingDate !== 0) { svc.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-					if ((svc.status & 1) === 0) { svc.status = svc.status | 1 }
+					if ((svc.status & 2) === 0) { svc.status = svc.status | 2 }
 					this.saveService(svc).then(c => this.patientChanged())
 				}
 			},
@@ -1699,7 +1699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				if (model.he.id) {
 					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (he.closingDate || he.closingDate === 0) { he.closingDate =  null }
-						if ((he.status & 1) === 1) { he.status = he.status - 1 }
+						if ((he.status & 1) === 1) { he.status = he.status - 1 } //activate
+						if ((he.status & 2) === 2) { he.status = he.status - 2 } //unarchive
 						this.api.helement().modifyHealthElement(he).then(he => { this.patientChanged() })
 					})
 				} else if (model.he.idService) {
@@ -1707,7 +1708,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					const svc = model.he.svc
 
 					if (svc.closingDate || svc.closingDate === 0) { svc.closingDate =  null }
-					if ((svc.status & 1) === 1) { svc.status = svc.status - 1 }
+					if ((svc.status & 1) === 1) { svc.status = svc.status - 1 } //activate
+					if ((svc.status & 2) === 2) { svc.status = svc.status - 2 } //unarchive
 					this.saveService(svc).then(c => this.patientChanged())
 				}
 			},
@@ -1716,7 +1718,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				if (model.he.id) {
 					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (!he.closingDate && he.closingDate !== 0) { he.closingDate =  parseInt(moment().format('YYYYMMDDHHmmss'))}
-						if ((he.status & 1) === 1) { he.status = he.status - 1 }
+						if ((he.status & 2) === 2) { he.status = he.status - 2 } //unarchive
 						this.api.helement().modifyHealthElement(he).then(he => {
 							this.patientChanged()
 						})
@@ -1726,7 +1728,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					const svc = model.he.svc
 
 					if (!svc.closingDate && svc.closingDate !== 0) { svc.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-					if ((svc.status & 1) === 1) { svc.status = svc.status - 1 }
+					if ((svc.status & 2) === 2) { svc.status = svc.status - 2 } //unarchive
 
 					this.saveService(svc).then(c => this.patientChanged())
 				}

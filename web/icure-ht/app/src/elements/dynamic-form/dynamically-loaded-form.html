@@ -106,7 +106,14 @@
 				dataMap: {
 					type: Object,
 					value: null
-				}
+				},
+			  layoutInfoPerLabel: {
+				  type: Object,
+				  value: function () {
+					  return {}
+				  }
+
+			  }
 			},
 			observers: ["_prepareDataProvider(contacts.*,servicesMap.*,form,patient,user)"],
 
@@ -114,8 +121,8 @@
 				this.flushSave()
 			},
 
-				_isNotInCurrentContact: function (currentContact, contact) {
-					return currentContact === null || contact !== currentContact
+			_isNotInCurrentContact: function (currentContact, contact) {
+				return currentContact === null || contact !== currentContact
 			},
 
 			_prepareDataProvider: function () {
@@ -149,6 +156,10 @@
 								}]
 							}]
 						})
+					} else {
+						this.set('layoutInfoPerLabel', (this.form.template.layout.sections && _.flatMap(this.form.template.layout.sections, s=>
+							s.formColumns && _.flatMap(s.formColumns, c=>c.formDataList || []) || []
+						) || []).reduce((acc,fli)=>{ acc[fli.name] = fli; return acc },{}))
 					}
 					this.set('currentContact', this.contacts.find(c => !c.closingDate) || null)
 				}
@@ -189,6 +200,31 @@
 			},
 
 			getDataProvider(form, rootPath) {
+				const initWrapper = (label, init) => (svc => {
+					const li = this.layoutInfoPerLabel[label]
+					if (li) {
+						li.tags && li.tags.forEach(tag => {
+							const exTag = svc.tags.find(t => t.type === tag.type)
+							if (exTag) {
+								exTag.code = tag.code
+								if (exTag.id) {
+									exTag.id = tag.type + '|' + tag.code + "|" + (exTag.id.split('|')[2] || '1')
+								}
+							} else {
+								svc.tags = (svc.tags || []).concat([tag])
+							}
+						})
+						li.codes && li.codes.forEach(code => {
+							const exCode = svc.codes.find(c => c.type === code.type && c.code === code.code)
+							if (!exCode) {
+								svc.codes = (svc.codes || []).concat([code])
+							}
+						})
+						if (li.defaultStatus || li.defaultStatus === 0) { svc.status = li.defaultStatus }
+					}
+					return init && init(svc) || svc
+				})
+
 				const self = {
 					servicesMap: {},
 					services: (label) => {
@@ -215,17 +251,13 @@
 
 						return svc
 					},
-					getOrCreateService: (label, formId, poaId, heId, init) => {
-						const s = self.getServiceInContact(label)
-						return s && s.svc && init(s.svc) || self.dispatchService(this.createService(label, formId, poaId, heId, null, init))
-					},
 					promoteOrCreateService: (label, formId, poaId, heId, init) => {
 						const s = self.getServiceInContact(label)
 						if (!this.currentContact) {
 							return s && s.svc
 						}
-						return s && s.svc && (!s.ctc.id === this.currentContact.id ? init(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaId, heId, init)))
-							|| self.dispatchService(this.createService(label, formId, poaId, heId, null, init))
+						return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaId, heId, initWrapper(label, init))))
+							|| self.dispatchService(this.createService(label, formId, poaId, heId, null, initWrapper(label, init)))
 					},
 					getOrCreateContent: (svc, lng) => svc && ((svc.content && svc.content[lng]) || ((svc.content || (svc.content = {}))[lng] = {})),
 					getServicesLineForContact: (label) => {
@@ -277,7 +309,7 @@
 									_.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id))
 								}
 								if (!prevSvc || !_.isEqual(prevSvc.content, service.content)) {
-									self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id), {index: service.index, content: service.content}))
+									self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), {index: service.index, content: service.content}))
 									return true
 								}
 							}
@@ -288,7 +320,7 @@
 							if (svc) {
 								svc.endOfLife = (+new Date()) * 1000
 							} else {
-								self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id), {endOfLife: (+new Date()) * 1000}))
+								self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), {endOfLife: (+new Date()) * 1000}))
 							}
 						})
 						if (isModified || currentValueContainers.length) {
