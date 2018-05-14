@@ -20,11 +20,15 @@ package org.taktik.icure.be.mikrono.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,11 +55,13 @@ public class MikronoLogicImpl implements MikronoLogic {
 	private final RestTemplate restTemplate = new RestTemplate();
 	private String applicationToken;
 
-	public MikronoLogicImpl(String applicationToken, Map<String, String> tokensPerServer) {
+	public MikronoLogicImpl(String applicationToken, String defaultServer, String defaultSuperUser, String defaultSuperToken) {
 		this.applicationToken = applicationToken;
 		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-		this.tokensPerServer = tokensPerServer;
-
+		this.tokensPerServer = new HashMap<>();
+		if (defaultServer != null && defaultSuperUser != null && defaultSuperToken != null) {
+			this.tokensPerServer.put(defaultServer, String.join(":", defaultSuperUser, defaultSuperToken));
+		}
 		log.info("Mikrono Logic initialised");
 	}
 

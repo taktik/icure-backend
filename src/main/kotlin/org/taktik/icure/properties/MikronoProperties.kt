@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component
 @Component
 @ConfigurationProperties("icure.mikronoServer")
 class MikronoProperties {
+	var server : String? = null
+	var superUser : String? = null
+	var superToken : String? = null
 	var applicationToken : String? = null
-	var serverConfigurations : Map<String, String> = HashMap()
 }

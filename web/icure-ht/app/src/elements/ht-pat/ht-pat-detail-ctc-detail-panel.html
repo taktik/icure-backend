@@ -186,7 +186,7 @@
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
 					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
-							<dynamically-loaded-form api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" services-map="[[servicesMap]]" language="[[language]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"></dynamically-loaded-form>
+							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" services-map="[[servicesMap]]" language="[[language]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"></dynamically-loaded-form>
 						</template>
 						<template is="dom-repeat" items="[[form.docs]]">
 							<dynamic-doc api="[[api]]" user="[[user]]" service="[[item]]" language="[[language]]" title="[[item.label]]"></dynamic-doc>
@@ -283,6 +283,11 @@
 				if(this._hasCurrentContact(this.contacts) && e && e.dataTransfer && e.dataTransfer.items && _.find(e.dataTransfer.items, i => i.kind === 'file')) {
 					this.addDocument()
 				}
+			},
+
+			flushSave: function() {
+				const dynamicallyLoadedForm = this.shadowRoot.querySelector('#dynamicallyLoadedForm')
+				dynamicallyLoadedForm && dynamicallyLoadedForm.flushSave()
 			},
 
 			_filesChanged: function() {

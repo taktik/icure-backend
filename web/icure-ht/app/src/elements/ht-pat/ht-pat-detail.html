@@ -1255,7 +1255,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 				</div>
-				<ht-pat-detail-ctc-detail-panel contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-health-elements-change="patientChanged"></ht-pat-detail-ctc-detail-panel>
+				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-health-elements-change="patientChanged"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1402,6 +1402,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				'selectedContactItemsChanged(selectedContactItems.*)'
 			],
 			selectedContactItemsChanged: function() {
+				const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel')
+				ctcDetailPanel && ctcDetailPanel.flushSave()
+
 				this.set('selectedContacts',this.selectedContactItems.map(i=>i.contact))
 			},
 			_shortId:function(id) { return id && id.substr(0,8) },
@@ -1457,15 +1460,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.currentContact.services.push(svc)
 				return this.saveCurrentContact()
 			},
+
 			saveCurrentContact: function() {
 				return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
 			},
+
 			filterEvents: function() {
 				this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s=>s.tags.find(t=>t.type==='CD-LIFECYCLE'&&t.code==='planned')),it=>-this.api.moment(it.valueDate)))
 			},
+
 			_lateEventCssClass: function(e) {
 				return this.api.moment(e.valueDate).isBefore(moment()) ? 'todo-item--late' : ''
 			},
+
 			_isLatestYearContact(contactYear, contactYears){
 				if(contactYear.year === contactYears[Object.keys(contactYears)[0]].year) {
 					this.isLatestYear = true;
@@ -1475,6 +1482,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			        return "contact--small";
 				}
 			},
+
 			openToast: function() {
 				Polymer.dom(this.root).querySelector('#selectionToast').show();
 			},
@@ -1483,6 +1491,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			    this.showFiltersPanel = !this.showFiltersPanel;
 				this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed');
 			},
+
 			selectedItemsSubmenu: function (list, selectedItems) {
 			    if (!selectedItems || selectedItems.length===0) {
 			        return 'icons:check-box-outline-blank';
@@ -1493,6 +1502,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			        return 'icons:check-box'
 				}
 			},
+
 			checkedUncheckedIcon: function(item, selectedItems) {
 			    if(selectedItems && selectedItems.find(i=>i && i.id && i.id.endsWith(item.id))){
 			     	return 'icons:check-box';
@@ -1500,6 +1510,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			        return 'icons:check-box-outline-blank';
 				}
 			},
+
 			patientChanged: function () {
 				if (this.api && this.user && this.patient) {
 					const patient = this.patient
@@ -1512,7 +1523,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								this.api.contact()
 								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (c.code === 'healthelement' || c.code === 'healthissue')) && idServicesInHes.indexOf(s.id)<0)
 								  .then(hesAsServices => {
-									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc=> ({
+									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc => ({
 										created:svc.created,
 										modified:svc.modified,
 										endOfLife:svc.endOfLife,
@@ -1582,7 +1593,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'familyrisk')).then(familyrisks => this.set('familyrisks',_.sortBy(familyrisks, sorter)))
 								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'risk')).then(risks => this.set('risks',_.sortBy(risks, sorter)))
 								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy' || c.code === 'adr'))).then(allergies => this.set('allergies',_.sortBy(allergies, sorter)))
-								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'medication'))).then(medications => this.set('medications',_.sortBy(medications, sorter)))
+								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => this.set('medications',_.sortBy(medications, sorter)))
 
 								this._updateFilterPanels();
 							} )
@@ -1622,9 +1633,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					}
 				}
 			},
+
 			unselectAdminFile: function() {
 				this.$.adminFileMenu.select(null)
 			},
+
 			closeContact: function(e) {
 				e.stopPropagation();
 				e.preventDefault();
@@ -1694,6 +1707,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					this.saveService(svc).then(c => this.patientChanged())
 				}
 			},
+
 			_activate: function(event,target) {
 				const model = this.$.inactiveHesDomRepeat.modelForElement(event.target) || this.$.archivedHesDomRepeat.modelForElement(event.target)
 				if (model.he.id) {
@@ -1712,6 +1726,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					if ((svc.status & 2) === 2) { svc.status = svc.status - 2 } //unarchive
 					this.saveService(svc).then(c => this.patientChanged())
 				}
+
 			},
 			_inactivate: function(event,target) {
 				const model = this.$.activeHesDomRepeat.modelForElement(event.target) || this.$.archivedHesDomRepeat.modelForElement(event.target)
@@ -2030,8 +2045,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 } else if (this.edithealtElement.he.idService) {
                     const svc = this.edithealtElement.he.svc
 					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc).then(he =>{
-                        this.edithealtElement.he = he
-					    this._editedHealthElementSelected(event, healthElement)})
+						if (this.currentContact) {
+							this.api.contact().promoteServiceInContact(this.currentContact, this.contacts, svc, undefined, null, he.id, null)
+							this.scheduleSave(this.currentContact)
+						}
+
+						this.edithealtElement.he = he
+					    this._editedHealthElementSelected(event, healthElement)
+					})
                 }
 			},
 

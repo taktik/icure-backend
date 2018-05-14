@@ -173,7 +173,11 @@
 					clearTimeout(this.saveTimeout)
 				}
 				this.saveAction = function () {
-					return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
+                    if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
+                        this.dispatchEvent(new CustomEvent('health-elements-change', {detail: {hes: []}, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+                    }
+
+                    return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
 						ctc.rev = c.rev
 
 						this.saveTimeout = undefined
@@ -309,7 +313,7 @@
 									_.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id))
 								}
 								if (!prevSvc || !_.isEqual(prevSvc.content, service.content)) {
-									self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), {index: service.index, content: service.content}))
+									self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), {index: service.index, content: service.content, codes: service.codes}))
 									return true
 								}
 							}
@@ -551,7 +555,7 @@
                                     return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, text, null, 50)
                                         .then(results => results.rows.map(code => ({
                                             id: code.id, stringValue: code.label[typeLng],
-                                            codes: code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || []
+	                                        codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
                                         })))
                                 }
                             )
@@ -651,38 +655,16 @@
 		  	promoteServiceToHealthElement: function (heSvc) {
 				this.api.helement.serviceToHealthElement(this.user, this.patient, heSvc)
 				  .then(he=>{
-				  	this.dispatchEvent(new CustomEvent('health-elements-change', {detail:{hes:[he]}, bubbles: true}))
+				  	this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, he.id, null)
+					this.scheduleSave(this.currentContact)
+				  	this.dispatchEvent(new CustomEvent('health-elements-change', {detail:{hes:[he]}, bubbles: true, composed: true}))
                     return he
 				  })
 			},
 
 		  	promoteServiceInCurrentContact: function (svc, formId, poaId, heId, init) {
-				if (!this.currentContact) {
-					return null
-				}
-				const existing = this.currentContact.services.find(s => s.id === svc.id)
-				const promoted = _.extend(_.extend(existing || {}, svc), {author: this.user.id, responsible: this.user.healthcarePartyId, modified: (new Date).getTime()})
-				if (!existing) {
-					(this.currentContact.services || (this.currentContact.services = [])).push(promoted)
-				}
-
-				let sc = this.currentContact.subContacts.find(sc => sc.formId === formId && sc.planOfActionId === poaId && sc.healthElementId === heId)
-				if (!sc) {
-					this.currentContact.subContacts.push((sc = {formId: formId, planOfActionId: poaId, healthElementId: heId, services: []}))
-				}
-				const csc = this.currentContact.subContacts.find(csc => csc.services.indexOf(svc.id) >= 0)
-				if (csc) {
-					if (csc !== sc) {
-						csc.splice(csc.services.indexOf(svc.id), 1)
-						sc.services.push({serviceId: svc.id})
-					}
-				} else {
-					sc.services.push({serviceId: svc.id})
-				}
-
-				return init && init(svc) || svc
+				return this.api.contact().promoteServiceInContact(this.currentContact, this.contacts,  svc, formId, poaId, heId, init)
 			},
-
 
 			shortServiceDescription: function (svc, lng) {
 				let rawDesc = this.api && this.api.contact().shortServiceDescription(svc, lng)

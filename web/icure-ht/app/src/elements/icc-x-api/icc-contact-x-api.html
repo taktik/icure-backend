@@ -154,6 +154,7 @@
 					const ps = byIds[s.id]
 					if (!ps || !ps.modified || (s.modified && ps.modified < s.modified)) {
 						byIds[s.id] = s
+					  	s.contactId = c.id
 					}
 				}))
 				return _.values(byIds).filter(s => !s.deleted && !s.endOfLife)
@@ -183,6 +184,39 @@
 				}
 				return e[lng] || e.fr || e.en || e.nl
 			},
+
+			promoteServiceInContact: function (ctc, ctcs, svc, formId, poaId, heId, init) {
+				if (!ctc) {
+					return null
+				}
+				const existing = ctc.services.find(s => s.id === svc.id)
+				const promoted = _.extend(_.extend(existing || {}, svc), {author: this.user.id, responsible: this.user.healthcarePartyId, modified: (new Date).getTime()})
+				if (!existing) {
+					(ctc.services || (ctc.services = [])).push(promoted)
+				}
+
+				let sc = ctc.subContacts.find(sc => (formId === undefined || sc.formId === formId) && sc.planOfActionId === poaId && sc.healthElementId === heId)
+				if (!sc) {
+					const pastCtc = (svc.contactId && ctcs.find(c=>c.id === svc.ctcId))
+				  	sc = pastCtc && pastCtc.subContacts.find(sc => (formId === undefined || sc.formId === formId) && sc.planOfActionId === poaId && sc.healthElementId === heId)
+
+					if (!sc) {
+						ctc.subContacts.push((sc = {formId: formId || null, planOfActionId: poaId, healthElementId: heId, services: []}))
+					}
+				}
+				const csc = ctc.subContacts.find(csc => csc.services.indexOf(svc.id) >= 0)
+				if (csc) {
+					if (csc !== sc) {
+						csc.splice(csc.services.indexOf(svc.id), 1)
+						sc.services.push({serviceId: svc.id})
+					}
+				} else {
+					sc.services.push({serviceId: svc.id})
+				}
+
+				return init && init(svc) || svc
+			},
+
 
 			service: function () {
 				return {

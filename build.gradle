@@ -5,11 +5,11 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
-		maven {
-			url = "https://maven.taktik.be/content/groups/public"
-		}
+		maven { url = 'https://maven.taktik.be/content/groups/public' }
+		maven { url = 'http://repo.spring.io/plugins-release' }
 	}
 	dependencies {
+		classpath('io.spring.gradle:propdeps-plugin:0.0.9.RELEASE')
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
@@ -21,6 +21,13 @@ apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+
+configure(allprojects) {
+	apply plugin: 'propdeps'
+	apply plugin: 'propdeps-maven'
+	apply plugin: 'propdeps-idea'
+	apply plugin: 'propdeps-eclipse'
+}
 
 
 group = 'org.taktik.icure'
@@ -71,6 +78,8 @@ repositories {
 
 
 dependencies {
+	optional "org.springframework.boot:spring-boot-configuration-processor"
+
 	compile('org.springframework.boot:spring-boot-starter-jetty')
 	compile('org.springframework.boot:spring-boot-starter-jersey')
 	compile('org.springframework.boot:spring-boot-starter-mail')
@@ -205,6 +214,9 @@ dependencies {
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+compileJava.dependsOn(processResources)
+
 // Setup resolution strategy
 configurations.all {
 	resolutionStrategy {

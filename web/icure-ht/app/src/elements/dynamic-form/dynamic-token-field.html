@@ -202,7 +202,7 @@
 						newValue.push(_.extend(existing, {index:idx}))
 						_.pull(current, existing)
 					} else {
-						newValue.push({id: this.api.crypto().randomUuid(), index:idx, content: _.fromPairs([[this.language, {stringValue: m.stringValue}]])})
+						newValue.push({id: this.api.crypto().randomUuid(), index:idx, content: _.fromPairs([[this.language, {stringValue: m.stringValue}]]), codes: m.codes || []})
 					}
 				})
 
