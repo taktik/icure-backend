@@ -1257,7 +1257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 				</div>
-				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-health-elements-change="patientChanged"></ht-pat-detail-ctc-detail-panel>
+				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1463,11 +1463,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return this.saveCurrentContact()
 			},
 
-			saveCurrentContact: function() {
-				return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)
+			saveContact: function(ctc) {
+				return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
+					ctc.rev = c.rev
+				  	console.log("contact saved: "+ctc.id+":"+ctc.rev)
+					if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
+						this.patientChanged()
+					}
+					return c
+				})
 			},
 
-			filterEvents: function() {
+			saveCurrentContact: function() {
+				return this.saveContact(this.currentContact)
+			},
+
+			_saveContact: function(event) {
+				this.saveContact(event.detail)
+			},
+
+		    filterEvents: function() {
 				this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s=>s.tags.find(t=>t.type==='CD-LIFECYCLE'&&t.code==='planned')),it=>-this.api.moment(it.valueDate)))
 			},
 
@@ -2049,7 +2064,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const svc = this.edithealtElement.he.svc
 					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc).then(he =>{
 						if (this.currentContact) {
-							this.api.contact().promoteServiceInContact(this.currentContact, this.contacts, svc, undefined, null, he.id, null)
+							this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, he.id, null)
 							this.scheduleSave(this.currentContact)
 						}
 

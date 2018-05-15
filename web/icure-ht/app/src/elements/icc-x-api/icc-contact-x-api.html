@@ -116,7 +116,7 @@
 							}
 						})).then(svcs => {
 							ctc.services = svcs
-							console.log('ES:'+ctc.encryptedSelf)
+						    //console.log('ES:'+ctc.encryptedSelf)
 							return ctc.encryptedSelf ?
 								this.crypto.AES.importKey('raw', this.crypto.utils.hex2ua(sfks[0].replace(/-/g, '')))
 									.then(key =>
@@ -185,12 +185,12 @@
 				return e[lng] || e.fr || e.en || e.nl
 			},
 
-			promoteServiceInContact: function (ctc, ctcs, svc, formId, poaId, heId, init) {
+			promoteServiceInContact: function (ctc, user, ctcs, svc, formId, poaId, heId, init) {
 				if (!ctc) {
 					return null
 				}
 				const existing = ctc.services.find(s => s.id === svc.id)
-				const promoted = _.extend(_.extend(existing || {}, svc), {author: this.user.id, responsible: this.user.healthcarePartyId, modified: (new Date).getTime()})
+				const promoted = _.extend(_.extend(existing || {}, svc), {author: user.id, responsible: user.healthcarePartyId, modified: (new Date).getTime()})
 				if (!existing) {
 					(ctc.services || (ctc.services = [])).push(promoted)
 				}
