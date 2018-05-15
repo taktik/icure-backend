@@ -388,7 +388,7 @@
 					}.bind(this),
 					setMeasureValue: function (label, value) {
 						const currentValue = self.getMeasureValue(label)
-						if (((!currentValue.value && !value.value) || (currentValue.value === value.value)) &&
+						if (currentValue && ((!currentValue.value && !value.value) || (currentValue.value === value.value)) &&
 							((!currentValue.unit && !value.unit) || (currentValue.unit === value.unit))) {
 							return
 						}
@@ -551,9 +551,10 @@
                     filter: (data, text) => {
                         return data.codeTypes && data.codeTypes.length && text && text.length > 1 ? Promise.all(
                             data.codeTypes.map(ct => {
-                                    const typeLng = this.api.code().languageForType(ct.type, this.language)
-                                    return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, text, null, 50)
-                                        .then(results => results.rows.map(code => ({
+							    const typeLng = this.api.code().languageForType(ct.type, this.language)
+	                            const words = text.split(/\s+/)
+	                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200)
+                                        .then(results => results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].includes(w))).map(code => ({
                                             id: code.id, stringValue: code.label[typeLng],
 	                                        codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
                                         })))

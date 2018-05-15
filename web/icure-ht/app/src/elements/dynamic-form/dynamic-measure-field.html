@@ -84,7 +84,7 @@
 					</template>
 				</label>
 				<iron-input slot="input" bind-value="{{inputValue}}">
-					<input value="{{value::input}}" readonly>
+					<input value="{{inputValue::input}}" readonly>
 				</iron-input>
 			</paper-input-container>
 		</template>
@@ -145,6 +145,7 @@
 			_widthChanged: function(width) {
 				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
 			},
+
 			_valueChanged: function(value) {
                 const normalizedInputValue = this.valueWithUnit ?
                   (this.valueWithUnit.value != null ? this.valueWithUnit.value : '') + (this.valueWithUnit.unit ? ' ' + this.valueWithUnit.unit : '') : ''
@@ -152,15 +153,17 @@
 					this.set('inputValue', normalizedInputValue)
 				}
 			},
+
 		    _inputValueChanged: function(value) {
 			  if (this.inputValue !== this.value + ' ' + this.unit) {
-			  	const match = /^ *([+-]?[0-9]+(?:\.[0-9]+)?)(?: *([a-zA-Z].*?))? *$/.exec(this.inputValue)
-                this.set('valueWithUnit', {
-                  value:match && (match[1] ? parseFloat(match[1]) : null) || (isNaN(parseFloat(this.inputValue)) ? null : parseFloat(this.inputValue)),
-                  unit:match && match[2] || null
-                })
-
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:this.valueWithUnit}}));
+			  	const match = /^ *([+-]?[0-9]+(?:[.,][0-9]*)?)(?: *([a-zA-Z°].*?))? *$/.exec(this.inputValue)
+				if (!this.inputValue.match(/^ *([+-]?[0-9]+(?:[.,]0*))(?: *([a-zA-Z°].*?))? *$/) /*intermediate situation*/) {
+					this.set('valueWithUnit', {
+						value: match && (match[1] ? parseFloat(match[1].replace(/([0-9]),([0-9])/,"$1.$2")) : null) || (isNaN(parseFloat(this.inputValue)) ? null : parseFloat(this.inputValue)),
+						unit: match && match[2] || null
+					})
+					this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:this.valueWithUnit}}));
+				}
 			  }
 		    }
 		})

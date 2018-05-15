@@ -389,9 +389,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.add-btn-container{
-				width:100%;
-				display:none;
-				/*display:flex;*/
+				width:20%;
+				position: absolute;
+				bottom: 16px;
+				/*display:none;*/
+				display:flex;
 				flex-direction: row;
 				justify-content: center;
 				align-items: center;
@@ -1646,10 +1648,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				const contact = year.contacts.find(c => c.id === ctcId)
 
 				if (contact) {
-					contact.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-					(contact.rev ? this.api.contact().modifyContact(contact) : this.api.contact().createContact(contact)).then(c => (contact.rev = c.rev)
-						&& this.notifyPath('contactYears.'+(this.contactYears.indexOf(year))+'.contacts.'+(year.contacts.indexOf(contact))+'.closingDate'))
-					this.notifyPath('currentContact.closingDate')
+					this.api.contact().getContact(contact.id).then(c => {
+						c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+						(c.rev ? this.api.contact().modifyContact(c) : this.api.contact().createContact(c)).then(() => this.patientChanged())
+						//this.notifyPath('currentContact.closingDate')
+					})
 				}
 			},
 
