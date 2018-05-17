@@ -49,6 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../collapse-button/collapse-button.html">
 
 <link rel="import" href="ht-pat-admin-card.html">
+<link rel="import" href="ht-pat-he-tree-detail.html">
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
 <link rel="import" href="../../icd-styles.html">
@@ -79,16 +80,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height: 100%;
 			}
 
-
-			.sub-sublist{
-				padding:0;
-
-			}
-
-			.sub-sublist > paper-item {
-				max-height: 30px;
-				font-size:12px;
-			}
 
 			.padding-0{
 				padding:0;
@@ -176,13 +167,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
 				@apply --text-shadow;
-			}
-
-			paper-listbox.sub-sublist{
-				--paper-listbox-selected-item: {
-					color:var(--app-text-color-light);
-					background:var(--app-primary-color-light);
-				};
 			}
 
 			collapse-button {
@@ -325,7 +309,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin-right:10px;
 			}
 
+			.add-btn-container{
+				width:20%;
+				position: absolute;
+				bottom: 16px;
+				/*display:none;*/
+				display:flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+			}
 
+			.add-btn{
+				--paper-button-ink-color: var(--app-secondary-color-dark);
+				background:var(--app-secondary-color);
+				color:var(--app-text-color);
+				font-weight:bold;
+				font-size:14px;
+				height:40px;
+				min-width:100px;
+				@apply --shadow-elevation-2dp;
+				padding: 10px 1.2em;
+			}
 			.patient-info-container{
 				height:96px;
 				@apply --padding-right-left-32;
@@ -388,76 +393,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				margin-bottom:16px;
 			}
 
-			.add-btn-container{
-				width:20%;
-				position: absolute;
-				bottom: 16px;
-				/*display:none;*/
-				display:flex;
-				flex-direction: row;
-				justify-content: center;
-				align-items: center;
-			}
-
-			.add-btn{
-				--paper-button-ink-color: var(--app-secondary-color-dark);
-				background:var(--app-secondary-color);
-				color:var(--app-text-color);
-				font-weight:bold;
-				font-size:14px;
-				height:40px;
-				min-width:100px;
-				@apply --shadow-elevation-2dp;
-				padding: 10px 1.2em;
-			}
-
-			paper-item:hover .he-edit-btn-container {
-				display:inline-flex;
-			}
-
-			paper-item.iron-selected .he-edit-btn-container {
-				display:inline-flex;
-			}
-
-			.he-edit-btn-container{
-				background: var(--app-text-color);
-				border-radius: 14px;
-				display: none;
-				flex-flow: row-reverse wrap;
-				justify-content: space-between;
-				align-items: center;
-				padding: 2px;
-				width: 24px;
-				height: 24px;
-				overflow: hidden;
-				transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
-				cursor: pointer;
-			}
-
-			.he-edit-btn-container.open{
-				width: 90px;
-				display:inline-flex;
-				flex-flow: row-reverse nowrap;
-			}
 
 
 			[hidden] {
 				display:none!important;
-			}
-
-			.he-edit-btn{
-				height: 24px;
-				width: 24px;
-				padding: 4px;
-				color: var(--app-text-color-light);
-				margin-right: 2px;
-				margin-left: 2px;
-				--paper-ink-color:var(--app-text-color-light);
-			}
-
-			.he-edit-btn-dark{
-				color: var(--app-text-color);
-				--paper-ink-color:var(--app-text-color);
 			}
 			/* END FIRST PANEL */
 
@@ -936,48 +875,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-listbox class="padding-0" id="mainMenu" selected-items="{{selectedMainElements}}" multi toggle-shift>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title">
-										<span>Active Health Problems</span>
-									</div>
+									<div class="one-line-menu list-title"><span>Active Health Problems</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" selected-items="{{selectedLocalize}}" multi toggle-shift>
+								<paper-listbox id="ahelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!activeHealthElements.length]]">
 										<paper-item class="menu-item  list-info"><div class="one-line-menu">No active health elements</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="activeHesDomRepeat" is="dom-repeat" items="[[activeHealthElements]]" as="he">
-										<collapse-button>
-											<paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-												<div class="one-line-menu">
-													<template is="dom-if" if="[[he.colour]]">
-														<label class$="ICD-10 [[he.colour]]"><span></span></label>
-													</template>
-													[[he.descr]]
-												</div>
-												<div>
-												<div class="he-edit-btn-container">
-													<paper-icon-button id="he-edit-btn-edit_[[he.id]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-													<paper-icon-button id="he-edit-btn-archive_[[he.id]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
-													<paper-icon-button id="he-edit-btn-history_[[he.id]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
-
-													<paper-tooltip position="top" for="he-edit-btn-edit_[[he.id]]">Edit</paper-tooltip>
-													<paper-tooltip position="top" for="he-edit-btn-archive_[[he.id]]">Archive</paper-tooltip>
-													<paper-tooltip position="top" for="he-edit-btn-history_[[he.id]]">Add to History</paper-tooltip>
-												</div>
-												<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
-												</div>
-											</paper-item>
-											<paper-listbox class="menu-content sublist sub-sublist" selected-items="{{he.selectedItems}}" multi toggle-shift>
-												<template is="dom-if" if="[[!he.plansOfAction.length]]">
-													<paper-item class="submenu-item list-info"><div class="one-line-menu">No plan of action</div></paper-item>
-												</template>
-												<template is="dom-repeat" items="[[he.plansOfAction]]" as="poa">
-													<paper-item class="submenu-item" id="_poa_[[poa.id]]">
-														<span>[[poa.descr]]</span>
-													</paper-item>
-												</template>
-											</paper-listbox>
-										</collapse-button>
+										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate" on-select-he="selectHealthElement"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[activeHealthElements.length]]">
 									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add health element</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
@@ -986,48 +892,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title">
-										<span>Medical antecedents</span>
-									</div>
+									<div class="one-line-menu list-title"><span>Medical antecedents</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" selected-items="{{selectedLocalize}}" multi toggle-shift>
+								<paper-listbox id="ihelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!inactiveHealthElements.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No medical antecedent</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="inactiveHesDomRepeat" is="dom-repeat" items="[[inactiveHealthElements]]" as="he">
-										<collapse-button>
-											<paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-												<div class="one-line-menu">
-													<template is="dom-if" if="[[he.colour]]">
-														<label class$="ICD-10 [[he.colour]]"><span></span></label>
-													</template>
-													[[he.descr]]
-												</div>
-												<div>
-													<div class="he-edit-btn-container">
-														<paper-icon-button id="he-edit-btn-edit_[[he.id]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-														<paper-icon-button id="he-edit-btn-archive_[[he.id]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
-														<paper-icon-button id="he-edit-btn-active_[[he.id]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
-
-														<paper-tooltip position="top" for="he-edit-btn-edit_[[he.id]]">Edit</paper-tooltip>
-														<paper-tooltip position="top" for="he-edit-btn-archive_[[he.id]]">Archive</paper-tooltip>
-														<paper-tooltip position="top" for="he-edit-btn-active_[[he.id]]">Make Active</paper-tooltip>
-													</div>
-													<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
-												</div>
-											</paper-item>
-											<paper-listbox class="menu-content sublist sub-sublist" selected-items="{{he.selectedItems}}" multi toggle-shift>
-												<template is="dom-if" if="[[!he.plansOfAction.length]]">
-													<paper-item class="submenu-item list-info"><div class="one-line-menu">No plan of action</div></paper-item>
-												</template>
-												<template is="dom-repeat" items="[[he.plansOfAction]]" as="poa">
-													<paper-item class="submenu-item" id="_poa_[[poa.id]]">
-														<span>[[poa.descr]]</span>
-													</paper-item>
-												</template>
-											</paper-listbox>
-										</collapse-button>
+										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[inactiveHealthElements.length]]">
 									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add medical antecedent</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
@@ -1036,80 +909,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">
-										Family risks
-									</div>
+									<div class="one-line-menu list-title">Family risks</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" multi toggle-shift selected-items="{{selectedFamily}}">
+								<paper-listbox id="frhelb" lass="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!familyrisks.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No family risks</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[familyrisks]]" as="risk">
-										<paper-item class="menu-item" id="_svc_[[risk.id]]">
-											<span>[[shortServiceDescription(risk, language)]]</span>
-										</paper-item>
+										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[familyrisks.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add family risk</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add family risk</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">
-										Risks
-									</div>
+									<div class="one-line-menu list-title">Risks</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" multi toggle-shift selected-items="{{selectedRisks}}">
+								<paper-listbox id="rhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!risks.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No risks</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[risks]]" as="risk">
-										<paper-item class="menu-item" id="_svc_[[risk.id]]">
-											<span>[[risk.label]]: [[shortServiceDescription(risk, language)]]</span>
-										</paper-item>
+										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[risks.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add risk</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add risk</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">
-										Allergies
-									</div>
+									<div class="one-line-menu list-title">Allergies</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" multi toggle-shift selected-items="{{selectedAllergies}}">
+								<paper-listbox id="alhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!allergies.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No allergies</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[allergies]]" as="allergy">
-										<paper-item class="menu-item" id="_svc_[[allergy.id]]">
-											<div class="one-line-menu">
-												[[shortServiceDescription(allergy, language)]]
-											</div>
-										</paper-item>
+										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[allergy]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[allergies.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add allergy</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add allergy</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">
-										Medication
-									</div>
+									<div class="one-line-menu list-title">Medication</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" multi toggle-shift selected-items="{{selectedAllergies}}">
+								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
 									<template is="dom-if" if="[[!medications.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No medications</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">No medications</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[medications]]" as="medication">
 										<paper-item class="menu-item" id="_svc_[[medication.id]]">
@@ -1125,45 +982,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title">
-										<span>Archive</span>
-									</div>
+									<div class="one-line-menu list-title"><span>Archive</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox class="menu-content sublist" selected-items="{{selectedLocalize}}" multi toggle-shift>
+								<paper-listbox id="arhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!archivedHealthElements.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No archived health elements</div></paper-item>
 									</template>
 									<template id="archivedHesDomRepeat" is="dom-repeat" items="[[archivedHealthElements]]" as="he">
-										<collapse-button>
-											<paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-												<div class="one-line-menu">
-													[[he.descr]]
-												</div>
-												<div>
-													<div class="he-edit-btn-container">
-														<paper-icon-button id="he-edit-btn-edit_[[he.id]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-														<paper-icon-button id="he-edit-btn-history_[[he.id]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
-														<paper-icon-button id="he-edit-btn-active_[[he.id]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
-
-														<paper-tooltip position="top" for="he-edit-btn-edit_[[he.id]]">Edit</paper-tooltip>
-														<paper-tooltip position="top" for="he-edit-btn-history_[[he.id]]">Add to History</paper-tooltip>
-														<paper-tooltip position="top" for="he-edit-btn-active_[[he.id]]">Make Active</paper-tooltip>
-													</div>
-													<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
-												</div>
-											</paper-item>
-											<paper-listbox class="menu-content sublist sub-sublist" selected-items="{{he.selectedItems}}" multi toggle-shift>
-												<template is="dom-if" if="[[!he.plansOfAction.length]]">
-													<paper-item class="menu-item list-info"><div class="one-line-menu">No plan of action</div></paper-item>
-												</template>
-												<template is="dom-repeat" items="[[he.plansOfAction]]" as="poa">
-													<paper-item class="submenu-item" id="_poa_[[poa.id]]">
-														<span>[[poa.descr]]</span>
-													</paper-item>
-												</template>
-											</paper-listbox>
-										</collapse-button>
+										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 								</paper-listbox>
 							</collapse-button>
@@ -1538,7 +1365,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const idServicesInHes = _.compact(hes.map(he=>he.idService))
 
 								this.api.contact()
-								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (c.code === 'healthelement' || c.code === 'healthissue')) && idServicesInHes.indexOf(s.id)<0)
+								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (['healthelement','healthissue','familyrisk','risk','allergy'].includes(c.code))) && idServicesInHes.indexOf(s.id)<0)
 								  .then(hesAsServices => {
 									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc => ({
 										created:svc.created,
@@ -1572,9 +1399,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										})
 										this.set('healthTopics', _.sortBy(codes.filter(ht=>ht.healthElements.length > 1), (it=>this.localize(it))))
 
-										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>!it.closingDate && ((it.status & 1) === 0)), 'descr'));
-										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>(it.closingDate || ((it.status & 1) === 1)) && ((it.status & 2) === 0)), 'descr'));
-										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>it.closingDate && ((it.status & 2) === 2)), 'descr'));
+										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>
+										  !it.closingDate
+										  && ((it.status & 1) === 0)
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement'))
+										), 'descr'));
+										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>
+										  (it.closingDate || ((it.status & 1) === 1))
+										  && ((it.status & 2) === 0)
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement'))
+										), 'descr'));
+										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>
+										  it.closingDate
+										  && ((it.status & 2) === 2)
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement'))
+										) , 'descr'));
+										this.set('allergies',  _.sortBy(combinedHes.filter(it=>
+											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy'))
+										), 'descr'));
+										this.set('risks',  _.sortBy(combinedHes.filter(it=>
+											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'risk'))
+										), 'descr'));
+										this.set('familyrisks',  _.sortBy(combinedHes.filter(it=>
+											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'familyrisk'))
+										), 'descr'));
 									})
 
 									const unclosedContact = ctcs.find(c=>!c.closingDate)
@@ -1607,9 +1455,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									});
 								})
 
-								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'familyrisk')).then(familyrisks => this.set('familyrisks',_.sortBy(familyrisks, sorter)))
-								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'risk')).then(risks => this.set('risks',_.sortBy(risks, sorter)))
-								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy' || c.code === 'adr'))).then(allergies => this.set('allergies',_.sortBy(allergies, sorter)))
 								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => this.set('medications',_.sortBy(medications, sorter)))
 
 								this._updateFilterPanels();
@@ -1671,45 +1516,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			},
 
-			selectedMainElementsChanged: function(newSelection, oldSelection) {
-				newSelection && newSelection.forEach(tgt=>{
-					if (this.selectedAdminFile) {
-						this.unselectAdminFile()
-					}
-					tgt.setAttribute("aria-selected",true)
-					if (!tgt.classList.contains("iron-selected")) { tgt.classList.add("iron-selected") }
-				})
-				oldSelection && oldSelection.forEach(tgt=>{
-					tgt.removeAttribute("aria-selected")
-					if (tgt.classList.contains("iron-selected")) { tgt.classList.remove("iron-selected") }
-				})
-				this.updateContactYears()
-				this._updateFilterPanels();
+			selectedMainElementItemsChanged: function(event) {
+				const domRepeat = event.target.querySelector("dom-repeat")
+				const selectedModels = event.target.selectedItems.map(el=>domRepeat.modelForElement(el).he)
+
+                if (!domRepeat||!selectedModels) { return }
+				const allModels = domRepeat.items || []
+
+                this.set('selectedMainElements',this.selectedMainElements.filter(he=>!allModels.includes(he)).concat(selectedModels))
 			},
+
+            isMainElementSelected: function(item, selectedItems) {
+                return selectedItems && selectedItems.includes(item)
+            },
 
 			selectedMainElementsSpliced: function(changeRecord) {
 				if (changeRecord) {
-					changeRecord.indexSplices.forEach(function(s) {
-						s.removed.forEach(function(tgt) {
-							tgt.removeAttribute("aria-selected")
-							if (tgt.classList.contains("iron-selected")) { tgt.classList.remove("iron-selected") }
-						});
-						for (var i=0; i<s.addedCount; i++) {
-							let index = s.index + i;
-							let tgt = s.object[index];
-							if (this.selectedAdminFile) {
-								this.unselectAdminFile()
-							}
-							tgt.setAttribute("aria-selected",true)
-							if (!tgt.classList.contains("iron-selected")) { tgt.classList.add("iron-selected") }
-						}
-					}, this);
 					this.updateContactYears()
 				}
 			},
 
-			_archive: function(event,target) {
-				const model = this.$.activeHesDomRepeat.modelForElement(event.target) || this.$.inactiveHesDomRepeat.modelForElement(event.target)
+			_archive: function(event) {
+				const model = event.detail
 				if (model.he.id) {
 					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (!he.closingDate && he.closingDate !== 0) { he.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
@@ -1726,8 +1554,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			},
 
-			_activate: function(event,target) {
-				const model = this.$.inactiveHesDomRepeat.modelForElement(event.target) || this.$.archivedHesDomRepeat.modelForElement(event.target)
+			_activate: function(event) {
+			  	const model = event.detail
 				if (model.he.id) {
 					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (he.closingDate || he.closingDate === 0) { he.closingDate =  null }
@@ -1746,8 +1574,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 			},
-			_inactivate: function(event,target) {
-				const model = this.$.activeHesDomRepeat.modelForElement(event.target) || this.$.archivedHesDomRepeat.modelForElement(event.target)
+			_inactivate: function(event) {
+			  	const model = event.detail
 				if (model.he.id) {
 					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (!he.closingDate && he.closingDate !== 0) { he.closingDate =  parseInt(moment().format('YYYYMMDDHHmmss'))}
@@ -1802,28 +1630,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return he.id?`_he_${he.id}`:`_svc_${he.idService}`
 			},
 
-			extractDbObjectsIds: function(domElements) {
-				if (!domElements || !domElements.length) { return {hes:[], poas:[]} }
-				return {hes:_.flatMap(domElements,dom=>{
-					return dom.id && dom.id.startsWith("_he_") ? [ "he:"+dom.id.substr(4) ] :
-							dom.id && dom.id.startsWith("_svc_group_familyrisks") ? this.familyrisks.map(svc=>`svc:${svc.id}`) :
-								dom.id && dom.id.startsWith("_svc_group_risks") ? this.risks.map(svc=>`svc:${svc.id}`) :
-									dom.id && dom.id.startsWith("_svc_group_medications") ? this.medications.map(svc=>`svc:${svc.id}`) :
-									dom.id && dom.id.startsWith("_svc_group_allergies") ? this.allergies.map(svc=>`svc:${svc.id}`) :
-										dom.id && dom.id.startsWith("_svc_") ? [ "svc:"+dom.id.substr(5) ] : []
-				}), poas:_.flatMap(domElements,dom=>{
-					return dom.id && dom.id.startsWith("_he_") ? _.flatMap(this.activeHealthElements.filter(he=>he.id === dom.id.substr(4)),he => he.plansOfAction.map(poa=>poa.id)) : []
-				})}
-			},
-
 			contactFilter: function() {
 				return function (ctc) {
 					const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i")
-					const objectIds = this.extractDbObjectsIds(this.selectedMainElements)
 
-					const heIds = objectIds.hes.filter(id => id && id.startsWith("he:")).map(id => id.substr(3))
-					const poaIds = objectIds.poas
-					const svcIds = objectIds.hes.filter(id => id && id.startsWith("svc:")).map(id => id.substr(4))
+					const heIds = this.selectedMainElements.map(he=>he.id)
+					const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p=>p.id) : [])
+					const svcIds = this.selectedMainElements.filter(he=>!he.id).map(he=>he.idService)
 
 					return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd)
 						&& (!regExp || (ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length))
@@ -1849,30 +1662,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this._updateFilterPanels();
 			},
 
-			_toggleEditHE: function(e){
-				e.stopPropagation()
-				e.preventDefault()
+		  _editHealthElement: function(event){
+				const model = event.detail
 
-				let parentElement = e.target.parentElement
-				if (parentElement.classList.contains('open')) {
-					parentElement.classList.remove('open');
-					const model = this.$.activeHesDomRepeat.modelForElement(e.target) || this.$.inactiveHesDomRepeat.modelForElement(e.target) || this.$.archivedHesDomRepeat.modelForElement(e.target)
-
-					this.edithealtElement = model;
-					this.$['edit-healthelement-dialog'].set('entity', _.assign({plansOfAction:[]}, model.he))
-					this.$['edit-healthelement-dialog'].set('filterValue', model.he.descr)
-					this.$['edit-healthelement-dialog'].open()
-				} else {
-					parentElement.classList.add('open');
-					setTimeout(()=>parentElement.classList.remove('open'),4000)
-				}
+				this.edithealtElement = model;
+				this.$['edit-healthelement-dialog'].set('entity', _.assign({plansOfAction:[]}, model.he))
+				this.$['edit-healthelement-dialog'].set('filterValue', model.he.descr)
+				this.$['edit-healthelement-dialog'].open()
 			},
 
 			toggleMenu: function(e) {
 				e.stopPropagation()
 				e.preventDefault()
-
-				const styxdb = styx
 				styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='collapse-button').toggle()
 				styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='paper-item').classList.toggle('opened');
 
@@ -1881,75 +1682,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			getPaperItemParentForEvent: function (e) {
 				let tgt = e.target;
-				while (tgt.tagName.toLowerCase() !== 'paper-item') {
+				while (tgt && tgt.tagName && tgt.tagName.toLowerCase() !== 'paper-item') {
 					tgt = tgt.parentElement
 				}
-				return tgt
+				return tgt && tgt.tagName ? tgt : null
 			},
 
-			selectTopMenu: function(e) {
-				e.stopPropagation()
-				e.preventDefault()
-				let tgt = this.getPaperItemParentForEvent(e)
-				if (e.detail.sourceEvent.metaKey) {
-					if (this.selectedMainElements && !this.selectedMainElements.includes(tgt)) {
-						this.push('selectedMainElements', tgt);
-					}
-				} else {
-					this.selectedMainElements.forEach(el=>el.nextElementSibling && el.nextElementSibling.selectedValues && el.nextElementSibling.selectedValues.length && el.nextElementSibling.set && el.nextElementSibling.set('selectedValues', []))
-					this.set('selectedMainElements',[tgt])
+			getPaperListboxParent: function (tgt) {
+				while (tgt && tgt.tagName && tgt.tagName.toLowerCase() !== 'paper-listbox') {
+					tgt = tgt.parentElement
 				}
+				return tgt && tgt.tagName ? tgt : null
 			},
 
-			unselectTopMenu: function(e) {
-				e.stopPropagation()
-				e.preventDefault()
-				let tgt = this.getPaperItemParentForEvent(e)
-				if (e.detail.sourceEvent.metaKey) {
-					if (this.selectedMainElements && this.selectedMainElements.includes(tgt)) {
-						let idx = this.selectedMainElements.indexOf(tgt)
-						idx >= 0 && this.splice('selectedMainElements', idx, 1)
-					}
-				} else {
-					this.selectedMainElements.forEach(el=>el.nextElementSibling && el.nextElementSibling.selectedValues && el.nextElementSibling.selectedValues.length && el.nextElementSibling.set && el.nextElementSibling.set('selectedValues', []))
-					this.set('selectedMainElements',[])
-				}
-			},
+			handleSelectionChange(e) {
+				const selections = e.detail.selections
+				const selChanges = {}
 
-			toggleTopMenu: function(e) {
-				e.stopPropagation()
-				e.preventDefault()
-				let tgt = this.getPaperItemParentForEvent(e)
-
-				if (e.detail.sourceEvent.metaKey) {
-					if (this.selectedMainElements && this.selectedMainElements.includes(tgt)) {
-						let idx = this.selectedMainElements.indexOf(tgt)
-						idx >= 0 && this.splice('selectedMainElements', idx, 1)
-					} else if (this.selectedMainElements) {
-						this.push('selectedMainElements', tgt);
-					}
-				} else {
-					this.selectedMainElements.forEach(el=>el.nextElementSibling && el.nextElementSibling.selectedValues && el.nextElementSibling.selectedValues.length && el.nextElementSibling.set && el.nextElementSibling.set('selectedValues', []))
-					this.set('selectedMainElements',[tgt])
-				}
-			},
-
-			toggleSelectAll: function(e){
-				let paperListbox = this.getPaperItemParentForEvent(e).nextElementSibling;
-				this.itemSelected = true;
-				if (paperListbox.items.length) {
-					if (paperListbox.selectedValues.length === paperListbox.items.length) {
-						this.unselectTopMenu(e);
-						paperListbox.set('selectedValues', []);
-					} else {
-						this.selectTopMenu(e);
-						paperListbox.set('selectedValues', paperListbox.items.map((o, idx) => idx));
-					}
-				} else {
-					this.toggleTopMenu(e);
-				}
-				this._updateFilterPanels();
-
+				selections.forEach(s => {
+					(s.items || this.selectedMainElements.map(he => this.getHeId(he))).forEach(id => {
+						const item = this.root.querySelector('#' + id)
+						if (item) {
+							const listBox = this.getPaperListboxParent(item)
+							if (listBox) {
+								const selChangesEntry = (selChanges[listBox.id] || (selChanges[listBox.id] = {el: listBox, selectedValues: listBox.selectedValues}))
+								if (s.action === 'select') {
+									selChangesEntry.selectedValues = _.uniq(selChanges[listBox.id].selectedValues.concat([listBox.items.indexOf(item)]))
+								} else if (s.action === 'unselect') {
+									const delValue = listBox.items.indexOf(item)
+									selChangesEntry.selectedValues = selChanges[listBox.id].selectedValues.filter(it => it !== delValue)
+								}
+							}
+						}
+					})
+				})
+				Object.values(selChanges).forEach(c => c.el.set('selectedValues',c.selectedValues))
 			},
 
 			isNotEmpty: function(a) {
@@ -2000,14 +1767,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return this.api && this.api.contact().localize(e, lng) || ""
 			},
 
-			_addHealthElement: function() {
+			_addHealthElement: function(e) {
 				this.$['add-healthelement-dialog'].open()
-				this.$['add-healthelement-dialog'].set('entity',{plansOfAction:[]})
+				this.$['add-healthelement-dialog'].set('entity',{plansOfAction:[], tags:e.target.dataset.tags.split(',').map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]}))})
 			},
 
-			_addInactiveHealthElement: function() {
+			_addInactiveHealthElement: function(e) {
 				this.$['add-healthelement-dialog'].open()
-				this.$['add-healthelement-dialog'].set('entity',{plansOfAction:[], closingDate:parseInt(moment().format('YYYYMMDDHHmmss'))})
+				this.$['add-healthelement-dialog'].set('entity',{plansOfAction:[], closingDate:parseInt(moment().format('YYYYMMDDHHmmss')), tags:e.target.dataset.tags.split(',').map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]}))})
 			},
 
 
