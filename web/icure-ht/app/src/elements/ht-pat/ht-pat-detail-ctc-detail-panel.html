@@ -301,9 +301,12 @@
 
 	</template>
 	<script>
-		import _ from 'lodash/lodash'
+		import jsPDF from 'jspdf/dist/jspdf.min'
+				import _ from 'lodash/lodash'
 
-		Polymer({
+				var doc = new jsPDF()
+
+				Polymer({
 			is: 'ht-pat-detail-ctc-detail-panel',
 			properties: {
 				contacts: {
