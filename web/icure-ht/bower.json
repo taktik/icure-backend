@@ -59,7 +59,8 @@
     "pako": "^1.0.6",
     "vaadin-material-theme": "vaadin/vaadin-material-theme#^0.3.0",
     "vaadin-form-layout": "vaadin/vaadin-form-layout#^1.0.4",
-    "vaadin-checkbox": "vaadin/vaadin-checkbox#^1.0.3"
+    "vaadin-checkbox": "vaadin/vaadin-checkbox#^1.0.3",
+    "jspdf": "^1.3.5"
   },
   "resolutions": {
     "iron-selector": "643da76f103cb21ccdd5ecfb670b16f081b42dc3"

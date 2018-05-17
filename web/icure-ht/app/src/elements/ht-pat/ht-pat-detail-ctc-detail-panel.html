@@ -94,6 +94,7 @@
 			}
 
 			.contact-card-container {
+				position: relative;
 				overflow-y: auto;
 				height: calc(100% - 48px);
 				padding-bottom: 32px;
@@ -175,6 +176,54 @@
 				background: var(--app-primary-color);
 			}
 
+			paper-dialog {
+				width: 80%;
+			}
+
+			vaadin-grid {
+				--vaadin-grid-body-row-hover-cell: {
+					background-color: var(--app-primary-color);
+					color: white;
+				};
+				--vaadin-grid-body-row-selected-cell: {
+					background-color: var(--app-primary-color);
+					color: white;
+				};
+			}
+
+			paper-input{
+				--paper-input-container-focus-color: var(--app-primary-color);
+			}
+
+			.modal-title{
+				background:  var(--app-background-color-dark);
+				margin-top: 0;
+				padding: 16px 24px;
+			}
+
+			.modal-button{
+				--paper-button-ink-color: var(--app-secondary-color-dark);
+				color: var(--app-text-color);
+				font-weight: 400;
+				font-size: 14px;
+				height: 40px;
+				min-width: 100px;
+				padding: 10px 1.2em;
+			}
+
+			.modal-button--save{
+				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+				background: var(--app-secondary-color);
+				color: var(--app-primary-color-dark);
+				font-weight: 700;
+			}
+
+			.prescription {
+				position: fixed;
+				right: 16px;
+				z-index: 999;
+			}
+
 
 		</style>
 
@@ -182,6 +231,7 @@
 		<div class="details-panel" on-dragover="_onDrag">
 			<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
 			<div class="contact-card-container">
+				<paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
 				<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
 					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
@@ -212,9 +262,51 @@
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
 			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
 		</paper-dialog>
+
+		<paper-dialog id="prescriptionDialog">
+			<h2 class="modal-title">Print prescription</h2>
+			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*)]] active-item="{{activeDrug}}">
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="description">Drug descr.</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[_drugDescription(item)]]</div>
+						</template>
+					</vaadin-grid-column>
+				<vaadin-grid-column width="100px">
+					<template class="header">
+						Posology
+					</template>
+					<template>
+						<div class="cell frozen">[[_drugPosology(item)]]</div>
+					</template>
+				</vaadin-grid-column>
+				<template is="dom-repeat" items="[[_splitColumns(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*)]]" as="column" index-as="columnIndex">
+					<vaadin-grid-column width="20px">
+						<template class="header">
+							[[_columnName(columnIndex)]]
+						</template>
+						<template>
+							<vaadin-checkbox id="[[item.id]]:[[columnIndex]]" checked="[[_drugOnPrescription(item,columnIndex)]]" on-checked-changed="_setDrugOnPrescription"></vaadin-checkbox>
+						</template>
+					</vaadin-grid-column>
+				</template>
+			</vaadin-grid>
+			<div class="buttons">
+				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">Print</paper-button>
+			</div>
+		</paper-dialog>
+
 	</template>
 	<script>
-		Polymer({
+		import jsPDF from 'jspdf/dist/jspdf.min'
+				import _ from 'lodash/lodash'
+
+				var doc = new jsPDF()
+
+				Polymer({
 			is: 'ht-pat-detail-ctc-detail-panel',
 			properties: {
 				contacts: {
@@ -273,7 +365,10 @@
 				},
 				files: {
 					type: Array
-				}
+				},
+			    _drugsOnPrescriptions: {
+					type: Array
+				},
 			},
 			observers: [
 				'_filesChanged(files.*)'
@@ -369,6 +464,65 @@
 			addDocument: function() {
 				this.$['upload-dialog'].open()
 			},
+
+			_drugsToBePrescribed: function() {
+				return this.api && this.currentContact && this.currentContact.services
+				  && this.currentContact.services.filter(s=>s.tags.find(t=>t.type==='CD-ITEM' && t.code === 'treatment') && this.api.contact().medicationValue(s,this.language))
+				  || []
+			},
+
+			_prescribe: function (e) {
+				this.$.prescriptionDialog.open()
+			},
+
+		  	_drugDescription: function(svc) {
+				return svc && this.api.contact().medication().medicationNameToString(this.api.contact().medicationValue(svc,this.language), this.language) || "N/A"
+			},
+
+			_drugPosology: function(svc) {
+				return svc && this.api.contact().medication().posologyToString(this.api.contact().medicationValue(svc,this.language), this.language) || "N/A"
+			},
+
+		  	_splitColumns: function() {
+				const drugs = this._drugsToBePrescribed()
+				return this._drugsOnPrescriptions && this._drugsOnPrescriptions.reduce((columns, mark) => {
+					const id = mark.id
+				  	const column = mark.column
+
+					;(columns[column] || (columns[column] = [])).push(id)
+				  	if (!columns.find(c=>!c.length) && columns.length<drugs.length) { columns.push([]) }
+
+				  	return columns
+				},[[]]) || (drugs.length>1 ? [drugs.map(s=>s.id), []] : [drugs.map(s=>s.id)])
+			},
+
+			_drugOnPrescription: function(svc, index) {
+				return svc && this._splitColumns()[index] && this._splitColumns()[index].includes(svc.id)
+			},
+
+			_setDrugOnPrescription: function (e) {
+				const id = e.target.id.split(':')[0]
+				const column = parseInt(e.target.id.split(':')[1])
+
+			  	if (!id || id.length === 0 || (!column && column !== 0)) { return }
+
+			  	const current = this._drugsOnPrescriptions ? this._drugsOnPrescriptions.map(x=>({id:x.id,column:x.column})) : this._drugsToBePrescribed().map(svc=>({id:svc.id,column:0}))
+
+				const mark = current.find(m => m.id === id)
+				if (mark) {
+					mark.column = column
+				} else {
+				  	current.push({id:id,column:column})
+				}
+
+				if (!_.isEqual(current,this._drugsOnPrescriptions)) {
+					this.set('_drugsOnPrescriptions', current)
+				}
+			},
+
+		  	_columnName: function(idx) {
+				return `#${idx+1}`
+		  	},
 
 			saveCurrentContact: function() {
 				return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c)

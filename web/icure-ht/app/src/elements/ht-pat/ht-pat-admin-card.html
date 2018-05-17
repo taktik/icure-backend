@@ -180,7 +180,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						this.scheduleSave(this.patient)
 					},
 					filter: (data,text,id) => {
-						if (data==='insurances') {
+						if (data.source === 'insurances') {
 							return (text||'').length>=2 ? this.api.insurance().listInsurancesByName(text).then(res=>res.map(i=>({'id':i.id,'name':this.localize(i.name, this.language)}))) :
 								id ? this.api.insurance().getInsurance(id).then(i=>({'id':i.id,'name':this.localize(i.name, this.language)})) : Promise.resolve([])
 						}
