@@ -21,7 +21,7 @@
 			dynamic-link {
 				position: absolute;
 				right: 0;
-				bottom: 8px;
+				top: 4px;
 			}
 
 			.modified-icon {
@@ -91,8 +91,8 @@
 						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
-					<input type="number" value="{{value::input}}" readonly>
+				<iron-input slot="input" bind-value="{{inputValue}}">
+					<input value="{{inputValue::input}}" readonly>
 				</iron-input>
 			</paper-input-container>
 		</template>
@@ -107,8 +107,8 @@
 						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
-					<input type="number" value="{{value::input}}">
+				<iron-input slot="input" bind-value="{{inputValue}}">
+					<input value="{{inputValue::input}}">
 				</iron-input>
 			</paper-input-container>
 			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
@@ -140,6 +140,10 @@
 					notify: true,
 					observer: '_valueChanged'
 				},
+				inputValue: {
+					type: String,
+					observer: '_inputValueChanged'
+				},
 				width: {
 					type: Number,
 					value: 24,
@@ -151,7 +155,19 @@
 				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
 			},
 			_valueChanged: function(value) {
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:value}}));
+				const normalizedInputValue = (this.value || this.value === 0) ? '' + this.value : ''
+				if ((this.inputValue || '').trim() !== normalizedInputValue) {
+					this.set('inputValue', normalizedInputValue)
+				}
+			},
+			_inputValueChanged: function(value) {
+				if (this.inputValue !== ''+this.value) {
+					const match = /^ *([+-]?[0-9]+(?:[.,][0-9]*)?) *$/.exec(this.inputValue)
+				  	if (!this.inputValue.match(/^ *([+-]?[0-9]+(?:[.,]0*)) *$/) /*intermediate situation*/) {
+						this.set('value', match && (match[1] ? parseFloat(match[1].replace(/([0-9]),([0-9])/, "$1.$2")) : null) || (isNaN(parseFloat(this.inputValue)) ? null : parseFloat(this.inputValue)))
+					  	this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value: this.value}}));
+					}
+				}
 			}
 		})
 	</script>

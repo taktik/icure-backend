@@ -45,7 +45,12 @@
 					<paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
 					<paper-listbox slot="dropdown-content">
 						<template is="dom-repeat" items="[[healthElements]]" as="he">
-							<paper-item id="[[he.id]]" class="link" on-tap="linkForm"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+							<template is="dom-if" if="[[he.id]]">
+								<paper-item id="[[he.id]]" class="link" on-tap="linkForm"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+							</template>
+							<template is="dom-if" if="[[!he.id]]">
+								<paper-item id="[[he.idService]]" class="link" on-tap="linkForm"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+							</template>
 						</template>
 					</paper-listbox>
 				</paper-menu-button>
@@ -172,20 +177,9 @@
 				if (this.saveTimeout) {
 					clearTimeout(this.saveTimeout)
 				}
-				this.saveAction = function () {
-                    if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
-                        this.dispatchEvent(new CustomEvent('health-elements-change', {detail: {hes: []}, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
-                    }
-
-                    return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
-						ctc.rev = c.rev
-
-						this.saveTimeout = undefined
-						this.saveAction = undefined
-
-						return c
-					})
-				}.bind(this)
+				this.saveAction = () => {
+					this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+				}
 				this.saveTimeout = setTimeout(this.saveAction, 10000)
 			},
 
@@ -388,7 +382,7 @@
 					}.bind(this),
 					setMeasureValue: function (label, value) {
 						const currentValue = self.getMeasureValue(label)
-						if (((!currentValue.value && !value.value) || (currentValue.value === value.value)) &&
+						if (currentValue && ((!currentValue.value && !value.value) || (currentValue.value === value.value)) &&
 							((!currentValue.unit && !value.unit) || (currentValue.unit === value.unit))) {
 							return
 						}
@@ -549,11 +543,12 @@
 							})
 					},
                     filter: (data, text) => {
-                        return data.codeTypes && data.codeTypes.length && text && text.length > 1 ? Promise.all(
-                            data.codeTypes.map(ct => {
-                                    const typeLng = this.api.code().languageForType(ct.type, this.language)
-                                    return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, text, null, 50)
-                                        .then(results => results.rows.map(code => ({
+                        return data.source === "codes" && data.types.length && text && text.length > 1 ? Promise.all(
+                            data.types.map(ct => {
+							    const typeLng = this.api.code().languageForType(ct.type, this.language)
+	                            const words = text.split(/\s+/)
+	                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200)
+                                        .then(results => results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].includes(w))).map(code => ({
                                             id: code.id, stringValue: code.label[typeLng],
 	                                        codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
                                         })))
@@ -596,7 +591,7 @@
 			},
 
 			linkForm: function (e, target) {
-				const he = this.healthElements.find(he=>he.id === e.target.id)
+				const he = this.healthElements.find(he=>he.id === e.target.id || he.idService === e.target.idserviceToHealthElement)
 			  	if (!he) {return}
                 if (!he.id) {
                     this.promoteServiceToHealthElement(he).then(he => {
@@ -653,7 +648,7 @@
 			},
 
 		  	promoteServiceToHealthElement: function (heSvc) {
-				this.api.helement.serviceToHealthElement(this.user, this.patient, heSvc)
+				this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc)
 				  .then(he=>{
 				  	this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, he.id, null)
 					this.scheduleSave(this.currentContact)
@@ -663,7 +658,7 @@
 			},
 
 		  	promoteServiceInCurrentContact: function (svc, formId, poaId, heId, init) {
-				return this.api.contact().promoteServiceInContact(this.currentContact, this.contacts,  svc, formId, poaId, heId, init)
+				return this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts,  svc, formId, poaId, heId, init)
 			},
 
 			shortServiceDescription: function (svc, lng) {

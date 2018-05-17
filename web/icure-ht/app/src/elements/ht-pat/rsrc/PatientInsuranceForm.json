@@ -14,7 +14,7 @@
 								"left" : 66,
 								"top" : 7,
 								"key" : "PopupMenuEditor",
-								"dataSource": "insurances"
+								"dataSource": {"source":"insurances"}
 							},
 							"sortOrder" : -201,
 							"codeTypes" : [],

@@ -1,0 +1,395 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../collapse-button/collapse-button.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="ht-pat-he-tree-detail">
+    <template>
+        <style include="icd-styles">
+            paper-item.list-info {
+                font-weight: lighter;
+                font-style: italic;
+                height:48px;
+            }
+
+            .list-title {
+                font-weight: bold;
+            }
+
+            .menu-item{
+                @apply --padding-right-left-16;
+                height:48px;
+                @apply --paper-font-button;
+                text-transform: inherit;
+                justify-content: space-between;
+                cursor: pointer;
+                @apply --transition;
+            }
+
+            .menu-item {
+                font-size: 13px;
+                min-height:32px;
+                height:32px;
+            }
+
+            .menu-item:hover{
+                /*background: var(--app-dark-color-faded);*/
+                @apply --transition;
+            }
+
+            .menu-item .iron-selected{
+                background:var(--app-primary-color);
+
+            }
+
+            .menu-item .opened{
+                background:white!important;
+                width:80%;
+                border-radius:2px;
+            }
+
+            .menu-item-icon--selected{
+                width:0;
+            }
+
+            .opened .menu-item-icon--selected{
+                width: 18px;
+            }
+
+            .opened > .menu-item-icon{
+                transform: scaleY(-1);
+            }
+
+            .one-line-menu {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-weight: 400;
+                padding-left:0;
+            }
+
+            paper-item.menu-item.opened {
+                @apply --padding-right-left-16;
+            }
+
+            .submenu-item{
+                cursor:pointer;
+            }
+
+            .submenu-item.iron-selected{
+                background:var(--app-primary-color-light);
+                color:var(--app-text-color-light);
+                @apply --text-shadow;
+            }
+
+            .submenu-item-icon{
+                height:14px;
+                width:14px;
+                color:var(--app-text-color-light);
+                margin-right:10px;
+            }
+
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+
+            .he-edit-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                color: var(--app-text-color-light);
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .he-edit-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
+            .sub-sublist{
+                padding:0;
+
+            }
+
+            .sub-sublist > paper-item {
+                max-height: 30px;
+                font-size:12px;
+            }
+
+            paper-listbox.sub-sublist{
+                --paper-listbox-selected-item: {
+                    color:var(--app-text-color-light);
+                    background:var(--app-primary-color-light);
+                };
+            }
+
+            collapse-button {
+                outline:0;
+                --paper-listbox-selected-item: {
+                    color:var(--app-text-color-light);
+                    background:var(--app-primary-color);
+                }
+            }
+
+            collapse-button > .menu-item.iron-selected {
+                @apply --padding-right-left-16;
+                color:var(--app-text-color-light);
+                background:var(--app-primary-color);
+                @apply --text-shadow;
+            }
+
+            paper-item.opened{
+                padding-top: 8px;
+
+            }
+            .opened{
+                color:var(--app-text-color);
+                background:var(--app-text-color-light);
+                border-radius:2px 2px 0 0;
+                box-shadow: 0 4px 0 0 white,
+                0 -2px 0 0 white,
+                0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2);
+
+            }
+
+            .opened.iron-selected{
+                box-shadow: 0 4px 0 0 white,
+                0 -2px 0 0 var(--app-primary-color),
+                0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2);
+            }
+
+            .ICD-10{
+                line-height: 12px;
+                margin-right:4px;
+                color: black;
+            }
+
+            .iron-selected .ICD-10{
+                color: var(--app-light-color);
+            }
+
+            .iron-selected .ICD-10 span{
+                background: var(--app-light-color);
+            }
+            .ICD-10:hover{
+                font-weight:600;
+            }
+
+            .ICD-10:hover:before{
+                height:8px;
+                width:8px;
+                margin-bottom:0;
+                border-radius:4px;
+            }
+
+            .ICD-10 span{
+                content: '';
+                display: inline-block;
+                height: 6px;
+                width: 6px;
+                border-radius: 3px;
+                margin-right: 3px;
+                margin-bottom: 1px;
+                background: lightgrey;
+            }
+
+            .contact .ICD-10:not(:first-child) {
+                margin-left: 4px;
+            }
+
+        </style>
+
+        <collapse-button>
+            <paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" aria-selected="[[selected]]" class$="menu-trigger menu-item [[isIronSelected(selected)]]" on-tap="select">
+                <div class="one-line-menu">
+                    <template is="dom-if" if="[[he.colour]]">
+                        <label class$="ICD-10 [[he.colour]]"><span></span></label>
+                    </template>
+                    [[he.descr]]
+                </div>
+                <div>
+                    <div class="he-edit-btn-container">
+                        <paper-icon-button id="he-edit-btn-edit_[[getHeId(he)]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
+                        <paper-tooltip position="top" for="he-edit-btn-edit_[[getHeId(he)]]">Edit</paper-tooltip>
+
+                        <template is="dom-if" if="[[isNotArchived(he)]]">
+                            <paper-icon-button id="he-edit-btn-archive_[[getHeId(he)]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
+                            <paper-tooltip position="top" for="he-edit-btn-archive_[[getHeId(he)]]">Archive</paper-tooltip>
+                        </template>
+                        <template is="dom-if" if="[[isNotActive(he)]]">
+                            <paper-icon-button id="he-edit-btn-active_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
+                            <paper-tooltip position="top" for="he-edit-btn-active_[[getHeId(he)]]">Make Active</paper-tooltip>
+                        </template>
+                        <template is="dom-if" if="[[isNotHistory(he)]]">
+                            <paper-icon-button id="he-edit-btn-history_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
+                            <paper-tooltip position="top" for="he-edit-btn-history_[[getHeId(he)]]">Add to History</paper-tooltip>
+                        </template>
+                    </div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
+                </div>
+            </paper-item>
+            <paper-listbox class="menu-content sublist sub-sublist" selected-items="{{he.selectedItems}}" multi toggle-shift>
+                <template is="dom-if" if="[[!he.plansOfAction.length]]">
+                    <paper-item class="submenu-item list-info"><div class="one-line-menu">No approach</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
+                </template>
+                <template is="dom-repeat" items="[[he.plansOfAction]]" as="poa">
+                    <paper-item class="submenu-item" id="_poa_[[poa.id]]">
+                        <span>[[poa.descr]]</span>
+                    </paper-item>
+                </template>
+                <template is="dom-if" if="[[he.plansOfAction.length]]">
+                    <paper-item class="submenu-item sublist-footer"><div class="one-line-menu">Add approach</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
+                </template>
+            </paper-listbox>
+        </collapse-button>
+
+    </template>
+    <script>
+	    import styx from '../../../scripts/styx'
+
+	    class HtPatHeTreeDetail extends Polymer.mixinBehaviors([], Polymer.Element) {
+            static get is() {
+                return 'ht-pat-he-tree-detail'
+            }
+
+            static get properties() {
+                return {
+                	he: {
+                		type: Object
+                    },
+
+                    selected: {
+                        type: Boolean
+                    }
+                }
+            }
+
+            static get observers() {
+                return []
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            isIronSelected(selected) {
+            	return selected ? 'iron-selected' : ''
+            }
+
+	        getHeId(he) {
+		        return he.id?`_he_${he.id}`:`_svc_${he.idService}`
+	        }
+
+	        isNotHistory(he) {
+              return !he.closingDate && ((he.status & 1) === 0)
+            }
+
+	        isNotActive(he) {
+              return he.closingDate || ((he.status & 1) !== 0)
+            }
+
+	        isNotArchived(he) {
+            	return (he.status & 2) === 0
+            }
+
+	        toggleMenu(e) {
+		        e.stopPropagation()
+		        e.preventDefault()
+	            styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='collapse-button').toggle()
+		        styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='paper-item').classList.toggle('opened');
+
+		        this._updateFilterPanels();
+	        }
+
+	        _toggleEditHE(e){
+		        e.stopPropagation()
+		        e.preventDefault()
+
+		        let parentElement = e.target.parentElement
+		        if (parentElement.classList.contains('open')) {
+                    this.dispatchEvent(new CustomEvent('edit-he', {detail: {he:this.he}}))
+		        } else {
+			        parentElement.classList.add('open');
+			        setTimeout(()=>parentElement.classList.remove('open'),4000)
+		        }
+	        }
+
+	        _archive(e) {
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('archive-he', {detail: {he:this.he} }))
+            }
+
+	        _activate(e) {
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('activate-he', {detail: {he:this.he}}))
+            }
+
+	        _inactivate(e) {
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('inactivate-he', {detail: {he:this.he}}))
+            }
+
+            _addApproach(e) {
+
+            }
+
+	        select(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                if (e.detail.sourceEvent.metaKey) {
+                    this.dispatchEvent(new CustomEvent('selection-change', {detail: {selections:[
+                                {action:'select', items:[this.getHeId(this.he)]}
+                            ]} }))
+                } else {
+                    this.dispatchEvent(new CustomEvent('selection-change', {detail: {selections:[
+                                {action:'unselect'},
+                                {action:'select', items:[this.getHeId(this.he)]}
+                            ]} }))
+                }
+	        }
+        }
+        customElements.define(HtPatHeTreeDetail.is, HtPatHeTreeDetail)
+    </script>
+</dom-module>
