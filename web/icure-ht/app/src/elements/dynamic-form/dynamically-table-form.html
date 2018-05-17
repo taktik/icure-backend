@@ -1,0 +1,652 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<link rel="import" href="dynamic-form.html">
+
+<dom-module id="dynamically-table-form">
+    <template>
+        <style include="icd-styles">
+            .form-title-bar-btn {
+                height: 20px;
+                width: 20px;
+                padding: 2px;
+            }
+            .horizontal vaadin-date-picker {
+                height: 90px;
+                padding-bottom: 0px;
+                @apply --padding-right-left-16
+            }
+
+            vaadin-grid.material {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
+
+                --vaadin-grid-header-cell: {
+                    height: 64px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                };
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
+            }
+
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 56px;
+            }
+
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.material .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            .link .ICD-10 span {
+                content: '';
+                display: inline-block;
+                height: 6px;
+                width: 6px;
+                border-radius: 3px;
+                margin-right: 3px;
+                margin-bottom: 1px;
+            }
+
+            paper-listbox {
+                min-width: 200px;
+            }
+
+            paper-menu-button {
+                padding: 0;
+            }
+        </style>
+        <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" class="material" active-item="{{activeItem}}" on-tap="click">
+            <template is="dom-repeat" items="[[columns]]" as="column">
+                <vaadin-grid-column width="100px">
+                    <template class="header">
+                        [[column]]
+                    </template>
+                    <template>[[get(column, item)]]</template>
+                </vaadin-grid-column>
+            </template>
+
+        </vaadin-grid>
+    </template>
+    <script>
+        Polymer({
+            is: 'dynamically-table-form',
+            properties: {
+                api: {
+                    type: Object
+                },
+                language: {
+                    type: String
+                },
+                user: {
+                    type: Object
+                },
+                patient: {
+                    type: Object,
+                    value: null
+                },
+                contact: {
+                    type: Object,
+                    value: null
+                },
+                contacts: {
+                    type: Array,
+                    value: []
+                },
+                activeItem: {
+                    type: Object
+                },
+                servicesMap: {
+                    type: Object,
+                    value: {}
+                },
+                healthElements: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                currentContact: {
+                    type: Object,
+                    value: null
+                },
+                formId: {
+                    type: String,
+                    observer: '_formIdChanged'
+                },
+                form: {
+                    type: Object,
+                    value: null
+                },
+                dataProvider: {
+                    type: Object,
+                    value: null
+                },
+                dataMap: {
+                    type: Object,
+                    value: null
+                },
+                columns:{
+                    type: Array,
+                    value: null
+                },
+                layoutInfoPerLabel: {
+                    type: Object,
+                    value: function () {
+                        return {}
+                    }
+
+                }
+            },
+            observers: ["_prepareDataProvider(contacts.*,servicesMap.*,form,patient,user)"],
+
+            _isNotInCurrentContact: function (currentContact, contact) {
+                return currentContact === null || contact !== currentContact
+            },
+            //todo boucler sur tout les services de tout les contacts
+            ready: function () {
+                var grid = this.$['dynamic-list']
+
+                grid.lastParams = null //Used to prevent double calls
+                grid.size = 0
+                grid.pageSize = 10
+                grid.dataProvider = function (params, callback) {
+                    const sort = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path) || 'number'
+                    const desc = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc') || false
+
+                    const pageSize = (params.pageSize || grid.pageSize)
+                    const startIndex = (params.page || 0) * pageSize
+                    const endIndex = ((params.page || 0) + 1) * pageSize
+
+                    this._prepareDataProvider()
+
+                    this.dataProvider && this.dataProvider.then(function (res) {
+                        if (grid.size !== res.totalSize) {
+                            grid.set("size", res.totalSize)
+                        }
+                        this.set('columns', res.rows)
+                        callback(_.slice(res.rows, startIndex, endIndex))
+                    }.bind(this))
+                }.bind(this)
+            },
+
+            _prepareDataProvider: function () {
+                if(!this.form){this.api.form().getForm(this.formId).then(form => this.set('form', form))}
+                if (this.contacts && this.form && this.user && this.patient && this.servicesMap) {
+                    //this.contacts.map(c => c.services.)
+                    this.set('dataProvider', this.getDataProvider(this.form, ''))
+                    this.set('dataMap', _.fromPairs(
+                        _.flatten(this.contacts.map(c => {
+                            const sc = c.subContacts.find(sc => sc.formId === this.form.id)
+                            return sc ? c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s]) : []
+                        }))
+                    ))
+                }
+            },
+
+            getDataProvider(form, rootPath) {
+                const initWrapper = (label, init) => (svc => {
+                    const li = this.layoutInfoPerLabel[label]
+                    if (li) {
+                        li.tags && li.tags.forEach(tag => {
+                            const exTag = svc.tags.find(t => t.type === tag.type)
+                            if (exTag) {
+                                exTag.code = tag.code
+                                if (exTag.id) {
+                                    exTag.id = tag.type + '|' + tag.code + "|" + (exTag.id.split('|')[2] || '1')
+                                }
+                            } else {
+                                svc.tags = (svc.tags || []).concat([tag])
+                            }
+                        })
+                        li.codes && li.codes.forEach(code => {
+                            const exCode = svc.codes.find(c => c.type === code.type && c.code === code.code)
+                            if (!exCode) {
+                                svc.codes = (svc.codes || []).concat([code])
+                            }
+                        })
+                        if (li.defaultStatus || li.defaultStatus === 0) { svc.status = li.defaultStatus }
+                    }
+                    return init && init(svc) || svc
+                })
+
+                const self = {
+                    servicesMap: {},
+                    services: (label) => {
+                        if (label && self.servicesMap[label]) {
+                            return self.servicesMap[label]
+                        }
+                        return label ? (self.servicesMap[label] = this.servicesInForm(form.id, label)) : this.servicesInForm(form.id)
+                    },
+                    servicesInHierarchy: (label) => {
+                        return _.concat(self.services(label), _.flatMap(form.children, sf => this.getDataProvider(sf, (rootPath.length ? rootPath + '.' : '') + sf.descr + '.' + form.children.filter(sff => sff.descr === sf.descr).indexOf(sf)).servicesInHierarchy(label)))
+                    },
+                    dispatchService: svc => {
+                        if (!svc) {
+                            return null
+                        }
+                        delete self.servicesMap[svc.label]
+                        this.dispatchEvent(new CustomEvent('new-service', {
+                            detail: {
+                                ctc: this.currentContact,
+                                svc: svc,
+                                scs: this.currentContact.subContacts.filter(sc => sc.formId === form.id)
+                            }, composed: true
+                        }))
+
+                        return svc
+                    },
+                    promoteOrCreateService: (label, formId, poaId, heId, init) => {
+                        const s = self.getServiceInContact(label)
+                        if (!this.currentContact) {
+                            return s && s.svc
+                        }
+                        return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaId, heId, initWrapper(label, init))))
+                            || self.dispatchService(this.createService(label, formId, poaId, heId, null, initWrapper(label, init)))
+                    },
+                    getOrCreateContent: (svc, lng) => svc && ((svc.content && svc.content[lng]) || ((svc.content || (svc.content = {}))[lng] = {})),
+                    getServicesLineForContact: (label) => {
+                        const sss = self.services(label)
+                        return sss && (sss.find(svcs => svcs.find(ss => ss.ctc.id === this.contact.id)) || sss[0])
+                    },
+                    getServiceInContact: (label) => {
+                        const ssLine = self.getServicesLineForContact(label)
+                        return ssLine && ssLine.find(ss => !this.api.after(ss.ctc.created, this.contact.created))
+                    },
+                    wasModified: (label) => {
+                        const s = self.getServiceInContact(label)
+                        return s && (this.api.before(s.ctc.openingDate, this.contact.openingDate) || this.api.before(s.ctc.created, this.contact.created))
+                    },
+                    isModifiedAfter: (label) => {
+                        const s = self.getServicesLineForContact(label)
+                        return s && s[0] !== self.getServiceInContact(label)
+                    },
+                    latestModification: (label) => {
+                        const s = self.getServicesLineForContact(label)
+                        return s && this._timeFormat(s[0].ctc.openingDate)
+                    },
+                    getValueContainers: (label) => {
+                        const c = _.compact(self.services(label).map(line => line && line.find(ss => !this.api.after(ss.ctc.created, this.contact.created))).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(_.cloneDeep)  //Never provide the real objects so that we can compare them later on
+                        return c
+                    },
+                    setValueContainers: (label, containers) => {
+                        if (!this.currentContact) {
+                            return
+                        }
+                        let currentValueContainers = self.getValueContainers(label)
+                        if (_.isEqual(currentValueContainers, containers)) {
+                            return
+                        }
+                        const isModified = containers.map(service => {
+                            let svc = this.currentContact.services.find(s => s.id === service.id)
+                            if (svc) {
+                                _.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id))
+                                if (!_.isEqual(svc.content, service.content) || svc.index !== service.index || svc.endOfLife) {
+                                    _.extend(svc.content, service.content)
+                                    svc.index = service.index
+                                    delete svc.endOfLife
+
+                                    return true
+                                }
+                            } else {
+                                const prevSvc = currentValueContainers.find(s => s.id === service.id)
+                                if (prevSvc) {
+                                    _.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id))
+                                }
+                                if (!prevSvc || !_.isEqual(prevSvc.content, service.content)) {
+                                    self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), {index: service.index, content: service.content, codes: service.codes}))
+                                    return true
+                                }
+                            }
+                            return false
+                        }).find(x => x)
+                        currentValueContainers.forEach(service => {
+                            let svc = this.currentContact.services.find(s => s.id === service.id)
+                            if (svc) {
+                                svc.endOfLife = (+new Date()) * 1000
+                            } else {
+                                self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), {endOfLife: (+new Date()) * 1000}))
+                            }
+                        })
+                        if (isModified || currentValueContainers.length) {
+                            this.scheduleSave(this.currentContact)
+                        }
+                    },
+                    getStringValue: (label, latest) => {
+                        const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label)
+                        const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language)
+                        return c && c.stringValue
+                    },
+                    getNumberValue: (label, latest) => {
+                        const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label)
+                        const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language)
+                        return c && c.numberValue
+                    },
+                    getMeasureValue: (label, latest) => {
+                        const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label)
+                        const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language)
+                        return c && c.measureValue
+                    },
+                    getDateValue: (label, latest) => {
+                        const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label)
+                        const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language)
+                        return c && c.instantValue
+                    },
+                    getBooleanValue: (label, latest) => {
+                        const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label)
+                        const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language)
+                        return c && c.booleanValue
+                    },
+                    getValueDateOfValue: (label, latest) => {
+                        const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label)
+                        return s && s.svc && !s.svc.endOfLife && s.svc.valueDate
+                    },
+                    setStringValue: function (label, value) {
+                        if (self.getStringValue(label) === value) {
+                            return
+                        }
+                        self.promoteOrCreateService(label, form.id, null, null, svc => {
+                            let c = self.getOrCreateContent(svc, this.language)
+                            if (c && c.stringValue !== value) {
+                                c.stringValue = value
+                                this.scheduleSave(this.currentContact)
+                            }
+                            return svc
+                        })
+                    }.bind(this),
+                    setNumberValue: function (label, value) {
+                        if (self.getNumberValue(label) === parseFloat(value)) {
+                            return
+                        }
+                        self.promoteOrCreateService(label, form.id, null, null, svc => {
+                            let c = self.getOrCreateContent(svc, this.language)
+                            if (c && c.numberValue !== value) {
+                                c.numberValue = value
+                                this.scheduleSave(this.currentContact)
+                            }
+                            return svc
+                        })
+                    }.bind(this),
+                    setMeasureValue: function (label, value) {
+                        const currentValue = self.getMeasureValue(label)
+                        if (((!currentValue.value && !value.value) || (currentValue.value === value.value)) &&
+                            ((!currentValue.unit && !value.unit) || (currentValue.unit === value.unit))) {
+                            return
+                        }
+                        self.promoteOrCreateService(label, form.id, null, null, svc => {
+                            let c = self.getOrCreateContent(svc, this.language)
+                            if (c && c.measureValue !== value) {
+                                c.measureValue = value
+                                this.scheduleSave(this.currentContact)
+                            }
+                            return svc
+                        })
+                    }.bind(this),
+                    setDateValue: function (label, value) {
+                        if (self.getDateValue(label) === value) {
+                            return
+                        }
+                        self.promoteOrCreateService(label, form.id, null, null, svc => {
+                            let c = self.getOrCreateContent(svc, this.language)
+                            if (c && c.instantValue !== value) {
+                                c.instantValue = value
+                                this.scheduleSave(this.currentContact)
+                            }
+                            return svc
+                        })
+                    }.bind(this),
+                    setBooleanValue: function (label, value) {
+                        if (self.getBooleanValue(label) === value) {
+                            return
+                        }
+                        self.promoteOrCreateService(label, form.id, null, null, svc => {
+                            let c = self.getOrCreateContent(svc, this.language)
+                            if (c && c.booleanValue !== value) {
+                                c.booleanValue = value
+                                this.scheduleSave(this.currentContact)
+                            }
+                            return svc
+                        })
+                    }.bind(this),
+                    setValueDateOfValue: function (label, value, setBooleanValue) {
+                        if (self.getValueDateOfValue(label) === value) {
+                            return
+                        }
+                        self.promoteOrCreateService(label, form.id, null, null, svc => {
+                            if (!svc) {
+                                return
+                            }
+                            if (svc.valueDate !== value) {
+                                svc.valueDate = value
+                                if (setBooleanValue) {
+                                    let c = self.getOrCreateContent(svc, this.language)
+                                    if (c && c.booleanValue !== value) {
+                                        c.booleanValue = value
+                                    }
+                                }
+                                this.scheduleSave(this.currentContact)
+                            } else if (setBooleanValue) {
+                                self.setBooleanValue(!!value)
+                            }
+                            return svc
+                        })
+                    }.bind(this),
+                    getSubForms: function (key) {
+                        return (form.children || []).filter(f => f.descr === key).map((subForm, idx) => {
+                            return {
+                                dataMap: _.fromPairs(_.flatten(_.flatten(subForm.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1])),
+                                dataProvider: this.getDataProvider(subForm, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx),
+                                template: subForm.template.layout
+                            }
+                        })
+                    }.bind(this),
+                    editForm: function () {
+                        this.dispatchEvent(new CustomEvent('edit-form', {detail: form, composed: true}))
+                    }.bind(this),
+                    deleteForm: function () {
+                        if (!this.currentContact) {
+                            return
+                        }
+                        this.flushSave()
+
+                        const id = form.id
+                        const subContacts = this.currentContact.subContacts.filter(sc => sc.formId === id)
+                        _.pullAll(this.currentContact.subContacts, subContacts)
+
+                        //Get all services in the formId
+                        this.servicesInForm(id).forEach(sl => {
+                            if (sl.length >= 1 && sl[0].ctc === this.currentContact) {
+                                sl[0].svc.content = {}
+                                sl[0].svc.endOfLife = (+new Date()) * 1000
+                            } else {
+                                (this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
+                                    content: {},
+                                    endOfLife: (+new Date()) * 1000
+                                })))
+                            }
+                        })
+
+                        this.api.form().modifyForm(_.extend(form, {deletionDate: (+new Date()) * 1000})).then(f => {
+                            this.dispatchEvent(new CustomEvent('form-deleted', {detail: f, composed: true}))
+                        })
+
+                    }.bind(this),
+                    getId: () => form.id,
+                    deleteSubForm: (key, id) => {
+                        if (!this.currentContact) {
+                            return
+                        }
+                        this.flushSave()
+
+                        const ff = form.children.find(a => a.id === id)
+
+                        _.pull(form.children, ff)
+                        const subContacts = this.currentContact.subContacts.filter(sc => sc.formId === id)
+                        _.pullAll(this.currentContact.subContacts, subContacts)
+
+                        //Get all services in the formId
+                        this.servicesInForm(id).forEach(sl => {
+                            if (sl.length >= 1 && sl[0].ctc === this.currentContact) {
+                                sl[0].svc.content = {}
+                                sl[0].svc.endOfLife = (+new Date()) * 1000
+                            } else {
+                                (this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
+                                    content: {},
+                                    endOfLife: (+new Date()) * 1000
+                                })))
+                            }
+                        })
+
+                        this.api.form().modifyForm(_.extend(ff, {deletionDate: (+new Date()) * 1000})).then(f => {
+                            this.$['dynamic-form'].notify((rootPath.length ? rootPath + '.' : '') + key + '.*')
+                            this.scheduleSave(this.currentContact)
+                        })
+                    },
+                    addSubForm: (key, guid) => {
+                        if (!this.currentContact) {
+                            return
+                        }
+                        this.flushSave()
+                        this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice'))
+                            .then(formTemplates => {
+                                if (formTemplates[0] && formTemplates[0]) {
+                                    //Create a new form and link it to the currentContact
+                                    this.api.form().new(this.user, this.patient, {
+                                        contactId: this.currentContact.id,
+                                        descr: key,
+                                        formTemplateId: formTemplates[0].id,
+                                        parent: form.id
+                                    })
+                                        .then(f => this.api.form().createForm(f))
+                                        .then(f => {
+                                            f.template = formTemplates[0]; //Important
+                                            (form.children || (form.children = [])).push(f)
+                                            this.currentContact.subContacts.push({formId: f.id, descr: key, services: []})
+
+                                            this.$['dynamic-form'].notify((rootPath.length ? rootPath + '.' : '') + key + '.*')
+                                            this.scheduleSave(this.currentContact)
+                                        })
+                                }
+                            })
+                    },
+                    filter: (data, text) => {
+                        return data.codeTypes && data.codeTypes.length && text && text.length > 1 ? Promise.all(
+                            data.codeTypes.map(ct => {
+                                    const typeLng = this.api.code().languageForType(ct.type, this.language)
+                                    return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, text, null, 50)
+                                        .then(results => results.rows.map(code => ({
+                                            id: code.id, stringValue: code.label[typeLng],
+                                            codes: [code].concat(code.links && code.links.map(c => ({id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2]})) || [])
+                                        })))
+                                }
+                            )
+                        ).then(responses => _.flatMap(responses)) : Promise.resolve([])
+                    }
+                }
+                return self
+            },
+
+            _formIdChanged: function (formId) {
+                if (!formId) {
+                    return
+                }
+
+                const loadForms = function (templates, forms, root) {
+                    const newFormTemplateIds = forms.map(f => f.formTemplateId).filter(id => id && !templates[id])
+                    return Promise.all(newFormTemplateIds.map(id => this.api.form().getFormTemplate(id)))
+                        .then(fts => {
+                            fts.forEach(ft => {
+                                templates[ft.id] = ft
+                            })
+                            forms.forEach(f => f.template = f.formTemplateId ? templates[f.formTemplateId] : {layout: null, name: "Dynamic"})
+                        })
+                        .then(() => Promise.all(forms.map(f => this.api.form().getChildren(f.id, this.user.healthcarePartyId))))
+                        .then(children => {
+                            children.forEach((cs, idx) => {
+                                forms[idx].children = cs
+                                cs.forEach(c => forms[c.id] = cs)
+                            })
+                            return children.length ? loadForms(templates, _.flatten(children), root) : root
+                        })
+                }.bind(this)
+                this.api.form().getForm(formId).then(f => loadForms({}, [f], f)).then(form => this.set('form', form))
+            },
+
+            confirm: function() {
+
+            },
+
+            get(column, item){
+                return "test";
+                //return item[column];
+            },
+
+
+        })
+    </script>
+</dom-module>
