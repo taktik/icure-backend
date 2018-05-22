@@ -54,6 +54,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../icons/icure-icons.html">
 <link rel="import" href="../../icd-styles.html">
 
+<link rel="import" href="../dynamic-form/entity-selector.html">
+<link rel="import" href="../dynamic-form/health-problem-selector.html">
+
 <dom-module id="ht-pat-detail">
 	<template>
 		<style include="iron-flex iron-flex-alignment"></style>
@@ -957,7 +960,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<div class="one-line-menu list-title">Family risks</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
-								<paper-listbox id="frhelb" lass="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
+								<paper-listbox id="frhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!familyrisks.length]]">
 										<paper-item class="menu-item list-info"><div class="one-line-menu">No family risks</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
@@ -1134,19 +1137,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</div>
 
-		<entity-selector id="add-healthelement-dialog" columns="[[_healthElementsSelectorColumns()]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
+		<health-problem-selector id="add-healthelement-dialog" columns="[[_healthElementsSelectorColumns()]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
 			<div class="extraDialogFields" slot="suffix">
-				<paper-input label="Health Problem" value="{{heEntity.descr}}"></paper-input>
-				<tk-token-field label="Plans of action" value="{{heEntity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
 			</div>
-		</entity-selector>
+		</health-problem-selector>
 
-		<entity-selector id="edit-healthelement-dialog" columns="[[_healthElementsSelectorColumns()]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
+		<health-problem-selector id="edit-healthelement-dialog" columns="[[_healthElementsSelectorColumns()]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
 			<div class="extraDialogFields" slot="suffix">
-				<paper-input label="Health Problem" value="{{heEntity.descr}}"></paper-input>
-				<tk-token-field label="Plans of action" value="{{heEntity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+					<div class="history">history</div>
 			</div>
-		</entity-selector>
+		</health-problem-selector>
 
 		<entity-selector id="add-service-dialog" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Create">
 			<div class="extraDialogFields" slot="suffix">

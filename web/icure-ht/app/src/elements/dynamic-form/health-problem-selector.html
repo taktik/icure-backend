@@ -1,0 +1,291 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/tk-token-field/tk-token-field.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+
+
+
+<dom-module id="vaadin-text-field-style" theme-for="vaadin-text-field">
+    <template>
+        <style>
+           :host([focused]:not([invalid])) [part=label] {
+                color: var(--app-primary-color) !important;
+            }
+            [part="input-field"]::after, [part="input-field"]::before{
+                background-color: var(--app-primary-color); 
+            }
+        </style>
+    </template>
+</dom-module>
+<dom-module id="health-problem-selector">
+	<template>
+		<style>
+			paper-dialog {
+				width: 800px;
+			}
+
+			paper-input{
+				--paper-input-container-focus-color: var(--app-primary-color);	
+			}
+
+			.modal-title{
+				background:  var(--app-background-color-dark);
+				margin-top: 0;
+				padding: 16px 24px;
+			}
+
+			.modal-button{
+				--paper-button-ink-color: var(--app-secondary-color-dark);
+				color: var(--app-text-color);
+				font-weight: 400;
+				font-size: 14px;
+				height: 40px;
+				min-width: 100px;
+				padding: 10px 1.2em;
+			}
+
+			.modal-button--save{
+				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+				background: var(--app-secondary-color);
+				color: var(--app-primary-color-dark);
+				font-weight: 700;
+			}
+
+			dom-if {
+				padding: 0;
+			}
+
+            vaadin-combo-box-light paper-input{
+                margin:0 24px;
+            }
+
+			.flex{
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: flex-start;
+				align-items: center;
+                margin:8px 0;
+			}
+
+			.label{
+                background: var(--app-background-color-dark);
+                color: var(--app-primary-color-dark);
+                --paper-item-min-height: 28px;
+                width: 58px;
+                font-size: 12px;
+                padding: 0 0 0 8px;
+			}
+
+            paper-radio-group{
+                --paper-radio-group-item-padding: 8px;
+            }
+
+			paper-radio-button{
+				--paper-radio-button-checked-color: var(--app-secondary-color-dark);
+			}
+
+            vaadin-date-picker{
+                margin:8px 0;
+            }
+
+            tk-token-field{
+                margin:8px 0;
+            }
+         
+		</style>
+
+		<paper-dialog id="dialog">
+            <h2 class="modal-title">Select [[entityType]]</h2>
+                <vaadin-combo-box-light id="entities-list" items="{{activeItem}}">
+                    <paper-input label="Libellé" class="input">
+                    <!-- <paper-button slot="suffix" class="clear-button">Clear</paper-button>
+                    <paper-button slot="suffix" class="toggle-button">Toggle</paper-button> -->
+                    </paper-input>
+                </vaadin-combo-box-light>
+                
+            <div class="flex">
+                <paper-item class="label">Nature<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="problem">
+                    <paper-radio-button name="problem">Problem</paper-radio-button>
+                    <paper-radio-button name="allergy">Allergy</paper-radio-button>
+                    <paper-radio-button name="familyRisk">Family Risk</paper-radio-button>
+                    <paper-radio-button name="risk">Risk</paper-radio-button>
+                </paper-radio-group>
+            </div>
+            <div class="flex">
+                <paper-item class="label">Status<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="active">
+                    <paper-radio-button name="active">Active</paper-radio-button>
+                    <paper-radio-button name="passive">Passive</paper-radio-button>
+                    <paper-radio-button name="archived">Archived</paper-radio-button>
+                </paper-radio-group>
+            </div>
+
+            <vaadin-date-picker label="Start Date"></vaadin-date-picker>
+            <vaadin-date-picker label="End Date"></vaadin-date-picker>
+
+            <tk-token-field label="Code" value="{{heEntity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+            <tk-token-field label="Plans of action" value="{{heEntity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+
+			<slot name="suffix"></slot>
+			<div class="buttons">
+				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirm">[[okLabel]]</paper-button>
+			</div>
+		</paper-dialog> 
+
+	</template>
+	<script>
+		import _ from 'lodash/lodash'
+
+		Polymer({
+			is: 'health-problem-selector',
+			properties: {
+				columns: {
+					type: Array,
+					value: function() { return [] }
+				},
+
+				entityType: {
+					type: String,
+					value: 'entity'
+				},
+
+				entity: {
+					type: Object,
+					value: function() {return {}},
+					notify: true
+				},
+
+				okLabel: {
+					type: String
+				},
+
+				filterValue: {
+					type: String
+				},
+
+				dataProvider: {
+					type: Object,
+					value: null
+				},
+
+				activeItem: {
+					type: Object,
+					value: null,
+					// observer: "_activeItemChanged"
+				}
+
+			},
+			observers: [],
+			ready: function () {
+				var grid = this.$['entities-list']
+
+				grid.lastParams = null //Used to prevent double calls
+				grid.size = 0
+				grid.pageSize = 50
+				grid.dataProvider = function (params, callback) {
+					const sort = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path) || (this.columns[0] && this._key(this.columns[0]))
+					const desc = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc') || false
+
+					const pageSize = (params.pageSize || grid.pageSize)
+					const startIndex = (params.page || 0) * pageSize
+					const endIndex = ((params.page || 0) + 1) * pageSize
+
+					const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
+
+					let latestSearchValue = this.filterValue
+					this.latestSearchValue = latestSearchValue
+					if (!latestSearchValue || latestSearchValue.length < 2) {
+						console.log("Cancelling empty search")
+						grid.set("size", 0)
+						callback([])
+						return
+					}
+
+					grid.lastParams = thisParams
+					console.log("Starting search for " + thisParams)
+
+					this.dataProvider && this.dataProvider.filter(latestSearchValue, endIndex || grid.pageSize, params.index, sort, desc).then(function (res) {
+						if (this.filterValue !== latestSearchValue) {
+							console.log("Cancelling obsolete search")
+							return
+						}
+						if (grid.size !== res.totalSize) {
+							grid.set("size", res.totalSize)
+						}
+						callback(_.slice(res.rows, startIndex, endIndex))
+					}.bind(this))
+				}.bind(this)
+			},
+
+			_cellContent: function(item, column) {
+				return _.isFunction(column.key) ? column.key(item) : _.get(item,column.key)
+			},
+
+			_key: function(column) {
+				return _.isFunction(column.key) ? column.sortKey : column.key
+			},
+
+			click: function (e) {
+				const selected = this.activeItem
+
+				console.log('selected ' + selected + ' - ' + this.latestSelected)
+				if (this.inDoubleClick && ((this.latestSelected === selected) || (this.latestSelected && !selected) || (!this.latestSelected && selected))) {
+					this.select(this.latestSelected||selected)
+				} else {
+					this.latestSelected = selected
+					this.inDoubleClick = true
+					this.set('entity',_.assign(_.assign({}, this.entity || {}), selected))
+					setTimeout(() => {
+						delete this.inDoubleClick
+					}, 500)
+				}
+			},
+
+			refresh: function () {
+				//Give the gui the time to update the field
+				setTimeout(function () {
+					let currentValue = this.filterValue
+
+					if (this.latestSearchValue === currentValue) {
+						return
+					}
+					setTimeout(function () {
+						if (currentValue === this.filterValue) {
+							console.log("Triggering search for " + this.filterValue)
+							this.$['entities-list'].clearCache()
+						} else {
+							console.log("Skipping search for " + this.filterValue + " != " + currentValue)
+						}
+					}.bind(this), 500) //Wait for the user to stop typing
+				}.bind(this), 100)
+			},
+
+			confirm: function() {
+				if (this.entity || this.activeItem) { this.select(this.entity || this.activeItem) }
+			},
+
+			select: function(item) {
+				if (item) {
+					this.dispatchEvent(new CustomEvent('entity-selected',{detail: item, composed: true}))
+					this.$.dialog.close()
+				}
+			},
+
+			open: function() {
+				this.$.dialog.open()
+			},
+
+			// _activeItemChanged: function(item) {
+			// 	var grid = this.$['entities-list']
+			// 	grid.selectedItems = item ? [item] : [];
+			// }
+		})
+	</script>
+</dom-module>
