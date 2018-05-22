@@ -116,8 +116,7 @@ public class DrugsDAOImpl implements DrugsDAO {
 
 	public File getDbDir() {
 		if (dbDir == null) {
-			String tempDir = propertyLogic.getSystemPropertyValue(PropertyTypes.System.ICURE_PATH_TEMP.getIdentifier());
-			File drugsDir = new File(tempDir, "drugs");
+			String tempDir = propertyLogic.getSystemPropertyValue(PropertyTypes.System.ICURE_PATH_TEMP.getIdentifier());File drugsDir = new File(tempDir, "drugs");
 			if (drugsDir.exists() && drugsDir.isDirectory()) {
 				dbDir = drugsDir;
 			} else {
