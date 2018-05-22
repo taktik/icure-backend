@@ -230,7 +230,7 @@
 				if (!this.templates) {
 					this.set('templates',{})
 					this.api.hcparty().getCurrentHealthcareParty()
-						.then(hcp => Promise.all(this._allGuids().map(guid => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice' ))))
+						.then(hcp => Promise.all(this._allGuids().map(guid => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes && hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice' ))))
 						.then(templates => this.set('templates', templates.reduce((acc,t) => {
 							if (t[0]) { acc[t[0].guid] = t[0] }
 							return acc
