@@ -222,6 +222,12 @@
 				return init && init(svc) || svc
 			},
 
+            isNumeric: function(service) {
+			    let temp = false;
+			    if(service.content.fr && service.content.fr.measureValue && (service.content.fr.measureValue.value || service.content.fr.measureValue.value === 0)){temp = true}
+			    return temp;
+            },
+
 
 			service: function () {
 				return {
