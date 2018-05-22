@@ -204,7 +204,8 @@
 			},
 
 			loadKeychainFromBrowserLocalStorage: function(id) {
-				return this.utils.base64toByteArray(localStorage.getItem('org.taktik.icure.ehealth.keychain.'+id))
+				const lsItem = localStorage.getItem('org.taktik.icure.ehealth.keychain.'+id)
+				return lsItem && this.utils.base64toByteArray(lsItem)
 			},
 
 			AES: {
