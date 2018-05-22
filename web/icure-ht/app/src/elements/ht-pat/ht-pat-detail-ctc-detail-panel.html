@@ -467,8 +467,8 @@
 
 			_drugsToBePrescribed: function() {
 				return this.api && this.currentContact && this.currentContact.services
-				  && this.currentContact.services.filter(s=>s.tags.find(t=>t.type==='CD-ITEM' && t.code === 'treatment') && this.api.contact().medicationValue(s,this.language))
-				  || []
+				  && this.currentContact.services.filter(s => s.tags.find(t=>t.type==='CD-ITEM' && t.code === 'treatment')
+					&& !s.endOfLife && this.api.contact().medicationValue(s,this.language)) || []
 			},
 
 			_prescribe: function (e) {
