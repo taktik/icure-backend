@@ -321,7 +321,7 @@
 							[[_columnName(columnIndex)]]
 						</template>
 						<template>
-							<vaadin-checkbox id="[[item.id]]:[[columnIndex]]" checked="[[_drugOnPrescription(item,columnIndex)]]" on-checked-changed="_setDrugOnPrescription"></vaadin-checkbox>
+							<vaadin-checkbox id="[[item.id]]:[[columnIndex]]" disabled="[[!_enabled(columnIndex,index,_drugsOnPrescriptions,_drugsOnPrescriptions.*)]]" checked="[[_drugOnPrescription(item,columnIndex)]]" on-checked-changed="_setDrugOnPrescription"></vaadin-checkbox>
 						</template>
 					</vaadin-grid-column>
 				</template>
@@ -559,18 +559,22 @@
 				return svc && this.api.contact().medication().posologyToString(this.api.contact().medicationValue(svc,this.language), this.language) || "N/A"
 			},
 
+			_safeDrugsOnPrescriptions: function() {
+				return  (this._drugsOnPrescriptions || this._drugsToBePrescribed().map((s,idx)=>({id:s.id,column:Math.floor(idx/5)})))
+			},
+
 		  	_splitColumns: function() {
 				const drugs = this._drugsToBePrescribed()
-				return this._drugsOnPrescriptions && this._drugsOnPrescriptions.reduce((columns, mark) => {
+				const columns =  this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
 					const id = mark.id
 				  	const column = mark.column
-
 					;(columns[column] || (columns[column] = [])).push(id)
-				  	if (!columns.find(c=>!c.length) && columns.length<drugs.length) { columns.push([]) }
-
 				  	return columns
-				},[[]]) || (drugs.length>1 ? [drugs.map(s=>s.id), []] : [drugs.map(s=>s.id)])
-			},
+				},[[]])
+
+                if (!columns.find(c=>!c||!c.length) && columns.length<drugs.length) { columns.push([]) }
+				return columns
+            },
 
 			_drugOnPrescription: function(svc, index) {
 				return svc && this._splitColumns()[index] && this._splitColumns()[index].includes(svc.id)
@@ -582,9 +586,10 @@
 
 			  	if (!id || id.length === 0 || (!column && column !== 0)) { return }
 
-			  	const current = this._drugsOnPrescriptions ? this._drugsOnPrescriptions.map(x=>({id:x.id,column:x.column})) : this._drugsToBePrescribed().map(svc=>({id:svc.id,column:0}))
+			  	const current = this._safeDrugsOnPrescriptions().map(x=>({id:x.id,column:x.column}))
 
 				const mark = current.find(m => m.id === id)
+
 				if (mark) {
 					mark.column = column
 				} else {
@@ -595,6 +600,21 @@
 					this.set('_drugsOnPrescriptions', current)
 				}
 			},
+
+			_enabled(column,line) {
+			    if (line===undefined) { return true }
+
+			    const dop = this._safeDrugsOnPrescriptions()
+			    if (dop.length<5) { return true }
+
+                const sums=dop.reduce((sums,i)=>{sums[i.column]=(sums[i.column]||0)+1; return sums}, [])
+
+				if ((sums[column]||0)<5) { return true; }
+
+                const ids = this._drugsToBePrescribed().map(d=>d.id)
+				const id = ids[line]
+				return dop.find(x=>x.id===id&&x.column===column) || false
+            },
 
 		  	_printPrescriptions: function(e) {
 			  if (this.patient.ssin && this.api.tokenId) {
@@ -611,6 +631,9 @@
 							  return x-pdf.getStringUnitWidth(txt)*fontSize/pdf.internal.scaleFactor/2;
 						  }
 
+                          var date = new Date();
+                          var dateActu = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+
 						  const pdf = new jsPDF('p', 'pt', [width, height]);
 
 						  pdf.addFont('ArialMS', 'Arial', 'normal');
@@ -623,19 +646,27 @@
 						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"PREUVE DE PRESCRIPTION ÉLECTRONIQUE",9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE")
 						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Veuillez présenter ce document au pharmacien pour scanner le ",9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ")
 						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"code-barres et délivrer les médicaments prescrits",9), 116, "code-barres et délivrer les médicaments prescrits")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 141.5, "Antoine Baudoux")
+						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 141.5, `${hcp.firstName} ${hcp.lastName}`)
 						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(18, 129, "Nom et prénom du prescripteur:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 153.5, "INAMI: 12345678901")
+						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 153.5, `INAMI: ${hcp.nihii}`)
 						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(18, 162.5, "Nom et prénom du patient:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 174, "Antoine Baudoux")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 187.5, "NISS: 79081777765")
+						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 174, `${this.patient.firstName} ${this.patient.lastName}`)
+						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 187.5, `NISS: ${this.patient.ssin}`)
 						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE",9), 204, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 220, "S/ Aspirine")
+
+
+						  pdf.text(18, 240, _.flatMap(this._drugsToBePrescribed(),s => {
+						      const medicationApi = this.api.contact().medication()
+                              const med = this.api.contact().medicationValue(s,this.language)
+						      return [ "S/ "+medicationApi.medicationNameToString(med, this.language), "R/ "+medicationApi.posologyToString(med, this.language), "" ]
+						  }))
+
 						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"Aucun ajout manuscrit ne sera pris en compte", 9), 474, "Aucun ajout manuscrit ne sera pris en compte")
 						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Date:",7), 487, "Date:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"01/05/2018",9), 501, "01/05/2018")
+
+						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56, dateActu,9), 501, dateActu)
 						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Délivrable à partir du:",7), 521, "Délivrable à partir du:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"01/05/2018",9), 533, "01/05/2018")
+						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,dateActu,9), 533, dateActu)
 						  pdf.lines([[0,0],[286,0]],5.788,76)
 						  pdf.lines([[0,0],[286,0]],5.788,94)
 						  pdf.lines([[0,0],[286,0]],5.788,122)
@@ -646,8 +677,8 @@
 						  pdf.lines([[0,0],[286,0]],5.788,480)
 						  pdf.lines([[0,0],[286,0]],5.788,513)
 
-						  doc.autoPrint()
-						  doc.save('precription.pdf')
+						  pdf.autoPrint()
+						  pdf.save('precription.pdf')
 
 					  })
 				  )
