@@ -16,6 +16,7 @@
 <link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
 
+
 <link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
@@ -36,15 +37,6 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
-<dom-module id="vaadin-checkbox-style" theme-for="vaadin-checkbox">
-	<template>
-		<style>
-			:host([checked])[part="checkbox"] {
-				background-color: var(--app-secondary-color) !important;
-			}
-		</style>
-	</template>
-</dom-module>
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
 		<style>
@@ -616,76 +608,114 @@
 				return dop.find(x=>x.id===id&&x.column===column) || false
             },
 
-		  	_printPrescriptions: function(e) {
-			  if (this.patient.ssin && this.api.tokenId) {
-				  this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then( hcp =>
-					  this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
-					  	patient: this.patient,
-						hcp:hcp,
-						feedback: false,
-						medications: this._drugsToBePrescribed().map(s=>this.api.contact().medicationValue(s, this.language))
-					  }).then(rid => {
-						  const width = 297.576, height = 566.928;
+			_printPrescriptions: function (e) {
+				if (this.patient.ssin && this.api.tokenId) {
+					const drugsToBePrescribed = this._drugsToBePrescribed()
+					let splitColumns = this._splitColumns().filter(c=>c && c.length > 0)
+					this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+						Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
+							patient: this.patient,
+							hcp: hcp,
+							feedback: false,
+							medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language))
+						}))).then(rids => {
+							const width = 297.576, height = 566.928
 
-						  const center = function(pdf,x,txt,fontSize) {
-							  return x-pdf.getStringUnitWidth(txt)*fontSize/pdf.internal.scaleFactor/2;
-						  }
+							const center = function (pdf, x, txt, fontSize) {
+								return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2
+							}
+							var date = new Date()
+							var dateActu = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear()
 
-                          var date = new Date();
-                          var dateActu = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+							const pdf = new jsPDF('p', 'pt', [width, height])
 
-						  const pdf = new jsPDF('p', 'pt', [width, height]);
+							pdf.addFont('ArialMS', 'Arial', 'normal')
+							pdf.addFont('Times', 'Serif', 'normal')
 
-						  pdf.addFont('ArialMS', 'Arial', 'normal');
-						  pdf.addFont('Times', 'Serif', 'normal');
+							splitColumns.forEach((c, idx) => {
+								if (idx) {
+									pdf.addPage()
+								}
+								const element = this.root.querySelector("#barCode")
+								JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75})
+								var jpegUrl = element.toDataURL("image/jpeg")
 
-						  const element = this.root.querySelector("#barCode")
-						  JsBarcode(element, rid.rid, {format: "CODE128A", displayValue: false, height:75});
-						  var jpegUrl = element.toDataURL("image/jpeg");
+								pdf.addImage(jpegUrl, 'JPEG', 20, 10, 257.576, 57)
+								pdf.setFontSize(7)
+								pdf.setFont('Arial')
+								pdf.text(center(pdf, 148.56, rids[idx].rid, 7), 69, rids[idx].rid)
+								pdf.setFontSize(9)
+								pdf.setFont('Arial')
+								pdf.text(center(pdf, 148.56, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE", 9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(center(pdf, 148.56, "Veuillez présenter ce document au pharmacien pour scanner le ", 9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(center(pdf, 148.56, "code-barres et délivrer les médicaments prescrits", 9), 116, "code-barres et délivrer les médicaments prescrits")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(18, 141.5, `${hcp.firstName} ${hcp.lastName}`)
+								pdf.setFontSize(7)
+								pdf.setFont('Serif')
+								pdf.text(18, 129, "Nom et prénom du prescripteur:")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(18, 153.5, `INAMI: ${hcp.nihii}`)
+								pdf.setFontSize(7)
+								pdf.setFont('Serif')
+								pdf.text(18, 162.5, "Nom et prénom du patient:")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(18, 174, `${this.patient.firstName} ${this.patient.lastName}`)
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(18, 187.5, `NISS: ${this.patient.ssin}`)
+								pdf.setFontSize(9)
+								pdf.setFont('Arial')
+								pdf.text(center(pdf, 148.56, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE", 9), 204, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE")
 
-						  pdf.addImage(jpegUrl, 'JPEG', 20, 10, 257.576, 57);
-						  pdf.setFontSize(7);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,rid.rid,7), 69, rid.rid)
-						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"PREUVE DE PRESCRIPTION ÉLECTRONIQUE",9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Veuillez présenter ce document au pharmacien pour scanner le ",9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"code-barres et délivrer les médicaments prescrits",9), 116, "code-barres et délivrer les médicaments prescrits")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 141.5, `${hcp.firstName} ${hcp.lastName}`)
-						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(18, 129, "Nom et prénom du prescripteur:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 153.5, `INAMI: ${hcp.nihii}`)
-						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(18, 162.5, "Nom et prénom du patient:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 174, `${this.patient.firstName} ${this.patient.lastName}`)
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(18, 187.5, `NISS: ${this.patient.ssin}`)
-						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE",9), 204, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE")
 
+								pdf.text(18, 240, _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
+									const medicationApi = this.api.contact().medication()
+									const med = this.api.contact().medicationValue(s, this.language)
+									return ["S/ " + medicationApi.medicationNameToString(med, this.language), "R/ " + medicationApi.posologyToString(med, this.language), ""]
+								}))
 
-						  pdf.text(18, 240, _.flatMap(this._drugsToBePrescribed(),s => {
-						      const medicationApi = this.api.contact().medication()
-                              const med = this.api.contact().medicationValue(s,this.language)
-						      return [ "S/ "+medicationApi.medicationNameToString(med, this.language), "R/ "+medicationApi.posologyToString(med, this.language), "" ]
-						  }))
+								pdf.setFontSize(9)
+								pdf.setFont('Arial')
+								pdf.text(center(pdf, 148.56, "Aucun ajout manuscrit ne sera pris en compte", 9), 474, "Aucun ajout manuscrit ne sera pris en compte")
+								pdf.setFontSize(7)
+								pdf.setFont('Serif')
+								pdf.text(center(pdf, 148.56, "Date:", 7), 487, "Date:")
 
-						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"Aucun ajout manuscrit ne sera pris en compte", 9), 474, "Aucun ajout manuscrit ne sera pris en compte")
-						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Date:",7), 487, "Date:")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(center(pdf, 148.56, dateActu, 9), 501, dateActu)
+								pdf.setFontSize(7)
+								pdf.setFont('Serif')
+								pdf.text(center(pdf, 148.56, "Délivrable à partir du:", 7), 521, "Délivrable à partir du:")
+								pdf.setFontSize(9)
+								pdf.setFont('Serif')
+								pdf.text(center(pdf, 148.56, dateActu, 9), 533, dateActu)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 76)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 94)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 122)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 156)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 192)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 210)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 464)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 480)
+								pdf.lines([[0, 0], [286, 0]], 5.788, 513)
+							})
 
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56, dateActu,9), 501, dateActu)
-						  pdf.setFontSize(7); pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Délivrable à partir du:",7), 521, "Délivrable à partir du:")
-						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,dateActu,9), 533, dateActu)
-						  pdf.lines([[0,0],[286,0]],5.788,76)
-						  pdf.lines([[0,0],[286,0]],5.788,94)
-						  pdf.lines([[0,0],[286,0]],5.788,122)
-						  pdf.lines([[0,0],[286,0]],5.788,156)
-						  pdf.lines([[0,0],[286,0]],5.788,192)
-						  pdf.lines([[0,0],[286,0]],5.788,210)
-						  pdf.lines([[0,0],[286,0]],5.788,464)
-						  pdf.lines([[0,0],[286,0]],5.788,480)
-						  pdf.lines([[0,0],[286,0]],5.788,513)
+							pdf.autoPrint()
+							pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.lastName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`)
 
-						  pdf.autoPrint()
-						  pdf.save(`precription_${this.patient.lastName||'Doe'}_${this.patient.lastName||'John'}_${this.patient.dateOfBirth||'00000000'}.pdf`)
-
-					  })
-				  )
-			  }
-		  },
+						})
+					)
+				}
+			},
 
 		  	_columnName: function(idx) {
 				return `#${idx+1}`
