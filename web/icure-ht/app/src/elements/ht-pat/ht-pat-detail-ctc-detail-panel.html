@@ -336,7 +336,7 @@
 	<script>
 		import jsPDF from 'jspdf/dist/jspdf.min'
 		import _ from 'lodash/lodash'
-		import jsBarcode from 'JsBarcode/dist/barcodes/JsBarcode.code128.min'
+		import JsBarcode from 'JsBarcode'
 
 		Polymer({
 			is: 'ht-pat-detail-ctc-detail-panel',
@@ -639,10 +639,12 @@
 						  pdf.addFont('ArialMS', 'Arial', 'normal');
 						  pdf.addFont('Times', 'Serif', 'normal');
 
-						  JsBarcode("#barcode", rid.rid, {format: "CODE128A"});
-						  var jpegUrl = $("#barCode").toDataURL("image/jpeg");
+						  const element = this.root.querySelector("#barCode")
+						  JsBarcode(element, rid.rid, {format: "CODE128A", displayValue: false, height:75});
+						  var jpegUrl = element.toDataURL("image/jpeg");
 
-						  pdf.addImage(jpegUrl, 'JPEG', 0, 0);
+						  pdf.addImage(jpegUrl, 'JPEG', 20, 10, 257.576, 57);
+						  pdf.setFontSize(7);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,rid.rid,7), 69, rid.rid)
 						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"PREUVE DE PRESCRIPTION ÉLECTRONIQUE",9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE")
 						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Veuillez présenter ce document au pharmacien pour scanner le ",9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ")
 						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"code-barres et délivrer les médicaments prescrits",9), 116, "code-barres et délivrer les médicaments prescrits")
@@ -678,7 +680,7 @@
 						  pdf.lines([[0,0],[286,0]],5.788,513)
 
 						  pdf.autoPrint()
-						  pdf.save('precription.pdf')
+						  pdf.save(`precription_${this.patient.lastName||'Doe'}_${this.patient.lastName||'John'}_${this.patient.dateOfBirth||'00000000'}.pdf`)
 
 					  })
 				  )
