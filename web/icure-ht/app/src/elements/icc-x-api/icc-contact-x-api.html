@@ -169,9 +169,13 @@
 				return ctc.services.filter(s => s.label === label)
 			},
 
+			preferredContent: function(svc, lng) {
+                return svc && svc.content && (svc.content[lng] || svc.content['fr'] || (Object.keys(svc.content)[0] ? svc.content[Object.keys(svc.content)[0]] : null))
+			},
+
 			shortServiceDescription: function (svc, lng) {
-				const c = svc && svc.content && (svc.content[lng] || svc.content['fr'] || (Object.keys(svc.content)[0] ? svc.content[Object.keys(svc.content)[0]] : null))
-				return !c ? '' : (c.stringValue || ((c.numberValue || c.numberValue === 0) && c.numberValue) || (c.measureValue && ('' + c.measureValue.value + (c.measureValue.unit ? ' '+ c.measureValue.unit : ''))) || (c.booleanValue && svc.label) || (c.medicationValue ? this.medication().medicationToString(c.medicationValue, lng) : null))
+				const c = this.preferredContent(svc, lng)
+				return !c ? '' : (c.stringValue || ((c.numberValue || c.numberValue === 0) && c.numberValue) || (c.measureValue && ('' + (c.measureValue.value || c.measureValue.value === 0 ? c.measureValue.value : '-') + (c.measureValue.unit ? ' '+ c.measureValue.unit : ''))) || (c.booleanValue && svc.label) || (c.medicationValue ? this.medication().medicationToString(c.medicationValue, lng) : null))
 			},
 
 			medicationValue: function (svc, lng) {
@@ -222,10 +226,9 @@
 				return init && init(svc) || svc
 			},
 
-            isNumeric: function(service) {
-			    let temp = false;
-			    if(service.content.fr && service.content.fr.measureValue && (service.content.fr.measureValue.value || service.content.fr.measureValue.value === 0)){temp = true}
-			    return temp;
+            isNumeric: function(svc, lng) {
+			    const c = this.preferredContent(svc, lng)
+			    return c && (c.measureValue || c.numberValue || (c.numberValue == 0))
             },
 
 

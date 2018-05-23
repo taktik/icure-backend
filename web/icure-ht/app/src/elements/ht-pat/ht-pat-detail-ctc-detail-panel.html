@@ -31,6 +31,7 @@
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="../dynamic-form/dynamically-table-form.html">
+<link rel="import" href="../dynamic-form/dynamically-list-form.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
@@ -232,9 +233,30 @@
 		<div class="details-panel" on-dragover="_onDrag">
 			<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
 			<div class="contact-card-container">
-				<paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
-				<dynamically-table-form id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-table-form>
-				<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
+                <template is="dom-if" if="[[!list]]">
+                <paper-icon-button class="list" icon="vaadin:list" on-tap="_list"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="[[!table]]">
+                <paper-icon-button class="table" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="[[!graphique]]">
+                <paper-icon-button class="graphique" icon="vaadin:bar-chart" on-tap="_graphique"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="[[!doc]]">
+                <paper-icon-button class="doc" icon="vaadin:archives" on-tap="_default"></paper-icon-button>
+                </template>
+                <paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
+                <template is="dom-if" if="[[list]]">
+				    <dynamically-list-form id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-list-form>
+                </template>
+                <template is="dom-if" if="[[table]]">
+                    <dynamically-table-form id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-table-form>
+                </template>
+                <template is="dom-if" if="[[graphique]]">
+                <dynamically-graphique-form id="dynamicallyGraphiqueForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-graphique-form>
+                </template>
+                <template is="dom-if" if="[[doc]]">
+                <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
 					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
@@ -245,6 +267,7 @@
 						</template>
 					</template>
 				</template>
+                </template>
 			</div>
 			<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 				<paper-fab-speed-dial>
@@ -329,6 +352,22 @@
 					type: String,
 					value: null,
 				},
+                list: {
+                    type: Boolean,
+                    value: false,
+                },
+                table: {
+                    type: Boolean,
+                    value: false,
+                },
+                graphique: {
+                    type: Boolean,
+                    value: false,
+                },
+                doc: {
+                    type: Boolean,
+                    value: true,
+                },
 				user: {
 					type: Object
 				},
@@ -362,6 +401,7 @@
 						{icon: "icure-svg-icons:blood-pressure", title: "Blood Pressure", id: "BloodPressure"},
 						{icon: "icure-svg-icons:prescription-drugs", title: "Prescription Drugs", id: "PrescriptionDrugs"}] }
 				},
+
 				files: {
 					type: Array
 				},
@@ -473,6 +513,33 @@
 			_prescribe: function (e) {
 				this.$.prescriptionDialog.open()
 			},
+
+            hiddeAll: function (){
+                this.set('list', false)
+                this.set('table', false)
+                this.set('doc', false)
+                this.set('graphique', false)
+            },
+
+            _list: function (e) {
+                this.hiddeAll();
+                this.set('list', true)
+            },
+
+            _table: function (e) {
+                this.hiddeAll();
+                this.set('table', true)
+            },
+
+            _graphique: function (e) {
+                this.hiddeAll();
+                this.set('graphique', true)
+            },
+
+            _default: function (e) {
+                this.hiddeAll();
+                this.set('doc', true)
+            },
 
 		  	_drugDescription: function(svc) {
 				return svc && this.api.contact().medication().medicationNameToString(this.api.contact().medicationValue(svc,this.language), this.language) || "N/A"

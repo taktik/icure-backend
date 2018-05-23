@@ -126,17 +126,15 @@
 
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" items="[[_labels(contacts,contacts.*, columns.*)]]" class="material" active-item="{{activeItem}}" on-tap="click">
             <vaadin-grid-column width="100px">
-                <template class="header">
-                    Label
-                </template>
+                <template class="header">Label</template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
-            <template is="dom-repeat" items="[[_dates(contacts,contacts.*, columns.*)]]">
+            <template is="dom-repeat" items="[[columns]]" as="date" index-as="columnIndex">
                 <vaadin-grid-column width="100px">
                     <template class="header">
-                        [[_columnsIndex(index)]]
+                        [[date]]
                     </template>
-                    <template>[[_itemLabelIndex(item, index)]]</template>
+                    <template>[[_itemValueAtIndex(item,index)]]</template>
                 </vaadin-grid-column>
             </template>
         </vaadin-grid>
@@ -183,6 +181,10 @@
                     type: Array,
                     value: null
                 },
+                clusters: {
+                    type: Array,
+                    value: null
+                },
                 labelsServices: {
                     type: Array,
                     value: null
@@ -191,51 +193,48 @@
             observers: [ '_updateTable(contacts, contacts.*)' ],
 
             _updateTable: function(contacts) {
-                const services = _.sortBy(_.flatMap(contacts, c=>c.services.filter(s=>this.api.contact().isNumeric(s) && !s.endOfLife)),['modified'])
+                const services = _.sortBy(_.flatMap(contacts, c=>c.services.filter(s=>this.api.contact().isNumeric(s, this.language) && !s.endOfLife)),['modified'])
                 const datesServices = services.reduce((acc,s)=>{
                     (acc[s.modified] || (acc[s.modified] = [])).push(s)
                     return acc
                 }, {})
+                console.log(datesServices)
                 const labelsServices = services.reduce((acc,s)=>{
-                    (acc[s.label] || (acc[s.label] = [])).push(s)
+                    (acc[s.label] || (acc[s.label] = {label: s.label, services :[]})).services.push(s)
                     return acc
                 }, {})
-                labelsServices ? this.set('labelsServices', labelsServices): []
-                const clusters = (Object.keys(datesServices).length>2) ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => {[parseInt(d)]}))).clusters : _.sortBy(Object.keys(datesServices)).map(d=>[parseInt(d)])
+                console.log(labelsServices)
+                this.set('labelsServices', labelsServices)
+                const clusters = (Object.keys(datesServices).length>2) ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => parseInt(d)))).clusters : _.sortBy(Object.keys(datesServices)).map(d=>parseInt(d))
+                this.set('clusters',clusters)
                 const columns = clusters.map(a=> this.averageDate(a))//todo column cluster && ligne label
-                columns ? this.set('columns',columns): []
-
+                this.set('columns',columns)
             },
 
             averageDate: function(cluster){
-                const min_of_array = Math.min.apply(Math, cluster);
-                return [min_of_array + ((cluster.map(c => c - min_of_array).reduce((acc, val) => { return acc + val; })) / cluster.length)];
+                if (!cluster) { return 0 }
+                return (cluster.reduce((acc, val) => { return acc + val; }, 0)) / cluster.length;
             },
 
             _isNotInCurrentContact: function (currentContact, contact) {
                 return currentContact === null || contact !== currentContact
             },
 
-
-            _dates: function(contacts) {
-                //this._updateTable()
-                return this.get('columns')
-            },
-
             _labels(){
-                return this.get('labelsServices')
+                return this.labelsServices ? Object.values(this.labelsServices): []
             },
 
-            _columnsIndex: function (index){
-                return this.get('columns')? this.get('columns')[index][0]+'': ''
+            _columnsIndex: function (item,index){
+                return item? item[index][0]+'': ''
             },
 
             _shortDescription(svc) {
                 return this.api.contact().shortServiceDescription(svc,this.language)
             },
 
-            _itemLabelIndex(item, index){
-                return this.get('labelsServices')[item.label][index]
+            _itemValueAtIndex(item, index) {
+                const services = item && item.services && item.services.filter(s=>this.clusters[index] && this.clusters[index].includes(s.modified)) || [];
+                return services.length ? services.map(s=>this._shortDescription(s)).join(', ') : '-'
             }
 
         })
