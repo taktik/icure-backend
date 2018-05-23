@@ -18,6 +18,7 @@
 
 <link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+<link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
@@ -30,9 +31,20 @@
 <link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
+<link rel="import" href="../dynamic-form/dynamically-table-form.html">
+<link rel="import" href="../dynamic-form/dynamically-list-form.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
+<dom-module id="vaadin-checkbox-style" theme-for="vaadin-checkbox">
+	<template>
+		<style>
+			:host([checked])[part="checkbox"] {
+				background-color: var(--app-secondary-color) !important;
+			}
+		</style>
+	</template>
+</dom-module>
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
 		<style>
@@ -115,8 +127,6 @@
 				}
 
 			}
-
-
 
 
 			paper-fab-speed-dial > div {
@@ -231,8 +241,30 @@
 		<div class="details-panel" on-dragover="_onDrag">
 			<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
 			<div class="contact-card-container">
-				<paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
-				<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
+                <template is="dom-if" if="[[!list]]">
+                <paper-icon-button class="list" icon="vaadin:list" on-tap="_list"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="[[!table]]">
+                <paper-icon-button class="table" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="[[!graphique]]">
+                <paper-icon-button class="graphique" icon="vaadin:bar-chart" on-tap="_graphique"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="[[!doc]]">
+                <paper-icon-button class="doc" icon="vaadin:archives" on-tap="_default"></paper-icon-button>
+                </template>
+                <paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
+                <template is="dom-if" if="[[list]]">
+				    <dynamically-list-form id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-list-form>
+                </template>
+                <template is="dom-if" if="[[table]]">
+                    <dynamically-table-form id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-table-form>
+                </template>
+                <template is="dom-if" if="[[graphique]]">
+                <dynamically-graphique-form id="dynamicallyGraphiqueForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-graphique-form>
+                </template>
+                <template is="dom-if" if="[[doc]]">
+                <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
 					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
@@ -243,6 +275,7 @@
 						</template>
 					</template>
 				</template>
+                </template>
 			</div>
 			<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 				<paper-fab-speed-dial>
@@ -274,7 +307,7 @@
 							<div class="cell frozen">[[_drugDescription(item)]]</div>
 						</template>
 					</vaadin-grid-column>
-				<vaadin-grid-column width="100px">
+				<vaadin-grid-column width="200px">
 					<template class="header">
 						Posology
 					</template>
@@ -283,7 +316,7 @@
 					</template>
 				</vaadin-grid-column>
 				<template is="dom-repeat" items="[[_splitColumns(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*, servicesMap.*)]]" as="column" index-as="columnIndex">
-					<vaadin-grid-column width="20px">
+					<vaadin-grid-column flex-grow="0" width="50px">
 						<template class="header">
 							[[_columnName(columnIndex)]]
 						</template>
@@ -298,15 +331,14 @@
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">Print</paper-button>
 			</div>
 		</paper-dialog>
-
+		<canvas id="barCode"></canvas>
 	</template>
 	<script>
 		import jsPDF from 'jspdf/dist/jspdf.min'
-				import _ from 'lodash/lodash'
+		import _ from 'lodash/lodash'
+		import JsBarcode from 'JsBarcode'
 
-				var doc = new jsPDF()
-
-				Polymer({
+		Polymer({
 			is: 'ht-pat-detail-ctc-detail-panel',
 			properties: {
 				contacts: {
@@ -330,6 +362,22 @@
 					type: String,
 					value: null,
 				},
+                list: {
+                    type: Boolean,
+                    value: false,
+                },
+                table: {
+                    type: Boolean,
+                    value: false,
+                },
+                graphique: {
+                    type: Boolean,
+                    value: false,
+                },
+                doc: {
+                    type: Boolean,
+                    value: true,
+                },
 				user: {
 					type: Object
 				},
@@ -363,6 +411,7 @@
 						{icon: "icure-svg-icons:blood-pressure", title: "Blood Pressure", id: "BloodPressure"},
 						{icon: "icure-svg-icons:prescription-drugs", title: "Prescription Drugs", id: "PrescriptionDrugs"}] }
 				},
+
 				files: {
 					type: Array
 				},
@@ -475,6 +524,33 @@
 				this.$.prescriptionDialog.open()
 			},
 
+            hiddeAll: function (){
+                this.set('list', false)
+                this.set('table', false)
+                this.set('doc', false)
+                this.set('graphique', false)
+            },
+
+            _list: function (e) {
+                this.hiddeAll();
+                this.set('list', true)
+            },
+
+            _table: function (e) {
+                this.hiddeAll();
+                this.set('table', true)
+            },
+
+            _graphique: function (e) {
+                this.hiddeAll();
+                this.set('graphique', true)
+            },
+
+            _default: function (e) {
+                this.hiddeAll();
+                this.set('doc', true)
+            },
+
 		  	_drugDescription: function(svc) {
 				return svc && this.api.contact().medication().medicationNameToString(this.api.contact().medicationValue(svc,this.language), this.language) || "N/A"
 			},
@@ -562,6 +638,13 @@
 
 						  pdf.addFont('ArialMS', 'Arial', 'normal');
 						  pdf.addFont('Times', 'Serif', 'normal');
+
+						  const element = this.root.querySelector("#barCode")
+						  JsBarcode(element, rid.rid, {format: "CODE128A", displayValue: false, height:75});
+						  var jpegUrl = element.toDataURL("image/jpeg");
+
+						  pdf.addImage(jpegUrl, 'JPEG', 20, 10, 257.576, 57);
+						  pdf.setFontSize(7);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,rid.rid,7), 69, rid.rid)
 						  pdf.setFontSize(9);pdf.setFont('Arial'); pdf.text(center(pdf,148.56,"PREUVE DE PRESCRIPTION ÉLECTRONIQUE",9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE")
 						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"Veuillez présenter ce document au pharmacien pour scanner le ",9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ")
 						  pdf.setFontSize(9);pdf.setFont('Serif'); pdf.text(center(pdf,148.56,"code-barres et délivrer les médicaments prescrits",9), 116, "code-barres et délivrer les médicaments prescrits")
@@ -597,7 +680,7 @@
 						  pdf.lines([[0,0],[286,0]],5.788,513)
 
 						  pdf.autoPrint()
-						  pdf.save('precription.pdf')
+						  pdf.save(`precription_${this.patient.lastName||'Doe'}_${this.patient.lastName||'John'}_${this.patient.dateOfBirth||'00000000'}.pdf`)
 
 					  })
 				  )
