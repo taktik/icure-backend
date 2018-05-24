@@ -648,7 +648,7 @@
 			},
 
 		  	promoteServiceToHealthElement: function (heSvc) {
-				this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc)
+				this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc, this.language)
 				  .then(he=>{
 				  	this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, he.id, null)
 					this.scheduleSave(this.currentContact)

@@ -39,10 +39,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<app-route route="{{route}}" pattern="/:selectedPatientId" data="{{routeData}}"></app-route>
 
 		<template is="dom-if" if="[[selectedPatient]]">
-			<ht-pat-detail api="[[api]]" user="[[user]]" language="[[language]]" patient="{{selectedPatient}}"></ht-pat-detail>
+			<ht-pat-detail api="[[api]]" i18n="[[i18n]]" user="[[user]]" language="[[language]]" patient="{{selectedPatient}}"></ht-pat-detail>
 		</template>
 		<template is="dom-if" if="[[!selectedPatient]]">
-			<ht-pat-list api="[[api]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
+			<ht-pat-list api="[[api]]" i18n="[[i18n]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
 		</template>
 
 	</template>

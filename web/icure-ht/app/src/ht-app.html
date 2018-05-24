@@ -421,9 +421,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<ht-main name="main" api="[[api]]" user="[[user]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
-					<ht-hcp name="hcp" api="[[api]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
-					<ht-msg name="msg" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
+					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
+					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
+					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
 				</iron-pages>
 			</app-header-layout>
@@ -432,6 +432,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	<script>
         Polymer({
+		import moment from 'moment/src/moment'
 			is: 'ht-app',
 
 			properties: {
@@ -446,6 +447,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				user: {
 					type: Object,
 					value: null
+				},
+				i18n: {
+					Type: Object,
+					value: function () {
+						moment.locale('fr')
+						const res = {
+							monthNames: moment.months(),
+							weekdays: moment.weekdays(),
+							weekdaysShort: moment.weekdaysShort(),
+							firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+							week: 'Semaine',
+							calendar: 'Calendrier',
+							clear: 'Clear',
+							today: 'Aujourd\'hui',
+							cancel: 'Annuler',
+							formatDate: function (d) {
+								//return moment(d).format(moment.localeData().longDateFormat('L'))
+								return moment(d).format('DD/MM/YYYY')
+							},
+							parseDate: function (s) {
+								return moment(s, 'DD/MM/YYYY').toDate()
+							},
+							formatTitle: function (monthName, fullYear) {
+								return monthName + ' ' + fullYear
+							}
+						}
+						return res
+					}
 				},
 				view: {
 					type: String,
