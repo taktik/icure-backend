@@ -113,7 +113,7 @@
                 </paper-radio-group>
             </div>
 
-            <vaadin-date-picker label="Start Date"></vaadin-date-picker>
+            <vaadin-date-picker label="Start Date" i18n="[[i18n]] value="{{}}></vaadin-date-picker>
             <vaadin-date-picker label="End Date"></vaadin-date-picker>
 
             <tk-token-field label="Code" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
@@ -170,8 +170,15 @@
                 items: {
 					type: Array,
 					value: ()=>[]
-				}
+				},
 
+                _openingDateAsString: {
+					type: String
+                },
+
+                _openingDateAsString: {
+                    type: String
+                }
 			},
 			observers: [
 				'_filterChanged(filterValue)',
@@ -213,13 +220,14 @@
             },
 
             _nature: function() {
-				return this._cdItemTagForEntity(this.entity, false) || null
+	            const code = this._cdItemTagForEntity(this.entity, true)
+	            return code && code.code
             },
 
             _status: function() {
                 return !this.entity ? null :
-                  (this.entity.status & 2) === 1 ? 'archived' :
-	                  (this.entity.status & 1) === 1 || this.entity.closingDate ? 'inactive' : 'active'
+                  ((this.entity.status || 0) & 2) === 1 ? 'archived' :
+	                  ((this.entity.status || 0) & 1) === 1 || this.entity.closingDate ? 'inactive' : 'active'
             },
 
             _natureChanged: function(e) {
@@ -229,16 +237,16 @@
             _statusChanged: function(e) {
 	            switch (e.detail.value) {
 		            case 'active':
-			            this.entity.set('entity.closingDate', null)
-			            ;(this.entity.status & 1) === 1 && this.entity.set('entity.status', this.entity.status - 1)
-		                ;(this.entity.status & 2) === 1 && this.entity.set('entity.status', this.entity.status - 2)
+			            this.set('entity.closingDate', null)
+			            ;((this.entity.status || 0) & 1) === 1 && this.set('entity.status', (this.entity.status || 0) - 1)
+		                ;((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2)
 			            break
 		            case 'inactive':
-			            (this.entity.status & 1) === 0 && this.entity.set('entity.status', this.entity.status + 1)
-		                ;(this.entity.status & 2) === 1 && this.entity.set('entity.status', this.entity.status - 2)
+			            ((this.entity.status || 0) & 1) === 0 && this.set('entity.status', (this.entity.status || 0) + 1)
+		                ;((this.entity.status || 0) & 2) === 1 && this.set('entity.status', (this.entity.status || 0) - 2)
 			            break
 		            case 'archived':
-			            (this.entity.status & 2) === 0 && this.entity.set('entity.status', this.entity.status + 2)
+			            ((this.entity.status || 0) & 2) === 0 && this.set('entity.status', (this.entity.status || 0) + 2)
 			            break
 	            }
             },
@@ -305,10 +313,23 @@
 				this.$.dialog.open()
 			},
 
-			// _activeItemChanged: function(item) {
-			// 	var grid = this.$['entities-list']
-			// 	grid.selectedItems = item ? [item] : [];
-			// }
-		})
+            _openingDateAsStringChanged: function(dateAsString) {
+                if (!dateAsString) { this.entity && this.set('entity.openingDate', null); return }
+                const date=parseInt(dateAsString.replace(/(....)-(..)-(..)/,'$1$2$3'))*(this.displayTime?1000000:1);
+                if (date !== this.value) {
+	                this.entity && this.set('entity.openingDate', date)
+                }
+            },
+
+            _openingDateAsStringChanged: function(dateAsString) {
+                if (!dateAsString) { this.entity && this.set('entity.openingDate', null); return }
+                const date=parseInt(dateAsString.replace(/(....)-(..)-(..)/,'$1$2$3'))*(this.displayTime?1000000:1);
+                if (date !== this.value) {
+                    this.entity && this.set('entity.openingDate', date)
+                }
+            },
+
+
+				})
 	</script>
 </dom-module>

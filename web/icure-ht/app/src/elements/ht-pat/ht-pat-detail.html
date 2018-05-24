@@ -1131,7 +1131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 				</div>
-				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
+				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1267,9 +1267,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						{icon:"icure-svg-icons:sent-reports", title:"Sent Reports", id:"SentReports"},
 						{icon:"icure-svg-icons:received-reports", title:"Received Reports", id:"ReceivedReports"}]
 				    }
+				},
+			  	i18n: {
+					type: Object
 				}
 			},
 			observers: [
+				'patientOpened(patient.id,api,user)',
 				'patientChanged(api,user,patient)',
 				'selectedMainElementsSpliced(selectedMainElements.splices)',
 				'selectedContactItemsChanged(selectedContactItems.*)'
@@ -1338,7 +1342,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
 					ctc.rev = c.rev
 				  	console.log("contact saved: "+ctc.id+":"+ctc.rev)
-					if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
+					if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
 						this.patientChanged()
 					}
 					return c
@@ -1399,6 +1403,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			},
 
+			patientOpened: function (patientId,api,user) {
+
+			},
+
 			patientChanged: function () {
 				if (this.api && this.user && this.patient) {
 					const patient = this.patient
@@ -1446,17 +1454,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>
 										  !it.closingDate
 										  && ((it.status & 1) === 0)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement'))
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
 										), 'descr'));
 										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>
 										  (it.closingDate || ((it.status & 1) === 1))
 										  && ((it.status & 2) === 0)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement'))
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
 										), 'descr'));
 										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>
 										  it.closingDate
 										  && ((it.status & 2) === 2)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement'))
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
 										) , 'descr'));
 										this.set('allergies',  _.sortBy(combinedHes.filter(it=>
 											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy'))
@@ -1709,9 +1717,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		  _editHealthElement: function(event){
 				const model = event.detail
 
-				this.edithealtElement = model;
+				this.editedHealthElementModel = model;
 				this.$['edit-healthelement-dialog'].set('entity', _.assign({plansOfAction:[]}, model.he))
-				this.$['edit-healthelement-dialog'].set('filterValue', model.he.descr)
 				this.$['edit-healthelement-dialog'].open()
 			},
 
@@ -1845,42 +1852,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const filtered = _.flatten(entityTemplates.map(et => et.entity))
 									.filter( he => [he].concat(he.plansOfAction || []).find(it => (it.descr && it.descr.match(regExp)) || (it.name && it.name.match(regExp))))
 									.map(it => ({descr:it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',')}))
-								.concat(codes.rows.map(code => ({descr:this.api.localize(code.label), codes: code.links, plansOfAction: [], plansOfActionDescr: 'N/A'})))
+								.concat(codes.rows.map(code => ({descr:this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A'})))
 								return {totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}
 							})
 					}.bind(this)
 			    }
 			},
-			_addedHealthElementSelected: function(event, healthElement) {
-				this.api.helement().new(this.user, this.patient, {
+
+		  	_normalizedHealthElement(healthElement) {
+				return {
 					descr: healthElement.descr,
-					plansOfAction:(healthElement.plansOfAction||[]).map( poa => _.extend(poa, {id: this.api.crypto().randomUuid(), openingDate: parseInt(moment().format('YYYYMMDDHHmmss'))})),
-					codes: (healthElement.codes || []).map( c => this.api.code().normalize(c) )
-				}).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged())
+					openingDate: healthElement.openingDate || +new Date(),
+					closingDate: healthElement.closingDate,
+					status: healthElement.status || 0,
+					plansOfAction:(healthElement.plansOfAction||[])
+					  .map( poa => _.extend(poa, {id: this.api.crypto().randomUuid(), openingDate: parseInt(moment().format('YYYYMMDDHHmmss'))})),
+					tags: (healthElement.tags || []).map( c => this.api.code().normalize(c)),
+					codes: (healthElement.codes || []).map( c => this.api.code().normalize(c))
+				}
 			},
+
+			_addedHealthElementSelected: function(event, healthElement) {
+				this.api.helement().new(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged())
+			},
+
 			_editedHealthElementSelected: function(event, healthElement) {
-			    if (this.edithealtElement.he.id) {
-                    this.api.helement().getHealthElement(this.edithealtElement.he.id).then(he => {
+			    if (this.editedHealthElementModel.he.id) {
+                    this.api.helement().getHealthElement(this.editedHealthElementModel.he.id).then(he => {
                         delete healthElement.plansOfActionDescr
-                        return this.api.code().getCodes(healthElement.codes.join(',')).then(cs => {
-	                        const codes = cs.reduce((acc, code) =>
-							   acc.concat([this.api.helement().stringToCode(code.id)]).concat(code.links ? code.links.map(c => this.api.helement().stringToCode(c)) : [])
-	                        , [])
-	                        _.assign(he,healthElement)
-	                        he.codes = codes;
-	                        return he
-                        })
+                        _.assign(he,this._normalizedHealthElement(healthElement))
+	                    return he
                     }).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
-                } else if (this.edithealtElement.he.idService) {
-                    const svc = this.edithealtElement.he.svc
+                } else if (this.editedHealthElementModel.he.idService) {
+                    const svc = this.editedHealthElementModel.he.svc
 					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc).then(he =>{
 						if (this.currentContact) {
 							this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, he.id, null)
 							this.scheduleSave(this.currentContact)
 						}
 
-						this.edithealtElement.he = he
-					    this._editedHealthElementSelected(event, healthElement)
+						this.editedHealthElementModel.he = he
+					    return this._editedHealthElementSelected(event, healthElement)
 					})
                 }
 			},
