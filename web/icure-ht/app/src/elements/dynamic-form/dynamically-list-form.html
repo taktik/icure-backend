@@ -1,0 +1,195 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<link rel="import" href="dynamic-form.html">
+
+<dom-module id="dynamically-list-form">
+    <template>
+        <style include="icd-styles">
+            .form-title-bar-btn {
+                height: 20px;
+                width: 20px;
+                padding: 2px;
+            }
+            .horizontal vaadin-date-picker {
+                height: 90px;
+                padding-bottom: 0px;
+                @apply --padding-right-left-16
+            }
+
+            vaadin-grid.material {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
+
+                --vaadin-grid-header-cell: {
+                    height: 64px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                };
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
+            }
+
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 56px;
+            }
+
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.material .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            .link .ICD-10 span {
+                content: '';
+                display: inline-block;
+                height: 6px;
+                width: 6px;
+                border-radius: 3px;
+                margin-right: 3px;
+                margin-bottom: 1px;
+            }
+
+            paper-listbox {
+                min-width: 200px;
+            }
+
+            paper-menu-button {
+                padding: 0;
+            }
+        </style>
+        <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" class="material" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
+            <vaadin-grid-column width="100px">
+                <template class="header">
+                    Label
+                </template>
+                <template>[[item.label]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column width="100px">
+                <template class="header">
+                    Value
+                </template>
+                <template>[[_shortDescription(item)]]</template>
+            </vaadin-grid-column>
+        </vaadin-grid>
+    </template>
+    <script>
+        Polymer({
+            is: 'dynamically-list-form',
+            properties: {
+                api: {
+                    type: Object
+                },
+                language: {
+                    type: String
+                },
+                user: {
+                    type: Object
+                },
+                patient: {
+                    type: Object,
+                    value: null
+                },
+                contact: {
+                    type: Object,
+                    value: null
+                },
+                contacts: {
+                    type: Array,
+                    value: []
+                },
+                activeItem: {
+                    type: Object
+                },
+                healthElements: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                currentContact: {
+                    type: Object,
+                    value: null
+                }
+            },
+            observers: [],
+
+            _isNotInCurrentContact: function (currentContact, contact) {
+                return currentContact === null || contact !== currentContact
+            },
+
+
+            _services: function(contacts) {
+                return _.sortBy(_.flatMap(contacts, c=>c.services),['modified'])
+            },
+
+            _shortDescription(svc) {
+                return this.api.contact().shortServiceDescription(svc,this.language)
+            }
+
+        })
+    </script>
+</dom-module>

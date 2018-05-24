@@ -10,6 +10,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="./app-theme.html">
+<link rel="import" href="./shared-styles.html">
+<link rel="import" href="vaadin-icure-theme.html">
+
+
 <link rel="import" href="../bower_components/iron-meta/iron-meta.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
@@ -37,6 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
@@ -55,10 +61,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="elements/icc-x-api/icc-x-api.html">
 <link rel="import" href="elements/icc-api/icc-api.html">
-
-<link rel="import" href="./app-theme.html">
-<link rel="import" href="./shared-styles.html">
-
 
 <dom-module id="ht-app">
 
@@ -221,6 +223,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display: none;
 			}
 
+			.noehealth{
+			}
+
+			.notification-panel {
+				position: fixed;
+				top:50%;
+				right: 0;
+				z-index:1000;
+				color: white;
+				font-size: 13px;
+				background: rgba(255, 0, 0, 0.55);
+				height: 48px;
+				padding: 0 8px 0 12px;
+				border-radius: 3px 0 0 3px;
+				width: 0;
+				opacity: 0;
+			}
+
+			.notification {
+				animation: notificationAnim 7.5s ease-in;
+			}
+
+			.noehealth iron-icon{
+				margin-left: 4px;
+				padding: 4px;
+			}
+
+			@keyframes notificationAnim {
+				0%{
+					width: 0;
+					opacity: 0;
+				}
+				10%{
+					width: 160px;
+					opacity: 1;
+				}
+				12%{
+					width: 144px;
+					opacity: 1;
+				}
+				88%{
+					width: 144px;
+					opacity: 1;
+				}
+				100%{
+					width: 0;
+					opacity: 0;
+				}
+			}
+
 			@media (max-width: 768px) {
 				paper-button {
 					margin-right: 10px;
@@ -238,7 +290,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<icc-api id="baseApi" headers="[[headers]]" host="/rest/v1"></icc-api>
-		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhcacc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]" baseApi="baseApi"></icc-x-api>
+		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]" baseApi="baseApi"></icc-x-api>
+
+		<paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
+			<iron-icon icon="icons:warning"></iron-icon>
+		</paper-item>
 
 		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
@@ -527,7 +583,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 						if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
 							if (this.credentials.ehpassword) {
-								this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)).then(res => {
+								const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+								ehKeychain && this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
 									this.$.api.keystoreId = res.uuid
 									this.$.api.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
 										this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
@@ -535,7 +592,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 											this.$.api.token = res.token
 										})
 									)
-								})
+								}) || this.$.noehealth.classList.add("notification")
 							}
 
 							const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
