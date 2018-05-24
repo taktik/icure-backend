@@ -60,7 +60,14 @@
 			languageForType: function (type, lng) {
                 const availableLanguages = this.codeLanguages[type]
 				return availableLanguages && availableLanguages.indexOf(lng)>=0 ? lng : 'fr'
-			}
+			},
+
+            normalize(c) {
+				return c instanceof String ? ({id: c, type: c.split(/\|/)[0], code: c.split(/\|/)[1], version: c.split(/\|/)[2]}) :
+                  c.type && c.code && !c.id ? ({id: c.type+'|'+c.code+'|'+(c.version || '1'), type: c.type, code:c.code, version: c.version || '1'}) :
+	                  c.id && (!c.code || !c.type || !c.version)  ? ({id: c.id, type: c.id.split(/\|/)[0], code: c.id.split(/\|/)[1], version: c.id.split(/\|/)[2]}) :
+                        ({id: c.id, type: c.type, code:c.code, version: c.version || '1'})
+            }
 		})
 	})()
 </script>

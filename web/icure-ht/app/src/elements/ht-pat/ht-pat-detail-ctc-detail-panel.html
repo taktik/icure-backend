@@ -750,6 +750,7 @@
 							})
 
 							pdf.autoPrint()
+						  	//pdf.output("dataurlnewwindow")
 							pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.lastName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`)
 
 						})

@@ -47,8 +47,9 @@
 				padding: 0;
 			}
 
-            vaadin-combo-box-light paper-input{
-                margin:0 24px;
+            vaadin-combo-box  {
+                width: calc( 100% - 48px );
+                margin:8px 0;
             }
 
 			.flex{
@@ -87,28 +88,27 @@
 		</style>
 
 		<paper-dialog id="dialog">
-            <h2 class="modal-title">Select [[entityType]]</h2>
-                <vaadin-combo-box-light id="entities-list" items="{{activeItem}}">
-                    <paper-input label="Libellé" class="input">
-                    <!-- <paper-button slot="suffix" class="clear-button">Clear</paper-button>
-                    <paper-button slot="suffix" class="toggle-button">Toggle</paper-button> -->
-                    </paper-input>
-                </vaadin-combo-box-light>
-                
+            <h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
+            <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id">
+                <paper-input label="Health element template" class="input" value="{{filterValue}}">
+                <paper-icon-button icon="icons:clear" slot="suffix" class="clear-button"></paper-icon-button>
+                </paper-input>
+            </vaadin-combo-box>
+            <paper-input label="Label" value="{{entity.descr}}"></paper-input>
             <div class="flex">
                 <paper-item class="label">Nature<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="problem">
-                    <paper-radio-button name="problem">Problem</paper-radio-button>
+                <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
+                    <paper-radio-button name="healthcareelement">Problem</paper-radio-button>
                     <paper-radio-button name="allergy">Allergy</paper-radio-button>
-                    <paper-radio-button name="familyRisk">Family Risk</paper-radio-button>
+                    <paper-radio-button name="familyrisk">Family Risk</paper-radio-button>
                     <paper-radio-button name="risk">Risk</paper-radio-button>
                 </paper-radio-group>
             </div>
             <div class="flex">
                 <paper-item class="label">Status<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
-                <paper-radio-group selected="active">
+                <paper-radio-group selected="[[_status(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_statusChanged">
                     <paper-radio-button name="active">Active</paper-radio-button>
-                    <paper-radio-button name="passive">Passive</paper-radio-button>
+                    <paper-radio-button name="inactive">Inactive</paper-radio-button>
                     <paper-radio-button name="archived">Archived</paper-radio-button>
                 </paper-radio-group>
             </div>
@@ -116,8 +116,8 @@
             <vaadin-date-picker label="Start Date"></vaadin-date-picker>
             <vaadin-date-picker label="End Date"></vaadin-date-picker>
 
-            <tk-token-field label="Code" value="{{heEntity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
-            <tk-token-field label="Plans of action" value="{{heEntity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+            <tk-token-field label="Code" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
+            <tk-token-field label="Plans of action" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
 
 			<slot name="suffix"></slot>
 			<div class="buttons">
@@ -145,7 +145,7 @@
 
 				entity: {
 					type: Object,
-					value: function() {return {}},
+					value: () => ({plansOfAction:[]}),
 					notify: true
 				},
 
@@ -153,71 +153,107 @@
 					type: String
 				},
 
-				filterValue: {
-					type: String
-				},
+                filterValue: {
+                    type: String
+                },
 
-				dataProvider: {
-					type: Object,
-					value: null
-				},
+                dataProvider: {
+                    type: Object,
+                    value: null
+                },
 
-				activeItem: {
-					type: Object,
-					value: null,
-					// observer: "_activeItemChanged"
+                selectedItem: {
+                    type: Object,
+                    value: null
+                },
+
+                items: {
+					type: Array,
+					value: ()=>[]
 				}
 
 			},
-			observers: [],
-			ready: function () {
-				var grid = this.$['entities-list']
+			observers: [
+				'_filterChanged(filterValue)',
+                '_selectedItemChanged(selectedItem)'
+                        ],
 
-				grid.lastParams = null //Used to prevent double calls
-				grid.size = 0
-				grid.pageSize = 50
-				grid.dataProvider = function (params, callback) {
-					const sort = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path) || (this.columns[0] && this._key(this.columns[0]))
-					const desc = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc') || false
+			_filterChanged: function (e) {
+                let latestSearchValue = this.filterValue || e && e.detail.value
+                this.latestSearchValue = latestSearchValue
 
-					const pageSize = (params.pageSize || grid.pageSize)
-					const startIndex = (params.page || 0) * pageSize
-					const endIndex = ((params.page || 0) + 1) * pageSize
+              if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search")
+	                this.set('items',[])
+	                return
+                }
 
-					const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
+                this.dataProvider && this.dataProvider.filter(latestSearchValue, 120, 0, null, false).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search")
+                        return
+                    }
+                    this.set('items',res.rows)
+                })
+            },
 
-					let latestSearchValue = this.filterValue
-					this.latestSearchValue = latestSearchValue
-					if (!latestSearchValue || latestSearchValue.length < 2) {
-						console.log("Cancelling empty search")
-						grid.set("size", 0)
-						callback([])
-						return
-					}
+            _selectedItemChanged: function() {
+                if (this.selectedItem) {
+                	this.set('entity.descr', this.selectedItem.descr)
+	                this.set('entity.plansOfAction', this.selectedItem.plansOfAction || [])
+	                this.api.code().getCodes(this.selectedItem.codes.join(',')).then(codes => {
+	                	this.set('entity.codes', codes)
+	                })
+                }
+            },
 
-					grid.lastParams = thisParams
-					console.log("Starting search for " + thisParams)
+            _cdItemTagForEntity(e, create) {
+	            const tags = e && (e.tags || (e.tags = []))
+                return tags.find(t=>t.type==='CD-ITEM') || (create && (tags[tags.length] = {type:'CD-ITEM',code:'healthcareelement',version:'1'}))
+            },
 
-					this.dataProvider && this.dataProvider.filter(latestSearchValue, endIndex || grid.pageSize, params.index, sort, desc).then(function (res) {
-						if (this.filterValue !== latestSearchValue) {
-							console.log("Cancelling obsolete search")
-							return
-						}
-						if (grid.size !== res.totalSize) {
-							grid.set("size", res.totalSize)
-						}
-						callback(_.slice(res.rows, startIndex, endIndex))
-					}.bind(this))
-				}.bind(this)
-			},
+            _nature: function() {
+				return this._cdItemTagForEntity(this.entity, false) || null
+            },
 
-			_cellContent: function(item, column) {
+            _status: function() {
+                return !this.entity ? null :
+                  (this.entity.status & 2) === 1 ? 'archived' :
+	                  (this.entity.status & 1) === 1 || this.entity.closingDate ? 'inactive' : 'active'
+            },
+
+            _natureChanged: function(e) {
+				this._cdItemTagForEntity(this.entity, true).code = e.detail.value
+            },
+
+            _statusChanged: function(e) {
+	            switch (e.detail.value) {
+		            case 'active':
+			            this.entity.set('entity.closingDate', null)
+			            ;(this.entity.status & 1) === 1 && this.entity.set('entity.status', this.entity.status - 1)
+		                ;(this.entity.status & 2) === 1 && this.entity.set('entity.status', this.entity.status - 2)
+			            break
+		            case 'inactive':
+			            (this.entity.status & 1) === 0 && this.entity.set('entity.status', this.entity.status + 1)
+		                ;(this.entity.status & 2) === 1 && this.entity.set('entity.status', this.entity.status - 2)
+			            break
+		            case 'archived':
+			            (this.entity.status & 2) === 0 && this.entity.set('entity.status', this.entity.status + 2)
+			            break
+	            }
+            },
+
+            _cellContent: function(item, column) {
 				return _.isFunction(column.key) ? column.key(item) : _.get(item,column.key)
 			},
 
 			_key: function(column) {
 				return _.isFunction(column.key) ? column.sortKey : column.key
 			},
+
+            _label: function(language) {
+			    return `type:label.${['fr','nl'].includes(language)?language:'fr'}`
+            },
 
 			click: function (e) {
 				const selected = this.activeItem
