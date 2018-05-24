@@ -200,7 +200,8 @@
 			}
 
 			onWidthChange() {
-				this.set('panelWidth', this.parentElement.offsetWidth)
+				this.set('panelWidth', this.parentElement.offsetWidth - 
+					Array.from(this.parentElement.children).filter(el=>el !== this).map(x => x.offsetWidth).reduce((sum,w)=>sum+w,0))
 			}
 
 			refreshIcons() {

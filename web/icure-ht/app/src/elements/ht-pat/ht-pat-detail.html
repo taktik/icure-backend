@@ -323,6 +323,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-items: center;
 			}
 
+			.new-ctc-btn-container {
+				width:30%;
+				left:20%;
+				position: absolute;
+				bottom: 16px;
+				/*display:none;*/
+				display:flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+			}
+
 			.add-btn{
 				--paper-button-ink-color: var(--app-secondary-color-dark);
 				background:var(--app-secondary-color);
@@ -1049,7 +1061,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]">
 				<div class="second-panel">
-					<filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}"></filter-panel>
+					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}"></filter-panel></div>
 					<div class="contacts-container" on-scroll="openToast">
 						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
 							<template is="dom-if" if="[[events.length]]">
@@ -1130,6 +1142,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							Select All
 						</paper-button>
 					</paper-toast>
+					<template is="dom-if" if="[[!currentContact]]">
+						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">New Contact</paper-button></div>
+					</template>
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
