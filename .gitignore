@@ -30,3 +30,13 @@ dist/
 #IntelliJ files
 *.iml
 .idea
+package-lock.json
+.gradle/4.5.1/fileChanges/last-build.bin
+.gradle/4.5.1/fileHashes/fileHashes.bin
+.gradle/4.5.1/fileHashes/fileHashes.lock
+.gradle/4.5.1/taskHistory/taskHistory.bin
+.gradle/4.5.1/taskHistory/taskHistory.lock
+.gradle/buildOutputCleanup/buildOutputCleanup.lock
+.gradle/buildOutputCleanup/cache.properties
+.gradle/buildOutputCleanup/outputFiles.bin
+.gradle/vcsWorkingDirs/gc.properties
