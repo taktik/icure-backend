@@ -156,7 +156,13 @@
 							return result
 						}
 					})
-				}
+				},
+
+                getAuthor: function(author) {
+                    const usr = this.users[author]
+                    const hcp = usr ? this.hcParties[usr.healthcarePartyId] : null
+                    return (hcp && (hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && (hcp.firstName.substr(0,1) + ".")))) || (usr && usr.login) || "N/A"
+                },
 			});
 		})();
 	</script>

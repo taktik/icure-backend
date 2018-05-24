@@ -125,8 +125,23 @@
             <vaadin-grid-column width="100px">
                 <template class="header">
                     Label
+                    <vaadin-grid-sorter path="label"></vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column width="100px">
+                <template class="header">
+                    Name
+                    <vaadin-grid-sorter path="function{[[_name()]]}"></vaadin-grid-sorter>
+                </template>
+                <template>[[_name()]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column width="100px">
+                <template class="header">
+                    Dates
+                    <vaadin-grid-sorter path="modified"></vaadin-grid-sorter>
+                </template>
+                <template>[[_date(item)]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column width="100px">
                 <template class="header">
@@ -173,6 +188,10 @@
                 currentContact: {
                     type: Object,
                     value: null
+                },
+                lastColumnSort: {
+                    type: String,
+                    value: null
                 }
             },
             observers: [],
@@ -184,6 +203,14 @@
 
             _services: function(contacts) {
                 return _.sortBy(_.flatMap(contacts, c=>c.services),['modified'])
+            },
+
+            _date: function (item) {
+                return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : ''
+            },
+
+            _name: function() {
+                return this.api.getAuthor(this.contacts.length && this.contacts[0].author)
             },
 
             _shortDescription(svc) {

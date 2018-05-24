@@ -126,13 +126,16 @@
 
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" items="[[_labels(contacts,contacts.*, columns.*)]]" class="material" active-item="{{activeItem}}" on-tap="click">
             <vaadin-grid-column width="100px">
-                <template class="header">Label</template>
+                <template class="header">
+                    Label
+                    <vaadin-grid-sorter path="label"></vaadin-grid-sorter>
+                </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
             <template is="dom-repeat" items="[[columns]]" as="date" index-as="columnIndex">
                 <vaadin-grid-column width="100px">
                     <template class="header">
-                        [[date]]
+                        [[_date(date)]]
                     </template>
                     <template>[[_itemValueAtIndex(item,index)]]</template>
                 </vaadin-grid-column>
@@ -198,12 +201,10 @@
                     (acc[s.modified] || (acc[s.modified] = [])).push(s)
                     return acc
                 }, {})
-                console.log(datesServices)
                 const labelsServices = services.reduce((acc,s)=>{
                     (acc[s.label] || (acc[s.label] = {label: s.label, services :[]})).services.push(s)
                     return acc
                 }, {})
-                console.log(labelsServices)
                 this.set('labelsServices', labelsServices)
                 const clusters = (Object.keys(datesServices).length>2) ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => parseInt(d)))).clusters : _.sortBy(Object.keys(datesServices)).map(d=>parseInt(d))
                 this.set('clusters',clusters)
@@ -235,7 +236,10 @@
             _itemValueAtIndex(item, index) {
                 const services = item && item.services && item.services.filter(s=>this.clusters[index] && this.clusters[index].includes(s.modified)) || [];
                 return services.length ? services.map(s=>this._shortDescription(s)).join(', ') : '-'
-            }
+            },
+            _date: function (date) {
+                return date ? this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : ''
+            },
 
         })
     </script>

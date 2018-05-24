@@ -1,19 +1,11 @@
 
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
-
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
-<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
-//<link rel="import" href="../../../bower_components/vaadin-charts/vaadin-chart.html">
 
 <link rel="import" href="dynamic-form.html">
 
-<dom-module id="dynamically-graphique-form">
+<dom-module id="dynamically-chart-form">
     <template>
         <style include="icd-styles">
             .form-title-bar-btn {
@@ -124,15 +116,12 @@
         </style>
 
         <ckmeans-grouping id="ckmeans-grouping" max-distance="1800000"></ckmeans-grouping>
-
         <vaadin-chart>
         </vaadin-chart>
     </template>
     <script>
-        //import chart from 'com.vaadin.addon.charts.Chart'
-        //import charts from 'com.vaadin.addon.charts.*'
         Polymer({
-            is: 'dynamically-graphique-form',
+            is: 'dynamically-chart-form',
             properties: {
                 api: {
                     type: Object
@@ -189,12 +178,10 @@
                     (acc[s.modified] || (acc[s.modified] = [])).push(s)
                     return acc
                 }, {})
-                console.log(datesServices)
                 const labelsServices = services.reduce((acc,s)=>{
                     (acc[s.label] || (acc[s.label] = {label: s.label, services :[]})).services.push(s)
                     return acc
                 }, {})
-                console.log(labelsServices)
                 this.set('labelsServices', labelsServices)
                 const clusters = (Object.keys(datesServices).length>2) ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => parseInt(d)))).clusters : _.sortBy(Object.keys(datesServices)).map(d=>parseInt(d))
                 this.set('clusters',clusters)
@@ -215,8 +202,8 @@
                 return this.labelsServices ? Object.values(this.labelsServices): []
             },
 
-            _columnsIndex: function (item,index){
-                return item? item[index][0]+'': ''
+            _columnsIndex: function (item, index) {
+                return item[index][0] ? this.api.moment(item[index][0]).format(item[index][0] > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : ''
             },
 
             _shortDescription(svc) {
@@ -225,11 +212,11 @@
 
             _itemValueAtIndex(item, index) {
                 const services = item && item.services && item.services.filter(s=>this.clusters[index] && this.clusters[index].includes(s.modified)) || [];
-                return services.length ? services.map(s=>this._shortDescription(s)).join(', ') : '-'
+                return services.length ? services : null
             },
 
             _getPoint: function() {
-                const points = new chart.Chart(ChartType.AREASPLINE);
+                const points = new chart.Chart(chart.ChartType.AREASPLINE);
                 points.setHeight("450px");
 
                 const conf = points.getConfiguration();
@@ -247,10 +234,6 @@
 
                 const xAxis = new charts.XAxis();
                 xAxis.setCategories(this.columns);
-                // add blue background for the weekend
-                const plotBand = new charts.PlotBand(4.5, 6.5, charts.LIGHT_BLUE);
-                plotBand.setZIndex(1);
-                xAxis.setPlotBands(plotBand);
                 conf.addxAxis(xAxis);
 
                 const yAxis = new charts.YAxis();
@@ -260,22 +243,20 @@
                 const tooltip = new charts.Tooltip();
                 // Customize tooltip formatting
                 tooltip.setHeaderFormat("");
-                tooltip.setPointFormat("{series.name}: {point.y} units");
-                // Same could be achieved by defining following JS formatter funtion:
-                // tooltip.setFormatter("function(){ return this.x +': '+ this.y +' units';}");
-                // ... or its shorthand form:
-                // tooltip.setFormatter("this.x +': '+ this.y +' units'");
+                tooltip.setPointFormat("function(){ return this.x +': '+ this.y +' units';}");
                 conf.setTooltip(tooltip);
 
                 const plotOptions = new charts.PlotOptionsArea();
                 plotOptions.setFillOpacity(0.5);
                 conf.setPlotOptions(plotOptions);
 
-                const o = new charts.ListSeries("John", 3, 4, 3, 5, 4, 10);
-                // Add last value separately
-                o.addData(12);
-                conf.addSeries(o);
-                conf.addSeries(new charts.ListSeries("Jane", 1, 3, 4, 3, 3, 5, 4));
+                this._labels().forEach((item, index) => {
+                    const o = new charts.ListSeries(l.label);
+                    this._itemValueAtIndex(item,index).forEach(i => {
+                        o.addData(i);
+                    });
+                    conf.addSeries(0);
+                });
 
                 chart.drawChart(conf);
 

@@ -63,9 +63,11 @@
     "vaadin-checkbox": "vaadin/vaadin-checkbox#^1.0.3",
     "jspdf": "^1.3.5",
     "JsBarcode": "^3.9.0",
-    "vaadin-charts": "vaadin/vaadin-charts#^6.0.0"
+    "vaadin-charts": "vaadin/vaadin-charts#^6.0.0",
+    "highcharts": "^6.1.0"
   },
   "resolutions": {
-    "iron-selector": "643da76f103cb21ccdd5ecfb670b16f081b42dc3"
+    "iron-selector": "643da76f103cb21ccdd5ecfb670b16f081b42dc3",
+    "highcharts": "^5.0.0"
   }
 }
