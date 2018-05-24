@@ -112,8 +112,9 @@
 				--paper-fab-speed-dial-action-background: var(--app-primary-color);
 				--paper-fab-speed-dial-action-keyboard-focus-background: var(--app-primary-color-dark);
 				position:absolute;
-				bottom:4em;
-				right:2em;
+				bottom: 1em;
+				left: calc(55% + 1em);
+				z-index:1000;
 				--paper-fab-iron-icon: {
 					color:var(--app-text-color);
 				}
@@ -226,25 +227,64 @@
 				z-index: 999;
 			}
 
+			filter-panel{
+				flex-grow: 9;
+				/* --panel-width: 60%; */
+			}
+
+			.layout-bar{
+				flex-grow: 1;
+				display: inline-flex;
+				flex-flow: row nowrap;
+				align-items: center;
+				justify-content: space-around;
+				height:48px;
+				background: var(--app-secondary-color);
+				border-left: 1px solid var(--app-secondary-color-dark);
+			}
+
+			.layout-bar .list, .layout-bar .graphique, .layout-bar .doc{
+				height: 32px;
+				width: 32px;
+				padding: 5px;
+				color: var(--app-primary-color-dark);
+			}
+
+			.layout-bar .table{
+				height: 30px;
+				width: 30px;
+				padding: 0;
+				color: var(--app-primary-color-dark);
+			}
+
 
 		</style>
 
 
 		<div class="details-panel" on-dragover="_onDrag">
-			<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
+			<div class="layout horizontal">
+				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
+				<div class="layout-bar" >
+						<template is="dom-if" if="[[!list]]">
+							<paper-icon-button id="list_icn" class="list" icon="icons:view-agenda" on-tap="_list"></paper-icon-button>
+						</template>
+						<template is="dom-if" if="[[!table]]">
+							<paper-icon-button id="table_icn" class="table" icon="icons:view-list" on-tap="_table"></paper-icon-button>
+						</template>
+						<template is="dom-if" if="[[!graphique]]">
+							<paper-icon-button id="graph_icn" class="graphique" icon="editor:pie-chart" on-tap="_graphique"></paper-icon-button>
+						</template>
+						<template is="dom-if" if="[[!doc]]">
+							<paper-icon-button id="archive_icn" class="doc" icon="icons:archive" on-tap="_default"></paper-icon-button>
+						</template>
+						<paper-tooltip for="list_icn" position="bottom" animation-delay="0">List view</paper-tooltip>
+						<paper-tooltip for="table_icn" position="bottom" animation-delay="0">Table view</paper-tooltip>
+						<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">Graph</paper-tooltip>
+						<paper-tooltip for="archive_icn" position="bottom" animation-delay="0">Archive</paper-tooltip>
+				</div>
+			</div>
 			<div class="contact-card-container">
-                <template is="dom-if" if="[[!list]]">
-                <paper-icon-button class="list" icon="vaadin:list" on-tap="_list"></paper-icon-button>
-                </template>
-                <template is="dom-if" if="[[!table]]">
-                <paper-icon-button class="table" icon="vaadin:table" on-tap="_table"></paper-icon-button>
-                </template>
-                <template is="dom-if" if="[[!graphique]]">
-                <paper-icon-button class="graphique" icon="vaadin:bar-chart" on-tap="_graphique"></paper-icon-button>
-                </template>
-                <template is="dom-if" if="[[!doc]]">
-                <paper-icon-button class="doc" icon="vaadin:archives" on-tap="_default"></paper-icon-button>
-                </template>
+                
                 <paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
                 <template is="dom-if" if="[[list]]">
 				    <dynamically-list-form id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-list-form>
