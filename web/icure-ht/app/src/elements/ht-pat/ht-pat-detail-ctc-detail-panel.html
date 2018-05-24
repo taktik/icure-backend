@@ -37,6 +37,8 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
+
+
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
 		<style>
@@ -104,39 +106,6 @@
 				padding-bottom: 32px;
 			}
 
-
-
-			paper-fab-speed-dial {
-				--paper-fab-speed-dial-background: var(--app-secondary-color);
-				--paper-fab-speed-dial-keyboard-focus-background: var(--app-secondary-color-dark);
-				--paper-fab-speed-dial-action-background: var(--app-primary-color);
-				--paper-fab-speed-dial-action-keyboard-focus-background: var(--app-primary-color-dark);
-				position:absolute;
-				bottom: 1em;
-				left: calc(55% + 1em);
-				z-index:1000;
-				--paper-fab-iron-icon: {
-					color:var(--app-text-color);
-				}
-
-			}
-
-
-			paper-fab-speed-dial > div {
-				background-color: var(--app-background-color-light);
-				opacity: 0.8;
-				padding:8px 0;
-				border-radius:2px;
-			}
-			paper-fab-speed-dial-action {
-				--paper-fab-iron-icon: {
-					transform: scale(0.8);
-				};
-				--paper-fab-speed-dial-action-label-background: transparent;
-
-			}
-
-
 			paper-dialog {
 				min-width:30%;
 			}
@@ -184,8 +153,9 @@
 			}
 
 			vaadin-grid {
+				height:100%;
 				--vaadin-grid-body-row-hover-cell: {
-					background-color: var(--app-primary-color);
+					/* background-color: var(--app-primary-color); */
 					color: white;
 				};
 				--vaadin-grid-body-row-selected-cell: {
@@ -221,12 +191,6 @@
 				font-weight: 700;
 			}
 
-			.prescription {
-				position: fixed;
-				right: 16px;
-				z-index: 999;
-			}
-
 			filter-panel{
 				flex-grow: 9;
 				/* --panel-width: 60%; */
@@ -257,7 +221,73 @@
 				color: var(--app-primary-color-dark);
 			}
 
+			.floating-action-bar{
+				display: block;
+				position: absolute;
+				height: 40px;
+				bottom: 16px;
+				background: var(--app-secondary-color);
+				border-radius: 3px;
+				grid-column: 3/3;
+				grid-row: 1/1;
+				z-index: 1000;
+				left: 50%;
+				transform: translate(-50%, 0);
+				box-shadow: var(--app-shadow-elevation-2);
+			}
 
+			.add-forms-container {
+				position: relative;
+				bottom: 18em;
+				left: 0;
+				background-color: var(--app-background-color-light);
+				opacity: .8;
+				padding: 8px 0;
+				border-radius: 2px;
+				max-width: 253px;
+			}
+			.floating-action-bar paper-fab-speed-dial-action {
+				--paper-fab-speed-dial-action-label-background: transparent;
+				--paper-fab-iron-icon: {
+					transform: scale(0.8);
+					
+				};
+				--paper-fab: {
+					background: var(--app-primary-color-dark);
+				}
+			}
+
+			.floating-action-bar paper-button{
+				--paper-button-ink-color: var(--app-secondary-color-dark);
+				background: var(--app-secondary-color);
+				color: var(--app-text-color);
+				font-weight: bold;
+				font-size: 12px;
+				height: 40px;
+				min-width: 130px;
+				padding: 10px 1.2em;
+				border-radius: 0;
+				margin:0;
+			}
+
+			.floating-action-bar paper-button:hover{
+				background: var(--app-dark-color-faded);
+    			transition: var(--transition_-_transition);
+			}
+
+			.floating-action-bar paper-button:not(:first-child){
+				border-left: 1px solid var(--app-secondary-color-dark);
+			}
+
+			.close-add-forms-btn{
+				background: var(--app-secondary-color-dark) !important;
+			}
+
+			.floating-action-bar iron-icon{
+				box-sizing: border-box;
+				padding: 2px;
+				margin-right: 8px;
+			}
 		</style>
 
 
@@ -285,7 +315,6 @@
 			</div>
 			<div class="contact-card-container">
                 
-                <paper-icon-button class="prescription" icon="vaadin:pills" on-tap="_prescribe"></paper-icon-button>
                 <template is="dom-if" if="[[list]]">
 				    <dynamically-list-form id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-list-form>
                 </template>
@@ -309,16 +338,23 @@
 				</template>
                 </template>
 			</div>
-			<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
-				<paper-fab-speed-dial>
-					<div>
-					<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">Consultation</paper-fab-speed-dial-action>
-					<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">Dossier médical</paper-fab-speed-dial-action>
-					<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">Autre formulaire</paper-fab-speed-dial-action>
-					<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">Joindre un document</paper-fab-speed-dial-action>
-					</div>
-				</paper-fab-speed-dial>
-			</template>
+			<div class="floating-action-bar">
+				<paper-button class="prescribe-btn" on-tap="_prescribe"><iron-icon icon="vaadin:pills" ></iron-icon>Prescribe</paper-button>
+				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
+					<template is="dom-if" if=[[!showAddFormsContainer]]>
+						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>Add forms</paper-button>
+					</template>
+					<template is="dom-if" if=[[showAddFormsContainer]]>
+						<paper-button class="close-add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>Close</paper-button>
+					</template>
+					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
+							<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">Consultation</paper-fab-speed-dial-action>
+							<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">Dossier médical</paper-fab-speed-dial-action>
+							<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">Autre formulaire</paper-fab-speed-dial-action>
+							<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">Joindre un document</paper-fab-speed-dial-action>
+						</div>			
+				</template>
+			</div>
 		</div>
 
 		<entity-selector id="add-form-dialog" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
@@ -450,6 +486,10 @@
 			    _drugsOnPrescriptions: {
 					type: Array
 				},
+				showAddFormsContainer: {
+					type: Boolean,
+					value: false
+				}
 			},
 			observers: [
 				'_filesChanged(files.*)'
@@ -459,6 +499,14 @@
 				if(this._hasCurrentContact(this.contacts) && e && e.dataTransfer && e.dataTransfer.items && _.find(e.dataTransfer.items, i => i.kind === 'file')) {
 					this.addDocument()
 				}
+			},
+
+			_toggleAddActions: function() {
+				this.showAddFormsContainer = !this.showAddFormsContainer
+			},
+
+			_actionIcon: function(showAddFormsContainer){
+				return showAddFormsContainer ? 'icons:close' : 'icons:add'
 			},
 
 			flushSave: function() {
