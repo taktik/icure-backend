@@ -554,10 +554,13 @@
 				this.$['upload-dialog'].open()
 			},
 
-			_drugsToBePrescribed: function() {
+			_drugsToBePrescribed: function () {
 				return this.api && this.currentContact && this.currentContact.services
-				  && this.currentContact.services.filter(s => s.tags.find(t=>t.type==='CD-ITEM' && t.code === 'treatment')
-					&& !s.endOfLife && this.api.contact().medicationValue(s,this.language)) || []
+					&& this.currentContact.services.filter(s =>
+						s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife
+						&& !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered','completed','delivered'].includes(t.code))
+						&& this.api.contact().medicationValue(s, this.language)
+				  ) || []
 			},
 
 			_prescribe: function (e) {
@@ -617,7 +620,8 @@
             },
 
 			_drugOnPrescription: function(svc, index) {
-				return svc && this._splitColumns()[index] && this._splitColumns()[index].includes(svc.id)
+				const col = this._splitColumns()[index]
+			  	return svc && col && col.includes(svc.id)
 			},
 
 			_setDrugOnPrescription: function (e) {
