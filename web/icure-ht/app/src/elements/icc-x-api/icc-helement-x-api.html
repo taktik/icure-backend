@@ -34,7 +34,7 @@
 				},
 
 				'new': function(user, patient, h) {
-					const helement = _.extend({
+					const helement = _.assign({
 						id: this.crypto.randomUuid(),
 						_type: 'org.taktik.icure.entities.HealthElement',
 						created: (new Date).getTime(),
@@ -130,9 +130,17 @@
 					}.bind(this))))
 				},
 
-                serviceToHealthElement: function (user, patient,heSvc) {
-                    return this.new(user, patient, heSvc)
-						.then(he => {return this.baseApi.createHealthElement(he)})
+				serviceToHealthElement: function (user, patient, heSvc, language) {
+                    return this.new(user, patient, {
+	                    idService: heSvc.id,
+	                    author: heSvc.author,
+	                    responsible: heSvc.responsible,
+	                    openingDate: heSvc.valueDate || heSvc.openingDate,
+	                    descr: this.contactApi.shortServiceDescription(heSvc, language),
+	                    idOpeningContact: heSvc.contactId,
+	                    modified: heSvc.modified, created: heSvc.created,
+	                    codes: heSvc.codes, tags: heSvc.tags
+                    }).then(he => { return this.baseApi.createHealthElement(he) })
 				},
 
 				stringToCode: function(code){

@@ -113,8 +113,8 @@
                 </paper-radio-group>
             </div>
 
-            <vaadin-date-picker label="Start Date" i18n="[[i18n]] value="{{}}></vaadin-date-picker>
-            <vaadin-date-picker label="End Date"></vaadin-date-picker>
+            <vaadin-date-picker label="Start Date" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
+            <vaadin-date-picker label="End Date" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
 
             <tk-token-field label="Code" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
             <tk-token-field label="Plans of action" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
@@ -162,6 +162,10 @@
                     value: null
                 },
 
+                i18n: {
+					type:Object
+                },
+
                 selectedItem: {
                     type: Object,
                     value: null
@@ -176,13 +180,17 @@
 					type: String
                 },
 
-                _openingDateAsString: {
+                _closingDateAsString: {
                     type: String
                 }
 			},
 			observers: [
 				'_filterChanged(filterValue)',
-                '_selectedItemChanged(selectedItem)'
+                '_selectedItemChanged(selectedItem)',
+                '_openingDateChanged(entity.openingDate)',
+				'_closingDateChanged(entity.closingDate)',
+                '_openingDateAsStringChanged(_openingDateAsString)',
+                '_closingDateAsStringChanged(_closingDateAsString)'
                         ],
 
 			_filterChanged: function (e) {
@@ -313,11 +321,25 @@
 				this.$.dialog.open()
 			},
 
-            _openingDateAsStringChanged: function(dateAsString) {
-                if (!dateAsString) { this.entity && this.set('entity.openingDate', null); return }
+            _closingDateChanged: function(date) {
+				const dateString = date && this.api.moment(date).format('YYYY-MM-DD') || ''
+                if (dateString !== this._openingDateAsString) {
+	                this.set('_closingDateAsString', dateString)
+                }
+            },
+
+			_openingDateChanged: function(date) {
+                const dateString = date && this.api.moment(date).format('YYYY-MM-DD') || ''
+                if (dateString !== this._openingDateAsString) {
+                    this.set('_openingDateAsString', dateString)
+                }
+            },
+
+            _closingDateAsStringChanged: function(dateAsString) {
+                if (!dateAsString) { this.entity && this.set('entity.closingDate', null); return }
                 const date=parseInt(dateAsString.replace(/(....)-(..)-(..)/,'$1$2$3'))*(this.displayTime?1000000:1);
                 if (date !== this.value) {
-	                this.entity && this.set('entity.openingDate', date)
+	                this.entity && this.set('entity.closingDate', date)
                 }
             },
 
@@ -327,9 +349,7 @@
                 if (date !== this.value) {
                     this.entity && this.set('entity.openingDate', date)
                 }
-            },
-
-
-				})
+            }
+        })
 	</script>
 </dom-module>

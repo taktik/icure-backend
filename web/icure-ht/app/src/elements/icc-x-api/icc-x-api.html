@@ -28,7 +28,7 @@
 			<icc-form-x-api id="icc-form-x-api" api="[[baseApi]]" crypto="[[cryptoApi]]"></icc-form-x-api>
 			<icc-document-x-api id="icc-document-x-api" api="[[baseApi]]" crypto="[[cryptoApi]]"></icc-document-x-api>
 			<icc-code-x-api id="icc-code-x-api" api="[[baseApi]]" crypto="[[cryptoApi]]"></icc-code-x-api>
-			<icc-helement-x-api id="icc-helement-x-api" api="[[baseApi]]" crypto="[[cryptoApi]]"></icc-helement-x-api>
+			<icc-helement-x-api id="icc-helement-x-api" api="[[baseApi]]" crypto="[[cryptoApi]]" contact-api="[[contactApi]]"></icc-helement-x-api>
 
 			<fhc-api id="fhc-api" host="[[fhcHost]]"></fhc-api>
 		</template>
@@ -79,6 +79,7 @@
 					this.set('baseApi', this.$['icc-api'])
 					this.set('hcpartyApi', this.$['icc-hcparty-x-api'])
 					this.set('cryptoApi', this.$['icc-crypto-x-api'])
+				  	this.set('contactApi', this.$['icc-contact-x-api'])
 
 					this.patient().init()
 					this.contact().init()

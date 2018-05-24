@@ -1136,12 +1136,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</div>
 
-		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
+		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
 			<div class="extraDialogFields" slot="suffix">
 			</div>
 		</health-problem-selector>
 
-		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
+		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
 			<div class="extraDialogFields" slot="suffix">
 					<div class="history">history</div>
 			</div>
@@ -1417,7 +1417,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const idServicesInHes = _.compact(hes.map(he=>he.idService))
 
 								this.api.contact()
-								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (['healthelement','healthissue','familyrisk','risk','allergy'].includes(c.code))) && idServicesInHes.indexOf(s.id)<0)
+								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (['healthelement','healthissue','familyrisk','risk','allergy'].includes(c.code))) && !idServicesInHes.includes(s.id))
 								  .then(hesAsServices => {
 									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc => ({
 										created:svc.created,
@@ -1462,18 +1462,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
 										), 'descr'));
 										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>
-										  it.closingDate
-										  && ((it.status & 2) === 2)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
+										  ((it.status & 2) === 2)
 										) , 'descr'));
 										this.set('allergies',  _.sortBy(combinedHes.filter(it=>
-											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy'))
+										  ((it.status & 2) === 0)
+											&& it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy'))
 										), 'descr'));
 										this.set('risks',  _.sortBy(combinedHes.filter(it=>
-											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'risk'))
+											((it.status & 2) === 0)
+											&& it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'risk'))
 										), 'descr'));
 										this.set('familyrisks',  _.sortBy(combinedHes.filter(it=>
-											it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'familyrisk'))
+											((it.status & 2) === 0)
+											&& it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'familyrisk'))
 										), 'descr'));
 									})
 
@@ -1593,7 +1594,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				if (model.he.id) {
 					this.api.helement().getHealthElement(model.he.id).then(he => {
 						if (!he.closingDate && he.closingDate !== 0) { he.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-						if ((he.status & 1) === 0) { he.status = he.status | 1 }
+					  	if ((he.status & 1) === 0) { he.status = he.status | 1 }
+						if ((he.status & 2) === 0) { he.status = he.status | 2 }
 						this.api.helement().modifyHealthElement(he).then(() => { this.patientChanged() })
 					})
 				} else if (model.he.idService) {
@@ -1717,9 +1719,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		  _editHealthElement: function(event){
 				const model = event.detail
 
-				this.editedHealthElementModel = model;
-				this.$['edit-healthelement-dialog'].set('entity', _.assign({plansOfAction:[]}, model.he))
-				this.$['edit-healthelement-dialog'].open()
+				this.api.code().getCodes((model.he.codes||[]).map(c=>this.api.code().normalize(c).id).join(',')).then(codes=>{
+					this.editedHealthElementModel = model;
+					this.$['edit-healthelement-dialog'].set('entity', _.assign(_.assign({plansOfAction:[]}, model.he), {codes:codes}))
+					this.$['edit-healthelement-dialog'].open()
+				})
 			},
 
 			toggleMenu: function(e) {
@@ -1868,7 +1872,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					plansOfAction:(healthElement.plansOfAction||[])
 					  .map( poa => _.extend(poa, {id: this.api.crypto().randomUuid(), openingDate: parseInt(moment().format('YYYYMMDDHHmmss'))})),
 					tags: (healthElement.tags || []).map( c => this.api.code().normalize(c)),
-					codes: (healthElement.codes || []).map( c => this.api.code().normalize(c))
+					codes: (healthElement.codes || []).map( c => this.api.code().normalize(c)),
+				  	idService: healthElement.idService
 				}
 			},
 
@@ -1885,10 +1890,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
                 } else if (this.editedHealthElementModel.he.idService) {
                     const svc = this.editedHealthElementModel.he.svc
-					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc).then(he =>{
+					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc, this.language).then(he =>{
 						if (this.currentContact) {
 							this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, he.id, null)
-							this.scheduleSave(this.currentContact)
+						  	this.saveCurrentContact().then(c => this.patientChanged())
 						}
 
 						this.editedHealthElementModel.he = he
