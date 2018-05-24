@@ -359,7 +359,7 @@
 				</template>
 			</vaadin-grid>
 			<div>
-				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="i18n"></vaadin-date-picker>
+				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
@@ -670,20 +670,21 @@
 							hcp: hcp,
 							feedback: false,
 							medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
-							deliveryDateString: this.deliveryDateString
+							deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
 						}))).then(rids => {
 							const width = 297.576, height = 566.928
 
 							const center = function (pdf, x, txt, fontSize) {
 								return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2
 							}
-							var date = new Date()
-							var dateActu = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear()
 
-							const pdf = new jsPDF('p', 'pt', [width, height])
 
-							pdf.addFont('ArialMS', 'Arial', 'normal')
-							pdf.addFont('Times', 'Serif', 'normal')
+							//const pdf = new jsPDF('p', 'pt', [width, height])
+
+							//pdf.addFont('ArialMS', 'Arial', 'normal')
+							//pdf.addFont('Times', 'Serif', 'normal')
+
+                            const pdf = new jsPDF('p', 'pt', [width, height])
 
 							splitColumns.forEach((c, idx) => {
 								if (idx) {
@@ -744,13 +745,13 @@
 
 								pdf.setFontSize(9)
 								pdf.setFont('Serif')
-								pdf.text(center(pdf, 148.56, dateActu, 9), 501, dateActu)
+								pdf.text(center(pdf, 148.56, moment().format("DD/MM/YYYY"), 9), 501, moment().format("DD/MM/YYYY"))
 								pdf.setFontSize(7)
 								pdf.setFont('Serif')
 								pdf.text(center(pdf, 148.56, "Délivrable à partir du:", 7), 521, "Délivrable à partir du:")
 								pdf.setFontSize(9)
 								pdf.setFont('Serif')
-								pdf.text(center(pdf, 148.56, `${this.deliveryDate}`, 9), 533, `${this.deliveryDate}`)
+								pdf.text(center(pdf, 148.56, moment(this.deliveryDateString).format("DD/MM/YYYY"), 9), 533, moment(this.deliveryDateString).format("DD/MM/YYYY"))
 								pdf.lines([[0, 0], [286, 0]], 5.788, 76)
 								pdf.lines([[0, 0], [286, 0]], 5.788, 94)
 								pdf.lines([[0, 0], [286, 0]], 5.788, 122)
