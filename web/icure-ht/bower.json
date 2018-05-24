@@ -35,7 +35,7 @@
     "paper-toast": "^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.1.1",
     "paper-radio-group": "PolymerElements/paper-radio-group#^2.0.0",
-    "vaadin-grid": "^3.0.1",
+    "vaadin-grid": "^4.1.7",
     "vaadin-combo-box": "^3.0.2",
     "vaadin-icons": "^4.1.0",
     "vaadin-date-picker": "^2.0.2",
