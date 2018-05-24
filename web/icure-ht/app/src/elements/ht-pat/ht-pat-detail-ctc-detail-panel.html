@@ -358,6 +358,9 @@
 					</vaadin-grid-column>
 				</template>
 			</vaadin-grid>
+			<div>
+				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="i18n"></vaadin-date-picker>
+			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">Print</paper-button>
@@ -369,6 +372,7 @@
 		import jsPDF from 'jspdf/dist/jspdf.min'
 		import _ from 'lodash/lodash'
 		import JsBarcode from 'JsBarcode'
+        import moment from 'moment/src/moment'
 
 		Polymer({
 			is: 'ht-pat-detail-ctc-detail-panel',
@@ -450,6 +454,10 @@
 			    _drugsOnPrescriptions: {
 					type: Array
 				},
+				deliveryDateString:{
+				    type: String,
+					value: moment().format("YYYY-MM-DD")
+				}
 			},
 			observers: [
 				'_filesChanged(files.*)'
@@ -657,7 +665,8 @@
 							patient: this.patient,
 							hcp: hcp,
 							feedback: false,
-							medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language))
+							medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
+							deliveryDateString: this.deliveryDateString
 						}))).then(rids => {
 							const width = 297.576, height = 566.928
 
@@ -737,7 +746,7 @@
 								pdf.text(center(pdf, 148.56, "Délivrable à partir du:", 7), 521, "Délivrable à partir du:")
 								pdf.setFontSize(9)
 								pdf.setFont('Serif')
-								pdf.text(center(pdf, 148.56, dateActu, 9), 533, dateActu)
+								pdf.text(center(pdf, 148.56, `${this.deliveryDate}`, 9), 533, `${this.deliveryDate}`)
 								pdf.lines([[0, 0], [286, 0]], 5.788, 76)
 								pdf.lines([[0, 0], [286, 0]], 5.788, 94)
 								pdf.lines([[0, 0], [286, 0]], 5.788, 122)
