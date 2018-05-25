@@ -907,7 +907,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="container">
-			<paper-item class="saved">SAVED
+			<paper-item id="savedIndicator">SAVED
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
@@ -1356,6 +1356,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
 					ctc.rev = c.rev
 				  	console.log("contact saved: "+ctc.id+":"+ctc.rev)
+
+				  	setTimeout(()=>this.$.savedIndicator.classList.remove("saved"),2000)
+					this.$.savedIndicator.classList.add("saved")
+
 					if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
 						this.patientChanged()
 					}

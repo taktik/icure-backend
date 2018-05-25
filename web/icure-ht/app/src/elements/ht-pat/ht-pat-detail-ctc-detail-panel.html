@@ -25,6 +25,8 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 
 <link rel="import" href="../filter-panel/filter-panel.html">
@@ -344,7 +346,7 @@
                 </template>
 			</div>
 			<div class="floating-action-bar">
-				<paper-button class="prescribe-btn" on-tap="_prescribe"><iron-icon icon="vaadin:pills" ></iron-icon>Prescribe</paper-button>
+				<div id="prescribeBtnCtnr"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]"><iron-icon icon="vaadin:pills" ></iron-icon>Prescribe</paper-button></div>
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
 						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>Add forms</paper-button>
@@ -353,13 +355,19 @@
 						<paper-button class="close-add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>Close</paper-button>
 					</template>
 					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
-							<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">Consultation</paper-fab-speed-dial-action>
-							<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">Dossier médical</paper-fab-speed-dial-action>
-							<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">Autre formulaire</paper-fab-speed-dial-action>
-							<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">Joindre un document</paper-fab-speed-dial-action>
-						</div>			
+						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">Consultation</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">Dossier médical</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">Autre formulaire</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">Joindre un document</paper-fab-speed-dial-action>
+					</div>
 				</template>
 			</div>
+			<paper-tooltip for="prescribeBtnCtnr" position="top">
+				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]">Press this button to prescribe<br></template>
+				<template is="dom-if" if="[[!api.tokenId]]">You must be connected to eHealth to be allowed to prescribe<br></template>
+				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing<br></template>
+				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">Add prescription drugs to current contact to prescribe</template>
+			</paper-tooltip>
 		</div>
 
 		<entity-selector id="add-form-dialog" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
@@ -566,6 +574,7 @@
 			},
 
 			addForm: function(templateGuid) {
+				this.set('showAddFormsContainer',false)
 				this.api.hcparty().getCurrentHealthcareParty()
 					.then(hcp => this.api.form().getFormTemplatesByGuid(templateGuid, (hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/,'deptgeneralpractice') ))
 					.then(formTemplates => {
@@ -584,7 +593,8 @@
 			},
 
 			addConsultation: function() {
-				const prefForms = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.forms')
+			this.set('showAddFormsContainer',false)
+			const prefForms = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.forms')
 				if (prefForms && prefForms.typedValue) {
 					const formsMap = JSON.parse(prefForms.typedValue.stringValue)
 					this.addForm(formsMap['org.taktik.icure.form.standard.consultation'])
@@ -592,6 +602,7 @@
 			},
 
 			addMedicalHistory: function() {
+				this.set('showAddFormsContainer',false)
 				const prefForms = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.forms')
 				if (prefForms && prefForms.typedValue) {
 					const formsMap = JSON.parse(prefForms.typedValue.stringValue)
@@ -600,11 +611,21 @@
 			},
 
 			addOther: function() {
+				this.set('showAddFormsContainer',false)
 				this.$['add-form-dialog'].open()
 			},
 
 			addDocument: function() {
+				this.set('showAddFormsContainer',false)
 				this.$['upload-dialog'].open()
+			},
+
+		  	_validSsin: function(ssin) { return ssin && ssin.length > 9 },
+
+		  	_hasDrugsToBePrescribed: function(ssin) { return this._drugsToBePrescribed().length > 0 },
+
+			_canPrescribe(tokenId,ssin) {
+				return tokenId && this._validSsin(ssin) && this._hasDrugsToBePrescribed()
 			},
 
 			_drugsToBePrescribed: function () {
@@ -620,7 +641,7 @@
 				this.$.prescriptionDialog.open()
 			},
 
-            hiddeAll: function (){
+            hideAll: function (){
                 this.set('list', false)
                 this.set('table', false)
                 this.set('doc', false)
@@ -628,22 +649,22 @@
             },
 
             _list: function (e) {
-                this.hiddeAll();
+                this.hideAll();
                 this.set('list', true)
             },
 
             _table: function (e) {
-                this.hiddeAll();
+                this.hideAll();
                 this.set('table', true)
             },
 
             _graphique: function (e) {
-                this.hiddeAll();
+                this.hideAll();
                 this.set('graphique', true)
             },
 
             _default: function (e) {
-                this.hiddeAll();
+                this.hideAll();
                 this.set('doc', true)
             },
 
