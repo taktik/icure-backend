@@ -65,7 +65,8 @@
     "JsBarcode": "^3.9.0",
     "vaadin-charts": "vaadin/vaadin-charts#^6.0.0",
     "highcharts": "^6.1.0",
-    "app-localize-behavior": "PolymerElements/app-localize-behavior#^2.0.1"
+    "app-localize-behavior": "PolymerElements/app-localize-behavior#^2.0.1",
+    "intl-messageformat": "^1.1.0"
   },
   "resolutions": {
     "iron-selector": "643da76f103cb21ccdd5ecfb670b16f081b42dc3",

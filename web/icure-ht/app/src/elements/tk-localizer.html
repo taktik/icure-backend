@@ -1,0 +1,24 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<script>
+	Polymer.TkLocalizerMixin = superClass => class extends superClass {
+		constructor() {
+			super()
+		}
+
+		static get properties() {
+			return {
+				resources: {
+					type: Object
+				},
+                language: {
+                    type: String
+                }
+			}
+		}
+
+		localize(key,defaultValue) {
+			return this.resources[this.language] && this.resources[this.language][key] || defaultValue
+        }
+	}
+</script>
