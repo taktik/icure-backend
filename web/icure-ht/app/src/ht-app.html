@@ -44,6 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
@@ -223,9 +224,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display: none;
 			}
 
-			.noehealth{
-			}
-
 			.notification-panel {
 				position: fixed;
 				top:50%;
@@ -245,9 +243,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				animation: notificationAnim 7.5s ease-in;
 			}
 
-			.noehealth iron-icon{
-				margin-left: 4px;
-				padding: 4px;
+			.log-info{
+				align-self: center;
+			}
+			.log-info p{
+				position:relative;
+				font-family: 'Roboto', Arial, Helvetica, sans-serif;
+				font-size: 12px;
+				color: var(--app-text-color-light);
+			}
+
+			.log-info p .ehealth-connection-status{
+				content:'';
+				display:block;
+				position: absolute;
+				top: 1px;
+				right: -6px;
+				height: 5px;
+				width: 5px;
+				border-radius: 8px;
+			}
+
+			.connected{
+				background: var(--app-status-color-ok);
+			}
+			.pending{
+				background: var(--app-status-color-pending);
+				animation: pendingAnim .8s ease-in-out infinite alternate;
+			}
+			.disconnected{
+				background: var(--app-status-color-nok);
+			}
+
+			@keyframes pendingAnim{
+				from{
+					background: var(--app-status-color-pending);
+				}
+				to{
+					background: transparent;
+				}
 			}
 
 			@keyframes notificationAnim {
@@ -292,9 +326,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<icc-api id="baseApi" headers="[[headers]]" host="/rest/v1"></icc-api>
 		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]" baseApi="baseApi"></icc-x-api>
 
-		<paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
+		<!-- <paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
 			<iron-icon icon="icons:warning"></iron-icon>
-		</paper-item>
+		</paper-item> -->
 
 		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
@@ -363,6 +397,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								Log out
 							</paper-tab>
 						</paper-tabs>
+						<div class="log-info">
+							<p>Antoine Duchateau – <span id="ehealth">eHealth</span> <span class="ehealth-connection-status pending"></span></p>
+							<paper-tooltip for="ehealth">eHealth is connected</paper-tooltip>
+						</div>
 						<div>
 							<svg version="1.1"
 							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
