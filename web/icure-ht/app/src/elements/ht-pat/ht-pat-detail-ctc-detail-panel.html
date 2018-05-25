@@ -34,8 +34,8 @@
 <link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
-<link rel="import" href="../dynamic-form/dynamically-table-form.html">
-<link rel="import" href="../dynamic-form/dynamically-list-form.html">
+<link rel="import" href="ht-pat-detail-table.html">
+<link rel="import" href="ht-pat-detail-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
@@ -323,10 +323,10 @@
 			<div class="contact-card-container">
                 
                 <template is="dom-if" if="[[list]]">
-				    <dynamically-list-form id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-list-form>
+				    <ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></ht-pat-detail-list>
                 </template>
                 <template is="dom-if" if="[[table]]">
-                    <dynamically-table-form id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-table-form>
+                    <ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></ht-pat-detail-table>
                 </template>
                 <template is="dom-if" if="[[graphique]]">
                 //TODO<dynamically-graphique-form id="dynamicallyGraphiqueForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-graphique-form>
