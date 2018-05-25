@@ -125,22 +125,19 @@
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" class="material" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
             <vaadin-grid-column width="100px">
                 <template class="header">
-                    Label
-                    <vaadin-grid-sorter path="label"></vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="label">Label</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column width="100px">
                 <template class="header">
-                    Name
-                    <vaadin-grid-sorter path="function{[[_name()]]}"></vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="function{[[_name()]]}">Name</vaadin-grid-sorter>
                 </template>
                 <template>[[_name()]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column width="100px">
                 <template class="header">
-                    Dates
-                    <vaadin-grid-sorter path="modified"></vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="modified">Date</vaadin-grid-sorter>
                 </template>
                 <template>[[_date(item)]]</template>
             </vaadin-grid-column>

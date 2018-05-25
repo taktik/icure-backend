@@ -128,8 +128,7 @@
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" items="[[_labels(contacts,contacts.*, columns.*)]]" class="material" active-item="{{activeItem}}" on-tap="click">
             <vaadin-grid-column width="100px">
                 <template class="header">
-                    Label
-                    <vaadin-grid-sorter path="label"></vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="label">Label</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
