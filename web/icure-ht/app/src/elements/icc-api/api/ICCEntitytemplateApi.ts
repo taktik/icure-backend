@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccEntitytemplateApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccEntitytemplateApi {
         
         const _url = this.host+"/entitytemplate" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.EntityTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccEntitytemplateApi {
         
         const _url = this.host+"/entitytemplate/find/{userId}/{type}".replace("{userId}", userId+"").replace("{type}", type+"") + "?ts=" + (new Date).getTime()  + (searchString ? "&searchString=" + searchString : "") + (includeEntities ? "&includeEntities=" + includeEntities : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.EntityTemplateDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccEntitytemplateApi {
         
         const _url = this.host+"/entitytemplate/{entityTemplateId}".replace("{entityTemplateId}", entityTemplateId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.EntityTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccEntitytemplateApi {
         
         const _url = this.host+"/entitytemplate/byIds/{entityTemplateIds}".replace("{entityTemplateIds}", entityTemplateIds+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.EntityTemplateDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccEntitytemplateApi {
         
         const _url = this.host+"/entitytemplate" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.EntityTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

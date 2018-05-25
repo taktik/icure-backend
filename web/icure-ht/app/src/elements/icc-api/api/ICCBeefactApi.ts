@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeefactApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBeefactApi {
         
         const _url = this.host+"/be_efact/{token}/{insuranceId}/{batchRef}/{numericalRef}".replace("{token}", token+"").replace("{insuranceId}", insuranceId+"").replace("{batchRef}", batchRef+"").replace("{numericalRef}", numericalRef+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.SentMessageBatchDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBeefactApi {
         
         const _url = this.host+"/be_efact/message/{docId}".replace("{docId}", docId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.BelgianInsuranceInvoicingMessageDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBeefactApi {
         
         const _url = this.host+"/be_efact/tack/{docId}".replace("{docId}", docId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.TAckResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBeefactApi {
         
         const _url = this.host+"/be_efact/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.EfactMessageDto(it)))
                 .catch(err => this.handleError(err))
 

@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBedmgApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/delete/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/{token}/{names}".replace("{token}", token+"").replace("{names}", names+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
+        return XHR.sendCommand('DELETE', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/{token}/{patientNiss}".replace("{token}", token+"").replace("{patientNiss}", patientNiss+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgConsultation(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/{token}/{insurance}/{regNumber}/{gender}".replace("{token}", token+"").replace("{insurance}", insurance+"").replace("{regNumber}", regNumber+"").replace("{gender}", gender+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgConsultation(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/fetch/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (names ? "&names=" + names : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DmgMessageResponse(it)))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgAcknowledge" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgAcknowledge(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgClosure" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgClosure(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgConsultation" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgConsultation(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -142,7 +142,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgExtension" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgExtension(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -154,7 +154,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgInscription" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgInscription(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -166,7 +166,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgNotification" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgNotification(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -178,7 +178,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgRegistration" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgRegistration(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -190,7 +190,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/DmgsList" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DmgsList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -202,7 +202,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/template/all" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DmgMessage(it)))
                 .catch(err => this.handleError(err))
 
@@ -214,7 +214,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (names ? "&names=" + names : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DmgMessage(it)))
                 .catch(err => this.handleError(err))
 
@@ -226,7 +226,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/{token}/{patientNiss}/{code}".replace("{token}", token+"").replace("{patientNiss}", patientNiss+"").replace("{code}", code+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "") + (gender ? "&gender=" + gender : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.DmgNotification(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -238,7 +238,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/{token}/{insurance}/{regNumber}/{code}".replace("{token}", token+"").replace("{insurance}", insurance+"").replace("{regNumber}", regNumber+"").replace("{code}", code+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "") + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "") + (gender ? "&gender=" + gender : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.DmgNotification(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -250,7 +250,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/message/request/{token}/{insurance}".replace("{token}", token+"").replace("{insurance}", insurance+"") + "?ts=" + (new Date).getTime()  + (date ? "&date=" + date : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -262,7 +262,7 @@ export class iccBedmgApi {
         
         const _url = this.host+"/be_dmg/register/{token}/{oa}/{bic}/{iban}".replace("{token}", token+"").replace("{oa}", oa+"").replace("{bic}", bic+"").replace("{iban}", iban+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.DmgRegistration(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBemikronoApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBemikronoApi {
         
         const _url = this.host+"/be_mikrono/appointments/byDate/{date}".replace("{date}", date+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.AppointmentDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBemikronoApi {
         
         const _url = this.host+"/be_mikrono/appointments/byPatient/{patientId}".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (from ? "&from=" + from : "") + (from2 ? "&from2=" + from2 : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.AppointmentDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBemikronoApi {
         
         const _url = this.host+"/be_mikrono/notify/{appointmentId}/{action}".replace("{appointmentId}", appointmentId+"").replace("{action}", action+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBemikronoApi {
         
         const _url = this.host+"/be_mikrono/user/{userId}/register".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBemikronoApi {
         
         const _url = this.host+"/be_mikrono/sendMessage" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBemikronoApi {
         
         const _url = this.host+"/be_mikrono/user/{userId}/credentials".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 

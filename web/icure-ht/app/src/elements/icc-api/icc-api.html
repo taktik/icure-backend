@@ -64,7 +64,7 @@
                 }
             },
             behaviors: [],
-            observers:["refresh(headers.*, host)"],
+            observers:["refresh(headers, headers.*, host)"],
             ready: function() {
                 if(this.host != null) this.refresh()
              },

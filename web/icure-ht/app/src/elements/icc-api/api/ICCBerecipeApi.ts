@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBerecipeApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/{token}/{healthcarePartyId}/{patientId}".replace("{token}", token+"").replace("{healthcarePartyId}", healthcarePartyId+"").replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (needsFeedback ? "&needsFeedback=" + needsFeedback : "") + (prescriptionType ? "&prescriptionType=" + prescriptionType : "") + (notification ? "&notification=" + notification : "") + (executorId ? "&executorId=" + executorId : "") + (deliverableDate ? "&deliverableDate=" + deliverableDate : "") + (expirationDate ? "&expirationDate=" + expirationDate : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.Prescription(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/feedbacks/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.Feedback(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.Prescription(it)))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/list/{token}/{patientId}".replace("{token}", token+"").replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.Prescription(it)))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/revoke/{token}/{rid}".replace("{token}", token+"").replace("{rid}", rid+"") + "?ts=" + (new Date).getTime()  + (reason ? "&reason=" + reason : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/notify/{token}/{patientId}/{rid}".replace("{token}", token+"").replace("{patientId}", patientId+"").replace("{rid}", rid+"") + "?ts=" + (new Date).getTime()  + (executorId ? "&executorId=" + executorId : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBerecipeApi {
         
         const _url = this.host+"/be_recipe/update/{token}/{rid}".replace("{token}", token+"").replace("{rid}", rid+"") + "?ts=" + (new Date).getTime()  + (feedbackFlag ? "&feedbackFlag=" + feedbackFlag : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 

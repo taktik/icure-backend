@@ -326,8 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		</style>
 
-		<icc-api id="baseApi" headers="[[headers]]" host="/rest/v1"></icc-api>
-		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]" baseApi="baseApi"></icc-x-api>
+		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
 
 		<!-- <paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
 			<iron-icon icon="icons:warning"></iron-icon>
@@ -490,10 +489,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					type: Object,
 					value: null
 				},
-                baseApi: {
-                    type: Object,
-                    value: null
-                },
 				user: {
 					type: Object,
 					value: null
@@ -686,9 +681,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			loginAndRedirect(page) {
 				const sAuth = JSON.parse(sessionStorage.getItem('auth'))
-				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) { this.set('credentials',sAuth) }
-				if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)) }
-				else if ((this.credentials.username && this.credentials.password)) { this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))) }
+				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
+					this.set('credentials',sAuth) }
+				if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
+				  {Authorization:'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)})) }
+				else if ((this.credentials.username && this.credentials.password)) { this.set('headers', _.assign(_.assign({}, this.headers),
+				  {Authorization:'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))})) }
 
 				//Be careful not to use this.api here as it might not have been defined yet
 				this.$.api.user().getCurrentUser().then(u => {

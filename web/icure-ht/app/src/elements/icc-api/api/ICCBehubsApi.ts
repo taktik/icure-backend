@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBehubsApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k=>new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/hcpconsent/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (inss ? "&inss=" + inss : "") + (nihii ? "&nihii=" + nihii : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.HcPartyConsent(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/consent/{token}/{ssinPatient}".replace("{token}", token+"").replace("{ssinPatient}", ssinPatient+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.Consent(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/therlinks/{token}/{ssinPatient}".replace("{token}", token+"").replace("{ssinPatient}", ssinPatient+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.HubTherapeuticLink(it)))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/transaction/{token}/{ssinPatient}/{transactionSl}/{transactionSv}/{transactionId}".replace("{token}", token+"").replace("{ssinPatient}", ssinPatient+"").replace("{transactionId}", transactionId+"").replace("{transactionSv}", transactionSv+"").replace("{transactionSl}", transactionSl+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/transactions/{token}/{ssinPatient}".replace("{token}", token+"").replace("{ssinPatient}", ssinPatient+"") + "?ts=" + (new Date).getTime()  + (documentType ? "&documentType=" + documentType : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "") + (hcPartyType ? "&hcPartyType=" + hcPartyType : "") + (inamiHcParty ? "&inamiHcParty=" + inamiHcParty : "") + (ssinHcParty ? "&ssinHcParty=" + ssinHcParty : "") + (isGlobal ? "&isGlobal=" + isGlobal : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.TransactionSummary(it)))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/patient/{token}/{idPatient}".replace("{token}", token+"").replace("{idPatient}", idPatient+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/consent/{token}/{idPatient}".replace("{token}", token+"").replace("{idPatient}", idPatient+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -142,7 +142,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/therlink/{token}/{ssinPatient}".replace("{token}", token+"").replace("{ssinPatient}", ssinPatient+"") + "?ts=" + (new Date).getTime()  + (start ? "&start=" + start : "") + (comment ? "&comment=" + comment : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -154,7 +154,7 @@ export class iccBehubsApi {
         
         const _url = this.host+"/be_hubs/setup" + "?ts=" + (new Date).getTime()  + (identifier ? "&identifier=" + identifier : "") + (name ? "&name=" + name : "") + (wsdl ? "&wsdl=" + wsdl : "") + (endpoint ? "&endpoint=" + endpoint : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

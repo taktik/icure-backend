@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccDoctemplateApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate/find/all" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocumentTemplateDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocumentTemplateDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate/bySpecialty/{specialityCode}".replace("{specialityCode}", specialityCode+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocumentTemplateDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate/{documentTemplateId}/attachment/{attachmentId}".replace("{documentTemplateId}", documentTemplateId+"").replace("{attachmentId}", attachmentId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate/{documentTemplateId}/attachment".replace("{documentTemplateId}", documentTemplateId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccDoctemplateApi {
         
         const _url = this.host+"/doctemplate/{documentTemplateId}".replace("{documentTemplateId}", documentTemplateId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.DocumentTemplateDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

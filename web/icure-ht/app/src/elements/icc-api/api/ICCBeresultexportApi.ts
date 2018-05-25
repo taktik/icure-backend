@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeresultexportApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBeresultexportApi {
         
         const _url = this.host+"/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBeresultexportApi {
         
         const _url = this.host+"/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 

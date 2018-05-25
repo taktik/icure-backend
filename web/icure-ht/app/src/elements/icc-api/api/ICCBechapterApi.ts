@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBechapterApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/paragraphs/{documentId}".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementTransaction(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/consult/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (patientId ? "&patientId=" + patientId : "") + (startOfAgreement ? "&startOfAgreement=" + startOfAgreement : "") + (endOfAgreement ? "&endOfAgreement=" + endOfAgreement : "") + (reference ? "&reference=" + reference : "") + (paragraph ? "&paragraph=" + paragraph : "") + (version ? "&version=" + version : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/cancel/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (patientId ? "&patientId=" + patientId : "") + (decisionReference ? "&decisionReference=" + decisionReference : "") + (ioRequestReference ? "&ioRequestReference=" + ioRequestReference : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/close/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (patientId ? "&patientId=" + patientId : "") + (decisionReference ? "&decisionReference=" + decisionReference : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4" + "?ts=" + (new Date).getTime()  + (searchString ? "&searchString=" + searchString : "") + (language ? "&language=" + language : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.ParagraphPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/paragraphs/{cnk}/{language}".replace("{cnk}", cnk+"").replace("{language}", language+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.ParagraphPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/documents" + "?ts=" + (new Date).getTime()  + (chapterName ? "&chapterName=" + chapterName : "") + (paragraphName ? "&paragraphName=" + paragraphName : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/appendix/prototype" + "?ts=" + (new Date).getTime()  + (path ? "&path=" + path : "") + (mimeType ? "&mimeType=" + mimeType : "") + (verseSeq ? "&verseSeq=" + verseSeq : "") + (documentSeq ? "&documentSeq=" + documentSeq : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.Appendix(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -142,7 +142,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/extension/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -154,7 +154,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/complementary/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime()  + (patientId ? "&patientId=" + patientId : "") + (incomplete ? "&incomplete=" + incomplete : "") + (decisionReference ? "&decisionReference=" + decisionReference : "") + (ioRequestReference ? "&ioRequestReference=" + ioRequestReference : "") + (paragraph ? "&paragraph=" + paragraph : "") + (version ? "&version=" + version : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -166,7 +166,7 @@ export class iccBechapterApi {
         
         const _url = this.host+"/be_chapter4/new/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.AgreementResponse(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
