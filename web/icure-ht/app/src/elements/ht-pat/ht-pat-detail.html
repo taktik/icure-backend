@@ -432,18 +432,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			paper-tooltip{
-				top:2px!important;
-				--paper-tooltip-background: var(--app-secondary-color);
-				--paper-tooltip-text-color: var(--app-text-color);
-				--paper-tooltip-opacity: 0.7;
-				--paper-tooltip:{
-					padding:2px 6px!important;
-					height:10px!important;
-					z-index:1000;
-				}
-
-			}
 
 			.fit-bottom{
 				bottom:0;
@@ -543,11 +531,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				height:24px;
 			}
 
+			.contact .label-container {
+				display: flex;
+				flex-flow: row nowrap;
+			}
+
 			.contact label{
 				font-size:12px;
 				font-weight: 400;
 				margin:0;
 				display: block;
+
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 
 				-webkit-user-select: none; /* Chrome/Safari */
 				-moz-user-select: none; /* Firefox */
@@ -1084,7 +1081,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<span class="contact-year" on-click="openToast">
 									[[contactYear.year]]
 								</span>
-								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedMainElements, selectedMainElements.*, timeSpanStart, timeSpanEnd, contactSearchString)]]" sort="compareContacts">
+								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedMainElements, selectedMainElements.*, timeSpanStart, timeSpanEnd, contactSearchString, currentContact)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"
 													elevation="0"
 													class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
@@ -1109,9 +1106,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 												</template>
 											</div>
-											<div class="contact-text-row">
+											<div class="contact-text-row label-container">
 												<template is="dom-repeat" items="[[contact.healthElements]]" as="he">
-													<label class$="ICD-10 [[he.colour]]"><span></span>[[he.descr]]</label>
+													<label id="label_[[contact.id]]_[[getHeId(he)]]" class$="ICD-10 [[he.colour]]"><span></span>[[he.descr]]</label>
+													<paper-tooltip for="label_[[contact.id]]_[[getHeId(he)]]">[[he.descr]]</paper-tooltip>
 												</template>
 											</div>
 										</paper-item>
@@ -1143,7 +1141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 					<template is="dom-if" if="[[!currentContact]]">
-						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">New Contact</paper-button></div>
+						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">New Contact</paper-button></div>
 					</template>
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
@@ -1422,7 +1420,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			},
 
-			patientChanged: function () {
+			patientChanged: function (api,user,patient,forceCreate = true) {
 				if (this.api && this.user && this.patient) {
 					const patient = this.patient
 					Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient), this.api.helement().findBy(this.user.healthcarePartyId, patient)])
@@ -1432,7 +1430,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const idServicesInHes = _.compact(hes.map(he=>he.idService))
 
 								this.api.contact()
-								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (['healthelement','healthissue','familyrisk','risk','allergy'].includes(c.code))) && !idServicesInHes.includes(s.id))
+								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (['healtcarehelement','healthissue','familyrisk','risk','allergy'].includes(c.code))) && !idServicesInHes.includes(s.id))
 								  .then(hesAsServices => {
 									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc => ({
 										created:svc.created,
@@ -1469,12 +1467,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>
 										  !it.closingDate
 										  && ((it.status & 1) === 0)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))
 										), 'descr'));
 										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>
 										  (it.closingDate || ((it.status & 1) === 1))
 										  && ((it.status & 2) === 0)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthelement' || c.code === 'healthcareelement'))
+										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))
 										), 'descr'));
 										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>
 										  ((it.status & 2) === 2)
@@ -1568,15 +1566,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.$.adminFileMenu.select(null)
 			},
 
+		  	newContact: function(e) {
+				this.patientChanged()
+			},
+
 			closeContact: function(e) {
 				e.stopPropagation();
 				e.preventDefault();
+
 				const ctcId = e.target.id.substr(6)
 				const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId))
 				const contact = year.contacts.find(c => c.id === ctcId)
 
 				if (contact) {
 					if (!contact.rev && (!contact.services || contact.services.length === 0)) {
+						const idx = this.contactYears[0].contacts.indexOf(this.currentContact)
+						if (idx >= 0) { this.splice('contactYears.0.contacts',idx,1) }
 						this.set('currentContact',null)
 					} else {
 						this.api.contact().getContact(contact.id).then(c => {
@@ -1738,7 +1743,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		  _editHealthElement: function(event){
 				const model = event.detail
 
-				this.api.code().getCodes((model.he.codes||[]).map(c=>this.api.code().normalize(c).id).join(',')).then(codes=>{
+				;(model.he.codes && model.he.codes.length && this.api.code().getCodes(model.he.codes.map(c=>this.api.code().normalize(c).id).join(',')) || Promise.resolve([]))
+				  .then(codes=>{
 					this.editedHealthElementModel = model;
 					this.$['edit-healthelement-dialog'].set('entity', _.assign(_.assign({plansOfAction:[]}, model.he), {codes:codes}))
 					this.$['edit-healthelement-dialog'].open()

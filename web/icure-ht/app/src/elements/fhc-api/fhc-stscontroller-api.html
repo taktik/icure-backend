@@ -48,6 +48,24 @@
 						return req.response
 					})
 				},
+				checkTokenUsingGET: function (tokenId) {
+					var xhr = this.$.requestTokenUsingGET
+
+
+					xhr.url = this.host+"/sts/token/check/{tokenId}".replace("{tokenId}", tokenId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
+				checkKeystoreUsingGET: function (keystoreId) {
+					var xhr = this.$.requestTokenUsingGET
+
+
+					xhr.url = this.host+"/sts/keystore/check/{keystoreId}".replace("{keystoreId}", keystoreId) + "?ts=" + (new Date).getTime()
+					return xhr.generateRequest().completes.then(function (req) {
+						return req.response
+					})
+				},
 				uploadKeystoreUsingPOST: function (file) {
 					var xhr = this.$.uploadKeystoreUsingPOST
 					;(xhr.body = (xhr.body || new FormData())).append('file', new Blob(file, {type: "application/octet-stream"}))

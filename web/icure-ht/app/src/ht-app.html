@@ -617,8 +617,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									this.$.api.keystoreId = res.uuid
 									this.$.api.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
 										this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
-											this.$.api.tokenId = res.tokenId
-											this.$.api.token = res.token
+											this.$.api.set('tokenId', res.tokenId)
+											this.$.api.set('token', res.token)
 										})
 									)
 								}) || this.$.noehealth.classList.add("notification")
