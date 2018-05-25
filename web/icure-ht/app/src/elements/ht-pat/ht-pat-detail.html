@@ -781,15 +781,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			#insuranceStatus.medicalHouse {
-				--paper-fab-background: #fcdf35;
+				--paper-fab-background: var(--app-status-color-pending);
 			}
 
 			#insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent {
-				--paper-fab-background: #ff4d4d;
+				--paper-fab-background: var(--app-status-color-nok);
 			}
 
 			#insuranceStatus.insuranceOk, #hubStatus.accessOk, #tlStatus.tlOk, #consentStatus.consentOk {
-				--paper-fab-background: var(--app-secondary-color-highlight);
+				--paper-fab-background: var(--app-status-color-ok);
 			}
 
 			.display-left-menu{
