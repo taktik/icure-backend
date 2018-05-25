@@ -225,7 +225,7 @@
 			}
 
 			.floating-action-bar{
-				display: block;
+				display: flex;
 				position: absolute;
 				height: 40px;
 				bottom: 16px;
@@ -379,7 +379,7 @@
 
 		<paper-dialog id="prescriptionDialog">
 			<h2 class="modal-title">Print prescription</h2>
-			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*)]] active-item="{{activeDrug}}">
+			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content)]] active-item="{{activeDrug}}">
 					<vaadin-grid-column width="100px">
 						<template class="header">
 							<vaadin-grid-sorter path="description">Drug descr.</vaadin-grid-sorter>

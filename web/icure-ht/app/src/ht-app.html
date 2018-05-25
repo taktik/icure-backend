@@ -257,10 +257,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				content:'';
 				display:block;
 				position: absolute;
-				top: 1px;
-				right: -6px;
-				height: 5px;
-				width: 5px;
+				top: 50%;
+				transform: translateY(-50%);
+				right: -11px;
+				height: 7px;
+				width: 7px;
 				border-radius: 8px;
 			}
 
@@ -398,8 +399,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</paper-tab>
 						</paper-tabs>
 						<div class="log-info">
-							<p>Antoine Duchateau – <span id="ehealth">eHealth</span> <span class="ehealth-connection-status pending"></span></p>
-							<paper-tooltip for="ehealth">eHealth is connected</paper-tooltip>
+							<p>[[user.login]] – <span id="ehealth">eHealth</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span></p>
+							<paper-tooltip for="ehealth">
+								<template is="dom-if" if="[[api.tokenId]]">
+									eHealth is connected
+								</template>
+								<template is="dom-if" if="[[!api.tokenId]]">
+									eHealth is not connected
+								</template>
+							</paper-tooltip>
 						</div>
 						<div>
 							<svg version="1.1"
@@ -561,13 +569,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.set('api', this.$.api)
 			},
 
-            _timeCheck: function(){
-                console.log(this.$.api.tokenid);
-                setTimeout(function(){
-					(!this.$.api.fhc().Stscontroller().checkTokenUsingGET(this.$.api.tokenId) && this._getToken())
-					console.log(this.$.api.tokenid);
-                    this.timeCheck();
-                    }, 3);//5 minutes check loop //300000
+            _timeCheck: function(period = 300000){
+                console.log(this.api.tokenid);
+                setTimeout(() => {
+	                this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
+		                if (!isTokenValid) {
+			                this._getToken().then(() => {
+				                this._timeCheck()
+			                }).catch(() => this._timeCheck(10000))
+		                } else {
+			                this._timeCheck()
+		                }
+	                }).catch(() => this._timeCheck(10000))
+                }, period)
 			},
 
 			_routePageChanged: function (page) {
@@ -633,11 +647,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 
             _getToken: function(){
-                this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-			    	this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
-                    	this.$.api.set('tokenId', res.tokenId)
-                    	this.$.api.set('token', res.token)
-                	})
+               return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+			    	this.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+			    		this.$.eHealthStatus.classList.remove('pending')
+						this.$.eHealthStatus.classList.remove('disconnected')
+						this.$.eHealthStatus.classList.add('connected')
+
+                    	this.set('api.tokenId', res.tokenId)
+                    	this.set('api.token', res.token)
+
+					  	return res.tokenId
+                	}).catch(()=>{
+						this.$.eHealthStatus.classList.remove('pending')
+						this.$.eHealthStatus.classList.remove('connected')
+						this.$.eHealthStatus.classList.add('disconnected')
+					})
 				)
 			},
 
@@ -666,14 +690,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						this.authenticated = true
 
 						if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-							if (this.credentials.ehpassword) {
-								const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
-								ehKeychain && this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
-									this.$.api.keystoreId = res.uuid
-									this._getToken();
-								}) || this.$.noehealth.classList.add("notification")
-							}
+                            if (this.credentials.ehpassword) {
+                                const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+                                if (ehKeychain) {
+                                    this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                                        this.$.api.keystoreId = res.uuid
+                                        this._getToken();
+                                    })
+                                } else {
+                                    this.$.noehealth.classList.add("notification")
 
+                                    this.$.eHealthStatus.classList.remove('pending')
+                                    this.$.eHealthStatus.classList.remove('connected')
+                                    this.$.eHealthStatus.classList.add('disconnected')
+                                }
+                            } else {
+                                this.$.eHealthStatus.classList.remove('pending')
+                                this.$.eHealthStatus.classList.remove('connected')
+                                this.$.eHealthStatus.classList.add('disconnected')
+                            }
 							const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
 							if (!this.routeData || destPage !== this.routeData.page) {
 								this.set('routeData.page', destPage);
