@@ -907,7 +907,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="container">
-			<paper-item class="saved">SAVED
+			<paper-item id="savedIndicator">SAVED
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
@@ -1177,6 +1177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		import moment from 'moment/src/moment'
 		import _ from 'lodash/lodash'
 		import styx from '../../../scripts/styx'
+				import {AccessLogDto} from "../icc-api/model/AccessLogDto"
 
 		Polymer({
 			is: 'ht-pat-detail',
@@ -1355,6 +1356,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
 					ctc.rev = c.rev
 				  	console.log("contact saved: "+ctc.id+":"+ctc.rev)
+
+				  	setTimeout(()=>this.$.savedIndicator.classList.remove("saved"),2000)
+					this.$.savedIndicator.classList.add("saved")
+
 					if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
 						this.patientChanged()
 					}
@@ -1417,7 +1422,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 
 			patientOpened: function (patientId,api,user) {
-
+			  	if (api && user && patientId && patientId !== this.latestPatientId) {
+			  		this.latestPatientId = patientId
+				  	this.api.accesslog().createAccessLog(new AccessLogDto({
+					  	id: this.api.crypto().randomUuid(),
+					  	patientId: patientId,
+					  	user: user.id,
+					  	date: +new Date(),
+					  	accessType:'USER_ACCESS'
+					}))
+				}
 			},
 
 			patientChanged: function (api,user,patient,forceCreate = true) {
