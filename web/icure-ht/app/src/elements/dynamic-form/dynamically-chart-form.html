@@ -170,7 +170,8 @@
                     value: null
                 }
             },
-            observers: [ '_updateTable(contacts, contacts.*)' ],
+            observers: [ '_updateTable(contacts, contacts.*)',
+                        '_getPoint(contacts, contacts.*)'],
 
             _updateTable: function(contacts) {
                 const services = _.sortBy(_.flatMap(contacts, c=>c.services.filter(s=>this.api.contact().isNumeric(s, this.language) && !s.endOfLife)),['modified'])
@@ -250,9 +251,9 @@
                 plotOptions.setFillOpacity(0.5);
                 conf.setPlotOptions(plotOptions);
 
-                this._labels().forEach((item, index) => {
+                this._labels().map((item, index) => {
                     const o = new charts.ListSeries(l.label);
-                    this._itemValueAtIndex(item,index).forEach(i => {
+                    this._itemValueAtIndex(item,index).map(i => {
                         o.addData(i);
                     });
                     conf.addSeries(0);

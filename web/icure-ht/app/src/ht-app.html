@@ -516,12 +516,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			],
 
 			ready: function () {
-			    console.log("on arrive ici")
 				let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
 				let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
 				if (fullHref !== window.location.href) { window.location.href = fullHref }
 				window.app = this
 				this.set('api', this.$.api)
+			},
+
+            _timeCheck: function(){
+                console.log(this.$.api.tokenid);
+                setTimeout(function(){
+					(!this.$.api.fhc().Stscontroller().checkTokenUsingGET(this.$.api.tokenId) && this._getToken())
+					console.log(this.$.api.tokenid);
+                    this.timeCheck();
+                    }, 3);//5 minutes check loop //300000
 			},
 
 			_routePageChanged: function (page) {
@@ -586,6 +594,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.$['ht-my-profile'].open()
 			},
 
+            _getToken: function(){
+                this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+			    	this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
+                    	this.$.api.set('tokenId', res.tokenId)
+                    	this.$.api.set('token', res.token)
+                	})
+				)
+			},
+
 			loginAndRedirect: function(page) {
 				const sAuth = JSON.parse(sessionStorage.getItem('auth'))
 				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) { this.set('credentials',sAuth) }
@@ -615,12 +632,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
 								ehKeychain && this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
 									this.$.api.keystoreId = res.uuid
-									this.$.api.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
-										this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
-											this.$.api.set('tokenId', res.tokenId)
-											this.$.api.set('token', res.token)
-										})
-									)
+									this._getToken();
 								}) || this.$.noehealth.classList.add("notification")
 							}
 
@@ -635,6 +647,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							this.$.registerKeyPairDialog.opened = true
 						}
 					}
+                    this._timeCheck()
 				}).catch(function (e) {
 					this.authenticated = false
 					sessionStorage.removeItem('auth')
