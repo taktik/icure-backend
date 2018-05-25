@@ -1177,6 +1177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		import moment from 'moment/src/moment'
 		import _ from 'lodash/lodash'
 		import styx from '../../../scripts/styx'
+				import {AccessLogDto} from "../icc-api/model/AccessLogDto"
 
 		Polymer({
 			is: 'ht-pat-detail',
@@ -1417,7 +1418,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 
 			patientOpened: function (patientId,api,user) {
-
+			  	if (api && user && patientId && patientId !== this.latestPatientId) {
+			  		this.latestPatientId = patientId
+				  	this.api.accesslog().createAccessLog(new AccessLogDto({
+					  	id: this.api.crypto().randomUuid(),
+					  	patientId: patientId,
+					  	user: user.id,
+					  	date: +new Date(),
+					  	accessType:'USER_ACCESS'
+					}))
+				}
 			},
 
 			patientChanged: function (api,user,patient,forceCreate = true) {
