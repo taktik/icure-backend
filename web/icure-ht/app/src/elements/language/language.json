@@ -1,0 +1,12 @@
+{
+  "en": { "Summary": "Summary",
+          "Patients": "Patients",
+          "HC parties": "HC parties",
+          "Messages": "Messages",
+          "Log out": "Log out"},
+  "fr": { "Summary": "Sommaire",
+          "Patients": "Patients",
+          "HC parties": "HC parties",
+          "Messages": "Messages",
+          "Log out": "Log out"}
+}

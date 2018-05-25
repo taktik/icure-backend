@@ -31,6 +31,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 
+<link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
+
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
@@ -353,23 +355,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-listbox  id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
 									<paper-button name="main" on-tap="doRoute">
 										<iron-icon class="iron-icon" icon="home"></iron-icon>
-										Summary
+										{{localize('Summary')}}
 									</paper-button>
 									<paper-button name="pat" on-tap="doRoute">
 										<iron-icon icon="vaadin:user-heart"></iron-icon>
-										Patients
+										{{localize('Patients')}}
 									</paper-button>
 									<paper-button name="hcp" on-tap="doRoute">
 										<iron-icon icon="vaadin:hospital"></iron-icon>
-										HC parties
+										{{localize('HC parties')}}
 									</paper-button>
 									<paper-button name="msg" on-tap="doRoute">
 										<iron-icon icon="communication:email"></iron-icon>
-										Messages
+										{{localize('Messages')}}
 									</paper-button>
 									<paper-button name="logout" on-tap="doRoute">
 										<iron-icon icon="power-settings-new"></iron-icon>
-										Log out
+										{{localize('Log out')}}
 									</paper-button>
 								</paper-listbox>
 							</div>
@@ -378,27 +380,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
 							<paper-tab name="main" on-tap="doRoute">
 								<iron-icon class="iron-icon" icon="home"></iron-icon>
-								Summary
+								{{localize('Summary')}}
 							</paper-tab>
 							<paper-tab name="pat" on-tap="doRoute">
 								<iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-								Patients
+								{{localize('Patients')}}
 							</paper-tab>
 							<paper-tab name="hcp" on-tap="doRoute">
 								<iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-								HC parties
+								{{localize('HC parties')}}
 							</paper-tab>
 							<paper-tab name="msg" on-tap="doRoute">
 								<iron-icon class="smaller" icon="communication:email"></iron-icon>
-								Messages
+								{{localize('Messages')}}
 							</paper-tab>
 							<paper-tab name="logout" on-tap="doRoute">
 								<iron-icon icon="power-settings-new"></iron-icon>
-								Log out
+								{{localize('Log out')}}
 							</paper-tab>
 						</paper-tabs>
 						<div class="log-info">
-							<p>Antoine Duchateau – <span id="ehealth">eHealth</span> <span class="ehealth-connection-status pending"></span></p>
+							<p>{{localize('Summary')}} – <span id="ehealth">eHealth</span> <span class="ehealth-connection-status pending"></span></p>
 							<paper-tooltip for="ehealth">eHealth is connected</paper-tooltip>
 						</div>
 						<div>
@@ -459,9 +461,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<ht-main name="main" api="[[api]]" user="[[user]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
-					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
-					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
+					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" attachedLanguageRessources="attachedLanguageRessources" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
+					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" attachedLanguageRessources="attachedLanguageRessources" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
+					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" attachedLanguageRessources="attachedLanguageRessources" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
 				</iron-pages>
 			</app-header-layout>
@@ -472,7 +474,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import moment from 'moment/src/moment'
         Polymer({
 			is: 'ht-app',
-
+            behaviors: [
+                Polymer.AppLocalizeBehavior
+            ],
 			properties: {
 				api: {
 					type: Object,
@@ -486,6 +490,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					type: Object,
 					value: null
 				},
+                language: {
+				    type: String,
+                    value: 'en'
+                },
 				i18n: {
 					Type: Object,
 					value: function () {
@@ -548,6 +556,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					}
 				}
 			},
+
+            attached: function() {
+                return require('./elements/language/language.json')
+            },
 
 			observers: [
 				'_routePageChanged(routeData.page)'
