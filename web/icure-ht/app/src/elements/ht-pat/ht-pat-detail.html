@@ -1576,11 +1576,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				const contact = year.contacts.find(c => c.id === ctcId)
 
 				if (contact) {
-					this.api.contact().getContact(contact.id).then(c => {
-						c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-						(c.rev ? this.api.contact().modifyContact(c) : this.api.contact().createContact(c)).then(() => this.patientChanged())
-						//this.notifyPath('currentContact.closingDate')
-					})
+					if (!contact.rev && (!contact.services || contact.services.length === 0)) {
+						this.set('currentContact',null)
+					} else {
+						this.api.contact().getContact(contact.id).then(c => {
+							c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+							(c.rev ? this.api.contact().modifyContact(c) : this.api.contact().createContact(c)).then(() => this.patientChanged())
+							//this.notifyPath('currentContact.closingDate')
+						})
+					}
 				}
 			},
 
