@@ -1,5 +1,8 @@
 {
   "en": {
+    "eng":"English",
+    "fre":"French",
+    "dut":"Dutch",
     "lis_vie": "List view",
     "tab_vie": "Table view",
     "gra": "Graph",
@@ -139,6 +142,9 @@
     "sen": "Sender"
   },
   "fr": {
+    "eng":"anglais",
+    "fre":"français",
+    "dut":"néerlandais",
     "lis_vie": "Vue en liste",
     "tab_vie": "Vue en tableau",
     "gra": "Graphique",
@@ -278,6 +284,9 @@
     "sen": "Sender"
   },
   "nl": {
+    "eng":"English",
+    "fre":"French",
+    "dut":"Dutch",
     "lis_vie": "List view",
     "tab_vie": "Table view",
     "gra": "Graph",

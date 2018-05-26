@@ -61,7 +61,6 @@
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<div class="left-col">
 				<vaadin-form-layout>
-
 					<paper-input colspan="2" label="Full name" value="{{user.name}}"></paper-input>
 					<paper-input colspan="2" label="Group ID" value="{{user.groupId}}"></paper-input>
 					<paper-input label="Login" value="{{user.login}}"></paper-input>
@@ -70,17 +69,22 @@
 			</div>
 			<div class="right-col">
 				<vaadin-form-layout>
-						<paper-input label="Password" value="{{user.password}}"></paper-input>
+					<paper-radio-group selected="{{user.languages.0}}">
+						<paper-radio-button name="en">[[localize('eng','English')]]</paper-radio-button>
+						<paper-radio-button name="fr">[[localize('fre','French')]]</paper-radio-button>
+						<paper-radio-button name="nl">[[localize('dut','Dutch')]]</paper-radio-button>
+					</paper-radio-group>
+					<paper-input label="Password" value="{{user.password}}"></paper-input>
 						<paper-input label="Confirmation" value="{{user.confirmation}}"></paper-input>
-						<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">Use two factors Authentication</vaadin-checkbox>
+						<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication')]]</vaadin-checkbox>
 				</vaadin-form-layout>
 				<div id="printable">
 					<qrcode-printer id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
 				</div>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">Save</paper-button>
+				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel')]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('save','Save')]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>

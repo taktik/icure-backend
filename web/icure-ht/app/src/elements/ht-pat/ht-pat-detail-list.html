@@ -58,13 +58,13 @@
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
             <vaadin-grid-column flex-grow="2" width="80px">
                 <template class="header">
-                    <vaadin-grid-sorter path="label">Label</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="label">[[localize('lab','Label')]]</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column flex-grow="2" width="80px">
                 <template class="header">
-                    <vaadin-grid-sorter path="modified">Date</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="modified">[[localize('dat','Date')]]</vaadin-grid-sorter>
                 </template>
                 <template>[[_date(item)]]</template>
             </vaadin-grid-column>
@@ -76,7 +76,7 @@
             </vaadin-grid-column>
             <vaadin-grid-column  flex-grow="2" width="80px">
                 <template class="header">
-                    <vaadin-grid-sorter path="function{[[_author(item)]]}">Author</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="function{[[_author(item)]]}">[[localize('aut','Author')]]</vaadin-grid-sorter>
                 </template>
                 <template>[[_author(item)]]</template>
             </vaadin-grid-column>

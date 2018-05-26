@@ -190,7 +190,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 			<vaadin-grid-column width="32px">
 				<template class="header">
-					<div class="cell frozen">Picture</div>
+					<div class="cell frozen">[[localize('pic','Picture')]]</div>
 				</template>
 				<template>
 					<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
@@ -199,7 +199,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<vaadin-grid-sorter path="lastName">Last name</vaadin-grid-sorter>
+					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name')]]</vaadin-grid-sorter>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.lastName]]</div>
@@ -207,7 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<vaadin-grid-sorter path="firstName">First name</vaadin-grid-sorter>
+					<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name')]]</vaadin-grid-sorter>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.firstName]]</div>
@@ -215,7 +215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<vaadin-grid-sorter path="dateOfBirth">Date of birth</vaadin-grid-sorter>
+					<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth')]]</vaadin-grid-sorter>
 				</template>
 				<template>
 					<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
@@ -223,7 +223,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div class="cell frozen">Email</div>
+					<div class="cell frozen">[[localize('ema','Email')]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.email]]</div>
@@ -231,7 +231,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column>
 				<template class="header">
-					<div class="cell numeric">Phone</div>
+					<div class="cell numeric">[[localize('pho','Phone')]]</div>
 				</template>
 				<template>
 					<div class="cell numeric">[[item.phone]]</div>
@@ -239,14 +239,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column>
 				<template class="header">
-					<div class="cell numeric">Mobile</div>
+					<div class="cell numeric">[[localize('mob','Mobile')]]</div>
 				</template>
 				<template>
 					<div class="cell numeric">[[item.mobile]]</div>
 				</template>
 			</vaadin-grid-column>
 		</vaadin-grid>
-		<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">Add Patient</paper-button></div>
+		<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient')]]</paper-button></div>
 		<paper-dialog id="add-patient-dialog">
 			<div class="horizontal">
 				<paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
@@ -254,8 +254,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}" ></vaadin-date-picker>
 			</div>
 			<div class="buttons">
-				<paper-button dialog-dismiss>Cancel</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm">Create</paper-button>
+				<paper-button dialog-dismiss>[[localize('can','Cancel')]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create')]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>

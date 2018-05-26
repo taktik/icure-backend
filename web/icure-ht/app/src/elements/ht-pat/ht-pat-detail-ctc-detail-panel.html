@@ -312,10 +312,10 @@
 						<template is="dom-if" if="[[!doc]]">
 							<paper-icon-button id="archive_icn" class="doc" icon="icons:archive" on-tap="_default"></paper-icon-button>
 						</template>
-						<paper-tooltip for="list_icn" position="bottom" animation-delay="0">List view</paper-tooltip>
-						<paper-tooltip for="table_icn" position="bottom" animation-delay="0">Table view</paper-tooltip>
-						<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">Graph</paper-tooltip>
-						<paper-tooltip for="archive_icn" position="bottom" animation-delay="0">Archive</paper-tooltip>
+						<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view')]]</paper-tooltip>
+						<paper-tooltip for="table_icn" position="bottom" animation-delay="0">[[localize('tab_vie','Table view')]]</paper-tooltip>
+						<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">[[localize('gra','Graph')]]</paper-tooltip>
+						<paper-tooltip for="archive_icn" position="bottom" animation-delay="0">[[localize('arc','Archive')]]</paper-tooltip>
 				</div>
 			</div>
 			<div class="contact-card-container">
@@ -343,43 +343,43 @@
                 </template>
 			</div>
 			<div class="floating-action-bar">
-				<div id="prescribeBtnCtnr"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]"><iron-icon icon="vaadin:pills" ></iron-icon>Prescribe</paper-button></div>
+				<div id="prescribeBtnCtnr"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe')]]</paper-button></div>
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
-						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>Add forms</paper-button>
+						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms')]]</paper-button>
 					</template>
 					<template is="dom-if" if=[[showAddFormsContainer]]>
-						<paper-button class="close-add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>Close</paper-button>
+						<paper-button class="close-add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close')]]</paper-button>
 					</template>
 					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
-						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">Consultation</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">Medical history</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">Other form</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">Add document</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation')]]</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history')]]</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form')]]</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document')]]</paper-fab-speed-dial-action>
 					</div>
 				</template>
 			</div>
 			<paper-tooltip for="prescribeBtnCtnr" position="top">
-				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]">Press this button to prescribe<br></template>
-				<template is="dom-if" if="[[!api.tokenId]]">You must be connected to eHealth to be allowed to prescribe<br></template>
+				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]">[[localize('pre_thi_but_to_pre','Press this button to prescribe')]]<br></template>
+				<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe')]]<br></template>
 				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
-				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">Add prescription drugs to current contact to prescribe</template>
+				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe')]]</template>
 			</paper-tooltip>
 		</div>
 
 		<entity-selector id="add-form-dialog" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
 		<paper-dialog id="upload-dialog">
-			<h2>Upload files <span class="extra-info">(PDF, images and videos)</span></h2>
+			<h2>[[localize('upl_fil','Upload files')]]<span class="extra-info">(PDF, images and videos)</span></h2>
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
 			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
 		</paper-dialog>
 
 		<paper-dialog id="prescriptionDialog">
-			<h2 class="modal-title">Print prescription</h2>
+			<h2 class="modal-title">[[localize('pri_pre','Print prescription')]]</h2>
 			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content)]] active-item="{{activeDrug}}">
 					<vaadin-grid-column width="100px">
 						<template class="header">
-							<vaadin-grid-sorter path="description">Drug descr.</vaadin-grid-sorter>
+							<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.')]]</vaadin-grid-sorter>
 						</template>
 						<template>
 							<div class="cell frozen">[[_drugDescription(item)]]</div>
@@ -408,8 +408,8 @@
 				<vaadin-date-picker id="deliveryDate" label="Date de délivrance" value="[[deliveryDateString]]" i18n="[[i18n]]"></vaadin-date-picker>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">Print</paper-button>
+				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel')]]</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print')]]</paper-button>
 			</div>
 		</paper-dialog>
 		<canvas id="barCode"></canvas>

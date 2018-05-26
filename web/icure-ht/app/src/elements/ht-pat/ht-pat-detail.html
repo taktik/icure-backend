@@ -926,104 +926,104 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="statusContainer"><paper-fab id="insuranceStatus" mini icon="vaadin:handshake"></paper-fab><paper-fab id="consentStatus" mini icon="vaadin:clipboard-check"></paper-fab><paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab><paper-fab id="hubStatus" mini icon="vaadin:cluster"></paper-fab></div>
 							</div>
 						</paper-item>
-						<paper-item class="menu-item" id="_complete_file">Complete file <iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file')]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
 					</paper-listbox>
 					<div class="submenus-container">
 						<paper-listbox class="padding-0" id="mainMenu" selected-items="{{selectedMainElements}}" multi toggle-shift>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title"><span>Active Health Problems</span></div>
+									<div class="one-line-menu list-title"><span>[[localize('act_hea_pro','Active Health Problems')]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="ahelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!activeHealthElements.length]]">
-										<paper-item class="menu-item  list-info"><div class="one-line-menu">No active health elements</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
+										<paper-item class="menu-item  list-info"><div class="one-line-menu">[[localize('no_act_hea_ele','No active health elements')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="activeHesDomRepeat" is="dom-repeat" items="[[activeHealthElements]]" as="he">
 										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate" on-select-he="selectHealthElement"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[activeHealthElements.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add health element</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_hea_ele','Add health element')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title"><span>Medical antecedents</span></div>
+									<div class="one-line-menu list-title"><span>[[localize('med_ant','Medical antecedents')]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="ihelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!inactiveHealthElements.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No medical antecedent</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med_ant','No medical antecedent')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="inactiveHesDomRepeat" is="dom-repeat" items="[[inactiveHealthElements]]" as="he">
 										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[inactiveHealthElements.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add medical antecedent</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med_ant','Add medical antecedent')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">Family risks</div>
+									<div class="one-line-menu list-title">[[localize('fam_ris','Family risks')]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="frhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!familyrisks.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No family risks</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_fam_ris','No family risks')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[familyrisks]]" as="risk">
 										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[familyrisks.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add family risk</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add family risk')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">Risks</div>
+									<div class="one-line-menu list-title">[[localize('ris','Risks')]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="rhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!risks.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No risks</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_ris','No risks')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[risks]]" as="risk">
 										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[risks.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add risk</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_ris','Add risk')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">Allergies</div>
+									<div class="one-line-menu list-title">[[localize('all','Allergies')]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="alhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!allergies.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No allergies</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_all','No allergies')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[allergies]]" as="allergy">
 										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[allergy]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[allergies.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add allergy</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_all','Add allergy')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">Medication</div>
+									<div class="one-line-menu list-title">[[localize('med','Medication')]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
 									<template is="dom-if" if="[[!medications.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No medications</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med','No medications')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[medications]]" as="medication">
 										<paper-item class="menu-item" id="_svc_[[medication.id]]">
@@ -1033,18 +1033,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										</paper-item>
 									</template>
 									<template is="dom-if" if="[[medications.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">Add medication</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med','Add medication')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title"><span>Archive</span></div>
+									<div class="one-line-menu list-title"><span>[[localize('arc','Archive')]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="arhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!archivedHealthElements.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">No archived health elements</div></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_arc_hea_ele','No archived health elements')]]</div></paper-item>
 									</template>
 									<template id="archivedHesDomRepeat" is="dom-repeat" items="[[archivedHealthElements]]" as="he">
 										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
@@ -1054,7 +1054,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-listbox>
 					</div>
 				</paper-material>
-				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">Add Health Element</paper-button></div>
+				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element')]]</paper-button></div>
 			</div>
 			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]" restamp>
 				<div class="second-panel">
@@ -1062,7 +1062,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<div class="contacts-container" on-scroll="openToast">
 						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
 							<template is="dom-if" if="[[events.length]]">
-								<span class="contact-year" on-click="openToast">To Do</span>
+								<span class="contact-year" on-click="openToast">[[localize('to_do','To Do')]]</span>
 								<paper-listbox id="_events_listbox" class="todo-list">
 									<template is="dom-repeat" items="[[events]]" as="e">
 										<paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
@@ -1141,7 +1141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 					<template is="dom-if" if="[[!currentContact]]">
-						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">New Contact</paper-button></div>
+						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">[[localize('new_con','New Contact')]]</paper-button></div>
 					</template>
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]"
@@ -1158,7 +1158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
 			<div class="extraDialogFields" slot="suffix">
-					<div class="history">history</div>
+					<div class="history">[[localize('his','history')]]</div>
 			</div>
 		</health-problem-selector>
 

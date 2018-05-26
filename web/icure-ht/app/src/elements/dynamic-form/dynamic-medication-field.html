@@ -256,7 +256,7 @@
 			<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 		</template>
 		<template is="dom-if" if="[[isModifiedAfter]]">
-			<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+			<span class="modified-after-out">[[localize('obs_val','obsolete value')]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 		</template>
 
 		<ul>
@@ -265,10 +265,10 @@
 		</template>
 		</ul>
 
-		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a on-tap="addMedication()">Add prescription drug</a>
+		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a on-tap="addMedication()">[[localize('add_pre_dru','Add prescription drug')]]</a>
 
 		<paper-dialog id="medication-selection" always-on-top="true">
-			<h2 class="modal-title">Select medication</h2>
+			<h2 class="modal-title">[[localize('sel_med','Select medication')]]</h2>
 			<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 			<vaadin-grid id="entities-list" class="material" active-item="{{selectedMedicationFromList}}" on-tap="click">
 				<template is="dom-repeat" items="[[columns]]" as="column">
@@ -283,21 +283,21 @@
 				</template>
 			</vaadin-grid>
 			<div class="buttons">
-				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">Cancel</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">Select</paper-button>
+				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel')]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select')]]</paper-button>
 			</div>
 		</paper-dialog>
 
 		<paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
-			<h2 class="modal-title">Medication detail</h2>
+			<h2 class="modal-title">[[localize('med_det','Medication detail')]]</h2>
 			<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
 				<template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
 					<div class="regimen-line">
 						<paper-dropdown-menu label="Frequency" class="regimen--frequency">
 							<paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-iron-select="_selectFrequency">
-								<paper-item id="daily">Daily</paper-item>
-								<paper-item id="weekly">Weekly</paper-item>
-								<paper-item id="monthly">Monthly</paper-item>
+								<paper-item id="daily">[[localize('dai','Daily')]]</paper-item>
+								<paper-item id="weekly">[[localize('wee','Weekly')]]</paper-item>
+								<paper-item id="monthly">[[localize('mon','Monthly')]]</paper-item>
 							</paper-listbox>
 						</paper-dropdown-menu>
 						<template is="dom-if" if="[[rg.weekday]]">
@@ -336,9 +336,9 @@
 
 
 
-			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>Add posology regimen</paper-button>
+			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>[[localize('add_pos_reg','Add posology regimen')]]</paper-button>
 			<div class="buttons">
-				<paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">Save</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save')]]</paper-button>
 			</div>
 		</paper-dialog>
 

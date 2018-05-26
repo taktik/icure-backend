@@ -43,16 +43,16 @@
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<form is="form" id="keys-form">
 				<div class="layout vertical center">
-					<h3>Please select the eHealth keychain</h3>
-					<h5>it is usually located in the eHeath directory</h5>
+					<h3>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain')]]</h3>
+					<h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory')]]</h5>
 					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected"></paper-input>
 					<div>{{message}}</div>
 				</div>
 			</form>
 
 				<div class="buttons">
-					<paper-button dialog-dismiss class="modal-button modal-button--cancel">Cancel</paper-button>
-					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">Select</paper-button>
+					<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel')]]</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select')]]</paper-button>
 				</div>
 		</paper-dialog>
 	</template>

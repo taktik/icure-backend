@@ -207,20 +207,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div class="col-left">
-		<paper-button class="new-msg-btn"> New Message </paper-button>
+		<paper-button class="new-msg-btn">[[localize('new_mes','New Message')]]</paper-button>
 		<paper-listbox class="boxes-list">
 			<collapse-button>
 				<paper-item class="has-unread">Inbox (7)</paper-item>
 				<paper-listbox class="sublist">
 					<paper-item  class="has-unread">Lab Results (3)</paper-item>
-					<paper-item>Personal</paper-item>
+					<paper-item>[[localize('per','Personal')]]</paper-item>
 					<paper-item class="has-unread">Patients (4)</paper-item>
 				</paper-listbox>
 			</collapse-button>
-			<paper-item>Sent Messages</paper-item>
-			<paper-item>Archived</paper-item>
-			<paper-item>Spam</paper-item>
-			<paper-item>Trash</paper-item>
+			<paper-item>[[localize('sen_mes','Sent Messages')]]</paper-item>
+			<paper-item>[[localize('archiv','Archived')]]</paper-item>
+			<paper-item>[[localize('spa','Spam')]]</paper-item>
+			<paper-item>[[localize('tra','Trash')]]</paper-item>
 		</paper-listbox>
 	</div>
 	  <div class="col-right">
@@ -230,27 +230,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				  <template class="header">
 					  <paper-checkbox ></paper-checkbox>
 				  </template>
-				 m>Spam</paper-item>
+				 m>[[localize('spa','Spam')]]</paper-item>
 			<papeeckbox ></paper-checkbox>
 				  </template>
 			  </vaadin-grid-column>
 
 			  <vaadin-grid-column >
-				  <template class="header">Recipient</template>
+				  <template class="header">[[localize('rec','Recipient')]]</template>
 				  <template>
 					  [[item.name.first]]
 				  </template>
 			  </vaadin-grid-column>
 
 			  <vaadin-grid-column>
-				  <template class="header">Subject</template>
+				  <template class="header">[[localize('sub','Subject')]]</template>
 				  <template>
 					  [[item.name.last]]
 				  </template>
 			  </vaadin-grid-column>
 
 			  <vaadin-grid-column style="width:100px;" flex="0">
-				  <template class="header">Date</template>
+				  <template class="header">[[localize('dat','Date')]]</template>
 				  <template>
 					  <div>[[item.name.first]].[[item.name.last]]@example.com</div>
 				  </template>

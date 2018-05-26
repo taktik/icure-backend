@@ -125,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<vaadin-grid-sorter path="lastName">Last name</vaadin-grid-sorter>
+					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name')]]</vaadin-grid-sorter>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.lastName]]</div>
@@ -133,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div path="firstName">First name</div>
+					<div path="firstName">[[localize('fir_nam','First name')]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.firstName]]</div>
@@ -141,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div path="speciality">Speciality</div>
+					<div path="speciality">[[localize('spe','Speciality')]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.speciality]]</div>
@@ -149,7 +149,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div class="cell frozen">Email</div>
+					<div class="cell frozen">[[localize('ema','Email')]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.email]]</div>
@@ -157,7 +157,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column>
 				<template class="header">
-					<div class="cell numeric">Phone</div>
+					<div class="cell numeric">[[localize('pho','Phone')]]</div>
 				</template>
 				<template>
 					<div class="cell numeric">[[item.phone]]</div>
@@ -165,7 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column>
 				<template class="header">
-					<div class="cell numeric">Mobile</div>
+					<div class="cell numeric">[[localize('mob','Mobile')]]</div>
 				</template>
 				<template>
 					<div class="cell numeric">[[item.mobile]]</div>

@@ -252,19 +252,19 @@
                 <div>
                     <div class="he-edit-btn-container">
                         <paper-icon-button id="he-edit-btn-edit_[[getHeId(he)]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-                        <paper-tooltip position="top" for="he-edit-btn-edit_[[getHeId(he)]]">Edit</paper-tooltip>
+                        <paper-tooltip position="top" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit')]]</paper-tooltip>
 
                         <template is="dom-if" if="[[isNotArchived(he)]]">
                             <paper-icon-button id="he-edit-btn-archive_[[getHeId(he)]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-archive_[[getHeId(he)]]">Archive</paper-tooltip>
+                            <paper-tooltip position="top" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive')]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotActive(he)]]">
                             <paper-icon-button id="he-edit-btn-active_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-active_[[getHeId(he)]]">Make Active</paper-tooltip>
+                            <paper-tooltip position="top" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active')]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotHistory(he)]]">
                             <paper-icon-button id="he-edit-btn-history_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-history_[[getHeId(he)]]">Add to History</paper-tooltip>
+                            <paper-tooltip position="top" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_his','Add to History')]]</paper-tooltip>
                         </template>
                     </div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -272,7 +272,7 @@
             </paper-item>
             <paper-listbox class="menu-content sublist sub-sublist" selected-items="{{he.selectedItems}}" multi toggle-shift>
                 <template is="dom-if" if="[[!he.plansOfAction.length]]">
-                    <paper-item class="submenu-item list-info"><div class="one-line-menu">No approach</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
+                    <paper-item class="submenu-item list-info"><div class="one-line-menu">[[localize('no_app','No approach')]]</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
                 </template>
                 <template is="dom-repeat" items="[[he.plansOfAction]]" as="poa">
                     <paper-item class="submenu-item" id="_poa_[[poa.id]]">
@@ -280,7 +280,7 @@
                     </paper-item>
                 </template>
                 <template is="dom-if" if="[[he.plansOfAction.length]]">
-                    <paper-item class="submenu-item sublist-footer"><div class="one-line-menu">Add approach</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
+                    <paper-item class="submenu-item sublist-footer"><div class="one-line-menu">[[localize('add_app','Add approach')]]</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
                 </template>
             </paper-listbox>
         </collapse-button>

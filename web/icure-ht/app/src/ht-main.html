@@ -386,7 +386,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<div class="grid-container">
 			<div class="card latest-patients-card">
 				<div class="card-title-container">
-					<h1 class="card-title">Latest Patients</h1>
+					<h1 class="card-title">[[localize('lat_pat','Latest Patients')]]</h1>
 				</div>
 				<div class="card-body">
 					<template is="dom-repeat" items="[[accessLogs]]" as="access">
@@ -401,7 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card todays-consultations">
 				<div class="card-title-container">
-					<h1 class="card-title">Today's Appointment</h1>
+					<h1 class="card-title">[[localize('tod_app','Today‘s Appointment')]]</h1>
 				</div>
 				<div class="card-body">
 					<div class="consultations-list">
@@ -419,13 +419,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card latest-lab-result">
 				<div class="card-title-container">
-					<h1 class="card-title new-notif">Latest Lab Results</h1>
+					<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results')]]</h1>
 				</div>
 				<div class="card-body">
 					<div class="card-table-header row">
 						<div class="card-header-cell">Sender</div>
-						<div class="card-header-cell card-header-cell--date">Date</div>
-						<div class="card-header-cell">Subject</div>
+						<div class="card-header-cell card-header-cell--date">[[localize('dat','Date')]]</div>
+						<div class="card-header-cell">[[localize('sub','Subject')]]</div>
 					</div>
 					<template is="dom-repeat" items="[[messages]]" as="msg">
 						<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
@@ -438,13 +438,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card todo-card">
 				<div class="card-title-container">
-					<h1 class="card-title">Planning</h1>
+					<h1 class="card-title">[[localize('pla','Planning')]]</h1>
 				</div>
 				<div class="card-body">
 					<div class="card-table-header row">
-						<div class="card-header-cell">Patient</div>
-						<div class="card-header-cell card-header-cell--date">Due date</div>
-						<div class="card-header-cell">Description</div>
+						<div class="card-header-cell">[[localize('pati','Patient')]]</div>
+						<div class="card-header-cell card-header-cell--date">[[localize('due_dat','Due date')]]</div>
+						<div class="card-header-cell">[[localize('des','Description')]]</div>
 					</div>
 					<template is="dom-repeat" items="[[services]]" as="service">
 						<paper-listbox>

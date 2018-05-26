@@ -23,11 +23,11 @@
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
-			<h2>Scan the following code with your tablet</h2>
+			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet')]]</h2>
 			<div id="printable"><qrcode-printer id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
 			<div class="buttons">
-				<paper-button dialog-dismiss>Cancel</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm">Select</paper-button>
+				<paper-button dialog-dismiss>[[localize('can','Cancel')]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select')]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
