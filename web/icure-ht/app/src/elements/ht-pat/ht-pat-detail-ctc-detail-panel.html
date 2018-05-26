@@ -40,8 +40,6 @@
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
 
-
-	
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
 		<style>
@@ -329,7 +327,6 @@
                     <ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></ht-pat-detail-table>
                 </template>
                 <template is="dom-if" if="[[graphique]]">
-                //TODO<dynamically-graphique-form id="dynamicallyGraphiqueForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" language="[[language]]"></dynamically-graphique-form>
                 </template>
                 <template is="dom-if" if="[[doc]]">
                 <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
@@ -365,7 +362,7 @@
 			<paper-tooltip for="prescribeBtnCtnr" position="top">
 				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]">Press this button to prescribe<br></template>
 				<template is="dom-if" if="[[!api.tokenId]]">You must be connected to eHealth to be allowed to prescribe<br></template>
-				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing<br></template>
+				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
 				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">Add prescription drugs to current contact to prescribe</template>
 			</paper-tooltip>
 		</div>
@@ -467,8 +464,7 @@
 					type: Object
 				},
 				patient: {
-					type: Object,
-					value: null
+					type: Object
 				},
 				currentContact: {
 					type: Object,

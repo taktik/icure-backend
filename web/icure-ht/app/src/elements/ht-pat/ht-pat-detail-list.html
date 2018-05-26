@@ -56,29 +56,29 @@
             
         </style>
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
-            <vaadin-grid-column width="100px">
+            <vaadin-grid-column flex-grow="2" width="80px">
                 <template class="header">
                     <vaadin-grid-sorter path="label">Label</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
-            <vaadin-grid-column width="100px">
-                <template class="header">
-                    <vaadin-grid-sorter path="function{[[_name()]]}">Name</vaadin-grid-sorter>
-                </template>
-                <template>[[_name()]]</template>
-            </vaadin-grid-column>
-            <vaadin-grid-column width="100px">
+            <vaadin-grid-column flex-grow="2" width="80px">
                 <template class="header">
                     <vaadin-grid-sorter path="modified">Date</vaadin-grid-sorter>
                 </template>
                 <template>[[_date(item)]]</template>
             </vaadin-grid-column>
-            <vaadin-grid-column width="100px">
+            <vaadin-grid-column flex-grow="5" width="300px">
                 <template class="header">
                     Value
                 </template>
                 <template>[[_shortDescription(item)]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column  flex-grow="2" width="80px">
+                <template class="header">
+                    <vaadin-grid-sorter path="function{[[_author(item)]]}">Author</vaadin-grid-sorter>
+                </template>
+                <template>[[_author(item)]]</template>
             </vaadin-grid-column>
         </vaadin-grid>
     </template>
@@ -131,7 +131,6 @@
                 return currentContact === null || contact !== currentContact
             },
 
-
             _services: function(contacts) {
                 return _.sortBy(_.flatMap(contacts, c=>c.services),['modified'])
             },
@@ -140,8 +139,8 @@
                 return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : ''
             },
 
-            _name: function() {
-                return this.api.getAuthor(this.contacts.length && this.contacts[0].author)
+            _author: function(item) {
+                return this.api.getAuthor(item.author)
             },
 
             _shortDescription(svc) {

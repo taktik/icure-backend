@@ -28,9 +28,15 @@ import * as models from '../model/models';
 export class iccHcpartyApi {
     host : string
     headers : Array<XHR.Header>
+    uuid : string
     constructor(host: string, headers: any) {
         this.host = host
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+        this.uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        })
+        console.log("Headers in HCP :",this.uuid, this.headers)
     }
 
 

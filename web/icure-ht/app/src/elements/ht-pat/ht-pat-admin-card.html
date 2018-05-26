@@ -146,7 +146,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 				const setValue = function (key, value) {
 					if (root && _.get(root,key) !== value) {
-						_.set(root,key,value)
+					  	root === this.patient ? this.set('patient.'+key, value) : _.set(root,key,value)
 						this.scheduleSave(this.patient)
 					}
 				}.bind(this)

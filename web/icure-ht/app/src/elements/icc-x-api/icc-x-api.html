@@ -18,7 +18,7 @@
 			<style>
 			</style>
 
-			<icc-api id="icc-api" host="[[host]]" headers="[[headers]]"></icc-api>
+			<icc-api id="icc-api" host="[[host]]" headers="[[headers]]" on-refresh="refresh"></icc-api>
 
 			<icc-crypto-x-api id="icc-crypto-x-api" api="[[baseApi]]" hcparty-api="[[hcpartyApi]]"></icc-crypto-x-api>
 
@@ -81,26 +81,30 @@
 					this.set('cryptoApi', this.$['icc-crypto-x-api'])
 				  	this.set('contactApi', this.$['icc-contact-x-api'])
 
-					this.patient().init()
-					this.contact().init()
-					this.form().init()
-					this.document().init()
-					this.code().init()
-					this.helement().init()
-					this.hcparty().init()
-					this.crypto().init()
-
 					Object.getOwnPropertyNames(Object.getPrototypeOf(this.baseApi)).forEach((p)=>{
 						if (typeof this.baseApi[p] === 'function' && !this[p]) {
 							this[p] = this.baseApi[p].bind(this.baseApi)
 						}
 					})
 
-					//Load the map of hcps
-					this.user().listUsers().then(users => {
-						this.set('users', users.rows.reduce((acc, u) =>  {acc[u.id] = u; return acc},{}))
-						return this.hcparty().getHealthcareParties(users.rows.map(u=>u.healthcarePartyId).filter(id=>id!==null))
-					}).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) =>  {acc[hcp.id] = hcp; return acc},{})))
+					this.refresh()
+				},
+
+			  	refresh: function() {
+				  this.patient().init()
+				  this.contact().init()
+				  this.form().init()
+				  this.document().init()
+				  this.code().init()
+				  this.helement().init()
+				  this.hcparty().init()
+				  this.crypto().init()
+
+				  //Load the map of hcps
+				  this.user().listUsers().then(users => {
+					  this.set('users', users.rows.reduce((acc, u) =>  {acc[u.id] = u; return acc},{}))
+					  return this.hcparty().getHealthcareParties(users.rows.map(u=>u.healthcarePartyId).filter(id=>id!==null))
+				  }).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) =>  {acc[hcp.id] = hcp; return acc},{})))
 				},
 
 				patient: function() { return this.$['icc-patient-x-api'] },
@@ -167,5 +171,3 @@
 			});
 		})();
 	</script>
-
-@end

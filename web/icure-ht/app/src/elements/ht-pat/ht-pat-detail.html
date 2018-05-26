@@ -911,7 +911,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
-				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="[[patient]]" language="[[language]]"></ht-pat-admin-card>
+				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" language="[[language]]"></ht-pat-admin-card>
 			</template>
 			<paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
 			<div class="first-panel">
@@ -1056,7 +1056,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-material>
 				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">Add Health Element</paper-button></div>
 			</div>
-			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]">
+			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]" restamp>
 				<div class="second-panel">
 					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}"></filter-panel></div>
 					<div class="contacts-container" on-scroll="openToast">
@@ -1144,7 +1144,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">New Contact</paper-button></div>
 					</template>
 				</div>
-				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]" api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]" on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
+				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]"
+												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]"
+												on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1970,8 +1972,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			_updateFilterPanels: function () {
 				setTimeout(()=>{
-					Polymer.dom(this.root).querySelector("#contactFilterPanel").refreshIcons()
-					Polymer.dom(this.root).querySelector("ht-pat-detail-ctc-detail-panel").refreshIcons()
+					const cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel")
+					cfp && cfp.refreshIcons()
+					const hpd = Polymer.dom(this.root).querySelector("ht-pat-detail-ctc-detail-panel")
+					hpd && hpd.refreshIcons()
 				},10)
 			},
 
