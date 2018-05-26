@@ -18,7 +18,9 @@
 		}
 
 		localize(key,defaultValue) {
-			return this.resources[this.language] && this.resources[this.language][key] || defaultValue
+			const trns = this.resources[this.language] && this.resources[this.language][key]
+			if (!trns) { console.log('Translation is missing for',this.language, key) }
+			return  trns || defaultValue
         }
 	}
 </script>

@@ -355,23 +355,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-listbox  id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
 									<paper-button name="main" on-tap="doRoute">
 										<iron-icon class="iron-icon" icon="home"></iron-icon>
-										{{localize('Summary')}}
+										[[localize('sum')]]
 									</paper-button>
 									<paper-button name="pat" on-tap="doRoute">
 										<iron-icon icon="vaadin:user-heart"></iron-icon>
-										{{localize('Patients')}}
+										[[localize('pat')]]
 									</paper-button>
 									<paper-button name="hcp" on-tap="doRoute">
 										<iron-icon icon="vaadin:hospital"></iron-icon>
-										{{localize('HC parties')}}
-									</paper-button>
-									<paper-button name="msg" on-tap="doRoute">
-										<iron-icon icon="communication:email"></iron-icon>
-										{{localize('Messages')}}
+										[[localize('hc_par')]]
 									</paper-button>
 									<paper-button name="logout" on-tap="doRoute">
 										<iron-icon icon="power-settings-new"></iron-icon>
-										{{localize('Log out')}}
+										[[localize('log_out')]]
 									</paper-button>
 								</paper-listbox>
 							</div>
@@ -380,23 +376,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
 							<paper-tab name="main" on-tap="doRoute">
 								<iron-icon class="iron-icon" icon="home"></iron-icon>
-								{{localize('Summary')}}
+								[[localize('sum')]]
 							</paper-tab>
 							<paper-tab name="pat" on-tap="doRoute">
 								<iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-								{{localize('Patients')}}
+								[[localize('pat')]]
 							</paper-tab>
 							<paper-tab name="hcp" on-tap="doRoute">
 								<iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-								{{localize('HC parties')}}
-							</paper-tab>
-							<paper-tab name="msg" on-tap="doRoute">
-								<iron-icon class="smaller" icon="communication:email"></iron-icon>
-								{{localize('Messages')}}
+								[[localize('hc_par')]]
 							</paper-tab>
 							<paper-tab name="logout" on-tap="doRoute">
 								<iron-icon icon="power-settings-new"></iron-icon>
-								{{localize('Log out')}}
+								[[localize('log_out')]]
 							</paper-tab>
 						</paper-tabs>
 						<div class="log-info">
