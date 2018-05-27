@@ -16,72 +16,82 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-stscontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				registerTokenUsingPOST: function (token, tokenId) {
-					var xhr = this.$.registerTokenUsingPOST
-					xhr.body = token
+	<script>class FhcStscontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-stscontroller-api";
+	}
 
-					xhr.url = this.host+"/sts/token/{tokenId}".replace("{tokenId}", tokenId) + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				requestTokenUsingGET: function (passPhrase, ssin, keystoreId) {
-					var xhr = this.$.requestTokenUsingGET
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
+	constructor() {
+		super();
+	}
 
-					xhr.url = this.host+"/sts/token/{keystoreId}".replace("{keystoreId}", keystoreId) + "?ts=" + (new Date).getTime()  + (passPhrase ? "&passPhrase=" + passPhrase : "") + (ssin ? "&ssin=" + ssin : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				checkTokenUsingGET: function (tokenId) {
-					var xhr = this.$.requestTokenUsingGET
+	registerTokenUsingPOST(token, tokenId) {
+		var xhr = this.$.registerTokenUsingPOST;
+		xhr.body = token;
 
+		xhr.url = this.host + "/sts/token/{tokenId}".replace("{tokenId}", tokenId) + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/sts/token/check/{tokenId}".replace("{tokenId}", tokenId) + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				checkKeystoreUsingGET: function (keystoreId) {
-					var xhr = this.$.requestTokenUsingGET
+	requestTokenUsingGET(passPhrase, ssin, keystoreId) {
+		var xhr = this.$.requestTokenUsingGET;
 
+		xhr.url = this.host + "/sts/token/{keystoreId}".replace("{keystoreId}", keystoreId) + "?ts=" + new Date().getTime() + (passPhrase ? "&passPhrase=" + passPhrase : "") + (ssin ? "&ssin=" + ssin : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/sts/keystore/check/{keystoreId}".replace("{keystoreId}", keystoreId) + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				uploadKeystoreUsingPOST: function (file) {
-					var xhr = this.$.uploadKeystoreUsingPOST
-					;(xhr.body = (xhr.body || new FormData())).append('file', new Blob(file, {type: "application/octet-stream"}))
-					xhr.set('headers', {})
-					xhr.url = this.host+"/sts/keystore" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				},
-				mpfdHeaders: function(hdrs) {
-					return _.extend(_.extend({}, hdrs), {'content-type':'multipart/form-data'});
-				}
-			});
-		})();
-	</script>
+	checkTokenUsingGET(tokenId) {
+		var xhr = this.$.requestTokenUsingGET;
+
+		xhr.url = this.host + "/sts/token/check/{tokenId}".replace("{tokenId}", tokenId) + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	checkKeystoreUsingGET(keystoreId) {
+		var xhr = this.$.requestTokenUsingGET;
+
+		xhr.url = this.host + "/sts/keystore/check/{keystoreId}".replace("{keystoreId}", keystoreId) + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	uploadKeystoreUsingPOST(file) {
+		var xhr = this.$.uploadKeystoreUsingPOST;(xhr.body = xhr.body || new FormData()).append('file', new Blob(file, { type: "application/octet-stream" }));
+		xhr.set('headers', {});
+		xhr.url = this.host + "/sts/keystore" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+	mpfdHeaders(hdrs) {
+		return _.extend(_.extend({}, hdrs), { 'content-type': 'multipart/form-data' });
+	}
+
+}
+
+customElements.define(FhcStscontrollerApi.is, FhcStscontrollerApi);
+</script>

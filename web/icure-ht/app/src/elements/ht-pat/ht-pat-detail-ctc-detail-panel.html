@@ -553,7 +553,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 
 		Promise.all(files.filter(f => !f.attached).map(f => {
 			f.attached = true;
-			return this.api.document().new(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
+			return this.api.document().newInstance(this.user, null, { documentType: 'result', mainUti: this.api.document().uti(f.type), name: f.name }).then(d => this.api.document().createDocument(d)).then(d => {
 				f.doc = d;
 				f.uploadTarget = (f.uploadTarget || vaadinUpload.target).replace(/\{documentId\}/, d.id);
 				return f;
@@ -576,7 +576,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			sc = { status: 64, services: [] };
 			this.currentContact.subContacts.push(sc);
 		}
-		const svc = this.api.contact().service().new(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
+		const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
 		this.currentContact.services.push(svc);
 		sc.services.push({ serviceId: svc.id });
 		if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
@@ -590,7 +590,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			console.log("FTs: " + formTemplates.size + " FTs loaded");
 			if (formTemplates[0] && formTemplates[0].id) {
 				//Create a new form and link it to the currentContact
-				this.api.form().new(this.user, this.patient, { contactId: this.currentContact.id, formTemplateId: formTemplates[0].id, descr: formTemplates[0].name }).then(f => this.api.form().createForm(f)).then(f => {
+				this.api.form().newInstance(this.user, this.patient, { contactId: this.currentContact.id, formTemplateId: formTemplates[0].id, descr: formTemplates[0].name }).then(f => this.api.form().createForm(f)).then(f => {
 					this.currentContact.subContacts.push({ formId: f.id, services: [] });
 					return this.saveCurrentContact();
 				}).then(c => this._contactsChanged());

@@ -283,73 +283,84 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</template>
 		</div>
 	</template>
-	<script>
-		Polymer({
-			is: 'ht-hcp-detail',
-			properties: {
-				api: {
-					type: Object
-				},
-				user: {
-					type: Object
-				},
-				hcp: {
-					type: Object,
-					notify: true
-				},
-				selectedAdminFile: {
-					type: Object,
-					value: null
-				}
+	<script>class HtHcpDetail extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'ht-hcp-detail';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-			observers: [
-				'hcpChanged(api,user,hcp)'
-			],
-
-			_timeFormat: function(date) {
-				return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY')
+			user: {
+				type: Object
 			},
-
-			hcpChanged: function () {
-
+			hcp: {
+				type: Object,
+				notify: true
 			},
-
-			unselectAdminFile: function() {
-				this.$.adminFileMenu.select(null)
-			},
-
-			close: function () {
-				this.set('hcp', null);
-			},
-
-			toggleMenu: function(e) {
-				e.stopPropagation()
-				e.preventDefault()
-				e.target.parentElement.parentElement.toggle()
-				e.target.parentElement.classList.toggle('opened');
-			},
-
-			isNotEmpty: function(a) {
-				return a && a.length>0
-			},
-
-			isEmpty: function(a) {
-				return !a || a.length===0
-			},
-
-			isAdminSelected: function(el) {
-				return el && el.id === '_admin_info'
-			},
-
-			picture: function(hcp) {
-				if (!hcp) { return require('../../../images/Male-128.jpg') }
-				return hcp.picture ? 'data:image/jpeg;base64,'+hcp.picture : hcp.gender === 'F' || hcp.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
-			},
-
-			localize: function(e, lng) {
-				return this.api && this.api.contact().localize(e, lng) || ""
+			selectedAdminFile: {
+				type: Object,
+				value: null
 			}
+		};
+	}
 
-		});
-	</script>
+	static get observers() {
+		return ['hcpChanged(api,user,hcp)'];
+	}
+
+	constructor() {
+		super();
+	}
+
+	_timeFormat(date) {
+		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
+	}
+
+	hcpChanged() {}
+
+	unselectAdminFile() {
+		this.$.adminFileMenu.select(null);
+	}
+
+	close() {
+		this.set('hcp', null);
+	}
+
+	toggleMenu(e) {
+		e.stopPropagation();
+		e.preventDefault();
+		e.target.parentElement.parentElement.toggle();
+		e.target.parentElement.classList.toggle('opened');
+	}
+
+	isNotEmpty(a) {
+		return a && a.length > 0;
+	}
+
+	isEmpty(a) {
+		return !a || a.length === 0;
+	}
+
+	isAdminSelected(el) {
+		return el && el.id === '_admin_info';
+	}
+
+	picture(hcp) {
+		if (!hcp) {
+			return require('../../../images/Male-128.jpg');
+		}
+		return hcp.picture ? 'data:image/jpeg;base64,' + hcp.picture : hcp.gender === 'F' || hcp.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+	}
+
+	localize(e, lng) {
+		return this.api && this.api.contact().localize(e, lng) || "";
+	}
+
+}
+
+customElements.define(HtHcpDetail.is, HtHcpDetail);
+</script>
 </dom-module>

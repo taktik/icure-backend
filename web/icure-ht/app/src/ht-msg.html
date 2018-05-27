@@ -260,9 +260,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	  </div>
   </template>
 
-  <script>
-    Polymer({
-      is: 'ht-msg'
-    });
-  </script>
+  <script>class HtMsg extends Polymer.mixinBehaviors([], Polymer.Element) {
+  static get is() {
+    return 'ht-msg';
+  }
+
+  static get properties() {
+    return {};
+  }
+
+  constructor() {
+    super();
+  }
+
+}
+
+customElements.define(HtMsg.is, HtMsg);
+</script>
 </dom-module>

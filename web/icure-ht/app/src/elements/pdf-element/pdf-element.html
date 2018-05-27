@@ -458,146 +458,165 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
 
 	</template>
 
-	<script>
-		Polymer({
-			is: 'pdf-element',
-			properties: {
-				/**
-				 * Source of a PDF file.
-				 */
-				src: {
-					type: String,
-					reflectToAttribute: true
-				},
-				/**
-				 * The z-depth of this element, from 0-5. Setting to 0 will remove the shadow, and each increasing number greater than 0 will be "deeper" than the last.
-				 */
-				elevation: {
-					type: Number,
-					value: 1
-				},
-				/**
-				 * If provided then download icon will appear on the toolbar to download file.
-				 */
-				downloadable: {
-					type: Boolean,
-					value: false
-				},
-				/**
-				 * If provided then file name will be shown on the toolbar.
-				 */
-				showFileName: {
-					type: Boolean,
-					value: false
-				},
-				/*
-				 * If provided then during page rendering loading spinner will be shown.
-				 * Maybe used for documents with many images for example.
-				 */
-				showSpinner: {
-					type: Boolean,
-					value: false
-				},
-				/*
-				 * If provided then text selection will be enabled.
-				 */
-				enableTextSelection: {
-					type: Boolean,
-					value: false
-				},
-				/*
-				 * If provided then the document will be zoomed to maximum width initially.
-				 */
-				fitWidth: {
-					type: Boolean,
-					value: false
-				}
-			},
+	<script>class PdfElement extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "pdf-element";
+	}
 
-			attached: function() {
-				this.src = this.getAttribute("src");
-				this._initializeReader();
-				if (this.src) this.instance.loadPDF();
-				this._setFitWidth();
+	static get properties() {
+		return {
+			/**
+    * Source of a PDF file.
+    */
+			src: {
+				type: String,
+				reflectToAttribute: true
 			},
-
-			loadPDF: function() {
-				if (!this.getAttribute("src")) return;
-				this.instance.changePDFSource(this.getAttribute("src"));
-				this.currentPage = 1;
-				this.totalPages = this.instance.totalPages;
-				this.fileName = this.src.split('/').pop();
-				this._setFitWidth();
-				this.$.zoomIcon.icon = 'fullscreen';
+			/**
+    * The z-depth of this element, from 0-5. Setting to 0 will remove the shadow, and each increasing number greater than 0 will be "deeper" than the last.
+    */
+			elevation: {
+				type: Number,
+				value: 1
 			},
-
-			attributeChanged: function(name, type) {
+			/**
+    * If provided then download icon will appear on the toolbar to download file.
+    */
+			downloadable: {
+				type: Boolean,
+				value: false
 			},
-
-			_initializeReader: function() {
-				this.instance = new Polymer.Reader(this);
-				if (this.src != null) this.fileName = this.src.split('/').pop();
-				this.currentPage = 1;
+			/**
+    * If provided then file name will be shown on the toolbar.
+    */
+			showFileName: {
+				type: Boolean,
+				value: false
 			},
-			_setFitWidth: function() {
-				this.instance.setFitWidth(this.fitWidth);
+			/*
+    * If provided then during page rendering loading spinner will be shown.
+    * Maybe used for documents with many images for example.
+    */
+			showSpinner: {
+				type: Boolean,
+				value: false
 			},
-			zoomInOut: function(step) {
-				if (this.instance.currentZoomVal >= 2) {
-					this.instance.currentZoomVal = 2;
-				} else if (this.instance.currentZoomVal <= 0.1) {
-					this.instance.currentZoomVal = 0.1;
-				} else {
-					this.$.zoomIcon.icon = 'fullscreen';
-					this.instance.zoomInOut(step);
-				}
+			/*
+    * If provided then text selection will be enabled.
+    */
+			enableTextSelection: {
+				type: Boolean,
+				value: false
 			},
-			zoomIn: function() {
-				this.zoomInOut(0.1);
-			},
-			zoomOut: function() {
-				this.instance.zoomInOut(-0.1);
-			},
-			zoomFit: function() {
-				if (this.instance.currentZoomVal == this.instance.widthZoomVal) {
-					this.instance.zoomPageFit();
-					this.$.zoomIcon.icon = 'fullscreen';
-				} else {
-					this.instance.zoomWidthFit();
-					this.$.zoomIcon.icon = 'fullscreen-exit';
-				}
-			},
-			pageNoCommitted: function() {
-				var page = parseInt(this.$.input.value);
-
-				if ((1 <= page) && (page <= this.instance.totalPagesNum)) {
-					this.instance.currentPage = page;
-					this.instance.queueRenderPage(this.instance.currentPage);
-					this.currentPage = page;
-					this.$.input.blur();
-				} else {
-					this.$.input.value = this.currentPage;
-					this.$.input.blur();
-				}
-			},
-			showPrev: function() {
-				if (1 < this.instance.currentPage) {
-					this.instance.currentPage--;
-					this.instance.queueRenderPage(this.instance.currentPage);
-					this.currentPage--;
-				}
-			},
-			showNext: function() {
-				if (this.instance.totalPagesNum > this.instance.currentPage) {
-					this.instance.currentPage++;
-					this.instance.queueRenderPage(this.instance.currentPage);
-					this.currentPage++;
-				}
-			},
-			download: function() {
-				this.instance.download();
+			/*
+    * If provided then the document will be zoomed to maximum width initially.
+    */
+			fitWidth: {
+				type: Boolean,
+				value: false
 			}
-		});
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	attached() {
+		this.src = this.getAttribute("src");
+		this._initializeReader();
+		if (this.src) this.instance.loadPDF();
+		this._setFitWidth();
+	}
+
+	loadPDF() {
+		if (!this.getAttribute("src")) return;
+		this.instance.changePDFSource(this.getAttribute("src"));
+		this.currentPage = 1;
+		this.totalPages = this.instance.totalPages;
+		this.fileName = this.src.split('/').pop();
+		this._setFitWidth();
+		this.$.zoomIcon.icon = 'fullscreen';
+	}
+
+	attributeChanged(name, type) {}
+
+	_initializeReader() {
+		this.instance = new Polymer.Reader(this);
+		if (this.src != null) this.fileName = this.src.split('/').pop();
+		this.currentPage = 1;
+	}
+
+	_setFitWidth() {
+		this.instance.setFitWidth(this.fitWidth);
+	}
+
+	zoomInOut(step) {
+		if (this.instance.currentZoomVal >= 2) {
+			this.instance.currentZoomVal = 2;
+		} else if (this.instance.currentZoomVal <= 0.1) {
+			this.instance.currentZoomVal = 0.1;
+		} else {
+			this.$.zoomIcon.icon = 'fullscreen';
+			this.instance.zoomInOut(step);
+		}
+	}
+
+	zoomIn() {
+		this.zoomInOut(0.1);
+	}
+
+	zoomOut() {
+		this.instance.zoomInOut(-0.1);
+	}
+
+	zoomFit() {
+		if (this.instance.currentZoomVal == this.instance.widthZoomVal) {
+			this.instance.zoomPageFit();
+			this.$.zoomIcon.icon = 'fullscreen';
+		} else {
+			this.instance.zoomWidthFit();
+			this.$.zoomIcon.icon = 'fullscreen-exit';
+		}
+	}
+
+	pageNoCommitted() {
+		var page = parseInt(this.$.input.value);
+
+		if (1 <= page && page <= this.instance.totalPagesNum) {
+			this.instance.currentPage = page;
+			this.instance.queueRenderPage(this.instance.currentPage);
+			this.currentPage = page;
+			this.$.input.blur();
+		} else {
+			this.$.input.value = this.currentPage;
+			this.$.input.blur();
+		}
+	}
+
+	showPrev() {
+		if (1 < this.instance.currentPage) {
+			this.instance.currentPage--;
+			this.instance.queueRenderPage(this.instance.currentPage);
+			this.currentPage--;
+		}
+	}
+
+	showNext() {
+		if (this.instance.totalPagesNum > this.instance.currentPage) {
+			this.instance.currentPage++;
+			this.instance.queueRenderPage(this.instance.currentPage);
+			this.currentPage++;
+		}
+	}
+
+	download() {
+		this.instance.download();
+	}
+
+}
+
+customElements.define(PdfElement.is, PdfElement);
+</script>
 
 </dom-module>

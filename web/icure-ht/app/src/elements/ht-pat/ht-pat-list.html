@@ -458,7 +458,7 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 	}
 
 	confirm() {
-		this.api.patient().new(this.user, { lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
+		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
 	}
 
 	picture(pat) {

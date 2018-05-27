@@ -55,129 +55,142 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[combinedForm]]" data-map="[[hcp]]" data-provider="[[dataProvider]]"></dynamic-form>
 	</template>
-	<script>
-		Polymer({
-			is: 'ht-hcp-admin-card',
-			properties: {
-				api: {
-					type: Object
-				},
-				user: {
-					type: Object
-				},
-				hcp: {
-					type: Object,
-					notify: true
-				},
-				hcpForm: {
-					type: Object,
-					value: function() {
-						return require('./rsrc/HcpAdministrativeForm.json')
-					}
-				},
-				addressForm: {
-					type: Object,
-					value: function() {
-						return require('./rsrc/HcpAddressForm.json')
-					}
-				},
-				telecomForm: {
-					type: Object,
-					value: function() {
-						return require('./rsrc/HcpTelecomForm.json')
-					}
-				},
-				dataProvider: {
-					type: Object,
-					value: null
+	<script>class HtHcpAdminCard extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'ht-hcp-admin-card';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			user: {
+				type: Object
+			},
+			hcp: {
+				type: Object,
+				notify: true
+			},
+			hcpForm: {
+				type: Object,
+				value: function () {
+					return require('./rsrc/HcpAdministrativeForm.json');
 				}
 			},
-			observers: [
-				'hcpChanged(api,user,hcp)',
-				'hcpFormChanged(hcpForm, addressForm, telecomForm)'
-			],
-
-			detached: function() {
-				this.flushSave()
-			},
-
-			hcpFormChanged: function() {
-				if (this.hcpForm && this.addressForm && this.telecomForm) {
-					this.set('combinedForm',this.hcpForm)
+			addressForm: {
+				type: Object,
+				value: function () {
+					return require('./rsrc/HcpAddressForm.json');
 				}
 			},
-
-			hcpChanged: function () {
-				if (this.api && this.user && this.hcp) {
-					this.flushSave()
-					this.dataProvider = this.hcpDataProvider(this.hcp)
-					this.$['dynamic-form'].loadDataMap()
+			telecomForm: {
+				type: Object,
+				value: function () {
+					return require('./rsrc/HcpTelecomForm.json');
 				}
 			},
-
-			scheduleSave: function(hcp) {
-				if (this.saveTimeout) { clearTimeout(this.saveTimeout) }
-				this.saveAction = function() {
-					this.api.hcparty().modifyHealthcareParty(hcp).then(h => this.hcp.rev = h.rev).catch(e => this.api.hcp().getHealthcareParty(this.hcp.id).then(p => this.hcp = p))
-				}.bind(this)
-				this.saveTimeout = setTimeout(this.saveAction, 10000)
-			},
-
-			flushSave: function() {
-				if (this.saveTimeout) {
-					clearTimeout(this.saveTimeout)
-					this.saveAction()
-
-					this.saveTimeout = undefined
-					this.saveAction = undefined
-				}
-			},
-
-			hcpDataProvider: function(root) {
-				return {
-					getStringValue: function (key) {
-						return root ? root[key] : null
-					}.bind(this),
-					getNumberValue: function (key) {
-						return root ? root[key] : null
-					}.bind(this),
-					getMeasureValue: function (key) {
-						return root ? root[key] : null
-					}.bind(this),
-					getDateValue: function (key) {
-						return root ? root[key] : null
-					}.bind(this),
-					setStringValue: function (key, value) {
-						if (root && root[key] !== value) {
-							root[key] = value
-							this.scheduleSave(this.hcp)
-						}
-					}.bind(this),
-					setNumberValue: function (key, value) {
-						if (root && root[key] !== value) {
-							root[key] = value
-							this.scheduleSave(this.hcp)
-						}
-					}.bind(this),
-					setMeasureValue: function (key, value) {
-						if (root && root[key] !== value) {
-							root[key] = value
-							this.scheduleSave(this.hcp)
-						}
-					}.bind(this),
-					setDateValue: function (key, value) {
-						if (root && root[key] !== value) {
-							root[key] = value
-							this.scheduleSave(this.hcp)
-						}
-					}.bind(this),
-					getSubForms: function(key) {
-						return root[key].map((a) => {
-							return {dataMap: a, dataProvider: this.hcpDataProvider(a), template: key==='addresses'?this.addressForm:this.telecomForm}
-						})
-					}.bind(this)
-				}
+			dataProvider: {
+				type: Object,
+				value: null
 			}
-		});
-	</script>
+		};
+	}
+
+	static get observers() {
+		return ['hcpChanged(api,user,hcp)', 'hcpFormChanged(hcpForm, addressForm, telecomForm)'];
+	}
+
+	constructor() {
+		super();
+	}
+
+	detached() {
+		this.flushSave();
+	}
+
+	hcpFormChanged() {
+		if (this.hcpForm && this.addressForm && this.telecomForm) {
+			this.set('combinedForm', this.hcpForm);
+		}
+	}
+
+	hcpChanged() {
+		if (this.api && this.user && this.hcp) {
+			this.flushSave();
+			this.dataProvider = this.hcpDataProvider(this.hcp);
+			this.$['dynamic-form'].loadDataMap();
+		}
+	}
+
+	scheduleSave(hcp) {
+		if (this.saveTimeout) {
+			clearTimeout(this.saveTimeout);
+		}
+		this.saveAction = function () {
+			this.api.hcparty().modifyHealthcareParty(hcp).then(h => this.hcp.rev = h.rev).catch(e => this.api.hcp().getHealthcareParty(this.hcp.id).then(p => this.hcp = p));
+		}.bind(this);
+		this.saveTimeout = setTimeout(this.saveAction, 10000);
+	}
+
+	flushSave() {
+		if (this.saveTimeout) {
+			clearTimeout(this.saveTimeout);
+			this.saveAction();
+
+			this.saveTimeout = undefined;
+			this.saveAction = undefined;
+		}
+	}
+
+	hcpDataProvider(root) {
+		return {
+			getStringValue: function (key) {
+				return root ? root[key] : null;
+			}.bind(this),
+			getNumberValue: function (key) {
+				return root ? root[key] : null;
+			}.bind(this),
+			getMeasureValue: function (key) {
+				return root ? root[key] : null;
+			}.bind(this),
+			getDateValue: function (key) {
+				return root ? root[key] : null;
+			}.bind(this),
+			setStringValue: function (key, value) {
+				if (root && root[key] !== value) {
+					root[key] = value;
+					this.scheduleSave(this.hcp);
+				}
+			}.bind(this),
+			setNumberValue: function (key, value) {
+				if (root && root[key] !== value) {
+					root[key] = value;
+					this.scheduleSave(this.hcp);
+				}
+			}.bind(this),
+			setMeasureValue: function (key, value) {
+				if (root && root[key] !== value) {
+					root[key] = value;
+					this.scheduleSave(this.hcp);
+				}
+			}.bind(this),
+			setDateValue: function (key, value) {
+				if (root && root[key] !== value) {
+					root[key] = value;
+					this.scheduleSave(this.hcp);
+				}
+			}.bind(this),
+			getSubForms: function (key) {
+				return root[key].map(a => {
+					return { dataMap: a, dataProvider: this.hcpDataProvider(a), template: key === 'addresses' ? this.addressForm : this.telecomForm };
+				});
+			}.bind(this)
+		};
+	}
+
+}
+
+customElements.define(HtHcpAdminCard.is, HtHcpAdminCard);
+</script>
 </dom-module>

@@ -153,76 +153,75 @@
 	</template>
 
 	<script>
-		class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
-			static get is() {
-				return 'filter-panel'
+class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+	static get is() {
+		return 'filter-panel';
+	}
+
+	static get properties() {
+		return {
+			items: {
+				type: Array,
+				value: []
+			},
+			icons: {
+				type: Array,
+				computed: "computeIcons(panelWidth,items)"
+			},
+			showFiltersPanel: {
+				type: Boolean,
+				value: false
+			},
+			panelWidth: {
+				type: Number,
+				value: 200
+			},
+			selectedIcon: {
+				type: String,
+				notify: true,
+				value: null
+			},
+			searchString: {
+				type: String,
+				notify: true,
+				value: null
 			}
+		};
+	}
 
-			static get properties() {
-				return {
-					items: {
-						type: Array,
-						value: []
-					},
-					icons: {
-						type: Array,
-						computed: "computeIcons(panelWidth,items)"
-					},
-					showFiltersPanel: {
-						type: Boolean,
-						value: false
-					},
-					panelWidth: {
-						type: Number,
-						value: 200
-					},
-					selectedIcon: {
-						type: String,
-						notify: true,
-						value: null
-					},
-					searchString: {
-						type: String,
-						notify: true,
-						value: null
-					}
-				}
-			}
+	ready() {
+		super.ready();
+		this.addEventListener('iron-resize', () => this.onWidthChange());
+	}
 
-			ready() {
-				super.ready()
-				this.addEventListener('iron-resize', () => this.onWidthChange())
-			}
+	attached() {
+		super.attached();
+		this.async(this.notifyResize, 1);
+	}
 
-			attached() {
-				super.attached()
-				this.async(this.notifyResize, 1)
-			}
+	onWidthChange() {
+		this.set('panelWidth', this.parentElement.offsetWidth - Array.from(this.parentElement.children).filter(el => el !== this).map(x => x.offsetWidth).reduce((sum, w) => sum + w, 0));
+	}
 
-			onWidthChange() {
-				this.set('panelWidth', this.parentElement.offsetWidth - 
-					Array.from(this.parentElement.children).filter(el=>el !== this).map(x => x.offsetWidth).reduce((sum,w)=>sum+w,0))
-			}
+	refreshIcons() {
+		this.onWidthChange();
+	}
 
-			refreshIcons() {
-				this.onWidthChange()
-			}
+	computeIcons(width, items) {
+		return items.filter((it, idx) => it.icon && idx * 40 < width - 255);
+	}
 
-			computeIcons(width, items) {
-				return items.filter((it, idx) => it.icon && (idx * 40 < width - 255))
-			}
+	clearInput() {
+		this.$.searchInput.value = "";
+	}
 
-			clearInput() {
-				this.$.searchInput.value = ""
-			}
+	toggleFiltersPanel() {
+		this.showFiltersPanel = !this.showFiltersPanel;
+		this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed');
+	}
 
-			toggleFiltersPanel() {
-				this.showFiltersPanel = !this.showFiltersPanel
-				this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed')
-			}
+}
 
-		}
-
-		customElements.define(FilterPanel.is, FilterPanel)
-	</script>
+customElements.define(FilterPanel.is, FilterPanel);
+</script>
 </dom-module>

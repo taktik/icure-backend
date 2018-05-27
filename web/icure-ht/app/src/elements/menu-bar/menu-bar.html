@@ -43,13 +43,20 @@
 	</template>
 </dom-module>
 
-<script>
-	(function() {
-		Polymer({
-			is: 'menu-bar',
-			behaviors: [
-				Polymer.IronMenubarBehavior
-			]
-		});
-	})();
+<script>class MenuBar extends Polymer.mixinBehaviors([Polymer.IronMenubarBehavior], Polymer.Element) {
+	static get is() {
+		return 'menu-bar';
+	}
+
+	static get properties() {
+		return {};
+	}
+
+	constructor() {
+		super();
+	}
+
+}
+
+customElements.define(MenuBar.is, MenuBar);
 </script>

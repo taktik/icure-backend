@@ -1177,7 +1177,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	</template>
 	<script>
 
-
 import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import styx from '../../../scripts/styx';
@@ -1536,7 +1535,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						if (!ctc.userDescr || ctc.userDescr.length < 3) {
 							ctc.userDescr = ctc.descr;
 						}
-					});(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().new(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
+					});(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
 						const thisYear = moment().year();
 						this.set('contacts', ctcs);
 						this.set('currentContact', newCtc);
@@ -1964,7 +1963,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_addedHealthElementSelected(event, healthElement) {
-		this.api.helement().new(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged());
+		this.api.helement().newInstance(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged());
 	}
 
 	_editedHealthElementSelected(event, healthElement) {

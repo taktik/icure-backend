@@ -35,141 +35,187 @@
 	</dom-module>
 
 	<script>
-		import moment from '../../../bower_components/moment/src/moment'
-		(function () {
-			Polymer({
-				is: 'icc-x-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					},
-					fhcHost: {
-						type: String
-					},
-					baseApi: {
-						type: Object,
-						notify: true
-					},
-					hcpartyApi: {
-						type: Object
-					},
-					hcParties: {
-						type: Object,
-						value: function() {
-							return {};
-						}
-					},
-					users: {
-						type: Object,
-						value: function() {
-							return {};
-						}
-					}
-				},
-				behaviors: [],
+import moment from '../../../bower_components/moment/src/moment';
 
-				ready: function() {
-					console.log("API ready")
+class IccXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'icc-x-api';
+	}
 
-					//Link the apis
-					this.set('baseApi', this.$['icc-api'])
-					this.set('hcpartyApi', this.$['icc-hcparty-x-api'])
-					this.set('cryptoApi', this.$['icc-crypto-x-api'])
-				  	this.set('contactApi', this.$['icc-contact-x-api'])
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			},
+			fhcHost: {
+				type: String
+			},
+			baseApi: {
+				type: Object,
+				notify: true
+			},
+			hcpartyApi: {
+				type: Object
+			},
+			hcParties: {
+				type: Object,
+				value: function () {
+					return {};
+				}
+			},
+			users: {
+				type: Object,
+				value: function () {
+					return {};
+				}
+			}
+		};
+	}
 
-					Object.getOwnPropertyNames(Object.getPrototypeOf(this.baseApi)).forEach((p)=>{
-						if (typeof this.baseApi[p] === 'function' && !this[p]) {
-							this[p] = this.baseApi[p].bind(this.baseApi)
-						}
-					})
+	constructor() {
+		super();
+	}
 
-					this.refresh()
-				},
+	ready() {
+		super.ready();
 
-			  	refresh: function() {
-				  if (!this.baseApi) { return }
+		console.log("API ready");
 
-				  this.patient().init()
-				  this.contact().init()
-				  this.form().init()
-				  this.document().init()
-				  this.code().init()
-				  this.helement().init()
-				  this.hcparty().init()
-				  this.crypto().init()
+		//Link the apis
+		this.set('baseApi', this.$['icc-api']);
+		this.set('hcpartyApi', this.$['icc-hcparty-x-api']);
+		this.set('cryptoApi', this.$['icc-crypto-x-api']);
+		this.set('contactApi', this.$['icc-contact-x-api']);
 
-				  //Load the map of hcps
-				  this.user().listUsers().then(users => {
-					  this.set('users', users.rows.reduce((acc, u) =>  {acc[u.id] = u; return acc},{}))
-					  return this.hcparty().getHealthcareParties(users.rows.map(u=>u.healthcarePartyId).filter(id=>id!==null))
-				  }).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) =>  {acc[hcp.id] = hcp; return acc},{})))
-				},
+		Object.getOwnPropertyNames(Object.getPrototypeOf(this.baseApi)).forEach(p => {
+			if (typeof this.baseApi[p] === 'function' && !this[p]) {
+				this[p] = this.baseApi[p].bind(this.baseApi);
+			}
+		});
 
-				patient: function() { return this.$['icc-patient-x-api'] },
-				contact: function() { return this.$['icc-contact-x-api'] },
-				form: function() { return this.$['icc-form-x-api'] },
-				document: function() { return this.$['icc-document-x-api'] },
-				code: function() { return this.$['icc-code-x-api'] },
-				helement: function() { return this.$['icc-helement-x-api'] },
-				hcparty: function() { return this.$['icc-hcparty-x-api'] },
-				crypto: function() { return this.$['icc-crypto-x-api'] },
+		this.refresh();
+	}
 
-				fhc: function() { return this.$['fhc-api'] },
+	refresh() {
+		if (!this.baseApi) {
+			return;
+		}
 
-				localize: function(e, lng) {
-					if (!e) { return null }
-					return e[lng] || e.fr || e.en || e.nl
-				},
+		this.patient().init();
+		this.contact().init();
+		this.form().init();
+		this.document().init();
+		this.code().init();
+		this.helement().init();
+		this.hcparty().init();
+		this.crypto().init();
 
-				//Convenience methods for dates management
-				after: function(d1,d2) /* d1 is after d2 or any date is null or undefined */ {
-					return (d1 === null || d2 === null || d1 === undefined || d2 === undefined) || this.moment(d1).isAfter(this.moment(d2))
-				},
+		//Load the map of hcps
+		this.user().listUsers().then(users => {
+			this.set('users', users.rows.reduce((acc, u) => {
+				acc[u.id] = u;return acc;
+			}, {}));
+			return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => id !== null));
+		}).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) => {
+			acc[hcp.id] = hcp;return acc;
+		}, {})));
+	}
 
-				before: function(d1,d2) /* d1 is before d2 or any date is null or undefined */ {
-					return (d1 === null || d2 === null || d1 === undefined || d2 === undefined) || this.moment(d1).isBefore(this.moment(d2))
-				},
+	patient() {
+		return this.$['icc-patient-x-api'];
+	}
 
-				moment: function(epochOrLongCalendar) {
-					if (!epochOrLongCalendar && epochOrLongCalendar!==0) { return null }
-					if (epochOrLongCalendar>=18000101 && epochOrLongCalendar<25400000) {
-						return moment(''+epochOrLongCalendar, 'YYYYMMDD')
-					} else if (epochOrLongCalendar>=18000101000000) {
-						return moment(''+epochOrLongCalendar, 'YYYYMMDDhhmmss')
-					} else {
-						return moment(epochOrLongCalendar)
-					}
-				},
+	contact() {
+		return this.$['icc-contact-x-api'];
+	}
 
-				template: function(template, args) {
-					const nargs = /\{([0-9a-zA-Z_ ]+)\}/g
-					return template.replace(nargs, function replaceArg(match, i, index) {
-						var result
+	form() {
+		return this.$['icc-form-x-api'];
+	}
 
-						if (template[index - 1] === "{" &&
-							template[index + match.length] === "}") {
-							//Double {{ }} means escape
-							return i
-						} else {
-							result = args.hasOwnProperty(i) ? args[i] : null
-							if (result === null || result === undefined) {
-								return ""
-							}
+	document() {
+		return this.$['icc-document-x-api'];
+	}
 
-							return result
-						}
-					})
-				},
+	code() {
+		return this.$['icc-code-x-api'];
+	}
 
-                getAuthor: function(author) {
-                    const usr = this.users[author]
-                    const hcp = usr ? this.hcParties[usr.healthcarePartyId] : null
-                    return (hcp && (hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && (hcp.firstName.substr(0,1) + ".")))) || (usr && usr.login) || "N/A"
-                },
-			});
-		})();
-	</script>
+	helement() {
+		return this.$['icc-helement-x-api'];
+	}
+
+	hcparty() {
+		return this.$['icc-hcparty-x-api'];
+	}
+
+	crypto() {
+		return this.$['icc-crypto-x-api'];
+	}
+
+	fhc() {
+		return this.$['fhc-api'];
+	}
+
+	localize(e, lng) {
+		if (!e) {
+			return null;
+		}
+		return e[lng] || e.fr || e.en || e.nl;
+	}
+
+	//Convenience methods for dates management
+	after(d1, d2) {
+		return d1 === null || d2 === null || d1 === undefined || d2 === undefined || this.moment(d1).isAfter(this.moment(d2));
+	}
+
+	before(d1, d2) {
+		return d1 === null || d2 === null || d1 === undefined || d2 === undefined || this.moment(d1).isBefore(this.moment(d2));
+	}
+
+	moment(epochOrLongCalendar) {
+		if (!epochOrLongCalendar && epochOrLongCalendar !== 0) {
+			return null;
+		}
+		if (epochOrLongCalendar >= 18000101 && epochOrLongCalendar < 25400000) {
+			return moment('' + epochOrLongCalendar, 'YYYYMMDD');
+		} else if (epochOrLongCalendar >= 18000101000000) {
+			return moment('' + epochOrLongCalendar, 'YYYYMMDDhhmmss');
+		} else {
+			return moment(epochOrLongCalendar);
+		}
+	}
+
+	template(template, args) {
+		const nargs = /\{([0-9a-zA-Z_ ]+)\}/g;
+		return template.replace(nargs, function replaceArg(match, i, index) {
+			var result;
+
+			if (template[index - 1] === "{" && template[index + match.length] === "}") {
+				//Double {{ }} means escape
+				return i;
+			} else {
+				result = args.hasOwnProperty(i) ? args[i] : null;
+				if (result === null || result === undefined) {
+					return "";
+				}
+
+				return result;
+			}
+		});
+	}
+
+	getAuthor(author) {
+		const usr = this.users[author];
+		const hcp = usr ? this.hcParties[usr.healthcarePartyId] : null;
+		return hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".") || usr && usr.login || "N/A";
+	}
+
+}
+
+customElements.define(IccXApi.is, IccXApi);
+</script>
