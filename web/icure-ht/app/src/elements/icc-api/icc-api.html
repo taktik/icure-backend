@@ -69,7 +69,6 @@
                 if(this.host != null) this.refresh()
              },
             refresh: function(){
-            	console.log('ser headers to', this.headers)
                 this.accesslogicc = new api.iccAccesslogApi(this.host, this.headers);
                 this.authicc = new api.iccAuthApi(this.host, this.headers);
                 this.beabicc = new api.iccBeabApi(this.host, this.headers);

@@ -121,78 +121,87 @@
 	</template>
 
 	<script>
-		Polymer({
-			is: 'dynamic-doc',
-			properties: {
-				api: {
-					type: Object
-				},
-				language: {
-					type: String
-				},
-				user: {
-					type: Object
-				},
-				service: {
-					type: Object,
-					value: null,
-					observer: '_serviceChanged'
-				},
-				document: {
-					type: Object,
-					value: null
-				},
-				dataUrl: {
-					type: String,
-					value: null
-				},
-				title: {
-					type: String,
-					value: null
-				}
-			},
-			observers: [],
+class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-doc';
+	}
 
-			_serviceChanged: function() {
-				if (!this.service) { return }
-				const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en')
-				const docId =  serviceContent && serviceContent.documentId
-				this.api.document().getDocument(docId).then(doc => {
-					this.set('document',doc)
-					if (doc.delegations && Object.keys(doc.delegations).length) {
-						this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
-							var collatedAesKeys = {}
-							decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key)
-							return this.api.crypto().decryptDelegationsSFKs(doc.delegations[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(sfks => {
-								const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks)
-								console.log('url is', url)
-								this.set('dataUrl', url)
-							})
-						}.bind(this)).catch(()=>{
-							const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
-							console.log('url is', url)
-							this.set('dataUrl', url);
-						})
-					} else {
-						const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId)
-						console.log('url is', url)
-						this.set('dataUrl', url);
-					}
-				})
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-
-			_imageMimeType: function(uti, utis, dataUrl) {
-				return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u=>this.api.document().mimeType(u)).find(m=>m && (m.startsWith('image/') || m === 'public/jpeg'))
+			user: {
+				type: Object
 			},
-
-			_pdfMimeType: function(uti, utis, dataUrl) {
-				return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u=>this.api.document().mimeType(u)).find(m=>m === 'application/pdf')
+			service: {
+				type: Object,
+				value: null,
+				observer: '_serviceChanged'
 			},
-
-			_base64: function(data) {
-				return base64js.fromByteArray(data)
+			document: {
+				type: Object,
+				value: null
+			},
+			dataUrl: {
+				type: String,
+				value: null
+			},
+			title: {
+				type: String,
+				value: null
 			}
+		};
+	}
 
-		})
-	</script>
+	constructor() {
+		super();
+	}
+
+	_serviceChanged() {
+		if (!this.service) {
+			return;
+		}
+		const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en');
+		const docId = serviceContent && serviceContent.documentId;
+		this.api.document().getDocument(docId).then(doc => {
+			this.set('document', doc);
+			if (doc.delegations && Object.keys(doc.delegations).length) {
+				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
+					var collatedAesKeys = {};
+					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
+					return this.api.crypto().decryptDelegationsSFKs(doc.delegations[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(sfks => {
+						const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);
+						console.log('url is', url);
+						this.set('dataUrl', url);
+					});
+				}.bind(this)).catch(() => {
+					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
+					console.log('url is', url);
+					this.set('dataUrl', url);
+				});
+			} else {
+				const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
+				console.log('url is', url);
+				this.set('dataUrl', url);
+			}
+		});
+	}
+
+	_imageMimeType(uti, utis, dataUrl) {
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+	}
+
+	_pdfMimeType(uti, utis, dataUrl) {
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'application/pdf');
+	}
+
+	_base64(data) {
+		return base64js.fromByteArray(data);
+	}
+
+}
+
+customElements.define(DynamicDoc.is, DynamicDoc);
+</script>
 </dom-module>

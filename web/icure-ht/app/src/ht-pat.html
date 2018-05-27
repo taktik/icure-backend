@@ -39,10 +39,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<app-route route="{{route}}" pattern="/:selectedPatientId" data="{{routeData}}"></app-route>
 
 		<template is="dom-if" if="[[selectedPatient]]">
-			<ht-pat-detail api="[[api]]" i18n="[[i18n]]" user="[[user]]" language="[[language]]" patient="{{selectedPatient}}"></ht-pat-detail>
+			<ht-pat-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" patient="{{selectedPatient}}"></ht-pat-detail>
 		</template>
 		<template is="dom-if" if="[[!selectedPatient]]">
-			<ht-pat-list api="[[api]]" i18n="[[i18n]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
+			<ht-pat-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
 		</template>
 
 	</template>
@@ -56,10 +56,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				},
 				user: {
 					type: Object
-				},
-				language: {
-					type: String,
-					value: 'en'
 				},
 				route: {
 					type: Object,
@@ -80,10 +76,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			],
 
 			ready: function () {
-				this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-					const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
-					language && this.set('language', language)
-				})
 			},
 
 			_patientChanged: function () {

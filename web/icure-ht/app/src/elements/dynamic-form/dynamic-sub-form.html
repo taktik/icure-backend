@@ -159,105 +159,125 @@
 		</div>
 	</template>
 	<script>
-		Polymer({
-			is: 'dynamic-sub-form',
-			properties: {
-				api: {
-					type: Object
-				},
-				language: {
-					type: String
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				label: {
-					type: String
-				},
-				layoutItem: {
-					type: Object,
-					value: null
-				},
-				user: {
-					type: Object
-				},
-				subContexts: {
-					type: Array,
-					value: function() { return [] }
-				},
-				templates: {
-					type: Object,
-					value: null
-				},
-				isAdding: {
-					type: Boolean,
-					value: false
+class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-sub-form';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			readOnly: {
+				type: Boolean,
+				value: false
+			},
+			label: {
+				type: String
+			},
+			layoutItem: {
+				type: Object,
+				value: null
+			},
+			user: {
+				type: Object
+			},
+			subContexts: {
+				type: Array,
+				value: function () {
+					return [];
 				}
 			},
-			observers: [],
-
-			ready: function() {
-				this.uuid =this.api.crypto().randomUuid()
+			templates: {
+				type: Object,
+				value: null
 			},
-
-			notify: function(path) {
-				let pathParts = path.split('.')
-				const firstPathElement = pathParts[0]
-
-				if (firstPathElement === '*') {
-					this.notifyPath('subContexts.*')
-				} else if (firstPathElement.match(/[0-9]+/)) {
-					if (pathParts.length>1) {
-						const idx = parseInt(firstPathElement)
-						const item = Polymer.dom(this.root).querySelector('#sf-'+idx)
-						item.notify(pathParts.slice(1).join('.'))
-					} else {
-						this.notifyPath('subContexts.'+firstPathElement)
-					}
-				}
-			},
-			_getTemplate: function(sc) {
-				return sc && sc.template
-			},
-			_singleAction: function() {
-				return (this.layoutItem.editor.optionalFormGuids && this.layoutItem.editor.optionalFormGuids.length || 0) + (this.layoutItem.editor.compulsoryFormGuids && this.layoutItem.editor.compulsoryFormGuids.length || 0) < 2
-			},
-			_allGuids: function() {
-				return (this.layoutItem.editor.compulsoryFormGuids || []).concat(this.layoutItem.editor.optionalFormGuids || [])
-			},
-			_formTemplateLabel: function(guid) {
-				if (!this.templates) {
-					this.set('templates',{})
-					this.api.hcparty().getCurrentHealthcareParty()
-						.then(hcp => Promise.all(this._allGuids().map(guid => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes && hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice' ))))
-						.then(templates => this.set('templates', templates.reduce((acc,t) => {
-							if (t[0]) { acc[t[0].guid] = t[0] }
-							return acc
-						},{})))
-					return "Loading …"
-				}
-				return (this.templates[guid] && this.templates[guid].name) || "Loading …"
-			},
-			_delete: function(e) {
-				const subContext = this.$['subforms-repeat'].itemForElement(e.target)
-				this.dispatchEvent(new CustomEvent('delete-subform', {detail: {id: subContext.dataProvider.getId()}, composed: true}));
-			},
-			_add: function(e) {
-				this.set('isAdding',false)
-
-				const guid = e.target.id || this._allGuids()[0]
-				if (guid) {
-					this.dispatchEvent(new CustomEvent('add-subform', {detail: {guid: guid}, composed: true}));
-				}
-			},
-			_openAdd: function(li) {
-				this.set('overlayClass',li.target.getBoundingClientRect().y<480 ? 'below' : 'above')
-				this.set('isAdding',!this.isAdding)
-			},
-			_isHiddenClass: function() {
-				return this.isAdding ? '' : 'hidden-menu'
+			isAdding: {
+				type: Boolean,
+				value: false
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+
+		this.uuid = this.api.crypto().randomUuid();
+	}
+
+	notify(path) {
+		let pathParts = path.split('.');
+		const firstPathElement = pathParts[0];
+
+		if (firstPathElement === '*') {
+			this.notifyPath('subContexts.*');
+		} else if (firstPathElement.match(/[0-9]+/)) {
+			if (pathParts.length > 1) {
+				const idx = parseInt(firstPathElement);
+				const item = Polymer.dom(this.root).querySelector('#sf-' + idx);
+				item.notify(pathParts.slice(1).join('.'));
+			} else {
+				this.notifyPath('subContexts.' + firstPathElement);
+			}
+		}
+	}
+
+	_getTemplate(sc) {
+		return sc && sc.template;
+	}
+
+	_singleAction() {
+		return (this.layoutItem.editor.optionalFormGuids && this.layoutItem.editor.optionalFormGuids.length || 0) + (this.layoutItem.editor.compulsoryFormGuids && this.layoutItem.editor.compulsoryFormGuids.length || 0) < 2;
+	}
+
+	_allGuids() {
+		return (this.layoutItem.editor.compulsoryFormGuids || []).concat(this.layoutItem.editor.optionalFormGuids || []);
+	}
+
+	_formTemplateLabel(guid) {
+		if (!this.templates) {
+			this.set('templates', {});
+			this.api.hcparty().getCurrentHealthcareParty().then(hcp => Promise.all(this._allGuids().map(guid => this.api.form().getFormTemplatesByGuid(guid, hcp.specialityCodes && hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice')))).then(templates => this.set('templates', templates.reduce((acc, t) => {
+				if (t[0]) {
+					acc[t[0].guid] = t[0];
+				}
+				return acc;
+			}, {})));
+			return "Loading …";
+		}
+		return this.templates[guid] && this.templates[guid].name || "Loading …";
+	}
+
+	_delete(e) {
+		const subContext = this.$['subforms-repeat'].itemForElement(e.target);
+		this.dispatchEvent(new CustomEvent('delete-subform', { detail: { id: subContext.dataProvider.getId() }, composed: true }));
+	}
+
+	_add(e) {
+		this.set('isAdding', false);
+
+		const guid = e.target.id || this._allGuids()[0];
+		if (guid) {
+			this.dispatchEvent(new CustomEvent('add-subform', { detail: { guid: guid }, composed: true }));
+		}
+	}
+
+	_openAdd(li) {
+		this.set('overlayClass', li.target.getBoundingClientRect().y < 480 ? 'below' : 'above');
+		this.set('isAdding', !this.isAdding);
+	}
+
+	_isHiddenClass() {
+		return this.isAdding ? '' : 'hidden-menu';
+	}
+
+}
+
+customElements.define(DynamicSubForm.is, DynamicSubForm);
+</script>
 </dom-module>

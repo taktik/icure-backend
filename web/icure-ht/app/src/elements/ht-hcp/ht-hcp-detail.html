@@ -274,7 +274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="hcp-birthdate">{{hcp.nihii}}</div>
 							</div>
 						</paper-item>
-						<paper-item class="menu-item" id="_complete_file">[[localize('pat','Patients')]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						<paper-item class="menu-item" id="_complete_file">[[localize('pat','Patients',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
 					</paper-listbox>
 				</paper-material>
 			</div>
@@ -289,9 +289,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			properties: {
 				api: {
 					type: Object
-				},
-				language: {
-					type: String
 				},
 				user: {
 					type: Object

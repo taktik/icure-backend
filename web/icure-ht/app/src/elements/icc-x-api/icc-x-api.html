@@ -91,6 +91,8 @@
 				},
 
 			  	refresh: function() {
+				  if (!this.baseApi) { return }
+
 				  this.patient().init()
 				  this.contact().init()
 				  this.form().init()

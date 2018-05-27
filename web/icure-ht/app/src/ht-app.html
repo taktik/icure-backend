@@ -332,11 +332,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<iron-icon icon="icons:warning"></iron-icon>
 		</paper-item> -->
 
-		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
-		<ht-app-register-keypair-dialog id="registerKeyPairDialog" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
-		<ht-export-key id="export-key" api="[[api]]" user="[[user]]"></ht-export-key>
-		<ht-import-keychain id="ht-import-keychain" api="[[api]]" user="[[user]]"></ht-import-keychain>
-		<ht-my-profile id="ht-my-profile" api="[[api]]" user="[[user]]"></ht-my-profile>
+		<ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
+		<ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
+		<ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
+		<ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
+		<ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-my-profile>
 
 
 		<app-location route="{{route}}" use-hash-as-path="true"></app-location>
@@ -392,7 +392,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</paper-tab>
 						</paper-tabs>
 						<div class="log-info">
-							<p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth')]]</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span></p>
+							<p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span></p>
 							<paper-tooltip for="ehealth">
 								<template is="dom-if" if="[[api.tokenId]]">
 									eHealth is connected
@@ -445,9 +445,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
 								<paper-listbox class="extra-menu" slot="dropdown-content"  stop-keyboard-event-propagation>
 									<div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
-									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet')]]</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain')]]</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_myProfile">[[localize('my_pro','My profile')]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_myProfile">[[localize('my_pro','My profile',language)]]</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
 						</div>
@@ -460,9 +460,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<ht-main name="main" api="[[api]]" user="[[user]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" attachedLanguageRessources="attachedLanguageRessources" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
-					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" attachedLanguageRessources="attachedLanguageRessources" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
-					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" attachedLanguageRessources="attachedLanguageRessources" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
+					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"attachedLanguageRessources="attachedLanguageRessources" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
+					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"attachedLanguageRessources="attachedLanguageRessources" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
+					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"attachedLanguageRessources="attachedLanguageRessources" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
 				</iron-pages>
 			</app-header-layout>
@@ -487,7 +487,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				},
                 language: {
 				    type: String,
-                    value: 'en'
+				  	value: 'fr'
                 },
 				i18n: {
 					Type: Object,
@@ -576,7 +576,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
             _timeCheck(period = 300000) {
-                console.log(this.api.tokenid);
                 setTimeout(() => {
 	                this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
 		                if (!isTokenValid) {
@@ -683,6 +682,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				//Be careful not to use this.api here as it might not have been defined yet
 				this.$.api.user().getCurrentUser().then(u => {
 				    this.set('user', u)
+					this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+						const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
+						language && this.set('language', language)
+					})
+
 					this.$.loginDialog.opened = false
 
 					this.set('credentials.twofa',null)

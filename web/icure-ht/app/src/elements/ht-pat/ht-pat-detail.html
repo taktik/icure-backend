@@ -911,7 +911,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
-				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" language="[[language]]"></ht-pat-admin-card>
+				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" language="[[language]]" resources="[[resources]]"></ht-pat-admin-card>
 			</template>
 			<paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
 			<div class="first-panel">
@@ -926,104 +926,104 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="statusContainer"><paper-fab id="insuranceStatus" mini icon="vaadin:handshake"></paper-fab><paper-fab id="consentStatus" mini icon="vaadin:clipboard-check"></paper-fab><paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab><paper-fab id="hubStatus" mini icon="vaadin:cluster"></paper-fab></div>
 							</div>
 						</paper-item>
-						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file')]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
 					</paper-listbox>
 					<div class="submenus-container">
 						<paper-listbox class="padding-0" id="mainMenu" selected-items="{{selectedMainElements}}" multi toggle-shift>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title"><span>[[localize('act_hea_pro','Active Health Problems')]]</span></div>
+									<div class="one-line-menu list-title"><span>[[localize('act_hea_pro','Active Health Problems',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="ahelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!activeHealthElements.length]]">
-										<paper-item class="menu-item  list-info"><div class="one-line-menu">[[localize('no_act_hea_ele','No active health elements')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
+										<paper-item class="menu-item  list-info"><div class="one-line-menu">[[localize('no_act_hea_ele','No active health elements',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="activeHesDomRepeat" is="dom-repeat" items="[[activeHealthElements]]" as="he">
-										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate" on-select-he="selectHealthElement"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate" on-select-he="selectHealthElement"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[activeHealthElements.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_hea_ele','Add health element')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_hea_ele','Add health element',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title"><span>[[localize('med_ant','Medical antecedents')]]</span></div>
+									<div class="one-line-menu list-title"><span>[[localize('med_ant','Medical antecedents',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="ihelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!inactiveHealthElements.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med_ant','No medical antecedent')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med_ant','No medical antecedent',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="inactiveHesDomRepeat" is="dom-repeat" items="[[inactiveHealthElements]]" as="he">
-										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[inactiveHealthElements.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med_ant','Add medical antecedent')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med_ant','Add medical antecedent',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">[[localize('fam_ris','Family risks')]]</div>
+									<div class="one-line-menu list-title">[[localize('fam_ris','Family risks',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="frhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!familyrisks.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_fam_ris','No family risks')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_fam_ris','No family risks',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[familyrisks]]" as="risk">
-										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[familyrisks.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add family risk')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add family risk',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">[[localize('ris','Risks')]]</div>
+									<div class="one-line-menu list-title">[[localize('ris','Risks',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="rhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!risks.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_ris','No risks')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_ris','No risks',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[risks]]" as="risk">
-										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[risk]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[risks.length]]">
-									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_ris','Add risk')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
+									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_ris','Add risk',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">[[localize('all','Allergies')]]</div>
+									<div class="one-line-menu list-title">[[localize('all','Allergies',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="alhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!allergies.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_all','No allergies')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_all','No allergies',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[allergies]]" as="allergy">
-										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[allergy]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[allergy]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[allergies.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_all','Add allergy')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_all','Add allergy',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
-									<div class="one-line-menu list-title">[[localize('med','Medication')]]</div>
+									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
 									<template is="dom-if" if="[[!medications.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med','No medications')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med','No medications',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[medications]]" as="medication">
 										<paper-item class="menu-item" id="_svc_[[medication.id]]">
@@ -1033,28 +1033,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										</paper-item>
 									</template>
 									<template is="dom-if" if="[[medications.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med','Add medication')]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med','Add medication',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleSelectAll" elevation="">
-									<div class="one-line-menu list-title"><span>[[localize('arc','Archive')]]</span></div>
+									<div class="one-line-menu list-title"><span>[[localize('arc','Archive',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="arhelb" class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!archivedHealthElements.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_arc_hea_ele','No archived health elements')]]</div></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_arc_hea_ele','No archived health elements',language)]]</div></paper-item>
 									</template>
 									<template id="archivedHesDomRepeat" is="dom-repeat" items="[[archivedHealthElements]]" as="he">
-										<ht-pat-he-tree-detail id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[isMainElementSelected(he,selectedMainElements,selectedMainElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 								</paper-listbox>
 							</collapse-button>
 						</paper-listbox>
 					</div>
 				</paper-material>
-				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element')]]</paper-button></div>
+				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
 			</div>
 			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]" restamp>
 				<div class="second-panel">
@@ -1062,7 +1062,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<div class="contacts-container" on-scroll="openToast">
 						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
 							<template is="dom-if" if="[[events.length]]">
-								<span class="contact-year" on-click="openToast">[[localize('to_do','To Do')]]</span>
+								<span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]</span>
 								<paper-listbox id="_events_listbox" class="todo-list">
 									<template is="dom-repeat" items="[[events]]" as="e">
 										<paper-item id="_svc_[[e.id]]" class$="todo-item [[_lateEventCssClass(e)]]">
@@ -1141,34 +1141,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 					</paper-toast>
 					<template is="dom-if" if="[[!currentContact]]">
-						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">[[localize('new_con','New Contact')]]</paper-button></div>
+						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">[[localize('new_con','New Contact',language)]]</paper-button></div>
 					</template>
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]"
-												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" current-contact="[[currentContact]]"
+												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]"
 												on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
 
-		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
+		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
 			<div class="extraDialogFields" slot="suffix">
 			</div>
 		</health-problem-selector>
 
-		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
+		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
 			<div class="extraDialogFields" slot="suffix">
-					<div class="history">[[localize('his','history')]]</div>
+					<div class="history">[[localize('his','history',language)]]</div>
 			</div>
 		</health-problem-selector>
 
-		<entity-selector id="add-service-dialog" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Create">
+		<entity-selector id="add-service-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Create">
 			<div class="extraDialogFields" slot="suffix">
 				<paper-input label="Description" value="[[shortServiceDescription(svcEntity, language)}}" on-value-changed="_svcEntityContentChanged"></paper-input>
 			</div>
 		</entity-selector>
 
-		<entity-selector id="edit-service-dialog" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Modify">
+		<entity-selector id="edit-service-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Modify">
 			<div class="extraDialogFields" slot="suffix">
 				<paper-input label="Description" value="[[shortServiceDescription(svcEntity, language)}}" on-value-changed="_svcEntityContentChanged"></paper-input>
 			</div>
@@ -1176,819 +1176,868 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	</template>
 	<script>
-		import moment from 'moment/src/moment'
-		import _ from 'lodash/lodash'
-		import styx from '../../../scripts/styx'
-				import {AccessLogDto} from "../icc-api/model/AccessLogDto"
 
-		Polymer({
-			is: 'ht-pat-detail',
-			properties: {
-				api: {
-					type: Object
-				},
-				language: {
-					type: String,
-					value: 'en'
-				},
-				user: {
-					type: Object
-				},
-				patient: {
-					type: Object,
-					notify: true
-				},
-				patientInsurance: {
-					type: Object,
-					value: function() { return {} }
-				},
-				patientInsurability: {
-					type: Object,
-					value: function() { return {} }
-				},
-				selectedAdminFile: {
-					type: Object,
-					observer: 'selectedAdminFileChanged',
-					value: null
-				},
-				selectedMainElements: {
-					type: Array,
-					observer: "selectedMainElementsChanged",
-					value: function() { return [] }
-				},
-				selectedFamily: {
-				    type: Array,
-					value: function() { return [] }
 
-				},
-				events: {
-					type: Array,
-					value: function() { return [] }
+import moment from 'moment/src/moment';
+import _ from 'lodash/lodash';
+import styx from '../../../scripts/styx';
+import { AccessLogDto } from "../icc-api/model/AccessLogDto";
 
-				},
-				selectedRisks: {
-					type: Array,
-					value: function() { return [] }
+class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
+	static get is() {
+		return 'ht-pat-detail';
+	}
 
-				},
-				selectedAllergies: {
-					type: Array,
-					value: function() { return [] }
-
-				},
-				selectedLocalize: {
-					type: Array,
-					value: function() { return [] }
-				},
-				selected: {
-				    type: Boolean,
-					value: false
-				},
-				showFiltersPanel: {
-				    type: Boolean,
-					value: false
-				},
-				currentContact: {
-					type: Object,
-					value: null
-				},
-				contactSearchString: {
-					type: String,
-					value: null
-				},
-				showDetailsFiltersPanel: {
-					type: Boolean,
-					value: false
-				},
-				isLatestYear: {
-				    type: Boolean,
-					value: false
-				},
-				selectedContactItems: {
-					type: Array,
-					value: function() { return [] }
-				},
-				itemSelected: {
-					type: Boolean,
-					value: false
-				},
-				secondPanelItems: {
-					type: Array,
-					value: function() {
-						return [{icon: "icure-svg-icons:laboratory", title: "Lab Results", id: "LabResults"},
-						{icon:"icure-svg-icons:imaging", title:"Imaging", id:"Imaging"},
-						{icon:"icure-svg-icons:stethoscope", title:"Consultation", id:"Consultation"},
-						{icon:"editor:insert-drive-file", title:"Protocol", id:"Protocol"},
-						{icon:"icure-svg-icons:prescription", title:"Prescription", id:"Prescription"},
-						{icon:"icure-svg-icons:sent-reports", title:"Sent Reports", id:"SentReports"},
-						{icon:"icure-svg-icons:received-reports", title:"Received Reports", id:"ReceivedReports"}]
-				    }
-				},
-			  	i18n: {
-					type: Object
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			user: {
+				type: Object
+			},
+			patient: {
+				type: Object,
+				notify: true
+			},
+			patientInsurance: {
+				type: Object,
+				value: function () {
+					return {};
 				}
 			},
-			observers: [
-				'patientOpened(patient.id,api,user)',
-				'patientChanged(api,user,patient)',
-				'selectedMainElementsSpliced(selectedMainElements.splices)',
-				'selectedContactItemsChanged(selectedContactItems.*)'
-			],
-			selectedContactItemsChanged: function() {
-				const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel')
-				ctcDetailPanel && ctcDetailPanel.flushSave()
-
-				this.set('selectedContacts',this.selectedContactItems.map(i=>i.contact))
-			},
-			_shortId:function(id) { return id && id.substr(0,8) },
-			_timeFormat: function(date) {
-				return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY')
-			},
-
-			_dateFormat: function(date) {
-				return this.api.moment(date).format('DD/MM/YYYY')
-			},
-			_contactClasses: function(contact) {
-				return contact.closingDate ? '' : 'current-contact'
-			},
-			clearEvent: function(el) {
-				const svcId = el.target.parentElement.parentElement.id.substr(5)
-				const svc = this.get('events').find(s=>s.id === svcId)
-
-				const t = svc.tags.find(t=>t.type==='CD-LIFECYCLE')
-				if (t) {
-					t.code = 'cancelled'
-					if (!this.currentContact) { return }
-					this.saveService(svc).then(c => this.filterEvents())
+			patientInsurability: {
+				type: Object,
+				value: function () {
+					return {};
 				}
 			},
-			completeEvent: function(el) {
-				const svcId = el.target.parentElement.parentElement.id.substr(5)
-				const svc = this.get('events').find(s=>s.id === svcId)
-
-				const t = svc.tags.find(t=>t.type==='CD-LIFECYCLE')
-				if (t) {
-					t.code = 'completed'
-					if (!this.currentContact) { return }
-					this.saveService(svc).then(c => this.filterEvents())
+			selectedAdminFile: {
+				type: Object,
+				observer: 'selectedAdminFileChanged',
+				value: null
+			},
+			selectedMainElements: {
+				type: Array,
+				observer: "selectedMainElementsChanged",
+				value: function () {
+					return [];
 				}
 			},
-			saveService: function(svc) {
-				svc.modified = +new Date()
-				if (!svc.id) { svc.id = this.api.crypto().randomUuid() }
-				if (!svc.valueDate) { svc.valueDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-				if (!svc.openingDate) { svc.openingDate = svc.valueDate }
-				if (!svc.created) { svc.created = svc.modified }
-				const ctc = this.api.contact().contactOfService(this.get('contacts'), svc.id) || this.currentContact
-				let sc = this.currentContact.subContacts.find(sc=>sc.services.find(sId=>svc.id))
-				if (!sc) {
-					sc = ctc.subContacts.find(sc=>sc.services.find(sId=>svc.id)) || {}
-					this.currentContact.subContacts.push((sc = {formId:sc.formId, planOfActionId:sc.planOfActionId, healthElementId:sc.healthElementId, services:[]}))
-					sc.services.push({serviceId:svc.id})
-				}
-				const oldSvcIdx = this.currentContact.services.findIndex(s=>s.id === svc.id)
-				if (oldSvcIdx>-1) {
-					this.currentContact.services.splice(oldSvcIdx,1)
-				}
-				this.currentContact.services.push(svc)
-				return this.saveCurrentContact()
-			},
-
-			saveContact: function(ctc) {
-				return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
-					ctc.rev = c.rev
-				  	console.log("contact saved: "+ctc.id+":"+ctc.rev)
-
-				  	setTimeout(()=>this.$.savedIndicator.classList.remove("saved"),2000)
-					this.$.savedIndicator.classList.add("saved")
-
-					if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
-						this.patientChanged()
-					}
-					return c
-				})
-			},
-
-			saveCurrentContact: function() {
-				return this.saveContact(this.currentContact)
-			},
-
-			_saveContact: function(event) {
-				this.saveContact(event.detail)
-			},
-
-		    filterEvents: function() {
-				this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s=>s.tags.find(t=>t.type==='CD-LIFECYCLE'&&t.code==='planned')),it=>-this.api.moment(it.valueDate)))
-			},
-
-			_lateEventCssClass: function(e) {
-				return this.api.moment(e.valueDate).isBefore(moment()) ? 'todo-item--late' : ''
-			},
-
-			_isLatestYearContact(contactYear, contactYears){
-				if(contactYear.year === contactYears[Object.keys(contactYears)[0]].year) {
-					this.isLatestYear = true;
-			        return "contact--big";
-				} else {
-					this.isLatestYear = false;
-			        return "contact--small";
-				}
-			},
-
-			openToast: function() {
-				Polymer.dom(this.root).querySelector('#selectionToast').show();
-			},
-
-			toggleFiltersPanel: function(){
-			    this.showFiltersPanel = !this.showFiltersPanel;
-				this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed');
-			},
-
-			selectedItemsSubmenu: function (list, selectedItems) {
-			    if (!selectedItems || selectedItems.length===0) {
-			        return 'icons:check-box-outline-blank';
-				} else if( selectedItems.length < list.length) {
-			        return 'icons:indeterminate-check-box';
-				}
-				else {
-			        return 'icons:check-box'
-				}
-			},
-
-			checkedUncheckedIcon: function(item, selectedItems) {
-			    if(selectedItems && selectedItems.find(i=>i && i.id && i.id.endsWith(item.id))){
-			     	return 'icons:check-box';
-				} else {
-			        return 'icons:check-box-outline-blank';
-				}
-			},
-
-			patientOpened: function (patientId,api,user) {
-			  	if (api && user && patientId && patientId !== this.latestPatientId) {
-			  		this.latestPatientId = patientId
-				  	this.api.accesslog().createAccessLog(new AccessLogDto({
-					  	id: this.api.crypto().randomUuid(),
-					  	patientId: patientId,
-					  	user: user.id,
-					  	date: +new Date(),
-					  	accessType:'USER_ACCESS'
-					}))
-				}
-			},
-
-			patientChanged: function (api,user,patient,forceCreate = true) {
-				if (this.api && this.user && this.patient) {
-					const patient = this.patient
-					Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient), this.api.helement().findBy(this.user.healthcarePartyId, patient)])
-							.then( ([ctcs, hes]) => {
-								const descrPattern = this.user.properties.find(p=>p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}"
-								const sorter = (x=>[-x.valueDate||-x.openingDate,-x.closingDate])
-								const idServicesInHes = _.compact(hes.map(he=>he.idService))
-
-								this.api.contact()
-								  .filterServices(ctcs, s=>s.tags.find(c=>(c.type === 'CD-ITEM') && (['healtcarehelement','healthissue','familyrisk','risk','allergy'].includes(c.code))) && !idServicesInHes.includes(s.id))
-								  .then(hesAsServices => {
-									const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc => ({
-										created:svc.created,
-										modified:svc.modified,
-										endOfLife:svc.endOfLife,
-										author:svc.author,
-										responsible:svc.responsible,
-										codes:svc.codes,
-										tags:svc.tags,
-										valueDate:svc.valueDate,
-										openingDate:svc.openingDate,
-										closingDate:svc.closingDate,
-										descr: this.shortServiceDescription(svc,this.language),
-										idService:svc.id,
-										status:svc.status,
-										svc:svc,
-										plansOfAction:[]})
-									), hes.filter(it=>it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
-
-									combinedHes.forEach(e => {
-									    e.selectedItems = []
-									});
-
-									this.api.code().icdChapters(_.compact(combinedHes.map(he=>he.codes.find(c=>c.type === 'ICD' || c.type === 'ICD10'))).map(x=>x.code)).then(codes => {
-										codes.forEach(cc => {
-											cc.healthElements = _.sortBy(combinedHes.filter(he => {
-												let heIcd = he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10')
-												return heIcd && cc.subCodes.includes(heIcd.code)
-											}), sorter)
-											cc.healthElements.forEach((he)=>(he.colour = cc.descr.colour))
-										})
-										this.set('healthTopics', _.sortBy(codes.filter(ht=>ht.healthElements.length > 1), (it=>this.localize(it))))
-
-										this.set('activeHealthElements',  _.sortBy(combinedHes.filter(it=>
-										  !it.closingDate
-										  && ((it.status & 1) === 0)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))
-										), 'descr'));
-										this.set('inactiveHealthElements',  _.sortBy(combinedHes.filter(it=>
-										  (it.closingDate || ((it.status & 1) === 1))
-										  && ((it.status & 2) === 0)
-										  && it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))
-										), 'descr'));
-										this.set('archivedHealthElements',  _.sortBy(combinedHes.filter(it=>
-										  ((it.status & 2) === 2)
-										) , 'descr'));
-										this.set('allergies',  _.sortBy(combinedHes.filter(it=>
-										  ((it.status & 2) === 0)
-											&& it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'allergy'))
-										), 'descr'));
-										this.set('risks',  _.sortBy(combinedHes.filter(it=>
-											((it.status & 2) === 0)
-											&& it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'risk'))
-										), 'descr'));
-										this.set('familyrisks',  _.sortBy(combinedHes.filter(it=>
-											((it.status & 2) === 0)
-											&& it.tags.find(c=>c.type === 'CD-ITEM' && (c.code === 'familyrisk'))
-										), 'descr'));
-									})
-
-									const unclosedContact = ctcs.find(c=>!c.closingDate)
-									const allContacts = unclosedContact?ctcs.concat([unclosedContact]):ctcs
-									const templateKeys = descrPattern.match(/\{.+?\}/g).map(s=>s.substring(1,s.length-1)).reduce((acc,s)=>{acc[s]=true; return acc},{})
-									allContacts.forEach(ctc=>{
-										ctc.healthElements = Object.values(ctc.subContacts.map(sc=>sc.planOfActionId && combinedHes.find(he=>he.plansOfAction.find(poa=>poa.id === sc.planOfActionId)) || sc.healthElementId && combinedHes.find(he=>he.id === sc.healthElementId)).reduce((acc,x)=>{x && x.id && (acc[x.id]=x); return acc},{}))
-										ctc.userDescr = this.api.template(descrPattern, ctc.services.filter(s=>templateKeys[s.label]&&!s.endOfLife).reduce((acc,v)=>{acc[v.label]=!acc[v.label]?this.shortServiceDescription(v,this.language):(acc[v.label]+","+this.shortServiceDescription(v,this.language)); return acc}, {}))
-										if (!ctc.userDescr || ctc.userDescr.length<3) {
-											ctc.userDescr = ctc.descr
-										}
-									})
-
-
-									;(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().new(this.user, patient, {descr: 'Contact du jour', userDescr: 'Contact du jour'})).then(newCtc => {
-										const thisYear = moment().year()
-										this.set('contacts',ctcs)
-										this.set('currentContact', newCtc)
-										this.set('contactYears', _.sortBy(_.values(_.reduce(ctcs, (acc, ctc) => {
-											if (ctc.subContacts && ctc.subContacts.length || ctc.services.find(s=>_.values(s.content).find(this.contentHasData.bind(this)))) {
-												let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4));
-												const contacts = (acc[year] || (acc[year] = {year: year, contacts: []})).contacts
-												if (!contacts.includes(ctc)) {
-													contacts.push(ctc)
-												}
-											}
-											return acc
-										}, _.fromPairs([[thisYear,{year:thisYear, contacts:[newCtc]}]]))).map(x => {x.contacts = _.sortBy(x.contacts, sorter); return x}),x=>-x.year))
-										this.filterEvents()
-									});
-								})
-
-								this.api.contact().filterServices(ctcs, s=>s.tags.find(c=>c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => this.set('medications',_.sortBy(medications, sorter)))
-
-								this._updateFilterPanels();
-							} )
-
-					//eHealth stuff
-					if (patient.ssin && this.api.tokenId) {
-						this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then( hcp =>
-							this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
-								const genInsOk = (!gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length))
-								const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical&& this.api.before(gi.medicalHouseInfo.periodStart, +(new Date())) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd+(24*3600*1000), +(new Date())))
-
-								this.$.insuranceStatus.classList.remove('medicalHouse')
-								this.$.insuranceStatus.classList.remove('noInsurance')
-								this.$.insuranceStatus.classList.remove('insuranceOk')
-
-								this.$.insuranceStatus.classList.add(genInsOk ? medicalHouse ? 'medicalHouse' : 'insuranceOk' : 'noInsurance')
-								Polymer.updateStyles(this.$.insuranceStatus)
-
-								if (genInsOk) {
-									//set gen ins info on patient
-									const pi = patient.insurabilities && _.assign({},patient.insurabilities[0] || {})
-									const ins = gi.insurabilities[0]
-									this.api.insurance().listInsurancesByCode(ins.mutuality).then(out => {
-										if (out && out.length) {
-											pi.insuranceId = out[0].id
-										}
-										if (ins.ct1 && (pi.parameters.tc1 !== ins.ct1)) {
-											pi.parameters = _.assign(pi.parameters || {}, {tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true':'false'})
-										}
-										ins.ct2 && (pi.parameters.tc2 !== ins.ct2) && (pi.parameters = _.assign(pi.parameters || {}, {tc2: ins.ct2}));
-										ins.paymentApproval ? (pi.parameters = _.assign(pi.parameters || {}, {paymentapproval: 'true'})) : (delete pi.parameters.paymentapproval);
-										if (patient === this.patient) { this.set('patient.insurabilities.0', pi) }
-									})
-								}
-							})
-						)
-					}
-				}
-			},
-
-			unselectAdminFile: function() {
-				this.$.adminFileMenu.select(null)
-			},
-
-		  	newContact: function(e) {
-				this.patientChanged()
-			},
-
-			closeContact: function(e) {
-				e.stopPropagation();
-				e.preventDefault();
-
-				const ctcId = e.target.id.substr(6)
-				const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId))
-				const contact = year.contacts.find(c => c.id === ctcId)
-
-				if (contact) {
-					if (!contact.rev && (!contact.services || contact.services.length === 0)) {
-						const idx = this.contactYears[0].contacts.indexOf(this.currentContact)
-						if (idx >= 0) { this.splice('contactYears.0.contacts',idx,1) }
-						this.set('currentContact',null)
-					} else {
-						this.api.contact().getContact(contact.id).then(c => {
-							c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-							(c.rev ? this.api.contact().modifyContact(c) : this.api.contact().createContact(c)).then(() => this.patientChanged())
-							//this.notifyPath('currentContact.closingDate')
-						})
-					}
-				}
-			},
-
-			selectedMainElementItemsChanged: function(event) {
-				const domRepeat = event.target.querySelector("dom-repeat")
-				const selectedModels = event.target.selectedItems.map(el=>domRepeat.modelForElement(el).he)
-
-                if (!domRepeat||!selectedModels) { return }
-				const allModels = domRepeat.items || []
-
-                this.set('selectedMainElements',this.selectedMainElements.filter(he=>!allModels.includes(he)).concat(selectedModels))
-			},
-
-            isMainElementSelected: function(item, selectedItems) {
-                return selectedItems && selectedItems.includes(item)
-            },
-
-			selectedMainElementsSpliced: function(changeRecord) {
-				if (changeRecord) {
-					this.updateContactYears()
-				}
-			},
-
-			_archive: function(event) {
-				const model = event.detail
-				if (model.he.id) {
-					this.api.helement().getHealthElement(model.he.id).then(he => {
-						if (!he.closingDate && he.closingDate !== 0) { he.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-					  	if ((he.status & 1) === 0) { he.status = he.status | 1 }
-						if ((he.status & 2) === 0) { he.status = he.status | 2 }
-						this.api.helement().modifyHealthElement(he).then(() => { this.patientChanged() })
-					})
-				} else if (model.he.idService) {
-					if (!this.currentContact) { return }
-					const svc = model.he.svc
-
-					if (!svc.closingDate && svc.closingDate !== 0) { svc.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-					if ((svc.status & 2) === 0) { svc.status = svc.status | 2 }
-					this.saveService(svc).then(c => this.patientChanged())
-				}
-			},
-
-			_activate: function(event) {
-			  	const model = event.detail
-				if (model.he.id) {
-					this.api.helement().getHealthElement(model.he.id).then(he => {
-						if (he.closingDate || he.closingDate === 0) { he.closingDate =  null }
-						if ((he.status & 1) === 1) { he.status = he.status - 1 } //activate
-						if ((he.status & 2) === 2) { he.status = he.status - 2 } //unarchive
-						this.api.helement().modifyHealthElement(he).then(he => { this.patientChanged() })
-					})
-				} else if (model.he.idService) {
-					if (!this.currentContact) { return }
-					const svc = model.he.svc
-
-					if (svc.closingDate || svc.closingDate === 0) { svc.closingDate =  null }
-					if ((svc.status & 1) === 1) { svc.status = svc.status - 1 } //activate
-					if ((svc.status & 2) === 2) { svc.status = svc.status - 2 } //unarchive
-					this.saveService(svc).then(c => this.patientChanged())
+			selectedFamily: {
+				type: Array,
+				value: function () {
+					return [];
 				}
 
 			},
-			_inactivate: function(event) {
-			  	const model = event.detail
-				if (model.he.id) {
-					this.api.helement().getHealthElement(model.he.id).then(he => {
-						if (!he.closingDate && he.closingDate !== 0) { he.closingDate =  parseInt(moment().format('YYYYMMDDHHmmss'))}
-						if ((he.status & 2) === 2) { he.status = he.status - 2 } //unarchive
-						this.api.helement().modifyHealthElement(he).then(he => {
-							this.patientChanged()
-						})
-					})
-				} else if (model.he.idService) {
-					if (!this.currentContact) { return }
-					const svc = model.he.svc
+			events: {
+				type: Array,
+				value: function () {
+					return [];
+				}
 
-					if (!svc.closingDate && svc.closingDate !== 0) { svc.closingDate = parseInt(moment().format('YYYYMMDDHHmmss')) }
-					if ((svc.status & 2) === 2) { svc.status = svc.status - 2 } //unarchive
+			},
+			selectedRisks: {
+				type: Array,
+				value: function () {
+					return [];
+				}
 
-					this.saveService(svc).then(c => this.patientChanged())
+			},
+			selectedAllergies: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+
+			},
+			selectedLocalize: {
+				type: Array,
+				value: function () {
+					return [];
 				}
 			},
-			_selectToday: function() {
-				this.$.adminFileMenu.select(1)
-
-				this.set('timeSpanStart', parseInt(moment().startOf('day').format('YYYYMMDD')))
-				this.set('timeSpanEnd', null)
-
-				this.updateContactYears()
+			selected: {
+				type: Boolean,
+				value: false
 			},
-
-
-			_select6Months: function() {
-				this.set('timeSpanStart', parseInt(moment().subtract(6, 'month').format('YYYYMMDD')))
-				this.set('timeSpanEnd', null)
-
-				this.updateContactYears()
+			showFiltersPanel: {
+				type: Boolean,
+				value: false
 			},
-
-			_selectAll: function() {
-				this.set('timeSpanStart', null)
-				this.set('timeSpanEnd', null)
-
-				this.updateContactYears()
+			currentContact: {
+				type: Object,
+				value: null
 			},
-
-			_selectCurrentContact: function() {
-				this.shadowRoot.querySelector('#_contacts_listbox').set('selectedValues',[0])
+			contactSearchString: {
+				type: String,
+				value: null
 			},
-
-			updateContactYears: function () {
-				this.notifyPath('contactYears')
+			showDetailsFiltersPanel: {
+				type: Boolean,
+				value: false
 			},
-
-			getHeId: function(he) {
-				return he.id?`_he_${he.id}`:`_svc_${he.idService}`
+			isLatestYear: {
+				type: Boolean,
+				value: false
 			},
-
-			contactFilter: function() {
-				return function (ctc) {
-					const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i")
-
-					const heIds = this.selectedMainElements.map(he=>he.id)
-					const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p=>p.id) : [])
-					const svcIds = this.selectedMainElements.filter(he=>!he.id).map(he=>he.idService)
-
-					return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd)
-						&& (!regExp || (ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length))
-						&& ((!heIds.length && !poaIds.length && !svcIds.length)
-						|| ctc.subContacts.filter(sc => ((sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length)).length
-						|| ctc.services.filter(s => svcIds.includes(s.id)).length)
-						|| !ctc.closingDate
-				}.bind(this)
-			},
-
-			compareContacts: function(a,b) {
-				return b.created - a.created
-			},
-
-			close: function () {
-				this.set('patient', null);
-			},
-
-			selectedAdminFileChanged: function(el) {
-				if (el && this.selectedMainElements && this.selectedMainElements.length) {
-					this.set("selectedMainElements",[])
+			selectedContactItems: {
+				type: Array,
+				value: function () {
+					return [];
 				}
-				this._updateFilterPanels();
 			},
-
-		  _editHealthElement: function(event){
-				const model = event.detail
-
-				;(model.he.codes && model.he.codes.length && this.api.code().getCodes(model.he.codes.map(c=>this.api.code().normalize(c).id).join(',')) || Promise.resolve([]))
-				  .then(codes=>{
-					this.editedHealthElementModel = model;
-					this.$['edit-healthelement-dialog'].set('entity', _.assign(_.assign({plansOfAction:[]}, model.he), {codes:codes}))
-					this.$['edit-healthelement-dialog'].open()
-				})
+			itemSelected: {
+				type: Boolean,
+				value: false
 			},
-
-			toggleMenu: function(e) {
-				e.stopPropagation()
-				e.preventDefault()
-				styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='collapse-button').toggle()
-				styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='paper-item').classList.toggle('opened');
-
-				this._updateFilterPanels();
-			},
-
-			getPaperItemParentForEvent: function (e) {
-				let tgt = e.target;
-				while (tgt && tgt.tagName && tgt.tagName.toLowerCase() !== 'paper-item') {
-					tgt = tgt.parentElement
+			secondPanelItems: {
+				type: Array,
+				value: function () {
+					return [{ icon: "icure-svg-icons:laboratory", title: "Lab Results", id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: "Imaging", id: "Imaging" }, { icon: "icure-svg-icons:stethoscope", title: "Consultation", id: "Consultation" }, { icon: "editor:insert-drive-file", title: "Protocol", id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: "Prescription", id: "Prescription" }, { icon: "icure-svg-icons:sent-reports", title: "Sent Reports", id: "SentReports" }, { icon: "icure-svg-icons:received-reports", title: "Received Reports", id: "ReceivedReports" }];
 				}
-				return tgt && tgt.tagName ? tgt : null
 			},
+			i18n: {
+				type: Object
+			}
+		};
+	}
 
-			getPaperListboxParent: function (tgt) {
-				while (tgt && tgt.tagName && tgt.tagName.toLowerCase() !== 'paper-listbox') {
-					tgt = tgt.parentElement
-				}
-				return tgt && tgt.tagName ? tgt : null
-			},
+	static get observers() {
+		return ['patientOpened(patient.id,api,user)', 'patientChanged(api,user,patient)', 'selectedMainElementsSpliced(selectedMainElements.splices)', 'selectedContactItemsChanged(selectedContactItems.*)'];
+	}
 
-			handleSelectionChange(e) {
-				const selections = e.detail.selections
-				const selChanges = {}
+	constructor() {
+		super();
+	}
 
-				selections.forEach(s => {
-					(s.items || this.selectedMainElements.map(he => this.getHeId(he))).forEach(id => {
-						const item = this.root.querySelector('#' + id)
-						if (item) {
-							const listBox = this.getPaperListboxParent(item)
-							if (listBox) {
-								const selChangesEntry = (selChanges[listBox.id] || (selChanges[listBox.id] = {el: listBox, selectedValues: listBox.selectedValues}))
-								if (s.action === 'select') {
-									selChangesEntry.selectedValues = _.uniq(selChanges[listBox.id].selectedValues.concat([listBox.items.indexOf(item)]))
-								} else if (s.action === 'unselect') {
-									const delValue = listBox.items.indexOf(item)
-									selChangesEntry.selectedValues = selChanges[listBox.id].selectedValues.filter(it => it !== delValue)
+	selectedContactItemsChanged() {
+		const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+		ctcDetailPanel && ctcDetailPanel.flushSave();
+
+		this.set('selectedContacts', this.selectedContactItems.map(i => i.contact));
+	}
+
+	_shortId(id) {
+		return id && id.substr(0, 8);
+	}
+
+	_timeFormat(date) {
+		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
+	}
+
+	_dateFormat(date) {
+		return this.api.moment(date).format('DD/MM/YYYY');
+	}
+
+	_contactClasses(contact) {
+		return contact.closingDate ? '' : 'current-contact';
+	}
+
+	clearEvent(el) {
+		const svcId = el.target.parentElement.parentElement.id.substr(5);
+		const svc = this.get('events').find(s => s.id === svcId);
+
+		const t = svc.tags.find(t => t.type === 'CD-LIFECYCLE');
+		if (t) {
+			t.code = 'cancelled';
+			if (!this.currentContact) {
+				return;
+			}
+			this.saveService(svc).then(c => this.filterEvents());
+		}
+	}
+
+	completeEvent(el) {
+		const svcId = el.target.parentElement.parentElement.id.substr(5);
+		const svc = this.get('events').find(s => s.id === svcId);
+
+		const t = svc.tags.find(t => t.type === 'CD-LIFECYCLE');
+		if (t) {
+			t.code = 'completed';
+			if (!this.currentContact) {
+				return;
+			}
+			this.saveService(svc).then(c => this.filterEvents());
+		}
+	}
+
+	saveService(svc) {
+		svc.modified = +new Date();
+		if (!svc.id) {
+			svc.id = this.api.crypto().randomUuid();
+		}
+		if (!svc.valueDate) {
+			svc.valueDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+		}
+		if (!svc.openingDate) {
+			svc.openingDate = svc.valueDate;
+		}
+		if (!svc.created) {
+			svc.created = svc.modified;
+		}
+		const ctc = this.api.contact().contactOfService(this.get('contacts'), svc.id) || this.currentContact;
+		let sc = this.currentContact.subContacts.find(sc => sc.services.find(sId => svc.id));
+		if (!sc) {
+			sc = ctc.subContacts.find(sc => sc.services.find(sId => svc.id)) || {};
+			this.currentContact.subContacts.push(sc = { formId: sc.formId, planOfActionId: sc.planOfActionId, healthElementId: sc.healthElementId, services: [] });
+			sc.services.push({ serviceId: svc.id });
+		}
+		const oldSvcIdx = this.currentContact.services.findIndex(s => s.id === svc.id);
+		if (oldSvcIdx > -1) {
+			this.currentContact.services.splice(oldSvcIdx, 1);
+		}
+		this.currentContact.services.push(svc);
+		return this.saveCurrentContact();
+	}
+
+	saveContact(ctc) {
+		return (ctc.rev ? this.api.contact().modifyContact(ctc) : this.api.contact().createContact(ctc)).then(c => {
+			ctc.rev = c.rev;
+			console.log("contact saved: " + ctc.id + ":" + ctc.rev);
+
+			setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
+			this.$.savedIndicator.classList.add("saved");
+
+			if (ctc.services.find(s => s.tags.find(t => t.type === 'CD-ITEM' && ['allergy', 'risk', 'familyrisk', 'healthcareelement', 'healthissue', 'medication'].indexOf(t.code) >= 0))) {
+				this.patientChanged();
+			}
+			return c;
+		});
+	}
+
+	saveCurrentContact() {
+		return this.saveContact(this.currentContact);
+	}
+
+	_saveContact(event) {
+		this.saveContact(event.detail);
+	}
+
+	filterEvents() {
+		this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.find(t => t.type === 'CD-LIFECYCLE' && t.code === 'planned')), it => -this.api.moment(it.valueDate)));
+	}
+
+	_lateEventCssClass(e) {
+		return this.api.moment(e.valueDate).isBefore(moment()) ? 'todo-item--late' : '';
+	}
+
+	_isLatestYearContact(contactYear, contactYears) {
+		if (contactYear.year === contactYears[Object.keys(contactYears)[0]].year) {
+			this.isLatestYear = true;
+			return "contact--big";
+		} else {
+			this.isLatestYear = false;
+			return "contact--small";
+		}
+	}
+
+	openToast() {
+		Polymer.dom(this.root).querySelector('#selectionToast').show();
+	}
+
+	toggleFiltersPanel() {
+		this.showFiltersPanel = !this.showFiltersPanel;
+		this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed');
+	}
+
+	selectedItemsSubmenu(list, selectedItems) {
+		if (!selectedItems || selectedItems.length === 0) {
+			return 'icons:check-box-outline-blank';
+		} else if (selectedItems.length < list.length) {
+			return 'icons:indeterminate-check-box';
+		} else {
+			return 'icons:check-box';
+		}
+	}
+
+	checkedUncheckedIcon(item, selectedItems) {
+		if (selectedItems && selectedItems.find(i => i && i.id && i.id.endsWith(item.id))) {
+			return 'icons:check-box';
+		} else {
+			return 'icons:check-box-outline-blank';
+		}
+	}
+
+	patientOpened(patientId, api, user) {
+		if (api && user && patientId && patientId !== this.latestPatientId) {
+			this.latestPatientId = patientId;
+			this.api.accesslog().createAccessLog(new AccessLogDto({
+				id: this.api.crypto().randomUuid(),
+				patientId: patientId,
+				user: user.id,
+				date: +new Date(),
+				accessType: 'USER_ACCESS'
+			}));
+		}
+	}
+
+	patientChanged(api, user, patient, forceCreate = true) {
+		if (this.api && this.user && this.patient) {
+			const patient = this.patient;
+			Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient), this.api.helement().findBy(this.user.healthcarePartyId, patient)]).then(([ctcs, hes]) => {
+				const descrPattern = this.user.properties.find(p => p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}";
+				const sorter = x => [-x.valueDate || -x.openingDate, -x.closingDate];
+				const idServicesInHes = _.compact(hes.map(he => he.idService));
+
+				this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
+					const combinedHes = _.sortBy(_.concat(hesAsServices.map(svc => ({
+						created: svc.created,
+						modified: svc.modified,
+						endOfLife: svc.endOfLife,
+						author: svc.author,
+						responsible: svc.responsible,
+						codes: svc.codes,
+						tags: svc.tags,
+						valueDate: svc.valueDate,
+						openingDate: svc.openingDate,
+						closingDate: svc.closingDate,
+						descr: this.shortServiceDescription(svc, this.language),
+						idService: svc.id,
+						status: svc.status,
+						svc: svc,
+						plansOfAction: [] })), hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter);
+
+					combinedHes.forEach(e => {
+						e.selectedItems = [];
+					});
+
+					this.api.code().icdChapters(_.compact(combinedHes.map(he => he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10'))).map(x => x.code)).then(codes => {
+						codes.forEach(cc => {
+							cc.healthElements = _.sortBy(combinedHes.filter(he => {
+								let heIcd = he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10');
+								return heIcd && cc.subCodes.includes(heIcd.code);
+							}), sorter);
+							cc.healthElements.forEach(he => he.colour = cc.descr.colour);
+						});
+						this.set('healthTopics', _.sortBy(codes.filter(ht => ht.healthElements.length > 1), it => this.api.contact().localize(it, this.language)));
+
+						this.set('activeHealthElements', _.sortBy(combinedHes.filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))), 'descr'));
+						this.set('inactiveHealthElements', _.sortBy(combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))), 'descr'));
+						this.set('archivedHealthElements', _.sortBy(combinedHes.filter(it => (it.status & 2) === 2), 'descr'));
+						this.set('allergies', _.sortBy(combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')), 'descr'));
+						this.set('risks', _.sortBy(combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'risk')), 'descr'));
+						this.set('familyrisks', _.sortBy(combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')), 'descr'));
+					});
+
+					const unclosedContact = ctcs.find(c => !c.closingDate);
+					const allContacts = unclosedContact ? ctcs.concat([unclosedContact]) : ctcs;
+					const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1)).reduce((acc, s) => {
+						acc[s] = true;return acc;
+					}, {});
+					allContacts.forEach(ctc => {
+						ctc.healthElements = Object.values(ctc.subContacts.map(sc => sc.planOfActionId && combinedHes.find(he => he.plansOfAction.find(poa => poa.id === sc.planOfActionId)) || sc.healthElementId && combinedHes.find(he => he.id === sc.healthElementId)).reduce((acc, x) => {
+							x && x.id && (acc[x.id] = x);return acc;
+						}, {}));
+						ctc.userDescr = this.api.template(descrPattern, ctc.services.filter(s => templateKeys[s.label] && !s.endOfLife).reduce((acc, v) => {
+							acc[v.label] = !acc[v.label] ? this.shortServiceDescription(v, this.language) : acc[v.label] + "," + this.shortServiceDescription(v, this.language);return acc;
+						}, {}));
+						if (!ctc.userDescr || ctc.userDescr.length < 3) {
+							ctc.userDescr = ctc.descr;
+						}
+					});(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().new(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
+						const thisYear = moment().year();
+						this.set('contacts', ctcs);
+						this.set('currentContact', newCtc);
+						this.set('contactYears', _.sortBy(_.values(_.reduce(ctcs, (acc, ctc) => {
+							if (ctc.subContacts && ctc.subContacts.length || ctc.services.find(s => _.values(s.content).find(this.contentHasData.bind(this)))) {
+								let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4));
+								const contacts = (acc[year] || (acc[year] = { year: year, contacts: [] })).contacts;
+								if (!contacts.includes(ctc)) {
+									contacts.push(ctc);
 								}
 							}
-						}
-					})
-				})
-				Object.values(selChanges).forEach(c => c.el.set('selectedValues',c.selectedValues))
-			},
+							return acc;
+						}, _.fromPairs([[thisYear, { year: thisYear, contacts: [newCtc] }]]))).map(x => {
+							x.contacts = _.sortBy(x.contacts, sorter);return x;
+						}), x => -x.year));
+						this.filterEvents();
+					});
+				});
 
-			isNotEmpty: function(a) {
-				return a && a.length>0
-			},
+				this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => this.set('medications', _.sortBy(medications, sorter)));
 
-			isEmpty: function(a) {
-				return !a || a.length===0
-			},
+				this._updateFilterPanels();
+			});
 
-			isAdminSelected: function(el) {
-				return el && el.id === '_admin_info'
-			},
+			//eHealth stuff
+			if (patient.ssin && this.api.tokenId) {
+				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
+					const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
+					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
 
-			highlightedServiceLabels: function(user) {
-				try {
-					return user.properties.filter(p => p.type.identifier === 'org.taktik.icure.highlightedServiceLabels').map(p => JSON.parse(p.typedValue.stringValue))[0]
-						|| ['Examen clinique', 'Diagnostics', 'Prescription']
-				} catch (e) {}
-				return ['Examen clinique', 'Diagnostics', 'Prescription']
-			},
+					this.$.insuranceStatus.classList.remove('medicalHouse');
+					this.$.insuranceStatus.classList.remove('noInsurance');
+					this.$.insuranceStatus.classList.remove('insuranceOk');
 
-			hcp: function(ctc) {
-				const usr = this.api.users && this.api.users[ctc.author]
-				const hcp = usr ? this.api.hcParties[usr.healthcarePartyId] : null
-				return (hcp && (hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && (hcp.firstName.substr(0,1) + ".")))) || (usr && usr.login) || "N/A"
-			},
+					this.$.insuranceStatus.classList.add(genInsOk ? medicalHouse ? 'medicalHouse' : 'insuranceOk' : 'noInsurance');
+					Polymer.updateStyles(this.$.insuranceStatus);
 
-			picture: function(pat) {
-				if (!pat) { return require('../../../images/Male-128.jpg') }
-				return pat.picture ? 'data:image/jpeg;base64,'+pat.picture : pat.gender === 'F' || pat.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
-			},
-
-			serviceDescriptions : function(ctc, label) {
-				return this.api && this.api.contact().services(ctc, label).filter(s=>!s.endOfLife).map(s=>this.shortServiceDescription(s, this.language)).filter(desc=>desc) || []
-			},
-
-			shortServiceDescription : function(svc, lng) {
-				let rawDesc = svc && this.api && this.api.contact().shortServiceDescription(svc, lng)
-				return rawDesc && (''+rawDesc) || ''
-			},
-
-			contentHasData: function(c) {
-				return this.api && this.api.contact().contentHasData(c) || false
-			},
-
-			localize: function(e, lng) {
-				return this.api && this.api.contact().localize(e, lng) || ""
-			},
-
-			_addHealthElement: function(e) {
-				this.$['add-healthelement-dialog'].open()
-				this.$['add-healthelement-dialog'].set('entity',{plansOfAction:[], tags:(e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]}))})
-			},
-
-			_addInactiveHealthElement: function(e) {
-				this.$['add-healthelement-dialog'].open()
-				this.$['add-healthelement-dialog'].set('entity',{plansOfAction:[], closingDate:parseInt(moment().format('YYYYMMDDHHmmss')), tags:(e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]}))})
-			},
-
-
-			_addService: function(e) {
-				this.set('editedSvcLabel', e.target.dataset.label)
-				this.$['add-service-dialog'].open()
-				this.$['add-service-dialog'].set('entity',{'label':e.target.dataset.label, 'tags':(e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]}))})
-			},
-
-
-			_healthElementsSelectorColumns: function () {
-				return [{key: 'descr', title: 'Description'}, {key: 'plansOfActionDescr', title: 'Plans of action'}]
-			},
-
-			_healthElementsSelectorDataProvider: function () {
-				return {
-					filter: function (filterValue, limit, offset, sortKey, descending) {
-						const regExp = filterValue && new RegExp(filterValue, "i")
-
-						return Promise.all([this.api.code().findPaginatedCodesByLabel('be','BE-THESAURUS','fr',filterValue,null,1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)])
-							.then(results => {
-								const codes = results[0]
-								const entityTemplates = results[1]
-								const filtered = _.flatten(entityTemplates.map(et => et.entity))
-									.filter( he => [he].concat(he.plansOfAction || []).find(it => (it.descr && it.descr.match(regExp)) || (it.name && it.name.match(regExp))))
-									.map(it => ({descr:it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',')}))
-								.concat(codes.rows.map(code => ({descr:this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A'})))
-								return {totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}
-							})
-					}.bind(this)
-			    }
-			},
-
-		  	_normalizedHealthElement(healthElement) {
-				return {
-					descr: healthElement.descr,
-					openingDate: healthElement.openingDate || +new Date(),
-					closingDate: healthElement.closingDate,
-					status: healthElement.status || 0,
-					plansOfAction:(healthElement.plansOfAction||[])
-					  .map( poa => _.extend(poa, {id: this.api.crypto().randomUuid(), openingDate: parseInt(moment().format('YYYYMMDDHHmmss'))})),
-					tags: (healthElement.tags || []).map( c => this.api.code().normalize(c)),
-					codes: (healthElement.codes || []).map( c => this.api.code().normalize(c)),
-				  	idService: healthElement.idService
-				}
-			},
-
-			_addedHealthElementSelected: function(event, healthElement) {
-				this.api.helement().new(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged())
-			},
-
-			_editedHealthElementSelected: function(event, healthElement) {
-			    if (this.editedHealthElementModel.he.id) {
-                    this.api.helement().getHealthElement(this.editedHealthElementModel.he.id).then(he => {
-                        delete healthElement.plansOfActionDescr
-                        _.assign(he,this._normalizedHealthElement(healthElement))
-	                    return he
-                    }).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged())
-                } else if (this.editedHealthElementModel.he.idService) {
-                    const svc = this.editedHealthElementModel.he.svc
-					return this.api.helement().serviceToHealthElement(this.user, this.patient, svc, this.language).then(he =>{
-						if (this.currentContact) {
-							this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, he.id, null)
-						  	this.saveCurrentContact().then(c => this.patientChanged())
-						}
-
-						this.editedHealthElementModel.he = he
-					    return this._editedHealthElementSelected(event, healthElement)
-					})
-                }
-			},
-
-			_servicesSelectorColumns: function () {
-				return [{key:svc=>svc&&svc.content&&this.shortServiceDescription(svc,this.language)||'', sortKey: 'content.'+this.language+'.stringValue', title: 'Description'}, {key:svc=>svc && svc.codes && svc.codes.map(c=>(c.type||(c.id && c.id.split('|')[0]))+':'+(c.code||(c.id && c.id.split('|')[1]))).join(',') || '', sortKey: 'codes.0.code', title: 'Codes'}]
-			},
-
-			_servicesSelectorDataProvider: function (label) {
-				return {
-					filter: function (filterValue, limit, offset, sortKey, descending) {
-						const regExp = filterValue && new RegExp(filterValue, "i")
-
-						return this.api.code().findPaginatedCodesByLabel('be','BE-THESAURUS','fr',filterValue,null,1000)
-							.then(results => {
-								const filtered = results.rows.map(code => ({label:label, content:_.mapValues(code.label, v=>({stringValue:v})), codes: code.links && code.links.map(c=>({id:c, type:c.split('|')[0], code:c.split('|')[1], version:c.split('|')[2]})) || []}))
-								return {totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit)}
-							})
-					}.bind(this)
-				}
-			},
-			_addedOrEditedServiceSelected: function(event, svc) {
-				if (!this.currentContact) { return }
-				this.saveService(svc).then(c => this.patientChanged())
-			},
-			_svcEntityContentChanged: function(e, value) {
-				const svc = styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='entity-selector').entity
-				const content = (svc.content || (svc.content = {}))
-				;(content[this.language] || (content[this.language] = {})).stringValue = value
-			},
-
-			_updateFilterPanels: function () {
-				setTimeout(()=>{
-					const cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel")
-					cfp && cfp.refreshIcons()
-					const hpd = Polymer.dom(this.root).querySelector("ht-pat-detail-ctc-detail-panel")
-					hpd && hpd.refreshIcons()
-				},10)
-			},
-
-			_expandColumn: function(e){
-				this.root.querySelector('.display-left-menu').classList.toggle('open');
-				this.root.querySelector('.container').classList.toggle('expanded');
-				this._updateFilterPanels()
-			},
-
-			_concat(a,b) {
-				return (a||[]).concat(b||[])
+					if (genInsOk) {
+						//set gen ins info on patient
+						const pi = patient.insurabilities && _.assign({}, patient.insurabilities[0] || {});
+						const ins = gi.insurabilities[0];
+						this.api.insurance().listInsurancesByCode(ins.mutuality).then(out => {
+							if (out && out.length) {
+								pi.insuranceId = out[0].id;
+							}
+							if (ins.ct1 && pi.parameters.tc1 !== ins.ct1) {
+								pi.parameters = _.assign(pi.parameters || {}, { tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false' });
+							}
+							ins.ct2 && pi.parameters.tc2 !== ins.ct2 && (pi.parameters = _.assign(pi.parameters || {}, { tc2: ins.ct2 }));
+							ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, { paymentapproval: 'true' }) : delete pi.parameters.paymentapproval;
+							if (patient === this.patient) {
+								this.set('patient.insurabilities.0', pi);
+							}
+						});
+					}
+				}));
 			}
+		}
+	}
 
+	unselectAdminFile() {
+		this.$.adminFileMenu.select(null);
+	}
+
+	newContact(e) {
+		this.patientChanged();
+	}
+
+	closeContact(e) {
+		e.stopPropagation();
+		e.preventDefault();
+
+		const ctcId = e.target.id.substr(6);
+		const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId));
+		const contact = year.contacts.find(c => c.id === ctcId);
+
+		if (contact) {
+			if (!contact.rev && (!contact.services || contact.services.length === 0)) {
+				const idx = this.contactYears[0].contacts.indexOf(this.currentContact);
+				if (idx >= 0) {
+					this.splice('contactYears.0.contacts', idx, 1);
+				}
+				this.set('currentContact', null);
+			} else {
+				this.api.contact().getContact(contact.id).then(c => {
+					c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+					(c.rev ? this.api.contact().modifyContact(c) : this.api.contact().createContact(c)).then(() => this.patientChanged());
+					//this.notifyPath('currentContact.closingDate')
+				});
+			}
+		}
+	}
+
+	selectedMainElementItemsChanged(event) {
+		const domRepeat = event.target.querySelector("dom-repeat");
+		const selectedModels = event.target.selectedItems.map(el => domRepeat.modelForElement(el).he);
+
+		if (!domRepeat || !selectedModels) {
+			return;
+		}
+		const allModels = domRepeat.items || [];
+
+		this.set('selectedMainElements', this.selectedMainElements.filter(he => !allModels.includes(he)).concat(selectedModels));
+	}
+
+	isMainElementSelected(item, selectedItems) {
+		return selectedItems && selectedItems.includes(item);
+	}
+
+	selectedMainElementsSpliced(changeRecord) {
+		if (changeRecord) {
+			this.updateContactYears();
+		}
+	}
+
+	_archive(event) {
+		const model = event.detail;
+		if (model.he.id) {
+			this.api.helement().getHealthElement(model.he.id).then(he => {
+				if (!he.closingDate && he.closingDate !== 0) {
+					he.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+				}
+				if ((he.status & 1) === 0) {
+					he.status = he.status | 1;
+				}
+				if ((he.status & 2) === 0) {
+					he.status = he.status | 2;
+				}
+				this.api.helement().modifyHealthElement(he).then(() => {
+					this.patientChanged();
+				});
+			});
+		} else if (model.he.idService) {
+			if (!this.currentContact) {
+				return;
+			}
+			const svc = model.he.svc;
+
+			if (!svc.closingDate && svc.closingDate !== 0) {
+				svc.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+			}
+			if ((svc.status & 2) === 0) {
+				svc.status = svc.status | 2;
+			}
+			this.saveService(svc).then(c => this.patientChanged());
+		}
+	}
+
+	_activate(event) {
+		const model = event.detail;
+		if (model.he.id) {
+			this.api.helement().getHealthElement(model.he.id).then(he => {
+				if (he.closingDate || he.closingDate === 0) {
+					he.closingDate = null;
+				}
+				if ((he.status & 1) === 1) {
+					he.status = he.status - 1;
+				} //activate
+				if ((he.status & 2) === 2) {
+					he.status = he.status - 2;
+				} //unarchive
+				this.api.helement().modifyHealthElement(he).then(he => {
+					this.patientChanged();
+				});
+			});
+		} else if (model.he.idService) {
+			if (!this.currentContact) {
+				return;
+			}
+			const svc = model.he.svc;
+
+			if (svc.closingDate || svc.closingDate === 0) {
+				svc.closingDate = null;
+			}
+			if ((svc.status & 1) === 1) {
+				svc.status = svc.status - 1;
+			} //activate
+			if ((svc.status & 2) === 2) {
+				svc.status = svc.status - 2;
+			} //unarchive
+			this.saveService(svc).then(c => this.patientChanged());
+		}
+	}
+
+	_inactivate(event) {
+		const model = event.detail;
+		if (model.he.id) {
+			this.api.helement().getHealthElement(model.he.id).then(he => {
+				if (!he.closingDate && he.closingDate !== 0) {
+					he.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+				}
+				if ((he.status & 2) === 2) {
+					he.status = he.status - 2;
+				} //unarchive
+				this.api.helement().modifyHealthElement(he).then(he => {
+					this.patientChanged();
+				});
+			});
+		} else if (model.he.idService) {
+			if (!this.currentContact) {
+				return;
+			}
+			const svc = model.he.svc;
+
+			if (!svc.closingDate && svc.closingDate !== 0) {
+				svc.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
+			}
+			if ((svc.status & 2) === 2) {
+				svc.status = svc.status - 2;
+			} //unarchive
+
+			this.saveService(svc).then(c => this.patientChanged());
+		}
+	}
+
+	_selectToday() {
+		this.$.adminFileMenu.select(1);
+
+		this.set('timeSpanStart', parseInt(moment().startOf('day').format('YYYYMMDD')));
+		this.set('timeSpanEnd', null);
+
+		this.updateContactYears();
+	}
+
+	_select6Months() {
+		this.set('timeSpanStart', parseInt(moment().subtract(6, 'month').format('YYYYMMDD')));
+		this.set('timeSpanEnd', null);
+
+		this.updateContactYears();
+	}
+
+	_selectAll() {
+		this.set('timeSpanStart', null);
+		this.set('timeSpanEnd', null);
+
+		this.updateContactYears();
+	}
+
+	_selectCurrentContact() {
+		this.shadowRoot.querySelector('#_contacts_listbox').set('selectedValues', [0]);
+	}
+
+	updateContactYears() {
+		this.notifyPath('contactYears');
+	}
+
+	getHeId(he) {
+		return he.id ? `_he_${he.id}` : `_svc_${he.idService}`;
+	}
+
+	contactFilter() {
+		return function (ctc) {
+			const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
+
+			const heIds = this.selectedMainElements.map(he => he.id);
+			const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
+			const svcIds = this.selectedMainElements.filter(he => !he.id).map(he => he.idService);
+
+			return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd) && (!regExp || ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length) && (!heIds.length && !poaIds.length && !svcIds.length || ctc.subContacts.filter(sc => (sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length).length || ctc.services.filter(s => svcIds.includes(s.id)).length) || !ctc.closingDate;
+		}.bind(this);
+	}
+
+	compareContacts(a, b) {
+		return b.created - a.created;
+	}
+
+	close() {
+		this.set('patient', null);
+	}
+
+	selectedAdminFileChanged(el) {
+		if (el && this.selectedMainElements && this.selectedMainElements.length) {
+			this.set("selectedMainElements", []);
+		}
+		this._updateFilterPanels();
+	}
+
+	_editHealthElement(event) {
+		const model = event.detail;(model.he.codes && model.he.codes.length && this.api.code().getCodes(model.he.codes.map(c => this.api.code().normalize(c).id).join(',')) || Promise.resolve([])).then(codes => {
+			this.editedHealthElementModel = model;
+			this.$['edit-healthelement-dialog'].set('entity', _.assign(_.assign({ plansOfAction: [] }, model.he), { codes: codes }));
+			this.$['edit-healthelement-dialog'].open();
 		});
-	</script>
+	}
+
+	toggleMenu(e) {
+		e.stopPropagation();
+		e.preventDefault();
+		styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
+		styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
+
+		this._updateFilterPanels();
+	}
+
+	getPaperItemParentForEvent(e) {
+		let tgt = e.target;
+		while (tgt && tgt.tagName && tgt.tagName.toLowerCase() !== 'paper-item') {
+			tgt = tgt.parentElement;
+		}
+		return tgt && tgt.tagName ? tgt : null;
+	}
+
+	getPaperListboxParent(tgt) {
+		while (tgt && tgt.tagName && tgt.tagName.toLowerCase() !== 'paper-listbox') {
+			tgt = tgt.parentElement;
+		}
+		return tgt && tgt.tagName ? tgt : null;
+	}
+
+	handleSelectionChange(e) {
+		const selections = e.detail.selections;
+		const selChanges = {};
+
+		selections.forEach(s => {
+			(s.items || this.selectedMainElements.map(he => this.getHeId(he))).forEach(id => {
+				const item = this.root.querySelector('#' + id);
+				if (item) {
+					const listBox = this.getPaperListboxParent(item);
+					if (listBox) {
+						const selChangesEntry = selChanges[listBox.id] || (selChanges[listBox.id] = { el: listBox, selectedValues: listBox.selectedValues });
+						if (s.action === 'select') {
+							selChangesEntry.selectedValues = _.uniq(selChanges[listBox.id].selectedValues.concat([listBox.items.indexOf(item)]));
+						} else if (s.action === 'unselect') {
+							const delValue = listBox.items.indexOf(item);
+							selChangesEntry.selectedValues = selChanges[listBox.id].selectedValues.filter(it => it !== delValue);
+						}
+					}
+				}
+			});
+		});
+		Object.values(selChanges).forEach(c => c.el.set('selectedValues', c.selectedValues));
+	}
+
+	isNotEmpty(a) {
+		return a && a.length > 0;
+	}
+
+	isEmpty(a) {
+		return !a || a.length === 0;
+	}
+
+	isAdminSelected(el) {
+		return el && el.id === '_admin_info';
+	}
+
+	highlightedServiceLabels(user) {
+		try {
+			return user.properties.filter(p => p.type.identifier === 'org.taktik.icure.highlightedServiceLabels').map(p => JSON.parse(p.typedValue.stringValue))[0] || ['Examen clinique', 'Diagnostics', 'Prescription'];
+		} catch (e) {}
+		return ['Examen clinique', 'Diagnostics', 'Prescription'];
+	}
+
+	hcp(ctc) {
+		const usr = this.api.users && this.api.users[ctc.author];
+		const hcp = usr ? this.api.hcParties[usr.healthcarePartyId] : null;
+		return hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".") || usr && usr.login || "N/A";
+	}
+
+	picture(pat) {
+		if (!pat) {
+			return require('../../../images/Male-128.jpg');
+		}
+		return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'F' || pat.gender === 'f' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+	}
+
+	serviceDescriptions(ctc, label) {
+		return this.api && this.api.contact().services(ctc, label).filter(s => !s.endOfLife).map(s => this.shortServiceDescription(s, this.language)).filter(desc => desc) || [];
+	}
+
+	shortServiceDescription(svc, lng) {
+		let rawDesc = svc && this.api && this.api.contact().shortServiceDescription(svc, lng);
+		return rawDesc && '' + rawDesc || '';
+	}
+
+	contentHasData(c) {
+		return this.api && this.api.contact().contentHasData(c) || false;
+	}
+
+	_addHealthElement(e) {
+		this.$['add-healthelement-dialog'].open();
+		this.$['add-healthelement-dialog'].set('entity', { plansOfAction: [], tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) });
+	}
+
+	_addInactiveHealthElement(e) {
+		this.$['add-healthelement-dialog'].open();
+		this.$['add-healthelement-dialog'].set('entity', { plansOfAction: [], closingDate: parseInt(moment().format('YYYYMMDDHHmmss')), tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) });
+	}
+
+	_addService(e) {
+		this.set('editedSvcLabel', e.target.dataset.label);
+		this.$['add-service-dialog'].open();
+		this.$['add-service-dialog'].set('entity', { 'label': e.target.dataset.label, 'tags': (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) });
+	}
+
+	_healthElementsSelectorColumns() {
+		return [{ key: 'descr', title: 'Description' }, { key: 'plansOfActionDescr', title: 'Plans of action' }];
+	}
+
+	_healthElementsSelectorDataProvider() {
+		return {
+			filter: function (filterValue, limit, offset, sortKey, descending) {
+				const regExp = filterValue && new RegExp(filterValue, "i");
+
+				return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', filterValue, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
+					const codes = results[0];
+					const entityTemplates = results[1];
+					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp))).map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') })).concat(codes.rows.map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
+				});
+			}.bind(this)
+		};
+	}
+
+	_normalizedHealthElement(healthElement) {
+		return {
+			descr: healthElement.descr,
+			openingDate: healthElement.openingDate || +new Date(),
+			closingDate: healthElement.closingDate,
+			status: healthElement.status || 0,
+			plansOfAction: (healthElement.plansOfAction || []).map(poa => _.extend(poa, { id: this.api.crypto().randomUuid(), openingDate: parseInt(moment().format('YYYYMMDDHHmmss')) })),
+			tags: (healthElement.tags || []).map(c => this.api.code().normalize(c)),
+			codes: (healthElement.codes || []).map(c => this.api.code().normalize(c)),
+			idService: healthElement.idService
+		};
+	}
+
+	_addedHealthElementSelected(event, healthElement) {
+		this.api.helement().new(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged());
+	}
+
+	_editedHealthElementSelected(event, healthElement) {
+		if (this.editedHealthElementModel.he.id) {
+			this.api.helement().getHealthElement(this.editedHealthElementModel.he.id).then(he => {
+				delete healthElement.plansOfActionDescr;
+				_.assign(he, this._normalizedHealthElement(healthElement));
+				return he;
+			}).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged());
+		} else if (this.editedHealthElementModel.he.idService) {
+			const svc = this.editedHealthElementModel.he.svc;
+			return this.api.helement().serviceToHealthElement(this.user, this.patient, svc, this.language).then(he => {
+				if (this.currentContact) {
+					this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, he.id, null);
+					this.saveCurrentContact().then(c => this.patientChanged());
+				}
+
+				this.editedHealthElementModel.he = he;
+				return this._editedHealthElementSelected(event, healthElement);
+			});
+		}
+	}
+
+	_servicesSelectorColumns() {
+		return [{ key: svc => svc && svc.content && this.shortServiceDescription(svc, this.language) || '', sortKey: 'content.' + this.language + '.stringValue', title: 'Description' }, { key: svc => svc && svc.codes && svc.codes.map(c => (c.type || c.id && c.id.split('|')[0]) + ':' + (c.code || c.id && c.id.split('|')[1])).join(',') || '', sortKey: 'codes.0.code', title: 'Codes' }];
+	}
+
+	_servicesSelectorDataProvider(label) {
+		return {
+			filter: function (filterValue, limit, offset, sortKey, descending) {
+				const regExp = filterValue && new RegExp(filterValue, "i");
+
+				return this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', filterValue, null, 1000).then(results => {
+					const filtered = results.rows.map(code => ({ label: label, content: _.mapValues(code.label, v => ({ stringValue: v })), codes: code.links && code.links.map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) || [] }));
+					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
+				});
+			}.bind(this)
+		};
+	}
+
+	_addedOrEditedServiceSelected(event, svc) {
+		if (!this.currentContact) {
+			return;
+		}
+		this.saveService(svc).then(c => this.patientChanged());
+	}
+
+	_svcEntityContentChanged(e, value) {
+		const svc = styx.parent(e.target, el => el.tagName.toLowerCase() === 'entity-selector').entity;
+		const content = svc.content || (svc.content = {});(content[this.language] || (content[this.language] = {})).stringValue = value;
+	}
+
+	_updateFilterPanels() {
+		setTimeout(() => {
+			const cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel");
+			cfp && cfp.refreshIcons();
+			const hpd = Polymer.dom(this.root).querySelector("ht-pat-detail-ctc-detail-panel");
+			hpd && hpd.refreshIcons();
+		}, 10);
+	}
+
+	_expandColumn(e) {
+		this.root.querySelector('.display-left-menu').classList.toggle('open');
+		this.root.querySelector('.container').classList.toggle('expanded');
+		this._updateFilterPanels();
+	}
+
+	_concat(a, b) {
+		return (a || []).concat(b || []);
+	}
+
+}
+
+customElements.define(HtPatDetail.is, HtPatDetail);
+</script>
 </dom-module>

@@ -23,16 +23,16 @@
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
-			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet')]]</h2>
-			<div id="printable"><qrcode-printer id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
+			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
+			<div id="printable"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
 			<div class="buttons">
-				<paper-button dialog-dismiss>[[localize('can','Cancel')]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select')]]</paper-button>
+				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
 	<script>
-		class HtExportKey extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+		class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 			static get is() {
 				return 'ht-export-key'
 			}

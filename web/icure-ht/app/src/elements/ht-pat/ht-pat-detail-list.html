@@ -58,13 +58,13 @@
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
             <vaadin-grid-column flex-grow="2" width="80px">
                 <template class="header">
-                    <vaadin-grid-sorter path="label">[[localize('lab','Label')]]</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="label">[[localize('lab','Label',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column flex-grow="2" width="80px">
                 <template class="header">
-                    <vaadin-grid-sorter path="modified">[[localize('dat','Date')]]</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="modified">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[_date(item)]]</template>
             </vaadin-grid-column>
@@ -76,77 +76,85 @@
             </vaadin-grid-column>
             <vaadin-grid-column  flex-grow="2" width="80px">
                 <template class="header">
-                    <vaadin-grid-sorter path="function{[[_author(item)]]}">[[localize('aut','Author')]]</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="function{[[_author(item)]]}">[[localize('aut','Author',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[_author(item)]]</template>
             </vaadin-grid-column>
         </vaadin-grid>
     </template>
     <script>
-        Polymer({
-            is: 'ht-pat-detail-list',
-            properties: {
-                api: {
-                    type: Object
-                },
-                language: {
-                    type: String
-                },
-                user: {
-                    type: Object
-                },
-                patient: {
-                    type: Object,
-                    value: null
-                },
-                contact: {
-                    type: Object,
-                    value: null
-                },
-                contacts: {
-                    type: Array,
-                    value: []
-                },
-                activeItem: {
-                    type: Object
-                },
-                healthElements: {
-                    type: Array,
-                    value: function () {
-                        return []
-                    }
-                },
-                currentContact: {
-                    type: Object,
-                    value: null
-                },
-                lastColumnSort: {
-                    type: String,
-                    value: null
+
+class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+    static get is() {
+        return 'ht-pat-detail-list';
+    }
+
+    static get properties() {
+        return {
+            api: {
+                type: Object
+            },
+            user: {
+                type: Object
+            },
+            patient: {
+                type: Object,
+                value: null
+            },
+            contact: {
+                type: Object,
+                value: null
+            },
+            contacts: {
+                type: Array,
+                value: []
+            },
+            activeItem: {
+                type: Object
+            },
+            healthElements: {
+                type: Array,
+                value: function () {
+                    return [];
                 }
             },
-            observers: [],
-
-            _isNotInCurrentContact: function (currentContact, contact) {
-                return currentContact === null || contact !== currentContact
+            currentContact: {
+                type: Object,
+                value: null
             },
-
-            _services: function(contacts) {
-                return _.sortBy(_.flatMap(contacts, c=>c.services),['modified'])
-            },
-
-            _date: function (item) {
-                return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : ''
-            },
-
-            _author: function(item) {
-                return this.api.getAuthor(item.author)
-            },
-
-            _shortDescription(svc) {
-                return this.api.contact().shortServiceDescription(svc,this.language)
+            lastColumnSort: {
+                type: String,
+                value: null
             }
+        };
+    }
 
-        })
-    </script>
+    constructor() {
+        super();
+    }
+
+    _isNotInCurrentContact(currentContact, contact) {
+        return currentContact === null || contact !== currentContact;
+    }
+
+    _services(contacts) {
+        return _.sortBy(_.flatMap(contacts, c => c.services), ['modified']);
+    }
+
+    _date(item) {
+        return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+    }
+
+    _author(item) {
+        return this.api.getAuthor(item.author);
+    }
+
+    _shortDescription(svc) {
+        return this.api.contact().shortServiceDescription(svc, this.language);
+    }
+
+}
+
+customElements.define(HtPatDetailList.is, HtPatDetailList);
+</script>
 </dom-module>

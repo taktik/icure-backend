@@ -252,19 +252,19 @@
                 <div>
                     <div class="he-edit-btn-container">
                         <paper-icon-button id="he-edit-btn-edit_[[getHeId(he)]]" class="he-edit-btn" icon="create" on-tap="_toggleEditHE"></paper-icon-button>
-                        <paper-tooltip position="top" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit')]]</paper-tooltip>
+                        <paper-tooltip position="top" for="he-edit-btn-edit_[[getHeId(he)]]">[[localize('edi','Edit',language)]]</paper-tooltip>
 
                         <template is="dom-if" if="[[isNotArchived(he)]]">
                             <paper-icon-button id="he-edit-btn-archive_[[getHeId(he)]]" class="he-edit-btn" icon="vaadin:safe" on-tap="_archive"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive')]]</paper-tooltip>
+                            <paper-tooltip position="top" for="he-edit-btn-archive_[[getHeId(he)]]">[[localize('arc','Archive',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotActive(he)]]">
                             <paper-icon-button id="he-edit-btn-active_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-turned-in" on-tap="_activate"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active')]]</paper-tooltip>
+                            <paper-tooltip position="top" for="he-edit-btn-active_[[getHeId(he)]]">[[localize('mak_act','Make Active',language)]]</paper-tooltip>
                         </template>
                         <template is="dom-if" if="[[isNotHistory(he)]]">
                             <paper-icon-button id="he-edit-btn-history_[[getHeId(he)]]" class="he-edit-btn" icon="assignment-return" on-tap="_inactivate"></paper-icon-button>
-                            <paper-tooltip position="top" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_his','Add to History')]]</paper-tooltip>
+                            <paper-tooltip position="top" for="he-edit-btn-history_[[getHeId(he)]]">[[localize('add_to_his','Add to History',language)]]</paper-tooltip>
                         </template>
                     </div>
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -272,7 +272,7 @@
             </paper-item>
             <paper-listbox class="menu-content sublist sub-sublist" selected-items="{{he.selectedItems}}" multi toggle-shift>
                 <template is="dom-if" if="[[!he.plansOfAction.length]]">
-                    <paper-item class="submenu-item list-info"><div class="one-line-menu">[[localize('no_app','No approach')]]</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
+                    <paper-item class="submenu-item list-info"><div class="one-line-menu">[[localize('no_app','No approach',language)]]</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
                 </template>
                 <template is="dom-repeat" items="[[he.plansOfAction]]" as="poa">
                     <paper-item class="submenu-item" id="_poa_[[poa.id]]">
@@ -280,123 +280,118 @@
                     </paper-item>
                 </template>
                 <template is="dom-if" if="[[he.plansOfAction.length]]">
-                    <paper-item class="submenu-item sublist-footer"><div class="one-line-menu">[[localize('add_app','Add approach')]]</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
+                    <paper-item class="submenu-item sublist-footer"><div class="one-line-menu">[[localize('add_app','Add approach',language)]]</div><paper-icon-button class="submenu-item-icon" icon="icons:add" on-tap="_addApproach"></paper-icon-button></paper-item>
                 </template>
             </paper-listbox>
         </collapse-button>
 
     </template>
     <script>
-	    import styx from '../../../scripts/styx'
 
-	    class HtPatHeTreeDetail extends Polymer.mixinBehaviors([], Polymer.Element) {
-            static get is() {
-                return 'ht-pat-he-tree-detail'
+
+import styx from '../../../scripts/styx';
+
+class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+    static get is() {
+        return 'ht-pat-he-tree-detail';
+    }
+
+    static get properties() {
+        return {
+            he: {
+                type: Object
+            },
+
+            selected: {
+                type: Boolean
             }
+        };
+    }
 
-            static get properties() {
-                return {
-                	he: {
-                		type: Object
-                    },
+    static get observers() {
+        return [];
+    }
 
-                    selected: {
-                        type: Boolean
-                    }
-                }
-            }
+    ready() {
+        super.ready();
+    }
 
-            static get observers() {
-                return []
-            }
+    isIronSelected(selected) {
+        return selected ? 'iron-selected' : '';
+    }
 
-            ready() {
-                super.ready()
-            }
+    getHeId(he) {
+        return he.id ? `_he_${he.id}` : `_svc_${he.idService}`;
+    }
 
-            isIronSelected(selected) {
-            	return selected ? 'iron-selected' : ''
-            }
+    isNotHistory(he) {
+        return !he.closingDate && (he.status & 1) === 0;
+    }
 
-	        getHeId(he) {
-		        return he.id?`_he_${he.id}`:`_svc_${he.idService}`
-	        }
+    isNotActive(he) {
+        return he.closingDate || (he.status & 1) !== 0;
+    }
 
-	        isNotHistory(he) {
-              return !he.closingDate && ((he.status & 1) === 0)
-            }
+    isNotArchived(he) {
+        return (he.status & 2) === 0;
+    }
 
-	        isNotActive(he) {
-              return he.closingDate || ((he.status & 1) !== 0)
-            }
+    toggleMenu(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
+        styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
 
-	        isNotArchived(he) {
-            	return (he.status & 2) === 0
-            }
+        this._updateFilterPanels();
+    }
 
-	        toggleMenu(e) {
-		        e.stopPropagation()
-		        e.preventDefault()
-	            styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='collapse-button').toggle()
-		        styx.parent(e.target,(el)=>el.tagName.toLowerCase()==='paper-item').classList.toggle('opened');
+    _toggleEditHE(e) {
+        e.stopPropagation();
+        e.preventDefault();
 
-		        this._updateFilterPanels();
-	        }
-
-	        _toggleEditHE(e){
-		        e.stopPropagation()
-		        e.preventDefault()
-
-		        let parentElement = e.target.parentElement
-		        if (parentElement.classList.contains('open')) {
-                    this.dispatchEvent(new CustomEvent('edit-he', {detail: {he:this.he}}))
-		        } else {
-			        parentElement.classList.add('open');
-			        setTimeout(()=>parentElement.classList.remove('open'),4000)
-		        }
-	        }
-
-	        _archive(e) {
-                e.stopPropagation()
-                e.preventDefault()
-
-                this.dispatchEvent(new CustomEvent('archive-he', {detail: {he:this.he} }))
-            }
-
-	        _activate(e) {
-                e.stopPropagation()
-                e.preventDefault()
-
-                this.dispatchEvent(new CustomEvent('activate-he', {detail: {he:this.he}}))
-            }
-
-	        _inactivate(e) {
-                e.stopPropagation()
-                e.preventDefault()
-
-                this.dispatchEvent(new CustomEvent('inactivate-he', {detail: {he:this.he}}))
-            }
-
-            _addApproach(e) {
-
-            }
-
-	        select(e){
-                e.stopPropagation()
-                e.preventDefault()
-
-                if (e.detail.sourceEvent.metaKey) {
-                    this.dispatchEvent(new CustomEvent('selection-change', {detail: {selections:[
-                                {action:'select', items:[this.getHeId(this.he)]}
-                            ]} }))
-                } else {
-                    this.dispatchEvent(new CustomEvent('selection-change', {detail: {selections:[
-                                {action:'unselect'},
-                                {action:'select', items:[this.getHeId(this.he)]}
-                            ]} }))
-                }
-	        }
+        let parentElement = e.target.parentElement;
+        if (parentElement.classList.contains('open')) {
+            this.dispatchEvent(new CustomEvent('edit-he', { detail: { he: this.he } }));
+        } else {
+            parentElement.classList.add('open');
+            setTimeout(() => parentElement.classList.remove('open'), 4000);
         }
-        customElements.define(HtPatHeTreeDetail.is, HtPatHeTreeDetail)
-    </script>
+    }
+
+    _archive(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.dispatchEvent(new CustomEvent('archive-he', { detail: { he: this.he } }));
+    }
+
+    _activate(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.dispatchEvent(new CustomEvent('activate-he', { detail: { he: this.he } }));
+    }
+
+    _inactivate(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.dispatchEvent(new CustomEvent('inactivate-he', { detail: { he: this.he } }));
+    }
+
+    _addApproach(e) {}
+
+    select(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (e.detail.sourceEvent.metaKey) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: 'select', items: [this.getHeId(this.he)] }] } }));
+        } else {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selections: [{ action: 'unselect' }, { action: 'select', items: [this.getHeId(this.he)] }] } }));
+        }
+    }
+}
+customElements.define(HtPatHeTreeDetail.is, HtPatHeTreeDetail);
+</script>
 </dom-module>
