@@ -211,7 +211,6 @@ class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		if (dateAsString !== this.dateAsString) {
 			this.set('dateAsString', dateAsString);
 		}
-		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: date } }));
 	}
 
 	_dateAsStringChanged(dateAsString) {
@@ -219,8 +218,9 @@ class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			this.value && this.set('value', null);return;
 		}
 		const date = parseInt(dateAsString.replace(/(....)-(..)-(..)/, '$1$2$3')) * (this.displayTime ? 1000000 : 1);
-		if (date !== this.value) {
+		if ((date || this.value) && date !== this.value) {
 			this.set('value', date);
+            this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: date } }));
 		}
 	}
 

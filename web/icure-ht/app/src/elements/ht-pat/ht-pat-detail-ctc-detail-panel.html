@@ -43,6 +43,50 @@
 <dom-module id="ht-pat-detail-ctc-detail-panel">
 	<template>
 		<style>
+			.notification-panel {
+				position: fixed;
+				top:50%;
+				right: 0;
+				z-index:1000;
+				color: white;
+				font-size: 13px;
+				background: rgba(255, 0, 0, 0.55);
+				height: 96px;
+				padding: 0 8px 0 12px;
+				border-radius: 3px 0 0 3px;
+				overflow: hidden;
+				white-space: nowrap;
+				width: 0;
+				opacity: 0;
+			}
+
+			.notification {
+				animation: notificationAnim 7.5s ease-in;
+			}
+
+			@keyframes notificationAnim {
+				0%{
+					width: 0;
+					opacity: 0;
+				}
+				5%{
+					width: 440px;
+					opacity: 1;
+				}
+				7%{
+					width: 420px;
+					opacity: 1;
+				}
+				95%{
+					width: 420px;
+					opacity: 1;
+				}
+				100%{
+					width: 0;
+					opacity: 0;
+				}
+			}
+
 			.details-panel {
 				/*width: calc(50% + 1px);*/
 				height: 100%;
@@ -295,6 +339,12 @@
 			}
 		</style>
 
+		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
+			<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe',language)]]<br></template>
+			<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
+			<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
+			<iron-icon icon="icons:warning"></iron-icon>
+		</paper-item>
 
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="layout horizontal">
@@ -345,7 +395,7 @@
                 </template>
 			</div>
 			<div class="floating-action-bar">
-				<div id="prescribeBtnCtnr"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe',language)]]</paper-button></div>
+				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe',language)]]</paper-button></div>
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
 						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
@@ -374,6 +424,11 @@
 			<h2>[[localize('upl_fil','Upload files',language)]]<span class="extra-info">(PDF, images and videos)</span></h2>
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
 			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
+		</paper-dialog>
+
+		<paper-dialog id="loadingPrescriptionDialog">
+			<h2>[[localize('loa_pre','Loading prescription...',language)]]</h2>
+			<paper-progress indeterminate class="blue"></paper-progress>
 		</paper-dialog>
 
 		<paper-dialog id="prescriptionDialog">
@@ -643,6 +698,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 	}
 
 	_prescribe(e) {
+	    e.stopPropagation()
 		this.$.prescriptionDialog.open();
 	}
 
@@ -750,8 +806,14 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 		return dop.find(x => x.id === id && x.column === column) || false;
 	}
 
+	_displayPrescriptionError() {
+        this.$.prescriptionError.classList.add("notification")
+		setTimeout(()=>this.$.prescriptionError.classList.remove("notification"),8000)
+    }
+
 	_printPrescriptions(e) {
 		if (this.patient.ssin && this.api.tokenId) {
+            this.$.loadingPrescriptionDialog.open()
 			const drugsToBePrescribed = this._drugsToBePrescribed();
 			let splitColumns = this._splitColumns().filter(c => c && c.length > 0);
 			this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
@@ -851,7 +913,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 					pdf.lines([[0, 0], [286, 0]], 5.788, 513);
 				});
 
-				pdf.autoPrint();
+                this.$.loadingPrescriptionDialog.close()
+
+                pdf.autoPrint();
 				//pdf.output("dataurlnewwindow")
 				pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.lastName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`);
 			}));

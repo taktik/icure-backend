@@ -1,5 +1,6 @@
 {
   "en": {
+    "loa_pre":"Loading prescription...",
     "eng":"English",
     "fre":"French",
     "dut":"Dutch",
@@ -142,6 +143,7 @@
     "sen": "Sender"
   },
   "fr": {
+    "loa_pre":"Chargement des prescriptions...",
     "eng":"anglais",
     "fre":"français",
     "dut":"néerlandais",
