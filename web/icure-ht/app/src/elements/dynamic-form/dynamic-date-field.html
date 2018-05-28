@@ -220,7 +220,7 @@ class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		const date = parseInt(dateAsString.replace(/(....)-(..)-(..)/, '$1$2$3')) * (this.displayTime ? 1000000 : 1);
 		if ((date || this.value) && date !== this.value) {
 			this.set('value', date);
-            this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: date } }));
+			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: date } }));
 		}
 	}
 

@@ -90,11 +90,7 @@
 
 		<paper-dialog id="dialog">
             <h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
-            <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id">
-                <paper-input label="Health element template" class="input" value="{{filterValue}}">
-                <paper-icon-button icon="icons:clear" slot="suffix" class="clear-button"></paper-icon-button>
-                </paper-input>
-            </vaadin-combo-box>
+            <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
             <paper-input label="Label" value="{{entity.descr}}"></paper-input>
             <div class="flex">
                 <paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>

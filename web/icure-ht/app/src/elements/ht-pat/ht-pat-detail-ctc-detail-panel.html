@@ -87,6 +87,10 @@
 				}
 			}
 
+			.prescription-progress-bar {
+				width: calc( 100% - 40px );
+			}
+
 			.details-panel {
 				/*width: calc(50% + 1px);*/
 				height: 100%;
@@ -98,8 +102,8 @@
 				grid-column: 3 / 3;
 				grid-row:1 / 1;*/
 				z-index:1;
-
 			}
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
@@ -342,7 +346,7 @@
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
 			<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe',language)]]<br></template>
 			<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
-			<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
+			<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
 			<iron-icon icon="icons:warning"></iron-icon>
 		</paper-item>
 
@@ -369,7 +373,6 @@
 				</div>
 			</div>
 			<div class="contact-card-container">
-                
                 <template is="dom-if" if="[[list]]">
 				    <ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
                 </template>
@@ -412,10 +415,10 @@
 				</template>
 			</div>
 			<paper-tooltip for="prescribeBtnCtnr" position="top">
-				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*)]]">[[localize('pre_thi_but_to_pre','Press this button to prescribe',language)]]<br></template>
+				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('pre_thi_but_to_pre','Press this button to prescribe',language)]]<br></template>
 				<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe',language)]]<br></template>
 				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
-				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
+				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
 			</paper-tooltip>
 		</div>
 
@@ -428,12 +431,12 @@
 
 		<paper-dialog id="loadingPrescriptionDialog">
 			<h2>[[localize('loa_pre','Loading prescription...',language)]]</h2>
-			<paper-progress indeterminate class="blue"></paper-progress>
+			<paper-progress class="prescription-progress-bar" indeterminate></paper-progress>
 		</paper-dialog>
 
 		<paper-dialog id="prescriptionDialog">
 			<h2 class="modal-title">[[localize('pri_pre','Print prescription',language)]]</h2>
-			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content)]] active-item="{{activeDrug}}">
+			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content,currentContact,currentContact.services,currentContact.services.*)]] active-item="{{activeDrug}}">
 					<vaadin-grid-column width="100px">
 						<template class="header">
 							<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
@@ -698,7 +701,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 	}
 
 	_prescribe(e) {
-	    e.stopPropagation()
+		e.stopPropagation();
 		this.$.prescriptionDialog.open();
 	}
 
@@ -807,13 +810,13 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 	}
 
 	_displayPrescriptionError() {
-        this.$.prescriptionError.classList.add("notification")
-		setTimeout(()=>this.$.prescriptionError.classList.remove("notification"),8000)
-    }
+		this.$.prescriptionError.classList.add("notification");
+		setTimeout(() => this.$.prescriptionError.classList.remove("notification"), 8000);
+	}
 
 	_printPrescriptions(e) {
 		if (this.patient.ssin && this.api.tokenId) {
-            this.$.loadingPrescriptionDialog.open()
+			this.$.loadingPrescriptionDialog.open();
 			const drugsToBePrescribed = this._drugsToBePrescribed();
 			let splitColumns = this._splitColumns().filter(c => c && c.length > 0);
 			this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(splitColumns.map(c => this.api.fhc().Recipecontroller().createPrescriptionUsingPOST(this.api.keystoreId, this.api.tokenId, "persphysician", hcp.nihii, hcp.ssin, hcp.lastName, this.api.credentials.ehpassword, {
@@ -913,11 +916,17 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 					pdf.lines([[0, 0], [286, 0]], 5.788, 513);
 				});
 
-                this.$.loadingPrescriptionDialog.close()
+				this.$.loadingPrescriptionDialog.close();
 
-                pdf.autoPrint();
+				pdf.autoPrint();
 				//pdf.output("dataurlnewwindow")
-				pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.lastName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`);
+				pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`);
+
+				drugsToBePrescribed.forEach(s=>{
+				    const tag = s.tags.find(t=>t.type==='CD-LIFECYCLE')
+					if (tag) { tag.id = 'CD-LIFECYCLE|ordered|1'; tag.code = 'ordered' } else { s.tags.push(this.api.code().normalize({id:'CD-LIFECYCLE|ordered|1'})) }
+				})
+                this.saveCurrentContact()
 			}));
 		}
 	}
