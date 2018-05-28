@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
@@ -124,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<vaadin-grid-sorter path="lastName">Last name</vaadin-grid-sorter>
+					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.lastName]]</div>
@@ -132,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div path="firstName">First name</div>
+					<div path="firstName">[[localize('fir_nam','First name',language)]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.firstName]]</div>
@@ -140,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div path="speciality">Speciality</div>
+					<div path="speciality">[[localize('spe','Speciality',language)]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.speciality]]</div>
@@ -148,7 +149,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column width="100px">
 				<template class="header">
-					<div class="cell frozen">Email</div>
+					<div class="cell frozen">[[localize('ema','Email',language)]]</div>
 				</template>
 				<template>
 					<div class="cell frozen">[[item.email]]</div>
@@ -156,7 +157,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column>
 				<template class="header">
-					<div class="cell numeric">Phone</div>
+					<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
 				</template>
 				<template>
 					<div class="cell numeric">[[item.phone]]</div>
@@ -164,7 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</vaadin-grid-column>
 			<vaadin-grid-column>
 				<template class="header">
-					<div class="cell numeric">Mobile</div>
+					<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
 				</template>
 				<template>
 					<div class="cell numeric">[[item.mobile]]</div>
@@ -174,131 +175,145 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	</template>
 
 	<script>
-		import _ from '../../../bower_components/lodash/lodash'
+import _ from '../../../bower_components/lodash/lodash';
 
-		Polymer({
-			is: 'ht-hcp-list',
-			properties: {
-				api: {
-					type: Object
-				},
-				user: {
-					type: Object
-				},
-				selectedHcp: {
-					type: Object,
-					notify: true
-				},
-				activeItem: {
-					type: Object
-				}
+class HtHcpList extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'ht-hcp-list';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-			ready: function () {
-				const grid = this.$['hcps-list']
-
-				grid.lastParams = null //Used to prevent double calls
-				grid.searchMilestones = {}
-				grid.size = 0
-				grid.pageSize = 50
-				grid.dataProvider = function (params, callback) {
-					const desc = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc') || false
-
-					const pageSize = (params.pageSize || grid.pageSize)
-					const startIndex = (params.page || 0) * pageSize
-					const endIndex = ((params.page || 0) + 1) * pageSize
-
-					const thisParams = this.filterValue + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
-
-					let latestSearchValue = this.filterValue
-					this.latestSearchValue = latestSearchValue
-					let latestSearchDirection = desc
-
-					if (!latestSearchValue || latestSearchValue.length < 1) {
-						console.log("Cancelling empty search")
-						grid.set("size", 0)
-						callback([])
-						return
-					}
-
-					const keys = _.sortBy(Object.keys(grid.searchMilestones).map(x => parseInt(x, 10)), x => x)
-					const keysIdx = ( ( startIndex > 0 ) ? _.sortedIndex(keys, startIndex) || 0 : 0 ) - 1
-
-					let msIndex = keysIdx >= 0 ? keys[keysIdx] : 0
-					let deltaIndex = startIndex - msIndex
-					let keyPair = grid.searchMilestones[msIndex] || {}
-					let count = (pageSize + deltaIndex) || 100
-
-					if (grid.lastParams !== thisParams) {
-						grid.lastParams = thisParams
-						console.log("Starting search for " + thisParams)
-						grid.latestPromise = this.api.hcparty().findByName(latestSearchValue, keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc)
-					}
-
-					grid.latestPromise.then(function (res) {
-						const desc = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc') || false
-						if (this.filterValue !== latestSearchValue || desc !== latestSearchDirection) {
-							grid.searchMilestones = {}
-							console.log("Cancelling obsolete search")
-							return
-						}
-						if (res.nextKeyPair) {
-							grid.searchMilestones[(msIndex || 0) + res.pageSize] = res.nextKeyPair
-						} else {
-							res.nextKeyPair = {}
-						}
-
-						var rows = _.slice(res.rows, deltaIndex).map(this.pimpHcp)
-						var totalSize = res.rows.length < count ? msIndex + res.rows.length : msIndex + count + 100
-
-						//console.log(`Server call at idx ${msIndex} (∆ = ${deltaIndex}), keyPair = {${keyPair.startKey}:${keyPair.startKeyDocId}}, count = ${count}: ${rows.length} rows sel. out of ${res.rows.length}. Next keypair is {${res.nextKeyPair.startKey}:${res.nextKeyPair.startKeyDocId}}. Total size is : ${totalSize}`)
-						if (grid.size !== totalSize) {
-							grid.set("size", totalSize)
-						}
-						callback(rows)
-					}.bind(this))
-				}.bind(this)
+			user: {
+				type: Object
 			},
-
-			refresh: function () {
-				//Give the gui the time to update the field
-				setTimeout(function () {
-					let currentValue = this.filterValue
-
-					if (this.latestSearchValue === currentValue) {
-						return
-					}
-					setTimeout(function () {
-						if (currentValue === this.filterValue) {
-							console.log("Triggering search for " + this.filterValue)
-							this.$['hcps-list'].clearCache()
-						} else {
-							console.log("Skipping search for " + this.filterValue + " != " + currentValue)
-						}
-					}.bind(this), 500) //Wait for the user to stop typing
-				}.bind(this), 100)
+			selectedHcp: {
+				type: Object,
+				notify: true
 			},
-
-			pimpHcp: function (h) {
-				h.email = h.addresses && h.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
-				h.phone = h.addresses && h.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'phone').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
-				h.mobile = h.addresses && h.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'mobile').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
-				return h
-			},
-
-			click: function (e) {
-				const selected = this.activeItem
-				console.log('selected ' + selected + ' - ' + this.latestSelected)
-				if (this.inDoubleClick && ((this.latestSelected === selected) || (this.latestSelected && !selected) || (!this.latestSelected && selected))) {
-					this.set('selectedHcp', selected || this.latestSelected)
-				} else {
-					this.latestSelected = selected
-					this.inDoubleClick = true
-					setTimeout(() => {
-						delete this.inDoubleClick
-					}, 500)
-				}
-
+			activeItem: {
+				type: Object
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+
+		const grid = this.$['hcps-list'];
+
+		grid.lastParams = null; //Used to prevent double calls
+		grid.searchMilestones = {};
+		grid.size = 0;
+		grid.pageSize = 50;
+		grid.dataProvider = function (params, callback) {
+			const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
+
+			const pageSize = params.pageSize || grid.pageSize;
+			const startIndex = (params.page || 0) * pageSize;
+			const endIndex = ((params.page || 0) + 1) * pageSize;
+
+			const thisParams = this.filterValue + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":";
+
+			let latestSearchValue = this.filterValue;
+			this.latestSearchValue = latestSearchValue;
+			let latestSearchDirection = desc;
+
+			if (!latestSearchValue || latestSearchValue.length < 1) {
+				console.log("Cancelling empty search");
+				grid.set("size", 0);
+				callback([]);
+				return;
+			}
+
+			const keys = _.sortBy(Object.keys(grid.searchMilestones).map(x => parseInt(x, 10)), x => x);
+			const keysIdx = (startIndex > 0 ? _.sortedIndex(keys, startIndex) || 0 : 0) - 1;
+
+			let msIndex = keysIdx >= 0 ? keys[keysIdx] : 0;
+			let deltaIndex = startIndex - msIndex;
+			let keyPair = grid.searchMilestones[msIndex] || {};
+			let count = pageSize + deltaIndex || 100;
+
+			if (grid.lastParams !== thisParams) {
+				grid.lastParams = thisParams;
+				console.log("Starting search for " + thisParams);
+				grid.latestPromise = this.api.hcparty().findByName(latestSearchValue, keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc);
+			}
+
+			grid.latestPromise.then(function (res) {
+				const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
+				if (this.filterValue !== latestSearchValue || desc !== latestSearchDirection) {
+					grid.searchMilestones = {};
+					console.log("Cancelling obsolete search");
+					return;
+				}
+				if (res.nextKeyPair) {
+					grid.searchMilestones[(msIndex || 0) + res.pageSize] = res.nextKeyPair;
+				} else {
+					res.nextKeyPair = {};
+				}
+
+				var rows = _.slice(res.rows, deltaIndex).map(this.pimpHcp);
+				var totalSize = res.rows.length < count ? msIndex + res.rows.length : msIndex + count + 100;
+
+				//console.log(`Server call at idx ${msIndex} (∆ = ${deltaIndex}), keyPair = {${keyPair.startKey}:${keyPair.startKeyDocId}}, count = ${count}: ${rows.length} rows sel. out of ${res.rows.length}. Next keypair is {${res.nextKeyPair.startKey}:${res.nextKeyPair.startKeyDocId}}. Total size is : ${totalSize}`)
+				if (grid.size !== totalSize) {
+					grid.set("size", totalSize);
+				}
+				callback(rows);
+			}.bind(this));
+		}.bind(this);
+	}
+
+	refresh() {
+		//Give the gui the time to update the field
+		setTimeout(function () {
+			let currentValue = this.filterValue;
+
+			if (this.latestSearchValue === currentValue) {
+				return;
+			}
+			setTimeout(function () {
+				if (currentValue === this.filterValue) {
+					console.log("Triggering search for " + this.filterValue);
+					this.$['hcps-list'].clearCache();
+				} else {
+					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
+				}
+			}.bind(this), 500); //Wait for the user to stop typing
+		}.bind(this), 100);
+	}
+
+	pimpHcp(h) {
+		h.email = h.addresses && h.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || '';
+		h.phone = h.addresses && h.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'phone').map(t => t.telecomNumber).join()).filter(a => a).join() || '';
+		h.mobile = h.addresses && h.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'mobile').map(t => t.telecomNumber).join()).filter(a => a).join() || '';
+		return h;
+	}
+
+	click(e) {
+		const selected = this.activeItem;
+		console.log('selected ' + selected + ' - ' + this.latestSelected);
+		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
+			this.set('selectedHcp', selected || this.latestSelected);
+		} else {
+			this.latestSelected = selected;
+			this.inDoubleClick = true;
+			setTimeout(() => {
+				delete this.inDoubleClick;
+			}, 500);
+		}
+	}
+
+}
+
+customElements.define(HtHcpList.is, HtHcpList);
+</script>
 </dom-module>

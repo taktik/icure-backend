@@ -39,73 +39,77 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<app-route route="{{route}}" pattern="/:selectedPatientId" data="{{routeData}}"></app-route>
 
 		<template is="dom-if" if="[[selectedPatient]]">
-			<ht-pat-detail api="[[api]]" user="[[user]]" language="[[language]]" patient="{{selectedPatient}}"></ht-pat-detail>
+			<ht-pat-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" patient="{{selectedPatient}}"></ht-pat-detail>
 		</template>
 		<template is="dom-if" if="[[!selectedPatient]]">
-			<ht-pat-list api="[[api]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
+			<ht-pat-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-patient="{{selectedPatient}}"></ht-pat-list>
 		</template>
 
 	</template>
 
-	<script>
-		Polymer({
-			is: 'ht-pat',
-			properties: {
-				api: {
-					type: Object
-				},
-				user: {
-					type: Object
-				},
-				language: {
-					type: String,
-					value: 'en'
-				},
-				route: {
-					type: Object,
-					notify: true
-				},
-				routeData: {
-					type: Object,
-					value: {}
-				},
-				selectedPatient: {
-					type: Object,
-					value: null,
-					observer: '_patientChanged'
-				}
-			},
-			observers: [
-				'_routeChanged(routeData,routeData.*)'
-			],
+	<script>class HtPat extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'ht-pat';
+	}
 
-			ready: function () {
-				this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-					const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
-					language && this.set('language', language)
-				})
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-
-			_patientChanged: function () {
-				if (this.selectedPatient === null) {
-					if (this.routeData && this.routeData.selectedPatientId) {
-						this.set('routeData.selectedPatientId', '')
-					}
-				} else if (this.selectedPatient.id !== this.routeData.selectedPatientId) {
-					this.set('routeData.selectedPatientId', this.selectedPatient.id)
-				}
+			user: {
+				type: Object
 			},
-
-			_routeChanged: function () {
-				if (!this.routeData || !this.routeData.selectedPatientId || this.routeData.selectedPatientId.length === 0) {
-					if (this.selectedPatient) {
-						this.set('selectedPatient', null)
-					}
-				} else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
-					this.api.patient().getPatient(this.routeData.selectedPatientId).then(p => this.set('selectedPatient', p))
-				}
+			route: {
+				type: Object,
+				notify: true
 			},
+			routeData: {
+				type: Object,
+				value: {}
+			},
+			selectedPatient: {
+				type: Object,
+				value: null,
+				observer: '_patientChanged'
+			}
+		};
+	}
 
-		});
-	</script>
+	static get observers() {
+		return ['_routeChanged(routeData,routeData.*)'];
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+	}
+
+	_patientChanged() {
+		if (this.selectedPatient === null) {
+			if (this.routeData && this.routeData.selectedPatientId) {
+				this.set('routeData.selectedPatientId', '');
+			}
+		} else if (this.selectedPatient.id !== this.routeData.selectedPatientId) {
+			this.set('routeData.selectedPatientId', this.selectedPatient.id);
+		}
+	}
+
+	_routeChanged() {
+		if (!this.routeData || !this.routeData.selectedPatientId || this.routeData.selectedPatientId.length === 0) {
+			if (this.selectedPatient) {
+				this.set('selectedPatient', null);
+			}
+		} else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
+			this.api.patient().getPatient(this.routeData.selectedPatientId).then(p => this.set('selectedPatient', p));
+		}
+	}
+
+}
+
+customElements.define(HtPat.is, HtPat);
+</script>
 </dom-module>

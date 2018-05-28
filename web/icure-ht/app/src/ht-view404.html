@@ -20,12 +20,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    Oops you hit a 404. <a href="/">Head back to home.</a>
+    Oops you hit a 404. <a href="/">[[localize('hea_bac_to_hom','Head back to home.',language)]]</a>
   </template>
 
   <script>
-    Polymer({
-      is: 'my-view404'
-    });
-  </script>
+class MyView404 extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+  static get is() {
+    return 'my-view404';
+  }
+
+  static get properties() {
+    return {};
+  }
+
+  constructor() {
+    super();
+  }
+
+}
+
+customElements.define(MyView404.is, MyView404);
+</script>
 </dom-module>

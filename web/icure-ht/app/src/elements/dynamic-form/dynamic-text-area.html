@@ -79,58 +79,71 @@
 					<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 				</template>
 				<template is="dom-if" if="[[isModifiedAfter]]">
-					<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+					<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 				</template>
 			</label>
 			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]"></iron-autogrow-textarea>
 		</paper-input-container>
-		<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 	</template>
 	<script>
-		Polymer({
-			is: 'dynamic-text-area',
-			properties: {
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false,
-					observer: '_readOnlyChanged'
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				value: {
-					type: String,
-					notify: true,
-					observer: '_valueChanged'
-				},
-				width: {
-					type: Number,
-					value: 48,
-					observer: '_widthChanged'
-				}
+class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-text-area';
+	}
+
+	static get properties() {
+		return {
+			wasModified: {
+				type: Boolean
 			},
-			observers: [],
-			ready: function() {
-				//console.log(this.readOnly)
+			isModifiedAfter: {
+				type: Boolean
 			},
-			_readOnlyChanged: function() {
-				//console.log('ReadOnly : '+this.readOnly)
+			readOnly: {
+				type: Boolean,
+				value: false,
+				observer: '_readOnlyChanged'
 			},
-			_widthChanged: function(width) {
-				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
+			lastModified: {
+				type: String
 			},
-			_valueChanged: function(value) {
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:value}}));
+			label: {
+				type: String
+			},
+			value: {
+				type: String,
+				notify: true,
+				observer: '_valueChanged'
+			},
+			width: {
+				type: Number,
+				value: 48,
+				observer: '_widthChanged'
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+	}
+
+	_readOnlyChanged() {}
+
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+	}
+
+	_valueChanged(value) {
+		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
+	}
+
+}
+
+customElements.define(DynamicTextArea.is, DynamicTextArea);
+</script>
 </dom-module>

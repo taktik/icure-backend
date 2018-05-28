@@ -26,98 +26,105 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-recipecontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				createPrescriptionUsingPOST: function (keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, prescription) {
-					var xhr = this.$.createPrescriptionUsingPOST
-					xhr.body = prescription
+	<script>class FhcRecipecontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-recipecontroller-api";
+	}
 
-					xhr.url = this.host+"/recipe" + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getGalToAdministrationUnitUsingGET: function (galId) {
-					var xhr = this.$.getGalToAdministrationUnitUsingGET
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
+	constructor() {
+		super();
+	}
 
-					xhr.url = this.host+"/recipe/gal/{galId}".replace("{galId}", galId) + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getPrescriptionUsingGET: function (rid) {
-					var xhr = this.$.getPrescriptionUsingGET
+	createPrescriptionUsingPOST(keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, prescription) {
+		var xhr = this.$.createPrescriptionUsingPOST;
+		xhr.body = prescription;
 
+		xhr.url = this.host + "/recipe" + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/recipe/{rid}".replace("{rid}", rid) + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				listFeedbacksUsingGET: function (keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase) {
-					var xhr = this.$.listFeedbacksUsingGET
+	getGalToAdministrationUnitUsingGET(galId) {
+		var xhr = this.$.getGalToAdministrationUnitUsingGET;
 
+		xhr.url = this.host + "/recipe/gal/{galId}".replace("{galId}", galId) + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/recipe/all/feedbacks" + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				listOpenPrescriptionsUsingGET: function (keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase) {
-					var xhr = this.$.listOpenPrescriptionsUsingGET
+	getPrescriptionUsingGET(rid) {
+		var xhr = this.$.getPrescriptionUsingGET;
 
+		xhr.url = this.host + "/recipe/{rid}".replace("{rid}", rid) + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/recipe" + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				revokePrescriptionUsingDELETE: function (keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, rid, reason) {
-					var xhr = this.$.revokePrescriptionUsingDELETE
+	listFeedbacksUsingGET(keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase) {
+		var xhr = this.$.listFeedbacksUsingGET;
 
+		xhr.url = this.host + "/recipe/all/feedbacks" + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/recipe/{rid}".replace("{rid}", rid) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (reason ? "&reason=" + reason : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				sendNotificationUsingPOST: function (keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, rid, patientId, executorId, text) {
-					var xhr = this.$.sendNotificationUsingPOST
+	listOpenPrescriptionsUsingGET(keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase) {
+		var xhr = this.$.listOpenPrescriptionsUsingGET;
 
+		xhr.url = this.host + "/recipe" + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/recipe/notify/{rid}".replace("{rid}", rid) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (patientId ? "&patientId=" + patientId : "") + (executorId ? "&executorId=" + executorId : "") + (text ? "&text=" + text : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				updateFeedbackFlagUsingPUT: function (keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, rid, feedbackFlag) {
-					var xhr = this.$.updateFeedbackFlagUsingPUT
+	revokePrescriptionUsingDELETE(keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, rid, reason) {
+		var xhr = this.$.revokePrescriptionUsingDELETE;
 
+		xhr.url = this.host + "/recipe/{rid}".replace("{rid}", rid) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (reason ? "&reason=" + reason : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/recipe/{rid}/feedback/{feedbackFlag}".replace("{rid}", rid).replace("{feedbackFlag}", feedbackFlag) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				}
-			});
-		})();
-	</script>
+	sendNotificationUsingPOST(keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, rid, patientId, executorId, text) {
+		var xhr = this.$.sendNotificationUsingPOST;
 
-@end
+		xhr.url = this.host + "/recipe/notify/{rid}".replace("{rid}", rid) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (patientId ? "&patientId=" + patientId : "") + (executorId ? "&executorId=" + executorId : "") + (text ? "&text=" + text : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	updateFeedbackFlagUsingPUT(keystoreId, tokenId, hcpQuality, hcpNihii, hcpSsin, hcpName, passPhrase, rid, feedbackFlag) {
+		var xhr = this.$.updateFeedbackFlagUsingPUT;
+
+		xhr.url = this.host + "/recipe/{rid}/feedback/{feedbackFlag}".replace("{rid}", rid).replace("{feedbackFlag}", feedbackFlag) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (passPhrase ? "&passPhrase=" + passPhrase : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+}
+
+customElements.define(FhcRecipecontrollerApi.is, FhcRecipecontrollerApi);
+</script>

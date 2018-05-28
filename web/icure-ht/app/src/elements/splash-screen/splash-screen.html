@@ -50,11 +50,21 @@
 </svg>
 		</div>
 	</template>
-	<script>
-		Polymer({
-			is: 'splash-screen',
-			properties: {},
-			observers: []
-		})
-	</script>
+	<script>class SplashScreen extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'splash-screen';
+	}
+
+	static get properties() {
+		return {};
+	}
+
+	constructor() {
+		super();
+	}
+
+}
+
+customElements.define(SplashScreen.is, SplashScreen);
+</script>
 </dom-module>

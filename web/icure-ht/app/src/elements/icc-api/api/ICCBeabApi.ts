@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeabApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBeabApi {
         
         const _url = this.host+"/be_ab/nihii/{nihii}/{language}".replace("{nihii}", nihii+"").replace("{language}", language+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBeabApi {
         
         const _url = this.host+"/be_ab/ssin/{ssin}/{language}".replace("{ssin}", ssin+"").replace("{language}", language+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.HealthcarePartyDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBeabApi {
         
         const _url = this.host+"/be_ab/find" + "?ts=" + (new Date).getTime()  + (lastName ? "&lastName=" + lastName : "") + (firstName ? "&firstName=" + firstName : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.HealthcarePartyDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBeabApi {
         
         const _url = this.host+"/be_ab/org/find" + "?ts=" + (new Date).getTime()  + (name ? "&name=" + name : "") + (language ? "&language=" + language : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.HealthcarePartyDto(it)))
                 .catch(err => this.handleError(err))
 

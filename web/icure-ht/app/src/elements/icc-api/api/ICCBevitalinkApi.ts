@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBevitalinkApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBevitalinkApi {
         
         const _url = this.host+"/be_vitalink/{niss}".replace("{niss}", niss+"") + "?ts=" + (new Date).getTime()  + (includeBusinessData ? "&includeBusinessData=" + includeBusinessData : "") + (breakTheGlass ? "&breakTheGlass=" + breakTheGlass : "") + (reason ? "&reason=" + reason : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.Prescription(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBevitalinkApi {
         
         const _url = this.host+"/be_vitalink/{token}/{niss}".replace("{token}", token+"").replace("{niss}", niss+"") + "?ts=" + (new Date).getTime()  + (formatCode ? "&formatCode=" + formatCode : "") + (reference ? "&reference=" + reference : "") + (previousVersionId ? "&previousVersionId=" + previousVersionId : "") + (previousVersionNumber ? "&previousVersionNumber=" + previousVersionNumber : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.Prescription(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

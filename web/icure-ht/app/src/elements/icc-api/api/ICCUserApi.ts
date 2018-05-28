@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccUserApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user/current/hcparty/{healthcarePartyId}".replace("{healthcarePartyId}", healthcarePartyId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user/{userId}".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
+        return XHR.sendCommand('DELETE', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>JSON.parse(JSON.stringify(it))))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user/current" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user/{userId}".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user/byEmail/{email}".replace("{email}", email+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user" + "?ts=" + (new Date).getTime()  + (startKey ? "&startKey=" + startKey : "") + (startDocumentId ? "&startDocumentId=" + startDocumentId : "") + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.UserPaginatedList(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user/{userId}/properties".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -142,7 +142,7 @@ export class iccUserApi {
         
         const _url = this.host+"/user" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.UserDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

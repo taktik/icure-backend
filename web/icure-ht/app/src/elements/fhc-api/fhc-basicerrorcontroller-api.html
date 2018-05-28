@@ -24,89 +24,95 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-basicerrorcontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				errorHtmlUsingDELETE: function () {
-					var xhr = this.$.errorHtmlUsingDELETE
+	<script>class FhcBasicerrorcontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-basicerrorcontroller-api";
+	}
 
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				errorHtmlUsingGET: function () {
-					var xhr = this.$.errorHtmlUsingGET
+	constructor() {
+		super();
+	}
 
+	errorHtmlUsingDELETE() {
+		var xhr = this.$.errorHtmlUsingDELETE;
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				errorHtmlUsingHEAD: function () {
-					var xhr = this.$.errorHtmlUsingHEAD
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	errorHtmlUsingGET() {
+		var xhr = this.$.errorHtmlUsingGET;
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				errorHtmlUsingOPTIONS: function () {
-					var xhr = this.$.errorHtmlUsingOPTIONS
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	errorHtmlUsingHEAD() {
+		var xhr = this.$.errorHtmlUsingHEAD;
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				errorHtmlUsingPATCH: function () {
-					var xhr = this.$.errorHtmlUsingPATCH
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	errorHtmlUsingOPTIONS() {
+		var xhr = this.$.errorHtmlUsingOPTIONS;
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				errorHtmlUsingPOST: function () {
-					var xhr = this.$.errorHtmlUsingPOST
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	errorHtmlUsingPATCH() {
+		var xhr = this.$.errorHtmlUsingPATCH;
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				errorHtmlUsingPUT: function () {
-					var xhr = this.$.errorHtmlUsingPUT
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	errorHtmlUsingPOST() {
+		var xhr = this.$.errorHtmlUsingPOST;
 
-					xhr.url = this.host+"/error" + "?ts=" + (new Date).getTime()
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				}
-			});
-		})();
-	</script>
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-@end
+	errorHtmlUsingPUT() {
+		var xhr = this.$.errorHtmlUsingPUT;
+
+		xhr.url = this.host + "/error" + "?ts=" + new Date().getTime();
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+}
+
+customElements.define(FhcBasicerrorcontrollerApi.is, FhcBasicerrorcontrollerApi);
+</script>

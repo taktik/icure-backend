@@ -121,7 +121,7 @@
 								<span class="subtitle modified-before-out"><iron-icon class="modified-icon" icon="schedule"></iron-icon> [[lastModified]] </span>
 							</template>
 							<template is="dom-if" if="[[isModifiedAfter]]">
-								<span class="subtitle modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+								<span class="subtitle modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 							</template>
 						</label>
 					<span class="label-span">[[label]]</span>
@@ -136,85 +136,101 @@
 							<span class="subtitle modified-before-out"><iron-icon class="modified-icon" icon="schedule"></iron-icon> [[lastModified]] </span>
 						</template>
 						<template is="dom-if" if="[[isModifiedAfter]]">
-							<span class="subtitle modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+							<span class="subtitle modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 						</template>
 					</label>
 					<span class="label-span">[[label]]</span>
-					<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 				</div>
 			</paper-checkbox>
 		</template>
 
 	</template>
 	<script>
-		Polymer({
-			is: 'dynamic-checkbox',
-			properties: {
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				context: {
-					type: String
-				},
-				value: {
-					type: String,
-					observer: '_valueChanged',
-				},
-				booleanValue: {
-					type: Boolean,
-					observer: '_booleanValueChanged'
-				},
-				input: {
-					type: String,
-				},
-				width: {
-					type: Number,
-					value: 48,
-					observer: '_widthChanged'
-				},
-				linkables: {
-					type: Array
-				}
+class DynamicCheckbox extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-checkbox';
+	}
+
+	static get properties() {
+		return {
+			wasModified: {
+				type: Boolean
 			},
-			observers: [],
-			_widthChanged: function(width) {
-				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
+			isModifiedAfter: {
+				type: Boolean
 			},
-			checkUncheck: function(e) {
-				const boolValue = this.value && this.value !== 'false' && this.value !== 'no' && this.value !== '0'
-				this.set('value',''+!boolValue)
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:this.value}}));
+			readOnly: {
+				type: Boolean,
+				value: false
 			},
-			_checkedUncheckedIcon: function(value) {
-				const boolValue = this.value && this.value !== 'false' && this.value !== 'no' && this.value !== '0'
-				return boolValue ? 'icons:check-box' : 'icons:check-box-outline-blank';
+			lastModified: {
+				type: String
 			},
-			_booleanValueChanged: function() {
-				const stringValue = ''+this.booleanValue
-				if (this.value !== stringValue) {
-					this.set('value', stringValue)
-					this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:this.value}}));
-				}
+			label: {
+				type: String
 			},
-			_valueChanged: function() {
-				const booleanValue = this.value && this.value !== 'false' && this.value !== 'no' && this.value !== '0'
-				if (this.booleanValue !== booleanValue) {
-					this.set('booleanValue', booleanValue)
-				}
+			context: {
+				type: String
+			},
+			value: {
+				type: String,
+				observer: '_valueChanged'
+			},
+			booleanValue: {
+				type: Boolean,
+				observer: '_booleanValueChanged'
+			},
+			input: {
+				type: String
+			},
+			width: {
+				type: Number,
+				value: 48,
+				observer: '_widthChanged'
+			},
+			linkables: {
+				type: Array
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+	}
+
+	checkUncheck(e) {
+		const boolValue = this.value && this.value !== 'false' && this.value !== 'no' && this.value !== '0';
+		this.set('value', '' + !boolValue);
+		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
+	}
+
+	_checkedUncheckedIcon(value) {
+		const boolValue = this.value && this.value !== 'false' && this.value !== 'no' && this.value !== '0';
+		return boolValue ? 'icons:check-box' : 'icons:check-box-outline-blank';
+	}
+
+	_booleanValueChanged() {
+		const stringValue = '' + this.booleanValue;
+		if (this.value !== stringValue) {
+			this.set('value', stringValue);
+			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
+		}
+	}
+
+	_valueChanged() {
+		const booleanValue = this.value && this.value !== 'false' && this.value !== 'no' && this.value !== '0';
+		if (this.booleanValue !== booleanValue) {
+			this.set('booleanValue', booleanValue);
+		}
+	}
+
+}
+
+customElements.define(DynamicCheckbox.is, DynamicCheckbox);
+</script>
 </dom-module>

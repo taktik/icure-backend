@@ -16,53 +16,60 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-hubcontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				getTransactionUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpZip, ssin, sv, sl, value) {
-					var xhr = this.$.getTransactionUsingGET
+	<script>class FhcHubcontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-hubcontroller-api";
+	}
 
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
-					xhr.url = this.host+"/hub/{ssin}/{sv}/{sl}/{value}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl).replace("{value}", value) + "?ts=" + (new Date).getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getTransactionsListUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpZip, ssin, from, to, authorNihii, authorSsin, isGlobal) {
-					var xhr = this.$.getTransactionsListUsingGET
+	constructor() {
+		super();
+	}
 
+	getTransactionUsingGET(endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpZip, ssin, sv, sl, value) {
+		var xhr = this.$.getTransactionUsingGET;
 
-					xhr.url = this.host+"/hub/list/{ssin}".replace("{ssin}", ssin) + "?ts=" + (new Date).getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "") + (authorNihii ? "&authorNihii=" + authorNihii : "") + (authorSsin ? "&authorSsin=" + authorSsin : "") + (isGlobal ? "&isGlobal=" + isGlobal : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				putTransactionUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpZip, hubId, ssin, message, hubApplication) {
-					var xhr = this.$.putTransactionUsingPOST
-					xhr.body = message
+		xhr.url = this.host + "/hub/{ssin}/{sv}/{sl}/{value}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl).replace("{value}", value) + "?ts=" + new Date().getTime() + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpZip ? "&hcpZip=" + hcpZip : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-					xhr.url = this.host+"/hub/{hubId}/{ssin}".replace("{hubId}", hubId).replace("{ssin}", ssin) + "?ts=" + (new Date).getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (hubApplication ? "&hubApplication=" + hubApplication : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				}
-			});
-		})();
-	</script>
+	getTransactionsListUsingGET(endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpZip, ssin, from, to, authorNihii, authorSsin, isGlobal) {
+		var xhr = this.$.getTransactionsListUsingGET;
 
-@end
+		xhr.url = this.host + "/hub/list/{ssin}".replace("{ssin}", ssin) + "?ts=" + new Date().getTime() + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "") + (authorNihii ? "&authorNihii=" + authorNihii : "") + (authorSsin ? "&authorSsin=" + authorSsin : "") + (isGlobal ? "&isGlobal=" + isGlobal : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	putTransactionUsingPOST(endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpZip, hubId, ssin, message, hubApplication) {
+		var xhr = this.$.putTransactionUsingPOST;
+		xhr.body = message;
+
+		xhr.url = this.host + "/hub/{hubId}/{ssin}".replace("{hubId}", hubId).replace("{ssin}", ssin) + "?ts=" + new Date().getTime() + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (hubApplication ? "&hubApplication=" + hubApplication : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+}
+
+customElements.define(FhcHubcontrollerApi.is, FhcHubcontrollerApi);
+</script>

@@ -49,7 +49,7 @@
 
 		<paper-dialog id="loginDialog" opened="{{opened}}" modal>
 			<div class="top-gradient">&nbsp;</div>
-			<div style="text-align: center;"><!--img src="images/logo.png" style="width: 100px;" /--><h1>HT</h1></div>
+			<div style="text-align: center;"><!--img src="images/logo.png" style="width: 100px;" /--><h1>[[localize('ht','HT',language)]]</h1></div>
 			<div hidden$="{{!credentials.error}}" class="message error">
 				Invalid username or password.
 			</div>
@@ -66,39 +66,50 @@
 								 value="{{credentials.twofa}}" on-keydown="checkForEnter"></paper-input>
 					<paper-input label="Ehealth password (optional)" name="password" type="password" always-float-label="true"
 								 value="{{credentials.ehpassword}}" on-keydown="checkForEnter"></paper-input>
-					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>Log in</paper-button>
+					<paper-button raised="true" id="submitButton" type="submit" on-click="login" autofocus>[[localize('log_in','Log in',language)]]</paper-button>
 				</div>
 			</form>
 		</paper-dialog>
 
 	</template>
 	<script>
-		//noinspection JSUnusedGlobalSymbols
-		Polymer({
-			is: 'ht-app-login-dialog',
-			properties: {
-				credentials: {
-					type : Object
-				},
-				opened: {
-					type: Boolean,
-					value: false,
-					notify: true
-				}
-			},
-			observers: [],
 
-			login: function() {
-				this.fire("login",{credentials: this.credentials});
-			},
+//noinspection JSUnusedGlobalSymbols
+class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return "ht-app-login-dialog";
+	}
 
-			checkForEnter: function (e) {
-				// check if 'enter' was pressed
-				if (e.keyCode === 13) {
-					this.fire("login",{credentials: this.credentials});
-				}
+	static get properties() {
+		return {
+			credentials: {
+				type: Object
+			},
+			opened: {
+				type: Boolean,
+				value: false,
+				notify: true
 			}
+		};
+	}
 
-		});
-	</script>
+	constructor() {
+		super();
+	}
+
+	login() {
+		this.fire("login", { credentials: this.credentials });
+	}
+
+	checkForEnter(e) {
+		// check if 'enter' was pressed
+		if (e.keyCode === 13) {
+			this.fire("login", { credentials: this.credentials });
+		}
+	}
+
+}
+
+customElements.define(HtAppLoginDialog.is, HtAppLoginDialog);
+</script>
 </dom-module>

@@ -118,48 +118,50 @@
 								<template id="layoutitems-repeat" is="dom-repeat" items="[[_sortedGroupedFormDataList(column.formDataList)]]" as="layoutItem">
 									<template is="dom-if" if="[[_shouldDisplay(layoutItem, readOnly, compact)]]">
 									<template is="dom-if" if="[[_isTextField(layoutItem)]]">
-										<dynamic-text-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]"
-															last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-text-field>
+										<dynamic-text-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+															linkables="[[healthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-text-field>
 									</template>
 									<template is="dom-if" if="[[_isTextArea(layoutItem)]]">
-										<dynamic-text-area id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]"
-														   last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-text-area>
+										<dynamic-text-area id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+														   linkables="[[healthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-text-area>
 									</template>
 									<template is="dom-if" if="[[_isCheckboxField(layoutItem)]]">
-										<dynamic-checkbox id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
+										<dynamic-checkbox id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 														  linkables="[[healthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-checkbox>
 									</template>
 									<template is="dom-if" if="[[_isNumberField(layoutItem)]]">
-										<dynamic-number-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]"
-															  last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-number-field>
+										<dynamic-number-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+															  linkables="[[healthElements]]" last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-number-field>
 									</template>
 									<template is="dom-if" if="[[_isMeasureField(layoutItem)]]">
-										<dynamic-measure-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]"
-															   last-modified="[[_lastModified(layoutItem)]]" value-with-unit="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]"
+										<dynamic-measure-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+															   linkables="[[healthElements]]" last-modified="[[_lastModified(layoutItem)]]" value-with-unit="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]"
 															   on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-measure-field>
 									</template>
 									<template is="dom-if" if="[[_isPopupMenu(layoutItem)]]">
-										<dynamic-popup-menu id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" data-source="[[_popupDataSource(layoutItem, layoutItem.editor.menuOptions)]]" linkables="[[healthElements]]"
+										<dynamic-popup-menu id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+															data-source="[[_popupDataSource(layoutItem, layoutItem.editor.menuOptions)]]" linkables="[[healthElements]]"
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" options="[[layoutItem.editor.menuOptions]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-popup-menu>
 									</template>
 									<template is="dom-if" if="[[_isDateField(layoutItem)]]">
-										<dynamic-date-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]"
+										<dynamic-date-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-date-field>
 									</template>
 									<template is="dom-if" if="[[_isValueDateField(layoutItem)]]">
-										<dynamic-date-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]"
+										<dynamic-date-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" linkables="[[healthElements]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
 															last-modified="[[_lastModified(layoutItem)]]" value="[[_valueDate(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueDateChangedWithBooleanSet" read-only="[[readOnly]]"></dynamic-date-field>
 									</template>
 									<template is="dom-if" if="[[_isTokenField(layoutItem)]]">
-										<dynamic-token-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" language="[[language]]" data-source="[[_tokenDataSource(layoutItem, layoutItem.codeTypes)]]"
+										<dynamic-token-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-source="[[_tokenDataSource(layoutItem, layoutItem.codeTypes)]]"
 															last-modified="[[_lastModified(layoutItem)]]" linkables="[[healthElements]]" value="[[_valueContainers(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]"></dynamic-token-field>
 									</template>
 									<template is="dom-if" if="[[_isMedicationField(layoutItem)]]">
-										<dynamic-medication-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" language="[[language]]" linkables="[[healthElements]]"
+										<dynamic-medication-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" api="[[api]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[healthElements]]"
 															 last-modified="[[_lastModified(layoutItem)]]" value="[[_valueContainers(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueContainersChanged" read-only="[[readOnly]]"></dynamic-medication-field>
 									</template>
 									<template is="dom-if" if="[[_isSubForm(layoutItem)]]">
-										<dynamic-sub-form id="sf_[[layoutItem.name]]" label="[[layoutItem.label]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]" sub-contexts="[[_subForms(layoutItem,dataMap.*)]]" on-delete-subform="_deleteSubForm" on-add-subform="_addSubForm" read-only="[[readOnly]]"></dynamic-sub-form>
+										<dynamic-sub-form id="sf_[[layoutItem.name]]" label="[[layoutItem.label]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+														  sub-contexts="[[_subForms(layoutItem,dataMap.*)]]" on-delete-subform="_deleteSubForm" on-add-subform="_addSubForm" read-only="[[readOnly]]"></dynamic-sub-form>
 									</template>
 									</template>
 								</template>
@@ -173,276 +175,337 @@
 		</paper-card>
 	</template>
 	<script>
-		Polymer({
-			is: 'dynamic-form',
-			properties: {
-				api: {
-					type: Object
-				},
-				language: {
-					type: String
-				},
-				user: {
-					type: Object
-				},
-				template: {
-					type: Object,
-					observer: '_templateChanged'
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				compact: {
-					type: Boolean,
-					value: false
-				},
-				dataProvider: {
-					type: Object
-				},
-				dataMap: {
-					type: Object,
-					value: null
-				},
-				isSubForm: {
-					type: Boolean,
-					value: false
-				},
-				showTitle: {
-					type: Boolean,
-					value: false
-				},
-				title: {
-					type: String,
-					value: null
-				},
-				displayedTitle: {
-					type: String,
-					computed: "_displayedTitle(title, showTitle, dataProvider)"
-				},
-				showEdit: {
-					type: String,
-					computed: "_showEdit(isSubForm, readOnly)"
-				},
-				healthElements: {
-					type: Array
-				}
-			},
-			observers: [],
+class DynamicForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-form';
+	}
 
-			_showEdit: function() {
-				return this.readOnly && !this.isSubForm
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-
-			notify: function(path) {
-				if (!this.template) { return }
-				let pathParts = path.split('.')
-				const firstPathElement = pathParts[0]
-				const item = Polymer.dom(this.root).querySelector('#sf_'+firstPathElement)
-
-				const layoutItem = _.flatten(_.flatten(this.template.sections.map(s => s.formColumns.map(c => c.formDataList)))).find(fdl => fdl.name === firstPathElement)
-
-				if (pathParts.length>1) {
-					item.subContexts = this._subForms(layoutItem)
-					item.notify && item.notify(pathParts.slice(1).join('.'))
-				} else {
-					item.notify && item.notify()
-				}
+			user: {
+				type: Object
 			},
-
-			_displayedTitle: function() {
-				return this.title && this.dataProvider ? this.title : "Loading …"
+			template: {
+				type: Object,
+				observer: '_templateChanged'
 			},
-
-			_patCardClass: function(isSubForm) {
-				return !isSubForm ? "pat-details-card" : "pat-details-card subform-card"
+			readOnly: {
+				type: Boolean,
+				value: false
 			},
-
-			_value: function (layoutItem) {
-				if (!this.dataProvider) { return null }
-				return this._isCheckboxField(layoutItem) ? '' + (!!this._rawValue(layoutItem)) : this._rawValue(layoutItem)
+			compact: {
+				type: Boolean,
+				value: false
 			},
-
-			_rawValue: function (layoutItem) {
-				if (!this.dataProvider) { return null }
-				return this._isDateField(layoutItem)? this.dataProvider.getDateValue(layoutItem.name) :
-					this._isMeasureField(layoutItem)? this.dataProvider.getMeasureValue(layoutItem.name) :
-							this._isCheckboxField(layoutItem) ? this.dataProvider.getBooleanValue(layoutItem.name) :
-								this._isNumberField(layoutItem) ? this.dataProvider.getNumberValue(layoutItem.name) : this.dataProvider.getStringValue(layoutItem.name)
+			dataProvider: {
+				type: Object
 			},
-
-			_shouldDisplay(layoutItem, readOnly, compact) {
-				return 	!readOnly && !compact || this._isSubForm(layoutItem) || this._isMedicationField(layoutItem) && this.dataProvider.getValueContainers(layoutItem.name).length || this._rawValue(layoutItem)
+			dataMap: {
+				type: Object,
+				value: null
 			},
-
-			_valueContainers: function (layoutItem) {
-				if (!this.dataProvider) { return null }
-				return this.dataProvider.getValueContainers(layoutItem.name) || []
+			isSubForm: {
+				type: Boolean,
+				value: false
 			},
-
-			_valueDate: function (layoutItem) {
-				if (!this.dataProvider) { return null }
-				return this.dataProvider.getValueDateOfValue(layoutItem.name)
+			showTitle: {
+				type: Boolean,
+				value: false
 			},
-
-			_subForms: function (layoutItem) {
-				if (!this.dataProvider) { return null }
-				return this.dataProvider.getSubForms(layoutItem.name)
+			title: {
+				type: String,
+				value: null
 			},
-
-			_templateChanged: function(change) {
-				if (!this.template || !this.template.sections) { return }
-				this.layoutItemPerName = _.flatten(this.template.sections.map(s=>_.flatten(s.formColumns.map(c=>c.formDataList)))).reduce((acc, val) => {
-					acc[val.name] = val
-					return acc
-				},{})
+			displayedTitle: {
+				type: String,
+				computed: "_displayedTitle(title, showTitle, dataProvider)"
 			},
-
-			_valueChanged: function (event) {
-				if (!this.dataProvider) { return }
-				const change = event.detail
-				if (!this.layoutItemPerName || !event.target.id) { return }
-				const layoutItem = this.layoutItemPerName[event.target.id]
-				if (layoutItem) {
-					this._isDateField(layoutItem) ? this.dataProvider.setDateValue(layoutItem.name, change.value) :
-						this._isMeasureField(layoutItem) ? this.dataProvider.setMeasureValue(layoutItem.name, typeof change.value === "object" ? change.value : {value: change.value}) :
-							this._isCheckboxField(layoutItem) ? this.dataProvider.setBooleanValue(layoutItem.name, change.value && change.value !== 'false') :
-								this._isNumberField(layoutItem) ? this.dataProvider.setNumberValue(layoutItem.name, change.value) : this.dataProvider.setStringValue(layoutItem.name, change.value)
-				}
+			showEdit: {
+				type: String,
+				computed: "_showEdit(isSubForm, readOnly)"
 			},
-			_valueContainersChanged: function (event) {
-				if (!this.dataProvider) { return }
-				const change = event.detail
-				if (!this.layoutItemPerName || !event.target.id) { return }
-				const layoutItem = this.layoutItemPerName[event.target.id]
-				if (layoutItem) {
-					this._isTokenField(layoutItem) ? this.dataProvider.setValueContainers(layoutItem.name, change.value) :
-						this._isMedicationField(layoutItem) ? this.dataProvider.setValueContainers(layoutItem.name, change.value) : null
-				}
-			},
-
-			_valueDateChanged: function (event) {
-				if (!this.dataProvider) { return }
-				const change = event.detail
-				if (!this.layoutItemPerName || !event.target.id) { return }
-				const layoutItem = this.layoutItemPerName[event.target.id]
-				if (layoutItem) {
-					this.dataProvider.setValueDateOfValue(layoutItem.name, change.value)
-				}
-			},
-
-			_valueDateChangedWithBooleanSet: function (event) {
-				if (!this.dataProvider) { return }
-				const change = event.detail
-				if (!this.layoutItemPerName || !event.target.id) { return }
-				const layoutItem = this.layoutItemPerName[event.target.id]
-				if (layoutItem) {
-					this.dataProvider.setValueDateOfValue(layoutItem.name, change.value, true)
-				}
-			},
-			_unit: function (layoutItem, dataMap) {
-				if (!this.dataProvider) { return null }
-				return this._isMeasureField(layoutItem)? (() => { const v = this.dataProvider.getMeasureValue(layoutItem.name); return v && v.unit } )() : null
-			},
-			width: function (layoutItem) {
-				return layoutItem
-			},
-			_sortedGroupedFormDataList: function (formDataList) {
-				const widthsStruct = formDataList.reduce((acc,i) => {acc.widths[i.name] = i.editor.left+i.editor.width; acc.maxWidth = Math.max(acc.widths[i.name],acc.maxWidth); return acc}, {widths:{}, maxWidth:32})
-				const sortedList = _.sortBy(formDataList, fd => fd.editor.top)
-				const clusters = this.$['ckmeans-grouping'].cluster(sortedList.map(fd => fd.editor.top)).clusters
-
-				const formDataClusters = sortedList.reduce((cs, fd) => cs[_.findIndex(clusters, c => c.includes(fd.editor.top))].push(fd) && cs , new Array(clusters.length).fill(null).map(u=>[])).map(c=>_.sortBy(c,"editor.left"))
-				formDataClusters.forEach(c=>{
-					let prevWidth = 0;
-					for (let i=0;i<c.length;i++) {
-						let width = widthsStruct.widths[c[i].name]
-						c[i].editor.flow = Math.floor(10000 * (width-prevWidth) / widthsStruct.maxWidth) / 100
-						prevWidth = width
-					}
-				})
-
-				//Now that the flow have been determined restart a kmeans
-				const flowSortedList = _.sortBy(formDataList, fd => fd.editor.flow)
-				const flowClustering = this.$['ckmeans-flow-grouping'].cluster(flowSortedList.map(fd => fd.editor.flow))
-
-				//Round centroids
-				flowClustering.centroids = flowClustering.centroids.map(c=>Math.round(c*12/100.0)*100/12-0.00001)
-				const treatedFormDataList = _.flatten(formDataClusters)
-				treatedFormDataList.forEach(c=>{
-					c.editor.flow = flowClustering.centroids[_.findIndex(flowClustering.clusters, cc => cc.includes(c.editor.flow))]
-				})
-				formDataClusters.forEach(cs=>{
-					while (cs.reduce((acc,i)=>acc+i.editor.flow, 0)>100) {
-						cs.reduce((max, i) => i.editor.flow > max.editor.flow ? i : max, {editor: {flow: 0}}).editor.flow -= 8.33334;
-					}
-				})
-				return treatedFormDataList
-			},
-			_isTextArea: function (layoutItem) {
-				return layoutItem.editor.key === 'StringEditor' && layoutItem.editor.multiline === true
-			},
-			_isTextField: function (layoutItem) {
-				return layoutItem.editor.key === 'StringEditor' && layoutItem.editor.multiline === false
-			},
-			_isPopupMenu: function (layoutItem) {
-				return layoutItem.editor.key === 'PopupMenuEditor'
-			},
-			_isNumberField: function (layoutItem) {
-				return layoutItem.editor.key === 'NumberEditor'
-			},
-			_isDateField: function (layoutItem) {
-				return layoutItem.editor.key === 'DateTimeEditor'
-			},
-			_isValueDateField: function (layoutItem) {
-				return layoutItem.editor.key === 'CheckBoxEditor' && layoutItem.editor.displayValueDate
-			},
-			_isCheckboxField: function (layoutItem) {
-				return layoutItem.editor.key === 'CheckBoxEditor' && !layoutItem.editor.displayValueDate
-			},
-			_isMeasureField: function (layoutItem) {
-				return layoutItem.editor.key === 'MeasureEditor'
-			},
-			_isTokenField: function (layoutItem) {
-				return layoutItem.editor.key === 'TokenFieldEditor'
-			},
-			_isMedicationField: function (layoutItem) {
-				return layoutItem.editor.key === 'MedicationTableEditor'
-			},
-			_isSubForm: function(layoutItem) {
-				return layoutItem.subForm === true
-			},
-			_isModifiedAfter: function (layoutItem) {
-				return this.dataProvider && this.dataProvider.isModifiedAfter && this.dataProvider.isModifiedAfter(layoutItem.name) || false
-			},
-			_wasModified: function (layoutItem) {
-				return this.dataProvider && this.dataProvider.wasModified && this.dataProvider.wasModified(layoutItem.name) || false
-			},
-			_lastModified: function (layoutItem) {
-				return this.dataProvider && this.dataProvider.latestModification && this.dataProvider.latestModification(layoutItem.name) || "0"
-			},
-			loadDataMap: function() {
-				console.log("Form ready")
-			},
-			editForm: function() {
-				this.dataProvider.editForm && this.dataProvider.editForm()
-			},
-			_deleteSubForm: function(e, detail) {
-				e.stopPropagation()
-				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target)
-				this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id)
-			},
-			_addSubForm: function(e, detail) {
-				e.stopPropagation()
-				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target)
-				this.dataProvider.addSubForm && this.dataProvider.addSubForm(layoutItem.name, detail.guid)
-			},
-			_tokenDataSource: function(d) {
-				return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || (d.codeTypes && {source:"codes", types:d.codeTypes}),text) || Promise.resolve([])} || null
-			},
-			_popupDataSource: function(d,options) {
-				return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || (d.codeTypes && {source:"codes", types:d.codeTypes}),text) || Promise.resolve([]), get: id => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d,null,id) || Promise.resolve(null)} || null
+			healthElements: {
+				type: Array
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	_showEdit() {
+		return this.readOnly && !this.isSubForm;
+	}
+
+	notify(path) {
+		if (!this.template) {
+			return;
+		}
+		let pathParts = path.split('.');
+		const firstPathElement = pathParts[0];
+		const item = Polymer.dom(this.root).querySelector('#sf_' + firstPathElement);
+
+		const layoutItem = _.flatten(_.flatten(this.template.sections.map(s => s.formColumns.map(c => c.formDataList)))).find(fdl => fdl.name === firstPathElement);
+
+		if (pathParts.length > 1) {
+			item.subContexts = this._subForms(layoutItem);
+			item.notify && item.notify(pathParts.slice(1).join('.'));
+		} else {
+			item.notify && item.notify();
+		}
+	}
+
+	_displayedTitle() {
+		return this.title && this.dataProvider ? this.title : "Loading …";
+	}
+
+	_patCardClass(isSubForm) {
+		return !isSubForm ? "pat-details-card" : "pat-details-card subform-card";
+	}
+
+	_value(layoutItem) {
+		if (!this.dataProvider) {
+			return null;
+		}
+		return this._isCheckboxField(layoutItem) ? '' + !!this._rawValue(layoutItem) : this._rawValue(layoutItem);
+	}
+
+	_rawValue(layoutItem) {
+		if (!this.dataProvider) {
+			return null;
+		}
+		return this._isDateField(layoutItem) ? this.dataProvider.getDateValue(layoutItem.name) : this._isMeasureField(layoutItem) ? this.dataProvider.getMeasureValue(layoutItem.name) : this._isCheckboxField(layoutItem) ? this.dataProvider.getBooleanValue(layoutItem.name) : this._isNumberField(layoutItem) ? this.dataProvider.getNumberValue(layoutItem.name) : this.dataProvider.getStringValue(layoutItem.name);
+	}
+
+	_shouldDisplay(layoutItem, readOnly, compact) {
+		return !readOnly && !compact || this._isSubForm(layoutItem) || this._isMedicationField(layoutItem) && this.dataProvider.getValueContainers(layoutItem.name).length || this._rawValue(layoutItem);
+	}
+
+	_valueContainers(layoutItem) {
+		if (!this.dataProvider) {
+			return null;
+		}
+		return this.dataProvider.getValueContainers(layoutItem.name) || [];
+	}
+
+	_valueDate(layoutItem) {
+		if (!this.dataProvider) {
+			return null;
+		}
+		return this.dataProvider.getValueDateOfValue(layoutItem.name);
+	}
+
+	_subForms(layoutItem) {
+		if (!this.dataProvider) {
+			return null;
+		}
+		return this.dataProvider.getSubForms(layoutItem.name);
+	}
+
+	_templateChanged(change) {
+		if (!this.template || !this.template.sections) {
+			return;
+		}
+		this.layoutItemPerName = _.flatten(this.template.sections.map(s => _.flatten(s.formColumns.map(c => c.formDataList)))).reduce((acc, val) => {
+			acc[val.name] = val;
+			return acc;
+		}, {});
+	}
+
+	_valueChanged(event) {
+		if (!this.dataProvider) {
+			return;
+		}
+		const change = event.detail;
+		if (!this.layoutItemPerName || !event.target.id) {
+			return;
+		}
+		const layoutItem = this.layoutItemPerName[event.target.id];
+		if (layoutItem) {
+			this._isDateField(layoutItem) ? this.dataProvider.setDateValue(layoutItem.name, change.value) : this._isMeasureField(layoutItem) ? this.dataProvider.setMeasureValue(layoutItem.name, typeof change.value === "object" ? change.value : { value: change.value }) : this._isCheckboxField(layoutItem) ? this.dataProvider.setBooleanValue(layoutItem.name, change.value && change.value !== 'false') : this._isNumberField(layoutItem) ? this.dataProvider.setNumberValue(layoutItem.name, change.value) : this.dataProvider.setStringValue(layoutItem.name, change.value);
+		}
+	}
+
+	_valueContainersChanged(event) {
+		if (!this.dataProvider) {
+			return;
+		}
+		const change = event.detail;
+		if (!this.layoutItemPerName || !event.target.id) {
+			return;
+		}
+		const layoutItem = this.layoutItemPerName[event.target.id];
+		if (layoutItem) {
+			this._isTokenField(layoutItem) ? this.dataProvider.setValueContainers(layoutItem.name, change.value) : this._isMedicationField(layoutItem) ? this.dataProvider.setValueContainers(layoutItem.name, change.value) : null;
+		}
+	}
+
+	_valueDateChanged(event) {
+		if (!this.dataProvider) {
+			return;
+		}
+		const change = event.detail;
+		if (!this.layoutItemPerName || !event.target.id) {
+			return;
+		}
+		const layoutItem = this.layoutItemPerName[event.target.id];
+		if (layoutItem) {
+			this.dataProvider.setValueDateOfValue(layoutItem.name, change.value);
+		}
+	}
+
+	_valueDateChangedWithBooleanSet(event) {
+		if (!this.dataProvider) {
+			return;
+		}
+		const change = event.detail;
+		if (!this.layoutItemPerName || !event.target.id) {
+			return;
+		}
+		const layoutItem = this.layoutItemPerName[event.target.id];
+		if (layoutItem) {
+			this.dataProvider.setValueDateOfValue(layoutItem.name, change.value, true);
+		}
+	}
+
+	_unit(layoutItem, dataMap) {
+		if (!this.dataProvider) {
+			return null;
+		}
+		return this._isMeasureField(layoutItem) ? (() => {
+			const v = this.dataProvider.getMeasureValue(layoutItem.name);return v && v.unit;
+		})() : null;
+	}
+
+	width(layoutItem) {
+		return layoutItem;
+	}
+
+	_sortedGroupedFormDataList(formDataList) {
+		const widthsStruct = formDataList.reduce((acc, i) => {
+			acc.widths[i.name] = i.editor.left + i.editor.width;acc.maxWidth = Math.max(acc.widths[i.name], acc.maxWidth);return acc;
+		}, { widths: {}, maxWidth: 32 });
+		const sortedList = _.sortBy(formDataList, fd => fd.editor.top);
+		const clusters = this.$['ckmeans-grouping'].cluster(sortedList.map(fd => fd.editor.top)).clusters;
+
+		const formDataClusters = sortedList.reduce((cs, fd) => cs[_.findIndex(clusters, c => c.includes(fd.editor.top))].push(fd) && cs, new Array(clusters.length).fill(null).map(u => [])).map(c => _.sortBy(c, "editor.left"));
+		formDataClusters.forEach(c => {
+			let prevWidth = 0;
+			for (let i = 0; i < c.length; i++) {
+				let width = widthsStruct.widths[c[i].name];
+				c[i].editor.flow = Math.floor(10000 * (width - prevWidth) / widthsStruct.maxWidth) / 100;
+				prevWidth = width;
+			}
+		});
+
+		//Now that the flow have been determined restart a kmeans
+		const flowSortedList = _.sortBy(formDataList, fd => fd.editor.flow);
+		const flowClustering = this.$['ckmeans-flow-grouping'].cluster(flowSortedList.map(fd => fd.editor.flow));
+
+		//Round centroids
+		flowClustering.centroids = flowClustering.centroids.map(c => Math.round(c * 12 / 100.0) * 100 / 12 - 0.00001);
+		const treatedFormDataList = _.flatten(formDataClusters);
+		treatedFormDataList.forEach(c => {
+			c.editor.flow = flowClustering.centroids[_.findIndex(flowClustering.clusters, cc => cc.includes(c.editor.flow))];
+		});
+		formDataClusters.forEach(cs => {
+			while (cs.reduce((acc, i) => acc + i.editor.flow, 0) > 100) {
+				cs.reduce((max, i) => i.editor.flow > max.editor.flow ? i : max, { editor: { flow: 0 } }).editor.flow -= 8.33334;
+			}
+		});
+		return treatedFormDataList;
+	}
+
+	_isTextArea(layoutItem) {
+		return layoutItem.editor.key === 'StringEditor' && layoutItem.editor.multiline === true;
+	}
+
+	_isTextField(layoutItem) {
+		return layoutItem.editor.key === 'StringEditor' && layoutItem.editor.multiline === false;
+	}
+
+	_isPopupMenu(layoutItem) {
+		return layoutItem.editor.key === 'PopupMenuEditor';
+	}
+
+	_isNumberField(layoutItem) {
+		return layoutItem.editor.key === 'NumberEditor';
+	}
+
+	_isDateField(layoutItem) {
+		return layoutItem.editor.key === 'DateTimeEditor';
+	}
+
+	_isValueDateField(layoutItem) {
+		return layoutItem.editor.key === 'CheckBoxEditor' && layoutItem.editor.displayValueDate;
+	}
+
+	_isCheckboxField(layoutItem) {
+		return layoutItem.editor.key === 'CheckBoxEditor' && !layoutItem.editor.displayValueDate;
+	}
+
+	_isMeasureField(layoutItem) {
+		return layoutItem.editor.key === 'MeasureEditor';
+	}
+
+	_isTokenField(layoutItem) {
+		return layoutItem.editor.key === 'TokenFieldEditor';
+	}
+
+	_isMedicationField(layoutItem) {
+		return layoutItem.editor.key === 'MedicationTableEditor';
+	}
+
+	_isSubForm(layoutItem) {
+		return layoutItem.subForm === true;
+	}
+
+	_isModifiedAfter(layoutItem) {
+		return this.dataProvider && this.dataProvider.isModifiedAfter && this.dataProvider.isModifiedAfter(layoutItem.name) || false;
+	}
+
+	_wasModified(layoutItem) {
+		return this.dataProvider && this.dataProvider.wasModified && this.dataProvider.wasModified(layoutItem.name) || false;
+	}
+
+	_lastModified(layoutItem) {
+		return this.dataProvider && this.dataProvider.latestModification && this.dataProvider.latestModification(layoutItem.name) || "0";
+	}
+
+	loadDataMap() {
+		console.log("Form ready");
+	}
+
+	editForm() {
+		this.dataProvider.editForm && this.dataProvider.editForm();
+	}
+
+	_deleteSubForm(e, detail) {
+		e.stopPropagation();
+		const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target);
+		this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id);
+	}
+
+	_addSubForm(e, detail) {
+		e.stopPropagation();
+		const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target);
+		this.dataProvider.addSubForm && this.dataProvider.addSubForm(layoutItem.name, detail.guid);
+	}
+
+	_tokenDataSource(d) {
+		return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || d.codeTypes && { source: "codes", types: d.codeTypes }, text) || Promise.resolve([]) } || null;
+	}
+
+	_popupDataSource(d, options) {
+		return d && { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || d.codeTypes && { source: "codes", types: d.codeTypes }, text) || Promise.resolve([]), get: id => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d, null, id) || Promise.resolve(null) } || null;
+	}
+
+}
+
+customElements.define(DynamicForm.is, DynamicForm);
+</script>
 </dom-module>

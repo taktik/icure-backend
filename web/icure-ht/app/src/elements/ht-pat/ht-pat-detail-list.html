@@ -1,0 +1,160 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<link rel="import" href="../dynamic-form/dynamic-form.html">
+
+<dom-module id="ht-pat-detail-list">
+    <template>
+        <style include="icd-styles">
+            .form-title-bar-btn {
+                height: 20px;
+                width: 20px;
+                padding: 2px;
+            }
+            .horizontal vaadin-date-picker {
+                height: 90px;
+                padding-bottom: 0px;
+                @apply --padding-right-left-16
+            }
+
+
+            .link .ICD-10 span {
+                content: '';
+                display: inline-block;
+                height: 6px;
+                width: 6px;
+                border-radius: 3px;
+                margin-right: 3px;
+                margin-bottom: 1px;
+            }
+
+            paper-listbox {
+                min-width: 200px;
+            }
+
+            paper-menu-button {
+                padding: 0;
+            }
+
+            vaadin-grid{
+				height:calc(100% - 104px);
+				margin: 32px 32px 0;
+				box-shadow: var(--app-shadow-elevation-1);
+				border: none;
+			}
+
+            
+        </style>
+        <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[_services(contacts,contacts.*)]]" on-tap="click">
+            <vaadin-grid-column flex-grow="2" width="80px">
+                <template class="header">
+                    <vaadin-grid-sorter path="label">[[localize('lab','Label',language)]]</vaadin-grid-sorter>
+                </template>
+                <template>[[item.label]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column flex-grow="2" width="80px">
+                <template class="header">
+                    <vaadin-grid-sorter path="modified">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
+                </template>
+                <template>[[_date(item)]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column flex-grow="5" width="300px">
+                <template class="header">
+                    Value
+                </template>
+                <template>[[_shortDescription(item)]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column  flex-grow="2" width="80px">
+                <template class="header">
+                    <vaadin-grid-sorter path="function{[[_author(item)]]}">[[localize('aut','Author',language)]]</vaadin-grid-sorter>
+                </template>
+                <template>[[_author(item)]]</template>
+            </vaadin-grid-column>
+        </vaadin-grid>
+    </template>
+    <script>
+
+class HtPatDetailList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+    static get is() {
+        return 'ht-pat-detail-list';
+    }
+
+    static get properties() {
+        return {
+            api: {
+                type: Object
+            },
+            user: {
+                type: Object
+            },
+            patient: {
+                type: Object,
+                value: null
+            },
+            contact: {
+                type: Object,
+                value: null
+            },
+            contacts: {
+                type: Array,
+                value: []
+            },
+            activeItem: {
+                type: Object
+            },
+            healthElements: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            },
+            currentContact: {
+                type: Object,
+                value: null
+            },
+            lastColumnSort: {
+                type: String,
+                value: null
+            }
+        };
+    }
+
+    constructor() {
+        super();
+    }
+
+    _isNotInCurrentContact(currentContact, contact) {
+        return currentContact === null || contact !== currentContact;
+    }
+
+    _services(contacts) {
+        return _.sortBy(_.flatMap(contacts, c => c.services), ['modified']);
+    }
+
+    _date(item) {
+        return item ? this.api.moment(item.modified).format(item > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+    }
+
+    _author(item) {
+        return this.api.getAuthor(item.author);
+    }
+
+    _shortDescription(svc) {
+        return this.api.contact().shortServiceDescription(svc, this.language);
+    }
+
+}
+
+customElements.define(HtPatDetailList.is, HtPatDetailList);
+</script>
+</dom-module>

@@ -1,0 +1,39 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<script>
+Polymer.TkLocalizerMixin = superClass => class extends superClass {
+	constructor() {
+		super();
+	}
+
+	static get properties() {
+		return {
+			resources: {
+				type: Object
+			},
+			language: {
+				type: String
+			}
+		};
+	}
+
+	ready() {
+		super.ready();
+		if (!this.resources || !this.resources.en) {
+			console.log('Missing resources for ', this.tagName);
+		}
+		if (!this.language) {
+			console.log('Missing language for ', this.tagName);
+		}
+	}
+
+	localize(key, defaultValue) {
+		const trns = this.resources && this.resources[this.language] && this.resources[this.language][key];
+		console.log("Loc -> ", key, this.language);
+		if (!trns) {
+			console.log('Translation is missing for', this.language, key);
+		}
+		return trns || defaultValue;
+	}
+};
+</script>

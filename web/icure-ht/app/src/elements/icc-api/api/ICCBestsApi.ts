@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBestsApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBestsApi {
         
         const _url = this.host+"/be_sts/token/{password}".replace("{password}", password+"") + "?ts=" + (new Date).getTime()  + (keystore ? "&keystore=" + keystore : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBestsApi {
         
         const _url = this.host+"/be_sts/token" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBestsApi {
         
         const _url = this.host+"/be_sts/ready" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBestsApi {
         
         const _url = this.host+"/be_sts/token" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
+        return XHR.sendCommand('DELETE', _url , this.headers, _body )
                 .then(doc =>  new models.GenericResult(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBestsApi {
         
         const _url = this.host+"/be_sts/setup" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 

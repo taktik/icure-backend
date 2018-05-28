@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeetarifApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBeetarifApi {
         
         const _url = this.host+"/be_etarif/{token}/{patientNiss}/{codes}".replace("{token}", token+"").replace("{patientNiss}", patientNiss+"").replace("{codes}", codes+"") + "?ts=" + (new Date).getTime()  + (justification ? "&justification=" + justification : "") + (date ? "&date=" + date : "") + (nihiiDmg ? "&nihiiDmg=" + nihiiDmg : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.TarificationConsultationResultDto(doc.body as JSON))
                 .catch(err => this.handleError(err))
 

@@ -79,7 +79,7 @@
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
-						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
 				<iron-input slot="input" bind-value="{{value}}">
@@ -94,65 +94,80 @@
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
-						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
 				<iron-input slot="input" bind-value="{{value}}">
 					<input type="text" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
-			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>
 	<script>
-		Polymer({
-			is: 'dynamic-text-field',
-			properties: {
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				context: {
-					type: String
-				},
-				value: {
-					type: String,
-					notify: true,
-					observer: '_valueChanged'
-				},
-				input: {
-					type: String,
-				},
-				width: {
-					type: Number,
-					value: 48,
-					observer: '_widthChanged'
-				},
-				healthElements: {
-					type: Array,
-					value: function () { return [] }
+class DynamicTextField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-text-field';
+	}
+
+	static get properties() {
+		return {
+			wasModified: {
+				type: Boolean
+			},
+			isModifiedAfter: {
+				type: Boolean
+			},
+			readOnly: {
+				type: Boolean,
+				value: false
+			},
+			lastModified: {
+				type: String
+			},
+			label: {
+				type: String
+			},
+			context: {
+				type: String
+			},
+			value: {
+				type: String,
+				notify: true,
+				observer: '_valueChanged'
+			},
+			input: {
+				type: String
+			},
+			width: {
+				type: Number,
+				value: 48,
+				observer: '_widthChanged'
+			},
+			healthElements: {
+				type: Array,
+				value: function () {
+					return [];
 				}
-			},
-			observers: [],
-			_widthChanged: function(width) {
-				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
-			},
-			_valueChanged: function(value) {
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:value}}));
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+	}
+
+	_valueChanged(value) {
+		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
+	}
+
+}
+
+customElements.define(DynamicTextField.is, DynamicTextField);
+</script>
 </dom-module>

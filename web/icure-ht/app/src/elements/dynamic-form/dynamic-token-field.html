@@ -118,113 +118,133 @@
 					<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 				</template>
 				<template is="dom-if" if="[[isModifiedAfter]]">
-					<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+					<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 				</template>
 			</span>
 		</tk-token-field>
-		<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 	</template>
 	<script>
-		Polymer({
-			is: 'dynamic-token-field',
-			properties: {
-				api: {
-					type: Object
-				},
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				context: {
-					type: String
-				},
-				dataSource: {
-					type: Object,
-					value: null
-				},
-				value: {
-					type: Array,
-					notify: true,
-					value: function() {
-						return []
-					}
-				},
-				shelf: { //Where the items from value are stored during a move
-					type: Array,
-					notify: true,
-					value: function() {
-						return []
-					}
-				},
-				localizedValue: {
-					type: Array,
-					value: function() {
-						return []
-					}
-				},
-				input: {
-					type: String,
-				},
-				language: {
-					type: String
-				},
-				width: {
-					type: Number,
-					value: 48,
-					observer: '_widthChanged'
-				},
-				linkables: {
-					type: Array
+class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-token-field';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			wasModified: {
+				type: Boolean
+			},
+			isModifiedAfter: {
+				type: Boolean
+			},
+			readOnly: {
+				type: Boolean,
+				value: false
+			},
+			lastModified: {
+				type: String
+			},
+			label: {
+				type: String
+			},
+			context: {
+				type: String
+			},
+			dataSource: {
+				type: Object,
+				value: null
+			},
+			value: {
+				type: Array,
+				notify: true,
+				value: function () {
+					return [];
 				}
 			},
-			observers: ['_valueChanged(value.*)'],
-			_localizedValueChanged: function(change) {
-				const current = this.value
-				const modified = this.localizedValue
-				const newValue = []
-
-
-				modified.forEach((m, idx) => {
-					const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id)
-					if (existing) {
-						newValue.push(_.extend(existing, {index:idx}))
-						_.pull(current, existing)
-					} else {
-						newValue.push({id: this.api.crypto().randomUuid(), index:idx, content: _.fromPairs([[this.language, {stringValue: m.stringValue}]]), codes: m.codes || []})
-					}
-				})
-
-				this.shelf = current
-				this.set('value',newValue)
+			shelf: { //Where the items from value are stored during a move
+				type: Array,
+				notify: true,
+				value: function () {
+					return [];
+				}
 			},
-			_widthChanged: function(width) {
-				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
+			localizedValue: {
+				type: Array,
+				value: function () {
+					return [];
+				}
 			},
-			_localizedValue: function (value) {
-				return value && _.compact(_.sortBy(value,'index').map(v => v && v.content && this.localizedStringValueWithId(v.id, v.content, this.language))) || []
+			input: {
+				type: String
 			},
-			_valueChanged: function(value) {
-				let localizedValue = this._localizedValue(this.value)
-				if (!_.isEqual(localizedValue, this.localizedValue)) { this.set('localizedValue', localizedValue) }
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:this.value}}));
+			width: {
+				type: Number,
+				value: 48,
+				observer: '_widthChanged'
 			},
-			localizedStringValueWithId: function(id, e, lng) {
-				if (!e) { return null }
-				let content = e[lng] || e.fr || e.en || e.nl
-				return content && {id: id, stringValue:''+content.stringValue}
+			linkables: {
+				type: Array
 			}
-		})
-	</script>
+		};
+	}
+
+	static get observers() {
+		return ['_valueChanged(value.*)'];
+	}
+
+	constructor() {
+		super();
+	}
+
+	_localizedValueChanged(change) {
+		const current = this.value;
+		const modified = this.localizedValue;
+		const newValue = [];
+
+		modified.forEach((m, idx) => {
+			const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id);
+			if (existing) {
+				newValue.push(_.extend(existing, { index: idx }));
+				_.pull(current, existing);
+			} else {
+				newValue.push({ id: this.api.crypto().randomUuid(), index: idx, content: _.fromPairs([[this.language, { stringValue: m.stringValue }]]), codes: m.codes || [] });
+			}
+		});
+
+		this.shelf = current;
+		this.set('value', newValue);
+	}
+
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+	}
+
+	_localizedValue(value) {
+		return value && _.compact(_.sortBy(value, 'index').map(v => v && v.content && this.localizedStringValueWithId(v.id, v.content, this.language))) || [];
+	}
+
+	_valueChanged(value) {
+		let localizedValue = this._localizedValue(this.value);
+		if (!_.isEqual(localizedValue, this.localizedValue)) {
+			this.set('localizedValue', localizedValue);
+		}
+		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
+	}
+
+	localizedStringValueWithId(id, e, lng) {
+		if (!e) {
+			return null;
+		}
+		let content = e[lng] || e.fr || e.en || e.nl;
+		return content && { id: id, stringValue: '' + content.stringValue };
+	}
+
+}
+
+customElements.define(DynamicTokenField.is, DynamicTokenField);
+</script>
 </dom-module>

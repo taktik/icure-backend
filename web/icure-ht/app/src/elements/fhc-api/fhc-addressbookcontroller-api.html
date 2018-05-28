@@ -24,89 +24,95 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-addressbookcontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				getHcpByNihiiUsingGET: function (keystoreId, tokenId, passPhrase, nihii, language) {
-					var xhr = this.$.getHcpByNihiiUsingGET
+	<script>class FhcAddressbookcontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-addressbookcontroller-api";
+	}
 
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
-					xhr.url = this.host+"/ab/hcp/nihii/{nihii}".replace("{nihii}", nihii) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getHcpBySsinUsingGET: function (keystoreId, tokenId, passPhrase, ssin, language) {
-					var xhr = this.$.getHcpBySsinUsingGET
+	constructor() {
+		super();
+	}
 
+	getHcpByNihiiUsingGET(keystoreId, tokenId, passPhrase, nihii, language) {
+		var xhr = this.$.getHcpByNihiiUsingGET;
 
-					xhr.url = this.host+"/ab/hcp/ssin/{ssin}".replace("{ssin}", ssin) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getOrgByCbeUsingGET: function (keystoreId, tokenId, passPhrase, cbe, language) {
-					var xhr = this.$.getOrgByCbeUsingGET
+		xhr.url = this.host + "/ab/hcp/nihii/{nihii}".replace("{nihii}", nihii) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	getHcpBySsinUsingGET(keystoreId, tokenId, passPhrase, ssin, language) {
+		var xhr = this.$.getHcpBySsinUsingGET;
 
-					xhr.url = this.host+"/ab/org/cbe/{cbe}".replace("{cbe}", cbe) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getOrgByEhpUsingGET: function (keystoreId, tokenId, passPhrase, ehp, language) {
-					var xhr = this.$.getOrgByEhpUsingGET
+		xhr.url = this.host + "/ab/hcp/ssin/{ssin}".replace("{ssin}", ssin) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	getOrgByCbeUsingGET(keystoreId, tokenId, passPhrase, cbe, language) {
+		var xhr = this.$.getOrgByCbeUsingGET;
 
-					xhr.url = this.host+"/ab/org/ehp/{ehp}".replace("{ehp}", ehp) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getOrgByNihiiUsingGET: function (keystoreId, tokenId, passPhrase, nihii, language) {
-					var xhr = this.$.getOrgByNihiiUsingGET
+		xhr.url = this.host + "/ab/org/cbe/{cbe}".replace("{cbe}", cbe) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	getOrgByEhpUsingGET(keystoreId, tokenId, passPhrase, ehp, language) {
+		var xhr = this.$.getOrgByEhpUsingGET;
 
-					xhr.url = this.host+"/ab/org/nihii/{nihii}".replace("{nihii}", nihii) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				searchHcpUsingGET: function (keystoreId, tokenId, passPhrase, lastName, firstName, type) {
-					var xhr = this.$.searchHcpUsingGET
+		xhr.url = this.host + "/ab/org/ehp/{ehp}".replace("{ehp}", ehp) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	getOrgByNihiiUsingGET(keystoreId, tokenId, passPhrase, nihii, language) {
+		var xhr = this.$.getOrgByNihiiUsingGET;
 
-					xhr.url = this.host+"/ab/search/hcp/{lastName}".replace("{lastName}", lastName) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (firstName ? "&firstName=" + firstName : "") + (type ? "&type=" + type : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				searchOrgUsingGET: function (keystoreId, tokenId, passPhrase, name, type) {
-					var xhr = this.$.searchOrgUsingGET
+		xhr.url = this.host + "/ab/org/nihii/{nihii}".replace("{nihii}", nihii) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (language ? "&language=" + language : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
+	searchHcpUsingGET(keystoreId, tokenId, passPhrase, lastName, firstName, type) {
+		var xhr = this.$.searchHcpUsingGET;
 
-					xhr.url = this.host+"/ab/search/org/{name}".replace("{name}", name) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (type ? "&type=" + type : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				}
-			});
-		})();
-	</script>
+		xhr.url = this.host + "/ab/search/hcp/{lastName}".replace("{lastName}", lastName) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (firstName ? "&firstName=" + firstName : "") + (type ? "&type=" + type : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-@end
+	searchOrgUsingGET(keystoreId, tokenId, passPhrase, name, type) {
+		var xhr = this.$.searchOrgUsingGET;
+
+		xhr.url = this.host + "/ab/search/org/{name}".replace("{name}", name) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (type ? "&type=" + type : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+}
+
+customElements.define(FhcAddressbookcontrollerApi.is, FhcAddressbookcontrollerApi);
+</script>

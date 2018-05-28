@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeehboxApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/delete/{token}/{from}".replace("{token}", token+"").replace("{from}", from+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/template" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DocumentEhealthMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/message/{token}/{source}/{messageId}".replace("{token}", token+"").replace("{source}", source+"").replace("{messageId}", messageId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DocumentEhealthMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/identifiers" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.IdentifierType(it)))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.BoxInfo(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/messages/{token}/{boxId}".replace("{token}", token+"").replace("{boxId}", boxId+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.EhealthMessage(it)))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/qualities" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.QualityType(it)))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/move/{token}/{from}/{to}".replace("{token}", token+"").replace("{from}", from+"").replace("{to}", to+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -142,7 +142,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/refresh/{token}/{boxId}".replace("{token}", token+"").replace("{boxId}", boxId+"") + "?ts=" + (new Date).getTime()  + (limit ? "&limit=" + limit : "")
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MessageDto(it)))
                 .catch(err => this.handleError(err))
 
@@ -154,7 +154,7 @@ export class iccBeehboxApi {
         
         const _url = this.host+"/be_ehbox/send/{token}/{notificationMask}".replace("{token}", token+"").replace("{notificationMask}", notificationMask+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 

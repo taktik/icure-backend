@@ -12,805 +12,788 @@
 </dom-module>
 
 <script>
-	import base64js from '../../../bower_components/base64-js/base64js.min'
+import base64js from '../../../bower_components/base64-js/base64js.min';
 
-	(function () {
-		Polymer({
-			is: 'icc-crypto-x-api',
-			properties: {
-				api: {
-					type: Object
-				},
-				hcpartyApi: {
-					type: Object
-				}
+class IccCryptoXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'icc-crypto-x-api';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-			behaviors: [],
-
-			hcPartyKeysCache: {},
-			keychainLocalStoreIdPrefix: 'org.taktik.icure.ehealth.keychain.',
-
-			init: function() {},
-
-			ready: function () {
-				this.AES.utils = this.utils
-				this.RSA.utils = this.utils
-
-				console.log("CRYPTO ready")
+			hcpartyApi: {
+				type: Object,
+				value: () => {}
 			},
-
-			randomUuid: () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)),
-
-			decryptHcPartyKey: function (delegatorId, delegateHcPartyId, encryptedHcPartyKey, encryptedForDelegator) {
-				const cacheKey = delegatorId + '|' + delegateHcPartyId + '|' + (encryptedForDelegator ? '->' : '<-')
-				const res = this.hcPartyKeysCache[cacheKey]
-				const hcPartyKeyOwner = encryptedForDelegator ? delegatorId : delegateHcPartyId
-				if (res) {
-					return Promise.resolve(res)
-				} else {
-					var keyPair = this.RSA.rsaKeyPairs[hcPartyKeyOwner]
-					if (!keyPair) {
-						var keyPairInJwk = this.RSA.loadKeyPairNotImported(hcPartyKeyOwner)
-						if (!keyPairInJwk) {
-							throw 'No RSA private key for Healthcare party(' + hcPartyKeyOwner + ').'
-						}
-						// import the jwk formatted key
-						return this.RSA.importKeyPair('jwk', keyPairInJwk.privateKey, 'jwk', keyPairInJwk.publicKey)
-							.then(importedKeyPair => {
-								keyPair = this.RSA.rsaKeyPairs[hcPartyKeyOwner] = importedKeyPair
-								// Obtaining the AES Key by decrypting the HcpartyKey
-								return this.RSA.decrypt(keyPair.privateKey, this.utils.hex2ua(encryptedHcPartyKey))
-							})
-							.then(decryptedHcPartyKey => this.AES.importKey('raw', decryptedHcPartyKey), err => console.error(err))
-							.then(decryptedImportedHcPartyKey => (this.hcPartyKeysCache[cacheKey] = {delegatorId: delegatorId, key: decryptedImportedHcPartyKey}))
-					} else {
-						return this.RSA.decrypt(keyPair.privateKey, this.utils.hex2ua(encryptedHcPartyKey))
-							.then(decryptedHcPartyKey => this.AES.importKey('raw', decryptedHcPartyKey), err => console.error(err))
-							.then(decryptedImportedHcPartyKey => (this.hcPartyKeysCache[cacheKey] = {delegatorId: delegatorId, key: decryptedImportedHcPartyKey}))
-					}
-				}
+			hcPartyKeysCache: {
+				type: Object,
+				value: () => ({})
 			},
-
-			decryptAndImportAesHcPartyKeysForDelegators: function (delegatorsHcPartyIdsSet, delegateHcPartyId) {
-				return this.hcpartyApi.getHcPartyKeysForDelegate(delegateHcPartyId).then(function (healthcarePartyKeys) {
-					// For each delegatorId, obtain the AES keys
-					return Promise.all(delegatorsHcPartyIdsSet.map(delegatorId => this.decryptHcPartyKey(delegatorId, delegateHcPartyId, healthcarePartyKeys[delegatorId])))
-				}.bind(this))
+			keychainLocalStoreIdPrefix: {
+				type: String,
+				value: 'org.taktik.icure.ehealth.keychain.'
 			},
-
-			decryptAndImportAesHcPartyKeysInDelegations: function (healthcarePartyId, delegations) {
-				const delegatorIds = {}
-				delegations[healthcarePartyId].forEach(function (delegation) {
-					delegatorIds[delegation.owner] = true
-				})
-				return this.decryptAndImportAesHcPartyKeysForDelegators(Object.keys(delegatorIds), healthcarePartyId)
-			},
-
-			initObjectDelegations: function (createdObject, parentObject, ownerId, secretForeignKeyOfParent) {
-				const secretId = this.randomUuid()
-				return this.hcpartyApi.getHealthcareParty(ownerId)
-					.then((owner) => owner.hcPartyKeys[ownerId][0])
-					.then(encryptedHcPartyKey => this.decryptHcPartyKey(ownerId, ownerId, encryptedHcPartyKey, true))
-					.then(importedAESHcPartyKey => Promise.all([
-						this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(createdObject.id + ":" + secretId)),
-						parentObject ? this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(createdObject.id + ":" + parentObject.id)) : Promise.resolve(null)
-					]))
-					.then(encryptedDelegationAndSecretForeignKey => ({
-						delegations: _.fromPairs([[
-							ownerId, [{owner: ownerId, delegatedTo: ownerId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[0])}]
-						]]),
-						cryptedForeignKeys: encryptedDelegationAndSecretForeignKey[1] && _.fromPairs([[
-							ownerId, [{owner: ownerId, delegatedTo: ownerId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[1])}]
-						]]) || {},
-						secretForeignKeys: secretForeignKeyOfParent && [secretForeignKeyOfParent] || [],
-						secretId: secretId
-					} ))
-			},
-
-			appendObjectDelegations: function (modifiedObject, parentObject, ownerId, delegateId, secretIdOfModifiedObject) {
-				return this.hcpartyApi.getHealthcareParty(ownerId)
-					.then((owner) => owner.hcPartyKeys[delegateId][0])
-					.then(encryptedHcPartyKey => this.decryptHcPartyKey(ownerId, delegateId, encryptedHcPartyKey, true))
-					.then(importedAESHcPartyKey => Promise.all([
-						this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(modifiedObject.id + ":" + secretIdOfModifiedObject)),
-						parentObject ? this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(modifiedObject.id + ":" + parentObject.id)) : Promise.resolve(null)
-					]))
-					.then(encryptedDelegationAndSecretForeignKey => ({
-						delegations: _.extend(_.cloneDeep(modifiedObject.delegations), _.fromPairs([[delegateId, (modifiedObject.delegations[delegateId] || []).concat([{
-							owner: ownerId, delegatedTo: delegateId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[0])
-						}])]])),
-						cryptedForeignKeys: encryptedDelegationAndSecretForeignKey[1] ?
-							_.extend(_.cloneDeep(modifiedObject.cryptedForeignKeys), _.fromPairs([[delegateId, (modifiedObject.cryptedForeignKeys[delegateId] || []).concat([{
-								owner: ownerId, delegatedTo: delegateId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[1])
-							}])]]))
-							: _.cloneDeep(modifiedObject.cryptedForeignKeys)
-					} ))
-			},
-
-			extractDelegationsSFKs: function (document, hcpartyId) {
-				if (!document.delegations || !document.delegations[hcpartyId] || !(document.delegations[hcpartyId].length > 0)) {
-					throw 'There is not delegation for this healthcare party (' + hcpartyId + ') in document (' + document.id + ')';
-				}
-				return this.decryptAndImportAesHcPartyKeysInDelegations(hcpartyId, document.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
-					const collatedAesKeys = {};
-					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-					return this.decryptDelegationsSFKs(document.delegations[hcpartyId], collatedAesKeys, document.id)
-				}.bind(this))
-			},
-
-			decryptDelegationsSFKs: function (delegationsArray, aesKeys, masterId) {
-				var decryptPromises = []
-				for (var i = 0; i < delegationsArray.length; i++) {
-					var delegation = delegationsArray[i]
-
-					decryptPromises.push(this.AES.decrypt(aesKeys[delegation.owner], this.utils.hex2ua(delegation.key)).then(function (result) {
-						var results = this.utils.ua2text(result).split(':')
-						// results[0]: must be the ID of the object, for checksum
-						// results[1]: secretForeignKey
-						if (results[0] !== masterId) {
-							console.log('Cryptographic mistake: patient ID is not equal to the concatenated id in SecretForeignKey, this may happen when patients have been merged')
-						}
-
-						return results[1]
-
-					}.bind(this)))
-				}
-
-				return Promise.all(decryptPromises)
-			},
-
-			loadKeyPairsAsTextInBrowserLocalStorage: function (healthcarePartyId, privateKey) {
-				return this.api.hcparty().getPublicKey(healthcarePartyId).then(function (publicKey) {
-					return this.RSA.importKeyPair('jwk', this.utils.pkcs8ToJwk(privateKey), 'jwk', this.utils.spkiToJwk(this.utils.hex2ua(publicKey.hexString)))
-				}.bind(this)).then(function (keyPair) {
-					this.RSA.rsaKeyPairs[healthcarePartyId] = keyPair
-					return this.RSA.exportKeys(keyPair, 'jwk', 'jwk')
-				}.bind(this)).then(function (exportedKeyPair) {
-					return this.RSA.storeKeyPair(healthcarePartyId, exportedKeyPair)
-				}.bind(this))
-			},
-
-			loadKeyPairsAsJwkInBrowserLocalStorage: function (healthcarePartyId, privKey) {
-				return this.api.hcparty().getPublicKey(healthcarePartyId).then(function (publicKey) {
-					const pubKey = this.utils.spkiToJwk(this.utils.hex2ua(publicKey.hexString))
-
-					privKey.n = pubKey.n
-					privKey.e = pubKey.e
-
-					return this.RSA.importKeyPair('jwk', privKey, 'jwk', pubKey)
-				}.bind(this)).then(function (keyPair) {
-					this.RSA.rsaKeyPairs[healthcarePartyId] = keyPair
-					return this.RSA.exportKeys(keyPair, 'jwk', 'jwk')
-				}.bind(this)).then(function (exportedKeyPair) {
-					return this.RSA.storeKeyPair(healthcarePartyId, exportedKeyPair)
-				}.bind(this))
-			},
-
-			loadKeyPairsInBrowserLocalStorage: function (healthcarePartyId, file) {
-				const fr = new FileReader()
-				return new Promise((resolve, reject) => {
-					fr.onerror = reject
-					fr.onabort = reject
-					fr.onload = function (e) {
-						const privateKey = e.target.result
-						this.loadKeyPairsAsTextInBrowserLocalStorage(healthcarePartyId, this.utils.hex2ua(privateKey)).then(resolve).catch(reject)
-					}.bind(this)
-					fr.readAsText(file)
-				})
-			},
-
-			saveKeychainInBrowserLocalStorage: function(id, keychain) {
-				localStorage.setItem(this.keychainLocalStoreIdPrefix + id, btoa(new Uint8Array(keychain).reduce((data, byte) => data + String.fromCharCode(byte), '')))
-			},
-
-			loadKeychainFromBrowserLocalStorage: function(id) {
-				const lsItem = localStorage.getItem('org.taktik.icure.ehealth.keychain.'+id)
-				return lsItem && this.utils.base64toByteArray(lsItem)
-			},
-
 			AES: {
-				/********* AES Config **********/
-				ivLength: 16,
-				aesAlgorithmEncrypt: {
-					name: 'AES-CBC',
-				},
-				aesKeyGenParams: {
-					name: 'AES-CBC',
-					length: 256
-				},
-				aesLocalStoreIdPrefix: 'org.taktik.icure.aes.',
+				type: Object,
+				value: () => ({
+					/********* AES Config **********/
+					ivLength: 16,
+					aesAlgorithmEncrypt: {
+						name: 'AES-CBC'
+					},
+					aesKeyGenParams: {
+						name: 'AES-CBC',
+						length: 256
+					},
+					aesLocalStoreIdPrefix: 'org.taktik.icure.aes.',
 
-				encrypt: function (cryptoKey, plainData) {
-					return new Promise(function (resolve, reject) {
-						var aesAlgorithmEncrypt = {name: this.aesAlgorithmEncrypt.name, iv: this.generateIV(this.ivLength)}
-						window.crypto.subtle.encrypt(aesAlgorithmEncrypt, cryptoKey, plainData)
-							.then(cipherData => resolve(this.utils.appendBuffer(aesAlgorithmEncrypt.iv, cipherData)), err => reject('AES encryption failed: ', err))
-					}.bind(this))
-				},
+					encrypt: function (cryptoKey, plainData) {
+						return new Promise(function (resolve, reject) {
+							var aesAlgorithmEncrypt = { name: this.aesAlgorithmEncrypt.name, iv: this.generateIV(this.ivLength) };
+							window.crypto.subtle.encrypt(aesAlgorithmEncrypt, cryptoKey, plainData).then(cipherData => resolve(this.utils.appendBuffer(aesAlgorithmEncrypt.iv, cipherData)), err => reject('AES encryption failed: ', err));
+						}.bind(this));
+					},
 
-				/**
-				 *
-				 * @param cryptoKey (CryptoKey)
-				 * @param encryptedData (ArrayBuffer)
-				 * @returns {Promise} will be ArrayBuffer
-				 */
-				decrypt: function (cryptoKey, encryptedData) {
-					if (!cryptoKey) { return Promise.resolve(null) }
-					var encryptedDataUnit8 = new Uint8Array(encryptedData)
-					var aesAlgorithmEncrypt = {name: this.aesAlgorithmEncrypt.name, iv: encryptedDataUnit8.subarray(0, this.ivLength)}
+					/**
+      *
+      * @param cryptoKey (CryptoKey)
+      * @param encryptedData (ArrayBuffer)
+      * @returns {Promise} will be ArrayBuffer
+      */
+					decrypt: function (cryptoKey, encryptedData) {
+						if (!cryptoKey) {
+							return Promise.resolve(null);
+						}
+						var encryptedDataUnit8 = new Uint8Array(encryptedData);
+						var aesAlgorithmEncrypt = { name: this.aesAlgorithmEncrypt.name, iv: encryptedDataUnit8.subarray(0, this.ivLength)
 
-					/*
-					 * IF THIS BIT OF CODE PRODUCES A DOMEXCEPTION CODE 0 ERROR, IT MIGHT BE RELATED TO THIS:
-					 *
-					 * NOTOK:
-					 * if (!hcparty.hcPartyKeys && !hcparty.hcPartyKeys[hcpartyId] && hcparty.hcPartyKeys[hcpartyId].length !== 2) {
-					 *   throw 'No hcPartyKey for this Healthcare party(' + hcpartyId + ').';
-					 * }
-					 * var delegateHcPartyKey = hcparty.hcPartyKeys[hcpartyId][1];
-					 *
-					 * SHOULD BE:
-					 * var delegatorId = patient.delegations[hcpartyId][0].owner;
-					 * if (!hcparty.hcPartyKeys && !hcparty.hcPartyKeys[delegatorId] && hcparty.hcPartyKeys[delegatorId].length !== 2) {
-					 *   throw 'No hcPartyKey for this Healthcare party(' + delegatorId + ').';
-					 * }
-					 * var delegateHcPartyKey = hcparty.hcPartyKeys[delegatorId][1];
-					 */
-					return window.crypto.subtle.decrypt(aesAlgorithmEncrypt, cryptoKey, encryptedDataUnit8.subarray(this.ivLength, encryptedDataUnit8.length))
-				},
+							/*
+        * IF THIS BIT OF CODE PRODUCES A DOMEXCEPTION CODE 0 ERROR, IT MIGHT BE RELATED TO THIS:
+        *
+        * NOTOK:
+        * if (!hcparty.hcPartyKeys && !hcparty.hcPartyKeys[hcpartyId] && hcparty.hcPartyKeys[hcpartyId].length !== 2) {
+        *   throw 'No hcPartyKey for this Healthcare party(' + hcpartyId + ').';
+        * }
+        * var delegateHcPartyKey = hcparty.hcPartyKeys[hcpartyId][1];
+        *
+        * SHOULD BE:
+        * var delegatorId = patient.delegations[hcpartyId][0].owner;
+        * if (!hcparty.hcPartyKeys && !hcparty.hcPartyKeys[delegatorId] && hcparty.hcPartyKeys[delegatorId].length !== 2) {
+        *   throw 'No hcPartyKey for this Healthcare party(' + delegatorId + ').';
+        * }
+        * var delegateHcPartyKey = hcparty.hcPartyKeys[delegatorId][1];
+        */
+						};return window.crypto.subtle.decrypt(aesAlgorithmEncrypt, cryptoKey, encryptedDataUnit8.subarray(this.ivLength, encryptedDataUnit8.length));
+					},
 
-				// generate a 1024-bit RSA key pair for encryption
-				/**
-				 *
-				 * @param toHex boolean, if true, it returns hex String
-				 * @returns {Promise} either Hex string or CryptoKey
-				 */
-				generateCryptoKey: function (toHex) {
-					if (toHex === undefined || !toHex) {
-						var extractable = true
-						var keyUsages = ['decrypt', 'encrypt']
-						return window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages)
-					} else {
-						return new Promise(function (resolve) {
-							var extractable = true
-							var keyUsages = ['decrypt', 'encrypt']
-							window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages).then(
-								function (k) {
-									return this.exportKey(k, 'raw')
-								},
-								function (err) {
-									console.log('Error in generateKey: ' + err)
-								}
-							).then(
-								function (rawK) {
-									resolve(this.utils.ua2hex(rawK))
-								},
-								function (err) {
-									new Error(err)
-								}
-							)
-						})
+					// generate a 1024-bit RSA key pair for encryption
+					/**
+      *
+      * @param toHex boolean, if true, it returns hex String
+      * @returns {Promise} either Hex string or CryptoKey
+      */
+					generateCryptoKey: function (toHex) {
+						if (toHex === undefined || !toHex) {
+							var extractable = true;
+							var keyUsages = ['decrypt', 'encrypt'];
+							return window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages);
+						} else {
+							return new Promise(function (resolve) {
+								var extractable = true;
+								var keyUsages = ['decrypt', 'encrypt'];
+								window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages).then(function (k) {
+									return this.exportKey(k, 'raw');
+								}, function (err) {
+									console.log('Error in generateKey: ' + err);
+								}).then(function (rawK) {
+									resolve(this.utils.ua2hex(rawK));
+								}, function (err) {
+									new Error(err);
+								});
+							});
+						}
+					},
+
+					generateIV: function (ivByteLenght) {
+						return window.crypto.getRandomValues(new Uint8Array(ivByteLenght));
+					},
+
+					/**
+      * This function return a promise which will be the key Format will be either 'raw' or 'jwk'.
+      * JWK: Json Web key (ref. http://tools.ietf.org/html/draft-ietf-jose-json-web-key-11)
+      *
+      * @param cryptoKey CryptoKey
+      * @param format will be 'raw' or 'jwk'
+      * @returns {Promise} will the AES Key
+      */
+					exportKey: function (cryptoKey, format) {
+						return window.crypto.subtle.exportKey(format, cryptoKey);
+					},
+
+					/**
+      * the ability to import a key that have already been created elsewhere, for use within the web
+      * application that is invoking the import function, for use within the importing web application's
+      * origin. This necessiates an interoperable key format, such as JSON Web Key [JWK] which may be
+      * represented as octets.
+      *
+      * https://chromium.googlesource.com/chromium/blink.git/+/6b902997e3ca0384c8fa6fe56f79ecd7589d3ca6/LayoutTests/crypto/resources/common.js
+      *
+      * @param format 'raw' or 'jwk'
+      * @param aesKey
+      * @returns {*}
+      */
+					importKey: function (format, aesKey) {
+						//TODO test
+						var extractable = true;
+						var keyUsages = ['decrypt', 'encrypt'];
+						return window.crypto.subtle.importKey(format, aesKey, this.aesKeyGenParams, extractable, keyUsages);
+					},
+
+					/**
+      *
+      * @param id
+      * @param key should be JWK
+      */
+					storeKeyPair: function (id, key) {
+						if (typeof Storage === "undefined") {
+							console.log('Your browser does not support HTML5 Browser Local Storage !');
+							throw 'Your browser does not support HTML5 Browser Local Storage !';
+						}
+
+						//TODO encryption
+						localStorage.setItem(this.aesLocalStoreIdPrefix + id, key);
+					},
+
+					loadKeyPairNotImported: function (id) {
+						if (typeof Storage === "undefined") {
+							console.log('Your browser does not support HTML5 Browser Local Storage !');
+							throw 'Your browser does not support HTML5 Browser Local Storage !';
+						}
+
+						//TODO decryption
+						return localStorage.getItem(this.aesLocalStoreIdPrefix + id);
 					}
-				},
-
-				generateIV: function (ivByteLenght) {
-					return window.crypto.getRandomValues(new Uint8Array(ivByteLenght))
-				},
-
-				/**
-				 * This function return a promise which will be the key Format will be either 'raw' or 'jwk'.
-				 * JWK: Json Web key (ref. http://tools.ietf.org/html/draft-ietf-jose-json-web-key-11)
-				 *
-				 * @param cryptoKey CryptoKey
-				 * @param format will be 'raw' or 'jwk'
-				 * @returns {Promise} will the AES Key
-				 */
-				exportKey: function (cryptoKey, format) {
-					return window.crypto.subtle.exportKey(format, cryptoKey)
-				},
-
-				/**
-				 * the ability to import a key that have already been created elsewhere, for use within the web
-				 * application that is invoking the import function, for use within the importing web application's
-				 * origin. This necessiates an interoperable key format, such as JSON Web Key [JWK] which may be
-				 * represented as octets.
-				 *
-				 * https://chromium.googlesource.com/chromium/blink.git/+/6b902997e3ca0384c8fa6fe56f79ecd7589d3ca6/LayoutTests/crypto/resources/common.js
-				 *
-				 * @param format 'raw' or 'jwk'
-				 * @param aesKey
-				 * @returns {*}
-				 */
-				importKey: function (format, aesKey) {
-					//TODO test
-					var extractable = true
-					var keyUsages = ['decrypt', 'encrypt']
-					return window.crypto.subtle.importKey(format, aesKey, this.aesKeyGenParams, extractable, keyUsages)
-				},
-
-				/**
-				 *
-				 * @param id
-				 * @param key should be JWK
-				 */
-				storeKeyPair: function (id, key) {
-					if (typeof(Storage) === "undefined") {
-						console.log('Your browser does not support HTML5 Browser Local Storage !')
-						throw 'Your browser does not support HTML5 Browser Local Storage !'
-					}
-
-					//TODO encryption
-					localStorage.setItem(this.aesLocalStoreIdPrefix + id, key)
-				},
-
-				loadKeyPairNotImported: function (id) {
-					if (typeof(Storage) === "undefined") {
-						console.log('Your browser does not support HTML5 Browser Local Storage !')
-						throw 'Your browser does not support HTML5 Browser Local Storage !'
-					}
-
-					//TODO decryption
-					return localStorage.getItem(this.aesLocalStoreIdPrefix + id)
-				}
+				})
 			},
 			RSA: {
-				/********* RSA Config **********/
-				//TODO bigger modulus
-				//TODO check the randomness of the implementations. Normally RSA must have some notions of randomness. This might be done through WebCrypto source codes
-				//TODO PSS for signing
-				rsaParams: {name: 'RSA-OAEP'},
-				// RSA params for 'import' and 'generate' function.
-				rsaHashedParams: {
-					name: 'RSA-OAEP',
-					modulusLength: 2048,
-					publicExponent: new Uint8Array([0x01, 0x00, 0x01]),  // Equivalent to 65537 (Fermat F4), read http://en.wikipedia.org/wiki/65537_(number)
-					hash: {name: 'sha-1'}
-				},
-				rsaLocalStoreIdPrefix: 'org.taktik.icure.rsa.',
-				rsaKeyPairs: {},
+				type: Object,
+				value: () => ({
+					/********* RSA Config **********/
+					//TODO bigger modulus
+					//TODO check the randomness of the implementations. Normally RSA must have some notions of randomness. This might be done through WebCrypto source codes
+					//TODO PSS for signing
+					rsaParams: { name: 'RSA-OAEP' },
+					// RSA params for 'import' and 'generate' function.
+					rsaHashedParams: {
+						name: 'RSA-OAEP',
+						modulusLength: 2048,
+						publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // Equivalent to 65537 (Fermat F4), read http://en.wikipedia.org/wiki/65537_(number)
+						hash: { name: 'sha-1' }
+					},
+					rsaLocalStoreIdPrefix: 'org.taktik.icure.rsa.',
+					rsaKeyPairs: {},
 
-				/**
-				 * It returns CryptoKey promise, which doesn't hold the bytes of the key.
-				 * If bytes are needed, you must export the generated key.
-				 * R
-				 * @returns {Promise} will be {publicKey: CryptoKey, privateKey: CryptoKey}
-				 */
-				generateKeyPair: function () {
-					var extractable = true
-					var keyUsages = ['decrypt', 'encrypt']
-					return window.crypto.subtle.generateKey(this.rsaHashedParams, extractable, keyUsages)
-				},
+					/**
+      * It returns CryptoKey promise, which doesn't hold the bytes of the key.
+      * If bytes are needed, you must export the generated key.
+      * R
+      * @returns {Promise} will be {publicKey: CryptoKey, privateKey: CryptoKey}
+      */
+					generateKeyPair: function () {
+						var extractable = true;
+						var keyUsages = ['decrypt', 'encrypt'];
+						return window.crypto.subtle.generateKey(this.rsaHashedParams, extractable, keyUsages);
+					},
 
-				/**
-				 *
-				 * 'JWK': Json Web key (ref. http://tools.ietf.org/html/draft-ietf-jose-json-web-key-11)
-				 * 'spki': for private key
-				 * 'pkcs8': for private Key
-				 *
-				 * @param keyPair is {publicKey: CryptoKey, privateKey: CryptoKey}
-				 * @param privKeyFormat will be 'pkcs8' or 'jwk'
-				 * @param pubKeyFormat will be 'spki' or 'jwk'
-				 * @returns {Promise} will the AES Key
-				 */
-				exportKeys: function (keyPair, privKeyFormat, pubKeyFormat) {
-					var pubPromise = window.crypto.subtle.exportKey(pubKeyFormat, keyPair.publicKey)
-					var privPromise = window.crypto.subtle.exportKey(privKeyFormat, keyPair.privateKey)
+					/**
+      *
+      * 'JWK': Json Web key (ref. http://tools.ietf.org/html/draft-ietf-jose-json-web-key-11)
+      * 'spki': for private key
+      * 'pkcs8': for private Key
+      *
+      * @param keyPair is {publicKey: CryptoKey, privateKey: CryptoKey}
+      * @param privKeyFormat will be 'pkcs8' or 'jwk'
+      * @param pubKeyFormat will be 'spki' or 'jwk'
+      * @returns {Promise} will the AES Key
+      */
+					exportKeys: function (keyPair, privKeyFormat, pubKeyFormat) {
+						var pubPromise = window.crypto.subtle.exportKey(pubKeyFormat, keyPair.publicKey);
+						var privPromise = window.crypto.subtle.exportKey(privKeyFormat, keyPair.privateKey);
 
-					return Promise.all([pubPromise, privPromise]).then(function (results) {
-						return {
-							publicKey: results[0],
-							privateKey: results[1]
+						return Promise.all([pubPromise, privPromise]).then(function (results) {
+							return {
+								publicKey: results[0],
+								privateKey: results[1]
+							};
+						});
+					},
+
+					/**
+      *  Format:
+      *
+      * 'JWK': Json Web key (ref. http://tools.ietf.org/html/draft-ietf-jose-json-web-key-11)
+      * 'spki': for private key
+      * 'pkcs8': for private Key
+      *
+      * @param cryptoKey public or private
+      * @param format either 'jwk' or 'spki' or 'pkcs8'
+      * @returns {Promise|*} will be RSA key (public or private)
+      */
+					exportKey: function (cryptoKey, format) {
+						return window.crypto.subtle.exportKey(format, cryptoKey);
+					},
+
+					/**
+      *
+      * @param publicKey (CryptoKey)
+      * @param plainData (Uint8Array)
+      */
+					encrypt: function (publicKey, plainData) {
+						return window.crypto.subtle.encrypt(this.rsaParams, publicKey, plainData);
+					},
+
+					decrypt: function (privateKey, encryptedData) {
+						return window.crypto.subtle.decrypt(this.rsaParams, privateKey, encryptedData);
+					},
+
+					/**
+      *
+      * @param format 'jwk', 'spki', or 'pkcs8'
+      * @param keydata should be the key data based on the format.
+      * @param keyUsages Array of usages. For example, ['encrypt'] for public key.
+      * @returns {*}
+      */
+					importKey: function (format, keydata, keyUsages) {
+						var extractable = true;
+						return window.crypto.subtle.importKey(format, keydata, this.rsaHashedParams, extractable, keyUsages);
+					},
+
+					/**
+      *
+      * @param format 'jwk' or 'pkcs8'
+      * @param keydata should be the key data based on the format.
+      * @returns {*}
+      */
+					importPrivateKey: function (format, keydata) {
+						var extractable = true;
+						return window.crypto.subtle.importKey(format, keydata, this.rsaHashedParams, extractable, ['decrypt']);
+					},
+
+					/**
+      *
+      * @param privateKeyFormat 'jwk' or 'pkcs8'
+      * @param privateKeydata    should be the key data based on the format.
+      * @param publicKeyFormat 'jwk' or 'spki'
+      * @param publicKeyData should be the key data based on the format.
+      * @returns {Promise|*}
+      */
+					importKeyPair: function (privateKeyFormat, privateKeydata, publicKeyFormat, publicKeyData) {
+						var extractable = true;
+						var privPromise = window.crypto.subtle.importKey(privateKeyFormat, privateKeydata, this.rsaHashedParams, extractable, ['decrypt']);
+						var pubPromise = window.crypto.subtle.importKey(publicKeyFormat, publicKeyData, this.rsaHashedParams, extractable, ['encrypt']);
+
+						return Promise.all([pubPromise, privPromise]).then(function (results) {
+							return {
+								publicKey: results[0],
+								privateKey: results[1]
+							};
+						});
+					},
+
+					/**
+      *
+      * @param id
+      * @param keyPair should be JWK
+      */
+					storeKeyPair: function (id, keyPair) {
+						if (typeof Storage === "undefined") {
+							console.log('Your browser does not support HTML5 Browser Local Storage !');
+							throw 'Your browser does not support HTML5 Browser Local Storage !';
 						}
-					})
-				},
+						//TODO encryption
+						localStorage.setItem(this.rsaLocalStoreIdPrefix + id, JSON.stringify(keyPair));
+					},
 
-				/**
-				 *  Format:
-				 *
-				 * 'JWK': Json Web key (ref. http://tools.ietf.org/html/draft-ietf-jose-json-web-key-11)
-				 * 'spki': for private key
-				 * 'pkcs8': for private Key
-				 *
-				 * @param cryptoKey public or private
-				 * @param format either 'jwk' or 'spki' or 'pkcs8'
-				 * @returns {Promise|*} will be RSA key (public or private)
-				 */
-				exportKey: function (cryptoKey, format) {
-					return window.crypto.subtle.exportKey(format, cryptoKey)
-				},
-
-				/**
-				 *
-				 * @param publicKey (CryptoKey)
-				 * @param plainData (Uint8Array)
-				 */
-				encrypt: function (publicKey, plainData) {
-					return window.crypto.subtle.encrypt(this.rsaParams, publicKey, plainData)
-				},
-
-				decrypt: function (privateKey, encryptedData) {
-					return window.crypto.subtle.decrypt(this.rsaParams, privateKey, encryptedData)
-				},
-
-				/**
-				 *
-				 * @param format 'jwk', 'spki', or 'pkcs8'
-				 * @param keydata should be the key data based on the format.
-				 * @param keyUsages Array of usages. For example, ['encrypt'] for public key.
-				 * @returns {*}
-				 */
-				importKey: function (format, keydata, keyUsages) {
-					var extractable = true
-					return window.crypto.subtle.importKey(format, keydata, this.rsaHashedParams, extractable, keyUsages)
-				},
-
-				/**
-				 *
-				 * @param format 'jwk' or 'pkcs8'
-				 * @param keydata should be the key data based on the format.
-				 * @returns {*}
-				 */
-				importPrivateKey: function (format, keydata) {
-					var extractable = true
-					return window.crypto.subtle.importKey(format, keydata, this.rsaHashedParams, extractable, ['decrypt'])
-				},
-
-				/**
-				 *
-				 * @param privateKeyFormat 'jwk' or 'pkcs8'
-				 * @param privateKeydata    should be the key data based on the format.
-				 * @param publicKeyFormat 'jwk' or 'spki'
-				 * @param publicKeyData should be the key data based on the format.
-				 * @returns {Promise|*}
-				 */
-				importKeyPair: function (privateKeyFormat, privateKeydata, publicKeyFormat, publicKeyData) {
-					var extractable = true
-					var privPromise = window.crypto.subtle.importKey(privateKeyFormat, privateKeydata, this.rsaHashedParams, extractable, ['decrypt'])
-					var pubPromise = window.crypto.subtle.importKey(publicKeyFormat, publicKeyData, this.rsaHashedParams, extractable, ['encrypt'])
-
-					return Promise.all([pubPromise, privPromise]).then(function (results) {
-						return {
-							publicKey: results[0],
-							privateKey: results[1]
+					/**
+      * loads the RSA key pair (hcparty) in JWK, not importet
+      *
+      * @param id  doc id - hcpartyId
+      * @returns {Object} it is in JWK - not imported
+      */
+					loadKeyPairNotImported: function (id) {
+						if (typeof Storage === "undefined") {
+							console.log('Your browser does not support HTML5 Browser Local Storage !');
+							throw 'Your browser does not support HTML5 Browser Local Storage !';
 						}
-					})
-				},
+						//TODO decryption
+						return JSON.parse(localStorage.getItem(this.rsaLocalStoreIdPrefix + id));
+					},
 
-				/**
-				 *
-				 * @param id
-				 * @param keyPair should be JWK
-				 */
-				storeKeyPair: function (id, keyPair) {
-					if (typeof(Storage) === "undefined") {
-						console.log('Your browser does not support HTML5 Browser Local Storage !')
-						throw 'Your browser does not support HTML5 Browser Local Storage !'
+					/**
+      * Loads and imports the RSA key pair (hcparty)
+      *
+      * @param id  doc id - hcPartyId
+      * @returns {Promise} -> {CryptoKey} - imported RSA
+      */
+					loadKeyPairImported: function (id) {
+						return new Promise(function (resolve, reject) {
+							try {
+								var jwkKeyPair = JSON.parse(localStorage.getItem(this.rsaLocalStoreIdPrefix + id));
+								this.importKeyPair('jwk', jwkKeyPair.privateKey, 'jwk', jwkKeyPair.publicKey).then(function (keyPair) {
+									resolve(keyPair);
+								}, function (err) {
+									console.log('Error in RSA.importKeyPair: ' + err);
+									reject(new Error(err));
+								});
+							} catch (err) {
+								reject(new Error(err));
+							}
+						});
 					}
-					//TODO encryption
-					localStorage.setItem(this.rsaLocalStoreIdPrefix + id, JSON.stringify(keyPair))
-				},
-
-				/**
-				 * loads the RSA key pair (hcparty) in JWK, not importet
-				 *
-				 * @param id  doc id - hcpartyId
-				 * @returns {Object} it is in JWK - not imported
-				 */
-				loadKeyPairNotImported: function (id) {
-					if (typeof(Storage) === "undefined") {
-						console.log('Your browser does not support HTML5 Browser Local Storage !')
-						throw 'Your browser does not support HTML5 Browser Local Storage !'
-					}
-					//TODO decryption
-					return JSON.parse(localStorage.getItem(this.rsaLocalStoreIdPrefix + id))
-				},
-
-				/**
-				 * Loads and imports the RSA key pair (hcparty)
-				 *
-				 * @param id  doc id - hcPartyId
-				 * @returns {Promise} -> {CryptoKey} - imported RSA
-				 */
-				loadKeyPairImported: function (id) {
-					return new Promise(function (resolve, reject) {
-						try {
-							var jwkKeyPair = JSON.parse(localStorage.getItem(this.rsaLocalStoreIdPrefix + id))
-							this.importKeyPair('jwk', jwkKeyPair.privateKey, 'jwk', jwkKeyPair.publicKey).then(
-								function (keyPair) {
-									resolve(keyPair)
-								},
-								function (err) {
-									console.log('Error in RSA.importKeyPair: ' + err)
-									reject(new Error(err))
-								}
-							)
-						}
-						catch (err) {
-							reject(new Error(err))
-						}
-					})
-				}
+				})
 			},
-
 			utils: {
-				/**
-				 * String to Uint8Array
-				 *
-				 * @param s
-				 * @returns {Uint8Array}
-				 */
-				text2ua: function (s) {
-					var ua = new Uint8Array(s.length)
-					for (var i = 0; i < s.length; i++) {
-						ua[i] = s.charCodeAt(i) & 0xff
-					}
-					return ua
-				},
+				type: Object,
+				value: () => ({
+					/**
+      * String to Uint8Array
+      *
+      * @param s
+      * @returns {Uint8Array}
+      */
+					text2ua: function (s) {
+						var ua = new Uint8Array(s.length);
+						for (var i = 0; i < s.length; i++) {
+							ua[i] = s.charCodeAt(i) & 0xff;
+						}
+						return ua;
+					},
 
-				/**
-				 * Hex String to Uint8Array
-				 *
-				 * @param s
-				 * @returns {Uint8Array}
-				 */
-				hex2ua: function (s) {
-					var ua = new Uint8Array(s.length / 2)
-					s = s.toLowerCase()
-					for (var i = 0; i < s.length; i += 2) {
-						ua[i / 2] = (s.charCodeAt(i) < 58 ? s.charCodeAt(i) - 48 : s.charCodeAt(i) - 87) * 16 + (s.charCodeAt(i + 1) < 58 ? s.charCodeAt(i + 1) - 48 : s.charCodeAt(i + 1) - 87)
-					}
-					return ua
-				},
+					/**
+      * Hex String to Uint8Array
+      *
+      * @param s
+      * @returns {Uint8Array}
+      */
+					hex2ua: function (s) {
+						var ua = new Uint8Array(s.length / 2);
+						s = s.toLowerCase();
+						for (var i = 0; i < s.length; i += 2) {
+							ua[i / 2] = (s.charCodeAt(i) < 58 ? s.charCodeAt(i) - 48 : s.charCodeAt(i) - 87) * 16 + (s.charCodeAt(i + 1) < 58 ? s.charCodeAt(i + 1) - 48 : s.charCodeAt(i + 1) - 87);
+						}
+						return ua;
+					},
 
-				spkiToJwk: function(buf) {
-					var hex = this.ua2hex(buf);
-					if (!hex.startsWith('3082') || !hex.substr(8).startsWith('0282010100')) {
-						hex = hex.substr(48);
-						buf = this.hex2ua(hex);
-					}
-					var key = {};
-					var offset = buf[1] & 0x80 ? buf[1] - 0x80 + 2 : 2;
+					spkiToJwk: function (buf) {
+						var hex = this.ua2hex(buf);
+						if (!hex.startsWith('3082') || !hex.substr(8).startsWith('0282010100')) {
+							hex = hex.substr(48);
+							buf = this.hex2ua(hex);
+						}
+						var key = {};
+						var offset = buf[1] & 0x80 ? buf[1] - 0x80 + 2 : 2;
 
-					function read() {
-						var s = buf[offset + 1];
+						function read() {
+							var s = buf[offset + 1];
 
-						if (s & 0x80) {
-							var n = s - 0x80;
-							s = n === 2 ? (256 * buf[offset + 2]) + buf[offset + 3] : buf[offset + 2];
-							offset += n;
+							if (s & 0x80) {
+								var n = s - 0x80;
+								s = n === 2 ? 256 * buf[offset + 2] + buf[offset + 3] : buf[offset + 2];
+								offset += n;
+							}
+
+							offset += 2;
+
+							var b = buf.slice(offset, offset + s);
+							offset += s;
+							return b;
 						}
 
-						offset += 2;
+						key.modulus = read();
+						key.publicExponent = read();
 
-						var b = buf.slice(offset, offset + s);
-						offset += s;
-						return b;
-					}
+						return {
+							kty: 'RSA',
+							n: this.base64url(this.minimalRep(key.modulus)),
+							e: this.base64url(this.minimalRep(key.publicExponent))
+						};
+					},
 
-					key.modulus = read();
-					key.publicExponent = read();
+					pkcs8ToJwk: function (buf) {
+						var hex = this.ua2hex(buf);
+						if (!hex.startsWith('3082') || !hex.substr(8).startsWith('0201000282010100')) {
+							hex = hex.substr(52);
+							buf = this.hex2ua(hex);
+						}
+						var key = {};
+						var offset = buf[1] & 0x80 ? buf[1] - 0x80 + 5 : 7;
 
-					return {
-						kty: 'RSA',
-						n: this.base64url(this.minimalRep(key.modulus)),
-						e: this.base64url(this.minimalRep(key.publicExponent)),
-					}
-				},
+						function read() {
+							var s = buf[offset + 1];
 
-				pkcs8ToJwk: function (buf) {
-					var hex = this.ua2hex(buf);
-					if (!hex.startsWith('3082') || !hex.substr(8).startsWith('0201000282010100')) {
-						hex = hex.substr(52);
-						buf = this.hex2ua(hex);
-					}
-					var key = {};
-					var offset = buf[1] & 0x80 ? buf[1] - 0x80 + 5 : 7;
+							if (s & 0x80) {
+								var n = s - 0x80;
+								s = n === 2 ? 256 * buf[offset + 2] + buf[offset + 3] : buf[offset + 2];
+								offset += n;
+							}
 
-					function read() {
-						var s = buf[offset + 1];
+							offset += 2;
 
-						if (s & 0x80) {
-							var n = s - 0x80;
-							s = n === 2 ? (256 * buf[offset + 2]) + buf[offset + 3] : buf[offset + 2];
-							offset += n;
+							var b = buf.slice(offset, offset + s);
+							offset += s;
+							return b;
 						}
 
-						offset += 2;
+						key.modulus = read();
+						key.publicExponent = read();
+						key.privateExponent = read();
+						key.prime1 = read();
+						key.prime2 = read();
+						key.exponent1 = read();
+						key.exponent2 = read();
+						key.coefficient = read();
 
-						var b = buf.slice(offset, offset + s);
-						offset += s;
-						return b;
-					}
+						return {
+							kty: 'RSA',
+							n: this.base64url(this.minimalRep(key.modulus)),
+							e: this.base64url(this.minimalRep(key.publicExponent)),
+							d: this.base64url(this.minimalRep(key.privateExponent)),
+							p: this.base64url(this.minimalRep(key.prime1)),
+							q: this.base64url(this.minimalRep(key.prime2)),
+							dp: this.base64url(this.minimalRep(key.exponent1)),
+							dq: this.base64url(this.minimalRep(key.exponent2)),
+							qi: this.base64url(this.minimalRep(key.coefficient))
+						};
+					},
 
-					key.modulus = read();
-					key.publicExponent = read();
-					key.privateExponent = read();
-					key.prime1 = read();
-					key.prime2 = read();
-					key.exponent1 = read();
-					key.exponent2 = read();
-					key.coefficient = read();
-
-					return {
-						kty: 'RSA',
-						n: this.base64url(this.minimalRep(key.modulus)),
-						e: this.base64url(this.minimalRep(key.publicExponent)),
-						d: this.base64url(this.minimalRep(key.privateExponent)),
-						p: this.base64url(this.minimalRep(key.prime1)),
-						q: this.base64url(this.minimalRep(key.prime2)),
-						dp: this.base64url(this.minimalRep(key.exponent1)),
-						dq: this.base64url(this.minimalRep(key.exponent2)),
-						qi: this.base64url(this.minimalRep(key.coefficient))
-					};
-				},
-
-				minimalRep: function (b) {
-					var i = 0;
-					while (b[i] === 0) {
-						i++;
-					}
-					return b.slice(i);
-				},
-
-				ua2utf8: function (arrBuf) {
-					var out, i, len, c
-					var char2, char3
-
-					const array = new Uint8Array(arrBuf)
-
-					out = ""
-					len = array.length || array.byteLength
-					i = 0
-					while (i < len) {
-						c = array[i++]
-						switch (c >> 4) {
-							case 0:
-							case 1:
-							case 2:
-							case 3:
-							case 4:
-							case 5:
-							case 6:
-							case 7:
-								// 0xxxxxxx
-								out += String.fromCharCode(c)
-								break
-							case 12:
-							case 13:
-								// 110x xxxx   10xx xxxx
-								char2 = array[i++]
-								out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F))
-								break
-							case 14:
-								// 1110 xxxx  10xx xxxx  10xx xxxx
-								char2 = array[i++]
-								char3 = array[i++]
-								out += String.fromCharCode(((c & 0x0F) << 12) |
-									((char2 & 0x3F) << 6) |
-									((char3 & 0x3F) << 0))
-								break
+					minimalRep: function (b) {
+						var i = 0;
+						while (b[i] === 0) {
+							i++;
 						}
-					}
+						return b.slice(i);
+					},
 
-					return out
-				},
+					ua2utf8: function (arrBuf) {
+						var out, i, len, c;
+						var char2, char3;
 
-				base64url: function (b) {
-					return base64js.fromByteArray(b)
-						.replace(/\+/g, '-')
-						.replace(/\//g, '_')
-						.replace(/=/g, '')
-				},
+						const array = new Uint8Array(arrBuf);
 
-				/**
-				 * Uint8Array/ArrayBuffer to hex String
-				 *
-				 * @param ua {Uint8Array} or ArrayBuffer
-				 * @returns {String} Hex String
-				 */
-				ua2hex: function (ua) {
-					var s = ''
-					ua = (ua instanceof Uint8Array) ? ua : new Uint8Array(ua)
-					for (var i = 0; i < ua.length; i++) {
-						var hhb = (ua[i] & 0xF0) >> 4
-						var lhb = (ua[i] & 0x0F)
-						s += String.fromCharCode(hhb > 9 ? hhb + 87 : hhb + 48)
-						s += String.fromCharCode(lhb > 9 ? lhb + 87 : lhb + 48)
-					}
-					return s
-				},
-
-				/**
-				 * ArrayBuffer to String - resilient to large ArrayBuffers.
-				 *
-				 * @param arrBuf
-				 * @returns {string}
-				 */
-				ua2text: function (arrBuf) {
-					var str = ''
-					var ab = new Uint8Array(arrBuf)
-					var abLen = ab.length
-					var CHUNK_SIZE = Math.pow(2, 8)
-					var offset, len, subab
-					for (offset = 0; offset < abLen; offset += CHUNK_SIZE) {
-						len = Math.min(CHUNK_SIZE, abLen - offset)
-						subab = ab.subarray(offset, offset + len)
-						str += String.fromCharCode.apply(null, subab)
-					}
-					return str
-				},
-
-				hex2text: function (hexStr) {
-					return this.ua2text(this.utils.hex2ua(hexStr))
-				},
-
-				text2hex: function (text) {
-					return this.ua2hex(this.utils.text2ua(text))
-				},
-
-				asciiToArrayBuffer: function (str) {
-					var chars = []
-					for (var i = 0; i < str.byte; ++i) {
-						chars.push(str.charCodeAt(i))
-					}
-					return new Uint8Array(chars)
-				},
-
-				/**
-				 * Builds a hex string representation of any array-like input (array or
-				 * ArrayBufferView). The output looks like this:
-				 *  [ab 03 4c 99]
-				 *
-				 * @param bytes
-				 * @returns {string}
-				 */
-				byteArrayToHexString: function (bytes) {
-					var hexBytes = []
-					for (var i = 0; i < bytes.length; ++i) {
-						var byteString = bytes[i].toString(16)
-						if (byteString.length < 2) {
-							byteString = '0' + byteString
+						out = "";
+						len = array.length || array.byteLength;
+						i = 0;
+						while (i < len) {
+							c = array[i++];
+							switch (c >> 4) {
+								case 0:
+								case 1:
+								case 2:
+								case 3:
+								case 4:
+								case 5:
+								case 6:
+								case 7:
+									// 0xxxxxxx
+									out += String.fromCharCode(c);
+									break;
+								case 12:
+								case 13:
+									// 110x xxxx   10xx xxxx
+									char2 = array[i++];
+									out += String.fromCharCode((c & 0x1F) << 6 | char2 & 0x3F);
+									break;
+								case 14:
+									// 1110 xxxx  10xx xxxx  10xx xxxx
+									char2 = array[i++];
+									char3 = array[i++];
+									out += String.fromCharCode((c & 0x0F) << 12 | (char2 & 0x3F) << 6 | (char3 & 0x3F) << 0);
+									break;
+							}
 						}
-						hexBytes.push(byteString)
-					}
-					return '[' + hexBytes.join(' ') + ']'
-				},
 
-				base64toByteArray: function(base64Data) {
-					var sliceSize = 1024;
-					var byteCharacters = atob(base64Data);
-					var bytesLength = byteCharacters.length;
-					var slicesCount = Math.ceil(bytesLength / sliceSize);
-					var byteArrays = new Array(slicesCount);
+						return out;
+					},
 
-					for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-						var begin = sliceIndex * sliceSize;
-						var end = Math.min(begin + sliceSize, bytesLength);
+					base64url: function (b) {
+						return base64js.fromByteArray(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+					},
 
-						var bytes = new Array(end - begin);
-						for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
-							bytes[i] = byteCharacters[offset].charCodeAt(0);
+					/**
+      * Uint8Array/ArrayBuffer to hex String
+      *
+      * @param ua {Uint8Array} or ArrayBuffer
+      * @returns {String} Hex String
+      */
+					ua2hex: function (ua) {
+						var s = '';
+						ua = ua instanceof Uint8Array ? ua : new Uint8Array(ua);
+						for (var i = 0; i < ua.length; i++) {
+							var hhb = (ua[i] & 0xF0) >> 4;
+							var lhb = ua[i] & 0x0F;
+							s += String.fromCharCode(hhb > 9 ? hhb + 87 : hhb + 48);
+							s += String.fromCharCode(lhb > 9 ? lhb + 87 : lhb + 48);
 						}
-						byteArrays[sliceIndex] = new Uint8Array(bytes);
+						return s;
+					},
+
+					/**
+      * ArrayBuffer to String - resilient to large ArrayBuffers.
+      *
+      * @param arrBuf
+      * @returns {string}
+      */
+					ua2text: function (arrBuf) {
+						var str = '';
+						var ab = new Uint8Array(arrBuf);
+						var abLen = ab.length;
+						var CHUNK_SIZE = Math.pow(2, 8);
+						var offset, len, subab;
+						for (offset = 0; offset < abLen; offset += CHUNK_SIZE) {
+							len = Math.min(CHUNK_SIZE, abLen - offset);
+							subab = ab.subarray(offset, offset + len);
+							str += String.fromCharCode.apply(null, subab);
+						}
+						return str;
+					},
+
+					hex2text: function (hexStr) {
+						return this.ua2text(this.utils.hex2ua(hexStr));
+					},
+
+					text2hex: function (text) {
+						return this.ua2hex(this.utils.text2ua(text));
+					},
+
+					asciiToArrayBuffer: function (str) {
+						var chars = [];
+						for (var i = 0; i < str.byte; ++i) {
+							chars.push(str.charCodeAt(i));
+						}
+						return new Uint8Array(chars);
+					},
+
+					/**
+      * Builds a hex string representation of any array-like input (array or
+      * ArrayBufferView). The output looks like this:
+      *  [ab 03 4c 99]
+      *
+      * @param bytes
+      * @returns {string}
+      */
+					byteArrayToHexString: function (bytes) {
+						var hexBytes = [];
+						for (var i = 0; i < bytes.length; ++i) {
+							var byteString = bytes[i].toString(16);
+							if (byteString.length < 2) {
+								byteString = '0' + byteString;
+							}
+							hexBytes.push(byteString);
+						}
+						return '[' + hexBytes.join(' ') + ']';
+					},
+
+					base64toByteArray: function (base64Data) {
+						var sliceSize = 1024;
+						var byteCharacters = atob(base64Data);
+						var bytesLength = byteCharacters.length;
+						var slicesCount = Math.ceil(bytesLength / sliceSize);
+						var byteArrays = new Array(slicesCount);
+
+						for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+							var begin = sliceIndex * sliceSize;
+							var end = Math.min(begin + sliceSize, bytesLength);
+
+							var bytes = new Array(end - begin);
+							for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+								bytes[i] = byteCharacters[offset].charCodeAt(0);
+							}
+							byteArrays[sliceIndex] = new Uint8Array(bytes);
+						}
+						return byteArrays;
+					},
+
+					/**
+     		 *
+     		 * @param buffer1 {Uint8Array}
+     		 * @param buffer2{ Uint8Array}
+     		 * @returns {ArrayBuffer}
+     		 */
+					appendBuffer: function (buffer1, buffer2) {
+						var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+						tmp.set(new Uint8Array(buffer1), 0);
+						tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
+						return tmp.buffer;
 					}
-					return byteArrays;
-				},
-
-
-		/**
-				 *
-				 * @param buffer1 {Uint8Array}
-				 * @param buffer2{ Uint8Array}
-				 * @returns {ArrayBuffer}
-				 */
-				appendBuffer: function (buffer1, buffer2) {
-					var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength)
-					tmp.set(new Uint8Array(buffer1), 0)
-					tmp.set(new Uint8Array(buffer2), buffer1.byteLength)
-					return tmp.buffer
-				}
+				})
 			}
-		})
-	})()
-</script>
+		};
+	}
 
-@end
+	constructor() {
+		super();
+	}
+
+	init() {}
+
+	ready() {
+		super.ready();
+
+		this.AES.utils = this.utils;
+		this.RSA.utils = this.utils;
+
+		console.log("CRYPTO ready");
+	}
+
+	randomUuid() {
+		return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+	}
+
+	decryptHcPartyKey(delegatorId, delegateHcPartyId, encryptedHcPartyKey, encryptedForDelegator) {
+		const cacheKey = delegatorId + '|' + delegateHcPartyId + '|' + (encryptedForDelegator ? '->' : '<-');
+		const res = this.hcPartyKeysCache[cacheKey];
+		const hcPartyKeyOwner = encryptedForDelegator ? delegatorId : delegateHcPartyId;
+		if (res) {
+			return Promise.resolve(res);
+		} else {
+			var keyPair = this.RSA.rsaKeyPairs[hcPartyKeyOwner];
+			if (!keyPair) {
+				var keyPairInJwk = this.RSA.loadKeyPairNotImported(hcPartyKeyOwner);
+				if (!keyPairInJwk) {
+					throw 'No RSA private key for Healthcare party(' + hcPartyKeyOwner + ').';
+				}
+				// import the jwk formatted key
+				return this.RSA.importKeyPair('jwk', keyPairInJwk.privateKey, 'jwk', keyPairInJwk.publicKey).then(importedKeyPair => {
+					keyPair = this.RSA.rsaKeyPairs[hcPartyKeyOwner] = importedKeyPair;
+					// Obtaining the AES Key by decrypting the HcpartyKey
+					return this.RSA.decrypt(keyPair.privateKey, this.utils.hex2ua(encryptedHcPartyKey));
+				}).then(decryptedHcPartyKey => this.AES.importKey('raw', decryptedHcPartyKey), err => console.error(err)).then(decryptedImportedHcPartyKey => this.hcPartyKeysCache[cacheKey] = { delegatorId: delegatorId, key: decryptedImportedHcPartyKey });
+			} else {
+				return this.RSA.decrypt(keyPair.privateKey, this.utils.hex2ua(encryptedHcPartyKey)).then(decryptedHcPartyKey => this.AES.importKey('raw', decryptedHcPartyKey), err => console.error(err)).then(decryptedImportedHcPartyKey => this.hcPartyKeysCache[cacheKey] = { delegatorId: delegatorId, key: decryptedImportedHcPartyKey });
+			}
+		}
+	}
+
+	decryptAndImportAesHcPartyKeysForDelegators(delegatorsHcPartyIdsSet, delegateHcPartyId) {
+		return this.hcpartyApi.getHcPartyKeysForDelegate(delegateHcPartyId).then(function (healthcarePartyKeys) {
+			// For each delegatorId, obtain the AES keys
+			return Promise.all(delegatorsHcPartyIdsSet.map(delegatorId => this.decryptHcPartyKey(delegatorId, delegateHcPartyId, healthcarePartyKeys[delegatorId])));
+		}.bind(this));
+	}
+
+	decryptAndImportAesHcPartyKeysInDelegations(healthcarePartyId, delegations) {
+		const delegatorIds = {};
+		delegations[healthcarePartyId].forEach(function (delegation) {
+			delegatorIds[delegation.owner] = true;
+		});
+		return this.decryptAndImportAesHcPartyKeysForDelegators(Object.keys(delegatorIds), healthcarePartyId);
+	}
+
+	initObjectDelegations(createdObject, parentObject, ownerId, secretForeignKeyOfParent) {
+		const secretId = this.randomUuid();
+		return this.hcpartyApi.getHealthcareParty(ownerId).then(owner => owner.hcPartyKeys[ownerId][0]).then(encryptedHcPartyKey => this.decryptHcPartyKey(ownerId, ownerId, encryptedHcPartyKey, true)).then(importedAESHcPartyKey => Promise.all([this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(createdObject.id + ":" + secretId)), parentObject ? this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(createdObject.id + ":" + parentObject.id)) : Promise.resolve(null)])).then(encryptedDelegationAndSecretForeignKey => ({
+			delegations: _.fromPairs([[ownerId, [{ owner: ownerId, delegatedTo: ownerId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[0]) }]]]),
+			cryptedForeignKeys: encryptedDelegationAndSecretForeignKey[1] && _.fromPairs([[ownerId, [{ owner: ownerId, delegatedTo: ownerId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[1]) }]]]) || {},
+			secretForeignKeys: secretForeignKeyOfParent && [secretForeignKeyOfParent] || [],
+			secretId: secretId
+		}));
+	}
+
+	appendObjectDelegations(modifiedObject, parentObject, ownerId, delegateId, secretIdOfModifiedObject) {
+		return this.hcpartyApi.getHealthcareParty(ownerId).then(owner => owner.hcPartyKeys[delegateId][0]).then(encryptedHcPartyKey => this.decryptHcPartyKey(ownerId, delegateId, encryptedHcPartyKey, true)).then(importedAESHcPartyKey => Promise.all([this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(modifiedObject.id + ":" + secretIdOfModifiedObject)), parentObject ? this.AES.encrypt(importedAESHcPartyKey.key, this.utils.text2ua(modifiedObject.id + ":" + parentObject.id)) : Promise.resolve(null)])).then(encryptedDelegationAndSecretForeignKey => ({
+			delegations: _.extend(_.cloneDeep(modifiedObject.delegations), _.fromPairs([[delegateId, (modifiedObject.delegations[delegateId] || []).concat([{
+				owner: ownerId, delegatedTo: delegateId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[0])
+			}])]])),
+			cryptedForeignKeys: encryptedDelegationAndSecretForeignKey[1] ? _.extend(_.cloneDeep(modifiedObject.cryptedForeignKeys), _.fromPairs([[delegateId, (modifiedObject.cryptedForeignKeys[delegateId] || []).concat([{
+				owner: ownerId, delegatedTo: delegateId, key: this.utils.ua2hex(encryptedDelegationAndSecretForeignKey[1])
+			}])]])) : _.cloneDeep(modifiedObject.cryptedForeignKeys)
+		}));
+	}
+
+	extractDelegationsSFKs(document, hcpartyId) {
+		if (!document.delegations || !document.delegations[hcpartyId] || !(document.delegations[hcpartyId].length > 0)) {
+			throw 'There is not delegation for this healthcare party (' + hcpartyId + ') in document (' + document.id + ')';
+		}
+		return this.decryptAndImportAesHcPartyKeysInDelegations(hcpartyId, document.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
+			const collatedAesKeys = {};
+			decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
+			return this.decryptDelegationsSFKs(document.delegations[hcpartyId], collatedAesKeys, document.id);
+		}.bind(this));
+	}
+
+	decryptDelegationsSFKs(delegationsArray, aesKeys, masterId) {
+		var decryptPromises = [];
+		for (var i = 0; i < delegationsArray.length; i++) {
+			var delegation = delegationsArray[i];
+
+			decryptPromises.push(this.AES.decrypt(aesKeys[delegation.owner], this.utils.hex2ua(delegation.key)).then(function (result) {
+				var results = this.utils.ua2text(result).split(':');
+				// results[0]: must be the ID of the object, for checksum
+				// results[1]: secretForeignKey
+				if (results[0] !== masterId) {
+					console.log('Cryptographic mistake: patient ID is not equal to the concatenated id in SecretForeignKey, this may happen when patients have been merged');
+				}
+
+				return results[1];
+			}.bind(this)));
+		}
+
+		return Promise.all(decryptPromises);
+	}
+
+	loadKeyPairsAsTextInBrowserLocalStorage(healthcarePartyId, privateKey) {
+		return this.api.hcparty().getPublicKey(healthcarePartyId).then(function (publicKey) {
+			return this.RSA.importKeyPair('jwk', this.utils.pkcs8ToJwk(privateKey), 'jwk', this.utils.spkiToJwk(this.utils.hex2ua(publicKey.hexString)));
+		}.bind(this)).then(function (keyPair) {
+			this.RSA.rsaKeyPairs[healthcarePartyId] = keyPair;
+			return this.RSA.exportKeys(keyPair, 'jwk', 'jwk');
+		}.bind(this)).then(function (exportedKeyPair) {
+			return this.RSA.storeKeyPair(healthcarePartyId, exportedKeyPair);
+		}.bind(this));
+	}
+
+	loadKeyPairsAsJwkInBrowserLocalStorage(healthcarePartyId, privKey) {
+		return this.api.hcparty().getPublicKey(healthcarePartyId).then(function (publicKey) {
+			const pubKey = this.utils.spkiToJwk(this.utils.hex2ua(publicKey.hexString));
+
+			privKey.n = pubKey.n;
+			privKey.e = pubKey.e;
+
+			return this.RSA.importKeyPair('jwk', privKey, 'jwk', pubKey);
+		}.bind(this)).then(function (keyPair) {
+			this.RSA.rsaKeyPairs[healthcarePartyId] = keyPair;
+			return this.RSA.exportKeys(keyPair, 'jwk', 'jwk');
+		}.bind(this)).then(function (exportedKeyPair) {
+			return this.RSA.storeKeyPair(healthcarePartyId, exportedKeyPair);
+		}.bind(this));
+	}
+
+	loadKeyPairsInBrowserLocalStorage(healthcarePartyId, file) {
+		const fr = new FileReader();
+		return new Promise((resolve, reject) => {
+			fr.onerror = reject;
+			fr.onabort = reject;
+			fr.onload = function (e) {
+				const privateKey = e.target.result;
+				this.loadKeyPairsAsTextInBrowserLocalStorage(healthcarePartyId, this.utils.hex2ua(privateKey)).then(resolve).catch(reject);
+			}.bind(this);
+			fr.readAsText(file);
+		});
+	}
+
+	saveKeychainInBrowserLocalStorage(id, keychain) {
+		localStorage.setItem(this.keychainLocalStoreIdPrefix + id, btoa(new Uint8Array(keychain).reduce((data, byte) => data + String.fromCharCode(byte), '')));
+	}
+
+	loadKeychainFromBrowserLocalStorage(id) {
+		const lsItem = localStorage.getItem('org.taktik.icure.ehealth.keychain.' + id);
+		return lsItem && this.utils.base64toByteArray(lsItem);
+	}
+
+}
+
+customElements.define(IccCryptoXApi.is, IccCryptoXApi);
+</script>

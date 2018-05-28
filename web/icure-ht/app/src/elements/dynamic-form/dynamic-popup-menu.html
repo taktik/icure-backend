@@ -117,7 +117,7 @@
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
-						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
 				<iron-input slot="input" bind-value="{{value}}">
@@ -126,7 +126,7 @@
 				<paper-menu-button slot="suffix" horizontal-offset="[[listboxOffsetWidth]]">
 					<iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
 					<paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
-						<paper-item>Aucun</paper-item>
+						<paper-item>[[localize('auc','Aucun',language)]]</paper-item>
 						<template is="dom-repeat" items="[[options]]">
 							<paper-item>[[item]]</paper-item>
 						</template>
@@ -142,7 +142,7 @@
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
-						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
 				<iron-input slot="input" bind-value="{{value}}">
@@ -151,7 +151,7 @@
 				<paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listboxOffsetWidth]]">
 					<iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
 					<paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
-						<paper-item>Aucun</paper-item>
+						<paper-item>[[localize('auc','Aucun',language)]]</paper-item>
 						<template is="dom-repeat" items="[[options]]">
 							<paper-item>[[item]]</paper-item>
 						</template>
@@ -162,117 +162,127 @@
 			<template is="dom-if" if="[[dataSource]]">
 				<vaadin-combo-box filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[_label(label)]]" value="{{value}}"></vaadin-combo-box>
 			</template>
-			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>
 	<script>
-		class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
-			static get is() { return 'dynamic-popup-menu'; }
-			static get properties() { return {
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				value: {
-					type: String,
-					notify: true,
-					observer: '_valueChanged'
-				},
-				selected: {
-					type: Number,
-					observer: '_selectedChanged'
-				},
-				options: {
-					type: Array
-				},
-				dataSource: {
-					type: Object,
-					value: null
-				},
-				width: {
-					type: Number,
-					value: 48,
-					observer: '_widthChanged'
-				},
-				listboxOffsetWidth: {
-					type: Number,
-					value: -100
-				},
-				items: {
-					type: Array,
-					value: function() { return [] }
-				}
-			} }
-
-			ready() {
-				super.ready()
-				this.addEventListener('iron-resize', () => this.onWidthChange())
-			}
-
-			attached() {
-				super.attached()
-				this.async(this.notifyResize, 1)
-			}
-
-
-			onWidthChange() {
-				if (!this.offsetWidth) {
-					return
-				}
-				this.set('listboxOffsetWidth', Math.min(-100, -this.offsetWidth + 16))
-				if (this.width && this.$['dropdown-listbox']) {
-					this.$['dropdown-listbox'].style.width = '' + (this.offsetWidth - 16) + 'px'
+class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+	static get is() {
+		return 'dynamic-popup-menu';
+	}
+	static get properties() {
+		return {
+			wasModified: {
+				type: Boolean
+			},
+			isModifiedAfter: {
+				type: Boolean
+			},
+			readOnly: {
+				type: Boolean,
+				value: false
+			},
+			lastModified: {
+				type: String
+			},
+			label: {
+				type: String
+			},
+			value: {
+				type: String,
+				notify: true,
+				observer: '_valueChanged'
+			},
+			selected: {
+				type: Number,
+				observer: '_selectedChanged'
+			},
+			options: {
+				type: Array
+			},
+			dataSource: {
+				type: Object,
+				value: null
+			},
+			width: {
+				type: Number,
+				value: 48,
+				observer: '_widthChanged'
+			},
+			listboxOffsetWidth: {
+				type: Number,
+				value: -100
+			},
+			items: {
+				type: Array,
+				value: function () {
+					return [];
 				}
 			}
+		};
+	}
 
-			_widthChanged(width) {
-				this.updateStyles({'--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%'})
-				if (this.$['dropdown-listbox']) {
-					this.$['dropdown-listbox'].updateStyles({'--dynamic-field-width-percent': '' + width + '%'})
-				}
-			}
+	ready() {
+		super.ready();
+		this.addEventListener('iron-resize', () => this.onWidthChange());
+	}
 
-			_selectedChanged(selected) {
-				if (this.readOnly) { return }
-				this.set('value', this.options[selected - 1] || null)
-			}
+	attached() {
+		super.attached();
+		this.async(this.notifyResize, 1);
+	}
 
-			_openPopupMenu() {
-				if (this.readOnly) { return }
-				this.shadowRoot.querySelector('#paper-menu-button').open()
-			}
-
-			_valueChanged(value) {
-				value && this.dataSource && (!this.items || !this.items.find(i=>i.id === value)) && this.dataSource.get(this.value).then(res => {
-					if (res) {
-						this.set('items',[res].concat(this.items || []))
-						this.set('value',value)
-					} })
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value: value}}))
-			}
-
-			_filterChanged(e) {
-				const text = e.detail.value
-				this.dataSource && this.dataSource.filter(text).then(items => this.value ? this.dataSource.get(this.value).then(res => res ? [res].concat(items) : items) : items).then(items=>this.set('items', items))
-			}
-
-			_label(label) {
-				return label || "\u00a0"
-			}
+	onWidthChange() {
+		if (!this.offsetWidth) {
+			return;
 		}
-		customElements.define(DynamicPopupMenu.is, DynamicPopupMenu);
-	</script>
+		this.set('listboxOffsetWidth', Math.min(-100, -this.offsetWidth + 16));
+		if (this.width && this.$['dropdown-listbox']) {
+			this.$['dropdown-listbox'].style.width = '' + (this.offsetWidth - 16) + 'px';
+		}
+	}
+
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+		if (this.$['dropdown-listbox']) {
+			this.$['dropdown-listbox'].updateStyles({ '--dynamic-field-width-percent': '' + width + '%' });
+		}
+	}
+
+	_selectedChanged(selected) {
+		if (this.readOnly) {
+			return;
+		}
+		this.set('value', this.options[selected - 1] || null);
+	}
+
+	_openPopupMenu() {
+		if (this.readOnly) {
+			return;
+		}
+		this.shadowRoot.querySelector('#paper-menu-button').open();
+	}
+
+	_valueChanged(value) {
+		value && this.dataSource && (!this.items || !this.items.find(i => i.id === value)) && this.dataSource.get(this.value).then(res => {
+			if (res) {
+				this.set('items', [res].concat(this.items || []));
+				this.set('value', value);
+			}
+		});
+		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
+	}
+
+	_filterChanged(e) {
+		const text = e.detail.value;
+		this.dataSource && this.dataSource.filter(text).then(items => this.value ? this.dataSource.get(this.value).then(res => res ? [res].concat(items) : items) : items).then(items => this.set('items', items));
+	}
+
+	_label(label) {
+		return label || "\u00a0";
+	}
+}
+customElements.define(DynamicPopupMenu.is, DynamicPopupMenu);
+</script>
 </dom-module>

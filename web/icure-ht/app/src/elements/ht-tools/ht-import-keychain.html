@@ -43,95 +43,95 @@
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<form is="form" id="keys-form">
 				<div class="layout vertical center">
-					<h3>Please select the eHealth keychain</h3>
-					<h5>it is usually located in the eHeath directory</h5>
+					<h3>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h3>
+					<h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
 					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected"></paper-input>
 					<div>{{message}}</div>
 				</div>
 			</form>
 
 				<div class="buttons">
-					<paper-button dialog-dismiss class="modal-button modal-button--cancel">Cancel</paper-button>
-					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">Select</paper-button>
+					<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
 				</div>
 		</paper-dialog>
 	</template>
 	<script>
-		class HtImportKeychain extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
-			static get is() {
-				return 'ht-import-keychain'
-			}
+class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+	static get is() {
+		return 'ht-import-keychain';
+	}
 
-			static get properties() {
-				return {
-					api: {
-						type: Object,
-						value: null
-					},
-					user: {
-						type: Object,
-						value: null
-					},
-					opened: {
-						type: Boolean,
-						value: false
-					}
-				}
+	static get properties() {
+		return {
+			api: {
+				type: Object,
+				value: null
+			},
+			user: {
+				type: Object,
+				value: null
+			},
+			opened: {
+				type: Boolean,
+				value: false
 			}
+		};
+	}
 
-			static get observers() {
-				return [ 'apiReady(api,user,opened)' ]
-			}
+	static get observers() {
+		return ['apiReady(api,user,opened)'];
+	}
 
-			ready() {
-				super.ready()
-				this.addEventListener('iron-resize', () => this.onWidthChange())
-			}
+	ready() {
+		super.ready();
+		this.addEventListener('iron-resize', () => this.onWidthChange());
+	}
 
-			apiReady() {
-				if (!this.api || !this.user || !this.user.id || !this.opened) return
-			}
+	apiReady() {
+		if (!this.api || !this.user || !this.user.id || !this.opened) return;
+	}
 
-			ehKeychainSelected() {
-				this.selectedEhKeychain = this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement ? this.$.ehKeychainFileInput.inputElement.inputElement.files[0] : null;
-			}
+	ehKeychainSelected() {
+		this.selectedEhKeychain = this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement ? this.$.ehKeychainFileInput.inputElement.inputElement.files[0] : null;
+	}
 
-			confirm() {
-				const fr = new FileReader()
-				return new Promise((resolve, reject) => {
-					fr.onerror = reject
-					fr.onabort = reject
-					fr.onload = function (e) {
-						const keychain = e.target.result
-						this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId, keychain)
-					}.bind(this)
-					fr.readAsArrayBuffer(this.selectedEhKeychain)
-				})
+	confirm() {
+		const fr = new FileReader();
+		return new Promise((resolve, reject) => {
+			fr.onerror = reject;
+			fr.onabort = reject;
+			fr.onload = function (e) {
+				const keychain = e.target.result;
+				this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId, keychain);
+			}.bind(this);
+			fr.readAsArrayBuffer(this.selectedEhKeychain);
+		});
 
-				this.fire('file-selected',this.selectedEhKeychain)
-			}
+		this.fire('file-selected', this.selectedEhKeychain);
+	}
 
-			attached() {
-				super.attached()
-				this.async(this.notifyResize, 1)
-			}
+	attached() {
+		super.attached();
+		this.async(this.notifyResize, 1);
+	}
 
-			onWidthChange() {
-				const offsetWidth = this.$.dialog.offsetWidth
-				const offsetHeight = this.$.dialog.offsetHeight
-				if (!offsetWidth || !offsetHeight) {
-					return
-				}
-			}
-
-			open() {
-				this.$.dialog.open()
-			}
-
-			close() {
-				this.$.dialog.close()
-			}
+	onWidthChange() {
+		const offsetWidth = this.$.dialog.offsetWidth;
+		const offsetHeight = this.$.dialog.offsetHeight;
+		if (!offsetWidth || !offsetHeight) {
+			return;
 		}
-		customElements.define(HtImportKeychain.is, HtImportKeychain)
-	</script>
+	}
+
+	open() {
+		this.$.dialog.open();
+	}
+
+	close() {
+		this.$.dialog.close();
+	}
+}
+customElements.define(HtImportKeychain.is, HtImportKeychain);
+</script>
 </dom-module>

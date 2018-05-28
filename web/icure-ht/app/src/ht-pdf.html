@@ -36,16 +36,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	</template>
 
-	<script>
-		Polymer({
-			is: 'ht-pdf',
+	<script>class HtPdf extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'ht-pdf';
+	}
 
-			properties: {},
+	static get properties() {
+		return {};
+	}
 
-			observers: [],
+	constructor() {
+		super();
+	}
 
-			ready: function () {
-			}
-		})
-	</script>
+	ready() {
+		super.ready();
+	}
+
+}
+
+customElements.define(HtPdf.is, HtPdf);
+</script>
 </dom-module>

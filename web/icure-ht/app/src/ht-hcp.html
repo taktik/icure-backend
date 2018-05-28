@@ -36,20 +36,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    Polymer({
-      is: 'ht-hcp',
-			properties: {
-				api: {
-					type: Object
-				},
-				user: {
-					type: Object
-				},
-				selectedHcp: {
-					type: Object,
-					value: null
-				}
+class HtHcp extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'ht-hcp';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			user: {
+				type: Object
+			},
+			selectedHcp: {
+				type: Object,
+				value: null
 			}
-    });
-  </script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+}
+
+customElements.define(HtHcp.is, HtHcp);
+</script>
 </dom-module>

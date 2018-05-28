@@ -1,4 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
@@ -60,7 +61,6 @@
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<div class="left-col">
 				<vaadin-form-layout>
-
 					<paper-input colspan="2" label="Full name" value="{{user.name}}"></paper-input>
 					<paper-input colspan="2" label="Group ID" value="{{user.groupId}}"></paper-input>
 					<paper-input label="Login" value="{{user.login}}"></paper-input>
@@ -69,95 +69,114 @@
 			</div>
 			<div class="right-col">
 				<vaadin-form-layout>
-						<paper-input label="Password" value="{{user.password}}"></paper-input>
+					<paper-radio-group selected="{{hcp.languages.0}}">
+						<paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
+						<paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
+						<paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
+					</paper-radio-group>
+					<paper-input label="Password" value="{{user.password}}"></paper-input>
 						<paper-input label="Confirmation" value="{{user.confirmation}}"></paper-input>
-						<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">Use two factors Authentication</vaadin-checkbox>
+						<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
 				</vaadin-form-layout>
 				<div id="printable">
-					<qrcode-printer id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+					<qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
 				</div>
 			</div>
 			<div class="buttons">
-				<paper-button class="modal-button" dialog-dismiss>Cancel</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">Save</paper-button>
+				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
 	<script>
-		class HtExportKey extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
-			static get is() {
-				return 'ht-my-profile'
-			}
+class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+	static get is() {
+		return 'ht-my-profile';
+	}
 
-			static get properties() {
-				return {
-					api: {
-						type: Object,
-						value: null
-					},
-					user: {
-						type: Object,
-						value: null
-					},
-					qrCodeWidth: {
-						type: Number,
-						value: 200
-					},
-					opened: {
-						type: Boolean,
-						value: false
-					},
-					verbose: {
-						type: Boolean,
-						value: true
-					}
+	static get properties() {
+		return {
+			api: {
+				type: Object,
+				value: null
+			},
+			user: {
+				type: Object,
+				value: null
+			},
+			hcp: {
+				type: Object,
+				value: null
+			},
+			qrCodeWidth: {
+				type: Number,
+				value: 200
+			},
+			opened: {
+				type: Boolean,
+				value: false
+			},
+			verbose: {
+				type: Boolean,
+				value: true
+			}
+		};
+	}
+
+	static get observers() {
+		return ['apiReady(api,user,opened)', '_userChanged(user)'];
+	}
+
+	ready() {
+		super.ready();
+		this.addEventListener('iron-resize', () => this.onWidthChange());
+	}
+
+	_userChanged(user, api) {
+		if (this.user && this.api) {
+			this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp => {
+				if (!hcp.languages || !hcp.languages.length) {
+					hcp.languages = ['en'];
 				}
-			}
-
-			static get observers() {
-				return ['apiReady(api,user,opened)']
-			}
-
-			ready() {
-				super.ready()
-				this.addEventListener('iron-resize', () => this.onWidthChange())
-			}
-
-			apiReady() {
-
-			}
-
-			qrCode(login, secret) {
-				return login && secret ? `otpauth://totp/${login}:iCure-cloud?secret=${secret}&issuer=icure-cloud` : ''
-			}
-
-			attached() {
-				super.attached()
-				this.async(this.notifyResize, 1)
-			}
-
-			onWidthChange() {
-				const offsetWidth = this.$.dialog.offsetWidth
-				const offsetHeight = this.$.dialog.offsetHeight
-				if (!offsetWidth || !offsetHeight) {
-					return
-				}
-				this.set('qrCodeWidth', Math.max(Math.min(Math.min(offsetWidth/2 - 64, offsetHeight - 120), 400), 120))
-			}
-
-			open() {
-				this.$.dialog.open()
-			}
-
-			close() {
-				this.$.dialog.close()
-			}
-
-			confirm() {
-				this.api.user().modifyUser(this.user)
-			}
+				this.set('hcp', hcp);
+			});
 		}
+	}
 
-		customElements.define(HtExportKey.is, HtExportKey)
-	</script>
+	apiReady() {}
+
+	qrCode(login, secret) {
+		return login && secret ? `otpauth://totp/${login}:iCure-cloud?secret=${secret}&issuer=icure-cloud` : '';
+	}
+
+	attached() {
+		super.attached();
+		this.async(this.notifyResize, 1);
+	}
+
+	onWidthChange() {
+		const offsetWidth = this.$.dialog.offsetWidth;
+		const offsetHeight = this.$.dialog.offsetHeight;
+		if (!offsetWidth || !offsetHeight) {
+			return;
+		}
+		this.set('qrCodeWidth', Math.max(Math.min(Math.min(offsetWidth / 2 - 64, offsetHeight - 120), 400), 120));
+	}
+
+	open() {
+		this.$.dialog.open();
+	}
+
+	close() {
+		this.$.dialog.close();
+	}
+
+	confirm() {
+		this.api.user().modifyUser(this.user);
+		this.api.hcparty().modifyHealthcareParty(this.hcp);
+	}
+}
+
+customElements.define(HtExportKey.is, HtExportKey);
+</script>
 </dom-module>

@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBetherlinkApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/therlink/check/{token}".replace("{token}", token+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  JSON.parse(JSON.stringify(doc.body)))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}".replace("{token}", token+"").replace("{hcPartyId}", hcPartyId+"").replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (eid ? "&eid=" + eid : "") + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (sign ? "&sign=" + sign : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.TherapeuticLinkMessage(it)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/consent/{token}/{niss}".replace("{token}", token+"").replace("{niss}", niss+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.ConsentMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/consent/{token}/{niss}/{eid}".replace("{token}", token+"").replace("{niss}", niss+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime()  + (firstName ? "&firstName=" + firstName : "") + (lastName ? "&lastName=" + lastName : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.ConsentMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/therlink/{token}/{hcPartyId}/{patientId}/{eid}".replace("{token}", token+"").replace("{hcPartyId}", hcPartyId+"").replace("{patientId}", patientId+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime()  + (startDate ? "&startDate=" + startDate : "") + (endDate ? "&endDate=" + endDate : "") + (type ? "&type=" + type : "") + (comment ? "&comment=" + comment : "") + (sign ? "&sign=" + sign : "")
 
-        return XHR.sendCommand('POST', _url , [this.headers], _body )
+        return XHR.sendCommand('POST', _url , this.headers, _body )
                 .then(doc =>  new models.TherapeuticLinkMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/consent/{token}/{eid}".replace("{token}", token+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.ConsentMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink/therlink/revoke/{token}/{eid}".replace("{token}", token+"").replace("{eid}", eid+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('PUT', _url , [this.headers], _body )
+        return XHR.sendCommand('PUT', _url , this.headers, _body )
                 .then(doc =>  new models.TherapeuticLinkMessage(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccBetherlinkApi {
         
         const _url = this.host+"/be_therlink" + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('DELETE', _url , [this.headers], _body )
+        return XHR.sendCommand('DELETE', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.TherapeuticLinkMessage(it)))
                 .catch(err => this.handleError(err))
 

@@ -14,44 +14,50 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-geninscontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				getGeneralInsurabilityByMembershipUsingGET: function (io, ioMembership, tokenId, keystoreId, passPhrase, hcpNihii, hcpSsin, hcpName, hcpQuality, date, hospitalized) {
-					var xhr = this.$.getGeneralInsurabilityByMembershipUsingGET
+	<script>class FhcGeninscontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-geninscontroller-api";
+	}
 
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
-					xhr.url = this.host+"/genins/{io}/{ioMembership}".replace("{io}", io).replace("{ioMembership}", ioMembership) + "?ts=" + (new Date).getTime()  + (tokenId ? "&tokenId=" + tokenId : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				getGeneralInsurabilityUsingGET: function (ssin, tokenId, keystoreId, passPhrase, hcpNihii, hcpSsin, hcpName, hcpQuality, date, hospitalized) {
-					var xhr = this.$.getGeneralInsurabilityUsingGET
+	constructor() {
+		super();
+	}
 
+	getGeneralInsurabilityByMembershipUsingGET(io, ioMembership, tokenId, keystoreId, passPhrase, hcpNihii, hcpSsin, hcpName, hcpQuality, date, hospitalized) {
+		var xhr = this.$.getGeneralInsurabilityByMembershipUsingGET;
 
-					xhr.url = this.host+"/genins/{ssin}".replace("{ssin}", ssin) + "?ts=" + (new Date).getTime()  + (tokenId ? "&tokenId=" + tokenId : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				}
-			});
-		})();
-	</script>
+		xhr.url = this.host + "/genins/{io}/{ioMembership}".replace("{io}", io).replace("{ioMembership}", ioMembership) + "?ts=" + new Date().getTime() + (tokenId ? "&tokenId=" + tokenId : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
 
-@end
+	getGeneralInsurabilityUsingGET(ssin, tokenId, keystoreId, passPhrase, hcpNihii, hcpSsin, hcpName, hcpQuality, date, hospitalized) {
+		var xhr = this.$.getGeneralInsurabilityUsingGET;
+
+		xhr.url = this.host + "/genins/{ssin}".replace("{ssin}", ssin) + "?ts=" + new Date().getTime() + (tokenId ? "&tokenId=" + tokenId : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpName ? "&hcpName=" + hcpName : "") + (hcpQuality ? "&hcpQuality=" + hcpQuality : "") + (date ? "&date=" + date : "") + (hospitalized ? "&hospitalized=" + hospitalized : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+}
+
+customElements.define(FhcGeninscontrollerApi.is, FhcGeninscontrollerApi);
+</script>

@@ -27,31 +27,60 @@
     </template>
 </dom-module>
 
-<script>
-    (function () {
-        Polymer({
-            is: 'fhc-api',
-            properties: {
-                headers: {
-                    type: Object,
-                    value: {"Content-Type": "application/json"}
-                },
-                host: {
-                    type: String
-                }
+<script>class FhcApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+    static get is() {
+        return "fhc-api";
+    }
+
+    static get properties() {
+        return {
+            headers: {
+                type: Object,
+                value: { "Content-Type": "application/json" }
             },
-            behaviors: [],
-            Addressbookcontroller: function() { return this.$['fhc-addressbookcontroller-api']},
-            Basicerrorcontroller: function() { return this.$['fhc-basicerrorcontroller-api']},
-            Eattestcontroller: function() { return this.$['fhc-eattestcontroller-api']},
-            Ehboxcontroller: function() { return this.$['fhc-ehboxcontroller-api']},
-            Geninscontroller: function() { return this.$['fhc-geninscontroller-api']},
-            Hubcontroller: function() { return this.$['fhc-hubcontroller-api']},
-            Recipecontroller: function() { return this.$['fhc-recipecontroller-api']},
-            Stscontroller: function() { return this.$['fhc-stscontroller-api']},
+            host: {
+                type: String
+            }
+        };
+    }
 
-        });
-    })();
+    constructor() {
+        super();
+    }
+
+    Addressbookcontroller() {
+        return this.$['fhc-addressbookcontroller-api'];
+    }
+
+    Basicerrorcontroller() {
+        return this.$['fhc-basicerrorcontroller-api'];
+    }
+
+    Eattestcontroller() {
+        return this.$['fhc-eattestcontroller-api'];
+    }
+
+    Ehboxcontroller() {
+        return this.$['fhc-ehboxcontroller-api'];
+    }
+
+    Geninscontroller() {
+        return this.$['fhc-geninscontroller-api'];
+    }
+
+    Hubcontroller() {
+        return this.$['fhc-hubcontroller-api'];
+    }
+
+    Recipecontroller() {
+        return this.$['fhc-recipecontroller-api'];
+    }
+
+    Stscontroller() {
+        return this.$['fhc-stscontroller-api'];
+    }
+
+}
+
+customElements.define(FhcApi.is, FhcApi);
 </script>
-
-@end

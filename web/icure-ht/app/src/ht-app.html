@@ -31,6 +31,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 
+<link rel="import" href="elements/tk-localizer.html">
+
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
@@ -44,6 +46,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
@@ -223,9 +226,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display: none;
 			}
 
-			.noehealth{
-			}
-
 			.notification-panel {
 				position: fixed;
 				top:50%;
@@ -245,9 +245,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				animation: notificationAnim 7.5s ease-in;
 			}
 
-			.noehealth iron-icon{
-				margin-left: 4px;
-				padding: 4px;
+			.log-info{
+				align-self: center;
+			}
+			.log-info p{
+				position:relative;
+				font-family: 'Roboto', Arial, Helvetica, sans-serif;
+				font-size: 12px;
+				color: var(--app-text-color-light);
+			}
+
+			.log-info p .ehealth-connection-status{
+				content:'';
+				display:block;
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+				right: -11px;
+				height: 7px;
+				width: 7px;
+				border-radius: 8px;
+			}
+
+			.connected{
+				background: var(--app-status-color-ok);
+			}
+			.pending{
+				background: var(--app-status-color-pending);
+				animation: pendingAnim .8s ease-in-out infinite alternate;
+			}
+			.disconnected{
+				background: var(--app-status-color-nok);
+			}
+
+			@keyframes pendingAnim{
+				from{
+					background: var(--app-status-color-pending);
+				}
+				to{
+					background: transparent;
+				}
 			}
 
 			@keyframes notificationAnim {
@@ -289,18 +326,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		</style>
 
-		<icc-api id="baseApi" headers="[[headers]]" host="/rest/v1"></icc-api>
-		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]" baseApi="baseApi"></icc-x-api>
+		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
 
 		<paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
 			<iron-icon icon="icons:warning"></iron-icon>
 		</paper-item>
 
-		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
-		<ht-app-register-keypair-dialog id="registerKeyPairDialog" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
-		<ht-export-key id="export-key" api="[[api]]" user="[[user]]"></ht-export-key>
-		<ht-import-keychain id="ht-import-keychain" api="[[api]]" user="[[user]]"></ht-import-keychain>
-		<ht-my-profile id="ht-my-profile" api="[[api]]" user="[[user]]"></ht-my-profile>
+		<ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
+		<ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
+		<ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
+		<ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
+		<ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-my-profile>
 
 
 		<app-location route="{{route}}" use-hash-as-path="true"></app-location>
@@ -319,23 +355,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-listbox  id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
 									<paper-button name="main" on-tap="doRoute">
 										<iron-icon class="iron-icon" icon="home"></iron-icon>
-										Summary
+										[[localize('sum')]]
 									</paper-button>
 									<paper-button name="pat" on-tap="doRoute">
 										<iron-icon icon="vaadin:user-heart"></iron-icon>
-										Patients
+										[[localize('pat')]]
 									</paper-button>
 									<paper-button name="hcp" on-tap="doRoute">
 										<iron-icon icon="vaadin:hospital"></iron-icon>
-										HC parties
-									</paper-button>
-									<paper-button name="msg" on-tap="doRoute">
-										<iron-icon icon="communication:email"></iron-icon>
-										Messages
+										[[localize('hc_par')]]
 									</paper-button>
 									<paper-button name="logout" on-tap="doRoute">
 										<iron-icon icon="power-settings-new"></iron-icon>
-										Log out
+										[[localize('log_out')]]
 									</paper-button>
 								</paper-listbox>
 							</div>
@@ -344,25 +376,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
 							<paper-tab name="main" on-tap="doRoute">
 								<iron-icon class="iron-icon" icon="home"></iron-icon>
-								Summary
+								[[localize('sum')]]
 							</paper-tab>
 							<paper-tab name="pat" on-tap="doRoute">
 								<iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-								Patients
+								[[localize('pat')]]
 							</paper-tab>
 							<paper-tab name="hcp" on-tap="doRoute">
 								<iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-								HC parties
-							</paper-tab>
-							<paper-tab name="msg" on-tap="doRoute">
-								<iron-icon class="smaller" icon="communication:email"></iron-icon>
-								Messages
+								[[localize('hc_par')]]
 							</paper-tab>
 							<paper-tab name="logout" on-tap="doRoute">
 								<iron-icon icon="power-settings-new"></iron-icon>
-								Log out
+								[[localize('log_out')]]
 							</paper-tab>
 						</paper-tabs>
+						<div class="log-info">
+							<p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span></p>
+							<paper-tooltip for="ehealth">
+								<template is="dom-if" if="[[api.tokenId]]">
+									eHealth is connected
+								</template>
+								<template is="dom-if" if="[[!api.tokenId]]">
+									eHealth is not connected
+								</template>
+							</paper-tooltip>
+						</div>
 						<div>
 							<svg version="1.1"
 							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
@@ -406,9 +445,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
 								<paper-listbox class="extra-menu" slot="dropdown-content"  stop-keyboard-event-propagation>
 									<div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
-									<paper-item class="extra-menu-item" on-tap="_openExportKey">Transfer private key / Connect tablet</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_importKeychain">Import my eHealth keychain</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_myProfile">My profile</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_myProfile">[[localize('my_pro','My profile',language)]]</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
 						</div>
@@ -421,9 +460,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<ht-main name="main" api="[[api]]" user="[[user]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
-					<ht-hcp name="hcp" api="[[api]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
-					<ht-msg name="msg" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
+					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"attachedLanguageRessources="attachedLanguageRessources" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
+					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"attachedLanguageRessources="attachedLanguageRessources" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
+					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"attachedLanguageRessources="attachedLanguageRessources" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
 				</iron-pages>
 			</app-header-layout>
@@ -431,21 +470,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	</template>
 
 	<script>
-		Polymer({
-			is: 'ht-app',
+        import moment from 'moment/src/moment'
 
-			properties: {
+        class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
+	        static get is() { return 'ht-app'}
+
+	        static get properties() {
+		        return {
 				api: {
 					type: Object,
 					value: null
 				},
-                baseApi: {
-                    type: Object,
-                    value: null
-                },
 				user: {
 					type: Object,
 					value: null
+				},
+                language: {
+				    type: String,
+				  	value: 'fr'
+                },
+				i18n: {
+					Type: Object,
+					value() {
+						moment.locale('fr')
+						const res = {
+							monthNames: moment.months(),
+							weekdays: moment.weekdays(),
+							weekdaysShort: moment.weekdaysShort(),
+							firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+							week: 'Semaine',
+							calendar: 'Calendrier',
+							clear: 'Clear',
+							today: 'Aujourd\'hui',
+							cancel: 'Annuler',
+							formatDate(d) {
+								//return moment(d).format(moment.localeData().longDateFormat('L'))
+								return moment(d).format('DD/MM/YYYY')
+							},
+							parseDate(s) {
+								return moment(s, 'DD/MM/YYYY').toDate()
+							},
+							formatTitle(monthName, fullYear) {
+								return monthName + ' ' + fullYear
+							}
+						}
+						return res
+					}
 				},
 				view: {
 					type: String,
@@ -463,39 +533,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				lazyPages: {
 					type: Object,
 					value: {
-						main: function() {
+						main() {
 							import(/* webpackChunkName: "ht-main" */ './ht-main.html')
 						},
-						pat: function() {
+						pat() {
 							import(/* webpackChunkName: "ht-pat" */ './ht-pat.html')
 						},
-						hcp: function() {
+						hcp() {
 							import(/* webpackChunkName: "ht-hcp" */ './ht-hcp.html')
 						},
-						msg: function() {
+						msg() {
 							import(/* webpackChunkName: "ht-msg" */ './ht-msg.html')
 						},
-						view404: function() {
+						view404() {
 							import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
 						}
 					}
+				},
+				resources: {
+					value() {
+						return require('./elements/language/language.json')
+					}
 				}
-			},
+			}}
 
-			observers: [
+	        static get observers() {
+		        return [
 				'_routePageChanged(routeData.page)'
-			],
+			]}
 
-			ready: function () {
-			    console.log("on arrive ici")
+	        constructor() {
+		        super()
+	        }
+
+			ready() {
+	        	super.ready()
 				let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
 				let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
 				if (fullHref !== window.location.href) { window.location.href = fullHref }
 				window.app = this
 				this.set('api', this.$.api)
-			},
+			}
 
-			_routePageChanged: function (page) {
+            _timeCheck(period = 300000) {
+                setTimeout(() => {
+	                this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
+		                if (!isTokenValid) {
+			                this._getToken().then(() => {
+				                this._timeCheck()
+			                }).catch(() => this._timeCheck(10000))
+		                } else {
+			                this._timeCheck()
+		                }
+	                }).catch(() => this._timeCheck(10000))
+                }, period)
+			}
+
+			_routePageChanged(page) {
 				if (page === 'logout') {
 					sessionStorage.removeItem('auth')
 					this.authenticated = false
@@ -512,9 +606,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						this.set('view', page ? page.replace(/\/$/,'') : 'main')
 					}
 				}
-			},
+			}
 
-			_triggerMenu: function() {
+			_triggerMenu() {
 				let menu = this.$.mobileMenu
 				let overlay = this.$.overlayMenu
 
@@ -522,9 +616,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				menu.classList.toggle('open')
 
 
-			},
+			}
 
-			_viewChanged: function (view) {
+			_viewChanged(view) {
 				if (view.startsWith('auth')) {
 					this.$.loginDialog.opened = true
 					return
@@ -534,38 +628,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				} else {
 					this._showPage404();
 				}
-			},
+			}
 
-			_showPage404: function () {
+			_showPage404() {
 				this.view = 'view404';
-			},
+			}
 
-			doRoute: function (e) {
+			doRoute(e) {
 				this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name'))+"/")
 				this._triggerMenu()
-			},
+			}
 
-			_openExportKey: function() {
+			_openExportKey() {
 				this.$['export-key'].open()
-			},
+			}
 
-			_importKeychain: function() {
+			_importKeychain() {
 				this.$['ht-import-keychain'].open()
-			},
+			}
 
-			_myProfile: function() {
+			_myProfile() {
 				this.$['ht-my-profile'].open()
-			},
+			}
 
-			loginAndRedirect: function(page) {
+            _getToken() {
+               return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+			    	this.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+			    		this.$.eHealthStatus.classList.remove('pending')
+						this.$.eHealthStatus.classList.remove('disconnected')
+						this.$.eHealthStatus.classList.add('connected')
+
+                    	this.set('api.tokenId', res.tokenId)
+                    	this.set('api.token', res.token)
+
+					  	return res.tokenId
+                	}).catch(()=>{
+						this.$.eHealthStatus.classList.remove('pending')
+						this.$.eHealthStatus.classList.remove('connected')
+						this.$.eHealthStatus.classList.add('disconnected')
+					})
+				)
+			}
+
+			loginAndRedirect(page) {
 				const sAuth = JSON.parse(sessionStorage.getItem('auth'))
-				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) { this.set('credentials',sAuth) }
-				if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)) }
-				else if ((this.credentials.username && this.credentials.password)) { this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))) }
+				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
+					this.set('credentials',sAuth) }
+				if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
+				  {Authorization:'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)})) }
+				else if ((this.credentials.username && this.credentials.password)) { this.set('headers', _.assign(_.assign({}, this.headers),
+				  {Authorization:'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))})) }
 
 				//Be careful not to use this.api here as it might not have been defined yet
 				this.$.api.user().getCurrentUser().then(u => {
 				    this.set('user', u)
+					this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+						const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
+						language && this.set('language', language)
+					})
+
 					this.$.loginDialog.opened = false
 
 					this.set('credentials.twofa',null)
@@ -582,19 +703,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						this.authenticated = true
 
 						if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-							if (this.credentials.ehpassword) {
-								const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
-								ehKeychain && this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
-									this.$.api.keystoreId = res.uuid
-									this.$.api.hcparty().getHealthcareParty(u.healthcarePartyId).then(hcp =>
-										this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.$.api.keystoreId).then(res => {
-											this.$.api.tokenId = res.tokenId
-											this.$.api.token = res.token
-										})
-									)
-								}) || this.$.noehealth.classList.add("notification")
-							}
+                            if (this.credentials.ehpassword) {
+                                const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+                                if (ehKeychain) {
+                                    this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                                        this.$.api.keystoreId = res.uuid
+                                        this._getToken();
+                                    })
+                                } else {
+                                    this.$.noehealth.classList.add("notification")
 
+                                    this.$.eHealthStatus.classList.remove('pending')
+                                    this.$.eHealthStatus.classList.remove('connected')
+                                    this.$.eHealthStatus.classList.add('disconnected')
+                                }
+                            } else {
+                                this.$.eHealthStatus.classList.remove('pending')
+                                this.$.eHealthStatus.classList.remove('connected')
+                                this.$.eHealthStatus.classList.add('disconnected')
+                            }
 							const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
 							if (!this.routeData || destPage !== this.routeData.page) {
 								this.set('routeData.page', destPage);
@@ -606,19 +733,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							this.$.registerKeyPairDialog.opened = true
 						}
 					}
+                    this._timeCheck()
 				}).catch(function (e) {
 					this.authenticated = false
 					sessionStorage.removeItem('auth')
 					this.set("credentials.error", "Wrong user or password")
 				}.bind(this))
-			},
+			}
 
-			login: function (event, loginObject) /* this is called from mouseDown with 2 arguments */ {
+			login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
 				this.set('credentials',loginObject && loginObject.credentials)
 				this.loginAndRedirect(loginObject && loginObject.page)
-			},
+			}
 
-			importPrivateKey: function(e, selectedRsaFile) {
+			importPrivateKey(e, selectedRsaFile) {
 				selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(this.user.healthcarePartyId, selectedRsaFile).then(function() {
 					if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
 						this.$.registerKeyPairDialog.opened = false
@@ -629,9 +757,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						this.$.registerKeyPairDialog.reset()
 					}
 				}.bind(this)).catch(e => console.log(e))
-			},
+			}
 
-			importScannedPrivateKey: function(e, jwkKey) {
+			importScannedPrivateKey(e, jwkKey) {
 				this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(this.user.healthcarePartyId, jwkKey).then(function() {
 					if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
 						this.$.registerKeyPairDialog.opened = false
@@ -642,10 +770,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						this.$.registerKeyPairDialog.reset()
 					}
 				}.bind(this)).catch(e => console.log(e))
-			},
-
-			togglePanel: function (e) {
 			}
-		})
+
+			togglePanel(e) {
+			}
+		}
+
+        customElements.define(HtApp.is, HtApp);
+
 	</script>
 </dom-module>

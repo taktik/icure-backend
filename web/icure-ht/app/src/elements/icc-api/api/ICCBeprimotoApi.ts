@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBeprimotoApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBeprimotoApi {
         
         const _url = this.host+"/be_primoto/{nihii}".replace("{nihii}", nihii+"") + "?ts=" + (new Date).getTime()  + (version ? "&version=" + version : "") + (serial ? "&serial=" + serial : "") + (doctor ? "&doctor=" + doctor : "") + (year ? "&year=" + year : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => true)
                 .catch(err => this.handleError(err))
 

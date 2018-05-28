@@ -87,7 +87,7 @@
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
-						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
 				<vaadin-date-picker-light id="date-picker-ro" class="custom-theme paper-input-input" i18n="[[i18n]]" label="[[label]]" value="{{dateAsString}}" min="{{dateAsString}}" max="{{dateAsString}}" slot="input" attrForValue="dateValue">
@@ -105,7 +105,7 @@
 						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
-						<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
 				<vaadin-date-picker-light id="date-picker" class="custom-theme paper-input-input" i18n="[[i18n]]" label="[[label]]" value="{{dateAsString}}" slot="input" attrForValue="dateValue">
@@ -115,101 +115,121 @@
 				</vaadin-date-picker-light>
 				<iron-icon icon="icons:today" slot="suffix" on-tap="_openDatePicker"></iron-icon>
 			</paper-input-container>
-			<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>
 	<script>
-		import moment from '../../../bower_components/moment/src/moment'
 
-		Polymer({
-			is: 'dynamic-date-field',
-			properties: {
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				displayTime: {
-					type: Boolean
-				},
-				dateAsString: {
-					type: String,
-					observer: '_dateAsStringChanged'
-				},
-				value: {
-					type: Number,
-					notify: true,
-					observer: '_valueChanged'
-				},
-				width: {
-					type: Number,
-					value: 24,
-					observer: '_widthChanged'
-				},
-				i18n: {
-					Type: Object,
-					value: function () {
-						moment.locale('fr')
-						const res = {
-							monthNames: moment.months(),
-							weekdays: moment.weekdays(),
-							weekdaysShort: moment.weekdaysShort(),
-							firstDayOfWeek: moment.localeData().firstDayOfWeek(),
-							week: 'Semaine',
-							calendar: 'Calendrier',
-							clear: 'Clear',
-							today: 'Aujourd\'hui',
-							cancel: 'Annuler',
-							formatDate: function (d) {
-								//return moment(d).format(moment.localeData().longDateFormat('L'))
-								return moment(d).format('DD/MM/YYYY')
-							},
-							parseDate: function (s) {
-								return moment(s, 'DD/MM/YYYY').toDate()
-							},
-							formatTitle: function (monthName, fullYear) {
-								return monthName + ' ' + fullYear
-							}
+import moment from '../../../bower_components/moment/src/moment';
+
+class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-date-field';
+	}
+
+	static get properties() {
+		return {
+			wasModified: {
+				type: Boolean
+			},
+			isModifiedAfter: {
+				type: Boolean
+			},
+			readOnly: {
+				type: Boolean,
+				value: false
+			},
+			lastModified: {
+				type: String
+			},
+			label: {
+				type: String
+			},
+			displayTime: {
+				type: Boolean
+			},
+			dateAsString: {
+				type: String,
+				observer: '_dateAsStringChanged'
+			},
+			value: {
+				type: Number,
+				notify: true,
+				observer: '_valueChanged'
+			},
+			width: {
+				type: Number,
+				value: 24,
+				observer: '_widthChanged'
+			},
+			i18n: {
+				Type: Object,
+				value: function () {
+					moment.locale('fr');
+					const res = {
+						monthNames: moment.months(),
+						weekdays: moment.weekdays(),
+						weekdaysShort: moment.weekdaysShort(),
+						firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+						week: 'Semaine',
+						calendar: 'Calendrier',
+						clear: 'Clear',
+						today: 'Aujourd\'hui',
+						cancel: 'Annuler',
+						formatDate: function (d) {
+							//return moment(d).format(moment.localeData().longDateFormat('L'))
+							return moment(d).format('DD/MM/YYYY');
+						},
+						parseDate: function (s) {
+							return moment(s, 'DD/MM/YYYY').toDate();
+						},
+						formatTitle: function (monthName, fullYear) {
+							return monthName + ' ' + fullYear;
 						}
-						return res
-					}
+					};
+					return res;
 				}
-			},
-			observers: [],
-			_widthChanged: function(width) {
-				this.updateStyles({'--dynamic-field-width' : width, '--dynamic-field-width-percent' : ''+width+'%'})
-			},
-			_valueChanged: function(date) {
-				if (!date) { this.dateAsString && this.set('dateAsString', null); return }
-				this.set('displayTime', date>99991231)
-				const dateAsString= ('' + date).replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{6})/, '$1-$2-$3').replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$1-$2-$3');
-				if (dateAsString !== this.dateAsString) {
-					this.set('dateAsString', dateAsString)
-				}
-				this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value:date}}));
-			},
-			_dateAsStringChanged: function(dateAsString) {
-				if (!dateAsString) { this.value && this.set('value', null); return }
-				const date=parseInt(dateAsString.replace(/(....)-(..)-(..)/,'$1$2$3'))*(this.displayTime?1000000:1);
-				if (date !== this.value) {
-					this.set('value', date)
-				}
-			},
-			_openDatePicker: function() {
-				this.shadowRoot.querySelector(this.readOnly?'#date-picker-ro':'#date-picker').open()
 			}
-		})
-	</script>
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+	}
+
+	_valueChanged(date) {
+		if (!date) {
+			this.dateAsString && this.set('dateAsString', null);return;
+		}
+		this.set('displayTime', date > 99991231);
+		const dateAsString = ('' + date).replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{6})/, '$1-$2-$3').replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$1-$2-$3');
+		if (dateAsString !== this.dateAsString) {
+			this.set('dateAsString', dateAsString);
+		}
+	}
+
+	_dateAsStringChanged(dateAsString) {
+		if (!dateAsString) {
+			this.value && this.set('value', null);return;
+		}
+		const date = parseInt(dateAsString.replace(/(....)-(..)-(..)/, '$1$2$3')) * (this.displayTime ? 1000000 : 1);
+		if ((date || this.value) && date !== this.value) {
+			this.set('value', date);
+			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: date } }));
+		}
+	}
+
+	_openDatePicker() {
+		this.shadowRoot.querySelector(this.readOnly ? '#date-picker-ro' : '#date-picker').open();
+	}
+
+}
+
+customElements.define(DynamicDateField.is, DynamicDateField);
+</script>
 </dom-module>

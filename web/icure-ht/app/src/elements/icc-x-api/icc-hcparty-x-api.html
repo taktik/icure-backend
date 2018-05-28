@@ -7,39 +7,46 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'icc-hcparty-x-api',
-				properties: {
-					api: {
-						type: Object
-					},
-					crypto: {
-						type: Object
-					}
-				},
-				behaviors: [],
+	<script>class IccHcpartyXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'icc-hcparty-x-api';
+	}
 
-				hcPartyKeysCache: {},
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			crypto: {
+				type: Object
+			},
+			hcPartyKeysCache: {
+				type: Object,
+				value: () => ({})
+			}
+		};
+	}
 
-				init: function() {
-					this.baseApi = this.api.hcparty()
-                    const proto = Object.getPrototypeOf(this.baseApi);
-                    Object.getOwnPropertyNames(proto).forEach((p)=> {
-                        if (p !== 'constructor' && p !== 'handleError' && proto[p] && typeof proto[p] === 'function') {
-							this[p] = this.baseApi[p].bind(this.baseApi)
-						}
-					})
-				},
+	constructor() {
+		super();
+	}
 
-				getHcPartyKeysForDelegate: function(healthcarePartyId) {
-					const cached = this.hcPartyKeysCache[healthcarePartyId]
-					return cached ? Promise.resolve(cached) : this.api.hcparty().getHcPartyKeysForDelegate(healthcarePartyId).then(r=>this.hcPartyKeysCache[healthcarePartyId] = r)
-				}
+	init() {
+		this.baseApi = this.api.hcparty();
+		const proto = Object.getPrototypeOf(this.baseApi);
+		Object.getOwnPropertyNames(proto).forEach(p => {
+			if (p !== 'constructor' && p !== 'handleError' && proto[p] && typeof proto[p] === 'function') {
+				this[p] = this.baseApi[p].bind(this.baseApi);
+			}
+		});
+	}
 
-			});
-		})();
-	</script>
+	getHcPartyKeysForDelegate(healthcarePartyId) {
+		const cached = this.hcPartyKeysCache[healthcarePartyId];
+		return cached ? Promise.resolve(cached) : this.api.hcparty().getHcPartyKeysForDelegate(healthcarePartyId).then(r => this.hcPartyKeysCache[healthcarePartyId] = r);
+	}
 
-@end
+}
+
+customElements.define(IccHcpartyXApi.is, IccHcpartyXApi);
+</script>

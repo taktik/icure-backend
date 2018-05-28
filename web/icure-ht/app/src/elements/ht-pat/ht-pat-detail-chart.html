@@ -1,0 +1,284 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<link rel="import" href="dynamic-form.html">
+
+<dom-module id="ht-pat-detail-chart">
+    <template>
+        <style include="icd-styles">
+            .form-title-bar-btn {
+                height: 20px;
+                width: 20px;
+                padding: 2px;
+            }
+            .horizontal vaadin-date-picker {
+                height: 90px;
+                padding-bottom: 0px;
+                @apply --padding-right-left-16
+            }
+
+            vaadin-grid.material {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
+
+                --vaadin-grid-header-cell: {
+                    height: 64px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                };
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
+            }
+
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 56px;
+            }
+
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.material .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            .link .ICD-10 span {
+                content: '';
+                display: inline-block;
+                height: 6px;
+                width: 6px;
+                border-radius: 3px;
+                margin-right: 3px;
+                margin-bottom: 1px;
+            }
+
+            paper-listbox {
+                min-width: 200px;
+            }
+
+            paper-menu-button {
+                padding: 0;
+            }
+        </style>
+
+        <ckmeans-grouping id="ckmeans-grouping" max-distance="1800000"></ckmeans-grouping>
+        <vaadin-chart>
+        </vaadin-chart>
+    </template>
+    <script>
+
+class HtPatDetailChart extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+    static get is() {
+        return 'ht-pat-detail-chart';
+    }
+
+    static get properties() {
+        return {
+            api: {
+                type: Object
+            },
+            user: {
+                type: Object
+            },
+            patient: {
+                type: Object,
+                value: null
+            },
+            contact: {
+                type: Object,
+                value: null
+            },
+            contacts: {
+                type: Array,
+                value: []
+            },
+            activeItem: {
+                type: Object
+            },
+            healthElements: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            },
+            currentContact: {
+                type: Object,
+                value: null
+            },
+            columns: {
+                type: Array,
+                value: null
+            },
+            clusters: {
+                type: Array,
+                value: null
+            },
+            labelsServices: {
+                type: Array,
+                value: null
+            }
+        };
+    }
+
+    static get observers() {
+        return ['_updateTable(contacts, contacts.*)', '_getPoint(contacts, contacts.*)'];
+    }
+
+    constructor() {
+        super();
+    }
+
+    _updateTable(contacts) {
+        const services = _.sortBy(_.flatMap(contacts, c => c.services.filter(s => this.api.contact().isNumeric(s, this.language) && !s.endOfLife)), ['modified']);
+        const datesServices = services.reduce((acc, s) => {
+            (acc[s.modified] || (acc[s.modified] = [])).push(s);
+            return acc;
+        }, {});
+        const labelsServices = services.reduce((acc, s) => {
+            (acc[s.label] || (acc[s.label] = { label: s.label, services: [] })).services.push(s);
+            return acc;
+        }, {});
+        this.set('labelsServices', labelsServices);
+        const clusters = Object.keys(datesServices).length > 2 ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => parseInt(d)))).clusters : _.sortBy(Object.keys(datesServices)).map(d => parseInt(d));
+        this.set('clusters', clusters);
+        const columns = clusters.map(a => this.averageDate(a)); //todo column cluster && ligne label
+        this.set('columns', columns);
+    }
+
+    averageDate(cluster) {
+        if (!cluster) {
+            return 0;
+        }
+        return cluster.reduce((acc, val) => {
+            return acc + val;
+        }, 0) / cluster.length;
+    }
+
+    _isNotInCurrentContact(currentContact, contact) {
+        return currentContact === null || contact !== currentContact;
+    }
+
+    _labels() {
+        return this.labelsServices ? Object.values(this.labelsServices) : [];
+    }
+
+    _columnsIndex(item, index) {
+        return item[index][0] ? this.api.moment(item[index][0]).format(item[index][0] > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
+    }
+
+    _shortDescription(svc) {
+        return this.api.contact().shortServiceDescription(svc, this.language);
+    }
+
+    _itemValueAtIndex(item, index) {
+        const services = item && item.services && item.services.filter(s => this.clusters[index] && this.clusters[index].includes(s.modified)) || [];
+        return services.length ? services : null;
+    }
+
+    _getPoint() {
+        const points = new chart.Chart(chart.ChartType.AREASPLINE);
+        points.setHeight("450px");
+
+        const conf = points.getConfiguration();
+
+        conf.setTitle(new charts.Title("Dates"));
+
+        const legend = new charts.Legend();
+        legend.setLayout(charts.LayoutDirection.VERTICAL);
+        legend.setAlign(charts.HorizontalAlign.LEFT);
+        legend.setFloating(true);
+        legend.setVerticalAlign(charts.VerticalAlign.TOP);
+        legend.setX(150);
+        legend.setY(100);
+        conf.setLegend(legend);
+
+        const xAxis = new charts.XAxis();
+        xAxis.setCategories(this.columns);
+        conf.addxAxis(xAxis);
+
+        const yAxis = new charts.YAxis();
+        yAxis.setTitle(new AxisTitle("Label"));
+        conf.addyAxis(yAxis);
+
+        const tooltip = new charts.Tooltip();
+        // Customize tooltip formatting
+        tooltip.setHeaderFormat("");
+        tooltip.setPointFormat("function(){ return this.x +': '+ this.y +' units';}");
+        conf.setTooltip(tooltip);
+
+        const plotOptions = new charts.PlotOptionsArea();
+        plotOptions.setFillOpacity(0.5);
+        conf.setPlotOptions(plotOptions);
+
+        this._labels().map((item, index) => {
+            const o = new charts.ListSeries(l.label);
+            this._itemValueAtIndex(item, index).map(i => {
+                o.addData(i);
+            });
+            conf.addSeries(0);
+        });
+
+        chart.drawChart(conf);
+
+        return chart;
+    }
+
+}
+
+customElements.define(HtPatDetailChart.is, HtPatDetailChart);
+</script>
+</dom-module>

@@ -8,68 +8,72 @@
 </dom-module>
 
 <script>
-	(function () {
-		Polymer({
-			is: 'icc-code-x-api',
-			properties: {
-				api: {
-					type: Object
-				},
-				crypto: {
-					type: Object
-				},
-				icd10: {
-					type: Object,
-					value: function () {
-						return require('./rsrc/icd10.json')
-					}
-				},
-				codeLanguages: {
-					type: Object,
-					value: function () {
-						return require('./rsrc/codelng.json')
-					}
-				},
-			},
-			behaviors: [],
+class IccCodeXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return 'icc-code-x-api';
+	}
 
-			init: function () {
-				this.baseApi = this.api.code()
-				const proto = Object.getPrototypeOf(this.baseApi)
-				Object.getOwnPropertyNames(proto).forEach((p) => {
-					if (p !== 'constructor' && p !== 'handleError' && proto[p] && typeof proto[p] === 'function') {
-						this[p] = this.baseApi[p].bind(this.baseApi)
-					}
-				})
+	static get properties() {
+		return {
+			api: {
+				type: Object
 			},
-
-			icdChapters: function (listOfCodes) {
-				return Promise.resolve(_.sortBy(_.values(_.reduce(_.fromPairs(listOfCodes.map(c => [c, _.toPairs(this.icd10).find(([k, v]) => {
-					const parts = k.split(/-/)
-					return c.substr(0, 3) >= parts[0] && c.substr(0, 3) <= parts[1]
-				})])), (a, v, k) => {
-					if (!v) {
-						return {}
-					}
-					const shortKey = v[0].substr(0, 2);
-					(a[shortKey] || (a[shortKey] = {code: shortKey, descr: v[1], subCodes: []})).subCodes.push(k)
-					return a
-				}, {})), c => c.shortKey))
+			crypto: {
+				type: Object
 			},
-
-			languageForType: function (type, lng) {
-                const availableLanguages = this.codeLanguages[type]
-				return availableLanguages && availableLanguages.indexOf(lng)>=0 ? lng : 'fr'
+			icd10: {
+				type: Object,
+				value: function () {
+					return require('./rsrc/icd10.json');
+				}
 			},
+			codeLanguages: {
+				type: Object,
+				value: function () {
+					return require('./rsrc/codelng.json');
+				}
+			}
+		};
+	}
 
-            normalize(c) {
-				return c instanceof String ? ({id: c, type: c.split(/\|/)[0], code: c.split(/\|/)[1], version: c.split(/\|/)[2]}) :
-                  c.type && c.code && !c.id ? ({id: c.type+'|'+c.code+'|'+(c.version || '1'), type: c.type, code:c.code, version: c.version || '1'}) :
-	                  c.id && (!c.code || !c.type || !c.version)  ? ({id: c.id, type: c.id.split(/\|/)[0], code: c.id.split(/\|/)[1], version: c.id.split(/\|/)[2]}) :
-                        ({id: c.id, type: c.type, code:c.code, version: c.version || '1'})
-            }
-		})
-	})()
+	constructor() {
+		super();
+	}
+
+	init() {
+		this.baseApi = this.api.code();
+		const proto = Object.getPrototypeOf(this.baseApi);
+		Object.getOwnPropertyNames(proto).forEach(p => {
+			if (p !== 'constructor' && p !== 'handleError' && proto[p] && typeof proto[p] === 'function') {
+				this[p] = this.baseApi[p].bind(this.baseApi);
+			}
+		});
+	}
+
+	icdChapters(listOfCodes) {
+		return Promise.resolve(_.sortBy(_.values(_.reduce(_.fromPairs(listOfCodes.map(c => [c, _.toPairs(this.icd10).find(([k, v]) => {
+			const parts = k.split(/-/);
+			return c.substr(0, 3) >= parts[0] && c.substr(0, 3) <= parts[1];
+		})])), (a, v, k) => {
+			if (!v) {
+				return {};
+			}
+			const shortKey = v[0].substr(0, 2);
+			(a[shortKey] || (a[shortKey] = { code: shortKey, descr: v[1], subCodes: [] })).subCodes.push(k);
+			return a;
+		}, {})), c => c.shortKey));
+	}
+
+	languageForType(type, lng) {
+		const availableLanguages = this.codeLanguages[type];
+		return availableLanguages && availableLanguages.indexOf(lng) >= 0 ? lng : 'fr';
+	}
+
+	normalize(c) {
+		return c instanceof String ? { id: c, type: c.split(/\|/)[0], code: c.split(/\|/)[1], version: c.split(/\|/)[2] } : c.type && c.code && !c.id ? { id: c.type + '|' + c.code + '|' + (c.version || '1'), type: c.type, code: c.code, version: c.version || '1' } : c.id && (!c.code || !c.type || !c.version) ? { id: c.id, type: c.id.split(/\|/)[0], code: c.id.split(/\|/)[1], version: c.id.split(/\|/)[2] } : { id: c.id, type: c.type, code: c.code, version: c.version || '1' };
+	}
+
+}
+
+customElements.define(IccCodeXApi.is, IccCodeXApi);
 </script>
-
-@end

@@ -14,44 +14,52 @@
 		</template>
 	</dom-module>
 
-	<script>
-		(function () {
-			Polymer({
-				is: 'fhc-eattestcontroller-api',
-				properties: {
-					headers: {
-						type: Object,
-						value: {"Content-Type": "application/json"}
-					},
-					host: {
-						type: String
-					}
-				},
-				behaviors: [],
-				sendAttestUsingPOST: function (patientSsin, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpFirstName, hcpLastName, hcpCbe, attest, date) {
-					var xhr = this.$.sendAttestUsingPOST
-					xhr.body = attest
+	<script>class FhcEattestcontrollerApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+	static get is() {
+		return "fhc-eattestcontroller-api";
+	}
 
-					xhr.url = this.host+"/eattest/send/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpCbe ? "&hcpCbe=" + hcpCbe : "") + (date ? "&date=" + date : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				sendAttestWithResponseUsingPOST: function (patientSsin, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpFirstName, hcpLastName, hcpCbe, attest, date) {
-					var xhr = this.$.sendAttestWithResponseUsingPOST
-					xhr.body = attest
+	static get properties() {
+		return {
+			headers: {
+				type: Object,
+				value: { "Content-Type": "application/json" }
+			},
+			host: {
+				type: String
+			}
+		};
+	}
 
-					xhr.url = this.host+"/eattest/send/{patientSsin}/verbose".replace("{patientSsin}", patientSsin) + "?ts=" + (new Date).getTime()  + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpCbe ? "&hcpCbe=" + hcpCbe : "") + (date ? "&date=" + date : "")
-					return xhr.generateRequest().completes.then(function (req) {
-						return req.response
-					})
-				},
-				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
-				}
-			});
-		})();
-	</script>
+	constructor() {
+		super();
+	}
 
-@end
+	sendAttestUsingPOST(patientSsin, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpFirstName, hcpLastName, hcpCbe, attest, date) {
+		var xhr = this.$.sendAttestUsingPOST;
+		xhr.body = attest;
+
+		xhr.url = this.host + "/eattest/send/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpCbe ? "&hcpCbe=" + hcpCbe : "") + (date ? "&date=" + date : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	sendAttestWithResponseUsingPOST(patientSsin, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpFirstName, hcpLastName, hcpCbe, attest, date) {
+		var xhr = this.$.sendAttestWithResponseUsingPOST;
+		xhr.body = attest;
+
+		xhr.url = this.host + "/eattest/send/{patientSsin}/verbose".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime() + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpCbe ? "&hcpCbe=" + hcpCbe : "") + (date ? "&date=" + date : "");
+		return xhr.generateRequest().completes.then(function (req) {
+			return req.response;
+		});
+	}
+
+	handleError(e) {
+		if (e.detail.request.status === 401) this.fire('auth-failed');else this.fire('api-error', e);
+	}
+
+}
+
+customElements.define(FhcEattestcontrollerApi.is, FhcEattestcontrollerApi);
+</script>

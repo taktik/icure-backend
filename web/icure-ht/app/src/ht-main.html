@@ -386,7 +386,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<div class="grid-container">
 			<div class="card latest-patients-card">
 				<div class="card-title-container">
-					<h1 class="card-title">Latest Patients</h1>
+					<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
 				</div>
 				<div class="card-body">
 					<template is="dom-repeat" items="[[accessLogs]]" as="access">
@@ -401,7 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card todays-consultations">
 				<div class="card-title-container">
-					<h1 class="card-title">Today's Appointment</h1>
+					<h1 class="card-title">[[localize('tod_app','Today‘s Appointment',language)]]</h1>
 				</div>
 				<div class="card-body">
 					<div class="consultations-list">
@@ -419,13 +419,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card latest-lab-result">
 				<div class="card-title-container">
-					<h1 class="card-title new-notif">Latest Lab Results</h1>
+					<h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
 				</div>
 				<div class="card-body">
 					<div class="card-table-header row">
 						<div class="card-header-cell">Sender</div>
-						<div class="card-header-cell card-header-cell--date">Date</div>
-						<div class="card-header-cell">Subject</div>
+						<div class="card-header-cell card-header-cell--date">[[localize('dat','Date',language)]]</div>
+						<div class="card-header-cell">[[localize('sub','Subject',language)]]</div>
 					</div>
 					<template is="dom-repeat" items="[[messages]]" as="msg">
 						<div class="row card-table-row" data-id$="[[msg.formId]]" on-tap="openMessage">
@@ -438,13 +438,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<div class="card todo-card">
 				<div class="card-title-container">
-					<h1 class="card-title">Planning</h1>
+					<h1 class="card-title">[[localize('pla','Planning',language)]]</h1>
 				</div>
 				<div class="card-body">
 					<div class="card-table-header row">
-						<div class="card-header-cell">Patient</div>
-						<div class="card-header-cell card-header-cell--date">Due date</div>
-						<div class="card-header-cell">Description</div>
+						<div class="card-header-cell">[[localize('pati','Patient',language)]]</div>
+						<div class="card-header-cell card-header-cell--date">[[localize('due_dat','Due date',language)]]</div>
+						<div class="card-header-cell">[[localize('des','Description',language)]]</div>
 					</div>
 					<template is="dom-repeat" items="[[services]]" as="service">
 						<paper-listbox>
@@ -469,168 +469,177 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	</template>
 
 	<script>
-		// TODO 1 : collapse card
 
-		import moment from 'moment/src/moment'
-		import _ from 'lodash/lodash'
-        import * as models from './elements/icc-api/model/models';
+// TODO 1 : collapse card
 
-		Polymer({
-			is: 'ht-main',
-			properties: {
-				api: {
-					type: Object
-				},
-				language: {
-					type: String,
-					value: 'en'
-				},
-				user: {
-					type: Object
-				},
-				accessLogs: {
-					type: Array,
-					value: function () {
-						return []
-					}
-				},
-				appointments: {
-					type: Array,
-					value: function () {
-						return []
-					}
-				},
-                messages: {
-                    type: Array,
-                    value: function () {
-                        return []
-                    }
-                },
-                labres: {
-                    type: Array,
-                    value: function () {
-                        return []
-                    }
-                },
-                services:{
-				    type: Array,
-					value: function(){
-				        return[]
-					}
+import moment from 'moment/src/moment';
+import _ from 'lodash/lodash';
+import * as models from './elements/icc-api/model/models';
+
+class HtMain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'ht-main';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			user: {
+				type: Object
+			},
+			accessLogs: {
+				type: Array,
+				value: function () {
+					return [];
 				}
 			},
-			ready() {
-				this.api.hcparty().getCurrentHealthcareParty()
-					.then(hcp => {
-						const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
-						language && this.set('language', language)
-						return hcp
-					})
-					.then(hcp => {
-						this.api.accesslog().findByUserAfterDate(this.user.id, 'USER_ACCESS', (+new Date()) - 1000 * 3600 * 24 * 365, null, null, 1000, true)
-							.then(accessLogs => {
-								const accesses = accessLogs.rows.reduce((acc, access) => {
-									const latestAccessForPatId = (acc[access.patientId] || (acc[access.patientId] = {access: access}))
-									if (latestAccessForPatId.access.date < access.date) {
-										latestAccessForPatId.access = access
-									}
-									return acc
-								}, {})
-								return this.api.patient().getPatients({ids: Object.keys(accesses)}).then(patients => {
-									patients.forEach(p => accesses[p.id] && (accesses[p.id].patient = p))
-									return accesses
-								})
-							})
-							.then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)))
-
-
-							this.api.message().findMessagesByToAddress('INBOX',null, null, 1000)
-								.then(messages => {
-							    	messages.rows.forEach(function(m, index, messages){if(m.status && (1 << 1) == 0){messages.splice(index, 1)}})//todo refaire reduce
-							    	messages.rows.sort(function(a,b){return (a.status && (1 << 0) - b.status && (1 << 0))} )
-									return messages.rows
-								})
-							.then(messages => this.set('messages', messages|| []))
-
-						this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD')))
-							.then(appointments => {
-								return appointments && this.api.patient().getPatients(new models.ListOfIdsDto({ids: appointments.map(a => a.patientId)})).then(patients => {//todo wtf JSON not valid
-									patients.forEach((p,idx) => appointments[idx].patient = p)
-									return appointments
-								})
-							})
-							.then(appointments => this.set('appointments', appointments || []))
-
-						const start = parseInt(moment().subtract(1,'month').format('YYYYMMDD'))
-						const end = parseInt(moment().add(1,'month').format('YYYYMMDD'))
-						const maxplanningsize = 10
-                        const sort = 'valueDate'
-                        const desc = 'desc'
-
-						const planningFilter = {'$type':'UnionFilter','filters':[{'$type':'ServiceByHcPartyTagCodeDateFilter',healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start, endValueDate:end},{'$type':'ServiceByHcPartyTagCodeDateFilter', healthcarePartyId:hcp.id, tagCode:'planned', tagType:'CD-LIFECYCLE', startValueDate:start*1000000, endValueDate:end*1000000}]}
-						this.api.contact().filterServicesBy(null,null,1000,new models.FilterChain({filter:planningFilter}))//todo wtf JSON not valid
-							.then(planningList => {
-                                const svcDict = planningList.rows.reduce((acc,s) => {
-                                    const cs = acc[s.id]
-                                    if (!cs || !cs.modified || (s.modified && this.api.after(s.modified, cs.modified))) { acc[s.id] = s }
-                                    return acc
-                                }, {})
-                                const services = _.sortBy(Object.values(svcDict).filter(s=>!s.endOfLife), [s=>+this.api.moment(/*s.modified||s.created||*/s.valueDate)])
-                                const hcpId = this.user.healthcarePartyId
-
-                                const ownersOfDelegations = services.reduce((acc,s)=>{s.cryptedForeignKeys[hcpId].forEach(d=>acc[d.owner]=1); return acc},{})
-                                const importedAESHcPartyKeys = {}
-
-                                return this.api.hcparty().getHcPartyKeysForDelegate(hcpId)
-                                    .then(keys => Promise.all(
-                                        Object.keys(ownersOfDelegations).map(
-                                            ownerId=>this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId])
-												.then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey))))
-                                    .then(() => Promise.all(services.map(
-                                        s=>Promise.all(s.cryptedForeignKeys[hcpId].map(
-                                            k=>this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key)))).then(patIds=>{
-                                                const decodedPatIds = patIds.map(ua=>this.api.crypto().utils.ua2text(ua).split(':')[1])
-                                                s.patId = decodedPatIds.find(id=>id!=null); return decodedPatIds
-                                            }))))
-                                    .then(arraysOfArraysOfPatIdsAsUa => {
-                                        return this.api.patient().filterBy(null, null, maxplanningsize , /*index*/ null, sort, desc, {
-                                            filter: {
-                                                '$type': 'PatientByIdsFilter',
-                                                'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa)))
-                                            }
-                                        })
-                                    }).then(patients =>  services.map(s=>({service:s, patient:patients.rows.find(p=>p.id===s.patId)})))
-							}).then(services => this.set('services', (services || []).filter(it=>it.patient)))
-					})
-
-			},
-
-			_timeFormat: function (date) {
-				return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || ''
-			},
-
-			_shortTimeFormat: function (date) {
-				return date && this.api.moment(date).format(date > 99991231 ? 'HH:mm' : 'DD/MM/YYYY') || ''
-			},
-
-			picture: function (pat) {
-				if (!pat) {
-					return require('../images/Male-128.jpg')
+			appointments: {
+				type: Array,
+				value: function () {
+					return [];
 				}
-				return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../images/Female-128.jpg') : require('../images/Male-128.jpg')
 			},
-
-			openPatient: function(ev) {
-				let target = ev.target
-				while(target && !target.dataset.id) { target = target.parentNode }
-				location.replace(location.href.replace(/(.+?)\/#\/main.*/,  `$1/#/pat/${target.dataset.id}`));
+			messages: {
+				type: Array,
+				value: function () {
+					return [];
+				}
 			},
+			labres: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+			},
+			services: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+			}
+		};
+	}
 
-            openMessage: function(ev) {
-                let target = ev.target
-                while(target && !target.dataset.id) { target = target.parentNode }
-                location.replace(location.href.replace(/(.+?)\/#\/main.*/,  `$1/#/msg/${target.dataset.id}`));
-            }
-		})
-	</script>
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+
+		this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+			const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2);
+			language && this.set('language', language);
+			return hcp;
+		}).then(hcp => {
+			this.api.accesslog().findByUserAfterDate(this.user.id, 'USER_ACCESS', +new Date() - 1000 * 3600 * 24 * 365, null, null, 1000, true).then(accessLogs => {
+				const accesses = accessLogs.rows.reduce((acc, access) => {
+					const latestAccessForPatId = acc[access.patientId] || (acc[access.patientId] = { access: access });
+					if (latestAccessForPatId.access.date < access.date) {
+						latestAccessForPatId.access = access;
+					}
+					return acc;
+				}, {});
+				return this.api.patient().getPatients({ ids: Object.keys(accesses) }).then(patients => {
+					patients.forEach(p => accesses[p.id] && (accesses[p.id].patient = p));
+					return accesses;
+				});
+			}).then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)));
+
+			this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+				messages.rows.forEach(function (m, index, messages) {
+					if (m.status && 1 << 1 == 0) {
+						messages.splice(index, 1);
+					}
+				}); //todo refaire reduce
+				messages.rows.sort(function (a, b) {
+					return a.status && (1 << 0) - b.status && 1 << 0;
+				});
+				return messages.rows;
+			}).then(messages => this.set('messages', messages || []));
+
+			this.api.bemikrono().appointments(parseInt(moment().format('YYYYMMDD'))).then(appointments => {
+				return appointments && this.api.patient().getPatients(new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
+					//todo wtf JSON not valid
+					patients.forEach((p, idx) => appointments[idx].patient = p);
+					return appointments;
+				});
+			}).then(appointments => this.set('appointments', appointments || []));
+
+			const start = parseInt(moment().subtract(1, 'month').format('YYYYMMDD'));
+			const end = parseInt(moment().add(1, 'month').format('YYYYMMDD'));
+			const maxplanningsize = 10;
+			const sort = 'valueDate';
+			const desc = 'desc';
+
+			const planningFilter = { '$type': 'UnionFilter', 'filters': [{ '$type': 'ServiceByHcPartyTagCodeDateFilter', healthcarePartyId: hcp.id, tagCode: 'planned', tagType: 'CD-LIFECYCLE', startValueDate: start, endValueDate: end }, { '$type': 'ServiceByHcPartyTagCodeDateFilter', healthcarePartyId: hcp.id, tagCode: 'planned', tagType: 'CD-LIFECYCLE', startValueDate: start * 1000000, endValueDate: end * 1000000 }] };
+			this.api.contact().filterServicesBy(null, null, 1000, new models.FilterChain({ filter: planningFilter })) //todo wtf JSON not valid
+			.then(planningList => {
+				const svcDict = planningList.rows.reduce((acc, s) => {
+					const cs = acc[s.id];
+					if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
+						acc[s.id] = s;
+					}
+					return acc;
+				}, {});
+				const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment( /*s.modified||s.created||*/s.valueDate)]);
+				const hcpId = this.user.healthcarePartyId;
+
+				const ownersOfDelegations = services.reduce((acc, s) => {
+					s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1);return acc;
+				}, {});
+				const importedAESHcPartyKeys = {};
+
+				return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key)))).then(patIds => {
+					const decodedPatIds = patIds.map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1]);
+					s.patId = decodedPatIds.find(id => id != null);return decodedPatIds;
+				})))).then(arraysOfArraysOfPatIdsAsUa => {
+					return this.api.patient().filterBy(null, null, maxplanningsize, /*index*/null, sort, desc, {
+						filter: {
+							'$type': 'PatientByIdsFilter',
+							'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa)))
+						}
+					});
+				}).then(patients => services.map(s => ({ service: s, patient: patients.rows.find(p => p.id === s.patId) })));
+			}).then(services => this.set('services', (services || []).filter(it => it.patient)));
+		});
+	}
+
+	_timeFormat(date) {
+		return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+	}
+
+	_shortTimeFormat(date) {
+		return date && this.api.moment(date).format(date > 99991231 ? 'HH:mm' : 'DD/MM/YYYY') || '';
+	}
+
+	picture(pat) {
+		if (!pat) {
+			return require('../images/Male-128.jpg');
+		}
+		return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../images/Female-128.jpg') : require('../images/Male-128.jpg');
+	}
+
+	openPatient(ev) {
+		let target = ev.target;
+		while (target && !target.dataset.id) {
+			target = target.parentNode;
+		}
+		location.replace(location.href.replace(/(.+?)\/#\/main.*/, `$1/#/pat/${target.dataset.id}`));
+	}
+
+	openMessage(ev) {
+		let target = ev.target;
+		while (target && !target.dataset.id) {
+			target = target.parentNode;
+		}
+		location.replace(location.href.replace(/(.+?)\/#\/main.*/, `$1/#/msg/${target.dataset.id}`));
+	}
+
+}
+
+customElements.define(HtMain.is, HtMain);
+</script>
 </dom-module>

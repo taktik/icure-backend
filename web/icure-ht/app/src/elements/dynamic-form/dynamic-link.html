@@ -46,46 +46,49 @@
         </paper-menu-button>
     </template>
     <script>
-        class DynamicLink extends Polymer.mixinBehaviors([], Polymer.Element) {
-            static get is() {
-                return 'dynamic-link'
-            }
 
-            static get properties() {
-                return {
-                    linkables: {
-                        type: Array,
-                        value: function () {
-                            return []
-                        }
-                    },
-                    representedObject: {
-                        type: Object
-                    }
+class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+    static get is() {
+        return 'dynamic-link';
+    }
+
+    static get properties() {
+        return {
+            linkables: {
+                type: Array,
+                value: function () {
+                    return [];
                 }
+            },
+            representedObject: {
+                type: Object
             }
+        };
+    }
 
-            static get observers() {
-                return [  ]
-            }
+    static get observers() {
+        return [];
+    }
 
-            ready() {
-                super.ready()
-            }
+    ready() {
+        super.ready();
+    }
 
-            _show(e) {
-            	e.preventDefault()
-                e.stopPropagation()
-            	this.$.mb.open()
-            }
+    _show(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.$.mb.open();
+    }
 
-            link(e, target) {
-                const he = this.linkables.find(he=>he.id === e.target.id)
-                if (!he) {return}
-                this.dispatchEvent(new CustomEvent('link-to-health-element', {bubbles: true, composed: true, detail: {representedObject: this.representedObject, healthElement:he}}));
-            }
-
+    link(e, target) {
+        const he = this.linkables.find(he => he.id === e.target.id);
+        if (!he) {
+            return;
         }
-        customElements.define(DynamicLink.is, DynamicLink)
-    </script>
+        this.dispatchEvent(new CustomEvent('link-to-health-element', { bubbles: true, composed: true, detail: { representedObject: this.representedObject, healthElement: he } }));
+    }
+
+}
+customElements.define(DynamicLink.is, DynamicLink);
+</script>
 </dom-module>

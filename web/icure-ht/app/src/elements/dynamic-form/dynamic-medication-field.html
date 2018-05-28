@@ -250,13 +250,13 @@
 		<label hidden$="[[!label]]" aria-hidden="true">
 			<span>[[label]]</span>
 		</label>
-		<dynamic-link linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 
 		<template is="dom-if" if="[[wasModified]]">
 			<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 		</template>
 		<template is="dom-if" if="[[isModifiedAfter]]">
-			<span class="modified-after-out">obsolete value<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
+			<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 		</template>
 
 		<ul>
@@ -265,10 +265,10 @@
 		</template>
 		</ul>
 
-		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a on-tap="addMedication()">Add prescription drug</a>
+		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a on-tap="addMedication()">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
 
 		<paper-dialog id="medication-selection" always-on-top="true">
-			<h2 class="modal-title">Select medication</h2>
+			<h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
 			<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 			<vaadin-grid id="entities-list" class="material" active-item="{{selectedMedicationFromList}}" on-tap="click">
 				<template is="dom-repeat" items="[[columns]]" as="column">
@@ -283,21 +283,21 @@
 				</template>
 			</vaadin-grid>
 			<div class="buttons">
-				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">Cancel</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">Select</paper-button>
+				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
 		<paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
-			<h2 class="modal-title">Medication detail</h2>
+			<h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
 			<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
 				<template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
 					<div class="regimen-line">
 						<paper-dropdown-menu label="Frequency" class="regimen--frequency">
 							<paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-iron-select="_selectFrequency">
-								<paper-item id="daily">Daily</paper-item>
-								<paper-item id="weekly">Weekly</paper-item>
-								<paper-item id="monthly">Monthly</paper-item>
+								<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
+								<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+								<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
 							</paper-listbox>
 						</paper-dropdown-menu>
 						<template is="dom-if" if="[[rg.weekday]]">
@@ -336,316 +336,355 @@
 
 
 
-			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>Add posology regimen</paper-button>
+			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>[[localize('add_pos_reg','Add posology regimen',language)]]</paper-button>
 			<div class="buttons">
-				<paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">Save</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
 	</template>
 	<script>
-		import accounting from '../../../scripts/accounting'
 
-		Polymer({
-			is: 'dynamic-medication-field',
-			properties: {
-				api: {
-					type: Object
-				},
-				wasModified: {
-					type: Boolean
-				},
-				isModifiedAfter: {
-					type: Boolean
-				},
-				readOnly: {
-					type: Boolean,
-					value: false
-				},
-				lastModified: {
-					type: String
-				},
-				label: {
-					type: String
-				},
-				context: {
-					type: String
-				},
-				value: {
-					type: Array,
-					notify: true,
-					value: function () {
-						return []
-					}
-				},
-				shelf: { //Where the items from value are stored during a move
-					type: Array,
-					notify: true,
-					value: function () {
-						return []
-					}
-				},
-				localizedValue: {
-					type: Array,
-					value: function () {
-						return []
-					}
-				},
-				input: {
-					type: String,
-				},
-				language: {
-					type: String
-				},
-				width: {
-					type: Number,
-					value: 48,
-					observer: '_widthChanged'
-				},
-				columns: {
-					type: Array,
-					value: function() { return [{key: 'name', title: 'Name', size: '400px'}, {key: 'pricepatstd', title: 'Price pat.'}, {key: 'pubprice', title: 'Price'}] }
-				},
+import accounting from '../../../scripts/accounting';
 
-				entityType: {
-					type: String,
-					value: 'entity'
-				},
+class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'dynamic-medication-field';
+	}
 
-				dataProvider: {
-					type: Object,
-					value: null
-				},
-
-				selectedMedicationFromList: {
-					type: Object,
-					value: null,
-					observer: "_selectedMedicationFromListChanged"
-				},
-				selectedMedicationContentWithId: {
-					type: Object,
-					value: null
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			wasModified: {
+				type: Boolean
+			},
+			isModifiedAfter: {
+				type: Boolean
+			},
+			readOnly: {
+				type: Boolean,
+				value: false
+			},
+			lastModified: {
+				type: String
+			},
+			label: {
+				type: String
+			},
+			context: {
+				type: String
+			},
+			value: {
+				type: Array,
+				notify: true,
+				value: function () {
+					return [];
 				}
 			},
-			observers: ['_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)'],
-			ready: function () {
-				var grid = this.$['entities-list']
-
-				grid.lastParams = null //Used to prevent double calls
-				grid.size = 0
-				grid.pageSize = 50
-				grid.dataProvider = function (params, callback) {
-					const sort = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path) || (this.columns[0] && this.columns[0].key)
-					const desc = (params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc') || false
-
-					const pageSize = (params.pageSize || grid.pageSize)
-					const startIndex = (params.page || 0) * pageSize
-					const endIndex = ((params.page || 0) + 1) * pageSize
-
-					const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
-
-					let latestSearchValue = this.filterValue
-					this.latestSearchValue = latestSearchValue
-					if (!latestSearchValue || latestSearchValue.length < 2) {
-						console.log("Cancelling empty search")
-						grid.set("size", 0)
-						callback([])
-						return
-					}
-
-					grid.lastParams = thisParams
-					console.log("Starting search for " + thisParams)
-
-					const limit = endIndex || grid.pageSize
-					const offset = params.index
-
-					this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
-						return {totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)}
-					}).then(function (res) {
-						if (this.filterValue !== latestSearchValue) {
-							console.log("Cancelling obsolete search")
-							return
-						}
-						if (grid.size !== res.totalSize) {
-							grid.set("size", res.totalSize)
-						}
-						callback(_.slice(res.rows, startIndex, endIndex))
-					}.bind(this))
-				}.bind(this)
+			shelf: { //Where the items from value are stored during a move
+				type: Array,
+				notify: true,
+				value: function () {
+					return [];
+				}
+			},
+			localizedValue: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+			},
+			input: {
+				type: String
+			},
+			width: {
+				type: Number,
+				value: 48,
+				observer: '_widthChanged'
+			},
+			columns: {
+				type: Array,
+				value: function () {
+					return [{ key: 'name', title: 'Name', size: '400px' }, { key: 'pricepatstd', title: 'Price pat.' }, { key: 'pubprice', title: 'Price' }];
+				}
 			},
 
-			_cellContent: function(item, column) {
-				return column.key.indexOf("price")!==-1?accounting.formatMoney(_.get(item,column.key)/100, "€", 2, " ", ",") :_.get(item,column.key)
+			entityType: {
+				type: String,
+				value: 'entity'
 			},
 
-			_columnWidth: function(column) {
-				return column.size||"100px"
+			dataProvider: {
+				type: Object,
+				value: null
 			},
 
-			click: function (e) {
-				const selected = this.selectedMedicationFromList
+			selectedMedicationFromList: {
+				type: Object,
+				value: null,
+				observer: "_selectedMedicationFromListChanged"
+			},
+			selectedMedicationContentWithId: {
+				type: Object,
+				value: null
+			}
+		};
+	}
 
-				console.log('selected ' + selected + ' - ' + this.latestSelected)
-				if (this.inDoubleClick && ((this.latestSelected === selected) || (this.latestSelected && !selected) || (!this.latestSelected && selected))) {
-					this.select(this.latestSelected)
+	static get observers() {
+		return ['_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)'];
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+
+		var grid = this.$['entities-list'];
+
+		grid.lastParams = null; //Used to prevent double calls
+		grid.size = 0;
+		grid.pageSize = 50;
+		grid.dataProvider = function (params, callback) {
+			const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || this.columns[0] && this.columns[0].key;
+			const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
+
+			const pageSize = params.pageSize || grid.pageSize;
+			const startIndex = (params.page || 0) * pageSize;
+			const endIndex = ((params.page || 0) + 1) * pageSize;
+
+			const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":";
+
+			let latestSearchValue = this.filterValue;
+			this.latestSearchValue = latestSearchValue;
+			if (!latestSearchValue || latestSearchValue.length < 2) {
+				console.log("Cancelling empty search");
+				grid.set("size", 0);
+				callback([]);
+				return;
+			}
+
+			grid.lastParams = thisParams;
+			console.log("Starting search for " + thisParams);
+
+			const limit = endIndex || grid.pageSize;
+			const offset = params.index;
+
+			this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
+				return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
+			}).then(function (res) {
+				if (this.filterValue !== latestSearchValue) {
+					console.log("Cancelling obsolete search");
+					return;
+				}
+				if (grid.size !== res.totalSize) {
+					grid.set("size", res.totalSize);
+				}
+				callback(_.slice(res.rows, startIndex, endIndex));
+			}.bind(this));
+		}.bind(this);
+	}
+
+	_cellContent(item, column) {
+		return column.key.indexOf("price") !== -1 ? accounting.formatMoney(_.get(item, column.key) / 100, "€", 2, " ", ",") : _.get(item, column.key);
+	}
+
+	_columnWidth(column) {
+		return column.size || "100px";
+	}
+
+	click(e) {
+		const selected = this.selectedMedicationFromList;
+
+		console.log('selected ' + selected + ' - ' + this.latestSelected);
+		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
+			this.select(this.latestSelected);
+		} else {
+			this.latestSelected = selected;
+			this.inDoubleClick = true;
+			setTimeout(() => {
+				delete this.inDoubleClick;
+			}, 500);
+		}
+	}
+
+	refresh() {
+		//Give the gui the time to update the field
+		setTimeout(function () {
+			let currentValue = this.filterValue;
+
+			if (this.latestSearchValue === currentValue) {
+				return;
+			}
+			setTimeout(function () {
+				if (currentValue === this.filterValue) {
+					console.log("Triggering search for " + this.filterValue);
+					this.$['entities-list'].clearCache();
 				} else {
-					this.latestSelected = selected
-					this.inDoubleClick = true
-					setTimeout(() => {
-						delete this.inDoubleClick
-					}, 500)
+					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
 				}
+			}.bind(this), 500); //Wait for the user to stop typing
+		}.bind(this), 100);
+	}
 
-			},
+	confirm() {
+		if (this.selectedMedicationFromList) {
+			this.select(this.selectedMedicationFromList);
+		}
+	}
 
-			refresh: function () {
-				//Give the gui the time to update the field
-				setTimeout(function () {
-					let currentValue = this.filterValue
+	skip() {
+		if (this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.isNew && this.selectedMedicationContentWithId.id) {
+			const currentId = this.selectedMedicationContentWithId.id;
+			this.select(null);
+			this.splice('value', this.value.findIndex(s => s.id === currentId), 1);
+		}
+	}
 
-					if (this.latestSearchValue === currentValue) {
-						return
-					}
-					setTimeout(function () {
-						if (currentValue === this.filterValue) {
-							console.log("Triggering search for " + this.filterValue)
-							this.$['entities-list'].clearCache()
-						} else {
-							console.log("Skipping search for " + this.filterValue + " != " + currentValue)
-						}
-					}.bind(this), 500) //Wait for the user to stop typing
-				}.bind(this), 100)
-			},
+	close() {}
 
-			confirm: function() {
-				if (this.selectedMedicationFromList) { this.select(this.selectedMedicationFromList) }
-			},
+	select(item) {
+		if (item) {
+			this.selectMedicationFromList(item);
+			this.$['medication-selection'].close();
+		}
+	}
 
-			skip: function() {
-				if (this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.isNew && this.selectedMedicationContentWithId.id) {
-					const currentId = this.selectedMedicationContentWithId.id
-					this.select(null)
-					this.splice('value',this.value.findIndex(s=>s.id===currentId), 1)
-				}
-			},
+	_selectedMedicationFromListChanged(item) {
+		var grid = this.$['entities-list'];
+		grid.selectedItems = item ? [item] : [];
+	}
 
-			close: function() {},
+	_localizedValueChanged(change) {
+		const current = this.value;
+		const modified = this.localizedValue;
+		const newValue = [];
 
-			select: function(item) {
-				if (item) {
-					this.selectMedicationFromList(item)
-					this.$['medication-selection'].close()
-				}
-			},
+		modified.forEach((m, idx) => {
+			const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id);
+			if (existing) {
+				newValue.push(_.extend(existing, { index: idx }));
+				_.pull(current, existing);
+			} else {
+				newValue.push({ id: this.api.crypto().randomUuid(), index: idx, content: _.fromPairs([[this.language, { stringValue: m.stringValue }]]) });
+			}
+		});
 
-			_selectedMedicationFromListChanged: function(item) {
-				var grid = this.$['entities-list']
-				grid.selectedItems = item ? [item] : [];
-			},
-			_localizedValueChanged: function (change) {
-				const current = this.value
-				const modified = this.localizedValue
-				const newValue = []
+		this.shelf = current;
+		this.set('value', newValue);
+	}
 
-				modified.forEach((m, idx) => {
-					const existing = current.find(e => m.id === e.id) || this.shelf.find(e => m.id === e.id)
-					if (existing) {
-						newValue.push(_.extend(existing, {index: idx}))
-						_.pull(current, existing)
-					} else {
-						newValue.push({id: this.api.crypto().randomUuid(), index: idx, content: _.fromPairs([[this.language, {stringValue: m.stringValue}]])})
-					}
-				})
+	_widthChanged(width) {
+		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
+	}
 
-				this.shelf = current
-				this.set('value', newValue)
-			},
-			_widthChanged: function (width) {
-				this.updateStyles({'--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%'})
-			},
-			_localizedValue: function (value) {
-				return value && _.compact(_.sortBy(value, 'index').map(v => v && v.content && this.localizedMedicationValueWithId(v.id, v.content, this.language))) || []
-			},
-			_valueChanged: function () {
-				let localizedValue = this._localizedValue(this.value)
-				if (!_.isEqual(localizedValue, this.localizedValue)) {
-					this.set('localizedValue', localizedValue)
-					this.dispatchEvent(new CustomEvent('field-changed', {detail: {context: this.context, value: this.value}}))
-				}
-			},
-			localizedMedicationValueWithId: function (id, e, lng) {
-				if (!e) {
-					return null
-				}
-				let content = e[lng] || e.fr || e.en || e.nl
-				return content && {id: id, stringValue: this.api.contact().medication().medicationToString(content.medicationValue, this.language || 'fr')}
-			},
-			extractContentWithIdFromMedicationService(m, isNew) {
-				return {id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {medicationValue: {regimen:[]}})).medicationValue, isNew:isNew||false}
-			},
-			addMedication: function() {
-				const id = this.api.crypto().randomUuid()
-				this.push('value', {id: id, index: this.value.reduce((acc,v)=>Math.max(v.index,acc),0)+1, content: _.fromPairs([[this.language, {medicationValue: {regimen:[]}}]])})
+	_localizedValue(value) {
+		return value && _.compact(_.sortBy(value, 'index').map(v => v && v.content && this.localizedMedicationValueWithId(v.id, v.content, this.language))) || [];
+	}
 
-				const item = this.value.find(s=>s.id===id)
-				this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item, true))
-				this.$['medication-selection'].open()
-			},
-			editMedication: function(el) {
-				const id = el.target.parentElement.parentElement.id
-				const item = this.value.find(s=>s.id===id)
-				if (item) {
-					this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item))
-					this.$['medication-detail'].open()
-				}
-			},
-			clearMedication: function(el) {
-				const id = el.target.parentElement.parentElement.id
-				this.set('selectedMedicationContentWithId',null)
-				this.splice('value',this.value.findIndex(s=>s.id===id), 1)
-			},
-			selectMedicationFromList: function(med) {
-				this.api.bedrugs().getMppInfos(med.id.id,this.language==='en'?'fr':this.language||'fr').then((mppInfos)=>{
-					this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {"intendedname":med.name, "intendedcds":[{type:"CD-DRUG-CNK",code:med.id.id}]})
-					this.set('selectedMedicationContentWithId.medicationValue.regimen', [{weekday:null,date:null,administratedQuantity:{quantity:1,unit:mppInfos.gal.name}}])
-					this.$['medication-detail'].open()
-				})
-			},
-			addPosologyRegimen: function() {
-				const reg = this.selectedMedicationContentWithId.medicationValue.regimen
-				this.push('selectedMedicationContentWithId.medicationValue.regimen',{weekday:null,date:null,administratedQuantity:{quantity:1,unit:reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit}})
-			},
-			clearPosologyRegimen: function(event, target) {
-				const rgModel = this.$.rgRepeat.modelForElement(event.target)
-				this.splice('selectedMedicationContentWithId.medicationValue.regimen',this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1)
-			},
-			_localize(s) {
-				return this.api.contact().medication().localize(s, this.language)
-			},
-			_selectedFrequency(rg) {
-				return rg.weekday !== null && rg.weekday !== undefined ? 1 : rg.date ? 2 : 0
-			},
-			_selectFrequency(event, target) {
-				const rgModel = this.$.rgRepeat.modelForElement(event.target)
-				if (!rgModel) { return }
-				if (target.item.id === 'daily') {
-					rgModel.set('rg.weekday',null)
-					rgModel.set('rg.date',null)
-				} else if (target.item.id === 'weekly') {
-					rgModel.set('rg.weekday',{})
-					rgModel.set('rg.date',null)
-				} else if (target.item.id === 'monthly') {
-					rgModel.set('rg.weekday',null)
-					rgModel.set('rg.date',-1)
-				}
-				this._valueChanged()
-			},
-			_selectDayPeriod(event, target) {
-				const rgModel = this.$.rgRepeat.modelForElement(event.target)
-				if (!rgModel) { return }
-				rgModel.set('rg.dayPeriod',{type:"CD-DAYPERIOD",code:target.item.id})
-				this._valueChanged()
-			},
-		})
-	</script>
+	_valueChanged() {
+		let localizedValue = this._localizedValue(this.value);
+		if (!_.isEqual(localizedValue, this.localizedValue)) {
+			this.set('localizedValue', localizedValue);
+			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
+		}
+	}
+
+	localizedMedicationValueWithId(id, e, lng) {
+		if (!e) {
+			return null;
+		}
+		let content = e[lng] || e.fr || e.en || e.nl;
+		return content && { id: id, stringValue: this.api.contact().medication().medicationToString(content.medicationValue, this.language || 'fr') };
+	}
+
+	extractContentWithIdFromMedicationService(m, isNew) {
+		return { id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue, isNew: isNew || false };
+	}
+
+	addMedication() {
+		const id = this.api.crypto().randomUuid();
+		this.push('value', { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) });
+
+		const item = this.value.find(s => s.id === id);
+		this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item, true));
+		this.$['medication-selection'].open();
+	}
+
+	editMedication(el) {
+		const id = el.target.parentElement.parentElement.id;
+		const item = this.value.find(s => s.id === id);
+		if (item) {
+			this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item));
+			this.$['medication-detail'].open();
+		}
+	}
+
+	clearMedication(el) {
+		const id = el.target.parentElement.parentElement.id;
+		this.set('selectedMedicationContentWithId', null);
+		this.splice('value', this.value.findIndex(s => s.id === id), 1);
+	}
+
+	selectMedicationFromList(med) {
+		this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
+			this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', { "intendedname": med.name, "intendedcds": [{ type: "CD-DRUG-CNK", code: med.id.id }] });
+			this.set('selectedMedicationContentWithId.medicationValue.regimen', [{ weekday: null, date: null, administratedQuantity: { quantity: 1, unit: mppInfos.gal.name } }]);
+			this.$['medication-detail'].open();
+		});
+	}
+
+	addPosologyRegimen() {
+		const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
+		this.push('selectedMedicationContentWithId.medicationValue.regimen', { weekday: null, date: null, administratedQuantity: { quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit } });
+	}
+
+	clearPosologyRegimen(event, target) {
+		const rgModel = this.$.rgRepeat.modelForElement(event.target);
+		this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1);
+	}
+
+	_localize(s) {
+		return this.api.contact().medication().localize(s, this.language);
+	}
+
+	_selectedFrequency(rg) {
+		return rg.weekday !== null && rg.weekday !== undefined ? 1 : rg.date ? 2 : 0;
+	}
+
+	_selectFrequency(event, target) {
+		const rgModel = this.$.rgRepeat.modelForElement(event.target);
+		if (!rgModel) {
+			return;
+		}
+		if (target.item.id === 'daily') {
+			rgModel.set('rg.weekday', null);
+			rgModel.set('rg.date', null);
+		} else if (target.item.id === 'weekly') {
+			rgModel.set('rg.weekday', {});
+			rgModel.set('rg.date', null);
+		} else if (target.item.id === 'monthly') {
+			rgModel.set('rg.weekday', null);
+			rgModel.set('rg.date', -1);
+		}
+		this._valueChanged();
+	}
+
+	_selectDayPeriod(event, target) {
+		const rgModel = this.$.rgRepeat.modelForElement(event.target);
+		if (!rgModel) {
+			return;
+		}
+		rgModel.set('rg.dayPeriod', { type: "CD-DAYPERIOD", code: target.item.id });
+		this._valueChanged();
+	}
+
+}
+
+customElements.define(DynamicMedicationField.is, DynamicMedicationField);
+</script>
 </dom-module>

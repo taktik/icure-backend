@@ -11,31 +11,55 @@
 		</div>
 	</template>
 	<script>
-		import kjua from './kjua-0.1.1.min'
-		Polymer({
-			is: 'qrcode-printer',
-			properties: {
-				text: {
-					type: String
-				},
-				size: {
-					type: Number,
-					value: 200
-				},
-				ecl: {
-					type: String,
-					value: 'L'
-				}
+
+import kjua from './kjua-0.1.1.min';
+
+class QrcodePrinter extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'qrcode-printer';
+	}
+
+	static get properties() {
+		return {
+			text: {
+				type: String
 			},
-			observers: [ '_attachCode(text,size,ecl)' ],
-			ready() {
+			size: {
+				type: Number,
+				value: 200
 			},
-			_attachCode(text,size,ecl) {
-				if (!text) { return }
-				if (this.el) { this.$.qrcode.removeChild(this.el) }
-				this.el = kjua({text: text, fill: '#111', size: size, ecLevel: ecl});
-				this.$.qrcode.appendChild(this.el)
+			ecl: {
+				type: String,
+				value: 'L'
 			}
-		})
-	</script>
+		};
+	}
+
+	static get observers() {
+		return ['_attachCode(text,size,ecl)'];
+	}
+
+	constructor() {
+		super();
+	}
+
+	ready() {
+		super.ready();
+	}
+
+	_attachCode(text, size, ecl) {
+		if (!text) {
+			return;
+		}
+		if (this.el) {
+			this.$.qrcode.removeChild(this.el);
+		}
+		this.el = kjua({ text: text, fill: '#111', size: size, ecLevel: ecl });
+		this.$.qrcode.appendChild(this.el);
+	}
+
+}
+
+customElements.define(QrcodePrinter.is, QrcodePrinter);
+</script>
 </dom-module>

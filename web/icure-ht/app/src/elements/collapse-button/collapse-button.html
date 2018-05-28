@@ -18,40 +18,42 @@
   </template>
 
 </dom-module>
-<script> Polymer.IronMenuBehavior
-  class CollapseButton extends Polymer.Element {
-    static get is() { return  'collapse-button'; }
-    static get properties() {
-      // Support for some of the iron-collapse attributes
-      // Check their source code for more information.
-      return {
-        horizontal: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        noAnimation: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        opened: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-          notify: true
-        }
-      };
-    }
-    constructor() {
-      super();
-      this.unselectable = 'on';
-    }
-    toggle(e) {
-      e && e.stopPropagation();
-      // This is what makes your submenu hidden or visible.
-      this.opened = !this.opened;
-    }
+<script>Polymer.IronMenuBehavior;
+class CollapseButton extends Polymer.Element {
+  static get is() {
+    return 'collapse-button';
   }
-  window.customElements.define(CollapseButton.is, CollapseButton);
+  static get properties() {
+    // Support for some of the iron-collapse attributes
+    // Check their source code for more information.
+    return {
+      horizontal: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      noAnimation: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      opened: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true
+      }
+    };
+  }
+  constructor() {
+    super();
+    this.unselectable = 'on';
+  }
+  toggle(e) {
+    e && e.stopPropagation();
+    // This is what makes your submenu hidden or visible.
+    this.opened = !this.opened;
+  }
+}
+window.customElements.define(CollapseButton.is, CollapseButton);
 </script>

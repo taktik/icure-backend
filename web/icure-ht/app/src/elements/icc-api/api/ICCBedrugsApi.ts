@@ -27,10 +27,10 @@ import * as models from '../model/models';
 
 export class iccBedrugsApi {
     host : string
-    headers : XHR.Header
+    headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = new XHR.Header('Authorization',headers.Authorization)
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
 
@@ -46,7 +46,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mpp/find/fullText/{searchString}/{lang}".replace("{searchString}", searchString+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime()  + (classes ? "&classes=" + classes : "") + (types ? "&types=" + types : "") + (first ? "&first=" + first : "") + (count ? "&count=" + count : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.FullTextSearchResult(it)))
                 .catch(err => this.handleError(err))
 
@@ -58,7 +58,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/atc/{medecinePackageId}/{lang}/cheapmpps".replace("{medecinePackageId}", medecinePackageId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MpPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -70,7 +70,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/inn/{innClusterId}/{lang}/cheapmpps".replace("{innClusterId}", innClusterId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MppPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -82,7 +82,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/doc/childrenof/{docId}/{lang}".replace("{docId}", docId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -94,7 +94,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mp/childrenof/{docId}/{lang}".replace("{docId}", docId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MpPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -106,7 +106,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/doc/formp/{medecineId}/{lang}".replace("{medecineId}", medecineId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DocPreview(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -118,7 +118,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/doc/{docId}/{lang}".replace("{docId}", docId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DocPreview(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -130,7 +130,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mp/xt/{medecinePackageId}/{lang}".replace("{medecinePackageId}", medecinePackageId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.MpExtendedInfos(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -142,7 +142,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mp/full/{medecinePackageId}/{lang}".replace("{medecinePackageId}", medecinePackageId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.MpFullInfos(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -154,7 +154,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/inn/find/{searchString}/{lang}".replace("{searchString}", searchString+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime()  + (types ? "&types=" + types : "") + (first ? "&first=" + first : "") + (count ? "&count=" + count : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MppPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -166,7 +166,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mpp/{medecinePackageId}/{lang}/interactwith/{otherCnks}".replace("{medecinePackageId}", medecinePackageId+"").replace("{lang}", lang+"").replace("{otherCnks}", otherCnks+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.IamFullInfos(it)))
                 .catch(err => this.handleError(err))
 
@@ -178,7 +178,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mpp/find/{searchString}/{lang}".replace("{searchString}", searchString+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime()  + (types ? "&types=" + types : "") + (first ? "&first=" + first : "") + (count ? "&count=" + count : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MppPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -190,7 +190,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mpp/find/byIngredients/{searchString}/{lang}".replace("{searchString}", searchString+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime()  + (types ? "&types=" + types : "") + (first ? "&first=" + first : "") + (count ? "&count=" + count : "")
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.MppPreview(it)))
                 .catch(err => this.handleError(err))
 
@@ -202,7 +202,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mpp/{medecinePackageId}/{lang}/mp".replace("{medecinePackageId}", medecinePackageId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.MpPreview(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -214,7 +214,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/mpp/{medecinePackageId}/{lang}".replace("{medecinePackageId}", medecinePackageId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.MppInfos(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -226,7 +226,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/doc/parentof/{docId}/{lang}".replace("{docId}", docId+"").replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc =>  new models.DocPreview(doc.body as JSON))
                 .catch(err => this.handleError(err))
 
@@ -238,7 +238,7 @@ export class iccBedrugsApi {
         
         const _url = this.host+"/be_drugs/doc".replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
-        return XHR.sendCommand('GET', _url , [this.headers], _body )
+        return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocPreview(it)))
                 .catch(err => this.handleError(err))
 

@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <!--<link rel="import" href="./elements/collapse-button/collapse-button.html">-->
 <link rel="import" href="./shared-styles.html">
@@ -206,20 +207,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div class="col-left">
-		<paper-button class="new-msg-btn"> New Message </paper-button>
+		<paper-button class="new-msg-btn">[[localize('new_mes','New Message',language)]]</paper-button>
 		<paper-listbox class="boxes-list">
 			<collapse-button>
 				<paper-item class="has-unread">Inbox (7)</paper-item>
 				<paper-listbox class="sublist">
 					<paper-item  class="has-unread">Lab Results (3)</paper-item>
-					<paper-item>Personal</paper-item>
+					<paper-item>[[localize('per','Personal',language)]]</paper-item>
 					<paper-item class="has-unread">Patients (4)</paper-item>
 				</paper-listbox>
 			</collapse-button>
-			<paper-item>Sent Messages</paper-item>
-			<paper-item>Archived</paper-item>
-			<paper-item>Spam</paper-item>
-			<paper-item>Trash</paper-item>
+			<paper-item>[[localize('sen_mes','Sent Messages',language)]]</paper-item>
+			<paper-item>[[localize('archiv','Archived',language)]]</paper-item>
+			<paper-item>[[localize('spa','Spam',language)]]</paper-item>
+			<paper-item>[[localize('tra','Trash',language)]]</paper-item>
 		</paper-listbox>
 	</div>
 	  <div class="col-right">
@@ -229,27 +230,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				  <template class="header">
 					  <paper-checkbox ></paper-checkbox>
 				  </template>
-				 m>Spam</paper-item>
+				 m>[[localize('spa','Spam',language)]]</paper-item>
 			<papeeckbox ></paper-checkbox>
 				  </template>
 			  </vaadin-grid-column>
 
 			  <vaadin-grid-column >
-				  <template class="header">Recipient</template>
+				  <template class="header">[[localize('rec','Recipient',language)]]</template>
 				  <template>
 					  [[item.name.first]]
 				  </template>
 			  </vaadin-grid-column>
 
 			  <vaadin-grid-column>
-				  <template class="header">Subject</template>
+				  <template class="header">[[localize('sub','Subject',language)]]</template>
 				  <template>
 					  [[item.name.last]]
 				  </template>
 			  </vaadin-grid-column>
 
 			  <vaadin-grid-column style="width:100px;" flex="0">
-				  <template class="header">Date</template>
+				  <template class="header">[[localize('dat','Date',language)]]</template>
 				  <template>
 					  <div>[[item.name.first]].[[item.name.last]]@example.com</div>
 				  </template>
@@ -259,9 +260,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	  </div>
   </template>
 
-  <script>
-    Polymer({
-      is: 'ht-msg'
-    });
-  </script>
+  <script>class HtMsg extends Polymer.mixinBehaviors([], Polymer.Element) {
+  static get is() {
+    return 'ht-msg';
+  }
+
+  static get properties() {
+    return {};
+  }
+
+  constructor() {
+    super();
+  }
+
+}
+
+customElements.define(HtMsg.is, HtMsg);
+</script>
 </dom-module>
