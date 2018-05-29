@@ -91,7 +91,7 @@
 		<paper-dialog id="dialog">
             <h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
             <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
-            <paper-input label="Label" value="{{entity.descr}}"></paper-input>
+            <paper-input label="[[localize('labe','Label',language)]]" value="{{entity.descr}}"></paper-input>
             <div class="flex">
                 <paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
@@ -110,11 +110,11 @@
                 </paper-radio-group>
             </div>
 
-            <vaadin-date-picker label="Start Date" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
-            <vaadin-date-picker label="End Date" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
+            <vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
+            <vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
 
-            <tk-token-field label="Code" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
-            <tk-token-field label="Plans of action" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+            <tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
+            <tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
 
 			<slot name="suffix"></slot>
 			<div class="buttons">
