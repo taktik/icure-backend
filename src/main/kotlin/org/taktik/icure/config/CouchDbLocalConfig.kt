@@ -23,6 +23,7 @@ import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.ektorp.spring.HttpClientFactoryBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
@@ -30,7 +31,8 @@ import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.properties.CouchDbProperties
 
 @Configuration
-class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
+@ConditionalOnMissingClass("org.taktik.icure.dao.impl.ektorp.StdUserDependentCouchDbICureConnector")
+class CouchDbLocalConfig(val couchDbProperties: CouchDbProperties) {
     @Bean fun couchdbInstance() = StdCouchDbInstance(StdHttpClient.Builder()
             .maxConnections(couchDbProperties.maxConnections)
             .socketTimeout(couchDbProperties.socketTimeout)
