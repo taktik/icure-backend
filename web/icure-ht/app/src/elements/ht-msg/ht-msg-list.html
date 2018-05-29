@@ -23,53 +23,94 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="ht-msg-list">
 	<template>
 		<custom-style>
-			<style is="custom-style">
+			<style include="shared-styles">
 				:host {
 					display: block;
-					height: 100%;
-					@apply --padding-right-left-32;
 				}
 
-				:host #patients-list {
-					height: calc(100% - 124px);
-					outline: none;
+				:host *:focus{
+					outline:0!important;
 				}
 
-				paper-input{
-					--paper-input-container-focus-color: var(--app-primary-color);
-					--paper-input-container-label: {
-						color:var(--app-text-color);
-						opacity:1;
+				.col-left{
+					position:fixed;
+					box-sizing: border-box;
+					height:100%;
+					width:20%;
+					background:white;
+					float:left;
+					@apply --shadow-elevation-2dp;
+					padding:20px;
+					display:flex;
+					flex-flow: column nowrap;
+					align-items: flex-start;
+					z-index:0;
+				}
+
+				.new-msg-btn{
+					--paper-button: {
+						background: var(--app-secondary-color);
+						color: var(--app-text-color);
+						width: 80%;
+						margin: 0 auto;
+						height: 48px;
 					};
-					--paper-input-container-underline-disabled: {
-						border-bottom: 1px solid var(--app-text-color);
-
+					--paper-button-ink-color: var(--app-secondary-color-dark);
+				}
+				.boxes-list{
+					margin:20px auto;
+					padding:0;
+					min-width:80%;
+				}
+				.col-right{
+					box-sizing: border-box;
+					padding:20px;
+					width:80%;
+					float:right;
+					margin-left:300px;
+				}
+				.has-unread{
+					font-weight:bold;
+				}
+				paper-item{
+					outline:0;
+					cursor:pointer;
+					--paper-item: {
+						margin: 0;
 					};
-					--paper-input-container-color: var(--app-text-color);
+					--paper-item-selected: {
+						background:rgba(0,0,0,0);
+						color:var(--app-secondary-color);
+					};
+					--paper-item-focused: {
+						background:rgba(0,0,0,0);
+						color:var(--app-secondary-color);
+					};
+					--paper-item-focused-before: {
+						background:rgba(0,0,0,0);
+					}
 				}
 
-				.horizontal {
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					flex-basis: 100%;
-					align-items: center;
+
+				paper-listbox:focus{
+					outline:0;
 				}
 
-				.horizontal paper-input {
-					height: 90px;
-					@apply --padding-right-left-16
+				.sublist{
+					padding-left:20px;
+					outline:0;
+
 				}
 
-				.horizontal vaadin-date-picker {
-					height: 90px;
-					padding-bottom: 0px;
-					@apply --padding-right-left-16
+				.sublist paper-item{
+					--paper-item-min-height: 28px;
 				}
 
 				vaadin-grid.material {
-
+					outline: 0!important;
 					font-family: Roboto, sans-serif;
+					background:rgba(0,0,0,0);
+					border:none;
 					--divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
 
 					--vaadin-grid-cell: {
@@ -77,9 +118,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					};
 
 					--vaadin-grid-header-cell: {
-						height: 64px;
+						height: 48px;
+						padding:11.2px;
 						color: rgba(0, 0, 0, var(--dark-secondary-opacity));
 						font-size: 12px;
+						background:rgba(0,0,0,0);
+						border-top:0;
 					};
 
 					--vaadin-grid-body-cell: {
@@ -100,8 +144,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						box-shadow: none;
 						font-weight: bold;
 					};
-				}
 
+				}
 				vaadin-grid.material .cell {
 					overflow: hidden;
 					text-overflow: ellipsis;
@@ -110,6 +154,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				vaadin-grid.material .cell.last {
 					padding-right: 24px;
+					text-al;
 				}
 
 				vaadin-grid.material .cell.numeric {
@@ -119,6 +164,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				vaadin-grid.material paper-checkbox {
 					--primary-color: var(--paper-indigo-500);
 					margin: 0 24px;
+				}
+
+				vaadin-grid.material vaadin-grid-sorter {
+					--vaadin-grid-sorter-arrow: {
+						display: none !important;
+					};
 				}
 
 				vaadin-grid.material vaadin-grid-sorter .cell {
@@ -144,120 +195,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					transform: scale(0.8) rotate(180deg);
 				}
 
-				.add-btn-container{
-					position: fixed;
-					width: 100%;
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					align-items: center;
-					bottom: 16px;
-					left: 0;
+
+				vaadin-grid.material::slotted(div){
+					outline:0 !important;
+					background:red;
 				}
 
-				.add-btn{
-					--paper-button-ink-color: var(--app-secondary-color-dark);
-					background:var(--app-secondary-color);
-					color:var(--app-text-color);
-					font-weight:bold;
-					font-size:14px;
-					height:40px;
-					min-width:100px;
-					@apply --shadow-elevation-2dp;
-					padding: 10px 1.2em;
-				}
-
-				.patient-photo {
-					background: rgba(0, 0, 0, 0.1);
-					height: 26px;
-					width: 26px;
-					min-width: 26px;
-					border-radius: 50%;
-					margin-right: 8px;
-					overflow: hidden !important;
-					padding-right: 0 !important;
-				}
-
-				.patient-photo img {
-					width: 100%;
-					margin: 50%;
-					transform: translate(-50%, -50%);
+				paper-checkbox{
+					--paper-checkbox-unchecked-color: var(--app-text-color);
+					--paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
+					--paper-checkbox-checkmark-color: var(--app-secondary-color);
+					--paper-checkbox-checked-color: var(--app-primary-color);
 				}
 			</style>
 		</custom-style>
 
-		<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-		<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
-			<vaadin-grid-column width="32px">
-				<template class="header">
-					<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
-				</template>
-			</vaadin-grid-column>
+		<div class="col-right">
+			<vaadin-grid id="mail-list" class="material" page-size="10">
 
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.lastName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.firstName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<div class="cell frozen">[[localize('ema','Email',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.email]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.phone]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.mobile]]</div>
-				</template>
-			</vaadin-grid-column>
-		</vaadin-grid>
-		<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
-		<paper-dialog id="add-patient-dialog">
-			<div class="horizontal">
-				<paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-				<paper-input label="First name" value="{{firstName}}"></paper-input>
-				<vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}" ></vaadin-date-picker>
-			</div>
-			<div class="buttons">
-				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
-			</div>
-		</paper-dialog>
+				<vaadin-grid-column width="66px" flex="0" >
+					<template class="header">
+						<paper-checkbox ></paper-checkbox>
+					</template>
+					<template>
+						<paper-item>[[localize('spa','Spam',language)]]</paper-item>
+						<paper-checkbox ></paper-checkbox>
+					</template>
+				</vaadin-grid-column>
+
+				<vaadin-grid-column >
+					<template class="header">[[localize('rec','Recipient',language)]]</template>
+					<template>
+						[[item.name.first]]
+					</template>
+				</vaadin-grid-column>
+
+				<vaadin-grid-column>
+					<template class="header">[[localize('sub','Subject',language)]]</template>
+					<template>
+						[[item.name.last]]
+					</template>
+				</vaadin-grid-column>
+
+				<vaadin-grid-column style="width:100px;" flex="0">
+					<template class="header">[[localize('dat','Date',language)]]</template>
+					<template>
+						<div>[[item.name.first]].[[item.name.last]]@example.com</div>
+					</template>
+				</vaadin-grid-column>
+
+			</vaadin-grid>
+		</div>
 	</template>
 
 	<script>
@@ -324,7 +312,7 @@ class HtMsgList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 	ready() {
 		super.ready();
 
-		var grid = this.$['patients-list'];
+		var grid = this.$['mail-list'];
 
 		grid.lastParams = null; //Used to prevent double calls
 		grid.size = 0;

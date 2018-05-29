@@ -9,20 +9,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
-
-<link rel="import" href="elements/icc-api/icc-api.html">
-
+<link rel="import" href="elements/ht-msg/ht-msg-detail.html">
 <link rel="import" href="elements/ht-msg/ht-msg-menu.html">
+<link rel="import" href="elements/ht-msg/ht-msg-list.html">
+
 
 <link rel="import" href="./shared-styles.html">
 
-<script src="../bower_components/moment/moment.js"></script>
-<script src="../bower_components/base64-js/base64js.min.js"></script>
-<script src="../bower_components/webcrypto-shim/webcrypto-shim.js"></script>
-<script src="../bower_components/pako/dist/pako.min.js"></script>
-
-<script src="../scripts/simple-statistics.js"></script>
 
 <dom-module id="ht-msg">
 
@@ -34,14 +27,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 /*padding: 10px;*/
             }
         </style>
-
-        <template>
-            <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-menu>
-        </template>
+        <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-menu>
+        <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-list>
+        <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-detail>
 
     </template>
 
-    <script>class HtMsg extends Polymer.mixinBehaviors([], Polymer.Element) {
+    <script>
+        class HtMsg extends  Polymer.Element {
         static get is() {
             return 'ht-msg';
         }
@@ -61,9 +54,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             super();
         }
 
-        ready() {
-            super.ready();
-        }
     }
 
     customElements.define(HtMsg.is, HtMsg);
