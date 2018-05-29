@@ -15,15 +15,14 @@
 								"top" : 61,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : -11053257,
+							"sortOrder" : 1465333559,
 							"codeTypes" : [
 
 							],
 							"label" : "Partner Name",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "partnerName",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "partnerName"
 						},
 						{
 							"editor" : {
@@ -35,19 +34,18 @@
 								"labelPosition" : "Left",
 								"width" : 100,
 								"multiline" : false,
-								"left" : 308,
+								"left" : 205,
 								"top" : 33,
 								"key" : "PopupMenuEditor"
 							},
-							"sortOrder" : -11053257,
+							"sortOrder" : 1465333559,
 							"codeTypes" : [
 
 							],
 							"label" : "Gender",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "gender",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "gender"
 						},
 						{
 							"editor" : {
@@ -60,15 +58,14 @@
 								"top" : 33,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : -11053257,
+							"sortOrder" : 1465333559,
 							"codeTypes" : [
 
 							],
 							"label" : "Ssin",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "ssin",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "ssin"
 						},
 						{
 							"editor" : {
@@ -81,15 +78,14 @@
 								"top" : 170,
 								"key" : "DateTimeEditor"
 							},
-							"sortOrder" : -11053257,
+							"sortOrder" : 1465333559,
 							"codeTypes" : [
 
 							],
 							"label" : "Date of Death",
-							"type" : "TKDate",
 							"subForm" : false,
-							"name" : "dateOfBirth",
-							"irrelevant" : true
+							"type" : "TKDate",
+							"name" : "dateOfBirth"
 						},
 						{
 							"editor" : {
@@ -102,15 +98,14 @@
 								"top" : 170,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463244599,
+							"sortOrder" : 928462647,
 							"codeTypes" : [
 
 							],
 							"label" : "Place of death",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "placeOfDeath",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "placeOfDeath"
 						},
 						{
 							"editor" : {
@@ -120,21 +115,20 @@
 
 								],
 								"labelPosition" : "Left",
-								"width" : 283,
+								"width" : 242,
 								"multiline" : false,
-								"left" : 879,
+								"left" : 738,
 								"top" : 7,
 								"key" : "PopupMenuEditor"
 							},
-							"sortOrder" : 1465333559,
+							"sortOrder" : 1463236407,
 							"codeTypes" : [
 
 							],
 							"label" : "Refererral",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "preferredUser",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "preferredUser"
 						},
 						{
 							"editor" : {
@@ -147,15 +141,14 @@
 								"top" : 143,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 928462647,
+							"sortOrder" : 1463236407,
 							"codeTypes" : [
 
 							],
 							"label" : "Language",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "language",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "language"
 						},
 						{
 							"editor" : {
@@ -168,15 +161,14 @@
 								"top" : 143,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1465333559,
+							"sortOrder" : 1463236407,
 							"codeTypes" : [
 
 							],
 							"label" : "Nationality",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "nationality",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "nationality"
 						},
 						{
 							"editor" : {
@@ -196,57 +188,54 @@
 								"top" : 62,
 								"key" : "PopupMenuEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "Status",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "status",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "status"
 						},
 						{
 							"editor" : {
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 300,
+								"width" : 243,
 								"multiline" : false,
 								"left" : 90,
 								"top" : 8,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "Name",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "lastName",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "lastName"
 						},
 						{
 							"editor" : {
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 300,
+								"width" : 245,
 								"multiline" : false,
-								"left" : 477,
+								"left" : 408,
 								"top" : 8,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "First Name",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "firstName",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "firstName"
 						},
 						{
 							"editor" : {
@@ -259,15 +248,14 @@
 								"top" : 88,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "Education",
-							"type" : "TKString",
 							"subForm" : false,
-							"name" : "education",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "education"
 						},
 						{
 							"editor" : {
@@ -280,15 +268,15 @@
 								"top" : 88,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "Alias",
-							"type" : "TKString",
+							"irrelevant" : true,
 							"subForm" : false,
-							"name" : "alias",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "alias"
 						},
 						{
 							"editor" : {
@@ -301,15 +289,15 @@
 								"top" : 115,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "External ID",
-							"type" : "TKString",
+							"irrelevant" : true,
 							"subForm" : false,
-							"name" : "externalId",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "externalId"
 						},
 						{
 							"editor" : {
@@ -322,15 +310,15 @@
 								"top" : 115,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 1463236407,
+							"sortOrder" : 926365495,
 							"codeTypes" : [
 
 							],
 							"label" : "Job",
-							"type" : "TKString",
+							"irrelevant" : true,
 							"subForm" : false,
-							"name" : "job",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "job"
 						},
 						{
 							"editor" : {
@@ -343,15 +331,15 @@
 								"top" : 34,
 								"key" : "DateTimeEditor"
 							},
-							"sortOrder" : 1465333559,
+							"sortOrder" : 1463236407,
 							"codeTypes" : [
 
 							],
 							"label" : "Date of Birth",
-							"type" : "TKDate",
+							"irrelevant" : true,
 							"subForm" : false,
-							"name" : "dateOfBirth",
-							"irrelevant" : true
+							"type" : "TKDate",
+							"name" : "dateOfBirth"
 						},
 						{
 							"editor" : {
@@ -364,15 +352,15 @@
 								"top" : 34,
 								"key" : "StringEditor"
 							},
-							"sortOrder" : 928462647,
+							"sortOrder" : 1463236407,
 							"codeTypes" : [
 
 							],
 							"label" : "Place of birth",
-							"type" : "TKString",
+							"irrelevant" : true,
 							"subForm" : false,
-							"name" : "placeOfBirth",
-							"irrelevant" : true
+							"type" : "TKString",
+							"name" : "placeOfBirth"
 						},
 						{
 							"editor" : {
@@ -391,15 +379,15 @@
 									"2b915c79-4c29-47f8-9ce9-ae09dc6dc109"
 								]
 							},
-							"sortOrder" : 1935693655,
+							"sortOrder" : 1616336695,
 							"codeTypes" : [
 
 							],
 							"label" : "Insurances",
+							"irrelevant" : true,
+							"subForm" : false,
 							"type" : "TKSubConsult",
-							"subForm" : true,
-							"name" : "insurabilities",
-							"irrelevant" : true
+							"name" : "insurabilities"
 						},
 						{
 							"editor" : {
@@ -418,17 +406,37 @@
 									"2d6620d1-7ac6-4627-973c-cf06f361c569"
 								]
 							},
-							"sortOrder" : 1935693655,
+							"sortOrder" : 1616336695,
 							"codeTypes" : [
 
 							],
 							"label" : "Addresses",
+							"irrelevant" : true,
+							"subForm" : false,
 							"type" : "TKSubConsult",
-							"subForm" : true,
-							"name" : "addresses",
-							"irrelevant" : true
-						}
+							"name" : "addresses"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 20,
+								"labelPosition" : "Left",
+								"width" : 20,
+								"multiline" : false,
+								"left" : 1142,
+								"top" : 8,
+								"key" : "CheckBoxEditor"
+							},
+							"sortOrder" : -1,
+							"codeTypes" : [
 
+							],
+							"label" : "Active",
+							"irrelevant" : false,
+							"subForm" : false,
+							"type" : "TKBoolean",
+							"name" : "active"
+						}
 					]
 				}
 			]
