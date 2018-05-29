@@ -150,7 +150,9 @@
     "st_da":"Start Date",
     "en_da":"End Date",
     "sea_for_hea_ele":"Search for health element",
-    "mod":"modified"
+    "mod":"modified",
+    "no_ehe_con":"No Ehealth connection",
+    "msg":"Messages"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -299,7 +301,8 @@
     "the_ni_of_the_pat_is_not_val_or_mis": "Le niss du patient n'est pas valide ou manquant ",
     "pl_of_ac":"Planification d'action",
     "sea_for_hea_ele":"Rechercher élément de soins",
-    "mod":"modifié"
+    "mod":"modifié",
+    "msg":"Messages"
   },
   "nl": {
     "eng":"English",

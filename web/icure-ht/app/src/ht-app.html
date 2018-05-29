@@ -328,7 +328,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
 
-		<paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
+		<paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
 			<iron-icon icon="icons:warning"></iron-icon>
 		</paper-item>
 
@@ -365,6 +365,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<iron-icon icon="vaadin:hospital"></iron-icon>
 										[[localize('hc_par')]]
 									</paper-button>
+									<paper-tab name="msg" on-tap="doRoute">
+										<iron-icon class="smaller" icon="vaadin:envelope_open_o"></iron-icon>
+										[[localize('msg')]]
+									</paper-tab>
 									<paper-button name="logout" on-tap="doRoute">
 										<iron-icon icon="power-settings-new"></iron-icon>
 										[[localize('log_out')]]
@@ -386,6 +390,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
 								[[localize('hc_par')]]
 							</paper-tab>
+							<paper-tab name="msg" on-tap="doRoute">
+								<iron-icon class="smaller" icon="vaadin:envelope_open_o"></iron-icon>
+								[[localize('msg')]]
+							</paper-tab>
 							<paper-tab name="logout" on-tap="doRoute">
 								<iron-icon icon="power-settings-new"></iron-icon>
 								[[localize('log_out')]]
@@ -395,10 +403,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span></p>
 							<paper-tooltip for="ehealth">
 								<template is="dom-if" if="[[api.tokenId]]">
-									eHealth is connected
+									[[localize('ehe_is_con','eHealth is connected',language)]]
 								</template>
 								<template is="dom-if" if="[[!api.tokenId]]">
-									eHealth is not connected
+									[[localize('ehe_is_not_con','eHealth is not connected',language)]]
 								</template>
 							</paper-tooltip>
 						</div>
@@ -462,7 +470,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"><splash-screen></splash-screen></ht-main>
 					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"><splash-screen></splash-screen></ht-pat>
 					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
-					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" host="/rest/v1" headers="[[headers]]"><splash-screen></splash-screen></ht-msg>
+					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
 				</iron-pages>
 			</app-header-layout>
