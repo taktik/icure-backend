@@ -345,14 +345,14 @@
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
 			<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe',language)]]<br></template>
-			<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
+			<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">[[localize('the_ni_of_the_pat_is_not_val_or_mis','The niss of the patient is not valid or missing ',language)]]([[patient.ssin]])<br></template>
 			<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
 			<iron-icon icon="icons:warning"></iron-icon>
 		</paper-item>
 
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="layout horizontal">
-				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]"></filter-panel>
+				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
 						<template is="dom-if" if="[[!list]]">
 							<paper-icon-button id="list_icn" class="list" icon="icons:view-agenda" on-tap="_list"></paper-icon-button>
@@ -417,7 +417,7 @@
 			<paper-tooltip for="prescribeBtnCtnr" position="top">
 				<template is="dom-if" if="[[_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('pre_thi_but_to_pre','Press this button to prescribe',language)]]<br></template>
 				<template is="dom-if" if="[[!api.tokenId]]">[[localize('you_mus_be_con_to_ehe_to_be_all_to_pre','You must be connected to eHealth to be allowed to prescribe',language)]]<br></template>
-				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">The niss of the patient is not valid or missing ([[patient.ssin]])<br></template>
+				<template is="dom-if" if="[[!_validSsin(patient.ssin)]]">[[localize('the_ni_of_the_pat_is_not_val_or_mis','The niss of the patient is not valid or missing ',language)]]([[patient.ssin]])<br></template>
 				<template is="dom-if" if="[[!_hasDrugsToBePrescribed(servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]">[[localize('add_pre_dru_to_cur_con_to_pre','Add prescription drugs to current contact to prescribe',language)]]</template>
 			</paper-tooltip>
 		</div>
@@ -554,7 +554,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			detailPanelItems: {
 				type: Array,
 				value: function () {
-					return [{ icon: "icure-svg-icons:laboratory", title: "Lab Results", id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: "Imaging", id: "Imaging" }, { icon: "editor:insert-drive-file", title: "Protocol", id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: "Prescription", id: "Prescription" }, { icon: "icure-svg-icons:blood-sugar", title: "Blood Sugar", id: "BloodSugar" }, { icon: "icure-svg-icons:blood-pressure", title: "Blood Pressure", id: "BloodPressure" }, { icon: "icure-svg-icons:prescription-drugs", title: "Prescription Drugs", id: "PrescriptionDrugs" }];
+					return [{ icon: "icure-svg-icons:laboratory", title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" }, { icon: "editor:insert-drive-file", title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: {en: "Prescription", fr:"Prescription", nl:"Prescription"}, id: "Prescription" }, { icon: "icure-svg-icons:blood-sugar", title: {en: "BloodSugar", fr:"Analyse de sang", nl:"BloodSugar"}, id: "BloodSugar" }, { icon: "icure-svg-icons:blood-pressure", title: {en: "BloodPressure", fr:"Pression sanguine", nl:"BloodPressure"}, id: "BloodPressure" }, { icon: "icure-svg-icons:prescription-drugs", title: {en: "PrescriptionDrugs", fr:"Prescrire des médicaments", nl:"PrescriptionDrugs"}, id: "PrescriptionDrugs" }];
 				}
 			},
 

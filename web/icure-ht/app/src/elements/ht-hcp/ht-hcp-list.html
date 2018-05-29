@@ -121,7 +121,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</style>
 		</custom-style>
 
-		<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+		<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 		<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 			<vaadin-grid-column width="100px">
 				<template class="header">
@@ -177,7 +177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	<script>
 import _ from '../../../bower_components/lodash/lodash';
 
-class HtHcpList extends Polymer.mixinBehaviors([], Polymer.Element) {
+class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
 	static get is() {
 		return 'ht-hcp-list';
 	}

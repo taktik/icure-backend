@@ -186,7 +186,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</style>
 		</custom-style>
 
-		<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+		<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 		<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 			<vaadin-grid-column width="32px">
 				<template class="header">

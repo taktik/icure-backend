@@ -28,10 +28,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
 		<template is="dom-if" if="{{selectedHcp}}">
-			<ht-hcp-detail api="[[api]]" user="[[user]]" hcp="{{selectedHcp}}"></ht-hcp-detail>
+			<ht-hcp-detail api="[[api]]" user="[[user]]" hcp="{{selectedHcp}}" language="[[language]]" resources="[[resources]]" i18n="[[i18n]]"></ht-hcp-detail>
 		</template>
 		<template is="dom-if" if="{{!selectedHcp}}">
-			<ht-hcp-list api="[[api]]" user="[[user]]" selected-hcp="{{selectedHcp}}"></ht-hcp-list>
+			<ht-hcp-list api="[[api]]" user="[[user]]" selected-hcp="{{selectedHcp}}" language="[[language]]" resources="[[resources]]" i18n="[[i18n]]"></ht-hcp-list>
 		</template>
   </template>
 

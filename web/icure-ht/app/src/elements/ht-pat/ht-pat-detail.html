@@ -907,7 +907,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="container">
-			<paper-item id="savedIndicator">SAVED
+			<paper-item id="savedIndicator">[[localize('saved','SAVED',language)]]
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
@@ -1058,7 +1058,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]" restamp>
 				<div class="second-panel">
-					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}"></filter-panel></div>
+					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
 					<div class="contacts-container" on-scroll="openToast">
 						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
 							<template is="dom-if" if="[[events.length]]">
@@ -1294,7 +1294,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			secondPanelItems: {
 				type: Array,
 				value: function () {
-					return [{ icon: "icure-svg-icons:laboratory", title: "Lab Results", id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: "Imaging", id: "Imaging" }, { icon: "icure-svg-icons:stethoscope", title: "Consultation", id: "Consultation" }, { icon: "editor:insert-drive-file", title: "Protocol", id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: "Prescription", id: "Prescription" }, { icon: "icure-svg-icons:sent-reports", title: "Sent Reports", id: "SentReports" }, { icon: "icure-svg-icons:received-reports", title: "Received Reports", id: "ReceivedReports" }];
+					return [{ icon: "icure-svg-icons:laboratory", title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" }, { icon: "icure-svg-icons:stethoscope", title: {en: "Consultation", fr:"Consultation", nl:"Consultation"}, id: "Consultation" }, { icon: "editor:insert-drive-file", title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: {en: "Prescription", fr:"Prescription", nl:"Prescription"}, id: "Prescription" }, { icon: "icure-svg-icons:sent-reports", title: {en: "SentReports", fr:"Envoyer rapports", nl:"SentReports"}, id: "SentReports" }, { icon: "icure-svg-icons:received-reports", title: {en: "ReceivedReports", fr:"Recevoir rapports", nl:"ReceivedReports"}, id: "ReceivedReports" }];
 				}
 			},
 			i18n: {

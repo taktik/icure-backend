@@ -112,7 +112,7 @@
 		</style>
 
 		<div id="filtersPanel" is="dom-if" class="filters-panel filters-panel--collapsed">
-			<paper-input id="searchInput" label="Search" class="search-input" value="{{searchString}}">
+			<paper-input id="searchInput" label="[[localize('sch','Search',language)]]" class="search-input" value="{{searchString}}">
 				<iron-icon class="search-icons" icon="icons:search" prefix></iron-icon>
 				<paper-icon-button suffix on-click="clearInput" icon="clear" alt="clear" title="clear" class="clear-search-button-icon"></paper-icon-button>
 			</paper-input>
@@ -120,7 +120,7 @@
 				<template is="dom-repeat" items="[[items]]" as="menu">
 					<paper-item>
 						<iron-icon class="filters-panel-icon" icon="[[menu.icon]]"></iron-icon>
-						[[menu.title]]
+						[[itemTitle(menu)]]
 					</paper-item>
 				</template>
 			</paper-listbox>
@@ -128,7 +128,7 @@
 		<div class="filters-bar">
 			<paper-button is="dom-if" hidden$="{{!showFiltersPanel}}" class="hide-filters-btn" on-tap="toggleFiltersPanel" name="hide-filters" role="button" tabindex="0"
 						  aria-disabled="false" elevation="0">
-				Hide Filters
+				[[localize('hid_fil','Hide Filters',language)]]
 				<iron-icon icon="icons:expand-less"></iron-icon>
 			</paper-button>
 			<div is="dom-if" hidden$="{{showFiltersPanel}}">
@@ -139,7 +139,7 @@
 						</template>
 					</div>
 					<paper-button class="show-filters-btn" on-tap="toggleFiltersPanel" name="show-filters" role="button" tabindex="0" aria-disabled="false" elevation="0">
-						Show Filters
+						[[localize('sho_fil','Show Filters',language)]]
 						<iron-icon icon="icons:expand-more"></iron-icon>
 					</paper-button>
 				</div>
@@ -147,13 +147,13 @@
 		</div>
 		<div>
 			<template is="dom-repeat" items="[[icons]]" as="icon">
-				<paper-tooltip for="[[icon.id]]-btn">[[icon.title]]</paper-tooltip>
+				<paper-tooltip for="[[icon.id]]-btn">[[iconTitle(icon)]]</paper-tooltip>
 			</template>
 		</div>
 	</template>
 
 	<script>
-class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+class FilterPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 	static get is() {
 		return 'filter-panel';
 	}
@@ -218,6 +218,14 @@ class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior]
 	toggleFiltersPanel() {
 		this.showFiltersPanel = !this.showFiltersPanel;
 		this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed');
+	}
+
+	iconTitle(icon){
+	    return icon.title[this.language]
+	}
+
+	itemTitle(item){
+	    return item.title[this.language]
 	}
 
 }
