@@ -28,6 +28,7 @@ import org.ektorp.impl.ObjectMapperFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.SessionLogic;
 
@@ -60,10 +61,11 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
 
     private String uuid = UUID.randomUUID().toString();
 
-    @Autowired(required = false)
+    @Autowired
+    @Lazy
     private SessionLogic sessionLogic;
 
-    public void setSessionLogic(SessionLogic sessionLogic) {
+    public void setSessionLogic(@Lazy SessionLogic sessionLogic) {
         this.sessionLogic = sessionLogic;
     }
 
