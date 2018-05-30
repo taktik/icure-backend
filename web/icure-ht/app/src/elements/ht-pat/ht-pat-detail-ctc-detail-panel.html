@@ -554,7 +554,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			detailPanelItems: {
 				type: Array,
 				value: function () {
-					return [{ icon: "icure-svg-icons:laboratory", title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" }, { icon: "editor:insert-drive-file", title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: {en: "Prescription", fr:"Prescription", nl:"Prescription"}, id: "Prescription" }, { icon: "icure-svg-icons:blood-sugar", title: {en: "BloodSugar", fr:"Analyse de sang", nl:"BloodSugar"}, id: "BloodSugar" }, { icon: "icure-svg-icons:blood-pressure", title: {en: "BloodPressure", fr:"Pression sanguine", nl:"BloodPressure"}, id: "BloodPressure" }, { icon: "icure-svg-icons:prescription-drugs", title: {en: "PrescriptionDrugs", fr:"Prescrire des médicaments", nl:"PrescriptionDrugs"}, id: "PrescriptionDrugs" }];
+					return [{ icon: "icure-svg-icons:laboratory",filter:[{type:'CD-ITEM',code:['parameter']}], title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" },
+							{ icon: "icure-svg-icons:prescription", filter:[{type:'CD-ITEM',code:['treatment']}],  title: {en: "Prescription", fr:"Prescription", nl:"Prescription"}, id: "Prescription" },
+							{ icon: "icure-svg-icons:blood-sugar", filter:[{type:'CD-PARAMETER',code:['bloodsugar']}],  title: {en: "BloodSugar", fr:"Analyse de sang", nl:"BloodSugar"}, id: "BloodSugar" },
+							{ icon: "icure-svg-icons:blood-pressure", filter:[{type:'CD-PARAMETER',code:['sbp','dbp']}],  title: {en: "BloodPressure", fr:"Pression sanguine", nl:"BloodPressure"}, id: "BloodPressure" },
+                        	{ icon: "icure-svg-icons:blood-pressure", filter:[{type:'CD-PARAMETER',code:['weight','height','bmi']}],  title: {en: "Biometries", fr:"Biométries", nl:"Biometries"}, id: "Biometry" }];
 				}
 			},
 
