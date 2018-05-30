@@ -45,7 +45,7 @@ public class PatientDto extends IcureDto {
     protected String firstName;
     protected String lastName;
     protected String alias;
-    protected boolean active;
+    protected Boolean active = true;
     protected String chronicalDisease;
     protected String ssin;
     protected String civility;
@@ -129,11 +129,11 @@ public class PatientDto extends IcureDto {
         this.alias = alias;
     }
 
-    public boolean getActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 

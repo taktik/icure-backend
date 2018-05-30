@@ -587,7 +587,7 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 	}
 
 	linkForm(e, target) {
-		const he = this.healthElements.find(he => he.id === e.target.id || he.idService === e.target.idserviceToHealthElement);
+		const he = this.healthElements.find(he => he.id === e.target.id || he.idService === e.target.id);
 		if (!he) {
 			return;
 		}
@@ -644,7 +644,7 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 	}
 
 	promoteServiceToHealthElement(heSvc) {
-		this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc, this.language).then(he => {
+		return this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc.svc, this.language).then(he => {
 			this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, he.id, null);
 			this.scheduleSave(this.currentContact);
 			this.dispatchEvent(new CustomEvent('health-elements-change', { detail: { hes: [he] }, bubbles: true, composed: true }));

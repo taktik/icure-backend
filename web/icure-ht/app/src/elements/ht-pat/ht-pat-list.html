@@ -421,10 +421,13 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 					console.log("Cancelling obsolete search");
 					return;
 				}
-				if (grid.size !== res.totalSize) {
-					grid.set("size", res.totalSize);
+
+				const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p=>this.showInactive || p.active)
+
+				if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
+					grid.set("size", res.totalSize - (res.rows.length - keptPatients.length));
 				}
-				callback(_.slice(res.rows, startIndex, endIndex).map(this.pimpPatient));
+				callback(keptPatients.map(this.pimpPatient));
 			}.bind(this));
 		}.bind(this);
 	}
