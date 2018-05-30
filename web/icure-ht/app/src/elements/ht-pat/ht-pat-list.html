@@ -246,6 +246,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</template>
 			</vaadin-grid-column>
 		</vaadin-grid>
+		<vaadin-checkbox checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
+
 		<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
 		<paper-dialog id="add-patient-dialog">
 			<div class="horizontal">
@@ -271,6 +273,14 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		return 'ht-pat-list';
 	}
 
+	static get observers(){
+	    return ['showInactivePatientsChanged(showInactive)']
+	}
+
+    showInactivePatientsChanged(){
+        this.$['patients-list'].clearCache();
+	}
+
 	static get properties() {
 		return {
 			api: {
@@ -285,6 +295,10 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			},
 			activeItem: {
 				type: Object
+			},
+            showInactive: {
+			    type: Boolean,
+			    value: false
 			},
 			i18n: {
 				Type: Object,
@@ -357,12 +371,19 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyAndSsinFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'ssin': latestSearchValue
+				'ssin': latestSearchValue,
+				'showInactivePatients': this.showInactive
 			} : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyDateOfBirthFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
-			} : { '$type': 'PatientByHcPartyNameContainsFuzzyFilter', 'healthcarePartyId': this.user.healthcarePartyId, 'searchString': latestSearchValue };
+				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1'),
+                'showInactivePatients': this.showInactive
+			} : {
+			    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+				'healthc,arePartyId': this.user.healthcarePartyId,
+				'searchString': latestSearchValue,
+                'showInactivePatients': this.showInactive
+			};
 
 			if (grid.lastParams !== thisParams) {
 				grid.lastParams = thisParams;
@@ -407,6 +428,7 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			}.bind(this));
 		}.bind(this);
 	}
+
 
 	formatDateOfBirth(dateOfBirth) {
 		return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A';
