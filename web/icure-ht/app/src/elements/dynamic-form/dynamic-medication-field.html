@@ -87,7 +87,7 @@
 
 			
 			.grid-container {
-				margin: 0;
+				margin: 0 0 56px 0;
 			}
 
 			paper-dropdown-menu, paper-listbox{
@@ -190,8 +190,9 @@
 			}
 
 			paper-dialog {
-				min-width: 600px;
 				min-height: 480px;
+				min-width: 600px;
+				max-height: unset!important;
 				width: 80%;
 				top: 50%;
 				transform: translateY(-50%);
@@ -253,6 +254,12 @@
 				background:  var(--app-background-color-dark);
 				margin-top: 0;
 				padding: 16px 24px;
+			}
+
+			.buttons{
+				position: absolute;
+				bottom: 0;
+				right: 12px;
 			}
 
 			.modal-button{
