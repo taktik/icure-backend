@@ -583,15 +583,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _timeCheck(period = 300000) {
                 setTimeout(() => {
-	                this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
-		                if (!isTokenValid) {
-			                this._getToken().then(() => {
-				                this._timeCheck()
-			                }).catch(() => this._timeCheck(10000))
-		                } else {
-			                this._timeCheck()
-		                }
-	                }).catch(() => this._timeCheck(10000))
+	                if (this.api.tokenId) {
+	                    this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
+                            if (!isTokenValid) {
+                                this._getToken().then(() => {
+                                    this._timeCheck()
+                                }).catch(() => this._timeCheck(10000))
+                            } else {
+                                this._timeCheck()
+                            }
+                        }).catch(() => this._timeCheck(10000))
+                    } else {
+                        this._timeCheck()
+					}
                 }, period)
 			}
 

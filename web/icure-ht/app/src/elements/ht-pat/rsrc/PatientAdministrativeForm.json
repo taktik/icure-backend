@@ -28,9 +28,7 @@
 							"editor" : {
 								"readOnly" : false,
 								"height" : 26,
-								"menuOptions" : [
-
-								],
+								"menuOptions": ["F","M","C","I"],
 								"labelPosition" : "Left",
 								"width" : 100,
 								"multiline" : false,
@@ -85,14 +83,14 @@
 							"label" : "Date of Death",
 							"subForm" : false,
 							"type" : "TKDate",
-							"name" : "dateOfBirth"
+							"name" : "dateOfDeath"
 						},
 						{
 							"editor" : {
 								"readOnly" : false,
 								"height" : 22,
 								"labelPosition" : "Left",
-								"width" : 857,
+								"width" : 200,
 								"multiline" : false,
 								"left" : 305,
 								"top" : 170,
@@ -119,13 +117,14 @@
 								"multiline" : false,
 								"left" : 738,
 								"top" : 7,
-								"key" : "PopupMenuEditor"
+								"key" : "PopupMenuEditor",
+								"dataSource": {"source":"users"}
 							},
 							"sortOrder" : 1463236407,
 							"codeTypes" : [
 
 							],
-							"label" : "Refererral",
+							"label" : "Reference hcp",
 							"subForm" : false,
 							"type" : "TKString",
 							"name" : "preferredUser"
@@ -384,9 +383,8 @@
 
 							],
 							"label" : "Insurances",
-							"irrelevant" : true,
-							"subForm" : false,
 							"type" : "TKSubConsult",
+							"subForm" : true,
 							"name" : "insurabilities"
 						},
 						{
@@ -411,9 +409,8 @@
 
 							],
 							"label" : "Addresses",
-							"irrelevant" : true,
-							"subForm" : false,
 							"type" : "TKSubConsult",
+							"subForm" : true,
 							"name" : "addresses"
 						},
 						{
