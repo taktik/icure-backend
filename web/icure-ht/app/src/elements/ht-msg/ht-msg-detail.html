@@ -340,14 +340,16 @@
 				flex-flow: row nowrap;
 			}
 		</style>
+		<template is="dom-if" if="[[currentContact]]">
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="contact-card-container">
-				<h2>TIDI</h2>
+				<h2>tidi</h2>
 			</div>
 		</div>
 
 		<entity-selector id="add-form-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[formTemplatesSelectorColumns()]]" data-provider="[[formTemplatesSelectorDataProvider()]]" on-entity-selected="_addedFormSelected"></entity-selector>
 
+	</template>
 	</template>
 	<script>
 

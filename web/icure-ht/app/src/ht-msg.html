@@ -27,8 +27,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 /*padding: 10px;*/
             }
         </style>
-        <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-menu>
-        <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-list>
+        <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" on-selection-change="handleChange"></ht-msg-menu>
+        <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" select-list="[[selectList]]"></ht-msg-list>
         <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-msg-detail>
 
     </template>
@@ -46,12 +46,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 },
                 user: {
                     type: Object
+                },
+                selectList: {
+                    type: Object
                 }
             };
         }
 
         constructor() {
             super();
+        }
+
+        ready(){
+            super.ready()
+        }
+
+        handleChange(e){
+            console.log('ça remonte ! ' + e.detail.selection)
+            this.set('selectList',e.detail)
         }
 
     }
