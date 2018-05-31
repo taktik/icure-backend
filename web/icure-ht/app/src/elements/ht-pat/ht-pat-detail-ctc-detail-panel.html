@@ -256,18 +256,15 @@
 				border-left: 1px solid var(--app-secondary-color-dark);
 			}
 
-			.layout-bar .list, .layout-bar .graphique, .layout-bar .doc{
+			.layout-bar .list, .layout-bar .graphique, .layout-bar .doc, .layout-bar .table{
 				height: 32px;
 				width: 32px;
-				padding: 5px;
-				color: var(--app-primary-color-dark);
+				padding: 6px;
+				color: var(--app-text-color-disabled);
 			}
 
-			.layout-bar .table{
-				height: 30px;
-				width: 30px;
-				padding: 0;
-				color: var(--app-primary-color-dark);
+			.icn-selected {
+				color: var(--app-primary-color-dark) !important;
 			}
 
 			.floating-action-bar{
@@ -354,22 +351,14 @@
 			<div class="layout horizontal">
 				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
-						<template is="dom-if" if="[[!list]]">
-							<paper-icon-button id="list_icn" class="list" icon="icons:view-agenda" on-tap="_list"></paper-icon-button>
-						</template>
-						<template is="dom-if" if="[[!table]]">
-							<paper-icon-button id="table_icn" class="table" icon="icons:view-list" on-tap="_table"></paper-icon-button>
-						</template>
-						<template is="dom-if" if="[[!graphique]]">
-							<paper-icon-button id="graph_icn" class="graphique" icon="editor:pie-chart" on-tap="_graphique"></paper-icon-button>
-						</template>
-						<template is="dom-if" if="[[!doc]]">
-							<paper-icon-button id="archive_icn" class="doc" icon="icons:archive" on-tap="_default"></paper-icon-button>
-						</template>
+						<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="vaadin:list" on-tap="_list"></paper-icon-button>
+						<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+						<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
+
 						<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
 						<paper-tooltip for="table_icn" position="bottom" animation-delay="0">[[localize('tab_vie','Table view',language)]]</paper-tooltip>
-						<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">[[localize('gra','Graph',language)]]</paper-tooltip>
-						<paper-tooltip for="archive_icn" position="bottom" animation-delay="0">[[localize('arc','Archive',language)]]</paper-tooltip>
+						<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">[[localize('gra','Graph view',language)]]</paper-tooltip>
+						<paper-tooltip for="form_icn" position="bottom" animation-delay="0">[[localize('forms','Forms view',language)]]</paper-tooltip>
 				</div>
 			</div>
 			<div class="contact-card-container">
@@ -585,6 +574,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 
 	constructor() {
 		super();
+	}
+
+	_activeIconClass(selected) {
+	    return selected ? 'icn-selected' : ''
 	}
 
 	_onDrag(e) {

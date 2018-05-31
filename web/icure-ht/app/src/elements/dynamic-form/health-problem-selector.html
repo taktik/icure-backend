@@ -240,7 +240,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 			return;
 		}
 
-		this.dataProvider && this.dataProvider.filter(latestSearchValue, 120, 0, null, false).then(res => {
+		this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false).then(res => {
 			if (latestSearchValue !== this.latestSearchValue) {
 				console.log("Cancelling obsolete search");
 				return;

@@ -6,20 +6,20 @@
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="dynamic-form.html">
 
 <dom-module id="dynamically-loaded-form">
 	<template>
-		<style include="icd-styles">
+		<style include="icpc-styles">
 			.form-title-bar-btn {
 				height: 20px;
 				width: 20px;
 				padding: 2px;
 			}
 
-			.link .ICD-10 span {
+			.link .colour-code span {
 				content: '';
 				display: inline-block;
 				height: 6px;
@@ -47,10 +47,10 @@
 					<paper-listbox slot="dropdown-content">
 						<template is="dom-repeat" items="[[healthElements]]" as="he">
 							<template is="dom-if" if="[[he.id]]">
-								<paper-item id="[[he.id]]" class="link" on-tap="linkForm"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+								<paper-item id="[[he.id]]" class="link" on-tap="linkForm"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
 							</template>
 							<template is="dom-if" if="[[!he.id]]">
-								<paper-item id="[[he.idService]]" class="link" on-tap="linkForm"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+								<paper-item id="[[he.idService]]" class="link" on-tap="linkForm"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
 							</template>
 						</template>
 					</paper-listbox>
@@ -548,11 +548,13 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 			filter: (data, text) => {
 				return data.source === "codes" && data.types.length && text && text.length > 1 ? Promise.all(data.types.map(ct => {
 					const typeLng = this.api.code().languageForType(ct.type, this.language);
-					const words = text.split(/\s+/);
-					return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].includes(w))).map(code => ({
+					const words = text.toLowerCase().split(/\s+/);
+                    const sorter = x => [x.stringValue && x.stringValue.toLowerCase().startsWith(words[0]) ? 0 : 1, x.stringValue]
+
+					return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
 						id: code.id, stringValue: code.label[typeLng],
 						codes: [code].concat(code.links && code.links.map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) || [])
-					})));
+					})), sorter));
 				})).then(responses => _.flatMap(responses)) : Promise.resolve([]);
 			}
 		};

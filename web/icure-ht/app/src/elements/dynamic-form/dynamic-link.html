@@ -4,11 +4,11 @@
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
-<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../../icpc-styles.html">
 
 <dom-module id="dynamic-link">
     <template>
-        <style include="icd-styles">
+        <style include="icpc-styles">
             paper-menu-button {
                 padding: 0;
                 color: grey;
@@ -20,7 +20,7 @@
                 height: 20px;
             }
 
-            .link .ICD-10 span {
+            .link .colour-code span {
                 content: '';
                 display: inline-block;
                 height: 6px;
@@ -41,7 +41,7 @@
                 <paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
                 <paper-listbox slot="dropdown-content">
                     <template is="dom-repeat" items="[[linkables]]" as="he">
-                        <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+                        <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
                     </template>
                 </paper-listbox>
             </paper-menu-button>

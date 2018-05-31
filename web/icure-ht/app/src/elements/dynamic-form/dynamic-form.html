@@ -410,7 +410,7 @@ class DynamicForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 		flowClustering.centroids = flowClustering.centroids.map(c => Math.round(c * 12 / 100.0) * 100 / 12 - 0.00001);
 		const treatedFormDataList = _.flatten(formDataClusters);
 		treatedFormDataList.forEach(c => {
-			c.editor.flow = flowClustering.centroids[_.findIndex(flowClustering.clusters, cc => cc.includes(c.editor.flow))];
+			c.editor.flow = Math.floor(flowClustering.centroids[_.findIndex(flowClustering.clusters, cc => cc.includes(c.editor.flow))]*100)/100;
 		});
 		formDataClusters.forEach(cs => {
 			while (cs.reduce((acc, i) => acc + i.editor.flow, 0) > 100) {
