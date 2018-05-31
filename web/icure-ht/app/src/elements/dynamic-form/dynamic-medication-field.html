@@ -8,13 +8,14 @@
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/tk-token-field/tk-token-field.html">
+<link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
 
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
 
 <dom-module id="dynamic-medication-field">
-	<div>
+	<template>
 		<style>
 
 			:host {
@@ -85,7 +86,9 @@
 			}
 
 			
-
+			.grid-container {
+				margin: 0;
+			}
 
 			paper-dropdown-menu, paper-listbox{
 				width: 250px;
@@ -106,7 +109,6 @@
 
 			paper-tabs {
 				--paper-tabs-selection-bar-color: var(--app-secondary-color);
-				height: 64px;
 			}
 
 			paper-tab {
@@ -189,7 +191,10 @@
 
 			paper-dialog {
 				min-width: 600px;
+				min-height: 480px;
 				width: 80%;
+				top: 50%;
+				transform: translateY(-50%);
 			}
 
             .no-grid {
@@ -304,9 +309,12 @@
 				</paper-tab>
 			</paper-tabs>
             <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
-                <paper-input id="compoundPrescriptionText" label="Compound Prescription" value="{{compoundPrescriptionText}}" ></paper-input>
+				<paper-input-container always-float-label="true">
+					<label slot="label">Compound Prescription</label>
+						<iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}" ></iron-autogrow-textarea>
+				</paper-input-container>
             </template>
-            <div class$="[[_noGridClass(medicationType)]]">
+            <div class$="grid-container [[_noGridClass(medicationType)]]">
                 <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
                 <vaadin-grid id="entities-list" class="material" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
@@ -380,8 +388,6 @@
 						<paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
 					</div>
 				</template>
-
-
 
 			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>[[localize('add_pos_reg','Add posology regimen',language)]]</paper-button>
 			<div class="buttons">
@@ -494,8 +500,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
     static get observers() {
         return [
-            '_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)',
-			'_selectMedicationType(medicationType)'
+            '_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)'
 		];
     }
 
@@ -632,7 +637,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 			this.select(this.selectedMedicationFromList);
 		}
 		else if(this.compoundPrescriptionText){
-		    this.select(this.compoundPrescriptionText)
+		    this.select({name:this.compoundPrescriptionText})
         }
 	}
 
@@ -729,46 +734,39 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		this.splice('value', this.value.findIndex(s => s.id === id), 1);
 	}
 
-	selectMedicationFromList(med) {
-        if(med.id) {
+    selectMedicationFromList(med) {
+        if (med.id) {
             this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                 this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
                     "intendedname": med.name,
                     "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
-                });
+                })
                 this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
                     weekday: null,
                     date: null,
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
-                }]);
-                this.$['medication-detail'].open();
-            });
+                }])
+                this.$['medication-detail'].open()
+            })
+        } else {
+            if (med.inncluster) {
+                this.set('selectedMedicationContentWithId.medicationValue.substanceProduct', {
+                    "intendedname": med.name,
+                    "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
+                })
+            } else {
+                this.set('selectedMedicationContentWithId.medicationValue', {
+                    "compoundPrescription": med.name
+                })
+            }
+            this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
+                weekday: null,
+                date: null,
+                administratedQuantity: null
+            }])
+            this.$['medication-detail'].open()
         }
-        else if(med.inncluster){
-        	this.set('selectedMedicationContentWithId.medicationValue.substanceProduct', {
-                "intendedname": med.name,
-                "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
-            });
-            this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                weekday: null,
-                date: null,
-                administratedQuantity: null
-            }]);
-            this.$['medication-detail'].open();
-		}
-		else
-		{
-            this.set('selectedMedicationContentWithId.medicationValue', {
-                "compoundPrescription": med
-            });
-            this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                weekday: null,
-                date: null,
-                administratedQuantity: null
-            }]);
-            this.$['medication-detail'].open();
-		}
-	}
+    }
 
 	addPosologyRegimen() {
 		const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
