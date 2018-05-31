@@ -14,7 +14,7 @@
 	<template>
 		<style>
 			paper-dialog {
-				width: 800px;
+				width: 1024px;
 			}
 
 			paper-input{
@@ -97,8 +97,10 @@
                 <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
                     <paper-radio-button name="healthcareelement">[[localize('pro','Problem',language)]]</paper-radio-button>
                     <paper-radio-button name="allergy">[[localize('alle','Allergy',language)]]</paper-radio-button>
+                    <paper-radio-button name="adr">[[localize('adv-dru-rea','Adverse drug reaction',language)]]</paper-radio-button>
                     <paper-radio-button name="familyrisk">[[localize('fami_risk','Family Risk',language)]]</paper-radio-button>
                     <paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
+                    <paper-radio-button name="socialrisk">[[localize('socr','Social risk',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
             <div class="flex">
@@ -109,6 +111,36 @@
                     <paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
+            <div class="flex">
+                <paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
+                    <paper-radio-button name="probable">[[localize('proba','Probable',language)]]</paper-radio-button>
+                    <paper-radio-button name="proven">[[localize('prov','Proven',language)]]</paper-radio-button>
+                    <paper-radio-button name="unprobable">[[localize('unp','Unprobable',language)]]</paper-radio-button>
+                    <paper-radio-button name="excluded">[[localize('exc','Excluded',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
+            <div class="flex">
+                <paper-item class="label">[[localize('sev','Severity',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="[[_severity(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_severityChanged">
+                    <paper-radio-button name="normal">[[localize('no-pro','No problem',language)]]</paper-radio-button>
+                    <paper-radio-button name="verylow">[[localize('light','Light',language)]]</paper-radio-button>
+                    <paper-radio-button name="low">[[localize('mod','Moderate',language)]]</paper-radio-button>
+                    <paper-radio-button name="high">[[localize('severe','Severe',language)]]</paper-radio-button>
+                    <paper-radio-button name="veryhigh">[[localize('tot','Total',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
+            <div class="flex">
+                <paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
+                    <paper-radio-button name="oneshot">[[localize('one-sho','One shot',language)]]</paper-radio-button>
+                    <paper-radio-button name="chronic">[[localize('chro','Chronic',language)]]</paper-radio-button>
+                    <paper-radio-button name="subbacute">[[localize('sub-acu','Sub-acute',language)]]</paper-radio-button>
+                    <paper-radio-button name="acute">[[localize('acu','Acute',language)]]</paper-radio-button>
+                    <paper-radio-button name="remission">[[localize('rem','Remission',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
+
 
             <vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
             <vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
@@ -227,19 +259,38 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		}
 	}
 
-	_cdItemTagForEntity(e, create) {
+	_tagForEntity(e, type, code) {
 		const tags = e && (e.tags || (e.tags = []));
-		return tags.find(t => t.type === 'CD-ITEM') || create && (tags[tags.length] = { type: 'CD-ITEM', code: 'healthcareelement', version: '1' });
+		return tags.find(t => t.type === type) || create && (tags[tags.length] = { type: type, code: code, version: '1' });
 	}
 
-	_nature() {
-		const code = this._cdItemTagForEntity(this.entity, true);
-		return code && code.code;
-	}
+    _cdItemTagForEntity(e, create) {
+        return this._tagForEntity(e , 'CD-ITEM', create && 'healthcareelement');
+    }
 
-	_status() {
-		return !this.entity ? null : ((this.entity.status || 0) & 2) === 1 ? 'archived' : ((this.entity.status || 0) & 1) === 1 || this.entity.closingDate ? 'inactive' : 'active';
-	}
+    _nature() {
+        const code = this._cdItemTagForEntity(this.entity, true);
+        return code && code.code;
+    }
+
+    _status() {
+        return !this.entity ? null : ((this.entity.status || 0) & 2) === 1 ? 'archived' : ((this.entity.status || 0) & 1) === 1 || (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'inactive' : 'active';
+    }
+
+    _severity() {
+        const code = this._tagForEntity(this.entity, 'CD-SEVERITY');
+        return code && code.code;
+    }
+
+    _temporality() {
+        const code = this._tagForEntity(this.entity, 'CD-TEMPORALITY');
+        return code && code.code;
+    }
+
+    _certainty() {
+        const code = this._tagForEntity(this.entity, 'CD-CERTAINTY');
+        return code && code.code;
+    }
 
 	_natureChanged(e) {
 		this._cdItemTagForEntity(this.entity, true).code = e.detail.value;
@@ -259,7 +310,19 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		}
 	}
 
-	_cellContent(item, column) {
+    _severityChanged(e) {
+        this._tagForEntity(this.entity, 'CD-SEVERITY', 'normal').code = e.detail.value
+    }
+
+    _temporalityChanged(e) {
+        this._tagForEntity(this.entity, 'CD-TEMPORALITY', 'oneshot').code = e.detail.value
+	}
+
+    _certaintyChanged(e) {
+        this._tagForEntity(this.entity, 'CD-CERTAINTY', 'probable').code = e.detail.value
+	}
+
+    _cellContent(item, column) {
 		return _.isFunction(column.key) ? column.key(item) : _.get(item, column.key);
 	}
 

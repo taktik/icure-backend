@@ -640,7 +640,7 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		} else {
 			sc.services.push({ serviceId: svc.id });
 		}
-		return init && init(svc) || svc;
+		return init && init(svc) || svc;		
 	}
 
 	promoteServiceToHealthElement(heSvc) {

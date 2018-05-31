@@ -1790,7 +1790,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return he.id ? `_he_${he.id}` : `_svc_${he.idService}`;
 	}
 
-	contactFilter() {
+    contactFilter() {
 		return function (ctc) {
 			const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
 
