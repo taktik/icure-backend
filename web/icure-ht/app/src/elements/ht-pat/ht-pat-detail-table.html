@@ -27,11 +27,14 @@
                 @apply --padding-right-left-16
             }
 
-            vaadin-grid{
-				height:calc(100% - 104px);
+           vaadin-grid{
+                height: unset;
+				max-height:calc(100% - 104px);
 				margin: 32px 32px 0;
 				box-shadow: var(--app-shadow-elevation-1);
 				border: none;
+                border-radius: 3px;
+                overflow-y: scroll;
 			}
 
 
@@ -57,18 +60,18 @@
         <ckmeans-grouping id="ckmeans-grouping" max-distance="1800000"></ckmeans-grouping>
 
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" items="[[_labels(contacts,contacts.*, columns.*)]]" active-item="{{activeItem}}" on-tap="click">
-            <vaadin-grid-column width="100px">
+            <vaadin-grid-column flex-grow="2">
                 <template class="header">
                     <vaadin-grid-sorter path="label">[[localize('lab','Label',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
             <template is="dom-repeat" items="[[columns]]" as="date" index-as="columnIndex">
-                <vaadin-grid-column width="100px">
+                <vaadin-grid-column flex-grow="1">
                     <template class="header">
                         [[_date(date)]]
                     </template>
-                    <template>[[_itemValueAtIndex(item,index)]]</template>
+                    <template>[[_itemValueAtIndex(item,columnIndex)]]</template>
                 </vaadin-grid-column>
             </template>
         </vaadin-grid>
@@ -139,7 +142,7 @@ class HtPatDetailTable extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
     _updateTable(contacts) {
         const services = _.sortBy(_.flatMap(contacts, c => c.services.filter(s => this.api.contact().isNumeric(s, this.language) && !s.endOfLife)), ['modified']);
         const datesServices = services.reduce((acc, s) => {
-            (acc[s.modified] || (acc[s.modified] = [])).push(s);
+            (acc[s.modified || s.created] || (acc[s.modified || s.created] = [])).push(s);
             return acc;
         }, {});
         const labelsServices = services.reduce((acc, s) => {
@@ -147,7 +150,7 @@ class HtPatDetailTable extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
             return acc;
         }, {});
         this.set('labelsServices', labelsServices);
-        const clusters = Object.keys(datesServices).length > 2 ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => parseInt(d)))).clusters : _.sortBy(Object.keys(datesServices)).map(d => parseInt(d));
+        const clusters = Object.keys(datesServices).length > 2 ? this.$['ckmeans-grouping'].cluster(_.sortBy(Object.keys(datesServices).map(d => parseInt(d)))).clusters : _.sortBy(Object.keys(datesServices)).map(d => [parseInt(d)]);
         this.set('clusters', clusters);
         const columns = clusters.map(a => this.averageDate(a)); //todo column cluster && ligne label
         this.set('columns', columns);
@@ -179,8 +182,8 @@ class HtPatDetailTable extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
     }
 
     _itemValueAtIndex(item, index) {
-        const services = item && item.services && item.services.filter(s => this.clusters[index] && this.clusters[index].includes(s.modified)) || [];
-        return services.length ? services.map(s => this._shortDescription(s)).join(', ') : '-';
+        const services = item && item.services && item.services.filter(s => this.clusters[index] && (this.clusters[index].includes(s.modified) || this.clusters[index].includes(s.created))) || [];
+        return services.length ? _.uniq(services.map(s => this._shortDescription(s))).join(', ') : '-';
     }
 
     _date(date) {

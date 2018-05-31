@@ -247,7 +247,7 @@
                     <template is="dom-if" if="[[he.colour]]">
                         <label class$="ICD-10 [[he.colour]]"><span></span></label>
                     </template>
-                    [[he.descr]]
+                    [[getIcpc(he)]] [[he.descr]]
                 </div>
                 <div>
                     <div class="he-edit-btn-container">
@@ -379,6 +379,11 @@ class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors(
     }
 
     _addApproach(e) {}
+
+    getIcpc(he) {
+        const icpc = he.codes && he.codes.find(t=>t.type==='ICPC' || t.type==='ICPC2')
+        return icpc && ((icpc.code || icpc.id.split('|')[1]) + ' - ')
+    }
 
     select(e) {
         e.stopPropagation();

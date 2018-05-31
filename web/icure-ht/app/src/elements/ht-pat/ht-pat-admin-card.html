@@ -53,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</style>
 
-		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]"></dynamic-form>
+		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
 	</template>
 	<script>
 
@@ -191,8 +191,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			},
 			filter: (data, text, id) => {
 				if (data.source === 'insurances') {
-					return (text || '').length >= 2 ? this.api.insurance().listInsurancesByName(text).then(res => res.map(i => ({ 'id': i.id, 'name': this.localize(i.name, this.language) }))) : id ? this.api.insurance().getInsurance(id).then(i => ({ 'id': i.id, 'name': this.localize(i.name, this.language) })) : Promise.resolve([]);
-				}
+					return (text || '').length >= 2 ?
+						(text.match(/^[0-9]+$/) ? this.api.insurance().listInsurancesByCode(text) : this.api.insurance().listInsurancesByName(text))
+							.then(res => res.map(i => ({ 'id': i.id, 'name': this.localize(i.name, this.language) }))) : id ? this.api.insurance().getInsurance(id)
+							.then(i => ({ 'id': i.id, 'name': this.localize(i.name, this.language) })) : Promise.resolve([]);
+				} else if (data.source === 'users') {
+				    const s = text && text.toLowerCase()
+                    return Promise.resolve(s ? Object.values(this.api.users).filter(u=>(u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
+                        (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
+						.map(u => ({id: u.id, name: u.name||u.login||u.email})):[])
+                }
 			}
 		};
 	}

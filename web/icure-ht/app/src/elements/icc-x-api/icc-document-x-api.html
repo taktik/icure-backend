@@ -543,7 +543,7 @@
 	}
 
 	getAttachmentUrl(documentId, attachmentId, sfks) {
-		return url = this.baseApi.host + "/document/{documentId}/attachment/{attachmentId}".replace("{documentId}", documentId).replace("{attachmentId}", attachmentId) + (sfks && sfks.length ? '?sfks=' + sfks.join(',') : '');
+		return this.baseApi.host + "/document/{documentId}/attachment/{attachmentId}".replace("{documentId}", documentId).replace("{attachmentId}", attachmentId) + (sfks && sfks.length ? '?sfks=' + sfks.join(',') : '');
 	}
 
 	uti(mimeType) {

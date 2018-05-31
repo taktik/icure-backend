@@ -769,7 +769,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus  {
-				--paper-fab-background: var(--app-background-color-darker);
+				--paper-fab-background: var(--app-background-color-dark);
 				--paper-fab-keyboard-focus-background: var(--app-background-color);
 				color: var(--app-primary-color-dark);
 				box-shadow: none;
@@ -817,7 +817,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-template-columns: 0% 40% 60%;
 
 				}
-
 				.container .fit-bottom{
 					left:0%!important;
 					width:40%;
@@ -862,19 +861,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				bottom:48px;
 				width:100%;
 			}
-			.saved{
+			.savedIndicator{
 				position: fixed;
 				top:50%;
 				right: 0;
 				z-index:1000;
 				color: white;
-				font-size: 13px; 
+				font-size: 13px;
 				background:rgba(0,0,0,0.42);
 				height: 24px;
 				padding: 0 8px 0 12px;
 				border-radius: 3px 0 0 3px;
 				width: 0;
 				opacity: 0;
+			}
+			.saved{
 				animation: savedAnim 2.5s ease-in;
 			}
 			.saved iron-icon{
@@ -888,15 +889,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					opacity: 0;
 				}
 				20%{
-					width: 80px;
+					width: 114px;
 					opacity: 1;
 				}
 				25%{
-					width: 72px;
+					width: 96px;
 					opacity: 1;
 				}
 				75%{
-					width: 72px;
+					width: 96px;
 					opacity: 1;
 				}
 				100%{
@@ -907,11 +908,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="container">
-			<paper-item id="savedIndicator">[[localize('saved','SAVED',language)]]
+			<paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
-				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" language="[[language]]" resources="[[resources]]"></ht-pat-admin-card>
+				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></ht-pat-admin-card>
 			</template>
 			<paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
 			<div class="first-panel">
@@ -923,7 +924,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="patient-info">
 								<div class="patient-name">[[patient.firstName]] [[patient.lastName]]</div>
 								<div class="patient-birthdate">°[[patient.dateOfBirth]]</div>
-								<div class="statusContainer"><paper-fab id="insuranceStatus" mini icon="vaadin:handshake"></paper-fab><paper-fab id="consentStatus" mini icon="vaadin:clipboard-check"></paper-fab><paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab><paper-fab id="hubStatus" mini icon="vaadin:cluster"></paper-fab></div>
+								<div class="statusContainer">
+									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
+									<paper-fab id="consentStatus" mini icon="icons:thumb-up"></paper-fab>
+									<paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab>
+									<paper-fab id="hubStatus" mini icon="hardware:device-hub"></paper-fab>
+								</div>
 							</div>
 						</paper-item>
 						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
@@ -1058,7 +1064,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]" restamp>
 				<div class="second-panel">
-					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
+					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" search-string="{{contactSearchString}}" selected-filters="{{contactFilters}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
 					<div class="contacts-container" on-scroll="openToast">
 						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
 							<template is="dom-if" if="[[events.length]]">
@@ -1081,7 +1087,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<span class="contact-year" on-click="openToast">
 									[[contactYear.year]]
 								</span>
-								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedMainElements, selectedMainElements.*, timeSpanStart, timeSpanEnd, contactSearchString, currentContact)]]" sort="compareContacts">
+								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedMainElements, selectedMainElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"
 													elevation="0"
 													class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
@@ -1294,7 +1300,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			secondPanelItems: {
 				type: Array,
 				value: function () {
-					return [{ icon: "icure-svg-icons:laboratory", title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" }, { icon: "icure-svg-icons:stethoscope", title: {en: "Consultation", fr:"Consultation", nl:"Consultation"}, id: "Consultation" }, { icon: "editor:insert-drive-file", title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: {en: "Prescription", fr:"Prescription", nl:"Prescription"}, id: "Prescription" }, { icon: "icure-svg-icons:sent-reports", title: {en: "SentReports", fr:"Envoyer rapports", nl:"SentReports"}, id: "SentReports" }, { icon: "icure-svg-icons:received-reports", title: {en: "ReceivedReports", fr:"Recevoir rapports", nl:"ReceivedReports"}, id: "ReceivedReports" }];
+					return [{ icon: "icure-svg-icons:laboratory", filter:[{type:'CD-TRANSACTION',code:['labresult']}] , title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" },
+							{ icon: "icure-svg-icons:imaging", filter:[{type:'CD-TRANSACTION',code:['result']},{type:'CD-HCPARTY',code:['deptradiology']}], title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" },
+							{ icon: "icure-svg-icons:stethoscope", filter:[{type:'CD-ENCOUNTER',code:['consultation']}], title: {en: "Consultation", fr:"Consultation", nl:"Consultation"}, id: "Consultation" },
+							{ icon: "editor:insert-drive-file", filter:[{type:'CD-TRANSACTION',code:['contactreport']}], title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" },
+							{ icon: "icure-svg-icons:prescription", filter:[{type:'CD-ITEM',code:['treatment']}], title: {en: "Prescription",  fr:"Prescription", nl:"Prescription"}, id: "Prescription" }];
 				}
 			},
 			i18n: {
@@ -1786,7 +1796,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return he.id ? `_he_${he.id}` : `_svc_${he.idService}`;
 	}
 
-	contactFilter() {
+    contactFilter() {
 		return function (ctc) {
 			const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
 
@@ -1794,7 +1804,23 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
 			const svcIds = this.selectedMainElements.filter(he => !he.id).map(he => he.idService);
 
-			return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd) && (!regExp || ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length) && (!heIds.length && !poaIds.length && !svcIds.length || ctc.subContacts.filter(sc => (sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length).length || ctc.services.filter(s => svcIds.includes(s.id)).length) || !ctc.closingDate;
+			return this.api.after(ctc.openingDate, this.timeSpanStart)
+				&& this.api.before(ctc.openingDate, this.timeSpanEnd)
+				&& (!regExp || ctc.subContacts.some(sc => sc.descr && sc.descr.match(regExp) && sc.services.length)
+					|| ctc.services.some(s => this.shortServiceDescription(s, this.language).match(regExp)))
+				&& (!heIds.length && !poaIds.length && !svcIds.length
+					|| ctc.subContacts.some(sc => (sc.healthElementId && heIds.includes(sc.healthElementId)
+						|| sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length)
+					|| ctc.services.some(s => svcIds.includes(s.id)))
+				&& (!this.contactFilters || !this.contactFilters.length
+					|| ctc.services.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
+					cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
+                    || ctc.tags.some(t => this.contactFilters.some(cf=>
+                        cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code))))
+                    || ctc.subContacts.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
+                        cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
+				)
+				|| !ctc.closingDate;
 		}.bind(this);
 	}
 

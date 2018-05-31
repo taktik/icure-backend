@@ -47,10 +47,13 @@
             }
 
             vaadin-grid{
-				height:calc(100% - 104px);
+                height: unset;
+				max-height:calc(100% - 104px);
 				margin: 32px 32px 0;
 				box-shadow: var(--app-shadow-elevation-1);
 				border: none;
+                border-radius: 3px;
+                overflow-y: scroll;
 			}
 
             
@@ -62,13 +65,19 @@
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
-            <vaadin-grid-column flex-grow="2" width="80px">
+            <vaadin-grid-column flex-grow="1">
+                <template class="header">
+                    <vaadin-grid-sorter path="function{[[_name()]]}">Name</vaadin-grid-sorter>
+                </template>
+                <template>[[_name()]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column flex-grow="1">
                 <template class="header">
                     <vaadin-grid-sorter path="modified">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[_date(item)]]</template>
             </vaadin-grid-column>
-            <vaadin-grid-column flex-grow="5" width="300px">
+            <vaadin-grid-column flex-grow="4">
                 <template class="header">
                     Value
                 </template>
