@@ -8,8 +8,10 @@
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/tk-token-field/tk-token-field.html">
+<link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
 
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
 
 <dom-module id="dynamic-medication-field">
@@ -84,7 +86,9 @@
 			}
 
 			
-
+			.grid-container {
+				margin: 0;
+			}
 
 			paper-dropdown-menu, paper-listbox{
 				width: 250px;
@@ -101,6 +105,22 @@
 					color:var(--app-text-color);
 					opacity:1;
 				};
+			}
+
+			paper-tabs {
+				--paper-tabs-selection-bar-color: var(--app-secondary-color);
+			}
+
+			paper-tab {
+				--paper-tab-ink: var(--app-secondary-color);
+			}
+
+			paper-tab.iron-selected {
+				font-weight: bold;
+			}
+
+			paper-tab.iron-selected > iron-icon {
+				color: var(--app-secondary-color);
 			}
 
 			input {
@@ -171,8 +191,16 @@
 
 			paper-dialog {
 				min-width: 600px;
+				min-height: 480px;
 				width: 80%;
+				top: 50%;
+				transform: translateY(-50%);
 			}
+
+            .no-grid {
+                display: none;
+            }
+
 			.regimen-line{
 				display: flex;
 				flex-flow: row nowrap;
@@ -269,19 +297,38 @@
 
 		<paper-dialog id="medication-selection" always-on-top="true">
 			<h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
-			<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-			<vaadin-grid id="entities-list" class="material" active-item="{{selectedMedicationFromList}}" on-tap="click">
-				<template is="dom-repeat" items="[[columns]]" as="column">
-					<vaadin-grid-column width="[[_columnWidth(column)]]">
-						<template class="header">
-							<vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
-						</template>
-						<template>
-							<div class="cell frozen">[[_cellContent(item, column)]]</div>
-						</template>
-					</vaadin-grid-column>
-				</template>
-			</vaadin-grid>
+			<paper-tabs selected="{{medicationType}}" attr-for-selected="name" >
+				<paper-tab name="medicinalProduct" on-tap="setMedicationType">
+					[[localize('medication-by-product-name','By product name',language)]]
+				</paper-tab>
+				<paper-tab name="substanceProduct" on-tap="setMedicationType">
+					[[localize('medication-by-molecule','By molecule',language)]]
+				</paper-tab>
+				<paper-tab name="compoundPrescription" on-tap="setMedicationType">
+					[[localize('medication-compound','Compound prescription',language)]]
+				</paper-tab>
+			</paper-tabs>
+            <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+				<paper-input-container always-float-label="true">
+					<label slot="label">Compound Prescription</label>
+						<iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}" ></iron-autogrow-textarea>
+				</paper-input-container>
+            </template>
+            <div class$="grid-container [[_noGridClass(medicationType)]]">
+                <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+                <vaadin-grid id="entities-list" class="material" active-item="{{selectedMedicationFromList}}" on-tap="click">
+                    <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
+                        <vaadin-grid-column width="[[_columnWidth(column)]]">
+                            <template class="header">
+                                <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[_cellContent(item, column)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </template>
+                </vaadin-grid>
+            </div>
 			<div class="buttons">
 				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
@@ -290,7 +337,15 @@
 
 		<paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
 			<h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
-			<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
+			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
+				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
+			</template>
+			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
+				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"></paper-input>
+			</template>
+			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
+				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
+			</template>
 				<template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
 					<div class="regimen-line">
 						<paper-dropdown-menu label="Frequency" class="regimen--frequency">
@@ -334,8 +389,6 @@
 					</div>
 				</template>
 
-
-
 			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>[[localize('add_pos_reg','Add posology regimen',language)]]</paper-button>
 			<div class="buttons">
 				<paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
@@ -348,98 +401,130 @@
 import accounting from '../../../scripts/accounting';
 
 class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
-	static get is() {
-		return 'dynamic-medication-field';
-	}
+    static get is() {
+        return 'dynamic-medication-field';
+    }
 
-	static get properties() {
-		return {
-			api: {
-				type: Object
-			},
-			wasModified: {
-				type: Boolean
-			},
-			isModifiedAfter: {
-				type: Boolean
-			},
-			readOnly: {
-				type: Boolean,
-				value: false
-			},
-			lastModified: {
-				type: String
-			},
-			label: {
-				type: String
-			},
-			context: {
-				type: String
-			},
-			value: {
-				type: Array,
-				notify: true,
-				value: function () {
-					return [];
-				}
-			},
-			shelf: { //Where the items from value are stored during a move
-				type: Array,
-				notify: true,
-				value: function () {
-					return [];
-				}
-			},
-			localizedValue: {
-				type: Array,
-				value: function () {
-					return [];
-				}
-			},
-			input: {
-				type: String
-			},
-			width: {
-				type: Number,
-				value: 48,
-				observer: '_widthChanged'
-			},
-			columns: {
-				type: Array,
-				value: function () {
-					return [{ key: 'name', title: 'Name', size: '400px' }, { key: 'pricepatstd', title: 'Price pat.' }, { key: 'pubprice', title: 'Price' }];
-				}
-			},
+    static get properties() {
+        return {
+            api: {
+                type: Object
+            },
+            wasModified: {
+                type: Boolean
+            },
+            isModifiedAfter: {
+                type: Boolean
+            },
+            medicationType: {
+                type: String,
+                value: 'medicinalProduct'
+            },
+            compoundPrescriptionText: {
+                type: String,
+                value:''
+            },
+            readOnly: {
+                type: Boolean,
+                value: false
+            },
+            lastModified: {
+                type: String
+            },
+            label: {
+                type: String
+            },
+            context: {
+                type: String
+            },
+            value: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            },
+            shelf: { //Where the items from value are stored during a move
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            },
+            localizedValue: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            },
+            input: {
+                type: String
+            },
+            width: {
+                type: Number,
+                value: 48,
+                observer: '_widthChanged'
+            },
+            columnsDefinition: {
+                type: Object,
+                value: function () {
+                    return {substanceProduct:[{key: 'name', title: 'Name', size: '400px'}],
+						medicinalProduct:[{key: 'name', title: 'Name', size: '400px'}, {
+                            key: 'pricepatstd',
+                            title: 'Price pat.'
+                        }, {key: 'pubprice', title: 'Price'}]};
+                }
+            },
 
-			entityType: {
-				type: String,
-				value: 'entity'
-			},
+            entityType: {
+                type: String,
+                value: 'entity'
+            },
 
-			dataProvider: {
-				type: Object,
-				value: null
-			},
+            dataProvider: {
+                type: Object,
+                value: null
+            },
 
-			selectedMedicationFromList: {
-				type: Object,
-				value: null,
-				observer: "_selectedMedicationFromListChanged"
-			},
-			selectedMedicationContentWithId: {
-				type: Object,
-				value: null
-			}
-		};
-	}
+            selectedMedicationFromList: {
+                type: Object,
+                value: null,
+                observer: "_selectedMedicationFromListChanged"
+            },
+            selectedMedicationContentWithId: {
+                type: Object,
+                value: null
+            }
+        };
+    }
 
-	static get observers() {
-		return ['_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)'];
+    static get observers() {
+        return [
+            '_valueChanged(value.*, selectedMedicationContentWithId.medicationValue.medicinalProduct, selectedMedicationContentWithId.medicationValue.substanceProduct, selectedMedicationContentWithId.medicationValue.regimen.*)'
+		];
+    }
+
+    _noGridClass(medicationType) {
+        return this._isCompoundPrescription(medicationType) ? 'no-grid' : ''
+    }
+
+    setMedicationType(e){
+    	this.set('medicationType', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')))
+		this.filterValue = ''
+		this.refresh()
 	}
 
 	constructor() {
 		super();
 	}
+
+	_getColumns(medicationType) {
+	   return this.columnsDefinition[medicationType]||[]
+	}
+
+    _isCompoundPrescription(medicationType){
+        return medicationType === 'compoundPrescription';
+    }
 
 	ready() {
 		super.ready();
@@ -449,8 +534,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		grid.lastParams = null; //Used to prevent double calls
 		grid.size = 0;
 		grid.pageSize = 50;
-		grid.dataProvider = function (params, callback) {
-			const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || this.columns[0] && this.columns[0].key;
+		grid.dataProvider = (params, callback) => {
+		    const columns = this._getColumns(this.medicationType)
+			const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key;
 			const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
 
 			const pageSize = params.pageSize || grid.pageSize;
@@ -473,7 +559,21 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 			const limit = endIndex || grid.pageSize;
 			const offset = params.index;
-
+            if(this.medicationType === 'substanceProduct'){
+                this.api.bedrugs().getInnClusters(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
+                    return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
+                }).then(function (res) {
+                    if (this.filterValue !== latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    if (grid.size !== res.totalSize) {
+                        grid.set("size", res.totalSize);
+                    }
+                    callback(_.slice(res.rows, startIndex, endIndex));
+                }.bind(this));
+			}
+			else {
 			this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
 				return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
 			}).then(function (res) {
@@ -486,7 +586,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 				}
 				callback(_.slice(res.rows, startIndex, endIndex));
 			}.bind(this));
-		}.bind(this);
+			}
+		};
 	}
 
 	_cellContent(item, column) {
@@ -496,7 +597,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	_columnWidth(column) {
 		return column.size || "100px";
 	}
-
+	
 	click(e) {
 		const selected = this.selectedMedicationFromList;
 
@@ -535,6 +636,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		if (this.selectedMedicationFromList) {
 			this.select(this.selectedMedicationFromList);
 		}
+		else if(this.compoundPrescriptionText){
+		    this.select({name:this.compoundPrescriptionText})
+        }
 	}
 
 	skip() {
@@ -630,13 +734,39 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		this.splice('value', this.value.findIndex(s => s.id === id), 1);
 	}
 
-	selectMedicationFromList(med) {
-		this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
-			this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', { "intendedname": med.name, "intendedcds": [{ type: "CD-DRUG-CNK", code: med.id.id }] });
-			this.set('selectedMedicationContentWithId.medicationValue.regimen', [{ weekday: null, date: null, administratedQuantity: { quantity: 1, unit: mppInfos.gal.name } }]);
-			this.$['medication-detail'].open();
-		});
-	}
+    selectMedicationFromList(med) {
+        if (med.id) {
+            this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
+                this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
+                    "intendedname": med.name,
+                    "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
+                })
+                this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
+                    weekday: null,
+                    date: null,
+                    administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
+                }])
+                this.$['medication-detail'].open()
+            })
+        } else {
+            if (med.inncluster) {
+                this.set('selectedMedicationContentWithId.medicationValue.substanceProduct', {
+                    "intendedname": med.name,
+                    "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
+                })
+            } else {
+                this.set('selectedMedicationContentWithId.medicationValue', {
+                    "compoundPrescription": med.name
+                })
+            }
+            this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
+                weekday: null,
+                date: null,
+                administratedQuantity: null
+            }])
+            this.$['medication-detail'].open()
+        }
+    }
 
 	addPosologyRegimen() {
 		const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
