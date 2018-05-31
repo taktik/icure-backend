@@ -817,7 +817,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-template-columns: 0% 40% 60%;
 
 				}
-
 				.container .fit-bottom{
 					left:0%!important;
 					width:40%;
@@ -862,19 +861,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				bottom:48px;
 				width:100%;
 			}
-			.saved{
+			.savedIndicator{
 				position: fixed;
 				top:50%;
 				right: 0;
 				z-index:1000;
 				color: white;
-				font-size: 13px; 
+				font-size: 13px;
 				background:rgba(0,0,0,0.42);
 				height: 24px;
 				padding: 0 8px 0 12px;
 				border-radius: 3px 0 0 3px;
 				width: 0;
 				opacity: 0;
+			}
+			.saved{
 				animation: savedAnim 2.5s ease-in;
 			}
 			.saved iron-icon{
@@ -911,7 +912,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
-				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" language="[[language]]" resources="[[resources]]"></ht-pat-admin-card>
+				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></ht-pat-admin-card>
 			</template>
 			<paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
 			<div class="first-panel">
