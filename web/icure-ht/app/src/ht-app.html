@@ -144,6 +144,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border-top:1px solid var(--app-background-color-dark);				
 			}
 
+			.extra-menu-item iron-icon{
+				color: var(--app-text-color-disabled);
+			}
+
 			paper-tabs {
 				--paper-tabs-selection-bar-color: var(--app-secondary-color);
 				height: 64px;
@@ -445,9 +449,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
 								<paper-listbox class="extra-menu" slot="dropdown-content"  stop-keyboard-event-propagation>
 									<div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
+
 									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_myProfile">[[localize('my_pro','My profile',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
+
 								</paper-listbox>
 							</paper-menu-button>
 						</div>

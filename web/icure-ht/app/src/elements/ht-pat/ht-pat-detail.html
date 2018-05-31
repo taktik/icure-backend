@@ -769,7 +769,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus  {
-				--paper-fab-background: var(--app-background-color-darker);
+				--paper-fab-background: var(--app-background-color-dark);
 				--paper-fab-keyboard-focus-background: var(--app-background-color);
 				color: var(--app-primary-color-dark);
 				box-shadow: none;
@@ -924,7 +924,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="patient-info">
 								<div class="patient-name">[[patient.firstName]] [[patient.lastName]]</div>
 								<div class="patient-birthdate">°[[patient.dateOfBirth]]</div>
-								<div class="statusContainer"><paper-fab id="insuranceStatus" mini icon="vaadin:handshake"></paper-fab><paper-fab id="consentStatus" mini icon="vaadin:clipboard-check"></paper-fab><paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab><paper-fab id="hubStatus" mini icon="vaadin:cluster"></paper-fab></div>
+								<div class="statusContainer">
+									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
+									<paper-fab id="consentStatus" mini icon="icons:thumb-up"></paper-fab>
+									<paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab>
+									<paper-fab id="hubStatus" mini icon="hardware:device-hub"></paper-fab>
+								</div>
 							</div>
 						</paper-item>
 						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>

@@ -202,7 +202,8 @@
 			}
 
 			vaadin-grid {
-				height:100%;
+				max-height:100%;
+				border: none;
 				--vaadin-grid-body-row-hover-cell: {
 					/* background-color: var(--app-primary-color); */
 					color: white;
@@ -338,6 +339,7 @@
 			.horizontal{
 				flex-flow: row nowrap;
 			}
+
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -425,7 +427,7 @@
 
 		<paper-dialog id="prescriptionDialog">
 			<h2 class="modal-title">[[localize('pri_pre','Print prescription',language)]]</h2>
-			<vaadin-grid id="entities-list" class="material" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content,currentContact,currentContact.services,currentContact.services.*)]] active-item="{{activeDrug}}">
+			<vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content,currentContact,currentContact.services,currentContact.services.*)]] active-item="{{activeDrug}}">
 					<vaadin-grid-column width="100px">
 						<template class="header">
 							<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
