@@ -27,11 +27,14 @@
                 @apply --padding-right-left-16
             }
 
-            vaadin-grid{
-				height:calc(100% - 104px);
+           vaadin-grid{
+                height: unset;
+				max-height:calc(100% - 104px);
 				margin: 32px 32px 0;
 				box-shadow: var(--app-shadow-elevation-1);
 				border: none;
+                border-radius: 3px;
+                overflow-y: scroll;
 			}
 
 
@@ -57,14 +60,14 @@
         <ckmeans-grouping id="ckmeans-grouping" max-distance="1800000"></ckmeans-grouping>
 
         <vaadin-grid id="dynamic-list" size="10" multi-sort="[[multiSort]]" items="[[_labels(contacts,contacts.*, columns.*)]]" active-item="{{activeItem}}" on-tap="click">
-            <vaadin-grid-column width="100px">
+            <vaadin-grid-column flex-grow="2">
                 <template class="header">
                     <vaadin-grid-sorter path="label">[[localize('lab','Label',language)]]</vaadin-grid-sorter>
                 </template>
                 <template>[[item.label]]</template>
             </vaadin-grid-column>
             <template is="dom-repeat" items="[[columns]]" as="date" index-as="columnIndex">
-                <vaadin-grid-column width="100px">
+                <vaadin-grid-column flex-grow="1">
                     <template class="header">
                         [[_date(date)]]
                     </template>
