@@ -295,7 +295,7 @@
 		</template>
 
 		<ul>
-		<template is="dom-repeat" items="[[localizedValue]]" as="lv">
+		<template is="dom-repeat" items="[[_localizedValue(value, value.*)]]" as="lv">
 			<li id="[[lv.id]]" class="medication-line"><span>[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
 		</template>
 		</ul>
@@ -649,11 +649,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	}
 
 	skip() {
-		if (this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.isNew && this.selectedMedicationContentWithId.id) {
-			const currentId = this.selectedMedicationContentWithId.id;
-			this.select(null);
-			this.splice('value', this.value.findIndex(s => s.id === currentId), 1);
-		}
 	}
 
 	close() {}
@@ -670,6 +665,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		grid.selectedItems = item ? [item] : [];
 	}
 
+	/*
 	_localizedValueChanged(change) {
 		const current = this.value;
 		const modified = this.localizedValue;
@@ -688,7 +684,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		this.shelf = current;
 		this.set('value', newValue);
 	}
-
+	*/
 	_widthChanged(width) {
 		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
 	}
@@ -719,10 +715,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	addMedication() {
 		const id = this.api.crypto().randomUuid();
-		this.push('value', { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) });
-
-		const item = this.value.find(s => s.id === id);
-		this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item, true));
+		this.set('newMedication', { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) });
+		this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(this.newMedication, true));
 		this.$['medication-selection'].open();
 	}
 
@@ -753,6 +747,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     date: null,
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
                 }])
+                if (this.selectedMedicationContentWithId.isNew) {
+                    this.push('value',this.newMedication)
+                }
                 this.$['medication-detail'].open()
             })
         } else {
@@ -771,7 +768,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 date: null,
                 administratedQuantity: null
             }])
-            this.$['medication-detail'].open()
         }
     }
 
