@@ -58,6 +58,36 @@
 		"night" : "Night",
 		"noon" : "Noon",
 		"at":"at"
+	},
+	"nl": {
+		"package":"package",
+		"packages":"packages",
+		"packageOf":"package of",
+		"packagesOf":"packages of",
+		"during":"during",
+		"take_s_":"take(s)",
+		"weekly":"weekly",
+		"monthly":"monthly",
+		"daily":"daily",
+		"the":"the",
+		"onDay":"on day",
+		"on":"on",
+		"afterbreakfast" : "Na ontbijt",
+		"afterdinner" : "After Dinner",
+		"afterlunch" : "After Lunch",
+		"afternoon" : "Afternoon",
+		"beforebreakfast" : "Before Breakfast",
+		"beforedinner" : "Before Dinner",
+		"beforelunch" : "Before Lunch",
+		"duringbreakfast" : "During Breakfast",
+		"duringdinner" : "During Dinner",
+		"duringlunch" : "During Lunch",
+		"evening" : "Evening",
+		"knownuse" : "Known Usage",
+		"morning" : "Morning",
+		"night" : "Night",
+		"noon" : "Noon",
+		"at":"at"
 	}
 
 }
