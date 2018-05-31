@@ -1,5 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../../icpc-styles.html">
 <link rel="import" href="../collapse-button/collapse-button.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
@@ -8,7 +8,7 @@
 
 <dom-module id="ht-pat-he-tree-detail">
     <template>
-        <style include="icd-styles">
+        <style include="icpc-styles">
             paper-item.list-info {
                 font-weight: lighter;
                 font-style: italic;
@@ -200,31 +200,31 @@
                 0 3px 1px -2px rgba(0, 0, 0, 0.2);
             }
 
-            .ICD-10{
+            .colour-code{
                 line-height: 12px;
                 margin-right:4px;
                 color: black;
             }
 
-            .iron-selected .ICD-10{
+            .iron-selected .colour-code{
                 color: var(--app-light-color);
             }
 
-            .iron-selected .ICD-10 span{
+            .iron-selected .colour-code span{
                 background: var(--app-light-color);
             }
-            .ICD-10:hover{
+            .colour-code:hover{
                 font-weight:600;
             }
 
-            .ICD-10:hover:before{
+            .colour-code:hover:before{
                 height:8px;
                 width:8px;
                 margin-bottom:0;
                 border-radius:4px;
             }
 
-            .ICD-10 span{
+            .colour-code span{
                 content: '';
                 display: inline-block;
                 height: 6px;
@@ -235,7 +235,7 @@
                 background: lightgrey;
             }
 
-            .contact .ICD-10:not(:first-child) {
+            .contact .colour-code:not(:first-child) {
                 margin-left: 4px;
             }
 
@@ -245,9 +245,9 @@
             <paper-item slot="sublist-collapse-item" id="[[getHeId(he)]]" aria-selected="[[selected]]" class$="menu-trigger menu-item [[isIronSelected(selected)]]" on-tap="select">
                 <div class="one-line-menu">
                     <template is="dom-if" if="[[he.colour]]">
-                        <label class$="ICD-10 [[he.colour]]"><span></span></label>
+                        <label class$="colour-code [[he.colour]]"><span></span></label>
                     </template>
-                    [[he.descr]]
+                    [[getIcpc(he)]] [[he.descr]]
                 </div>
                 <div>
                     <div class="he-edit-btn-container">
@@ -379,6 +379,11 @@ class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors(
     }
 
     _addApproach(e) {}
+
+    getIcpc(he) {
+        const icpc = he.codes && he.codes.find(t=>t.type==='ICPC' || t.type==='ICPC2')
+        return icpc && ((icpc.code || icpc.id.split('|')[1]) + ' - ')
+    }
 
     select(e) {
         e.stopPropagation();

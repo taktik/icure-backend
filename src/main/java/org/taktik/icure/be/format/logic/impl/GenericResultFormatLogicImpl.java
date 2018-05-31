@@ -103,10 +103,10 @@ public abstract class GenericResultFormatLogicImpl {
 			CharsetMatch[] cms = cd.detectAll();
 
 			Reader r = null;
-			List<String> languages = Arrays.asList("fr","nl","en");
+			List<String> languages = Arrays.asList("fr","nl","en","de");
 
 			for (CharsetMatch cm : cms) {
-				if (cm.getLanguage()==null||languages.contains(cm.getLanguage())) {
+				if (!cm.getName().startsWith("UTF-16") && (cm.getLanguage() == null || languages.contains(cm.getLanguage()))) {
 					r = cm.getReader();
 					if (r != null) {
 						break;
@@ -135,10 +135,10 @@ public abstract class GenericResultFormatLogicImpl {
 		CharsetMatch[] cms = cd.detectAll();
 
 		Reader r = null;
-		List<String> languages = Arrays.asList("fr","nl","en");
+		List<String> languages = Arrays.asList("fr","nl","en","de");
 
 		for (CharsetMatch cm : cms) {
-			if (cm.getLanguage() == null || languages.contains(cm.getLanguage())) {
+			if (!cm.getName().startsWith("UTF-16") && (cm.getLanguage() == null || languages.contains(cm.getLanguage()))) {
 				r = cm.getReader();
 				if (r != null) {
 					break;

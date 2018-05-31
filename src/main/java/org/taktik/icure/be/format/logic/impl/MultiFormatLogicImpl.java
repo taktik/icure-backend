@@ -33,7 +33,8 @@ import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Patient;
 
 @org.springframework.stereotype.Service
-public class MultiFormatLogicImpl implements MultiFormatLogic {
+public class
+MultiFormatLogicImpl implements MultiFormatLogic {
 	List<ResultFormatLogic> engines;
 
 	public MultiFormatLogicImpl(List<ResultFormatLogic> engines) {

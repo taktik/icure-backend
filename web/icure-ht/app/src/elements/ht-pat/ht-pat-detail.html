@@ -52,7 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="ht-pat-he-tree-detail.html">
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
-<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
@@ -61,7 +61,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	<template>
 		<style include="iron-flex iron-flex-alignment"></style>
 		<!--suppress CssUnusedSymbol -->
-		<style include="icd-styles">
+		<style include="icpc-styles">
 			:host {
 				height: 100%;
 			}
@@ -556,31 +556,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			.ICD-10{
+			.colour-code{
 				line-height: 12px;
 				margin-right:4px;
 				color: black;
 			}
 
-			.iron-selected .ICD-10{
+			.iron-selected .colour-code{
 				color: var(--app-light-color);
 			}
 
-			.iron-selected .ICD-10 span{
+			.iron-selected .colour-code span{
 				background: var(--app-light-color);
 			}
-			.ICD-10:hover{
+			.colour-code:hover{
 				font-weight:600;
 			}
 
-			.ICD-10:hover:before{
+			.colour-code:hover:before{
 				height:8px;
 				width:8px;
 				margin-bottom:0;
 				border-radius:4px;
 			}
 
-			.ICD-10 span{
+			.colour-code span{
 				content: '';
 				display: inline-block;
 				height: 6px;
@@ -591,7 +591,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: lightgrey;
 			}
 
-			.contact .ICD-10:not(:first-child) {
+			.contact .colour-code:not(:first-child) {
 				margin-left: 4px;
 			}
 
@@ -741,12 +741,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			/* END SECOND PANEL */
 
 			.second-third-panel{
-				width:80%;
-				height:calc(100% - 64px);
+				grid-column: 2 / span 2;
+    			grid-row: 1 / 1;
 				background: var(--app-background-color);
-				position:fixed;
-				top:64px;
-				right:0;
+				
 				z-index:2;
 				overflow-y:scroll;
 			}
@@ -769,7 +767,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus  {
-				--paper-fab-background: var(--app-background-color-darker);
+				--paper-fab-background: var(--app-background-color-dark);
 				--paper-fab-keyboard-focus-background: var(--app-background-color);
 				color: var(--app-primary-color-dark);
 				box-shadow: none;
@@ -817,7 +815,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-template-columns: 0% 40% 60%;
 
 				}
-
 				.container .fit-bottom{
 					left:0%!important;
 					width:40%;
@@ -835,7 +832,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					text-transform:lowercase;
 				}
 				.second-third-panel{
-					width:70%;
+					grid-column: 1 / span 3;
+    				grid-row: 1 / 1;
 				}
 				.patient-info-container{
 					@apply --padding-right-left-16;
@@ -862,19 +860,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				bottom:48px;
 				width:100%;
 			}
-			.saved{
+			.savedIndicator{
 				position: fixed;
 				top:50%;
 				right: 0;
 				z-index:1000;
 				color: white;
-				font-size: 13px; 
+				font-size: 13px;
 				background:rgba(0,0,0,0.42);
 				height: 24px;
 				padding: 0 8px 0 12px;
 				border-radius: 3px 0 0 3px;
 				width: 0;
 				opacity: 0;
+			}
+			.saved{
 				animation: savedAnim 2.5s ease-in;
 			}
 			.saved iron-icon{
@@ -888,15 +888,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					opacity: 0;
 				}
 				20%{
-					width: 80px;
+					width: 114px;
 					opacity: 1;
 				}
 				25%{
-					width: 72px;
+					width: 96px;
 					opacity: 1;
 				}
 				75%{
-					width: 72px;
+					width: 96px;
 					opacity: 1;
 				}
 				100%{
@@ -907,11 +907,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 
 		<div class="container">
-			<paper-item id="savedIndicator">SAVED
+			<paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
 				<iron-icon icon="icons:check"></iron-icon>
 			</paper-item>
 			<template is="dom-if" if="[[isAdminSelected(selectedAdminFile)]]">
-				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" language="[[language]]" resources="[[resources]]"></ht-pat-admin-card>
+				<ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></ht-pat-admin-card>
 			</template>
 			<paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
 			<div class="first-panel">
@@ -923,7 +923,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="patient-info">
 								<div class="patient-name">[[patient.firstName]] [[patient.lastName]]</div>
 								<div class="patient-birthdate">°[[patient.dateOfBirth]]</div>
-								<div class="statusContainer"><paper-fab id="insuranceStatus" mini icon="vaadin:handshake"></paper-fab><paper-fab id="consentStatus" mini icon="vaadin:clipboard-check"></paper-fab><paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab><paper-fab id="hubStatus" mini icon="vaadin:cluster"></paper-fab></div>
+								<div class="statusContainer">
+									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
+									<paper-fab id="consentStatus" mini icon="icons:thumb-up"></paper-fab>
+									<paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab>
+									<paper-fab id="hubStatus" mini icon="hardware:device-hub"></paper-fab>
+								</div>
 							</div>
 						</paper-item>
 						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
@@ -1058,7 +1063,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 			<template is="dom-if" if="[[!isAdminSelected(selectedAdminFile)]]" restamp>
 				<div class="second-panel">
-					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" selected-icon="{{contactType}}" search-string="{{contactSearchString}}"></filter-panel></div>
+					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" search-string="{{contactSearchString}}" selected-filters="{{contactFilters}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
 					<div class="contacts-container" on-scroll="openToast">
 						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
 							<template is="dom-if" if="[[events.length]]">
@@ -1081,7 +1086,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<span class="contact-year" on-click="openToast">
 									[[contactYear.year]]
 								</span>
-								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedMainElements, selectedMainElements.*, timeSpanStart, timeSpanEnd, contactSearchString, currentContact)]]" sort="compareContacts">
+								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedMainElements, selectedMainElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"
 													elevation="0"
 													class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
@@ -1108,7 +1113,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 											</div>
 											<div class="contact-text-row label-container">
 												<template is="dom-repeat" items="[[contact.healthElements]]" as="he">
-													<label id="label_[[contact.id]]_[[getHeId(he)]]" class$="ICD-10 [[he.colour]]"><span></span>[[he.descr]]</label>
+													<label id="label_[[contact.id]]_[[getHeId(he)]]" class$="colour-code [[he.colour]]"><span></span>[[he.descr]]</label>
 													<paper-tooltip for="label_[[contact.id]]_[[getHeId(he)]]">[[he.descr]]</paper-tooltip>
 												</template>
 											</div>
@@ -1294,7 +1299,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			secondPanelItems: {
 				type: Array,
 				value: function () {
-					return [{ icon: "icure-svg-icons:laboratory", title: "Lab Results", id: "LabResults" }, { icon: "icure-svg-icons:imaging", title: "Imaging", id: "Imaging" }, { icon: "icure-svg-icons:stethoscope", title: "Consultation", id: "Consultation" }, { icon: "editor:insert-drive-file", title: "Protocol", id: "Protocol" }, { icon: "icure-svg-icons:prescription", title: "Prescription", id: "Prescription" }, { icon: "icure-svg-icons:sent-reports", title: "Sent Reports", id: "SentReports" }, { icon: "icure-svg-icons:received-reports", title: "Received Reports", id: "ReceivedReports" }];
+					return [{ icon: "icure-svg-icons:laboratory", filter:[{type:'CD-TRANSACTION',code:['labresult']}] , title: {en: "Lab Results", fr:"Résultats du laboratoires", nl:"Lab Results"}, id: "LabResults" },
+							{ icon: "icure-svg-icons:imaging", filter:[{type:'CD-TRANSACTION',code:['result']},{type:'CD-HCPARTY',code:['deptradiology']}], title: {en: "Imaging", fr:"Imaging", nl:"Imaging"}, id: "Imaging" },
+							{ icon: "icure-svg-icons:stethoscope", filter:[{type:'CD-ENCOUNTER',code:['consultation']}], title: {en: "Consultation", fr:"Consultation", nl:"Consultation"}, id: "Consultation" },
+							{ icon: "editor:insert-drive-file", filter:[{type:'CD-TRANSACTION',code:['contactreport']}], title: {en: "Protocol", fr:"Protocol", nl:"Protocol"}, id: "Protocol" },
+							{ icon: "icure-svg-icons:prescription", filter:[{type:'CD-ITEM',code:['treatment']}], title: {en: "Prescription",  fr:"Prescription", nl:"Prescription"}, id: "Prescription" }];
 				}
 			},
 			i18n: {
@@ -1415,7 +1424,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	filterEvents() {
-		this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.find(t => t.type === 'CD-LIFECYCLE' && t.code === 'planned')), it => -this.api.moment(it.valueDate)));
+		this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && t.code === 'planned')), it => -this.api.moment(it.valueDate)));
 	}
 
 	_lateEventCssClass(e) {
@@ -1502,11 +1511,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						e.selectedItems = [];
 					});
 
-					this.api.code().icdChapters(_.compact(combinedHes.map(he => he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10'))).map(x => x.code)).then(codes => {
+					this.api.code().icpcChapters(_.compact(combinedHes.map(he => he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2'))).map(x => x.code)).then(codes => {
 						codes.forEach(cc => {
 							cc.healthElements = _.sortBy(combinedHes.filter(he => {
-								let heIcd = he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10');
-								return heIcd && cc.subCodes.includes(heIcd.code);
+								let heIcpc = he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2');
+								return heIcpc && cc.subCodes.includes(heIcpc.code);
 							}), sorter);
 							cc.healthElements.forEach(he => he.colour = cc.descr.colour);
 						});
@@ -1786,7 +1795,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return he.id ? `_he_${he.id}` : `_svc_${he.idService}`;
 	}
 
-	contactFilter() {
+    contactFilter() {
 		return function (ctc) {
 			const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
 
@@ -1794,7 +1803,23 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
 			const svcIds = this.selectedMainElements.filter(he => !he.id).map(he => he.idService);
 
-			return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd) && (!regExp || ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length) && (!heIds.length && !poaIds.length && !svcIds.length || ctc.subContacts.filter(sc => (sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length).length || ctc.services.filter(s => svcIds.includes(s.id)).length) || !ctc.closingDate;
+			return this.api.after(ctc.openingDate, this.timeSpanStart)
+				&& this.api.before(ctc.openingDate, this.timeSpanEnd)
+				&& (!regExp || ctc.subContacts.some(sc => sc.descr && sc.descr.match(regExp) && sc.services.length)
+					|| ctc.services.some(s => this.shortServiceDescription(s, this.language).match(regExp)))
+				&& (!heIds.length && !poaIds.length && !svcIds.length
+					|| ctc.subContacts.some(sc => (sc.healthElementId && heIds.includes(sc.healthElementId)
+						|| sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length)
+					|| ctc.services.some(s => svcIds.includes(s.id)))
+				&& (!this.contactFilters || !this.contactFilters.length
+					|| ctc.services.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
+					cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
+                    || ctc.tags.some(t => this.contactFilters.some(cf=>
+                        cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code))))
+                    || ctc.subContacts.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
+                        cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
+				)
+				|| !ctc.closingDate;
 		}.bind(this);
 	}
 
@@ -1938,12 +1963,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return {
 			filter: function (filterValue, limit, offset, sortKey, descending) {
 				const regExp = filterValue && new RegExp(filterValue, "i");
+                const words = filterValue && filterValue.toLowerCase().split(/\s+/);
+				const sorter = x => [x[sortKey] && x[sortKey].toLowerCase().startsWith(words[0]) ? 0 : 1, x[sortKey]]
 
-				return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', filterValue, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
+                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
 					const codes = results[0];
 					const entityTemplates = results[1];
-					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp))).map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') })).concat(codes.rows.map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
-					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
+					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp)))
+						.map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') }))
+						.concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sorter)) : _.sortBy(filtered, sorter)).slice(offset, limit) };
 				});
 			}.bind(this)
 		};

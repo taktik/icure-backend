@@ -4,11 +4,11 @@
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
-<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../../icpc-styles.html">
 
 <dom-module id="dynamic-link">
     <template>
-        <style include="icd-styles">
+        <style include="icpc-styles">
             paper-menu-button {
                 padding: 0;
                 color: grey;
@@ -20,7 +20,7 @@
                 height: 20px;
             }
 
-            .link .ICD-10 span {
+            .link .colour-code span {
                 content: '';
                 display: inline-block;
                 height: 6px;
@@ -36,14 +36,17 @@
             }
         </style>
 
-        <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
-            <paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
-            <paper-listbox slot="dropdown-content">
-                <template is="dom-repeat" items="[[linkables]]" as="he">
-                    <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="ICD-10 [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
-                </template>
-            </paper-listbox>
-        </paper-menu-button>
+        <template is="dom-if" if="[[linkables]]">
+            <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
+                <paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
+                <paper-listbox slot="dropdown-content">
+                    <template is="dom-repeat" items="[[linkables]]" as="he">
+                        <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+                    </template>
+                </paper-listbox>
+            </paper-menu-button>
+        </template>
+
     </template>
     <script>
 
@@ -55,10 +58,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
     static get properties() {
         return {
             linkables: {
-                type: Array,
-                value: function () {
-                    return [];
-                }
+                type: Array
             },
             representedObject: {
                 type: Object
@@ -77,11 +77,11 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
     _show(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.$.mb.open();
+        this.root.querySelector('#mb').open();
     }
 
     link(e, target) {
-        const he = this.linkables.find(he => he.id === e.target.id);
+        const he = this.linkables && this.linkables.find(he => he.id === e.target.id) || null
         if (!he) {
             return;
         }

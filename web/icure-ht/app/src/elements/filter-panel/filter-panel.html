@@ -75,13 +75,17 @@
 
 			}
 
-			.filters-bar--small-icon:focus {
-				background: rgba(0, 0, 0, .2);
-				border-radius: 50%;
+			.filters-bar--small-icon.selected {
+				color: var(--app-primary-color-dark);
 			}
 
 			.filters-bar--small-icon{
-				color: var(--app-primary-color-dark);
+				color: var(--app-text-color-disabled);
+			}
+
+			paper-item.iron-selected {
+				background-color: var(--app-primary-color);
+				color: var(--app-text-color-light);
 			}
 
 			paper-input.search-input {
@@ -112,15 +116,15 @@
 		</style>
 
 		<div id="filtersPanel" is="dom-if" class="filters-panel filters-panel--collapsed">
-			<paper-input id="searchInput" label="Search" class="search-input" value="{{searchString}}">
+			<paper-input id="searchInput" label="[[localize('sch','Search',language)]]" class="search-input" value="{{searchString}}">
 				<iron-icon class="search-icons" icon="icons:search" prefix></iron-icon>
 				<paper-icon-button suffix on-click="clearInput" icon="clear" alt="clear" title="clear" class="clear-search-button-icon"></paper-icon-button>
 			</paper-input>
-			<paper-listbox focused on-selected-items-changed="selectMenu" multi>
-				<template is="dom-repeat" items="[[items]]" as="menu">
+			<paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]" focused on-selected-items-changed="selectMenu" multi >
+				<template id="filterPanelMenu" is="dom-repeat" items="[[items]]" as="menu">
 					<paper-item>
 						<iron-icon class="filters-panel-icon" icon="[[menu.icon]]"></iron-icon>
-						[[menu.title]]
+						[[itemTitle(menu)]]
 					</paper-item>
 				</template>
 			</paper-listbox>
@@ -128,32 +132,32 @@
 		<div class="filters-bar">
 			<paper-button is="dom-if" hidden$="{{!showFiltersPanel}}" class="hide-filters-btn" on-tap="toggleFiltersPanel" name="hide-filters" role="button" tabindex="0"
 						  aria-disabled="false" elevation="0">
-				Hide Filters
+				[[localize('hid_fil','Hide Filters',language)]]
 				<iron-icon icon="icons:expand-less"></iron-icon>
 			</paper-button>
 			<div is="dom-if" hidden$="{{showFiltersPanel}}">
 				<div class="filters-bar--small">
 					<div>
-						<template is="dom-repeat" items="[[icons]]" as="icon">
-							<paper-icon-button id="[[icon.id]]-btn" class="filters-bar--small-icon" icon="[[icon.icon]]"></paper-icon-button>
+						<template id="filterPanelIcons" is="dom-repeat" items="[[visibleItems]]" as="menu">
+							<paper-icon-button id="[[menu.id]]-btn" class$="filters-bar--small-icon [[_isFilterSelected(menu.filter,selectedFilters,selectedFilters.*)]]" icon="[[menu.icon]]" on-tap="_filterSelected"></paper-icon-button>
 						</template>
 					</div>
 					<paper-button class="show-filters-btn" on-tap="toggleFiltersPanel" name="show-filters" role="button" tabindex="0" aria-disabled="false" elevation="0">
-						Show Filters
+						[[localize('sho_fil','Show Filters',language)]]
 						<iron-icon icon="icons:expand-more"></iron-icon>
 					</paper-button>
 				</div>
 			</div>
 		</div>
 		<div>
-			<template is="dom-repeat" items="[[icons]]" as="icon">
-				<paper-tooltip for="[[icon.id]]-btn">[[icon.title]]</paper-tooltip>
+			<template is="dom-repeat" items="[[visibleItems]]" as="menu">
+				<paper-tooltip for="[[menu.id]]-btn">[[iconTitle(icon)]]</paper-tooltip>
 			</template>
 		</div>
 	</template>
 
 	<script>
-class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+class FilterPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 	static get is() {
 		return 'filter-panel';
 	}
@@ -164,9 +168,9 @@ class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior]
 				type: Array,
 				value: []
 			},
-			icons: {
+			visibleItems: {
 				type: Array,
-				computed: "computeIcons(panelWidth,items)"
+				computed: "computeVisibleItems(panelWidth,items)"
 			},
 			showFiltersPanel: {
 				type: Boolean,
@@ -176,15 +180,15 @@ class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior]
 				type: Number,
 				value: 200
 			},
-			selectedIcon: {
-				type: String,
-				notify: true,
-				value: null
-			},
 			searchString: {
 				type: String,
 				notify: true,
 				value: null
+			},
+            selectedFilters: {
+			    type: Object,
+                notify: true,
+                value: null
 			}
 		};
 	}
@@ -207,7 +211,7 @@ class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior]
 		this.onWidthChange();
 	}
 
-	computeIcons(width, items) {
+	computeVisibleItems(width, items) {
 		return items.filter((it, idx) => it.icon && idx * 40 < width - 255);
 	}
 
@@ -218,6 +222,43 @@ class FilterPanel extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior]
 	toggleFiltersPanel() {
 		this.showFiltersPanel = !this.showFiltersPanel;
 		this.root.querySelector('#filtersPanel').classList.toggle('filters-panel--collapsed');
+	}
+
+	iconTitle(icon){
+	    return icon.title[this.language]
+	}
+
+	itemTitle(item){
+	    return item.title[this.language]
+	}
+
+    _isFilterSelected(filter) {
+	    return this.selectedFilters.includes(filter) ? 'selected' : ''
+	}
+
+    _filterSelected(e) {
+	    const filter = this.$.filterPanelIcons.modelForElement(e.target).menu.filter
+	    const currentIndex = this.selectedFilters.indexOf(filter)
+		if (currentIndex >= 0) {
+            this.splice('selectedFilters', currentIndex, 1)
+		} else {
+            this.push('selectedFilters', filter)
+		}
+	}
+
+    selectMenu(e) {
+        if(e.detail.value.length !== 0) {
+            this.set('selectedFilters',e.detail.value.map(
+                val => this.$.filterPanelMenu.modelForElement(val).menu.filter
+        	))
+		} else {
+            this.set('selectedFilters',[])
+		}
+	}
+
+	_selectedFilterIndexes(){
+	    return this.selectedFilters ? this.selectedFilters.map(f=> this.items.map(i=>i.filter).indexOf(f)) : []
+
 	}
 
 }

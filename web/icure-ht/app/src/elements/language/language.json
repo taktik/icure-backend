@@ -101,6 +101,7 @@
     "log_in": "Log in",
     "a_pri_key_fil_is_nee_for_thi_use": "A private key file is needed for this user",
     "imp": "Import",
+    "fil": "Filter",
     "hid_fil": "Hide Filters",
     "sho_fil": "Show Filters",
     "pat": "Patients",
@@ -140,7 +141,14 @@
     "m>s": "m>Spam",
     "rec": "Recipient",
     "sub": "Subject",
-    "sen": "Sender"
+    "sen": "Sender",
+    "the_ni_of_the_pat_is_not_val_or_mis": "The niss of the patient is not valid or missing ",
+    "sch": "Search",
+    "co":"Code",
+    "pl_of_ac":"Plans of action",
+    "st_da":"Start Date",
+    "en_da":"End Date",
+    "sea_for_hea_ele":"Search for health element"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -244,8 +252,9 @@
     "log_in": "Connexion",
     "a_pri_key_fil_is_nee_for_thi_use": "Un fichier de clef privée est requis pour cet utilisateur",
     "imp": "Importer",
+    "fil": "Filtre",
     "hid_fil": "Masquer les filtres",
-    "sho_fil": "Afficher les filtres",
+    "sho_fil": "Autres filtres",
     "pat": "Patients",
     "spe": "Specialité",
     "sca_the_fol_cod_wit_you_tab": "Scanner le code ci-dessous avec votre tablette",
@@ -283,7 +292,10 @@
     "m>s": "m>Spam",
     "rec": "Recipient",
     "sub": "Subject",
-    "sen": "Sender"
+    "sen": "Sender",
+    "the_ni_of_the_pat_is_not_val_or_mis": "Le niss du patient n'est pas valide ou manquant ",
+    "pl_of_ac":"Planification d'action",
+    "sea_for_hea_ele":"Rechercher élément de soins"
   },
   "nl": {
     "eng":"English",

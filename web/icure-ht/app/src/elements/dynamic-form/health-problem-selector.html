@@ -14,7 +14,7 @@
 	<template>
 		<style>
 			paper-dialog {
-				width: 800px;
+				width: 1024px;
 			}
 
 			paper-input{
@@ -65,9 +65,10 @@
                 background: var(--app-background-color-dark);
                 color: var(--app-primary-color-dark);
                 --paper-item-min-height: 28px;
-                width: 58px;
+                width: 90px;
                 font-size: 12px;
                 padding: 0 0 0 8px;
+				justify-content: space-between;
 			}
 
             paper-radio-group{
@@ -76,6 +77,20 @@
 
 			paper-radio-button{
 				--paper-radio-button-checked-color: var(--app-secondary-color-dark);
+				min-width: 110px;
+				max-width: 110px;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			paper-radio-button:nth-child(4){
+				max-width: 130px;
+				min-width: 130px;
+			}
+
+			paper-radio-button:last-child{
+				min-width: 130px;
+				max-width: 200px;
 			}
 
             vaadin-date-picker{
@@ -91,14 +106,16 @@
 		<paper-dialog id="dialog">
             <h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
             <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
-            <paper-input label="Label" value="{{entity.descr}}"></paper-input>
+            <paper-input label="[[localize('labe','Label',language)]]" value="{{entity.descr}}"></paper-input>
             <div class="flex">
                 <paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
                     <paper-radio-button name="healthcareelement">[[localize('pro','Problem',language)]]</paper-radio-button>
-                    <paper-radio-button name="allergy">[[localize('alle','Allergy',language)]]</paper-radio-button>
+                    <paper-radio-button name="allergy">[[localize('alle','Allergy',language)]]</paper-radio-button>    
                     <paper-radio-button name="familyrisk">[[localize('fami_risk','Family Risk',language)]]</paper-radio-button>
                     <paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
+					<paper-radio-button name="socialrisk">[[localize('socr','Social risk',language)]]</paper-radio-button>
+					<paper-radio-button name="adr">[[localize('adv-dru-rea','Adverse drug reaction',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
             <div class="flex">
@@ -109,12 +126,42 @@
                     <paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
+            <div class="flex">
+                <paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
+                    <paper-radio-button name="probable">[[localize('proba','Probable',language)]]</paper-radio-button>
+                    <paper-radio-button name="proven">[[localize('prov','Proven',language)]]</paper-radio-button>
+                    <paper-radio-button name="unprobable">[[localize('unp','Unprobable',language)]]</paper-radio-button>
+                    <paper-radio-button name="excluded">[[localize('exc','Excluded',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
+            <div class="flex">
+                <paper-item class="label">[[localize('sev','Severity',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="[[_severity(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_severityChanged">
+                    <paper-radio-button name="normal">[[localize('no-pro','No problem',language)]]</paper-radio-button>
+                    <paper-radio-button name="verylow">[[localize('light','Light',language)]]</paper-radio-button>
+                    <paper-radio-button name="low">[[localize('mod','Moderate',language)]]</paper-radio-button>
+                    <paper-radio-button name="high">[[localize('severe','Severe',language)]]</paper-radio-button>
+                    <paper-radio-button name="veryhigh">[[localize('tot','Total',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
+            <div class="flex">
+                <paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
+                <paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
+                    <paper-radio-button name="oneshot">[[localize('one-sho','One shot',language)]]</paper-radio-button>
+                    <paper-radio-button name="chronic">[[localize('chro','Chronic',language)]]</paper-radio-button>
+                    <paper-radio-button name="subbacute">[[localize('sub-acu','Sub-acute',language)]]</paper-radio-button>
+                    <paper-radio-button name="acute">[[localize('acu','Acute',language)]]</paper-radio-button>
+                    <paper-radio-button name="remission">[[localize('rem','Remission',language)]]</paper-radio-button>
+                </paper-radio-group>
+            </div>
 
-            <vaadin-date-picker label="Start Date" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
-            <vaadin-date-picker label="End Date" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
 
-            <tk-token-field label="Code" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
-            <tk-token-field label="Plans of action" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
+            <vaadin-date-picker label="[[localize('st_da','Start Date',language)]]" i18n="[[i18n]]" value="{{_openingDateAsString}}"></vaadin-date-picker>
+            <vaadin-date-picker label="[[localize('en_da','End Date',language)]]" i18n="[[i18n]]" value="{{_closingDateAsString}}"></vaadin-date-picker>
+
+            <tk-token-field label="[[localize('co','Code',language)]]" value="{{entity.codes}}" data-value-path="id"  label-path="[[_label(language)]]" data-label-path="[[_label(language)]]"></tk-token-field>
+            <tk-token-field label="[[localize('pl_of_ac','Plans of action',language)]]" value="{{entity.plansOfAction}}" data-value-path="id"  data-label-path="descr"></tk-token-field>
 
 			<slot name="suffix"></slot>
 			<div class="buttons">
@@ -208,7 +255,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 			return;
 		}
 
-		this.dataProvider && this.dataProvider.filter(latestSearchValue, 120, 0, null, false).then(res => {
+		this.dataProvider && this.dataProvider.filter(latestSearchValue, 500, 0, 'descr', false).then(res => {
 			if (latestSearchValue !== this.latestSearchValue) {
 				console.log("Cancelling obsolete search");
 				return;
@@ -227,19 +274,38 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		}
 	}
 
-	_cdItemTagForEntity(e, create) {
+	_tagForEntity(e, type, code) {
 		const tags = e && (e.tags || (e.tags = []));
-		return tags.find(t => t.type === 'CD-ITEM') || create && (tags[tags.length] = { type: 'CD-ITEM', code: 'healthcareelement', version: '1' });
+		return tags.find(t => t.type === type) || create && (tags[tags.length] = { type: type, code: code, version: '1' });
 	}
 
-	_nature() {
-		const code = this._cdItemTagForEntity(this.entity, true);
-		return code && code.code;
-	}
+    _cdItemTagForEntity(e, create) {
+        return this._tagForEntity(e , 'CD-ITEM', create && 'healthcareelement');
+    }
 
-	_status() {
-		return !this.entity ? null : ((this.entity.status || 0) & 2) === 1 ? 'archived' : ((this.entity.status || 0) & 1) === 1 || this.entity.closingDate ? 'inactive' : 'active';
-	}
+    _nature() {
+        const code = this._cdItemTagForEntity(this.entity, true);
+        return code && code.code;
+    }
+
+    _status() {
+        return !this.entity ? null : ((this.entity.status || 0) & 2) === 1 ? 'archived' : ((this.entity.status || 0) & 1) === 1 || (this.entity.closingDate && this.api.moment(this.entity.closingDate).isBefore()) ? 'inactive' : 'active';
+    }
+
+    _severity() {
+        const code = this._tagForEntity(this.entity, 'CD-SEVERITY');
+        return code && code.code;
+    }
+
+    _temporality() {
+        const code = this._tagForEntity(this.entity, 'CD-TEMPORALITY');
+        return code && code.code;
+    }
+
+    _certainty() {
+        const code = this._tagForEntity(this.entity, 'CD-CERTAINTY');
+        return code && code.code;
+    }
 
 	_natureChanged(e) {
 		this._cdItemTagForEntity(this.entity, true).code = e.detail.value;
@@ -259,7 +325,19 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		}
 	}
 
-	_cellContent(item, column) {
+    _severityChanged(e) {
+        this._tagForEntity(this.entity, 'CD-SEVERITY', 'normal').code = e.detail.value
+    }
+
+    _temporalityChanged(e) {
+        this._tagForEntity(this.entity, 'CD-TEMPORALITY', 'oneshot').code = e.detail.value
+	}
+
+    _certaintyChanged(e) {
+        this._tagForEntity(this.entity, 'CD-CERTAINTY', 'probable').code = e.detail.value
+	}
+
+    _cellContent(item, column) {
 		return _.isFunction(column.key) ? column.key(item) : _.get(item, column.key);
 	}
 
@@ -320,6 +398,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 	}
 
 	open() {
+	    this.set('filterValue','')
 		this.$.dialog.open();
 	}
 
