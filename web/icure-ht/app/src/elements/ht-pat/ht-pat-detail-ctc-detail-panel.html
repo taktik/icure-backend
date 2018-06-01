@@ -379,7 +379,7 @@
 						<template is="dom-if" if="[[form.id]]">
 							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
 													 health-elements="[[healthElements]]" contacts="[[contacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
-													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"></dynamically-loaded-form>
+													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
 						</template>
 						<template is="dom-repeat" items="[[form.docs]]">
 							<dynamic-doc api="[[api]]" user="[[user]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
@@ -389,7 +389,7 @@
                 </template>
 			</div>
 			<div class="floating-action-bar">
-				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact,currentContact.services,currentContact.services.*)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe',language)]]</paper-button></div>
+				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe',language)]]</paper-button></div>
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
 						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
@@ -427,15 +427,15 @@
 
 		<paper-dialog id="prescriptionDialog">
 			<h2 class="modal-title">[[localize('pri_pre','Print prescription',language)]]</h2>
-			<vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content,currentContact,currentContact.services,currentContact.services.*)]] active-item="{{activeDrug}}">
-					<vaadin-grid-column width="100px">
-						<template class="header">
-							<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
-						</template>
-						<template>
-							<div class="cell frozen">[[_drugDescription(item)]]</div>
-						</template>
-					</vaadin-grid-column>
+			<vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions.*,servicesMap.*,_drugsRefresher)]] active-item="{{activeDrug}}">
+				<vaadin-grid-column width="100px">
+					<template class="header">
+						<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
+					</template>
+					<template>
+						<div class="cell frozen">[[_drugDescription(item)]]</div>
+					</template>
+				</vaadin-grid-column>
 				<vaadin-grid-column width="200px">
 					<template class="header">
 						Posology
@@ -566,6 +566,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			deliveryDateString: {
 				type: String,
 				value: moment().format("YYYY-MM-DD")
+			},
+			_drugsRefresher: {
+			    type: Number,
+				value: 0
 			}
 		};
 	}
@@ -590,6 +594,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 
 	_toggleAddActions() {
 		this.showAddFormsContainer = !this.showAddFormsContainer;
+	}
+
+	_refreshDrugs() {
+	    this.set('_drugsRefresher', this._drugsRefresher + 1)
 	}
 
 	_actionIcon(showAddFormsContainer) {
@@ -925,7 +933,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 				    const tag = s.tags.find(t=>t.type==='CD-LIFECYCLE')
 					if (tag) { tag.id = 'CD-LIFECYCLE|ordered|1'; tag.code = 'ordered' } else { s.tags.push(this.api.code().normalize({id:'CD-LIFECYCLE|ordered|1'})) }
 				})
-                this.saveCurrentContact()
+                this.saveCurrentContact().then(()=>this._refreshDrugs())
+
 			}));
 		}
 	}
