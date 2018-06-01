@@ -340,14 +340,14 @@
 				flex-flow: row nowrap;
 			}
 		</style>
-		<template is="dom-if" if="[[currentContact]]">
+		<template is="dom-if" if="[[messages]]">
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="contact-card-container">
-				<template is="dom-repeat" items="[[messages]]">
-				From : [[item.fromAdress]]
-				To : [[item.toAdresses]]
-				Subject: [[item.subject]]
-				Body: [[item]]
+				<template is="dom-repeat" items="[[messages]]" as="msg">
+				From : [[msg.fromAddress]]
+				To : [[msg.toAddresses]]
+				Subject: [[msg.subject]]
+				Body: [[item.id]]
 				</template>
 			</div>
 		</div>
@@ -372,8 +372,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 				type: Array,
 				value: function () {
 					return [];
-				},
-				observer: '_contactsChanged'
+				}
 			},
 			api: {
 				type: Object
@@ -410,14 +409,16 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 
     _focusChanged(){
 	    console.log(this.selectMessage.selection.item)
+		this.set('messages', [this.selectMessage.selection.item]);
 		this.getChildren(this.selectMessage.selection.item.id)
 	}
 
 	getChildren(item){
         this.api.message().getChildren(item.id).then(function(r) {
             console.log(r)
-            r.length && this.messages.push(r);
-            r.length && this.getChildren(r);
+            r.length && r.map(m => this.messages.push(m));
+            this.set('messages',this.messages)
+            r.length && r.map(m => this.getChildren(m));
         }.bind(this))
 	}
 
