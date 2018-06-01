@@ -257,25 +257,15 @@
 				border-left: 1px solid var(--app-secondary-color-dark);
 			}
 
-			.layout-bar .graphique, .layout-bar .doc{
+			.layout-bar .list, .layout-bar .graphique, .layout-bar .doc, .layout-bar .table{
 				height: 32px;
 				width: 32px;
-				padding: 5px;
-				color: var(--app-primary-color-dark);
+				padding: 6px;
+				color: var(--app-text-color-disabled);
 			}
 
-			.layout-bar .list{
-				height: 32px;
-				width: 32px;
-				padding: 1px;
-				color: var(--app-primary-color-dark);
-			}
-
-			.layout-bar .table{
-				height: 30px;
-				width: 30px;
-				padding: 0;
-				color: var(--app-primary-color-dark);
+			.icn-selected {
+				color: var(--app-primary-color-dark) !important;
 			}
 
 			.floating-action-bar{
@@ -363,23 +353,14 @@
 			<div class="layout horizontal">
 				<filter-panel id="serviceFilterPanel" items="[[detailPanelItems]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel>
 				<div class="layout-bar" >
-						<template is="dom-if" if="[[!list]]">
-							<paper-icon-button id="list_icn" class="list" icon="icons:view-headline" on-tap="_list"></paper-icon-button>
-							<paper-tooltip for="list_icn" position="bottom" animation-delay="0">List view</paper-tooltip>
-						</template>
-						<template is="dom-if" if="[[!table]]">
-							<paper-icon-button id="table_icn" class="table" icon="icons:view-list" on-tap="_table"></paper-icon-button>
-							<paper-tooltip for="table_icn" position="bottom" animation-delay="0">Table view</paper-tooltip>
-						</template>
-						<template is="dom-if" if="[[!graphique]]">
-							<paper-icon-button id="graph_icn" class="graphique" icon="editor:pie-chart" on-tap="_graphique"></paper-icon-button>
-							<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">Graph</paper-tooltip>
-						</template>
-						<template is="dom-if" if="[[!doc]]">
-							<paper-icon-button id="form_icn" class="doc" icon="icons:view-agenda" on-tap="_default"></paper-icon-button>
-							<paper-tooltip for="form_icn" position="bottom" animation-delay="0">Forms</paper-tooltip>
-						</template>
-						
+						<paper-icon-button id="list_icn" class$="list [[_activeIconClass(list)]]" icon="vaadin:list" on-tap="_list"></paper-icon-button>
+						<paper-icon-button id="table_icn" class$="table [[_activeIconClass(table)]]" icon="vaadin:table" on-tap="_table"></paper-icon-button>
+						<paper-icon-button id="form_icn" class$="doc [[_activeIconClass(doc)]]" icon="icons:assignment" on-tap="_default"></paper-icon-button>
+
+						<paper-tooltip for="list_icn" position="bottom" animation-delay="0">[[localize('lis_vie','List view',language)]]</paper-tooltip>
+						<paper-tooltip for="table_icn" position="bottom" animation-delay="0">[[localize('tab_vie','Table view',language)]]</paper-tooltip>
+						<paper-tooltip for="graph_icn" position="bottom" animation-delay="0">[[localize('gra','Graph view',language)]]</paper-tooltip>
+						<paper-tooltip for="form_icn" position="bottom" animation-delay="0">[[localize('forms','Forms view',language)]]</paper-tooltip>
 				</div>
 			</div>
 			<div class="contact-card-container">
@@ -445,8 +426,8 @@
 		</paper-dialog>
 
 		<paper-dialog id="prescriptionDialog">
-			<h2 class="modal-title">Print prescription</h2>
-			<vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*)]] active-item="{{activeDrug}}">
+			<h2 class="modal-title">[[localize('pri_pre','Print prescription',language)]]</h2>
+			<vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*,servicesMap.*.content,currentContact,currentContact.services,currentContact.services.*)]] active-item="{{activeDrug}}">
 					<vaadin-grid-column width="100px">
 						<template class="header">
 							<vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
@@ -595,6 +576,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 
 	constructor() {
 		super();
+	}
+
+	_activeIconClass(selected) {
+	    return selected ? 'icn-selected' : ''
 	}
 
 	_onDrag(e) {

@@ -52,7 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="ht-pat-he-tree-detail.html">
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
-<link rel="import" href="../../icd-styles.html">
+<link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
@@ -61,7 +61,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	<template>
 		<style include="iron-flex iron-flex-alignment"></style>
 		<!--suppress CssUnusedSymbol -->
-		<style include="icd-styles">
+		<style include="icpc-styles">
 			:host {
 				height: 100%;
 			}
@@ -556,31 +556,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			.ICD-10{
+			.colour-code{
 				line-height: 12px;
 				margin-right:4px;
 				color: black;
 			}
 
-			.iron-selected .ICD-10{
+			.iron-selected .colour-code{
 				color: var(--app-light-color);
 			}
 
-			.iron-selected .ICD-10 span{
+			.iron-selected .colour-code span{
 				background: var(--app-light-color);
 			}
-			.ICD-10:hover{
+			.colour-code:hover{
 				font-weight:600;
 			}
 
-			.ICD-10:hover:before{
+			.colour-code:hover:before{
 				height:8px;
 				width:8px;
 				margin-bottom:0;
 				border-radius:4px;
 			}
 
-			.ICD-10 span{
+			.colour-code span{
 				content: '';
 				display: inline-block;
 				height: 6px;
@@ -591,7 +591,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background: lightgrey;
 			}
 
-			.contact .ICD-10:not(:first-child) {
+			.contact .colour-code:not(:first-child) {
 				margin-left: 4px;
 			}
 
@@ -741,12 +741,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			/* END SECOND PANEL */
 
 			.second-third-panel{
-				width:80%;
-				height:calc(100% - 64px);
+				grid-column: 2 / span 2;
+    			grid-row: 1 / 1;
 				background: var(--app-background-color);
-				position:fixed;
-				top:64px;
-				right:0;
+				
 				z-index:2;
 				overflow-y:scroll;
 			}
@@ -834,7 +832,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					text-transform:lowercase;
 				}
 				.second-third-panel{
-					width:70%;
+					grid-column: 1 / span 3;
+    				grid-row: 1 / 1;
 				}
 				.patient-info-container{
 					@apply --padding-right-left-16;
@@ -1114,7 +1113,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 											</div>
 											<div class="contact-text-row label-container">
 												<template is="dom-repeat" items="[[contact.healthElements]]" as="he">
-													<label id="label_[[contact.id]]_[[getHeId(he)]]" class$="ICD-10 [[he.colour]]"><span></span>[[he.descr]]</label>
+													<label id="label_[[contact.id]]_[[getHeId(he)]]" class$="colour-code [[he.colour]]"><span></span>[[he.descr]]</label>
 													<paper-tooltip for="label_[[contact.id]]_[[getHeId(he)]]">[[he.descr]]</paper-tooltip>
 												</template>
 											</div>
@@ -1425,7 +1424,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	filterEvents() {
-		this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.find(t => t.type === 'CD-LIFECYCLE' && t.code === 'planned')), it => -this.api.moment(it.valueDate)));
+		this.set('events', _.sortBy(this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && t.code === 'planned')), it => -this.api.moment(it.valueDate)));
 	}
 
 	_lateEventCssClass(e) {
@@ -1512,11 +1511,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						e.selectedItems = [];
 					});
 
-					this.api.code().icdChapters(_.compact(combinedHes.map(he => he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10'))).map(x => x.code)).then(codes => {
+					this.api.code().icpcChapters(_.compact(combinedHes.map(he => he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2'))).map(x => x.code)).then(codes => {
 						codes.forEach(cc => {
 							cc.healthElements = _.sortBy(combinedHes.filter(he => {
-								let heIcd = he.codes.find(c => c.type === 'ICD' || c.type === 'ICD10');
-								return heIcd && cc.subCodes.includes(heIcd.code);
+								let heIcpc = he.codes.find(c => c.type === 'ICPC' || c.type === 'ICPC2');
+								return heIcpc && cc.subCodes.includes(heIcpc.code);
 							}), sorter);
 							cc.healthElements.forEach(he => he.colour = cc.descr.colour);
 						});
@@ -1964,12 +1963,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return {
 			filter: function (filterValue, limit, offset, sortKey, descending) {
 				const regExp = filterValue && new RegExp(filterValue, "i");
+                const words = filterValue && filterValue.toLowerCase().split(/\s+/);
+				const sorter = x => [x[sortKey] && x[sortKey].toLowerCase().startsWith(words[0]) ? 0 : 1, x[sortKey]]
 
-				return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', filterValue, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
+                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
 					const codes = results[0];
 					const entityTemplates = results[1];
-					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp))).map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') })).concat(codes.rows.map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
-					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
+					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp)))
+						.map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') }))
+						.concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sorter)) : _.sortBy(filtered, sorter)).slice(offset, limit) };
 				});
 			}.bind(this)
 		};
