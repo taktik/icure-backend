@@ -110,8 +110,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 vaadin-grid {
-                    height: calc(100% - 104px);
-                    margin: 32px 32px 0;
+                    height: calc(60% - 104px);
+                    margin: 320px 32px 0;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
                 }
@@ -239,16 +239,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              items="[[messages]]" on-tap="click">
-
-                    <vaadin-grid-column width="100px">
-                        <template class="header">
-                            <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.fromAddress]]</div>
-                        </template>
-                    </vaadin-grid-column>
+                    <template is="dom-if" if="[[selectList.selection.item]] === 'sendbox'">
+                        <vaadin-grid-column width="100px">
+                            <template class="header">
+                                <vaadin-grid-sorter path="fromAddress">[[localize('sen_to','Send To',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[getToAddresses(item)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </template>
+                    <template is="dom-if" if="[[selectList.selection.item]] != 'sendbox'">
+                        <vaadin-grid-column width="100px">
+                            <template class="header">
+                                <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[item.fromAddress]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </template>
                     <vaadin-grid-column width="100px">
                         <template class="header">
                             <div>[[localize('dat','Date',language)]]</div>
@@ -358,6 +370,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     });
                     return messages.rows;
                 }).then(messages => this.set('messages', messages || []));
+                console.log(this.messages)
             }
 
             getUnreadEmail() {
@@ -376,7 +389,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getSentMessages() {
-
+                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
+                    messages.rows.sort(function (a, b) {
+                        return a.status && (1 << 0) - b.status && 1 << 0;
+                    });
+                    return messages.rows;
+                }).then(messages => this.set('messages', messages || []));
             }
 
             _refresh() {
@@ -389,14 +407,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'unread' :
                             this.getUnreadEmail();
                             break;
+                        case 'sentbox' :
+                            this.getSentMessages();
+                            break;
                     }
                 }
+            }
+
+            getToAddresses(item){
+                return item.toAddresses.reduce((acc, i) =>{return acc + ", " + i}, "" )
             }
 
             click(e) {
                 const selected = this.activeItem;
                 console.log('selected ' + selected);
                 this.set('selectedMessages', selected);
+                console.log('throw event')
+                this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
             }
 
             _timeFormat(date) {

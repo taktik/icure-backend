@@ -151,7 +151,8 @@
     "sea_for_hea_ele":"Search for health element",
     "mod":"modified",
     "no_ehe_con":"No Ehealth connection",
-    "msg":"Messages"
+    "msg":"Messages",
+    "sen_to":"Send To"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",

@@ -245,7 +245,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		</style>
 		<div class="col-left">
-			<paper-button class="new-msg-btn" on-tap="_inbox">[[localize('new_mes','New Message',language)]]</paper-button>
+			<paper-button class="new-msg-btn">[[localize('new_mes','New Message',language)]]</paper-button>
 			<paper-listbox class="boxes-list">
 				<paper-item class="has-unread" on-tap="_inbox">Inbox [[unreadNumber]]</paper-item>
 				<collapse-button>
@@ -255,7 +255,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-item class="has-unread">Patients (4)</paper-item>
 					</paper-listbox>
 				</collapse-button>
-				<paper-item>[[localize('sen_mes','Sent Messages',language)]]</paper-item>
+				<paper-item on-tap="_sentbox">[[localize('sen_mes','Sent Messages',language)]]</paper-item>
 				<collapse-button>
 						<paper-listbox class="sublist">
 							<paper-item  class="has-unread">Lab Results (3)</paper-item>
@@ -364,6 +364,11 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 	    console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
+
+    _sentbox(){
+        console.log('throw event')
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
+    }
 
 
 	selectedContactItemsChanged() {
