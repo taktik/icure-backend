@@ -295,7 +295,7 @@
 		</template>
 
 		<ul>
-		<template is="dom-repeat" items="[[_localizedValue(value, value.*)]]" as="lv">
+		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
 			<li id="[[lv.id]]" class="medication-line"><span>[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
 		</template>
 		</ul>
@@ -369,24 +369,23 @@
 							</template>
 							<template is="dom-if" if="[[!rg.date]]">
 								<paper-dropdown-menu label="Time of day" class="regimen--tod">
-								<paper-listbox slot="dropdown-content" selected="rg.dayPeriod.code" attr-for-selected="id" on-iron-select="_selectDayPeriod">
-									<paper-item id ="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
-									<paper-item id ="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
-									<paper-item id ="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
-									<paper-item id ="morning">[[_localize("Morning")]]</paper-item>
-									<paper-item id ="beforelunch">[[_localize("Beforelunch")]]</paper-item>
-									<paper-item id ="noon">[[_localize("Noon")]]</paper-item>
-									<paper-item id ="afternoon">[[_localize("Afternoon")]]</paper-item>
-									<paper-item id ="duringlunch">[[_localize("Duringlunch")]]</paper-item>
-									<paper-item id ="afterlunch">[[_localize("Afterlunch")]]</paper-item>
-									<paper-item id ="beforedinner">[[_localize("Beforedinner")]]</paper-item>
-									<paper-item id ="duringdinner">[[_localize("Duringdinner")]]</paper-item>
-									<paper-item id ="afterdinner">[[_localize("Afterdinner")]]</paper-item>
-									<paper-item id ="evening">[[_localize("Evening")]]</paper-item>
-									<paper-item id ="night">[[_localize("Night")]]</paper-item>
-									<hr>
-									<paper-item>[[_localize("Precise hour")]]</paper-item>
-								</paper-listbox>
+									<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
+										<paper-item id ="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
+										<paper-item id ="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
+										<paper-item id ="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
+										<paper-item id ="morning">[[_localize("Morning")]]</paper-item>
+										<paper-item id ="beforelunch">[[_localize("Beforelunch")]]</paper-item>
+										<paper-item id ="afternoon">[[_localize("Afternoon")]]</paper-item>
+										<paper-item id ="duringlunch">[[_localize("Duringlunch")]]</paper-item>
+										<paper-item id ="afterlunch">[[_localize("Afterlunch")]]</paper-item>
+										<paper-item id ="beforedinner">[[_localize("Beforedinner")]]</paper-item>
+										<paper-item id ="duringdinner">[[_localize("Duringdinner")]]</paper-item>
+										<paper-item id ="afterdinner">[[_localize("Afterdinner")]]</paper-item>
+										<paper-item id ="evening">[[_localize("Evening")]]</paper-item>
+										<paper-item id ="night">[[_localize("Night")]]</paper-item>
+										<hr>
+										<paper-item>[[_localize("Precise hour")]]</paper-item>
+									</paper-listbox>
 								</paper-dropdown-menu>
 							</template>
 						</template>
@@ -406,6 +405,7 @@
 	<script>
 
 import accounting from '../../../scripts/accounting';
+import styx from '../../../scripts/styx';
 
 class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
     static get is() {
@@ -464,6 +464,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     return [];
                 }
             },
+			refresher: {
+                type: Number,
+				value: 0
+			},
             input: {
                 type: String
             },
@@ -501,8 +505,26 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
             selectedMedicationContentWithId: {
                 type: Object,
                 value: null
-            }
-        };
+            },
+			_dayPeriods: {
+                type: Array,
+				value: () => [
+				    "beforebreakfast",
+                    "duringbreakfast",
+                    "afterbreakfast",
+                    "morning",
+                    "beforelunch",
+                    "afternoon",
+                    "duringlunch",
+                    "afterlunch",
+                    "beforedinner",
+                    "duringdinner",
+                    "afterdinner",
+                    "evening",
+                    "night"
+				]
+			}
+        }
     }
 
     static get observers() {
@@ -523,6 +545,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	constructor() {
 		super();
+	}
+
+    _indexOfDayPeriod(code) {
+        return this._dayPeriods.indexOf(code)
 	}
 
 	_getColumns(medicationType) {
@@ -651,7 +677,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	skip() {
 	}
 
-	close() {}
+	close() {
+        this.set('selectedMedicationContentWithId', null)
+	}
 
 	select(item) {
 		if (item) {
@@ -695,8 +723,14 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	_valueChanged() {
 		let localizedValue = this._localizedValue(this.value);
+		const currentlyEditedMedication = this.selectedMedicationContentWithId && this.value.find(s=>s.id === this.selectedMedicationContentWithId.id)
+		if (currentlyEditedMedication && (this.api.localize(currentlyEditedMedication.content, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
+		    //After save, make sure that the currently edited data is connected to the loaded data
+			(this.api.localize(currentlyEditedMedication.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
+		}
 		if (!_.isEqual(localizedValue, this.localizedValue)) {
 			this.set('localizedValue', localizedValue);
+			this.set('refresher', this.refresher+1)
 			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
 		}
 	}

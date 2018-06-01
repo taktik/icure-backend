@@ -28,7 +28,7 @@
 							"editor" : {
 								"readOnly" : false,
 								"height" : 26,
-								"menuOptions": ["F","M","C","I"],
+								"menuOptions": ["female","male","changed","indeterminate"],
 								"labelPosition" : "Left",
 								"width" : 100,
 								"multiline" : false,
