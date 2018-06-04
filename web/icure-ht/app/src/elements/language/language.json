@@ -152,7 +152,8 @@
     "mod":"modified",
     "no_ehe_con":"No Ehealth connection",
     "msg":"Messages",
-    "sen_to":"Send To"
+    "sen_to":"Send To",
+    "prot":"Protocol"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -286,11 +287,11 @@
     "des": "Description",
     "oop_you_hit_a_404": "Oops une erreur 404. Vous vous êtes perdu.",
     "hea_bac_to_hom": "Retour à l'accueil.",
-    "inb_(7)": "Inbox (7)",
-    "lab_res_(3)": "Lab Results (3)",
+    "inb": "Inbox",
+    "lab_res": "Lab Results",
     "per": "Personal",
     "pat_(4)": "Patients (4)",
-    "sen_mes": "Sent Messages",
+    "sen_mes": "Send Messages",
     "spa": "Spam",
     "tra": "Trash",
     "m>s": "m>Spam",

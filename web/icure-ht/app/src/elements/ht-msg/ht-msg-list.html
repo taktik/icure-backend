@@ -218,22 +218,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-checkbox-checked-color: var(--app-primary-color);
                 }
 
-                .details-panel {
-                    /*width: calc(50% + 1px);*/
-                    height: 100%;
-                    background: var(--app-background-color-light);
-                    /*position: fixed;*/
-                    top: 64px;
-                    width: 100%;
-                    /*left: calc(50% - 1px);
-                    grid-column: 3 / 3;
-                    grid-row:1 / 1;*/
-                    z-index: 1;
+                .second-panel{
+                    /*width:30%;*/
+                    height:100%;
+                    background: var(--app-background-color);
+                    /*position:fixed;*/
+                    top:64px;
+                    left:20%;
+                    @apply --shadow-elevation-2dp;
+                    margin:0;
+                    grid-column: 2 / 2;
+                    grid-row:1 / 1;
+
+                    z-index:2;
+
                 }
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
-            <div class="details-panel">
+            <div class="second-panel">
                 <div class="card-title-container">
                     <h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
                 </div>
@@ -365,10 +368,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    messages.rows.sort(function (a, b) {
-                        return a.status && (1 << 0) - b.status && 1 << 0;
-                    });
-                    return messages.rows;
+                    return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
                 console.log(this.messages)
             }
@@ -381,19 +381,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    msg.sort(function (a, b) {
-                        return a.status && (1 << 0) - b.status && 1 << 0;
-                    });
                     return msg;
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getSentMessages() {
                 this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    messages.rows.sort(function (a, b) {
-                        return a.status && (1 << 0) - b.status && 1 << 0;
-                    });
-                    return messages.rows;
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getSubmitMessages(){
+                this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
+                            acc.push(m)
+                        }
+                        return acc
+                    }, [])
+                    return msg;
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getLabResult(){
+                this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        if (!(m.status && 1 << 0 == 0)) {//status labResult
+                            acc.push(m)
+                        }
+                        return acc
+                    }, [])
+                    return this.sortByDates(msg);
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -410,8 +428,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'sentbox' :
                             this.getSentMessages();
                             break;
+                        case 'submit' :
+                            this.getSubmitMessages();
+                            break;
+                        case 'labResult' :
+                            this.getLabResult();
+                            break;
                     }
                 }
+            }
+
+            sortByDates(messages){
+                return messages.sort(function (a, b) {
+                    return b.received - a.received ;
+                });
             }
 
             getToAddresses(item){

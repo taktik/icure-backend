@@ -339,6 +339,13 @@
 			.horizontal{
 				flex-flow: row nowrap;
 			}
+
+			.contact-card-container {
+				position: relative;
+				overflow-y: auto;
+				height: calc(100% - 48px);
+				padding-bottom: 32px;
+			}
 		</style>
 		<template is="dom-if" if="[[messages]]">
 		<div class="details-panel" on-dragover="_onDrag">
@@ -347,7 +354,7 @@
 				From : [[msg.fromAddress]]
 				To : [[msg.toAddresses]]
 				Subject: [[msg.subject]]
-				Body: [[item.id]]
+				Body: [[msg.body]]
 				</template>
 			</div>
 		</div>
@@ -401,24 +408,23 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 		super();
 	}
 
-	_onDrag(e) {
-		if (this._hasCurrentContact(this.contacts) && e && e.dataTransfer && e.dataTransfer.items && _.find(e.dataTransfer.items, i => i.kind === 'file')) {
-			this.addDocument();
-		}
-	}
-
     _focusChanged(){
-	    console.log(this.selectMessage.selection.item)
-		this.set('messages', [this.selectMessage.selection.item]);
-		this.getChildren(this.selectMessage.selection.item.id)
+	    if(this.selectMessage.selection.item){
+        	this.api.document().findByMessage(this.user.healthcarePartyId, this.selectMessage.selection.item).then(h => this.selectMessage.selection.item.body = h)
+        	this.set('messages', [this.selectMessage.selection.item]);
+			this.getChildren(this.selectMessage.selection.item.id)
+	    }
 	}
 
 	getChildren(item){
-        this.api.message().getChildren(item.id).then(function(r) {
+        this.api.message().getChildren(item).then(function(r) {
             console.log(r)
-            r.length && r.map(m => this.messages.push(m));
-            this.set('messages',this.messages)
-            r.length && r.map(m => this.getChildren(m));
+			if(r.length){
+                this.api.document().findByMessage(this.user.healthcarePartyId,r).then(h => r.body = h)
+                r.map(m => this.messages.push(m));
+                this.set('messages',this.messages)
+                r.map(m => this.getChildren(m));
+			}
         }.bind(this))
 	}
 

@@ -28,6 +28,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+
+
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 
@@ -247,24 +250,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<div class="col-left">
 			<paper-button class="new-msg-btn">[[localize('new_mes','New Message',language)]]</paper-button>
 			<paper-listbox class="boxes-list">
-				<paper-item class="has-unread" on-tap="_inbox">Inbox [[unreadNumber]]</paper-item>
-				<collapse-button>
-					<paper-listbox class="sublist">
-						<paper-item  class="has-unread">Lab Results (3)</paper-item>
-						<paper-item>[[localize('per','Personal',language)]]</paper-item>
-						<paper-item class="has-unread">Patients (4)</paper-item>
-					</paper-listbox>
-				</collapse-button>
-				<paper-item on-tap="_sentbox">[[localize('sen_mes','Sent Messages',language)]]</paper-item>
-				<collapse-button>
-						<paper-listbox class="sublist">
-							<paper-item  class="has-unread">Lab Results (3)</paper-item>
-							<paper-item>[[localize('per','Personal',language)]]</paper-item>
-							<paper-item class="has-unread">Patients (4)</paper-item>
-						</paper-listbox>
-				</collapse-button>
-				<paper-item>[[localize('archiv','Archived',language)]]</paper-item>
-				<paper-item>[[localize('spa','Spam',language)]]</paper-item>
+				<iron-collapse-button>
+					<div slot="collapse-trigger"><paper-item class="has-unread" on-tap="_inbox">[[localize('inb','Inbox',language)]] [[unreadNumber]]</paper-item></div>
+					<div slot="collapse-content">
+						<ul>
+							<paper-item>[[localize('ehe','Ehealth',language)]]</paper-item>
+							<paper-item>[[localize('prot','Protocol',language)]]</paper-item>
+							<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
+						</ul>
+					</div>
+				</iron-collapse-button>
+				<iron-collapse-button>
+					<div slot="collapse-trigger"><paper-item class="has-unread" on-tap="_sendbox">[[localize('sen_mes','Send Messages',language)]] [[sendNumber]]</paper-item></div>
+					<div slot="collapse-content">
+						<ul>
+							<paper-item>[[localize('ehe','Report',language)]]</paper-item>
+							<paper-item>[[localize('prot','Ehealth Messages',language)]]</paper-item>
+							<paper-item>[[localize('lab_res','Invoicing',language)]]</paper-item>
+						</ul>
+					</div>
+				</iron-collapse-button>
 				<paper-item>[[localize('tra','Trash',language)]]</paper-item>
 			</paper-listbox>
 		</div>
@@ -365,9 +370,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
 
-    _sentbox(){
+    _sendbox(){
         console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
+    }
+
+    _labRes(){
+        console.log('throw event')
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
     }
 
 
