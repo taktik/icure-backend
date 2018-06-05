@@ -19,17 +19,28 @@
 
 package org.taktik.icure.config
 
+import com.hazelcast.core.HazelcastInstance
+import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.ektorp.spring.HttpClientFactoryBean
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
+import org.taktik.icure.dao.GenericDAO
+import org.taktik.icure.dao.GroupDAO
+import org.taktik.icure.dao.UserDAO
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdUserDependentCouchDbICureConnector
+import org.taktik.icure.dao.replicator.AbstractReplicator
+import org.taktik.icure.dao.replicator.FilteredReplicator
+import org.taktik.icure.dao.replicator.NewGroupObserver
+import org.taktik.icure.dao.replicator.UserReplicator
+import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.properties.CouchDbProperties
 
 @Configuration
@@ -45,8 +56,12 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
             .url(couchDbProperties.url)
             .build())
 
-    @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-config", couchdbInstance)
+    @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("$couchDbPrefix-config", couchdbInstance)
     @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-base", couchdbInstance, true)
     @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-patient", couchdbInstance, true)
     @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-healthdata", couchdbInstance, true)
+
+    @Bean fun sslContextFactory() = SslContextFactory()
+    @Bean fun userReplicator(hazelcastInstance: HazelcastInstance, userDAO: UserDAO) = UserReplicator(hazelcastInstance, userDAO)
+    @Bean fun newGroupObserver(hazelcastInstance: HazelcastInstance, sslContextFactory: SslContextFactory, groupDAO: GroupDAO, replicators: List<FilteredReplicator>, allDaos : List<GenericDAO<*>>) = NewGroupObserver(hazelcastInstance, sslContextFactory, groupDAO, replicators, allDaos)
 }
