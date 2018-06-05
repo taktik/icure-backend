@@ -145,7 +145,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				.add-btn-container{
-					position: fixed;
 					width: 100%;
 					display: flex;
 					flex-direction: row;
@@ -153,9 +152,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					align-items: center;
 					bottom: 16px;
 					left: 0;
+					margin-top: 2px;
 				}
 
 				.add-btn{
+					--paper-button-ink-color: var(--app-secondary-color-dark);
+					background:var(--app-secondary-color);
+					color:var(--app-text-color);
+					font-weight:bold;
+					font-size:14px;
+					height:40px;
+					min-width:100px;
+					@apply --shadow-elevation-2dp;
+					padding: 10px 1.2em;
+				}
+
+				.save-btn-container{
+					width: 100%;
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					align-items: center;
+					bottom: 16px;
+					left: 0;
+					margin-top: 2px;
+				}
+
+				.save-btn{
 					--paper-button-ink-color: var(--app-secondary-color-dark);
 					background:var(--app-secondary-color);
 					color:var(--app-text-color);
@@ -183,72 +206,185 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					margin: 50%;
 					transform: translate(-50%, -50%);
 				}
+
+
+				.container {
+					width: 100%;
+					height: calc(100vh - 64px);
+					display:grid;
+					grid-template-columns: 20% 30% 50%;
+					grid-template-rows: 100%;
+					position: fixed;
+					top: 64px;
+					left: 0;
+					bottom: 0;
+					right: 0;
+				}
+
+				.first-filter-panel{
+					/*width:20%;
+                    height:calc(100% - 64px);*/
+					height:100%;
+					background: var(--app-background-color-dark);
+					/*position:fixed;*/
+					top:64px;
+					left:0;
+					@apply --shadow-elevation-3dp;
+					grid-column: 1 / 1;
+					grid-row:1 / 1;
+					z-index:3;
+					overflow:hidden;
+					padding: 5px;
+				}
+
+
+				.second-filter-panel{
+					/*width:30%;*/
+					height:100%;
+					background: var(--app-background-color);
+					/*position:fixed;*/
+					top:64px;
+					left:20%;
+					@apply --shadow-elevation-2dp;
+					margin:0;
+					grid-column: 2 / 4;
+					grid-row:1 / 1;
+
+					z-index:2;
+					padding: 5px;
+
+
+				}
+
+				.display-left-menu{
+					display:inherit;
+				}
+
+				.submenus-container{
+					overflow-x: auto;
+					height: calc(100% - 140px);
+					margin-bottom:16px;
+				}
+
+				collapse-button > .menu-item.iron-selected {
+					@apply --padding-right-left-16;
+					color:var(--app-text-color-light);
+					background:var(--app-primary-color);
+					@apply --text-shadow;
+				}
+
+				.menu-item{
+					@apply --padding-right-left-16;
+					height:48px;
+					@apply --paper-font-button;
+					text-transform: inherit;
+					justify-content: space-between;
+					cursor: pointer;
+					@apply --transition;
+				}
+
+				.menu-item:hover{
+					background: var(--app-dark-color-faded);
+					@apply --transition;
+				}
+
+				.menu-item .iron-selected{
+					background:var(--app-primary-color);
+
+				}
+
+				.filterNameInput{
+					width: 400px;
+				}
+
 			</style>
 		</custom-style>
 
-		<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-		<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
-			<vaadin-grid-column width="32px">
-				<template class="header">
-					<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
-				</template>
-			</vaadin-grid-column>
 
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.lastName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.firstName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<div class="cell frozen">[[localize('ema','Email',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.email]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.phone]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.mobile]]</div>
-				</template>
-			</vaadin-grid-column>
-		</vaadin-grid>
-		<vaadin-checkbox checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
+		<div class="container">
+			<div class="first-filter-panel">
+				<h4>Filtres sauvegardés</h4>
+				<div class="submenus-container">
 
-		<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
+					<collapse-button>
+						<template is="dom-repeat" items="[[activeFilters]]" as="filter">
+							<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_active_filter_[[filter.name]]" elevation="" api="[[api]]" user="[[user]]"  language="[[language]]" data-item$="[[filter.filter]]" on-tap="addSelectedFilter">
+								<div class="one-line-menu list-title">
+									[[filter.name]]
+								</div>
+							</paper-item>
+						</template>
+					</collapse-button>
+
+				</div>
+				<div class="save-btn-container"><paper-button class="save-btn" on-tap="_saveFilter">[[localize('save_filter','Save Filter',language)]]</paper-button></div>
+			</div>
+
+			<div class="second-filter-panel">
+				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+				<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
+					<vaadin-grid-column width="32px">
+						<template class="header">
+							<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+						</template>
+						<template>
+							<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
+						</template>
+					</vaadin-grid-column>
+
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.lastName]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.firstName]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<div class="cell frozen">[[localize('ema','Email',language)]]</div>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.email]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
+						</template>
+						<template>
+							<div class="cell numeric">[[item.phone]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
+						</template>
+						<template>
+							<div class="cell numeric">[[item.mobile]]</div>
+						</template>
+					</vaadin-grid-column>
+				</vaadin-grid>
+				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
+			</div>
+		</div>
+
 		<paper-dialog id="add-patient-dialog">
 			<div class="horizontal">
 				<paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
@@ -260,6 +396,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+		<paper-dialog id="saveFilterDialog">
+			<h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
+			<div>
+				<vaadin-text-field class="filterNameInput" label="Filter name" value="{{filterName}}"></vaadin-text-field>
+			</div>
+			<div class="buttons">
+				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]</paper-button>
+			</div>
+		</paper-dialog>
+
 	</template>
 
 	<script>
@@ -271,14 +419,6 @@ import filterExParser from '../../../scripts/filterExParser';
 class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
 	static get is() {
 		return 'ht-pat-list';
-	}
-
-	static get observers(){
-	    return ['showInactivePatientsChanged(showInactive)']
-	}
-
-    showInactivePatientsChanged(){
-        this.$['patients-list'].clearCache();
 	}
 
 	static get properties() {
@@ -296,9 +436,8 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			activeItem: {
 				type: Object
 			},
-            showInactive: {
-			    type: Boolean,
-			    value: false
+			activeFilters:{
+			  type: Object
 			},
 			i18n: {
 				Type: Object,
@@ -371,19 +510,12 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyAndSsinFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'ssin': latestSearchValue,
-				'showInactivePatients': this.showInactive
+				'ssin': latestSearchValue
 			} : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyDateOfBirthFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1'),
-                'showInactivePatients': this.showInactive
-			} : {
-			    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-				'healthc,arePartyId': this.user.healthcarePartyId,
-				'searchString': latestSearchValue,
-                'showInactivePatients': this.showInactive
-			};
+				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
+			} : { '$type': 'PatientByHcPartyNameContainsFuzzyFilter', 'healthcarePartyId': this.user.healthcarePartyId, 'searchString': latestSearchValue };
 
 			if (grid.lastParams !== thisParams) {
 				grid.lastParams = thisParams;
@@ -421,17 +553,24 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 					console.log("Cancelling obsolete search");
 					return;
 				}
-
-				const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p=>this.showInactive || p.active)
-
-				if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-					grid.set("size", res.totalSize - (res.rows.length - keptPatients.length));
+				if (grid.size !== res.totalSize) {
+					grid.set("size", res.totalSize);
 				}
-				callback(keptPatients.map(this.pimpPatient));
+				callback(_.slice(res.rows, startIndex, endIndex).map(this.pimpPatient));
 			}.bind(this));
 		}.bind(this);
-	}
 
+
+		const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+		if (filters) {
+		    const parsedFilters = JSON.parse(filters.typedValue.stringValue)
+            this.set('activeFilters', _.sortBy(Object.keys(parsedFilters).map(k=>({name:k, filter:parsedFilters[k]}))));
+		} else {
+		    this.set('activeFilters', [])
+		}
+
+
+	}
 
 	formatDateOfBirth(dateOfBirth) {
 		return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A';
@@ -486,11 +625,53 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
 	}
 
+    confirmFilter(){
+
+	    console.log(this.filterValue);
+		console.log(this.filterName);
+
+		const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
+			(this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
+
+		if (!filtersProperty.typedValue) { filtersProperty.typedValue = {type:'STRING', stringValue:'{}'}}
+        if (!filtersProperty.typedValue.stringValue) { filtersProperty.typedValue.type = 'STRING'; filtersProperty.typedValue.stringValue = '{}'}
+
+		const filters = JSON.parse(filtersProperty.typedValue.stringValue)
+		filters[this.filterName] = this.filterValue
+        filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+
+		this.set('user.properties',this.user.properties.map(x=>x))
+
+		this.api.user().modifyUser(this.user);
+	}
+
 	picture(pat) {
 		if (!pat) {
 			return require('../../../images/Male-128.jpg');
 		}
 		return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
+	}
+
+    _saveFilter(e){
+    	this.$['saveFilterDialog'].open();
+	}
+
+    addSelectedFilter(e){
+
+	    const target = e.target.tagName.toLowerCase()==='paper-item'?e.target:e.target.parentElement
+        const filterValue = this.filterValue
+	    const jsonValue = JSON.parse(target.dataset.item)
+
+        const type = jsonValue.tagType
+		const value = jsonValue.tagCode
+
+		if(filterValue != ""){
+            this.filterValue = filterValue + " & (\":"+type+"\"== \""+value+"\")";
+		}else{
+            this.filterValue = "(\":"+type+"\"== \""+value+"\")";
+		}
+
+        this.refresh();
 	}
 
 }
