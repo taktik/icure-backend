@@ -608,18 +608,31 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 }.bind(this));
 			}
 			else {
-			this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
-				return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
-			}).then(function (res) {
-				if (this.filterValue !== latestSearchValue) {
-					console.log("Cancelling obsolete search");
-					return;
-				}
-				if (grid.size !== res.totalSize) {
-					grid.set("size", res.totalSize);
-				}
-				callback(_.slice(res.rows, startIndex, endIndex));
-			}.bind(this));
+                Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100),
+					this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, 0,  100)])
+					.then(([packs, packsIng]) => {
+					    packs = packs.concat(packsIng);
+					    let uniq = [];
+					    let ids = [];
+                        for(let i = 0;i < packs.length; i++){
+                            if(ids.indexOf(packs[i].id.id) == -1){
+                                ids.push(packs[i].id.id);
+                                uniq.push(packs[i])
+                            }
+                        }
+						packs = uniq;
+					return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)
+					};
+					}).then(function (res) {
+						if (this.filterValue !== latestSearchValue) {
+							console.log("Cancelling obsolete search");
+							return;
+						}
+						if (grid.size !== res.totalSize) {
+							grid.set("size", res.totalSize);
+						}
+						callback(_.slice(res.rows, startIndex, endIndex));
+					}.bind(this));
 			}
 		};
 	}
