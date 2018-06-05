@@ -87,7 +87,7 @@
 
 			
 			.grid-container {
-				margin: 0;
+				margin: 0 0 56px 0;
 			}
 
 			paper-dropdown-menu, paper-listbox{
@@ -190,8 +190,9 @@
 			}
 
 			paper-dialog {
-				min-width: 600px;
 				min-height: 480px;
+				min-width: 600px;
+				max-height: unset!important;
 				width: 80%;
 				top: 50%;
 				transform: translateY(-50%);
@@ -255,6 +256,12 @@
 				padding: 16px 24px;
 			}
 
+			.buttons{
+				position: absolute;
+				bottom: 0;
+				right: 12px;
+			}
+
 			.modal-button{
 				--paper-button-ink-color: var(--app-secondary-color-dark);
 				color: var(--app-text-color);
@@ -281,14 +288,14 @@
 		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
 
 		<template is="dom-if" if="[[wasModified]]">
-			<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
+			<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 		</template>
 		<template is="dom-if" if="[[isModifiedAfter]]">
 			<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 		</template>
 
 		<ul>
-		<template is="dom-repeat" items="[[localizedValue]]" as="lv">
+		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
 			<li id="[[lv.id]]" class="medication-line"><span>[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
 		</template>
 		</ul>
@@ -362,24 +369,23 @@
 							</template>
 							<template is="dom-if" if="[[!rg.date]]">
 								<paper-dropdown-menu label="Time of day" class="regimen--tod">
-								<paper-listbox slot="dropdown-content" selected="rg.dayPeriod.code" attr-for-selected="id" on-iron-select="_selectDayPeriod">
-									<paper-item id ="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
-									<paper-item id ="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
-									<paper-item id ="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
-									<paper-item id ="morning">[[_localize("Morning")]]</paper-item>
-									<paper-item id ="beforelunch">[[_localize("Beforelunch")]]</paper-item>
-									<paper-item id ="noon">[[_localize("Noon")]]</paper-item>
-									<paper-item id ="afternoon">[[_localize("Afternoon")]]</paper-item>
-									<paper-item id ="duringlunch">[[_localize("Duringlunch")]]</paper-item>
-									<paper-item id ="afterlunch">[[_localize("Afterlunch")]]</paper-item>
-									<paper-item id ="beforedinner">[[_localize("Beforedinner")]]</paper-item>
-									<paper-item id ="duringdinner">[[_localize("Duringdinner")]]</paper-item>
-									<paper-item id ="afterdinner">[[_localize("Afterdinner")]]</paper-item>
-									<paper-item id ="evening">[[_localize("Evening")]]</paper-item>
-									<paper-item id ="night">[[_localize("Night")]]</paper-item>
-									<hr>
-									<paper-item>[[_localize("Precise hour")]]</paper-item>
-								</paper-listbox>
+									<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
+										<paper-item id ="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
+										<paper-item id ="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
+										<paper-item id ="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
+										<paper-item id ="morning">[[_localize("Morning")]]</paper-item>
+										<paper-item id ="beforelunch">[[_localize("Beforelunch")]]</paper-item>
+										<paper-item id ="afternoon">[[_localize("Afternoon")]]</paper-item>
+										<paper-item id ="duringlunch">[[_localize("Duringlunch")]]</paper-item>
+										<paper-item id ="afterlunch">[[_localize("Afterlunch")]]</paper-item>
+										<paper-item id ="beforedinner">[[_localize("Beforedinner")]]</paper-item>
+										<paper-item id ="duringdinner">[[_localize("Duringdinner")]]</paper-item>
+										<paper-item id ="afterdinner">[[_localize("Afterdinner")]]</paper-item>
+										<paper-item id ="evening">[[_localize("Evening")]]</paper-item>
+										<paper-item id ="night">[[_localize("Night")]]</paper-item>
+										<hr>
+										<paper-item>[[_localize("Precise hour")]]</paper-item>
+									</paper-listbox>
 								</paper-dropdown-menu>
 							</template>
 						</template>
@@ -399,6 +405,7 @@
 	<script>
 
 import accounting from '../../../scripts/accounting';
+import styx from '../../../scripts/styx';
 
 class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
     static get is() {
@@ -456,6 +463,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     return [];
                 }
             },
+			refresher: {
+                type: Number,
+				value: 0
+			},
             input: {
                 type: String
             },
@@ -493,8 +504,26 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
             selectedMedicationContentWithId: {
                 type: Object,
                 value: null
-            }
-        };
+            },
+			_dayPeriods: {
+                type: Array,
+				value: () => [
+				    "beforebreakfast",
+                    "duringbreakfast",
+                    "afterbreakfast",
+                    "morning",
+                    "beforelunch",
+                    "afternoon",
+                    "duringlunch",
+                    "afterlunch",
+                    "beforedinner",
+                    "duringdinner",
+                    "afterdinner",
+                    "evening",
+                    "night"
+				]
+			}
+        }
     }
 
     static get observers() {
@@ -517,6 +546,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	constructor() {
 		super();
+	}
+
+    _indexOfDayPeriod(code) {
+        return this._dayPeriods.indexOf(code)
 	}
 
 	_getColumns(medicationType) {
@@ -642,14 +675,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	}
 
 	skip() {
-		if (this.selectedMedicationContentWithId && this.selectedMedicationContentWithId.isNew && this.selectedMedicationContentWithId.id) {
-			const currentId = this.selectedMedicationContentWithId.id;
-			this.select(null);
-			this.splice('value', this.value.findIndex(s => s.id === currentId), 1);
-		}
 	}
 
-	close() {}
+	close() {
+        this.set('selectedMedicationContentWithId', null)
+	}
 
 	select(item) {
 		if (item) {
@@ -663,6 +693,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		grid.selectedItems = item ? [item] : [];
 	}
 
+	/*
 	_localizedValueChanged(change) {
 		const current = this.value;
 		const modified = this.localizedValue;
@@ -681,7 +712,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		this.shelf = current;
 		this.set('value', newValue);
 	}
-
+	*/
 	_widthChanged(width) {
 		this.updateStyles({ '--dynamic-field-width': width, '--dynamic-field-width-percent': '' + width + '%' });
 	}
@@ -692,8 +723,14 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	_valueChanged() {
 		let localizedValue = this._localizedValue(this.value);
+		const currentlyEditedMedication = this.selectedMedicationContentWithId && this.value.find(s=>s.id === this.selectedMedicationContentWithId.id)
+		if (currentlyEditedMedication && (this.api.localize(currentlyEditedMedication.content, this.language)||{}).medicationValue !== this.selectedMedicationContentWithId.medicationValue) {
+		    //After save, make sure that the currently edited data is connected to the loaded data
+			(this.api.localize(currentlyEditedMedication.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
+		}
 		if (!_.isEqual(localizedValue, this.localizedValue)) {
 			this.set('localizedValue', localizedValue);
+			this.set('refresher', this.refresher+1)
 			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
 		}
 	}
@@ -712,10 +749,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	addMedication() {
 		const id = this.api.crypto().randomUuid();
-		this.push('value', { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) });
-
-		const item = this.value.find(s => s.id === id);
-		this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item, true));
+		this.set('newMedication', { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) });
+		this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(this.newMedication, true));
 		this.$['medication-selection'].open();
 	}
 
@@ -746,6 +781,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     date: null,
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
                 }])
+                if (this.selectedMedicationContentWithId.isNew) {
+                    this.push('value',this.newMedication)
+                }
                 this.$['medication-detail'].open()
             })
         } else {
@@ -764,7 +802,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 date: null,
                 administratedQuantity: null
             }])
-            this.$['medication-detail'].open()
         }
     }
 

@@ -51,10 +51,10 @@
 			<div class="top-gradient">&nbsp;</div>
 			<div style="text-align: center;"><!--img src="images/logo.png" style="width: 100px;" /--><h1>[[localize('ht','HT',language)]]</h1></div>
 			<div hidden$="{{!credentials.error}}" class="message error">
-				Invalid username or password.
+				[[localize('inv_use_or_pas','Invalid username or password.',language)]]
 			</div>
 			<div hidden$="{{!credentials.logout}}" class="message">
-				You have been logged out.
+				[[localize('you_hav_bee_log_out','You have been logged out.',language)]]
 			</div>
 			<form is="form" id="login-form">
 				<div class="layout vertical center flex">

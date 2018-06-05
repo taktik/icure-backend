@@ -741,12 +741,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			/* END SECOND PANEL */
 
 			.second-third-panel{
-				width:80%;
-				height:calc(100% - 64px);
+				grid-column: 2 / span 2;
+    			grid-row: 1 / 1;
 				background: var(--app-background-color);
-				position:fixed;
-				top:64px;
-				right:0;
+				
 				z-index:2;
 				overflow-y:scroll;
 			}
@@ -834,7 +832,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					text-transform:lowercase;
 				}
 				.second-third-panel{
-					width:70%;
+					grid-column: 1 / span 3;
+    				grid-row: 1 / 1;
 				}
 				.patient-info-container{
 					@apply --padding-right-left-16;
@@ -861,7 +860,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				bottom:48px;
 				width:100%;
 			}
-			.savedIndicator{
+			#savedIndicator{
 				position: fixed;
 				top:50%;
 				right: 0;

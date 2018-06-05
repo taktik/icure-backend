@@ -56,7 +56,7 @@
 		</style>
 
 		<paper-dialog id="dialog">
-			<h2 class="modal-title">Select [[entityType]]</h2>
+			<h2 class="modal-title">[[localize('sel','Select',language)]] [[entityType]]</h2>
 			<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 			<vaadin-grid id="entities-list" class="material" active-item="{{activeItem}}" on-tap="click">
 				<template is="dom-repeat" items="[[columns]]" as="column">
