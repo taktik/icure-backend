@@ -781,10 +781,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     date: null,
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
                 }])
-                if (this.selectedMedicationContentWithId.isNew) {
-                    this.push('value',this.newMedication)
-                }
-                this.$['medication-detail'].open()
+
             })
         } else {
             if (med.inncluster) {
@@ -802,10 +799,15 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 date: null,
                 administratedQuantity: null
             }])
+
         }
+        if (this.selectedMedicationContentWithId.isNew) {
+            this.push('value',this.newMedication)
+        }
+        this.$['medication-detail'].open()
     }
 
-	addPosologyRegimen() {
+   	addPosologyRegimen() {
 		const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
 		this.push('selectedMedicationContentWithId.medicationValue.regimen', { weekday: null, date: null, administratedQuantity: { quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit } });
 	}
