@@ -37,9 +37,15 @@ public interface UserDAO extends GenericDAO<User> {
 
 	User getOnFallback(String userId);
 
+	User findOnFallback(String userId);
+
 	User getUserOnUserDb(String userId, String groupId);
+
+	User findUserOnUserDb(String userId, String groupId);
 
 	List<User> getUsersOnDb(String groupId);
 
 	void evictFromCache(String groupId, List<String> userIds);
+
+	User saveOnFallback(User user);
 }

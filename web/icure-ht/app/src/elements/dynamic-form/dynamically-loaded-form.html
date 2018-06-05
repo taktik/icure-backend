@@ -181,7 +181,8 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		if (!ctc) {
 			return;
 		}
-		if (this.saveTimeout) {
+        this.dispatchEvent(new CustomEvent('data-change', { detail: ctc, bubbles: true, composed: true })); //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
+        if (this.saveTimeout) {
 			clearTimeout(this.saveTimeout);
 		}
 		this.saveAction = () => {
@@ -287,7 +288,7 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 				return s && this._timeFormat(s[0].ctc.openingDate);
 			},
 			getValueContainers: label => {
-				const c = _.compact(self.services(label).map(line => line && line.find(ss => !this.api.after(ss.ctc.created, this.contact.created))).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(_.cloneDeep); //Never provide the real objects so that we can compare them later on
+				const c = _.compact(self.services(label).map(line => line && line.find(ss => !this.api.after(ss.ctc.created, this.contact.created))).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(s=>Object.assign(_.cloneDeep(s),{checkUid:this.api.crypto().randomUuid()})); //Never provide the real objects so that we can compare them later on
 				return c;
 			},
 			setValueContainers: (label, containers) => {
@@ -303,7 +304,7 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 					if (svc) {
 						_.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id));
 						if (!_.isEqual(svc.content, service.content) || svc.index !== service.index || svc.endOfLife) {
-							_.extend(svc.content, service.content);
+							_.extend(svc.content, _.cloneDeep(service.content));
 							svc.index = service.index;
 							delete svc.endOfLife;
 
@@ -315,7 +316,8 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 							_.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id));
 						}
 						if (!prevSvc || !_.isEqual(prevSvc.content, service.content)) {
-							self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)), { index: service.index, content: service.content, codes: service.codes }));
+							self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)),
+								{ index: service.index, content: _.cloneDeep(service.content), codes: service.codes && service.codes.map(_.cloneDeep) }));
 							return true;
 						}
 					}
