@@ -2,8 +2,6 @@ package org.taktik.icure.dao.replicator;
 
 import com.hazelcast.core.HazelcastInstance;
 import org.taktik.icure.dao.UserDAO;
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.User;
 
@@ -16,7 +14,6 @@ import java.util.stream.Collectors;
  */
 public class UserReplicator extends AbstractReplicator {
     private UserDAO userDAO;
-	private IDGenerator idGenerator = new UUIDGenerator();
     public UserReplicator(HazelcastInstance hazelcast, UserDAO userDAO) {
         super(hazelcast);
         this.userDAO = userDAO;
@@ -45,7 +42,7 @@ public class UserReplicator extends AbstractReplicator {
 
 			if (to == null) {
 				to = new User();
-				to.setId(idGenerator.newGUID().toString());
+				to.setId(from.getId());
 			}
 
 		    to.setStatus(from.getStatus());

@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession
 import org.springframework.session.hazelcast.HazelcastSessionRepository
 import com.hazelcast.config.MapIndexConfig
+import com.hazelcast.spring.context.SpringManagedContext
 import org.springframework.session.hazelcast.PrincipalNameExtractor
 
 
@@ -35,9 +36,13 @@ import org.springframework.session.hazelcast.PrincipalNameExtractor
 @Configuration
 @EnableHazelcastHttpSession
 class HazelcastConfiguration() {
+
+    @Bean fun managedContext() = SpringManagedContext()
+
     @Bean
-    fun hazelcastConfig(): Config = Config().apply {
-        this.getMapConfig("spring:session:sessions")
+    fun hazelcastConfig(managedContext: SpringManagedContext): Config = Config().apply {
+        this.setManagedContext(managedContext)
+            .getMapConfig("spring:session:sessions")
             .addMapAttributeConfig(MapAttributeConfig()
                                        .setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
                                        .setExtractor(PrincipalNameExtractor::class.java.name))
