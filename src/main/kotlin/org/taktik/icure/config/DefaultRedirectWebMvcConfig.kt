@@ -14,6 +14,8 @@ class DefaultRedirectWebMvcConfig {
                 // forward requests to /admin and /user to their index.html
                 registry.addRedirectViewController("/ht", "/ht/")
                 registry.addViewController("/ht/").setViewName("forward:/ht/index.html")
+                registry.addRedirectViewController("/tz", "/tz/")
+                registry.addViewController("/tz/").setViewName("forward:/tz/index.html")
             }
         }
     }
