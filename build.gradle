@@ -33,7 +33,7 @@ configure(allprojects) {
 
 
 group = 'org.taktik.icure'
-version = '1.0.3'
+version = '1.0.6'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -202,14 +202,6 @@ dependencies {
 	compile group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
 	compile name: 'probatron4j-custom-0.7.4'
 	compile name: 'ehvalidator-service-core-2.1.1'
-	/*compile name: 'safe-common-global-2.2.4'
-    compile name: 'safe-common-sea-light-2.2.4'
-    compile name: 'safe-connector-common-3.4.1'
-    compile name: 'safe-connector-mapper-3.4.1'
-    compile name: 'safe-connector-technical-3.4.1'
-    compile name: 'safe-connector-validation-3.4.1'
-    compile name: 'safe-connector-vitalink-3.4.1'
-    compile name: 'safe-connector-xsltutils-3.4.1'*/
 
 	//Cloud version
 	compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
@@ -222,32 +214,38 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
-task packageWebResources(type: Exec) {
+task packageHtWebResources(type: Exec) {
 	group 'build'
 	description 'Package web resources'
 
 	workingDir "$projectDir/web/icure-ht"
-
-
-	inputs.file("webpack.config.js").withPathSensitivity(PathSensitivity.RELATIVE)
-	inputs.file("package-lock.json").withPathSensitivity(PathSensitivity.RELATIVE)
-	inputs.file("bower.json").withPathSensitivity(PathSensitivity.RELATIVE)
-	inputs.dir( "app").withPathSensitivity(PathSensitivity.RELATIVE)
-	outputs.dir("dist")
-	outputs.cacheIf { true }
-
 	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js"
 }
 
-task copyWebResources(type: Copy) {
+task packageTzWebResources(type: Exec) {
+	group 'build'
+	description 'Package web resources'
+
+	workingDir "$projectDir/web/icure-ht"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js"
+}
+
+task copyHtWebResources(type: Copy) {
 	from "$projectDir/web/icure-ht/dist"
 	into "${buildDir}/resources/main/static/ht"
 }
 
-copyWebResources.dependsOn(packageWebResources)
+task copyTzWebResources(type: Copy) {
+	from "$projectDir/web/icure-ht/dist-tz"
+	into "${buildDir}/resources/main/static/tz"
+}
+
+copyHtWebResources.dependsOn(packageHtWebResources)
+copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
 
-bootRepackage.dependsOn(copyWebResources)
+bootRepackage.dependsOn(copyHtWebResources)
+bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {
