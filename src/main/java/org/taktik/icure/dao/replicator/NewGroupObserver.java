@@ -70,7 +70,7 @@ public class NewGroupObserver {
 			final IAtomicReference<Boolean> isExecutorStarted = hazelcast.getAtomicReference(getClass().getCanonicalName() + ".isExecutorStarted");
 			if (!Boolean.TRUE.equals(isExecutorStarted.get())) {
 				IScheduledExecutorService scheduledExecutor = hazelcast.getScheduledExecutorService(getClass().getCanonicalName() + ".scheduledExecutor");
-				scheduledExecutor.scheduleAtFixedRate(this::ensureObserverStarted, 1, 10, TimeUnit.MINUTES);
+				scheduledExecutor.scheduleAtFixedRate(new ObserverStarter(), 1, 10, TimeUnit.MINUTES);
 				isExecutorStarted.set(Boolean.TRUE);
 
 				log.info("Captured lock and starting group observer");
@@ -81,7 +81,7 @@ public class NewGroupObserver {
 		}
 	}
 
-	private void ensureObserverStarted() {
+	public void ensureObserverStarted() {
 		IAtomicLong lastHeartBeat = getLastHeartBeat();
 		long time = System.currentTimeMillis();
 		if (lastHeartBeat.get() == 0) {
@@ -221,4 +221,5 @@ public class NewGroupObserver {
 			this.group = group;
 		}
 	}
+
 }
