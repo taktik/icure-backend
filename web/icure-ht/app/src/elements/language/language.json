@@ -148,7 +148,12 @@
     "pl_of_ac":"Plans of action",
     "st_da":"Start Date",
     "en_da":"End Date",
-    "sea_for_hea_ele":"Search for health element"
+    "sea_for_hea_ele":"Search for health element",
+    "mod":"modified",
+    "no_ehe_con":"No Ehealth connection",
+    "msg":"Messages",
+    "sen_to":"Send To",
+    "prot":"Protocol"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -282,11 +287,11 @@
     "des": "Description",
     "oop_you_hit_a_404": "Oops une erreur 404. Vous vous êtes perdu.",
     "hea_bac_to_hom": "Retour à l'accueil.",
-    "inb_(7)": "Inbox (7)",
-    "lab_res_(3)": "Lab Results (3)",
+    "inb": "Inbox",
+    "lab_res": "Lab Results",
     "per": "Personal",
     "pat_(4)": "Patients (4)",
-    "sen_mes": "Sent Messages",
+    "sen_mes": "Send Messages",
     "spa": "Spam",
     "tra": "Trash",
     "m>s": "m>Spam",
@@ -295,7 +300,9 @@
     "sen": "Sender",
     "the_ni_of_the_pat_is_not_val_or_mis": "Le niss du patient n'est pas valide ou manquant ",
     "pl_of_ac":"Planification d'action",
-    "sea_for_hea_ele":"Rechercher élément de soins"
+    "sea_for_hea_ele":"Rechercher élément de soins",
+    "mod":"modifié",
+    "msg":"Messages"
   },
   "nl": {
     "eng":"English",

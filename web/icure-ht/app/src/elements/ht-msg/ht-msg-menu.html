@@ -1,0 +1,458 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="../filter-panel/filter-panel.html">
+
+<link rel="import" href="../collapse-button/collapse-button.html">
+
+<link rel="import" href="../icons/icure-icons.html">
+<link rel="import" href="../../icd-styles.html">
+
+<link rel="import" href="../dynamic-form/entity-selector.html">
+<link rel="import" href="../dynamic-form/health-problem-selector.html">
+
+<dom-module id="ht-msg-menu">
+	<template>
+		<style include="iron-flex iron-flex-alignment"></style>
+		<!--suppress CssUnusedSymbol -->
+		<style include="shared-styles">
+			:host {
+				display: block;
+			}
+
+			:host *:focus{
+				outline:0!important;
+			}
+
+			.col-left{
+				position:fixed;
+				box-sizing: border-box;
+				height:100%;
+				width:20%;
+				background:white;
+				float:left;
+				@apply --shadow-elevation-2dp;
+				padding:20px;
+				display:flex;
+				flex-flow: column nowrap;
+				align-items: flex-start;
+				z-index:0;
+			}
+
+			.new-msg-btn{
+				--paper-button: {
+					background: var(--app-secondary-color);
+					color: var(--app-text-color);
+					width: 80%;
+					margin: 0 auto;
+					height: 48px;
+				};
+				--paper-button-ink-color: var(--app-secondary-color-dark);
+			}
+			.boxes-list{
+				margin:20px auto;
+				padding:0;
+				min-width:80%;
+			}
+			.col-right{
+				box-sizing: border-box;
+				padding:20px;
+				width:80%;
+				float:right;
+				margin-left:300px;
+			}
+			.has-unread{
+				font-weight:bold;
+			}
+			paper-item{
+				outline:0;
+				cursor:pointer;
+				--paper-item: {
+					margin: 0;
+				};
+				--paper-item-selected: {
+					background:rgba(0,0,0,0);
+					color:var(--app-secondary-color);
+				};
+				--paper-item-focused: {
+					background:rgba(0,0,0,0);
+					color:var(--app-secondary-color);
+				};
+				--paper-item-focused-before: {
+					background:rgba(0,0,0,0);
+				}
+			}
+
+
+			paper-listbox:focus{
+				outline:0;
+			}
+
+			.sublist{
+				padding-left:20px;
+				outline:0;
+
+			}
+
+			.sublist paper-item{
+				--paper-item-min-height: 28px;
+			}
+
+			vaadin-grid.material {
+				outline: 0!important;
+				font-family: Roboto, sans-serif;
+				background:rgba(0,0,0,0);
+				border:none;
+				--divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+				--vaadin-grid-cell: {
+					padding: 8px;
+				};
+
+				--vaadin-grid-header-cell: {
+					height: 48px;
+					padding:11.2px;
+					color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+					font-size: 12px;
+					background:rgba(0,0,0,0);
+					border-top:0;
+				};
+
+				--vaadin-grid-body-cell: {
+					height: 48px;
+					color: rgba(0, 0, 0, var(--dark-primary-opacity));
+					font-size: 13px;
+				};
+
+				--vaadin-grid-body-row-hover-cell: {
+					background-color: var(--paper-grey-200);
+				};
+
+				--vaadin-grid-body-row-selected-cell: {
+					background-color: var(--paper-grey-100);
+				};
+
+				--vaadin-grid-focused-cell: {
+					box-shadow: none;
+					font-weight: bold;
+				};
+
+			}
+			vaadin-grid.material .cell {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				padding-right: 56px;
+			}
+
+			vaadin-grid.material .cell.last {
+				padding-right: 24px;
+				text-al;
+			}
+
+			vaadin-grid.material .cell.numeric {
+				text-align: right;
+			}
+
+			vaadin-grid.material paper-checkbox {
+				--primary-color: var(--paper-indigo-500);
+				margin: 0 24px;
+			}
+
+			vaadin-grid.material vaadin-grid-sorter {
+				--vaadin-grid-sorter-arrow: {
+					display: none !important;
+				};
+			}
+
+			vaadin-grid.material vaadin-grid-sorter .cell {
+				flex: 1;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			vaadin-grid.material vaadin-grid-sorter iron-icon {
+				transform: scale(0.8);
+			}
+
+			vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+				color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+			}
+
+			vaadin-grid.material vaadin-grid-sorter[direction] {
+				color: rgba(0, 0, 0, var(--dark-primary-opacity));
+			}
+
+			vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+				transform: scale(0.8) rotate(180deg);
+			}
+
+
+			vaadin-grid.material::slotted(div){
+				outline:0 !important;
+				background:red;
+			}
+
+			paper-checkbox{
+				--paper-checkbox-unchecked-color: var(--app-text-color);
+				--paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
+				--paper-checkbox-checkmark-color: var(--app-secondary-color);
+				--paper-checkbox-checked-color: var(--app-primary-color);
+			}
+		</style>
+		<div class="col-left">
+			<paper-button class="new-msg-btn">[[localize('new_mes','New Message',language)]]</paper-button>
+			<paper-listbox class="boxes-list">
+				<iron-collapse-button>
+					<div slot="collapse-trigger"><paper-item class="has-unread" on-tap="_inbox">[[localize('inb','Inbox',language)]] [[unreadNumber]]</paper-item></div>
+					<div slot="collapse-content">
+						<ul>
+							<paper-item>[[localize('ehe','Ehealth',language)]]</paper-item>
+							<paper-item>[[localize('prot','Protocol',language)]]</paper-item>
+							<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
+						</ul>
+					</div>
+				</iron-collapse-button>
+				<iron-collapse-button>
+					<div slot="collapse-trigger"><paper-item class="has-unread" on-tap="_sendbox">[[localize('sen_mes','Send Messages',language)]] [[sendNumber]]</paper-item></div>
+					<div slot="collapse-content">
+						<ul>
+							<paper-item>[[localize('ehe','Report',language)]]</paper-item>
+							<paper-item>[[localize('prot','Ehealth Messages',language)]]</paper-item>
+							<paper-item>[[localize('lab_res','Invoicing',language)]]</paper-item>
+						</ul>
+					</div>
+				</iron-collapse-button>
+				<paper-item>[[localize('tra','Trash',language)]]</paper-item>
+			</paper-listbox>
+		</div>
+	</template>
+	<script>
+
+import moment from 'moment/src/moment';
+import _ from 'lodash/lodash';
+import styx from '../../../scripts/styx';
+import { AccessLogDto } from "../icc-api/model/AccessLogDto";
+
+class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+	static get is() {
+		return 'ht-msg-menu';
+	}
+
+	static get properties() {
+		return {
+			api: {
+				type: Object
+			},
+			user: {
+				type: Object
+			},
+			events: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+
+			},
+			selectedLocalize: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+			},
+			selected: {
+				type: Boolean,
+				value: false
+			},
+			showFiltersPanel: {
+				type: Boolean,
+				value: false
+			},
+			msgSearchString: {
+				type: String,
+				value: null
+			},
+			showDetailsFiltersPanel: {
+				type: Boolean,
+				value: false
+			},
+			isLatestYear: {
+				type: Boolean,
+				value: false
+			},
+			selectedContactItems: {
+				type: Array,
+				value: function () {
+					return [];
+				}
+			},
+			itemSelected: {
+				type: Boolean,
+				value: false
+			},
+			i18n: {
+				type: Object
+			},
+            unreadNumber: {
+			    type: Number
+			}
+		};
+	}
+
+	static get observers() {
+		return [];
+	}
+
+	constructor() {
+		super();
+	}
+
+    ready() {
+        super.ready();
+        this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+            const msg = messages.rows.reduce((acc, m) => {
+                if (!(m.status && 1 << 1 == 0)) {//status unread
+                    acc.push(m)
+                }return acc}, [])
+            return msg.length;
+        }).then(num => this.set('unreadNumber', num || 0));
+    }
+
+    _inbox(){
+	    console.log('throw event')
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
+	}
+
+    _sendbox(){
+        console.log('throw event')
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
+    }
+
+    _labRes(){
+        console.log('throw event')
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
+    }
+
+
+	selectedContactItemsChanged() {
+		const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+		ctcDetailPanel && ctcDetailPanel.flushSave();
+
+		this.set('selectedContacts', this.selectedContactItems.map(i => i.contact));
+	}
+
+	_timeFormat(date) {
+		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
+	}
+
+	_dateFormat(date) {
+		return this.api.moment(date).format('DD/MM/YYYY');
+	}
+
+	_selectToday() {
+		this.$.adminFileMenu.select(1);
+
+		this.set('timeSpanStart', parseInt(moment().startOf('day').format('YYYYMMDD')));
+		this.set('timeSpanEnd', null);
+
+		this.updateContactYears();
+	}
+
+	_select6Months() {
+		this.set('timeSpanStart', parseInt(moment().subtract(6, 'month').format('YYYYMMDD')));
+		this.set('timeSpanEnd', null);
+
+		this.updateContactYears();
+	}
+
+	_selectAll() {
+		this.set('timeSpanStart', null);
+		this.set('timeSpanEnd', null);
+
+		this.updateContactYears();
+	}
+
+	updateContactYears() {
+		this.notifyPath('contactYears');
+	}
+
+	contactFilter() {
+		return function (ctc) {
+			const regExp = this.contactSearchString && new RegExp(this.contactSearchString, "i");
+
+			const heIds = this.selectedMainElements.map(he => he.id);
+			const poaIds = _.flatMap(this.selectedMainElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
+			const svcIds = this.selectedMainElements.filter(he => !he.id).map(he => he.idService);
+
+			return this.api.after(ctc.openingDate, this.timeSpanStart) && this.api.before(ctc.openingDate, this.timeSpanEnd) && (!regExp || ctc.subContacts.filter(sc => sc.descr && sc.descr.match(regExp) && sc.services.length).length || ctc.services.filter(s => this.shortServiceDescription(s, this.language).match(regExp)).length) && (!heIds.length && !poaIds.length && !svcIds.length || ctc.subContacts.filter(sc => (sc.healthElementId && heIds.includes(sc.healthElementId) || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length).length || ctc.services.filter(s => svcIds.includes(s.id)).length) || !ctc.closingDate;
+		}.bind(this);
+	}
+
+	isNotEmpty(a) {
+		return a && a.length > 0;
+	}
+
+	isEmpty(a) {
+		return !a || a.length === 0;
+	}
+
+	isAdminSelected(el) {
+		return el && el.id === '_admin_info';
+	}
+
+	_concat(a, b) {
+		return (a || []).concat(b || []);
+	}
+
+}
+
+customElements.define(HtMsgMenu.is, HtMsgMenu);
+</script>
+</dom-module>

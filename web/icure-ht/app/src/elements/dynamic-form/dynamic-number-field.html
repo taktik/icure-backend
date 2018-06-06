@@ -85,7 +85,7 @@
 				<label slot="label">
 					<span class="label-span">[[label]]</span>
 					<template is="dom-if" if="[[wasModified]]">
-						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
+						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
 						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
@@ -101,7 +101,7 @@
 				<label slot="label">
 					<span class="label-span">[[label]]</span>
 					<template is="dom-if" if="[[wasModified]]">
-						<span class="modified-before-out">modified [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
+						<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 					</template>
 					<template is="dom-if" if="[[isModifiedAfter]]">
 						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
