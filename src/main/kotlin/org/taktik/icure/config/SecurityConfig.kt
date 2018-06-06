@@ -109,12 +109,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 				.antMatchers("/api/css/**").permitAll()
 				.antMatchers("/api/**").hasRole("USER")
 
-				.antMatchers("/admin/bower_components/**").permitAll()
-				.antMatchers("/admin/images/**").permitAll()
-				.antMatchers("/admin/styles/**").permitAll()
-				.antMatchers("/admin/logon.html").permitAll()
-				.antMatchers("/admin/**").hasRole("USER")
-
+				.antMatchers("/ht").permitAll()
+				.antMatchers("/tz").permitAll()
 				.antMatchers("/ht/**").permitAll()
 				.antMatchers("/tz/**").permitAll()
 
