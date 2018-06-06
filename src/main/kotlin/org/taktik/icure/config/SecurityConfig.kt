@@ -116,6 +116,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 				.antMatchers("/admin/**").hasRole("USER")
 
 				.antMatchers("/ht/**").permitAll()
+				.antMatchers("/tz/**").permitAll()
 
 				.antMatchers("/ping.json").permitAll()
 
