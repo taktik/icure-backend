@@ -651,7 +651,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 
 	addForm(templateGuid) {
 		this.set('showAddFormsContainer', false);
-		this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(templateGuid, (hcp.specialityCodes[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/, 'deptgeneralpractice'))).then(formTemplates => {
+		this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.api.form().getFormTemplatesByGuid(templateGuid, ((hcp.specialityCodes||[])[0] && hcp.specialityCodes[0].code || 'deptgeneralpractice').replace(/persphysician/, 'deptgeneralpractice'))).then(formTemplates => {
 			console.log("FTs: " + formTemplates.size + " FTs loaded");
 			if (formTemplates[0] && formTemplates[0].id) {
 				//Create a new form and link it to the currentContact
@@ -1062,7 +1062,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			filter: function (filterValue, limit, offset, sortKey, descending) {
 				const regExp = filterValue && new RegExp(filterValue, "i");
 
-				return this.api.form().findFormTemplates().then(fts => {
+				return Promise.all([
+				    this.api.form().findFormTemplates(),
+                    this.api.form().findFormTemplatesBySpeciality(((this.api.hcParties[this.user.healthcarePartyId]||{}).specialityCodes||[])[0] || 'deptgeneralpractice')
+                ])
+                    .then(res=>_.uniqBy(_.flatMap(res),'id'))
+                    .then(fts => {
 					const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
 					return { totalSize: fts.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
 				});
