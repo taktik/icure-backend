@@ -510,10 +510,16 @@
   * @param hcparty
   * @param patient (Promise)
   */
-	findBy(hcpartyId, patient) {
+    findByPatient(hcpartyId, patient) {
 		return this.crypto.extractDelegationsSFKs(patient, hcpartyId).then(secretForeignKeys => this.api.document().findByHCPartyPatientSecretFKeys(hcpartyId, secretForeignKeys.join(','))).then(documents => this.decrypt(hcpartyId, documents)).then(function (decryptedForms) {
 			return decryptedForms;
 		});
+	}
+
+	findByMessage(hcpartyId, message) {
+            return this.crypto.extractDelegationsSFKs(message, hcpartyId).then(secretForeignKeys => this.api.document().findByHCPartyMessageSecretFKeys(hcpartyId, secretForeignKeys.join(','))).then(documents => this.decrypt(hcpartyId, documents)).then(function (decryptedForms) {
+                return decryptedForms;
+            });
 	}
 
 	decrypt(hcpartyId, documents) {
