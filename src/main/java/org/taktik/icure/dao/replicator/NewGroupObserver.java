@@ -16,9 +16,12 @@ import org.taktik.couchdb.CouchDbInstance;
 import org.taktik.icure.dao.GenericDAO;
 import org.taktik.icure.dao.GroupDAO;
 import org.taktik.icure.entities.Group;
+import org.taktik.icure.entities.base.StoredDocument;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,10 +92,11 @@ public class NewGroupObserver {
 			// init
 			startObserver();
 			List<Group> groups = groupDAO.getAll();
+			groups.sort(Comparator.comparing(StoredDocument::getId));
 			CompletableFuture<Boolean> f = CompletableFuture.completedFuture(true);
 			for (Group group : groups) {
 				//Compose them so they do not start all at the same time
-				f=f.thenCompose(b -> prepareDesignDocumentsAndStartReplications(group)).exceptionally((t)->{log.error("An error occured during Observers start",t); return false; });
+				f=f.thenCompose(b -> prepareDesignDocumentsAndStartReplications(group)).exceptionally((t)->{log.error("An error occurred during Observers start",t); return false; });
 			}
 		} else if (lastHeartBeat.get() < time - IS_SYNC_DEAD_TIMEOUT) {
 			startObserver();
@@ -103,7 +107,7 @@ public class NewGroupObserver {
 		startHttpClient();
 
 		CouchDbInstance dbInstance = new CouchDbInstance(httpClient, URI.create(couchDbUrl), couchDbPrefix + "-config", couchDbUsername, couchDbPassword);
-		dbInstance.changes(null,
+		dbInstance.changes("now",
 			(Change change) -> {
 				observe(change);
 				return Unit.INSTANCE;
@@ -168,7 +172,7 @@ public class NewGroupObserver {
 	}
 
 	private CompletableFuture<Boolean> prepareDesignDocumentsAndStartReplications(Group group) {
-		log.info("Starting replications for "+group.getName());
+		log.info("Starting replications for "+group.getId());
 
 		allDaos.forEach(d->d.initStandardDesignDocument(group.getId()));
 
