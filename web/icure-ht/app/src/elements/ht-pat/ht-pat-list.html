@@ -290,32 +290,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				.menu-item .iron-selected{
 					background:var(--app-primary-color);
-
 				}
 
 				.filterNameInput{
 					width: 400px;
 				}
 
+                .deleteFilterIcon{
+                    float: right;
+                    color: #66dfa1;
+                }
+
+				paper-item.iron-selected {
+					background-color: var(--app-primary-color);
+					color: var(--app-text-color-light);
+				}
+
+				paper-item.iron-selected:hover {
+					background: #5a6d75;
+				}
+
 			</style>
 		</custom-style>
-
 
 		<div class="container">
 			<div class="first-filter-panel">
 				<h4>Filtres sauvegardés</h4>
 				<div class="submenus-container">
-
-					<collapse-button>
-						<template is="dom-repeat" items="[[activeFilters]]" as="filter">
-							<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_active_filter_[[filter.name]]" elevation="" api="[[api]]" user="[[user]]"  language="[[language]]" data-item$="[[filter.filter]]" on-tap="addSelectedFilter">
+					<paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]" focused on-selected-values-changed="selectFilter" multi>
+						<template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter" id="filterMenu">
+							<paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]" user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
 								<div class="one-line-menu list-title">
 									[[filter.name]]
 								</div>
+								<div class="deleteFilterIcon">
+									<iron-icon icon="vaadin:close-circle" id="[[filter.name]]" on-tap="deleteFilter"></iron-icon>
+								</div>
 							</paper-item>
-						</template>
-					</collapse-button>
-
+                        </template>
+					</paper-listbox>
 				</div>
 				<div class="save-btn-container"><paper-button class="save-btn" on-tap="_saveFilter">[[localize('save_filter','Save Filter',language)]]</paper-button></div>
 			</div>
@@ -415,6 +428,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import filterExParser from '../../../scripts/filterExParser';
+import {FilterExPrinter} from '../icc-x-api/filterExPrinter';
 
 class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
 	static get is() {
@@ -435,9 +449,6 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			},
 			activeItem: {
 				type: Object
-			},
-			activeFilters:{
-			  type: Object
 			},
 			i18n: {
 				Type: Object,
@@ -466,13 +477,21 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 					};
 					return res;
 				}
-			}
+			},
+            selectedFilters: {
+                type: Array,
+                notify: true,
+                value: () => []
+            }
 		};
 	}
+
+	static get observers() { return ['_filterValueChanged(filterValue)']}
 
 	constructor() {
 		super();
 	}
+
 
 	ready() {
 		super.ready();
@@ -560,16 +579,6 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			}.bind(this));
 		}.bind(this);
 
-
-		const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
-		if (filters) {
-		    const parsedFilters = JSON.parse(filters.typedValue.stringValue)
-            this.set('activeFilters', _.sortBy(Object.keys(parsedFilters).map(k=>({name:k, filter:parsedFilters[k]}))));
-		} else {
-		    this.set('activeFilters', [])
-		}
-
-
 	}
 
 	formatDateOfBirth(dateOfBirth) {
@@ -606,15 +615,6 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		const selected = this.activeItem;
 		console.log('selected ' + selected + ' - ' + this.latestSelected);
 		this.set('selectedPatient', selected);
-		/*if (this.inDoubleClick && ((this.latestSelected === selected) || (this.latestSelected && !selected) || (!this.latestSelected && selected))) {
-  	this.set('selectedPatient', selected || this.latestSelected)
-  } else {
-  	this.latestSelected = selected
-  	this.inDoubleClick = true
-  	setTimeout(() => {
-  		delete this.inDoubleClick
-  	}, 500)
-  }*/
 	}
 
 	_addPatient() {
@@ -622,14 +622,10 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 	}
 
 	confirm() {
-		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
+		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, active: true, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
 	}
 
     confirmFilter(){
-
-	    console.log(this.filterValue);
-		console.log(this.filterName);
-
 		const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
 			(this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
 
@@ -637,12 +633,13 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
         if (!filtersProperty.typedValue.stringValue) { filtersProperty.typedValue.type = 'STRING'; filtersProperty.typedValue.stringValue = '{}'}
 
 		const filters = JSON.parse(filtersProperty.typedValue.stringValue)
-		filters[this.filterName] = this.filterValue
-        filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+        filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+
+		filtersProperty.typedValue.stringValue = JSON.stringify(filters)
 
 		this.set('user.properties',this.user.properties.map(x=>x))
 
-		this.api.user().modifyUser(this.user);
+		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
 	}
 
 	picture(pat) {
@@ -656,23 +653,64 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
     	this.$['saveFilterDialog'].open();
 	}
 
-    addSelectedFilter(e){
+    deleteFilter(e){
+        e.stopPropagation();
 
-	    const target = e.target.tagName.toLowerCase()==='paper-item'?e.target:e.target.parentElement
-        const filterValue = this.filterValue
-	    const jsonValue = JSON.parse(target.dataset.item)
+        const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
+            (this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
 
-        const type = jsonValue.tagType
-		const value = jsonValue.tagCode
+        const filters = JSON.parse(filtersProperty.typedValue.stringValue)
+        delete(filters[e.target.id])
 
-		if(filterValue != ""){
-            this.filterValue = filterValue + " & (\":"+type+"\"== \""+value+"\")";
-		}else{
-            this.filterValue = "(\":"+type+"\"== \""+value+"\")";
+        filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+
+        this.set('user.properties',this.user.properties.map(x=>x))
+
+        this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
+	}
+
+    _activeFilters() {
+        const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+        if (filters) {
+            const parsedFilters = JSON.parse(filters.typedValue.stringValue)
+            return _.sortBy(Object.keys(parsedFilters).map(k=>({name:k, filter:parsedFilters[k]})))
+        }
+        return []
+	}
+
+    _selectedFilterIndexes(){
+	    const activeFilters = this._activeFilters()
+        return this.selectedFilters ? this.selectedFilters.map(f => activeFilters.map(ff=>ff.name).indexOf(f.name)) : []
+	}
+
+	_selectedFiltersAsString() {
+        const filterPrinter = new FilterExPrinter()
+        return filterPrinter.print(this.selectedFilters.length>1 ?
+            {"$type":"IntersectionFilter",filters:this.selectedFilters.map(f=>f.filter)}:
+            this.selectedFilters[0].filter)
+	}
+
+    _filterValueChanged(filterValue) {
+        if (this.selectedFilters[0] && this._selectedFiltersAsString() !== this.filterValue) {
+            this.set('selectedFilters',[])
+		}
+    }
+
+    selectFilter(e) {
+        const activeFilters = this._activeFilters()
+
+        this.set('selectedFilters',e.target.selectedValues.map(idx=>activeFilters[idx]))
+        if (this.selectedFilters[0]) {
+            this.set('filterValue', this._selectedFiltersAsString())
+			this.previouslySetFilterValue = this.filterValue
+        } else {
+            if (this.filterValue === this.previouslySetFilterValue) {
+                this.set('filterValue','')
+			}
 		}
 
-        this.refresh();
-	}
+		this.refresh()
+    }
 
 }
 

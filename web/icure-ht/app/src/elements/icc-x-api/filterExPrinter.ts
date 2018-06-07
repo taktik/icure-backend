@@ -11,7 +11,7 @@ export class FilterExPrinter {
         throw 'Unmappable filter '+ex
     }
 
-    print(ex:JSON) {
+    print(ex:any) {
         return this.map(ex).print()
     }
 }
@@ -58,17 +58,17 @@ class UnionFilter extends Filter {
 class ComparisonFilter extends Filter {
     leftPart:string
     rightPart:string
-    comparator:string
+    operator:string
 
-    constructor(leftPart: string, rightPart: string, comparator: string) {
+    constructor(leftPart: string, rightPart: string, operator: string) {
         super('ComparisonFilter');
         this.leftPart = leftPart;
         this.rightPart = rightPart;
-        this.comparator = comparator;
+        this.operator = operator;
     }
 
     print() {
-        return `"${this.leftPart}" ${this.comparator} "${this.rightPart}"`
+        return `"${this.leftPart}" ${this.operator} "${this.rightPart}"`
     }
 }
 
@@ -87,10 +87,13 @@ class ServiceByHcPartyTagCodeDateFilter extends Filter {
     }
 
     print() {
-        const out = new IntersectionFilter([])
-        if (this.codeType) { out.add(new ComparisonFilter(this.codeType,this.codeCode,'=='))}
-        if (this.tagType) { out.add(new ComparisonFilter(':'+this.tagType,this.tagCode,'=='))}
-        return out.print()
+        return ((this.codeType && this.tagType) ?
+            new IntersectionFilter([
+                new ComparisonFilter(this.codeType,this.codeCode,'=='),
+                new ComparisonFilter(':'+this.tagType,this.tagCode,'==')
+            ]) : this.codeType ? new ComparisonFilter(this.codeType, this.codeCode,'==') :
+                new ComparisonFilter(':'+this.tagType, this.tagCode,'=='))
+            .print()
     }
 }
 
