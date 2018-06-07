@@ -32,21 +32,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     outline: 0 !important;
                 }
 
-                .col-left {
-                    position: fixed;
-                    box-sizing: border-box;
-                    height: 100%;
-                    width: 20%;
-                    background: white;
-                    float: left;
-                    @apply --shadow-elevation-2dp;
-                    padding: 20px;
-                    display: flex;
-                    flex-flow: column nowrap;
-                    align-items: flex-start;
-                    z-index: 0;
-                }
-
                 .new-msg-btn {
                     --paper-button: {
                         background: var(--app-secondary-color);
@@ -66,10 +51,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .col-right {
                     box-sizing: border-box;
-                    padding: 20px;
-                    width: 80%;
-                    float: right;
-                    margin-left: 300px;
+                    grid-column: 2 / span 1;
+                    grid-row: 1 / span 1;
+                    background:white;
+                    float:left;
+                    @apply --shadow-elevation-2dp;
+                    padding:20px;
+                    display:flex;
+                    flex-flow: column nowrap;
+                    align-items: flex-start;
+                    z-index:0;
+                    height: 100%;
+                    width: 100%;
+                    overflow-y: scroll;
+                }
+
+                .card-title-container{
+                    padding: 8px 0;
+                    height: 34px;
+                }
+
+                .card-title{
+                    margin: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    -webkit-font-smoothing: antialiased;
+                    font-family: 'Roboto',Helvetica,Arial,sans-serif;
+                    font-size: 14px;
+                    letter-spacing: .15px;
+                    color: var(--app-text-color);
+                    font-weight: 500;
+                    letter-spacing: 0;
+                    line-height: 16px;
+                    -webkit-box-ordinal-group: 0;
+                    -webkit-order: 0;
+                    order: 0;
+                }
+
+                .card-title iron-icon{
+                    width:16px;
+                    width: 16px;
+                    color: var(--app-text-color-disabled);
                 }
 
                 .has-unread {
@@ -110,10 +133,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 vaadin-grid {
-                    height: calc(60% - 104px);
-                    margin: 320px 32px 0;
+                    height: calc(100% - 16px - 32px);
+                    width: 100%;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
+                    box-sizing: border-box;
                 }
 
                 vaadin-grid.material {
@@ -218,31 +242,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-checkbox-checked-color: var(--app-primary-color);
                 }
 
-                .second-panel{
-                    /*width:30%;*/
-                    height:100%;
-                    background: var(--app-background-color);
-                    /*position:fixed;*/
-                    top:64px;
-                    left:20%;
-                    @apply --shadow-elevation-2dp;
-                    margin:0;
-                    grid-column: 2 / 2;
-                    grid-row:1 / 1;
-
-                    z-index:2;
-
-                }
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
-            <div class="second-panel">
+            <div class="second-panel col-right">
                 <div class="card-title-container">
-                    <h1 class="card-title new-notif">[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
+                    <h1 class="card-title new-notif"><iron-icon icon="icons:arrow-forward"></iron-icon>[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
                 </div>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              items="[[messages]]" on-tap="click">
-                    <template is="dom-if" if="[[selectList.selection.item]] === 'sendbox'">
+                    <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sendbox'">
                         <vaadin-grid-column width="100px">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress">[[localize('sen_to','Send To',language)]]
@@ -252,9 +261,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="cell frozen">[[getToAddresses(item)]]</div>
                             </template>
                         </vaadin-grid-column>
-                    </template>
+                    </template> -->
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sendbox'">
-                        <vaadin-grid-column width="100px">
+                        <vaadin-grid-column width="30%">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
                                 </vaadin-grid-sorter>
@@ -264,7 +273,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column width="20%">
                         <template class="header">
                             <div>[[localize('dat','Date',language)]]</div>
                         </template>
@@ -272,7 +281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[_timeFormat(item.received)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column width="50%">
                         <template class="header">
                             <vaadin-grid-sorter class="cell frozen" path="subject">
                                 [[localize('sub','Subject',language)]]
