@@ -33,6 +33,10 @@ export class iccReplicationApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -88,14 +92,14 @@ export class iccReplicationApi {
 
 
     }
-    deleteReplication(replicationId: string) : Promise<Boolean|any> {
+    deleteReplication(replicationId: string) : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/replication/{replicationId}".replace("{replicationId}", replicationId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

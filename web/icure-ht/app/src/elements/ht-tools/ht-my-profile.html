@@ -172,7 +172,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 	}
 
 	confirm() {
-		this.api.user().modifyUser(this.user);
+		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
 		this.api.hcparty().modifyHealthcareParty(this.hcp);
 	}
 }

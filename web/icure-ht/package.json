@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.js",
+    "dev-tz": "node $NODE_DEBUG_OPTION node_modules/webpack/bin/webpack.js --config webpack.config.tz.js",
     "build": "webpack --optimize-minimize --config webpack.config.js",
+    "build-tz": "webpack --optimize-minimize --config webpack.config.tz.js",
     "serve": "webpack-dev-server --config webpack.config.js",
+    "serve-tz": "webpack-dev-server --config webpack.config.tz.js",
     "webpack-defaults": "webpack-defaults",
     "defaults": "webpack-defaults"
   },

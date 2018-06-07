@@ -33,6 +33,10 @@ export class iccMessageApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -64,26 +68,26 @@ export class iccMessageApi {
 
 
     }
-    deleteMessages(messageIds: string) : Promise<Boolean|any> {
+    deleteMessages(messageIds: string) : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/message/{messageIds}".replace("{messageIds}", messageIds+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    deleteMessagesBatch(body?: models.ListOfIdsDto) : Promise<Boolean|any> {
+    deleteMessagesBatch(body?: models.ListOfIdsDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/message/delete/byIds" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

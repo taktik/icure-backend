@@ -33,6 +33,10 @@ export class iccUserApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')

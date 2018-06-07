@@ -33,7 +33,7 @@ configure(allprojects) {
 
 
 group = 'org.taktik.icure'
-version = '1.0.8'
+version = '1.0.11'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -223,6 +223,16 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
+task installWebResourcesDependencies(type: Exec) {
+	group 'build'
+	description 'Package web resources'
+
+	workingDir "$projectDir/web/icure-ht"
+	commandLine "npm", "install"
+	commandLine "bower", "install"
+}
+
+
 task packageHtWebResources(type: Exec) {
 	group 'build'
 	description 'Package web resources'
@@ -238,6 +248,9 @@ task packageTzWebResources(type: Exec) {
 	workingDir "$projectDir/web/icure-ht"
 	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js"
 }
+
+packageHtWebResources.dependsOn(installWebResourcesDependencies)
+packageTzWebResources.dependsOn(installWebResourcesDependencies)
 
 task copyHtWebResources(type: Copy) {
 	from "$projectDir/web/icure-ht/dist"

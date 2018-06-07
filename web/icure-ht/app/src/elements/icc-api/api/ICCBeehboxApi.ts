@@ -33,6 +33,10 @@ export class iccBeehboxApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -40,14 +44,14 @@ export class iccBeehboxApi {
     }
 
 
-    deleteMessages(token: string, from: string, body?: models.ListOfIdsDto) : Promise<Boolean|any> {
+    deleteMessages(token: string, from: string, body?: models.ListOfIdsDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_ehbox/delete/{token}/{from}".replace("{token}", token+"").replace("{from}", from+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
