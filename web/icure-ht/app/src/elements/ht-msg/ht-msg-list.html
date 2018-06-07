@@ -53,17 +53,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-sizing: border-box;
                     grid-column: 2 / span 1;
                     grid-row: 1 / span 1;
-                    background:white;
+                    background:var(--app-background-color);
                     float:left;
                     @apply --shadow-elevation-2dp;
                     padding:20px;
                     display:flex;
                     flex-flow: column nowrap;
                     align-items: flex-start;
-                    z-index:0;
+                    z-index:2;
                     height: 100%;
                     width: 100%;
-                    overflow-y: scroll;
                 }
 
                 .card-title-container{
@@ -273,7 +272,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column width="20%">
+                    <vaadin-grid-column width="30%">
                         <template class="header">
                             <div>[[localize('dat','Date',language)]]</div>
                         </template>
@@ -281,7 +280,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[_timeFormat(item.received)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="50%">
+                    <vaadin-grid-column width="40%">
                         <template class="header">
                             <vaadin-grid-sorter class="cell frozen" path="subject">
                                 [[localize('sub','Subject',language)]]
