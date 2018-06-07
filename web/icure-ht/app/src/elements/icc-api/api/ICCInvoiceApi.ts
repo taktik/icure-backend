@@ -33,6 +33,10 @@ export class iccInvoiceApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -64,14 +68,14 @@ export class iccInvoiceApi {
 
 
     }
-    deleteInvoice(invoiceId: string) : Promise<Boolean|any> {
+    deleteInvoice(invoiceId: string) : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/invoice/{invoiceId}".replace("{invoiceId}", invoiceId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

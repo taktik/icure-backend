@@ -60,8 +60,8 @@ export class TarificationConsultationResultDto {
 
     reimbursements?: Array<models.TarifConsultationPaymentDto>;
 
-    ct2?: string;
-
     ct1?: string;
+
+    ct2?: string;
 
 }

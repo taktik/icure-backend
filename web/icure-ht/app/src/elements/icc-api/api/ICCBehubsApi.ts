@@ -30,7 +30,11 @@ export class iccBehubsApi {
     headers : Array<XHR.Header>
     constructor(host: string, headers: any) {
         this.host = host
-        this.headers = Object.keys(headers).map(k=>new XHR.Header(k,headers[k]))
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+    }
+
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
     }
 
 

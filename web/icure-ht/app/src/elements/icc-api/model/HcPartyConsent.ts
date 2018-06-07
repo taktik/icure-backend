@@ -38,8 +38,8 @@ export class HcPartyConsent {
 
     hubId?: string;
 
-    nihii?: string;
-
     ssin?: string;
+
+    nihii?: string;
 
 }

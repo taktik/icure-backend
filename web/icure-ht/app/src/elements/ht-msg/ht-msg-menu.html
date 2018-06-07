@@ -75,14 +75,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				box-sizing: border-box;
 				grid-column: 1 / 1;
     			grid-row: 1 / 1;
-				background:white;
+				background:var(--app-background-color-dark);
 				float:left;
-				@apply --shadow-elevation-2dp;
+				@apply --shadow-elevation-3dp;
 				padding:20px;
 				display:flex;
 				flex-flow: column nowrap;
 				align-items: center;
-				z-index:0;
+				z-index:3;
 				height: 100%;
 				width: 100%;
 			}
@@ -404,7 +404,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
-				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sendbox" elevation="">
+				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:send"></iron-icon>[[localize('sen_mes','Send Messages',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
 				</paper-item>
@@ -509,17 +509,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
     }
 
     _inbox(){
-	    console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
 
-    _sendbox(){
-        console.log('throw event')
+    _sentbox(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
     }
 
     _labRes(){
-        console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
     }
 
