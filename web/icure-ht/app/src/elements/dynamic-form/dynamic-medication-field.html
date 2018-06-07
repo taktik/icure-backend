@@ -801,7 +801,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
             this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
                 weekday: null,
                 date: null,
-                administratedQuantity: null
+                administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
             }])
 
         }
