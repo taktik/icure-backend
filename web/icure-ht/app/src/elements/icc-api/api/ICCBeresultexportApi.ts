@@ -33,6 +33,10 @@ export class iccBeresultexportApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -40,26 +44,26 @@ export class iccBeresultexportApi {
     }
 
 
-    exportHealthOne(fromHcpId: string, toHcpId: string, patId: string, date: number, ref: string, mustCrypt?: boolean, body?: Array<string>) : Promise<Boolean|any> {
+    exportHealthOne(fromHcpId: string, toHcpId: string, patId: string, date: number, ref: string, mustCrypt?: boolean, body?: Array<string>) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    exportMedidoc(fromHcpId: string, toHcpId: string, patId: string, date: number, ref: string, mustCrypt?: boolean, body?: Array<string>) : Promise<Boolean|any> {
+    exportMedidoc(fromHcpId: string, toHcpId: string, patId: string, date: number, ref: string, mustCrypt?: boolean, body?: Array<string>) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

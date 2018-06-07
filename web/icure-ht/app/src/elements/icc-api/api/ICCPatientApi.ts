@@ -33,6 +33,10 @@ export class iccPatientApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -136,14 +140,14 @@ export class iccPatientApi {
 
 
     }
-    forceLog() : Promise<Boolean|any> {
+    forceLog() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/patient/forceLog" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

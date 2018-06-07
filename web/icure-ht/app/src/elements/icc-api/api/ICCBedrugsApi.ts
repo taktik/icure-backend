@@ -33,6 +33,10 @@ export class iccBedrugsApi {
         this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
+    }
+
 
     handleError(e: XHR.Data) {
         if (e.status == 401) throw Error('auth-failed')
@@ -236,7 +240,7 @@ export class iccBedrugsApi {
         let _body = null
         
         
-        const _url = this.host+"/be_drugs/doc".replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_drugs/doc/{lang}".replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocPreview(it)))

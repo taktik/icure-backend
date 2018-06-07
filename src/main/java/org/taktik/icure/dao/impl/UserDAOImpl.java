@@ -96,8 +96,18 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
+	public User findOnFallback(String userId) {
+		return ((CouchDbICureConnector) db).getFallbackConnector().find(User.class,userId);
+	}
+
+	@Override
 	public User getUserOnUserDb(String userId, String groupId) {
 		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).get(User.class,userId);
+	}
+
+	@Override
+	public User findUserOnUserDb(String userId, String groupId) {
+		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).find(User.class,userId);
 	}
 
 	@Override
@@ -116,6 +126,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 		super.evictFromCache(groupId,ALL_ENTITIES_CACHE_KEY);
 	}
 
+	@Override
+	public User saveOnFallback(User user) {
+		((CouchDbICureConnector) db).getFallbackConnector().update(user);
+		return user;
+	}
 
 	@Override
 	protected User save(Boolean newEntity, User entity) {

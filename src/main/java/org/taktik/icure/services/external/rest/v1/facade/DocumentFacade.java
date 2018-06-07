@@ -310,8 +310,8 @@ public class DocumentFacade implements OpenApiFacade{
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 
-		Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
-		List<Document> documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, new ArrayList<>(secretPatientKeys));
+		Set<String> secretMessageKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+		List<Document> documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, new ArrayList<>(secretMessageKeys));
 
 		boolean succeed = (documentList != null);
 		if (succeed) {

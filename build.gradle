@@ -13,6 +13,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.0.1')
 	}
 }
 
@@ -21,6 +22,7 @@ apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker-java'
 
 configure(allprojects) {
 	apply plugin: 'propdeps'
@@ -31,7 +33,7 @@ configure(allprojects) {
 
 
 group = 'org.taktik.icure'
-version = '4.0.3-SNAPSHOT'
+version = '1.0.11'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -39,6 +41,15 @@ compileKotlin {
 		jvmTarget = "1.8"
 	}
 }
+
+
+compileJava {
+	options.fork = true
+	options.forkOptions.with {
+		memoryMaximumSize = "2048m"
+	}
+}
+
 compileTestKotlin {
 	kotlinOptions {
 		freeCompilerArgs = ["-Xjsr305=strict"]
@@ -200,14 +211,6 @@ dependencies {
 	compile group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
 	compile name: 'probatron4j-custom-0.7.4'
 	compile name: 'ehvalidator-service-core-2.1.1'
-	/*compile name: 'safe-common-global-2.2.4'
-    compile name: 'safe-common-sea-light-2.2.4'
-    compile name: 'safe-connector-common-3.4.1'
-    compile name: 'safe-connector-mapper-3.4.1'
-    compile name: 'safe-connector-technical-3.4.1'
-    compile name: 'safe-connector-validation-3.4.1'
-    compile name: 'safe-connector-vitalink-3.4.1'
-    compile name: 'safe-connector-xsltutils-3.4.1'*/
 
 	// Runtime
 	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'
@@ -215,7 +218,38 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
+task packageHtWebResources(type: Exec) {
+	group 'build'
+	description 'Package web resources'
+
+	workingDir "$projectDir/web/icure-ht"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js"
+}
+
+task packageTzWebResources(type: Exec) {
+	group 'build'
+	description 'Package web resources'
+
+	workingDir "$projectDir/web/icure-ht"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js"
+}
+
+task copyHtWebResources(type: Copy) {
+	from "$projectDir/web/icure-ht/dist"
+	into "${buildDir}/resources/main/static/ht"
+}
+
+task copyTzWebResources(type: Copy) {
+	from "$projectDir/web/icure-ht/dist-tz"
+	into "${buildDir}/resources/main/static/tz"
+}
+
+copyHtWebResources.dependsOn(packageHtWebResources)
+copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
+
+bootRepackage.dependsOn(copyHtWebResources)
+bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {

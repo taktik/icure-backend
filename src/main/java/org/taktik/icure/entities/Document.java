@@ -20,14 +20,13 @@ package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.DocumentStatus;
 import org.taktik.icure.entities.embed.DocumentType;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Document extends StoredICureDocument implements Serializable {

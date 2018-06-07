@@ -26,6 +26,7 @@ hs_err_pid*
 bower_components/
 node_modules/
 dist/
+dist-tz/
 
 #IntelliJ files
 *.iml
