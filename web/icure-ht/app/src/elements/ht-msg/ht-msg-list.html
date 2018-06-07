@@ -251,7 +251,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              items="[[messages]]" on-tap="click">
-                    <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sendbox'">
+                    <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
                         <vaadin-grid-column width="100px">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress">[[localize('sen_to','Send To',language)]]
@@ -261,8 +261,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="cell frozen">[[getToAddresses(item)]]</div>
                             </template>
                         </vaadin-grid-column>
-                    </template> -->
-                    <template is="dom-if" if="[[selectList.selection.item]] != 'sendbox'">
+                    </template>
+                    <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column width="30%">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]

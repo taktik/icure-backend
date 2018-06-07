@@ -28,9 +28,9 @@ import * as models from '../model/models';
 export class iccBeefactApi {
     host : string
     headers : Array<XHR.Header>
-    constructor(host: string, authorization: any) {
+    constructor(host: string, headers: any) {
         this.host = host
-        this.headers = [new XHR.Header('Authorization',authorization)]
+        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
     }
 
     setHeaders(h: Array<XHR.Header>){

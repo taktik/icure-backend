@@ -21,7 +21,7 @@ export module XHR {
 
         constructor(jsXHR: XMLHttpRequest) {
             this.headers = jsXHR.getAllResponseHeaders().split("\n").map(h => h.split(": ")).map(head => new Header(head[0], head[1]));
-            this.contentType = ""
+            this.contentType = "";
             this.headers.map(head => {
                 if (head.header === 'content-type') {
                     this.contentType = head.data;

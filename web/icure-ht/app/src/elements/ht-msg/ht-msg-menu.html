@@ -404,7 +404,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
-				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sendbox" elevation="">
+				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:send"></iron-icon>[[localize('sen_mes','Send Messages',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
 				</paper-item>
@@ -512,7 +512,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
 
-    _sendbox(){
+    _sentbox(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
     }
 
