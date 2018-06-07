@@ -31,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				:host #patients-list {
-					height: calc(100% - 124px);
+					height: calc(100% - 140px);
 					outline: none;
 				}
 
@@ -144,14 +144,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					transform: scale(0.8) rotate(180deg);
 				}
 
+				.show-all-patients {
+					left:calc(20% + 16px);
+					position: absolute;
+					bottom: 20px;
+				}
+
 				.add-btn-container{
-					width: 100%;
+					width:80%;
+					left:20%;
+					position: absolute;
+					bottom: 16px;
+
 					display: flex;
 					flex-direction: row;
 					justify-content: center;
 					align-items: center;
-					bottom: 16px;
-					left: 0;
 					margin-top: 2px;
 				}
 
@@ -168,13 +176,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				.save-btn-container{
-					width: 100%;
+					width:20%;
+					left:0;
+					position: absolute;
+					bottom: 16px;
+
 					display: flex;
 					flex-direction: row;
 					justify-content: center;
 					align-items: center;
-					bottom: 16px;
-					left: 0;
 					margin-top: 2px;
 				}
 
@@ -317,7 +327,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</collapse-button>
 
 				</div>
-				<div class="save-btn-container"><paper-button class="save-btn" on-tap="_saveFilter">[[localize('save_filter','Save Filter',language)]]</paper-button></div>
+				<div class="save-btn-container"><paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save Filter',language)]]</paper-button></div>
 			</div>
 
 			<div class="second-filter-panel">
@@ -381,8 +391,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</template>
 					</vaadin-grid-column>
 				</vaadin-grid>
-                <vaadin-checkbox checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
 				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
+				<vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
 			</div>
 		</div>
 
