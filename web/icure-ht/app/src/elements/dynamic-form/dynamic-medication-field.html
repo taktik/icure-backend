@@ -611,8 +611,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100),
 					this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, 0,  100)])
 					.then(([packs, packsIng]) => {
-					    packs = packs.concat(packsIng);
-					    packs = _.uniqBy(packs, 'id.id');
+					    packs = _.unionBy(packs, packsIng, 'id.id')
 					return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)
 					};
 					}).then(function (res) {
