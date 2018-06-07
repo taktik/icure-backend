@@ -28,9 +28,13 @@ import * as models from '../model/models';
 export class iccBemikronoApi {
     host : string
     headers : Array<XHR.Header>
-    constructor(host: string, headers: any) {
+    constructor(host: string, authorization: any) {
         this.host = host
-        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+        this.headers = [new XHR.Header('Authorization',authorization)]
+    }
+
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
     }
 
 
@@ -64,50 +68,50 @@ export class iccBemikronoApi {
 
 
     }
-    notify(appointmentId: string, action: string) : Promise<Boolean|any> {
+    notify(appointmentId: string, action: string) : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/be_mikrono/notify/{appointmentId}/{action}".replace("{appointmentId}", appointmentId+"").replace("{action}", action+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    register(userId: string, body?: models.MikronoCredentialsDto) : Promise<Boolean|any> {
+    register(userId: string, body?: models.MikronoCredentialsDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_mikrono/user/{userId}/register".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    sendMessage(body?: models.EmailOrSmsMessageDto) : Promise<Boolean|any> {
+    sendMessage(body?: models.EmailOrSmsMessageDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_mikrono/sendMessage" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    setUserCredentials(userId: string, body?: models.MikronoCredentialsDto) : Promise<Boolean|any> {
+    setUserCredentials(userId: string, body?: models.MikronoCredentialsDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_mikrono/user/{userId}/credentials".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

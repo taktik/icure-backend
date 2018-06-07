@@ -28,9 +28,13 @@ import * as models from '../model/models';
 export class iccBekmehrApi {
     host : string
     headers : Array<XHR.Header>
-    constructor(host: string, headers: any) {
+    constructor(host: string, authorization: any) {
         this.host = host
-        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+        this.headers = [new XHR.Header('Authorization',authorization)]
+    }
+
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
     }
 
 
@@ -40,38 +44,38 @@ export class iccBekmehrApi {
     }
 
 
-    generateSmfExport(patientId: string, language?: string, body?: models.SoftwareMedicalFileExportDto) : Promise<Boolean|any> {
+    generateSmfExport(patientId: string, language?: string, body?: models.SoftwareMedicalFileExportDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_kmehr/smf/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    generateSumehr(patientId: string, language?: string, body?: models.SumehrExportInfoDto) : Promise<Boolean|any> {
+    generateSumehr(patientId: string, language?: string, body?: models.SumehrExportInfoDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    generateSumehrPlusPlus(patientId: string, language?: string, body?: models.SumehrExportInfoDto) : Promise<Boolean|any> {
+    generateSumehrPlusPlus(patientId: string, language?: string, body?: models.SumehrExportInfoDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
@@ -124,14 +128,14 @@ export class iccBekmehrApi {
 
 
     }
-    validateSumehr(patientId: string, language?: string, body?: models.SumehrExportInfoDto) : Promise<Boolean|any> {
+    validateSumehr(patientId: string, language?: string, body?: models.SumehrExportInfoDto) : Promise<any|Boolean> {
         let _body = null
         _body = body
         
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/validate".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

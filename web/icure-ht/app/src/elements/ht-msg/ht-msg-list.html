@@ -370,7 +370,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
                     return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
-                console.log(this.messages)
             }
 
             getUnreadEmail() {
@@ -416,7 +415,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _refresh() {
-                console.log('tobogant ! weeee')
                 if (this.selectList && this.selectList.selection) {
                     switch (this.selectList.selection.item) {
                         case 'inbox' :
@@ -450,9 +448,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             click(e) {
                 const selected = this.activeItem;
-                console.log('selected ' + selected);
                 this.set('selectedMessages', selected);
-                console.log('throw event')
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
             }
 

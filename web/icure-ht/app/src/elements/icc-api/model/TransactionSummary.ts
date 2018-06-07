@@ -46,8 +46,8 @@ export class TransactionSummary {
 
     desc?: string;
 
-    iscomplete?: boolean;
-
     isvalidated?: boolean;
+
+    iscomplete?: boolean;
 
 }

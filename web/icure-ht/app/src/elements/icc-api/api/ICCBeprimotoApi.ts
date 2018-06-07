@@ -28,9 +28,13 @@ import * as models from '../model/models';
 export class iccBeprimotoApi {
     host : string
     headers : Array<XHR.Header>
-    constructor(host: string, headers: any) {
+    constructor(host: string, authorization: any) {
         this.host = host
-        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+        this.headers = [new XHR.Header('Authorization',authorization)]
+    }
+
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
     }
 
 
@@ -40,14 +44,14 @@ export class iccBeprimotoApi {
     }
 
 
-    generateFile(nihii: string, version?: string, serial?: string, doctor?: string, year?: number, from?: number, to?: number) : Promise<Boolean|any> {
+    generateFile(nihii: string, version?: string, serial?: string, doctor?: string, year?: number, from?: number, to?: number) : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/be_primoto/{nihii}".replace("{nihii}", nihii+"") + "?ts=" + (new Date).getTime()  + (version ? "&version=" + version : "") + (serial ? "&serial=" + serial : "") + (doctor ? "&doctor=" + doctor : "") + (year ? "&year=" + year : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

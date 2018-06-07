@@ -28,9 +28,13 @@ import * as models from '../model/models';
 export class iccIcureApi {
     host : string
     headers : Array<XHR.Header>
-    constructor(host: string, headers: any) {
+    constructor(host: string, authorization: any) {
         this.host = host
-        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+        this.headers = [new XHR.Header('Authorization',authorization)]
+    }
+
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
     }
 
 
@@ -136,74 +140,74 @@ export class iccIcureApi {
 
 
     }
-    resolveContactsConflicts() : Promise<Boolean|any> {
+    resolveContactsConflicts() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/icure/conflicts/contact" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    resolveFormsConflicts() : Promise<Boolean|any> {
+    resolveFormsConflicts() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/icure/conflicts/form" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    resolveHealthElementsConflicts() : Promise<Boolean|any> {
+    resolveHealthElementsConflicts() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/icure/conflicts/healthelement" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    resolveInvoicesConflicts() : Promise<Boolean|any> {
+    resolveInvoicesConflicts() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/icure/conflicts/invoice" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    resolveMessagesConflicts() : Promise<Boolean|any> {
+    resolveMessagesConflicts() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/icure/conflicts/message" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 
     }
-    resolvePatientsConflicts() : Promise<Boolean|any> {
+    resolvePatientsConflicts() : Promise<any|Boolean> {
         let _body = null
         
         
         const _url = this.host+"/icure/conflicts/patient" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => true)
+                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
                 .catch(err => this.handleError(err))
 
 

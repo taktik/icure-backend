@@ -366,17 +366,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
     }
 
     _inbox(){
-	    console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
 
     _sendbox(){
-        console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
     }
 
     _labRes(){
-        console.log('throw event')
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
     }
 

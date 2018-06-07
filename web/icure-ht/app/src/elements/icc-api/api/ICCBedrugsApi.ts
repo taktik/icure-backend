@@ -28,9 +28,13 @@ import * as models from '../model/models';
 export class iccBedrugsApi {
     host : string
     headers : Array<XHR.Header>
-    constructor(host: string, headers: any) {
+    constructor(host: string, authorization: any) {
         this.host = host
-        this.headers = Object.keys(headers).map(k => new XHR.Header(k,headers[k]))
+        this.headers = [new XHR.Header('Authorization',authorization)]
+    }
+
+    setHeaders(h: Array<XHR.Header>){
+        this.headers = h;
     }
 
 
@@ -236,7 +240,7 @@ export class iccBedrugsApi {
         let _body = null
         
         
-        const _url = this.host+"/be_drugs/doc".replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
+        const _url = this.host+"/be_drugs/doc/{lang}".replace("{lang}", lang+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
                 .then(doc => (doc.body as Array<JSON>).map(it=>new models.DocPreview(it)))
