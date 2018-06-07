@@ -389,7 +389,7 @@
 								</paper-dropdown-menu>
 							</template>
 						</template>
-						<paper-input id="quantity" label="Quantity" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" on-change="_valueChanged"></paper-input>
+						<paper-input id="quantity" label="Quantity" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
 						<paper-input id="quantity" label="Units" value="{{rg.administratedQuantity.unit}}" class="regimen--units" on-change="_valueChanged"></paper-input>
 						<paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
 					</div>
