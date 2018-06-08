@@ -308,7 +308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 .deleteFilterIcon{
                     float: right;
-                    color: #66dfa1;
+                    color: var(--app-secondary-color);
                 }
 
 				paper-item.iron-selected {
@@ -446,14 +446,6 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		return 'ht-pat-list';
 	}
 
-	static get observers(){
-	    return ['showInactivePatientsChanged(showInactive)']
-	}
-
-    showInactivePatientsChanged(){
-        this.$['patients-list'].clearCache();
-	}
-
 	static get properties() {
 		return {
 			api: {
@@ -509,14 +501,17 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		};
 	}
 
-	static get observers() { return ['_filterValueChanged(filterValue)']}
+	static get observers() { return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)']}
 
 	constructor() {
 		super();
 	}
 
+    _showInactivePatientsChanged(){
+        this.$['patients-list'].clearCache();
+    }
 
-	ready() {
+    ready() {
 		super.ready();
 
 		var grid = this.$['patients-list'];
@@ -552,18 +547,15 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyAndSsinFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'ssin': latestSearchValue,
-				'showInactivePatients': this.showInactive
+				'ssin': latestSearchValue
 			} : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyDateOfBirthFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1'),
-                'showInactivePatients': this.showInactive
+				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
 			} : {
 			    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-				'healthc,arePartyId': this.user.healthcarePartyId,
-				'searchString': latestSearchValue,
-                'showInactivePatients': this.showInactive
+				'healthcarePartyId': this.user.healthcarePartyId,
+				'searchString': latestSearchValue
 			};
 
 			if (grid.lastParams !== thisParams) {
@@ -667,7 +659,15 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
         if (!filtersProperty.typedValue.stringValue) { filtersProperty.typedValue.type = 'STRING'; filtersProperty.typedValue.stringValue = '{}'}
 
 		const filters = JSON.parse(filtersProperty.typedValue.stringValue)
-        filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+		try {
+            filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+        } catch(e) {
+            filters[this.filterName] = {
+                '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                'healthcarePartyId': this.user.healthcarePartyId,
+                'searchString': this.filterValue
+            }
+		}
 
 		filtersProperty.typedValue.stringValue = JSON.stringify(filters)
 

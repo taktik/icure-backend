@@ -33,7 +33,7 @@ configure(allprojects) {
 
 
 group = 'org.taktik.icure'
-version = '1.0.11'
+version = '1.0.15'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
