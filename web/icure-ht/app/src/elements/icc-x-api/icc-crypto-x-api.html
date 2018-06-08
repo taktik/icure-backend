@@ -682,7 +682,6 @@ class IccCryptoXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
 	}
 
 	decryptAndImportAesHcPartyKeysForDelegators(delegatorsHcPartyIdsSet, delegateHcPartyId) {
-
 		return (this.hcPartyKeysCache[delegateHcPartyId] || (this.hcPartyKeysCache[delegateHcPartyId] = this.hcpartyApi.getHcPartyKeysForDelegate(delegateHcPartyId))).then(function (healthcarePartyKeys) {
 			// For each delegatorId, obtain the AES keys
 			return Promise.all(delegatorsHcPartyIdsSet.map(delegatorId => this.decryptHcPartyKey(delegatorId, delegateHcPartyId, healthcarePartyKeys[delegatorId])));
