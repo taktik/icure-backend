@@ -111,7 +111,7 @@ export class iccDocumentApi {
         const _url = this.host+"/document/{documentId}/attachment/{attachmentId}".replace("{documentId}", documentId+"").replace("{attachmentId}", attachmentId+"") + "?ts=" + (new Date).getTime()  + (sfks ? "&sfks=" + sfks : "")
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 

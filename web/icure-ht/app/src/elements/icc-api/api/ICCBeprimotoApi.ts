@@ -51,7 +51,7 @@ export class iccBeprimotoApi {
         const _url = this.host+"/be_primoto/{nihii}".replace("{nihii}", nihii+"") + "?ts=" + (new Date).getTime()  + (version ? "&version=" + version : "") + (serial ? "&serial=" + serial : "") + (doctor ? "&doctor=" + doctor : "") + (year ? "&year=" + year : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 

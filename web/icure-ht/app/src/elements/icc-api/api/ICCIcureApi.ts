@@ -147,7 +147,7 @@ export class iccIcureApi {
         const _url = this.host+"/icure/conflicts/contact" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -159,7 +159,7 @@ export class iccIcureApi {
         const _url = this.host+"/icure/conflicts/form" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -171,7 +171,7 @@ export class iccIcureApi {
         const _url = this.host+"/icure/conflicts/healthelement" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -183,7 +183,7 @@ export class iccIcureApi {
         const _url = this.host+"/icure/conflicts/invoice" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -195,7 +195,7 @@ export class iccIcureApi {
         const _url = this.host+"/icure/conflicts/message" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -207,7 +207,7 @@ export class iccIcureApi {
         const _url = this.host+"/icure/conflicts/patient" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
