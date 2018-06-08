@@ -31,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 
 				:host #patients-list {
-					height: calc(100% - 124px);
+					height: calc(100% - 140px);
 					outline: none;
 				}
 
@@ -144,18 +144,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					transform: scale(0.8) rotate(180deg);
 				}
 
+				.show-all-patients {
+					left:calc(20% + 16px);
+					position: absolute;
+					bottom: 20px;
+				}
+
 				.add-btn-container{
-					position: fixed;
-					width: 100%;
+					width:80%;
+					left:20%;
+					position: absolute;
+					bottom: 16px;
+
 					display: flex;
 					flex-direction: row;
 					justify-content: center;
 					align-items: center;
-					bottom: 16px;
-					left: 0;
+					margin-top: 2px;
 				}
 
 				.add-btn{
+					--paper-button-ink-color: var(--app-secondary-color-dark);
+					background:var(--app-secondary-color);
+					color:var(--app-text-color);
+					font-weight:bold;
+					font-size:14px;
+					height:40px;
+					min-width:100px;
+					@apply --shadow-elevation-2dp;
+					padding: 10px 1.2em;
+				}
+
+				.save-btn-container{
+					width:20%;
+					left:0;
+					position: absolute;
+					bottom: 16px;
+
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					align-items: center;
+					margin-top: 2px;
+				}
+
+				.save-btn{
 					--paper-button-ink-color: var(--app-secondary-color-dark);
 					background:var(--app-secondary-color);
 					color:var(--app-text-color);
@@ -183,72 +216,199 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					margin: 50%;
 					transform: translate(-50%, -50%);
 				}
+
+
+				.container {
+					width: 100%;
+					height: calc(100vh - 64px);
+					display:grid;
+					grid-template-columns: 20% 30% 50%;
+					grid-template-rows: 100%;
+					position: fixed;
+					top: 64px;
+					left: 0;
+					bottom: 0;
+					right: 0;
+				}
+
+				.first-filter-panel{
+					/*width:20%;
+                    height:calc(100% - 64px);*/
+					height:100%;
+					background: var(--app-background-color-dark);
+					/*position:fixed;*/
+					top:64px;
+					left:0;
+					@apply --shadow-elevation-3dp;
+					grid-column: 1 / 1;
+					grid-row:1 / 1;
+					z-index:3;
+					overflow:hidden;
+					padding: 5px;
+				}
+
+
+				.second-filter-panel{
+					/*width:30%;*/
+					height:100%;
+					background: var(--app-background-color);
+					/*position:fixed;*/
+					top:64px;
+					left:20%;
+					@apply --shadow-elevation-2dp;
+					margin:0;
+					grid-column: 2 / 4;
+					grid-row:1 / 1;
+
+					z-index:2;
+					padding: 5px;
+
+
+				}
+
+				.display-left-menu{
+					display:inherit;
+				}
+
+				.submenus-container{
+					overflow-x: auto;
+					height: calc(100% - 140px);
+					margin-bottom:16px;
+				}
+
+				collapse-button > .menu-item.iron-selected {
+					@apply --padding-right-left-16;
+					color:var(--app-text-color-light);
+					background:var(--app-primary-color);
+					@apply --text-shadow;
+				}
+
+				.menu-item{
+					@apply --padding-right-left-16;
+					height:48px;
+					@apply --paper-font-button;
+					text-transform: inherit;
+					justify-content: space-between;
+					cursor: pointer;
+					@apply --transition;
+				}
+
+				.menu-item:hover{
+					background: var(--app-dark-color-faded);
+					@apply --transition;
+				}
+
+				.menu-item .iron-selected{
+					background:var(--app-primary-color);
+				}
+
+				.filterNameInput{
+					width: 400px;
+				}
+
+                .deleteFilterIcon{
+                    float: right;
+                    color: var(--app-secondary-color);
+                }
+
+				paper-item.iron-selected {
+					background-color: var(--app-primary-color);
+					color: var(--app-text-color-light);
+				}
+
+				paper-item.iron-selected:hover {
+					background: #5a6d75;
+				}
+
 			</style>
 		</custom-style>
 
-		<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-		<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
-			<vaadin-grid-column width="32px">
-				<template class="header">
-					<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
-				</template>
-			</vaadin-grid-column>
+		<div class="container">
+			<div class="first-filter-panel">
+				<h4>Filtres sauvegardés</h4>
+				<div class="submenus-container">
+					<paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]" focused on-selected-values-changed="selectFilter" multi>
+						<template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter" id="filterMenu">
+							<paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]" user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
+								<div class="one-line-menu list-title">
+									[[filter.name]]
+								</div>
+								<div class="deleteFilterIcon">
+									<iron-icon icon="vaadin:close-circle" id="[[filter.name]]" on-tap="deleteFilter"></iron-icon>
+								</div>
+							</paper-item>
+                        </template>
+					</paper-listbox>
+				</div>
+				<div class="save-btn-container"><paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save Filter',language)]]</paper-button></div>
+			</div>
 
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.lastName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.firstName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<div class="cell frozen">[[localize('ema','Email',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.email]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.phone]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.mobile]]</div>
-				</template>
-			</vaadin-grid-column>
-		</vaadin-grid>
-		<vaadin-checkbox checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
+			<div class="second-filter-panel">
+				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+				<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
+					<vaadin-grid-column width="32px">
+						<template class="header">
+							<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+						</template>
+						<template>
+							<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
+						</template>
+					</vaadin-grid-column>
 
-		<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.lastName]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.firstName]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column width="100px">
+						<template class="header">
+							<div class="cell frozen">[[localize('ema','Email',language)]]</div>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.email]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
+						</template>
+						<template>
+							<div class="cell numeric">[[item.phone]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
+						</template>
+						<template>
+							<div class="cell numeric">[[item.mobile]]</div>
+						</template>
+					</vaadin-grid-column>
+				</vaadin-grid>
+				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
+				<vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
+			</div>
+		</div>
+
 		<paper-dialog id="add-patient-dialog">
 			<div class="horizontal">
 				<paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
@@ -260,6 +420,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+		<paper-dialog id="saveFilterDialog">
+			<h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
+			<div>
+				<vaadin-text-field class="filterNameInput" label="Filter name" value="{{filterName}}"></vaadin-text-field>
+			</div>
+			<div class="buttons">
+				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]</paper-button>
+			</div>
+		</paper-dialog>
+
 	</template>
 
 	<script>
@@ -267,18 +439,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import filterExParser from '../../../scripts/filterExParser';
+import {FilterExPrinter} from '../icc-x-api/filterExPrinter';
 
 class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
 	static get is() {
 		return 'ht-pat-list';
-	}
-
-	static get observers(){
-	    return ['showInactivePatientsChanged(showInactive)']
-	}
-
-    showInactivePatientsChanged(){
-        this.$['patients-list'].clearCache();
 	}
 
 	static get properties() {
@@ -297,9 +462,9 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 				type: Object
 			},
             showInactive: {
-			    type: Boolean,
-			    value: false
-			},
+                type: Boolean,
+                value: false
+            },
 			i18n: {
 				Type: Object,
 				value: function () {
@@ -327,15 +492,26 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 					};
 					return res;
 				}
-			}
+			},
+            selectedFilters: {
+                type: Array,
+                notify: true,
+                value: () => []
+            }
 		};
 	}
+
+	static get observers() { return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)']}
 
 	constructor() {
 		super();
 	}
 
-	ready() {
+    _showInactivePatientsChanged(){
+        this.$['patients-list'].clearCache();
+    }
+
+    ready() {
 		super.ready();
 
 		var grid = this.$['patients-list'];
@@ -371,18 +547,15 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyAndSsinFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'ssin': latestSearchValue,
-				'showInactivePatients': this.showInactive
+				'ssin': latestSearchValue
 			} : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
 				'$type': 'PatientByHcPartyDateOfBirthFilter',
 				'healthcarePartyId': this.user.healthcarePartyId,
-				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1'),
-                'showInactivePatients': this.showInactive
+				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
 			} : {
 			    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-				'healthc,arePartyId': this.user.healthcarePartyId,
-				'searchString': latestSearchValue,
-                'showInactivePatients': this.showInactive
+				'healthcarePartyId': this.user.healthcarePartyId,
+				'searchString': latestSearchValue
 			};
 
 			if (grid.lastParams !== thisParams) {
@@ -430,6 +603,7 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 				callback(keptPatients.map(this.pimpPatient));
 			}.bind(this));
 		}.bind(this);
+
 	}
 
 
@@ -467,15 +641,6 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		const selected = this.activeItem;
 		console.log('selected ' + selected + ' - ' + this.latestSelected);
 		this.set('selectedPatient', selected);
-		/*if (this.inDoubleClick && ((this.latestSelected === selected) || (this.latestSelected && !selected) || (!this.latestSelected && selected))) {
-  	this.set('selectedPatient', selected || this.latestSelected)
-  } else {
-  	this.latestSelected = selected
-  	this.inDoubleClick = true
-  	setTimeout(() => {
-  		delete this.inDoubleClick
-  	}, 500)
-  }*/
 	}
 
 	_addPatient() {
@@ -483,7 +648,32 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 	}
 
 	confirm() {
-		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
+		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, active: true, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
+	}
+
+    confirmFilter(){
+		const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
+			(this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
+
+		if (!filtersProperty.typedValue) { filtersProperty.typedValue = {type:'STRING', stringValue:'{}'}}
+        if (!filtersProperty.typedValue.stringValue) { filtersProperty.typedValue.type = 'STRING'; filtersProperty.typedValue.stringValue = '{}'}
+
+		const filters = JSON.parse(filtersProperty.typedValue.stringValue)
+		try {
+            filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+        } catch(e) {
+            filters[this.filterName] = {
+                '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                'healthcarePartyId': this.user.healthcarePartyId,
+                'searchString': this.filterValue
+            }
+		}
+
+		filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+
+		this.set('user.properties',this.user.properties.map(x=>x))
+
+		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
 	}
 
 	picture(pat) {
@@ -492,6 +682,69 @@ class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 		}
 		return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
 	}
+
+    _saveFilter(e){
+    	this.$['saveFilterDialog'].open();
+	}
+
+    deleteFilter(e){
+        e.stopPropagation();
+
+        const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
+            (this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
+
+        const filters = JSON.parse(filtersProperty.typedValue.stringValue)
+        delete(filters[e.target.id])
+
+        filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+
+        this.set('user.properties',this.user.properties.map(x=>x))
+
+        this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
+	}
+
+    _activeFilters() {
+        const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+        if (filters) {
+            const parsedFilters = JSON.parse(filters.typedValue.stringValue)
+            return _.sortBy(Object.keys(parsedFilters).map(k=>({name:k, filter:parsedFilters[k]})))
+        }
+        return []
+	}
+
+    _selectedFilterIndexes(){
+	    const activeFilters = this._activeFilters()
+        return this.selectedFilters ? this.selectedFilters.map(f => activeFilters.map(ff=>ff.name).indexOf(f.name)) : []
+	}
+
+	_selectedFiltersAsString() {
+        const filterPrinter = new FilterExPrinter()
+        return filterPrinter.print(this.selectedFilters.length>1 ?
+            {"$type":"IntersectionFilter",filters:this.selectedFilters.map(f=>f.filter)}:
+            this.selectedFilters[0].filter)
+	}
+
+    _filterValueChanged(filterValue) {
+        if (this.selectedFilters[0] && this._selectedFiltersAsString() !== this.filterValue) {
+            this.set('selectedFilters',[])
+		}
+    }
+
+    selectFilter(e) {
+        const activeFilters = this._activeFilters()
+
+        this.set('selectedFilters',e.target.selectedValues.map(idx=>activeFilters[idx]))
+        if (this.selectedFilters[0]) {
+            this.set('filterValue', this._selectedFiltersAsString())
+			this.previouslySetFilterValue = this.filterValue
+        } else {
+            if (this.filterValue === this.previouslySetFilterValue) {
+                this.set('filterValue','')
+			}
+		}
+
+		this.refresh()
+    }
 
 }
 

@@ -8,11 +8,11 @@ var path = require('path');
 console.log(path.resolve(__dirname))
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname, 'app/src/ht-app.html'),
+    entry: path.resolve(__dirname, 'app/src/ht-app-tz.html'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
 	    filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist-tz')
     },
     // Tell Webpack which directories to look in to resolve import statements.
     // Normally Webpack will look in node_modules by default but since we’re overriding
@@ -79,7 +79,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             inject: false,
 	        debug: true,
-            template: path.resolve(__dirname, 'app/index.ejs')
+            template: path.resolve(__dirname, 'app/index.tz.ejs')
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST
@@ -97,7 +97,7 @@ module.exports = {
 		port: 9000,
 		proxy: {
 			'/rest/v1': {
-				target: 'https://backend.icure.cloud',
+				target: /*'https://service.icure.cloud'*/'http://127.0.0.1:16043',
 				changeOrigin: true
 			}
 		}

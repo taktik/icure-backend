@@ -32,7 +32,11 @@ class IccCryptoXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
 				type: Object,
 				value: () => ({})
 			},
-			keychainLocalStoreIdPrefix: {
+            hcPartyKeysRequestsCache: {
+                type: Object,
+                value: () => ({})
+            },
+            keychainLocalStoreIdPrefix: {
 				type: String,
 				value: 'org.taktik.icure.ehealth.keychain.'
 			},
@@ -678,7 +682,7 @@ class IccCryptoXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
 	}
 
 	decryptAndImportAesHcPartyKeysForDelegators(delegatorsHcPartyIdsSet, delegateHcPartyId) {
-		return this.hcpartyApi.getHcPartyKeysForDelegate(delegateHcPartyId).then(function (healthcarePartyKeys) {
+		return (this.hcPartyKeysCache[delegateHcPartyId] || (this.hcPartyKeysCache[delegateHcPartyId] = this.hcpartyApi.getHcPartyKeysForDelegate(delegateHcPartyId))).then(function (healthcarePartyKeys) {
 			// For each delegatorId, obtain the AES keys
 			return Promise.all(delegatorsHcPartyIdsSet.map(delegatorId => this.decryptHcPartyKey(delegatorId, delegateHcPartyId, healthcarePartyKeys[delegatorId])));
 		}.bind(this));
