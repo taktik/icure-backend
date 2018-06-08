@@ -356,7 +356,7 @@
 				From : [[msg.fromAddress]]
 				To : [[msg.toAddresses]]
 				Subject: [[msg.subject]]
-					Body: <template is="dom-repeat" items="[[msg.body]]" as="msg">[[msg.body]]</template>
+					Body: <template is="dom-repeat" items="[[msg.body]]" as="text">[[text]]</template>
 				</template>
 			</div>
 		</div>
@@ -414,24 +414,29 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 	    if(this.selectMessage.selection.item){
             this.selectMessage.selection.item.body = [];
         	this.api.document().findByMessage(this.user.healthcarePartyId, this.selectMessage.selection.item).then(docs => {
-				docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> this.selectMessage.selection.item.body.push(a)))
-                this.set('messages', [this.selectMessage.selection.item]);
+				docs.length ?
+        	    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> {
+                    console.log("on a un attachment !" + typeof a)
+				    this.selectMessage.selection.item.body.push(a)
+                    console.log(this.selectMessage.selection.item.body)
+                    this.set('messages', [this.selectMessage.selection.item]);
+                }))
+					: this.set('messages', [this.selectMessage.selection.item]);
                 this.getChildren(this.selectMessage.selection.item.id)
 	    	})
 	    }
 	}
 
 	getChildren(item){
-        this.api.message().getChildren(item).then(function(r) {
-			if(r.length){
-                r.body = [];
-                this.api.document().findByMessage(this.user.healthcarePartyId, r).then(docs => {
-                    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {
-                        r.body.push(a);
-                        r.map(m => this.messages.push(m));
-                        this.set('messages',this.messages)
-                        r.map(m => this.getChildren(m));
-                    }))
+        this.api.message().getChildren(item).then(function(m) {
+			if(m.length){
+                m.map(r => r.body = []);
+                this.api.document().findByMessage(this.user.healthcarePartyId, m).then(docs => {
+                    docs.length?
+                    	docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {m.map(r => {r.body.push(a);this.messages.push(r)});}))
+						:m.map(r => this.messages.push(r));
+                    this.set('messages',this.messages)
+                    m.map(r => this.getChildren(r));
                 })
 			}
         }.bind(this))
