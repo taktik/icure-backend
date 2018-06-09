@@ -2,32 +2,41 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.dto.result.ImportResult
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.User
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
 import java.io.InputStream
+import java.io.Serializable
 import javax.xml.bind.JAXBContext
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.entities.Contact
-import org.taktik.icure.logic.HealthcarePartyLogic
 
 
 class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePartyLogic: HealthcarePartyLogic) {
-    fun importSMF(inputStream: InputStream, author: HealthcareParty, language: String): ImportResult {
+    val xgcu = Utils()
+
+    fun importSMF(inputStream: InputStream, author: User, language: String): ImportResult {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
         val unmarshaller = jc.createUnmarshaller()
@@ -41,14 +50,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
             createOrProcessPatient(folder.patient, author, res)?.let { patient ->
                 folder.transactions.forEach { trn ->
                     val ctc : Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "contactreport" -> parseContactReport(trn)
-                        "clinicalsummary" -> parseClinicalSummary(trn)
-                        "labresult" -> parseLabResult(trn)
-                        "result" -> parseResult(trn)
-                        "note" -> parseNote(trn)
-                        "prescription" -> parsePrescription(trn)
-                        "pharmaceuticalprescription" -> parsePharmaceuticalPrescription(trn)
-                        else -> parseGenericTransaction(trn)
+                        "contactreport" -> parseContactReport(trn, author, res)
+                        "clinicalsummary" -> parseClinicalSummary(trn, author, res)
+                        "labresult" -> parseLabResult(trn, author, res)
+                        "result" -> parseResult(trn, author, res)
+                        "note" -> parseNote(trn, author, res)
+                        "prescription" -> parsePrescription(trn, author, res)
+                        "pharmaceuticalprescription" -> parsePharmaceuticalPrescription(trn, author, res)
+                        else -> parseGenericTransaction(trn, author, res)
                     }
                 }
             }
@@ -56,50 +65,57 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
         return res
     }
 
-    private fun parseContactReport(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parseContactReport(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parseClinicalSummary(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parseClinicalSummary(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parseLabResult(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parseLabResult(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parseResult(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parseResult(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parseNote(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parseNote(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parsePrescription(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parsePrescription(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parsePharmaceuticalPrescription(trn: TransactionType): Contact {
-        return parseGenericTransaction(trn).apply {
+    private fun parsePharmaceuticalPrescription(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return parseGenericTransaction(trn, author, v).apply {
 
         }
     }
 
-    private fun parseGenericTransaction(trn: TransactionType): Contact {
-        return Contact()
+    private fun parseGenericTransaction(trn: TransactionType, author: User, v: ImportResult): Contact {
+        return Contact().apply {
+            this.author = author.id
+            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" }}?.map { createOrProcessHcp(it, v) }?.firstOrNull()?.id ?: author.healthcarePartyId
+            this.openingDate = trn.findItem { it:ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                it.contents?.find { it.date != null }?.let { xgcu.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            }
+            this.closingDate
+        }
     }
 
     protected fun createOrProcessHcp(p: HcpartyType, v: ImportResult): HealthcareParty? {
@@ -141,7 +157,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
     }
 
     protected fun createOrProcessPatient(p: PersonType,
-                                         author: HealthcareParty,
+                                         author: User,
                                          v: ImportResult,
                                          dest: Patient? = null): Patient? {
         val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
@@ -149,17 +165,17 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
 
         val dbPatient: Patient? =
             dest ?: niss?.let {
-                patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.id).firstOrNull()
+                patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
                     ?.let { patientLogic.getPatient(it) }
             }
-            ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils().makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.id).let {
+            ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(xgcu.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.healthcarePartyId).let {
                 if (it.size > 0) patientLogic.getPatients(it).find {
                     p.firstnames.any { fn -> org.taktik.icure.db.StringUtils.equals(it.firstName, fn) && org.taktik.icure.db.StringUtils.equals(it.lastName, p.familyname) }
                 } else null
             }
-            ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.id).let {
+            ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
                 if (it.size > 0) patientLogic.getPatients(it).find {
-                    it.dateOfBirth?.let { it == Utils().makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
+                    it.dateOfBirth?.let { it == xgcu.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
                         ?: false
                 } else null
             }
@@ -169,7 +185,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
         }) else dbPatient.apply {
             firstName = p.firstnames.firstOrNull()
             lastName = p.familyname
-            dateOfBirth = Utils().makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
+            dateOfBirth = xgcu.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
         }
     }
 
@@ -183,7 +199,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
             patient.setPlaceOfBirth(p.birthlocation.getFullAddress())
         }
         if (p.deathdate != null && (force || patient.dateOfDeath == null)) {
-            patient.setDateOfDeath(Utils().makeFuzzyIntFromXMLGregorianCalendar(p.deathdate.date))
+            patient.setDateOfDeath(xgcu.makeFuzzyIntFromXMLGregorianCalendar(p.deathdate.date))
         }
         if (p.deathlocation != null && (force || patient.placeOfDeath == null)) {
             patient.setPlaceOfDeath(p.deathlocation.getFullAddress())
@@ -223,6 +239,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic, val healthcarePa
         }
     }
 }
+
+private fun selector(headingsAndItemsAndTexts: MutableList<Serializable>,
+                     predicate: (ItemType) -> Boolean): ItemType? {
+    return headingsAndItemsAndTexts.mapNotNull {
+        when (it) {
+            is ItemType -> if (predicate(it)) it else null
+            is TextType -> null
+            is HeadingType -> selector(it.headingsAndItemsAndTexts, predicate)
+            else -> null
+        }
+    }.firstOrNull()
+}
+
+private fun TransactionType.findItem(predicate: (ItemType) -> Boolean): ItemType? {
+    return selector(this.headingsAndItemsAndTexts, predicate)
+}
+
 
 private fun AddressTypeBase.getFullAddress(): String {
     val street = "${street ?: ""}${housenumber?.let { " $it" } ?: ""}${postboxnumber?.let { " b $it" } ?: ""}"

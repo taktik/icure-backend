@@ -79,4 +79,9 @@ class Utils {
             it.year*10000+it.month*100+it.day
         }
     }
+
+    fun makeFuzzyLongFromDateAndTime(date: XMLGregorianCalendar, time: XMLGregorianCalendar?) : Long? {
+        return makeFuzzyIntFromXMLGregorianCalendar(date)?.let { d -> time?.let { d * 1000000L + (it.hour ?: 0)*10000+(it.minute ?: 0)*100+(it.second ?: 0) } ?: d.toLong() }
+    }
+
 }
