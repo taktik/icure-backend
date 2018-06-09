@@ -75,7 +75,7 @@ export class iccBemikronoApi {
         const _url = this.host+"/be_mikrono/notify/{appointmentId}/{action}".replace("{appointmentId}", appointmentId+"").replace("{action}", action+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('GET', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -87,7 +87,7 @@ export class iccBemikronoApi {
         const _url = this.host+"/be_mikrono/user/{userId}/register".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -99,7 +99,7 @@ export class iccBemikronoApi {
         const _url = this.host+"/be_mikrono/sendMessage" + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -111,7 +111,7 @@ export class iccBemikronoApi {
         const _url = this.host+"/be_mikrono/user/{userId}/credentials".replace("{userId}", userId+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
