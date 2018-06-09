@@ -12,6 +12,7 @@ class DefaultRedirectWebMvcConfig {
         return object : WebMvcConfigurerAdapter() {
             override fun addViewControllers(registry: ViewControllerRegistry) {
                 // forward requests to /admin and /user to their index.html
+                registry.addRedirectViewController("/", "http://www.icure.cloud")
                 registry.addRedirectViewController("/ht", "/ht/")
                 registry.addViewController("/ht/").setViewName("forward:/ht/index.html")
                 registry.addRedirectViewController("/tz", "/tz/")

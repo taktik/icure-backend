@@ -51,7 +51,7 @@ export class iccBeresultexportApi {
         const _url = this.host+"/be_result_export/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -63,7 +63,7 @@ export class iccBeresultexportApi {
         const _url = this.host+"/be_result_export/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}".replace("{fromHcpId}", fromHcpId+"").replace("{toHcpId}", toHcpId+"").replace("{patId}", patId+"").replace("{date}", date+"").replace("{ref}", ref+"") + "?ts=" + (new Date).getTime()  + (mustCrypt ? "&mustCrypt=" + mustCrypt : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 

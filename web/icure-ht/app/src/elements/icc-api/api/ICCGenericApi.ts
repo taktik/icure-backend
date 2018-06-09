@@ -51,7 +51,7 @@ export class iccGenericApi {
         const _url = this.host+"/generic/doc/{className}/{ids}".replace("{className}", className+"").replace("{ids}", ids+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('DELETE', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 

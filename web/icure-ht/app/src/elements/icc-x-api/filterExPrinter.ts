@@ -7,6 +7,9 @@ export class FilterExPrinter {
         } else if ((ex as Filter).$type === 'ServiceByHcPartyTagCodeDateFilter') {
             const f = ex as ServiceByHcPartyTagCodeDateFilter
             return new ServiceByHcPartyTagCodeDateFilter(f.codeType,f.codeCode,f.tagType,f.tagCode)
+        }else if ((ex as Filter).$type === 'PatientByHcPartyNameContainsFuzzyFilter') {
+            const f = ex as PatientByHcPartyNameContainsFuzzyFilter
+            return new PatientByHcPartyNameContainsFuzzyFilter(f.searchString)
         }
         throw 'Unmappable filter '+ex
     }
@@ -97,3 +100,15 @@ class ServiceByHcPartyTagCodeDateFilter extends Filter {
     }
 }
 
+class PatientByHcPartyNameContainsFuzzyFilter extends Filter {
+    searchString: string
+
+    constructor(searchString: string) {
+        super('PatientByHcPartyNameContainsFuzzyFilter');
+        this.searchString = searchString;
+    }
+
+    print() {
+        return this.searchString
+    }
+}

@@ -18,6 +18,8 @@
 
 package org.taktik.icure.db;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -104,5 +106,9 @@ public class StringUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static boolean equals(@Nullable String s1, @Nullable String s2) {
+		return (s1 != null && s2 != null) && (org.apache.commons.lang.StringUtils.equals(s1,s2) || org.apache.commons.lang.StringUtils.equals(sanitizeString(s1),sanitizeString(s2)));
 	}
 }
