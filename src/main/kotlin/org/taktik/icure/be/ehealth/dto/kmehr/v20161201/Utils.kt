@@ -23,6 +23,7 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.DateType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType
 import javax.xml.datatype.DatatypeConstants
+import javax.xml.datatype.XMLGregorianCalendar
 
 class Utils {
     fun makeXMLGregorianCalendarFromFuzzyLong(date : Long?) : XMLGregorianCalendarImpl? {
@@ -70,6 +71,12 @@ class Utils {
                     else -> { this.date = it; this.time = it }
                 }
             }
+        }
+    }
+
+    fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Int? {
+        return cal?.let {
+            it.year*10000+it.month*100+it.day
         }
     }
 }

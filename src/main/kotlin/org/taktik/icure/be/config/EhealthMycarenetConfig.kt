@@ -25,10 +25,13 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.json.GsonFactoryBean
 import org.taktik.icure.be.ehealth.logic.crypto.impl.CryptoEteeImpl
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileExport
+import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileImport
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileLogicImpl
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701.SumehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701.SumehrLogicImpl
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.logic.HealthcarePartyLogic
+import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1MapperFactory
 
@@ -38,5 +41,6 @@ class EhealthMycarenetConfig {
     @Bean fun sumehrExport() = SumehrExport()
     @Bean fun softwareMedicalFileLogic() = SoftwareMedicalFileLogicImpl()
     @Bean fun softwareMedicalFileExport() = SoftwareMedicalFileExport()
+    @Bean fun softwareMedicalFileImport(patientLogic: PatientLogic, healthcarePartyLogic: HealthcarePartyLogic) = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic)
     @Bean fun cryptoEtee() = CryptoEteeImpl()
 }

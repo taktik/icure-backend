@@ -20,18 +20,25 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
+import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import java.io.InputStream
 import java.io.OutputStream
 
 /**
  * @author Bernard Paulus on 24/05/17.
  */
 class SoftwareMedicalFileLogicImpl : SoftwareMedicalFileLogic {
-	var softwareMedicalFileExport : SoftwareMedicalFileExport? = null
+    var softwareMedicalFileExport : SoftwareMedicalFileExport? = null
+    var softwareMedicalFileImport : SoftwareMedicalFileImport? = null
 
-	override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?) {
+    override fun importSmfFile(inputStream: InputStream, author: HealthcareParty, language: String) : ImportResult {
+        return softwareMedicalFileImport!!.importSMF(inputStream, author, language)
+    }
+
+    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?) {
 		softwareMedicalFileExport!!.exportSMF(os, patient, sfks, sender, language, decryptor)
 	}
 }
