@@ -48,26 +48,14 @@ import javax.servlet.Filter
 @Configuration
 class SecurityConfig {
 	@Bean fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder(256)
-	@Bean fun authenticationProcessingFilterEntryPoint() = LoginUrlAuthenticationEntryPoint("/", mapOf("/api" to "api/login.html"))
-	@Bean fun basicAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = BasicAuthenticationFilter(authenticationManager, authenticationProcessingFilterEntryPoint)
-	@Bean fun usernamePasswordAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint, sessionLogic: ICureSessionLogic) = UsernamePasswordAuthenticationFilter().apply {
-		usernameParameter = "username"
-		passwordParameter = "password"
-		setAuthenticationManager(authenticationManager)
-		setAuthenticationSuccessHandler(AuthenticationSuccessHandler().apply { setDefaultTargetUrl("/"); setAlwaysUseDefaultTargetUrl(false); setSessionLogic(sessionLogic) })
-		setAuthenticationFailureHandler(AuthenticationFailureHandler().apply { setDefaultFailureUrl("/error"); })
-		setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/login"))
-		setPostOnly(true)
-	}
+	@Bean fun basicAuthenticationFilter(authenticationManager: AuthenticationManager) = BasicAuthenticationFilter(authenticationManager)
 	@Bean fun remotingExceptionTranslationFilter() = ExceptionTranslationFilter(Http401UnauthorizedEntryPoint())
-	@Bean fun exceptionTranslationFilter(authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = ExceptionTranslationFilter(authenticationProcessingFilterEntryPoint)
 	@Bean fun securityConfigAdapter(
 			daoAuthenticationProvider:CustomAuthenticationProvider,
 			applicationTokensAuthenticationProvider:ApplicationTokensUserDetailsAuthenticationProvider,
 			basicAuthenticationFilter : BasicAuthenticationFilter,
-			usernamePasswordAuthenticationFilter : UsernamePasswordAuthenticationFilter,
 			exceptionTranslationFilter : ExceptionTranslationFilter,
-			remotingExceptionTranslationFilter : ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, applicationTokensAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
+			remotingExceptionTranslationFilter : ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, applicationTokensAuthenticationProvider, basicAuthenticationFilter, remotingExceptionTranslationFilter)
 	@Bean fun daoAuthenticationProvider(userDetailsService : UserDetailsService, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider().apply {
 		setPasswordEncoder(passwordEncoder)
 		setUserDetailsService(userDetailsService)
@@ -80,8 +68,6 @@ class SecurityConfig {
 class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
                                           private val applicationTokensAuthenticationProvider: ApplicationTokensUserDetailsAuthenticationProvider,
                                           private val basicAuthenticationFilter : Filter,
-                                          private val usernamePasswordAuthenticationFilter : Filter,
-                                          private val exceptionTranslationFilter : Filter,
                                           private val remotingExceptionTranslationFilter : Filter) : WebSecurityConfigurerAdapter(false) {
 	@Autowired
 	fun configureGlobal(auth: AuthenticationManagerBuilder?) {
@@ -91,13 +77,10 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 
 	override fun configure(http: HttpSecurity?) {
 		http!!.csrf().disable().addFilterBefore(FilterChainProxy(listOf(
-				DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter),
-				DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter))), FilterSecurityInterceptor::class.java)
+				DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter))), FilterSecurityInterceptor::class.java)
 				.authorizeRequests()
-				.antMatchers("/login").permitAll()
-				.antMatchers("/rest/*/hcparty/signup").hasAnyRole("USER","BOOTSTRAP")
 				.antMatchers("/rest/*/replication/group/**").hasAnyRole("USER","BOOTSTRAP")
-				.antMatchers("/rest/*/auth/**").permitAll()
+				.antMatchers("/rest/*/auth/login").permitAll()
 				.antMatchers("/rest/*/swagger.json").permitAll()
 				.antMatchers("/rest/*/icure/v").permitAll()
 				.antMatchers("/rest/*/icure/p").permitAll()
@@ -109,6 +92,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 				.antMatchers("/api/css/**").permitAll()
 				.antMatchers("/api/**").hasRole("USER")
 
+				.antMatchers("/").permitAll()
 				.antMatchers("/ht").permitAll()
 				.antMatchers("/tz").permitAll()
 				.antMatchers("/ht/**").permitAll()
