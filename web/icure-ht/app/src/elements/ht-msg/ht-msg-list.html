@@ -376,6 +376,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+                    console.log(messages)
                     return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
@@ -422,6 +423,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => this.set('messages', messages || []));
             }
 
+            getReport(){
+                //REPORT:OUT
+                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows).reduce((acc, m) => {
+                        if(m.transportGuid.startsWith("REPORT:OUT")){acc.push(m)}
+                        return acc;
+                    }, []);;
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEInv(){
+                //EFACT:OUT
+                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows).reduce((acc, m) => {
+                        if(m.transportGuid.startsWith("EFACT:OUT")){acc.push(m)}
+                        return acc;
+                    }, []);;
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEhealthMessages(){
+                console.log("EhealthMessages")
+            }
+
             _refresh() {
                 if (this.selectList && this.selectList.selection) {
                     switch (this.selectList.selection.item) {
@@ -439,6 +464,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             break;
                         case 'labResult' :
                             this.getLabResult();
+                            break;
+                        case 'report' :
+                            this.getReport();
+                            break;
+                        case 'e_inv' :
+                            this.getEInv();
+                            break;
+                        case 'ehealthMessages' :
+                            this.getEhealthMessages();
                             break;
                     }
                 }
