@@ -414,10 +414,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 	    if(this.selectMessage.selection.item){
             this.selectMessage.selection.item.body = [];
         	this.api.document().findByMessage(this.user.healthcarePartyId, this.selectMessage.selection.item).then(docs => {
-				docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> {this.selectMessage.selection.item.body.push(a)}))
+				docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> this.selectMessage.selection.item.body.push(a)))
+                this.set('messages', [this.selectMessage.selection.item]);
+                this.getChildren(this.selectMessage.selection.item.id)
 	    	})
-        	this.set('messages', [this.selectMessage.selection.item]);
-			this.getChildren(this.selectMessage.selection.item.id)
 	    }
 	}
 
@@ -426,10 +426,12 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 			if(r.length){
                 r.body = [];
                 this.api.document().findByMessage(this.user.healthcarePartyId, r).then(docs => {
-                    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {r.body.push(a)}))
-                    r.map(m => this.messages.push(m));
-                    this.set('messages',this.messages)
-                    r.map(m => this.getChildren(m));
+                    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a => {
+                        r.body.push(a);
+                        r.map(m => this.messages.push(m));
+                        this.set('messages',this.messages)
+                        r.map(m => this.getChildren(m));
+                    }))
                 })
 			}
         }.bind(this))

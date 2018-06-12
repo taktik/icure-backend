@@ -68,14 +68,30 @@ public class Message extends StoredICureDocument implements Serializable {
 	private String formId;
 	private Integer status;
 	private String recipientsType;
-	private Set<String> recipients = new HashSet<>();
-	private Set<String> toAddresses = new HashSet<>();
+	private Set<String> recipients = new HashSet<>(); //The id of the hcp whose the message is addressed to
+	private Set<String> toAddresses = new HashSet<>(); //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
 
 	private Long received;
 	private Long sent;
 
 	private Map<String,String> metas = new HashMap<>();
-	private String transportGuid; //Usually unique number that identifies a message in a conversation
+
+	/*
+		CHAP4IN:    ${Mycarenet message ref}
+		CHAP4OUT:   ${Mycarenet message ref}
+		EFACT:BATCH:${iCure batch ref}
+		EFACT:IN:   ${Mycarenet message ref}
+		EFACT:OUT:  ${Mycarenet message ref}
+		GMD:IN:     ${Mycarenet message ref}
+		INBOX:      ${Ehealth box message ref}
+		SENTBOX:    ${Ehealth box message ref}
+		BININBOX:   ${Ehealth box message ref}
+		BINSENTBOX: ${Ehealth box message ref}
+		REPORT:IN:  ${iCure ref}
+		REPORT:OUT: ${iCure ref}
+	 */
+
+	private String transportGuid; //Each message should have a transportGuid: see above for formats
 	private String remark;
 	private String conversationGuid;
 

@@ -51,7 +51,7 @@ export class iccBekmehrApi {
         const _url = this.host+"/be_kmehr/smf/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -63,7 +63,7 @@ export class iccBekmehrApi {
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -75,7 +75,7 @@ export class iccBekmehrApi {
         const _url = this.host+"/be_kmehr/sumehrpp/{patientId}/export".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
@@ -135,7 +135,7 @@ export class iccBekmehrApi {
         const _url = this.host+"/be_kmehr/sumehr/{patientId}/validate".replace("{patientId}", patientId+"") + "?ts=" + (new Date).getTime()  + (language ? "&language=" + language : "")
 
         return XHR.sendCommand('POST', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 

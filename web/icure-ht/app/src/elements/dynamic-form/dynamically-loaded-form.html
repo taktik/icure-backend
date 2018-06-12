@@ -41,9 +41,9 @@
                       data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                       data-map="[[dataMap]]" title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]">
 			<div slot="titlebar">
-				<paper-icon-button class="form-title-bar-btn" icon="delete" on-tap="deleteForm"></paper-icon-button>
+				<paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="deleteForm"></paper-icon-button>
 				<paper-menu-button horizontal-align="right" dynamic-align="true">
-					<paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+					<paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
 					<paper-listbox slot="dropdown-content">
 						<template is="dom-repeat" items="[[healthElements]]" as="he">
 							<template is="dom-if" if="[[he.id]]">

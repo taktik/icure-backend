@@ -51,7 +51,7 @@ export class iccBeehboxApi {
         const _url = this.host+"/be_ehbox/delete/{token}/{from}".replace("{token}", token+"").replace("{from}", from+"") + "?ts=" + (new Date).getTime() 
 
         return XHR.sendCommand('PUT', _url , this.headers, _body )
-                .then(doc => {if(doc.contentType.startsWith("application/octet-stream")){doc.body}else{true}})
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
                 .catch(err => this.handleError(err))
 
 
