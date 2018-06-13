@@ -22,6 +22,7 @@ package org.taktik.icure.be.ehealth.dto.kmehr.v20110701
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.DateType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType
+import javax.xml.datatype.XMLGregorianCalendar
 
 import javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED
 
@@ -71,4 +72,19 @@ object Utils {
             }
         }
     }
+
+    fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Int? {
+        return cal?.let {
+            it.year*10000+it.month*100+it.day
+        }
+    }
+
+    fun makeFuzzyLongFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Long? {
+        return makeFuzzyIntFromXMLGregorianCalendar(cal)?.let { (it * 1000000L + (cal!!.hour ?: 0)*10000+(cal.minute ?: 0)*100+(cal.second ?: 0)) }
+    }
+
+    fun makeFuzzyLongFromDateAndTime(date: XMLGregorianCalendar, time: XMLGregorianCalendar?) : Long? {
+        return makeFuzzyIntFromXMLGregorianCalendar(date)?.let { d -> time?.let { d * 1000000L + (it.hour ?: 0)*10000+(it.minute ?: 0)*100+(it.second ?: 0) } ?: d.toLong() }
+    }
+
 }

@@ -23,6 +23,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import java.io.InputStream
 import java.io.OutputStream
@@ -34,7 +35,7 @@ class SoftwareMedicalFileLogicImpl : SoftwareMedicalFileLogic {
     var softwareMedicalFileExport : SoftwareMedicalFileExport? = null
     var softwareMedicalFileImport : SoftwareMedicalFileImport? = null
 
-    override fun importSmfFile(inputStream: InputStream, author: HealthcareParty, language: String) : ImportResult {
+    override fun importSmfFile(inputStream: InputStream, author: User, language: String) : ImportResult {
         return softwareMedicalFileImport!!.importSMF(inputStream, author, language)
     }
 
