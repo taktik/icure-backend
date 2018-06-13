@@ -425,21 +425,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getReport(){
                 //REPORT:OUT
-                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows).reduce((acc, m) => {
-                        if(m.transportGuid.startsWith("REPORT:OUT")){acc.push(m)}
-                        return acc;
-                    }, []);;
+                this.api.message().findMessagesByTransportGuid('REPORT:OUT', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getEInv(){
                 //EFACT:OUT
-                this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows).reduce((acc, m) => {
-                        if(m.transportGuid.startsWith("EFACT:OUT")){acc.push(m)}
-                        return acc;
-                    }, []);;
+                this.api.message().findMessagesByTransportGuid('EFACT:OUT', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
 

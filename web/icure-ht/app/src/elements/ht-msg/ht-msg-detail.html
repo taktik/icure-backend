@@ -413,16 +413,17 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
             this.selectMessage.selection.item.body = [];
-        	this.api.document().findByMessage(this.user.healthcarePartyId, this.selectMessage.selection.item).then(docs => {
+	        let tempSelect = this.selectMessage.selection.item;
+        	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect).then(docs => {
 				docs.length ?
         	    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> {
                     console.log("on a un attachment !" + typeof a)
-				    this.selectMessage.selection.item.body.push(a)
-                    console.log(this.selectMessage.selection.item.body)
-                    this.set('messages', [this.selectMessage.selection.item]);
+                    tempSelect.body.push(a)
+                    console.log(tempSelect.body)
+                    this.set('messages', [tempSelect]);
                 }))
-					: this.set('messages', [this.selectMessage.selection.item]);
-                this.getChildren(this.selectMessage.selection.item.id)
+					: this.set('messages', [tempSelect]);
+                this.getChildren(tempSelect.id)
 	    	})
 	    }
 	}
