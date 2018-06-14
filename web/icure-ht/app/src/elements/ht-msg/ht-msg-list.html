@@ -376,7 +376,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    console.log(messages)
                     return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
@@ -389,7 +388,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return msg;
+                    return this.sortByDates(msg);
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -407,7 +406,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }
                         return acc
                     }, [])
-                    return msg;
+                    return this.sortByDates(msg);
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -424,21 +423,77 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getReport(){
-                //REPORT:OUT
-                this.api.message().findMessagesByTransportGuid('REPORT:OUT', null, null, 1000).then(messages => {
+                this.api.message().findMessagesByTransportGuid('REPORT:OUT:*', null, null, 1000).then(messages => {
                     return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getEInv(){
-                //EFACT:OUT
-                this.api.message().findMessagesByTransportGuid('EFACT:OUT', null, null, 1000).then(messages => {
+                console.log(this.messages)
+                this.api.message().findMessagesByTransportGuid('EFACT:OUT:*', null, null, 1000).then(messages => {
+                    console.log(messages.rows)
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getReportIn(){
+                this.api.message().findMessagesByTransportGuid('REPORT:IN:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEInvIn(){
+                this.api.message().findMessagesByTransportGuid('EFACT:IN:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEheIn(){
+                this.api.message().findMessagesByTransportGuid('CHAP4IN:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getProtIn(){
+                this.api.message().findMessagesByTransportGuid('BININBOX:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEheOut(){
+                this.api.message().findMessagesByTransportGuid('CHAP4OUT:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getProtOut(){
+                this.api.message().findMessagesByTransportGuid('BINSENTBOX:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getEFactBatch(){
+                this.api.message().findMessagesByTransportGuid('EFACT:BATCH:*', null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                }).then(messages => this.set('messages', messages || []));
+            }
+
+            getGMD(){
+                this.api.message().findMessagesByTransportGuid('GMD:IN:*', null, null, 1000).then(messages => {
                     return this.sortByDates(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
 
             getEhealthMessages(){
-                console.log("EhealthMessages")
+                this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
+                    const msg = messages.rows.reduce((acc, m) => {
+                        if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
+                            acc.push(m)
+                        }
+                        return acc
+                    }, [])
+                    return this.sortByDates(msg);
+                }).then(messages => this.set('messages', messages || []));
             }
 
             _refresh() {
@@ -459,14 +514,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'labResult' :
                             this.getLabResult();
                             break;
-                        case 'report' :
+                        case 'reportOut' :
                             this.getReport();
                             break;
-                        case 'e_inv' :
+                        case 'e_invOut' :
                             this.getEInv();
                             break;
                         case 'ehealthMessages' :
                             this.getEhealthMessages();
+                            break;
+                        case 'e_invIn' :
+                            this.getEInvIn();
+                            break;
+                        case 'reportIn' :
+                            this.getReportIn();
+                            break;
+                        case 'eheIn' :
+                            this.getEheIn();
+                            break;
+                        case 'protIn' :
+                            this.getProtIn();
+                            break;
+                        case 'eheOut' :
+                            this.getEheOut();
+                            break;
+                        case 'protOut' :
+                            this.getProtOut();
+                            break;
+                        case 'EFactBatch' :
+                            this.getEFactBatch();
+                            break;
+                        case 'GMD' :
+                            this.getGMD();
                             break;
                     }
                 }

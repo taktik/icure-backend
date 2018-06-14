@@ -398,9 +398,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
 				</paper-item>
 				<paper-listbox class="menu-content sublist" multi toggle-shift>
-						<paper-item>[[localize('ehe','Ehealth',language)]]</paper-item>
-						<paper-item>[[localize('prot','Protocol',language)]]</paper-item>
+						<paper-item on-tap="_ehe">[[localize('ehe','Ehealth',language)]]</paper-item>
+						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
 						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
+						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
+						<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
@@ -520,15 +522,54 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
     }
     _report(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'report' } } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
     }
 
     _e_inv(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_inv' } } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut' } } }));
+    }
+
+    _reportIn(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportIn' } } }));
+    }
+
+    _e_invIn(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invIn' } } }));
     }
 
     _ehealthMessages(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'ehealthMessages' } } }));
+    }
+    _ehe(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheIn' } } }));
+    }
+
+    _prot(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protIn' } } }));
+    }
+
+    _unread(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'unread' } } }));
+    }
+
+    _submit(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'submit' } } }));
+    }
+
+    _eheOut(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheOut' } } }));
+    }
+
+    _protOut(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protOut' } } }));
+    }
+
+    _EFactBatch(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'EFactBatch' } } }));
+    }
+
+    _GMD(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'GMD' } } }));
     }
 
 
