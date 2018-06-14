@@ -323,7 +323,7 @@
             </template>
             <div class$="grid-container [[_noGridClass(medicationType)]]">
                 <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-                <vaadin-grid id="entities-list" class="material" active-item="{{selectedMedicationFromList}}" on-tap="click">
+                <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                         <vaadin-grid-column width="[[_columnWidth(column)]]">
                             <template class="header">
@@ -389,7 +389,7 @@
 								</paper-dropdown-menu>
 							</template>
 						</template>
-						<paper-input id="quantity" label="Quantity" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" on-change="_valueChanged"></paper-input>
+						<paper-input id="quantity" label="Quantity" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
 						<paper-input id="quantity" label="Units" value="{{rg.administratedQuantity.unit}}" class="regimen--units" on-change="_valueChanged"></paper-input>
 						<paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
 					</div>
@@ -428,8 +428,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 value: 'medicinalProduct'
             },
             compoundPrescriptionText: {
-                type: String,
-                value:''
+                type: String
             },
             readOnly: {
                 type: Boolean,
@@ -540,6 +539,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
     setMedicationType(e){
     	this.set('medicationType', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')))
 		this.filterValue = ''
+        this.compoundPrescriptionText = ''
+		this.selectedMedicationFromList = null
 		this.refresh()
 	}
 
@@ -607,18 +608,22 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 }.bind(this));
 			}
 			else {
-			this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
-				return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
-			}).then(function (res) {
-				if (this.filterValue !== latestSearchValue) {
-					console.log("Cancelling obsolete search");
-					return;
-				}
-				if (grid.size !== res.totalSize) {
-					grid.set("size", res.totalSize);
-				}
-				callback(_.slice(res.rows, startIndex, endIndex));
-			}.bind(this));
+                Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100),
+					this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, 0,  100)])
+					.then(([packs, packsIng]) => {
+					    packs = _.unionBy(packs, packsIng, 'id.id')
+					return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)
+					};
+					}).then(function (res) {
+						if (this.filterValue !== latestSearchValue) {
+							console.log("Cancelling obsolete search");
+							return;
+						}
+						if (grid.size !== res.totalSize) {
+							grid.set("size", res.totalSize);
+						}
+						callback(_.slice(res.rows, startIndex, endIndex));
+					}.bind(this));
 			}
 		};
 	}
@@ -666,11 +671,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	}
 
 	confirm() {
-		if (this.selectedMedicationFromList) {
-			this.select(this.selectedMedicationFromList);
-		}
-		else if(this.compoundPrescriptionText){
+		if(this.compoundPrescriptionText){
 		    this.select({name:this.compoundPrescriptionText})
+        } else if (this.selectedMedicationFromList) {
+            this.select(this.selectedMedicationFromList);
         }
 	}
 
@@ -781,10 +785,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     date: null,
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
                 }])
-                if (this.selectedMedicationContentWithId.isNew) {
-                    this.push('value',this.newMedication)
-                }
-                this.$['medication-detail'].open()
+
             })
         } else {
             if (med.inncluster) {
@@ -800,12 +801,17 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
             this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
                 weekday: null,
                 date: null,
-                administratedQuantity: null
+                administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
             }])
+
         }
+        if (this.selectedMedicationContentWithId.isNew) {
+            this.push('value',this.newMedication)
+        }
+        this.$['medication-detail'].open()
     }
 
-	addPosologyRegimen() {
+   	addPosologyRegimen() {
 		const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
 		this.push('selectedMedicationContentWithId.medicationValue.regimen', { weekday: null, date: null, administratedQuantity: { quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit } });
 	}
