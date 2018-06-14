@@ -29,7 +29,11 @@ import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFil
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileLogicImpl
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701.SumehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701.SumehrLogicImpl
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.logic.ContactLogic
+import org.taktik.icure.logic.DocumentLogic
+import org.taktik.icure.logic.HealthElementLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.impl.filter.Filters
@@ -41,6 +45,13 @@ class EhealthMycarenetConfig {
     @Bean fun sumehrExport() = SumehrExport()
     @Bean fun softwareMedicalFileLogic() = SoftwareMedicalFileLogicImpl()
     @Bean fun softwareMedicalFileExport() = SoftwareMedicalFileExport()
-    @Bean fun softwareMedicalFileImport(patientLogic: PatientLogic, healthcarePartyLogic: HealthcarePartyLogic) = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic)
+    @Bean
+    fun softwareMedicalFileImport(patientLogic: PatientLogic,
+                                  healthcarePartyLogic: HealthcarePartyLogic,
+                                  healthElementLogic: HealthElementLogic,
+                                  contactLogic: ContactLogic,
+                                  documentLogic: DocumentLogic,
+                                  idGenerator: UUIDGenerator) =
+        SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, idGenerator)
     @Bean fun cryptoEtee() = CryptoEteeImpl()
 }
