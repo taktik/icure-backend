@@ -20,6 +20,8 @@ package org.taktik.icure.entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,8 +66,8 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     protected String ssin;
 
-    protected Set<Address> addresses;
-    protected List<String> languages;
+    protected Set<Address> addresses = new HashSet<>();
+    protected List<String> languages =  new LinkedList<>();
 
     protected List<HealthcarePartyStatus> statuses;
 

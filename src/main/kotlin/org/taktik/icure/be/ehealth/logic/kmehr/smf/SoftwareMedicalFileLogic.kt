@@ -22,6 +22,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import java.io.InputStream
 import java.io.OutputStream
@@ -31,5 +32,5 @@ import java.io.OutputStream
  */
 interface SoftwareMedicalFileLogic {
 	fun createSmfExport(os: OutputStream, patients: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?)
-	fun importSmfFile(inputStream: InputStream, author: HealthcareParty, language: String): ImportResult
+	fun importSmfFile(inputStream: InputStream, author: User, language: String): ImportResult
 }
