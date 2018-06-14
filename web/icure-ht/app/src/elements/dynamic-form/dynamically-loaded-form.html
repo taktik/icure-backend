@@ -19,28 +19,30 @@
 				padding: 2px;
 			}
 
-			.link .colour-code span {
-				content: '';
-				display: inline-block;
-				height: 6px;
-				width: 6px;
-				border-radius: 3px;
-				margin-right: 3px;
-				margin-bottom: 1px;
+			span.he-pill {
+				border-radius: 10px;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				padding: 1px 6px 2px 8px;
+				background-color:#ddd;
+				box-shadow: inset 0 0 3px rgba(0, 0, 0, .6);
+				-webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, .6);
+				-moz-box-shadow: inset 0 0 3px rgba(0, 0, 0, .6);
+				max-width: 100px;
+				width: auto;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
-
-			paper-listbox {
-				min-width: 200px;
-			}
-
-			paper-menu-button {
-				padding: 0;
-			}
-		</style>
+</style>
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
                       data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                       data-map="[[dataMap]]" title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]">
 			<div slot="titlebar">
+				<template is="dom-repeat" items="[[_selectedHes(healthElements.*)]]" as="he">
+					<span class$="form-title-bar-btn he-pill [[he.colour]]">[[he.descr]]</span>
+				</template>
+
 				<paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="deleteForm"></paper-icon-button>
 				<paper-menu-button horizontal-align="right" dynamic-align="true">
 					<paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
@@ -138,6 +140,11 @@ class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 
 	_isNotInCurrentContact(currentContact, contact) {
 		return currentContact === null || contact !== currentContact;
+	}
+
+    _selectedHes() {
+        const heIds = this.contact.subContacts.map(sc=>sc.healthElementId)
+	    return this.healthElements.filter(he => heIds.includes(he.id))
 	}
 
 	_prepareDataProvider() {
