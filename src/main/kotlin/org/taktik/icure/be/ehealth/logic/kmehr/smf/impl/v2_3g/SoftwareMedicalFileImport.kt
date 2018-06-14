@@ -72,6 +72,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it, res) }
         kmehrMessage.folders.forEach { folder ->
             createOrProcessPatient(folder.patient, author, res)?.let { patient ->
+                res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
                         "contactreport" -> parseContactReport(trn, author, res, language, mappings)
@@ -84,7 +85,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         else -> parseGenericTransaction(trn, author, res, language, mappings)
                     }
                     contactLogic.createContact(ctc)
-                    res.ctcIds.add(ctc.id)
+                    res.ctcs.add(ctc)
                 }
             }
         }
@@ -429,14 +430,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
             copyFromPersonToPatient(p, this, true)
-        }) else dbPatient.apply {
-            firstName = p.firstnames.firstOrNull()
-            lastName = p.familyname
-            dateOfBirth = Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
-        }
+        }) else dbPatient
     }
 
     protected fun copyFromPersonToPatient(p: PersonType, patient: Patient, force: Boolean) {
+        patient.firstName = p.firstnames.firstOrNull()
+        patient.lastName = p.familyname
+        patient.dateOfBirth = Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
+
         if (patient.ssin == null) {
             patient.ssin = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value ?:
                 p.ids.find { it.s == IDPATIENTschemes.INSS }?.value

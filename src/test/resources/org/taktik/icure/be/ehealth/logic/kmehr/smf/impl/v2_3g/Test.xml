@@ -1,0 +1,1235 @@
+<kmehrmessage xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.ehealth.fgov.be/standards/kmehr/schema/v1 file:///Users/aduchate/Sources/github/icure-backend/src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20131001/ehealth-kmehr/XSD/kmehr_elements-1_7.xsd">
+  <header>
+    <standard>
+      <cd S="CD-STANDARD" SV="1.8">20131001</cd>
+      <specialisation>
+        <cd S="CD-MESSAGE" SV="1.1">gpsoftwaremigration</cd>
+        <version>2.3</version>
+      </specialisation>
+    </standard>
+    <id S="ID-KMEHR" SV="1.0">17130990004.1519673322889</id>
+    <date>2018-02-26</date>
+    <time>20:28:42.891</time>
+    <sender>
+      <hcparty>
+        <id S="LOCAL" SV="4.0.0" SL="iCure">iCure-4.0.0</id>
+        <cd S="CD-HCPARTY" SV="1.6">application</cd>
+        <name>iCure</name>
+      </hcparty>
+      <hcparty>
+        <id S="INSS" SV="1.0">53030443396</id>
+        <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+        <firstname>Kris</firstname>
+        <familyname>Gaublomme</familyname>
+      </hcparty>
+    </sender>
+    <recipient>
+      <hcparty>
+        <cd S="CD-HCPARTY" SV="1.6">application</cd>
+        <name>gp-software-migration</name>
+      </hcparty>
+    </recipient>
+  </header>
+  <folder>
+    <id S="ID-KMEHR" SV="1.0">1</id>
+    <patient>
+      <id S="ID-PATIENT" SV="1.0">82100706463</id>
+      <id S="LOCAL" SV="4.0.0" SL="MF-ID">ad25f011-c84e-4aee-a5f0-11c84e9aee36</id>
+      <firstname>Ayse</firstname>
+      <familyname>Acici</familyname>
+      <birthdate>
+        <date>1982-10-07</date>
+      </birthdate>
+      <sex>
+        <cd S="CD-SEX" SV="1.0">female</cd>
+      </sex>
+      <address>
+        <cd S="CD-ADDRESS" SV="1.0">home</cd>
+        <country>
+          <cd S="CD-FED-COUNTRY" SV="1.0">be</cd>
+        </country>
+        <zip>3581</zip>
+        <city>Beringen</city>
+        <street>Leysestraat 68</street>
+        <housenumber>68</housenumber>
+      </address>
+      <telecom>
+        <cd S="CD-ADDRESS" SV="1.0">home</cd>
+        <cd S="CD-TELECOM" SV="1.0">email</cd>
+        <telecomnumber>kine.dirk.reynders@gmail.com</telecomnumber>
+      </telecom>
+      <telecom>
+        <cd S="CD-ADDRESS" SV="1.0">home</cd>
+        <cd S="CD-TELECOM" SV="1.0">mobile</cd>
+        <telecomnumber>0478 722333</telecomnumber>
+      </telecom>
+      <profession>
+        <text L="fr">verpleegkundige</text>
+      </profession>
+      <recorddatetime>2017-11-21T16:00:23.672</recorddatetime>
+    </patient>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">0</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">TODO</id>
+      <cd S="CD-TRANSACTION" SV="1.5">clinicalsummary</cd>
+      <date>2018-02-26</date>
+      <time>20:28:42.891</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <id S="LOCAL" SV="4.0.0" SL="iCure-Element-Id">2</id>
+        <cd S="CD-ITEM" SV="1.6">insurancystatus</cd>
+        <content>
+          <insurance>
+            <id S="ID-INSURANCE" SV="1.1">322</id>
+            <membership/>
+            <cg1>110</cg1>
+            <cg2>110</cg2>
+          </insurance>
+        </content>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">1</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">01a2d868-9b98-4d2b-94d4-64910fee0906</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2017-11-21</date>
+      <time>16:13:23</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2017-11-21</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">07c5cf4a-aa73-4fe8-85cf-4aaa737fe82a</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Voorschrift</id>
+        <cd S="CD-ITEM" SV="1.0">medication</cd>
+        <content>
+          <medicinalproduct>
+            <intendedcd S="CD-DRUG-CNK" SV="01-2016"/>
+            <intendedname>sulf 35 4/ B40</intendedname>
+          </medicinalproduct>
+        </content>
+        <beginmoment>
+          <date>2016-07-22</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:03:32.820</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">2</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">01a2d868-9b98-4d2b-94d4-64910fee0906</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2017-11-21</date>
+      <time>16:13:23</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2017-11-21</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">d1d7f8d2-2aee-4e86-97f8-d22aeeae86ce</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Persoonlijke antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">acne</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">8875effa-2976-4419-b5ef-fa297634197e</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Persoonlijke antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">angina's als kind</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">4</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">e0633c17-1c82-47ad-a33c-171c8237ad41</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">PP longCA</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">5</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">28ad911a-63cd-43b2-ad91-1a63cd33b288</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">PM infarct 45J</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">6</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">17cbf7f9-afb3-4fdb-8bf7-f9afb30fdb04</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">M metabool S</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">7</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">6ff7b44e-a6f4-4e88-b7b4-4ea6f45e884d</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">MM † herseninfarct, HT, D,</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">8</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">9ee03821-f1ef-46b9-a038-21f1ef66b939</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Antécédents chirurgicaux</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">brandwonden als kind</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-21T16:01:00.067</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">1</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">2953baac-be78-459f-9c31-f8fbb0775ee3</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2017-11-22</date>
+      <time>14:55:59</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2017-11-22</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">e49415bb-342f-47ed-9415-bb342f97ed09</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">mind</id>
+        <cd S="CD-ITEM" SV="1.0">complaint</cd>
+        <content>
+          <lnk TYPE="multimedia" MEDIATYPE="application/pdf">
+            e1xydGYxXGFuc2lcYW5zaWNwZzEyNTJcY29jb2FydGYxNDA0XGNvY29hc3VicnRmNDcwCntcZm9udHRibFxmMFxmc3dpc3NcZmNoYXJzZXQwIEhlbHZldGljYTt9CntcY29sb3J0Ymw7XHJlZDI1NVxncmVlbjI1NVxibHVlMjU1O30KXHBhcmRcdHg1NjBcdHgxMTIwXHR4MTY4MFx0eDIyNDBcdHgyODAwXHR4MzM2MFx0eDM5MjBcdHg0NDgwXHR4NTA0MFx0eDU2MDBcdHg2MTYwXHR4NjcyMFxwYXJkaXJuYXR1cmFsXHBhcnRpZ2h0ZW5mYWN0b3IwCgpcZjBcZnMyNCBcY2YwIGVlcmRlciBhZndhY2h0ZW5kOyBcCnZpbmR0IGVlcmxpamtoZWlkIGJlbGFuZ3Jpams7IFwKcnVzdGlnOyBrYW4gdG9jaCBoZWVsIGJvb3Mgd29yZGVuOyBlZXJzdCBsdWlkLCBkYW4gbmFnZXJlbjpcCmdlZHVsZGlnLCBcCmZlYXI6IGRvb2QsIGhvbmRlbiwga2F0dGVuLCBcCn0=
+          </lnk>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2017-11-22T14:40:50.259</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">1</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">42d05045-b6ac-44d8-9050-45b6ac24d805</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-07-22</date>
+      <time>17:15:09</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-07-22</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">c9f72ce6-de8f-4ff1-b72c-e6de8f3ff1a9</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Klacht</id>
+        <cd S="CD-ITEM" SV="1.0">complaint</cd>
+        <content>
+          <text L="fr">1. eerste 2w nog lichte jeuk ogen, daarna ok; geen dyspnee;
+            &lt; warm weer, ochtend en avond; zweterig;
+            Geeft BV;
+          </text>
+        </content>
+        <beginmoment>
+          <date>2016-07-22</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-07-22T17:10:39.991</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">07c5cf4a-aa73-4fe8-85cf-4aaa737fe82a</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Voorschrift</id>
+        <cd S="CD-ITEM" SV="1.0">medication</cd>
+        <content>
+          <medicinalproduct>
+            <intendedcd S="CD-DRUG-CNK" SV="01-2016"/>
+            <intendedname>sulf 35 4/ B40</intendedname>
+          </medicinalproduct>
+        </content>
+        <beginmoment>
+          <date>2016-07-22</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-07-22T17:13:13.956</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">1</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">d24ab3c9-c489-4a4d-8ab3-c9c489fa4df9</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Voorschrift</id>
+        <cd S="CD-ITEM" SV="1.0">medication</cd>
+        <content>
+          <medicinalproduct>
+            <intendedcd S="CD-DRUG-CNK" SV="01-2016"/>
+            <intendedname>sulf 30 4+/3 B80</intendedname>
+          </medicinalproduct>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-07-22T17:10:07.865</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">2</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">18eef2f8-5084-40a9-aef2-f8508480a9a2</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">BS</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">Gehuwd</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:21:27.292</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">fae82bd8-68eb-4b51-a82b-d868eb6b5176</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">kinderen</id>
+        <cd S="CD-ITEM" SV="1.0">contactperson</cd>
+        <content>
+          <text L="fr">1</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:21:27.292</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">3</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">972556bc-96d4-4de0-a556-bc96d4fde0ee</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">temperatuur</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">kouwelijk; slaapt met donsdeken in de zomer; &gt; sun;</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:46:59.057</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">f100e06c-5313-4afe-80e0-6c5313dafe7f</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">perspiration</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">zweethanden,</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.131</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">4</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">2ae14319-ad47-478c-a143-19ad47178cc2</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">appetite</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.129</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">5</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">0733e4f1-b063-477c-b3e4-f1b063477c2d</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">thirst</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.133</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">6</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">cc8df8c4-4e9a-4ef0-8df8-c44e9a1ef089</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">desires</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">zoet ++, chocola, vis, pikant, boter, groene olijven,</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.130</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">7</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">e8025742-628e-43bc-8257-42628e23bce2</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">aversions</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">slakken,</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.129</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">8</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">2a089f10-4026-4521-889f-104026052102</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">indifferent</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">koffie, vlees, zuur, champignons;</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.130</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">9</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">edd7268a-5374-4e6e-9726-8a53741e6e2a</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">intollerant</id>
+        <cd S="CD-ITEM" SV="1.0">adr</cd>
+        <content>
+          <text L="fr">fastfood</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.131</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">10</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">19f527b5-973c-4e16-b527-b5973cde1659</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">stomach</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.132</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">11</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">7e56c9f2-d487-48e4-96c9-f2d487f8e41c</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">liver</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.131</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">12</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">72fa899c-bf34-4f63-ba89-9cbf344f6397</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">gall</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.130</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">13</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">62869d95-4218-439d-869d-954218f39d49</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">abdomen</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:32:58.128</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">14</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">65b0770b-2af7-48cf-b077-0b2af7b8cf81</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">stool</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">± constipatie</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.318</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">15</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">99bcc9ca-f6df-4ff7-bcc9-caf6df0ff733</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">urinary</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.319</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">16</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">719a6755-985d-4d4d-9a67-55985dad4d77</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">skin/hair/nails</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">droog, gevoelig,</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.318</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">17</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">e4271535-5456-4f3b-a715-355456af3be2</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">locomotor</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.317</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">18</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">15799d19-d291-41de-b99d-19d291c1de95</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">cardiovascular</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">lage BD</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.316</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">19</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">55a26798-a594-4e76-a267-98a5948e7678</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">respiratory</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.318</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">20</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">3ca40839-9c29-4160-a408-399c29116088</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">endocrino</id>
+        <cd S="CD-ITEM" SV="1.0">clinical</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:01.317</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">21</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">f5bd1bdd-a2dc-4a45-bd1b-dda2dc8a452e</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">ORL</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:36:20.590</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">22</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">b6852633-42f7-4537-8526-3342f765378a</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">neuro</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:36:20.589</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">23</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">11d9c34d-f4ef-4f8f-99c3-4df4ef8f8f33</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">vision</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:36:20.591</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">24</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">f8468cb4-9ba7-4857-868c-b49ba74857fd</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">sleep</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:36:20.590</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">25</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">a318c244-49d1-4cea-98c2-4449d16cea42</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">energy</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">--</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:36:20.587</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">26</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">99094e48-c706-4b47-894e-48c706fb4760</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">generals</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">R-handig</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:36:20.588</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">4</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">ac1a53eb-0bb6-45ba-9a53-eb0bb6f5bac1</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">klachten</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">1. allergie</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:40:49.376</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">5</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">12c1ff34-ea1f-4b34-81ff-34ea1f3b3454</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Consultation</id>
+        <cd S="CD-ITEM" SV="1.0">complaint</cd>
+        <content>
+          <text L="fr">1. op 27e veel neusloop O/ allergie honden, katten, bomen, gras,
+            jeuk ogen, dyspnee/wheezing &lt; evening, prikkelhoest (larynx), rode gezwollen ogen, R/ Vinalac
+            &lt;&lt;&lt; open air;
+
+            Voor 3m bevallen; geeft BV,
+            Heeft vroeger gerookt;
+            Inenting gehad tegen varkensgriep voor 27e, 6m voor begin allergie;
+            menses nl
+
+            DD sulf, hep;
+          </text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:46:12.579</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">6</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">e49415bb-342f-47ed-9415-bb342f97ed09</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">mind</id>
+        <cd S="CD-ITEM" SV="1.0">complaint</cd>
+        <content>
+          <lnk TYPE="multimedia" MEDIATYPE="application/pdf">
+            e1xydGYxXGFuc2lcYW5zaWNwZzEyNTJcY29jb2FydGYxNDA0XGNvY29hc3VicnRmMTMwClxjb2NvYXNjcmVlbmZvbnRzMXtcZm9udHRibFxmMFxmc3dpc3NcZmNoYXJzZXQwIEhlbHZldGljYTt9CntcY29sb3J0Ymw7XHJlZDI1NVxncmVlbjI1NVxibHVlMjU1O30KXHBhcmRcdHg1NjBcdHgxMTIwXHR4MTY4MFx0eDIyNDBcdHgyODAwXHR4MzM2MFx0eDM5MjBcdHg0NDgwXHR4NTA0MFx0eDU2MDBcdHg2MTYwXHR4NjcyMFxwYXJkaXJuYXR1cmFsCgpcZjBcZnMyNCBcY2YwIGVlcmRlciBhZndhY2h0ZW5kOyBcCnZpbmR0IGVlcmxpamtoZWlkIGJlbGFuZ3Jpams7IFwKcnVzdGlnOyBrYW4gdG9jaCBoZWVsIGJvb3Mgd29yZGVuOyBlZXJzdCBsdWlkLCBkYW4gbmFnZXJlbjpcCmdlZHVsZGlnLCBcCmZlYXI6IGRvb2QsIGhvbmRlbiwga2F0dGVuLCBcCn0=
+          </lnk>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:44:22.384</recorddatetime>
+      </item>
+    </transaction>
+    <transaction>
+      <id S="ID-KMEHR" SV="1.0">7</id>
+      <id S="LOCAL" SV="1.0" SL="MF-ID">ba8cf672-9c81-4d2c-8cf6-729c81bd2ccb</id>
+      <cd S="CD-TRANSACTION" SV="1.5">contactreport</cd>
+      <date>2016-06-24</date>
+      <time>15:56:36</time>
+      <author>
+        <hcparty>
+          <id S="INSS" SV="1.0">53030443396</id>
+          <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
+          <firstname>Kris</firstname>
+          <familyname>Gaublomme</familyname>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.6">encounterdatetime</cd>
+        <content>
+          <date>2016-06-24</date>
+          <time>00:00:00</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">d1d7f8d2-2aee-4e86-97f8-d22aeeae86ce</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Persoonlijke antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">acne</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:20.966</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">8875effa-2976-4419-b5ef-fa297634197e</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Persoonlijke antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">angina's als kind</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:35:20.966</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">4</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">e0633c17-1c82-47ad-a33c-171c8237ad41</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">PP longCA</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:23:49.928</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">5</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">28ad911a-63cd-43b2-ad91-1a63cd33b288</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">PM infarct 45J</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:23:49.928</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">6</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">17cbf7f9-afb3-4fdb-8bf7-f9afb30fdb04</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">M metabool S</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:23:49.929</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">7</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">6ff7b44e-a6f4-4e88-b7b4-4ea6f45e884d</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Familiale antecedenten</id>
+        <cd S="CD-ITEM" SV="1.0">familyrisk</cd>
+        <content>
+          <text L="fr">MM † herseninfarct, HT, D,</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:23:49.929</recorddatetime>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">8</id>
+        <id S="LOCAL" SV="4.0.0" SL="MF-ID">9ee03821-f1ef-46b9-a038-21f1ef66b939</id>
+        <id S="LOCAL" SV="1.0" SL="org.taktik.icure.label">Antécédents chirurgicaux</id>
+        <cd S="CD-ITEM" SV="1.0">healthcareelement</cd>
+        <content>
+          <text L="fr">brandwonden als kind</text>
+        </content>
+        <beginmoment>
+          <date>2016-06-24</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <recorddatetime>2016-06-24T15:23:49.929</recorddatetime>
+      </item>
+    </transaction>
+  </folder>
+</kmehrmessage>

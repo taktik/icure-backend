@@ -207,7 +207,8 @@
       "type": "m",
       "label": {
         "fr": "Vaccination à prévoir"
-      },
+      }
+    },
     {
       "lifecycle": "*",
       "content": "*",

@@ -36,7 +36,7 @@ class SoftwareMedicalFileLogicImpl : SoftwareMedicalFileLogic {
     var softwareMedicalFileImport : SoftwareMedicalFileImport? = null
 
     override fun importSmfFile(inputStream: InputStream, author: User, language: String) : ImportResult {
-        return softwareMedicalFileImport!!.importSMF(inputStream, author, language)
+        return softwareMedicalFileImport!!.importSMF(inputStream, author, language, HashMap())
     }
 
     override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?) {
