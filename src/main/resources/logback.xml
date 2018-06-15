@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- Hazelcast -->
+    <logger name="com.hazelcast" level="INFO" />
+
+    <!-- Spring -->
+
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.springframework.security" level="DEBUG" />
+
+    <!-- icure -->
+
+    <logger name="org.taktik" level="INFO" />
+    <logger name="org.taktik.icure.logic" level="INFO" />
+    <logger name="org.taktik.icure.dao" level="INFO" />
+
+    <!-- uncomment the following line to log expected errors -->
+    <!-- <logger name="org.taktik.icure.services.external.rest.v1.error.WsExceptionMapper" level="DEBUG" /> -->
+
+    <!-- Spring Security -->
+    <logger name="org.taktik.icure.security" level="INFO" />
+    <logger name="org.springframework.security" level="INFO" />
+
+    <logger name="org.eclipse.jetty.client" level="INFO" />
+    <logger name="org.eclipse.jetty" level="WARN" />
+    <logger name="org.apache.jasper" level="WARN" />
+    <logger name="org.apache.commons" level="WARN" />
+    <logger name="org.elasticsearch" level="WARN" />
+    <!--logger name="ma.glasnost.orika" level="DEBUG" /-->
+</configuration>
