@@ -27,6 +27,11 @@
 				line-height: 1;
 				margin-right: 8px;
 				height: 12px;
+				cursor: pointer;
+			}
+
+			span.he-pill-highlighted {
+				color: black;
 			}
 
 			.title-bar {
@@ -42,7 +47,7 @@
 			<div slot="titlebar" class="title-bar">
 				<template is="dom-repeat" items="[[_selectedHes(healthElements.*)]]" as="he">
 					<template is="dom-if" if="[[he.descr]]">
-						<span class$="form-title-bar-btn he-pill [[he.colour]]">[[he.descr]]</span>
+						<span id="pill-[[he.id]]" class$="form-title-bar-btn he-pill [[_heColourStyle(he, highlightedHes.*)]]" on-tap="_highlight">[[he.descr]]</span>
 					</template>
 				</template>
 			</div>
@@ -78,13 +83,19 @@
 						type: Object,
 						value: {}
 					},
-					healthElements: {
-						type: Array,
-						value: function () {
-							return [];
-						}
-					},
-					currentContact: {
+                    healthElements: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    highlightedHes: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    currentContact: {
 						type: Object,
 						value: null
 					},
@@ -128,6 +139,20 @@
 
 			_isNotInCurrentContact(currentContact, contact) {
 				return currentContact === null || contact !== currentContact;
+			}
+
+			_highlight(e) {
+			 	const id = e.target.id.substr(5)
+				const hHe = this.highlightedHes.find(he=>he.id===id)
+				if (!hHe) {
+                    this.push('highlightedHes', this.healthElements.find(he => he.id === id))
+                } else {
+			 	    this.splice('highlightedHes',this.highlightedHes.indexOf(hHe,1))
+				}
+			}
+
+            _heColourStyle(he) {
+				return this.highlightedHes.includes(he) ? "he-pill-highlighted "+he.colour+"-back" : he.colour
 			}
 
 			_selectedHes() {
