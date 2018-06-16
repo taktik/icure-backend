@@ -79,15 +79,29 @@
 				background: var(--app-background-color-dark);
 				font-size: 12px;
 				margin: 0 0 8px -8px;
-				padding: 2px 24px;
-				display: inline-block;
-				width: calc(100% - 32px);
-				text-align: left;
+				padding: 2px 4px 2px 20px;
 				display: flex;
-				flex-flow: row wrap;
+				flex-flow: row nowrap;
+				width: calc(100% - 8px);
+				text-align: left;
 				justify-content: space-between;
 				align-items: center;
-				height: 18px;
+			}
+
+			.form-title > span {
+				flex-grow: 1;
+				min-width: 100px;
+			}
+
+			.form-title >div {
+				flex-grow: 1;
+				min-width: 48px;
+			}
+
+			.form-title-bar-btn {
+				height: 20px;
+				width: 20px;
+				padding: 2px;
 			}
 
 			paper-spinner {
@@ -106,6 +120,28 @@
 				<div class="form-title">
 					<span>[[displayedTitle]]</span>
 					<slot name="titlebar"></slot>
+					<div>
+					<paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="_deleteForm"></paper-icon-button>
+					<paper-menu-button class="form-title-bar-btn" horizontal-align="right" dynamic-align="true">
+						<paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+						<paper-listbox slot="dropdown-content">
+							<template is="dom-repeat" items="[[healthElements]]" as="he">
+								<template is="dom-if" if="[[he.id]]">
+									<paper-item id="[[he.id]]" class="link" on-tap="_linkForm">
+										<label class$="colour-code [[he.colour]]">
+											<span></span>
+										</label>[[he.descr]]</paper-item>
+								</template>
+								<template is="dom-if" if="[[!he.id]]">
+									<paper-item id="[[he.idService]]" class="link" on-tap="_linkForm">
+										<label class$="colour-code [[he.colour]]">
+											<span></span>
+										</label>[[he.descr]]</paper-item>
+								</template>
+							</template>
+						</paper-listbox>
+					</paper-menu-button>
+					</div>
 				</div>
 			</template>
 			<template is="dom-if" if="[[!dataProvider]]">
@@ -280,7 +316,17 @@
 				return this.title && this.dataProvider ? this.title : "Loading …";
 			}
 
-			_patCardClass(isSubForm) {
+			_linkForm(e) {
+                const he = this.healthElements.find(he => he.id === e.target.id || he.idService === e.target.id);
+                this.dispatchEvent(new CustomEvent('link-form', {detail: {healthElement: he}, composed: true, bubbles: true}));
+            }
+
+            _deleteForm() {
+                this.dispatchEvent(new CustomEvent('delete-form', {composed: true, bubbles: true}));
+            }
+
+
+            _patCardClass(isSubForm) {
 				return !isSubForm ? "pat-details-card" : "pat-details-card subform-card";
 			}
 

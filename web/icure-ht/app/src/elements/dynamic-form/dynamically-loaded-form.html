@@ -1,11 +1,11 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
-<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="dynamic-form.html">
@@ -13,12 +13,6 @@
 <dom-module id="dynamically-loaded-form">
 	<template>
 		<style include="icpc-styles">
-			.form-title-bar-btn {
-				height: 20px;
-				width: 20px;
-				padding: 2px;
-			}
-
 			span.he-pill {
 				border-radius: 10px;
 				-webkit-border-radius: 10px;
@@ -36,43 +30,21 @@
 			}
 
 			.title-bar {
-				display: flex;
-				flex-flow: row wrap;
-				align-items: center;
-				align-content: unset;
-				justify-content: flex-start;
+				flex-grow: 2;
+				text-align: right;
 			}
 		</style>
+
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
 		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]"
-		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]">
+		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]"
+					  on-link-form="linkForm" on-delete-form="deleteForm">
 			<div slot="titlebar" class="title-bar">
 				<template is="dom-repeat" items="[[_selectedHes(healthElements.*)]]" as="he">
 					<template is="dom-if" if="[[he.descr]]">
 						<span class$="form-title-bar-btn he-pill [[he.colour]]">[[he.descr]]</span>
 					</template>
 				</template>
-
-				<paper-icon-button class="form-title-bar-btn" icon="icons:delete" on-tap="deleteForm"></paper-icon-button>
-				<paper-menu-button horizontal-align="right" dynamic-align="true">
-					<paper-icon-button class="form-title-bar-btn" icon="icons:link" slot="dropdown-trigger" alt="menu"></paper-icon-button>
-					<paper-listbox slot="dropdown-content">
-						<template is="dom-repeat" items="[[healthElements]]" as="he">
-							<template is="dom-if" if="[[he.id]]">
-								<paper-item id="[[he.id]]" class="link" on-tap="linkForm">
-									<label class$="colour-code [[he.colour]]">
-										<span></span>
-									</label>[[he.descr]]</paper-item>
-							</template>
-							<template is="dom-if" if="[[!he.id]]">
-								<paper-item id="[[he.idService]]" class="link" on-tap="linkForm">
-									<label class$="colour-code [[he.colour]]">
-										<span></span>
-									</label>[[he.descr]]</paper-item>
-							</template>
-						</template>
-					</paper-listbox>
-				</paper-menu-button>
 			</div>
 		</dynamic-form>
 	</template>
@@ -613,8 +585,8 @@
 				this.dataProvider.deleteForm && this.dataProvider.deleteForm();
 			}
 
-			linkForm(e, target) {
-				const he = this.healthElements.find(he => he.id === e.target.id || he.idService === e.target.id);
+			linkForm(e) {
+                const he = e.detail.healthElement
 				if (!he) {
 					return;
 				}
