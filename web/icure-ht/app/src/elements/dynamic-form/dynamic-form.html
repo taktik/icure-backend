@@ -17,12 +17,13 @@
 <link rel="import" href="dynamic-sub-form.html">
 <link rel="import" href="dynamic-checkbox.html">
 <link rel="import" href="dynamic-medication-field.html">
+<link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="ckmeans-grouping.html">
 
 <dom-module id="dynamic-form">
 	<template>
-		<style>
+		<style include="icpc-styles">
 			paper-spinner.center {
 				position: absolute;
 				left: calc(50% - 14px);
@@ -94,7 +95,7 @@
 			}
 
 			.form-title >div {
-				flex-grow: 1;
+				flex-grow: 0;
 				min-width: 48px;
 			}
 
@@ -102,6 +103,21 @@
 				height: 20px;
 				width: 20px;
 				padding: 2px;
+			}
+
+			.colour-code {
+				font-size: 12px;
+				white-space: nowrap;
+			}
+
+			.colour-code span {
+				content: '';
+				display: inline-block;
+				height: 6px;
+				width: 6px;
+				border-radius: 3px;
+				margin-right: 3px;
+				margin-bottom: 1px;
 			}
 
 			paper-spinner {

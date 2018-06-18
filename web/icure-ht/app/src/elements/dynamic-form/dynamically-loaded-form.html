@@ -17,7 +17,7 @@
 				border-radius: 10px;
 				-webkit-border-radius: 10px;
 				-moz-border-radius: 10px;
-				padding: 2px 8px 2px 8px;
+				padding: 0px 6px 1px 8px;
 				background-color: #ddd;
 				max-width: 100px;
 				width: auto;
@@ -25,7 +25,7 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				line-height: 1;
-				margin-right: 8px;
+				margin-right: 4px;
 				height: 12px;
 				cursor: pointer;
 			}
@@ -45,7 +45,7 @@
 		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]"
 					  on-link-form="linkForm" on-delete-form="deleteForm">
 			<div slot="titlebar" class="title-bar">
-				<template is="dom-repeat" items="[[_selectedHes(healthElements.*)]]" as="he">
+				<template is="dom-repeat" items="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" as="he">
 					<template is="dom-if" if="[[he.descr]]">
 						<span id="pill-[[he.id]]" class$="form-title-bar-btn he-pill [[_heColourStyle(he, highlightedHes.*)]]" on-tap="_highlight">[[he.descr]]</span>
 					</template>
@@ -141,11 +141,41 @@
 				return currentContact === null || contact !== currentContact;
 			}
 
-			_highlight(e) {
+            linkForm(e) {
+                const he = e.detail.healthElement
+                if (!he) {
+                    return;
+                }
+                const ctc = this.currentContact
+                if (!he.id) {
+                    this.promoteServiceToHealthElement(he).then(he => {
+                        if (!ctc.subContacts.some(sc => sc.formId === this.formId && sc.healthElementId === he.id)) {
+                            if (this.contact === ctc) {
+                                this.push('contact.subContacts', { formId: this.formId, healthElementId: he.id, services: [] })
+                            } else {
+                                ctc.subContacts.push({ formId: this.formId, healthElementId: he.id, services: [] })
+							}
+
+                            this.scheduleSave(ctc);
+                        }
+                    });
+                } else if (!this._selectedHes().includes(he.id)) {
+                    if (this.contact === ctc) {
+                        this.push('contact.subContacts', { formId: this.formId, healthElementId: he.id, services: [] })
+                    } else {
+                        ctc.subContacts.push({ formId: this.formId, healthElementId: he.id, services: [] })
+                    }
+
+                    this.scheduleSave(ctc);
+                }
+            }
+
+            _highlight(e) {
 			 	const id = e.target.id.substr(5)
 				const hHe = this.highlightedHes.find(he=>he.id===id)
 				if (!hHe) {
-                    this.push('highlightedHes', this.healthElements.find(he => he.id === id))
+			 	    const newHe = this.healthElements.find(he => he.id === id)
+                    newHe && this.push('highlightedHes', newHe)
                 } else {
 			 	    this.splice('highlightedHes',this.highlightedHes.indexOf(hHe,1))
 				}
@@ -156,8 +186,13 @@
 			}
 
 			_selectedHes() {
-				const heIds = this.contact.subContacts.map(sc => sc.healthElementId)
-				return this.healthElements.filter(he => heIds.includes(he.id))
+			    if (!this.dataProvider || !this.healthElements) {return []}
+
+			    const svcsStructs = _.chain(this.dataProvider.servicesInHierarchy()).map(svcLine => svcLine[0]).compact().value()
+                const heIds = _.chain(svcsStructs).flatMap(svcstr=>svcstr.ctc.subContacts.filter(sc => sc.services.some(s=>s.serviceId === svcstr.svc.id)).map(sc => sc.healthElementId)).compact().uniq().value()
+				const scHeIds = _.chain(this.contact.subContacts.filter(sc => sc.formId === this.formId).map(sc => sc.healthElementId)).compact().uniq().value()
+
+				return this.healthElements.filter(he => he.id && (heIds.includes(he.id) || scHeIds.includes(he.id)))
 			}
 
 			_prepareDataProvider() {
@@ -279,12 +314,12 @@
 
 						return svc;
 					},
-					promoteOrCreateService: (label, formId, poaId, heId, init) => {
+					promoteOrCreateService: (label, formId, poaIds, heIds, init) => {
 						const s = self.getServiceInContact(label);
 						if (!this.currentContact) {
 							return s && s.svc;
 						}
-						return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaId, heId, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaId, heId, null, initWrapper(label, init)));
+						return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
 					},
 					getOrCreateContent: (svc, lng) => svc && (svc.content && svc.content[lng] || ((svc.content || (svc.content = {}))[lng] = {})),
 					getServicesLineForContact: label => {
@@ -308,7 +343,7 @@
 						return s && this._timeFormat(s[0].ctc.openingDate);
 					},
 					getValueContainers: label => {
-						const c = _.compact(self.services(label).map(line => line && line.find(ss => !this.api.after(ss.ctc.created, this.contact.created))).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(s => Object.assign(_.cloneDeep(s), { checkUid: this.api.crypto().randomUuid() })); //Never provide the real objects so that we can compare them later on
+						const c = _.compact(self.services(label).map(line => line && line.find(ss => !this.api.after(ss.ctc.created, this.contact.created))).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(s => _.cloneDeep(s)); //Never provide the real objects so that we can compare them later on
 						return c;
 					},
 					setValueContainers: (label, containers) => {
@@ -336,7 +371,7 @@
 									_.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id));
 								}
 								if (!prevSvc || !_.isEqual(prevSvc.content, service.content)) {
-									self.dispatchService(_.extend(this.createService(label, form.id, null, null, service.id, initWrapper(label)),
+									self.dispatchService(_.extend(this.createService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), service.id, initWrapper(label)),
 										{ index: service.index, content: _.cloneDeep(service.content), codes: service.codes && service.codes.map(_.cloneDeep) }));
 									return true;
 								}
@@ -385,10 +420,11 @@
 						return s && s.svc && !s.svc.endOfLife && s.svc.valueDate;
 					},
 					setStringValue: function (label, value) {
-						if (self.getStringValue(label) === value) {
+						const currentValue = self.getStringValue(label)
+                        if ((currentValue || null) === (value || null) || ((!currentValue || !currentValue.length) && (!value || !value.length))) {
 							return;
 						}
-						self.promoteOrCreateService(label, form.id, null, null, svc => {
+						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							let c = self.getOrCreateContent(svc, this.language);
 							if (c && c.stringValue !== value) {
 								c.stringValue = value;
@@ -401,7 +437,7 @@
 						if (self.getNumberValue(label) === parseFloat(value)) {
 							return;
 						}
-						self.promoteOrCreateService(label, form.id, null, null, svc => {
+						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							let c = self.getOrCreateContent(svc, this.language);
 							if (c && c.numberValue !== value) {
 								c.numberValue = value;
@@ -412,10 +448,11 @@
 					}.bind(this),
 					setMeasureValue: function (label, value) {
 						const currentValue = self.getMeasureValue(label);
-						if (currentValue && (!currentValue.value && !value.value || currentValue.value === value.value) && (!currentValue.unit && !value.unit || currentValue.unit === value.unit)) {
+						if (((!currentValue || !currentValue.value) && !value.value) /* No valid current value and no proposed value */
+							|| (currentValue && value && ((currentValue.value || 0) === (value.value || 0)) && ((currentValue.unit || null) === (value.unit || null)))) {
 							return;
 						}
-						self.promoteOrCreateService(label, form.id, null, null, svc => {
+						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							let c = self.getOrCreateContent(svc, this.language);
 							if (c && c.measureValue !== value) {
 								c.measureValue = value;
@@ -428,7 +465,7 @@
 						if (self.getDateValue(label) === value) {
 							return;
 						}
-						self.promoteOrCreateService(label, form.id, null, null, svc => {
+						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							let c = self.getOrCreateContent(svc, this.language);
 							if (c && c.instantValue !== value) {
 								c.instantValue = value;
@@ -441,7 +478,7 @@
 						if (self.getBooleanValue(label) === value) {
 							return;
 						}
-						self.promoteOrCreateService(label, form.id, null, null, svc => {
+						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							let c = self.getOrCreateContent(svc, this.language);
 							if (c && c.booleanValue !== value) {
 								c.booleanValue = value;
@@ -454,7 +491,7 @@
 						if (self.getValueDateOfValue(label) === value) {
 							return;
 						}
-						self.promoteOrCreateService(label, form.id, null, null, svc => {
+						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							if (!svc) {
 								return;
 							}
@@ -610,26 +647,13 @@
 				this.dataProvider.deleteForm && this.dataProvider.deleteForm();
 			}
 
-			linkForm(e) {
-                const he = e.detail.healthElement
-				if (!he) {
-					return;
-				}
-				if (!he.id) {
-					this.promoteServiceToHealthElement(he).then(he => {
-						_.compact(this.dataProvider.servicesInHierarchy().map(svcLine => svcLine[0])) //Latest version of all services
-							.forEach(svc => {
-								this.promoteServiceInCurrentContact(svc.svc, this.form.id, null, he.id, null);
-							});
-						this.scheduleSave(this.currentContact);
-					});
-				} else {
-					_.compact(this.dataProvider.servicesInHierarchy().map(svcLine => svcLine[0])) //Latest version of all services
-						.forEach(svc => {
-							this.promoteServiceInCurrentContact(svc.svc, this.form.id, null, he.id, null);
-						});
-					this.scheduleSave(this.currentContact);
-				}
+
+            linkAllServicesInForm(he) {
+                _.compact(this.dataProvider.servicesInHierarchy().map(svcLine => svcLine[0])) //Latest version of all services
+                    .forEach(svc => {
+                        this.promoteServiceInCurrentContact(svc.svc, this.form.id, null, [he.id], null);
+                    });
+                this.scheduleSave(this.currentContact);
 			}
 
 			servicesInForm(formId, label) {
@@ -669,15 +693,16 @@
 
 			promoteServiceToHealthElement(heSvc) {
 				return this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc.svc, this.language).then(he => {
-					this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, he.id, null);
+					this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, [he.id], null);
 					this.scheduleSave(this.currentContact);
 					this.dispatchEvent(new CustomEvent('health-elements-change', { detail: { hes: [he] }, bubbles: true, composed: true }));
+
 					return he;
 				});
 			}
 
-			promoteServiceInCurrentContact(svc, formId, poaId, heId, init) {
-				return this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, formId, poaId, heId, init);
+			promoteServiceInCurrentContact(svc, formId, poaIds, heIds, init) {
+				return this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, formId, poaIds, heIds, init);
 			}
 
 			shortServiceDescription(svc, lng) {
