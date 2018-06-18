@@ -97,7 +97,7 @@ module.exports = {
 		port: 9000,
 		proxy: {
 			'/rest/v1': {
-				target: 'https://backend.icure.cloud',
+				target: 'http://localhost:16043',//https://backend.icure.cloud
 				changeOrigin: true
 			}
 		}

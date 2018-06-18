@@ -154,7 +154,10 @@
     "no_ehe_con":"No Ehealth connection",
     "msg":"Messages",
     "sen_to":"Send To",
-    "prot":"Protocol"
+    "prot":"Protocol",
+    "e_inv":"E-Invoicing",
+    "ehe_mes":"Ehealth Messages",
+    "rep":"Report"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",

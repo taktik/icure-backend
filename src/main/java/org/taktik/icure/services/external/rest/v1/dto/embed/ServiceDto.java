@@ -39,9 +39,9 @@ public class ServiceDto implements Serializable {
 	protected String dataClassName;
 	protected Long index; //Used for sorting
 
-	protected HashMap<String, ContentDto> content; //Series of values: each value is localized, in the case when the service contains a document, the document id is the SerializableValue
+	protected Map<String, ContentDto> content; //Series of values: each value is localized, in the case when the service contains a document, the document id is the SerializableValue
 	protected String encryptedContent; //Crypted (AES+base64) version of the above
-	protected HashMap<String, String> textIndexes; //Same structure as content but used for full text indexation
+	protected Map<String, String> textIndexes; //Same structure as content but used for full text indexation
 
 	protected Long valueDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000
 
@@ -144,11 +144,11 @@ public class ServiceDto implements Serializable {
 		this.index = index;
 	}
 
-    public HashMap<String, ContentDto> getContent() {
+    public Map<String, ContentDto> getContent() {
         return content;
     }
 
-    public void setContent(HashMap<String, ContentDto> content) {
+    public void setContent(Map<String, ContentDto> content) {
         this.content = content;
     }
 
@@ -160,11 +160,11 @@ public class ServiceDto implements Serializable {
 		this.encryptedContent = encryptedContent;
 	}
 
-	public HashMap<String, String> getTextIndexes() {
+	public Map<String, String> getTextIndexes() {
         return textIndexes;
     }
 
-    public void setTextIndexes(HashMap<String, String> textIndexes) {
+    public void setTextIndexes(Map<String, String> textIndexes) {
         this.textIndexes = textIndexes;
     }
 

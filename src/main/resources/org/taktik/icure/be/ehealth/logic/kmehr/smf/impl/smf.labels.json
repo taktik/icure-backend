@@ -1,0 +1,313 @@
+{
+  "intubationrefusal": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Refus d'intubation"
+      }
+    }
+  ],
+  "ntbr": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Refus de réanimation"
+      }
+    }
+  ],
+  "bloodtransfusionrefusal": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Refus de transfusion sanguine"
+      }
+    }
+  ],
+  "euthanasiarequest": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Demande d'euthanasie"
+      }
+    }
+  ],
+  "clinicaltrialparticipationconsent": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Consentement pour une participation à des essais cliniques"
+      }
+    }
+  ],
+  "datareuseforclinicalresearchconsent": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Consentement pour l'utilisation de données lors de recherches cliniques"
+      }
+    }
+  ],
+  "datareuseforclinicaltrialsconsent": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Consentement pour l'utilisation de données lors d'essais cliniques"
+      }
+    }
+  ],
+  "organdonationconsent": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Donneur d'organe"
+      }
+    }
+  ],
+  "vaccinationrefusal": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "b",
+      "label": {
+        "fr": "Refus de se faire vacciner"
+      }
+    }
+  ],
+  "risk": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Facteurs de risque"
+      }
+    }
+  ],
+  "diagnostic": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "cdItem": "diagnosis",
+      "label": {
+        "fr": "Diagnostics"
+      }
+    }
+  ],
+  "diagnosis": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Diagnostics"
+      }
+    }
+  ],
+  "conclusion": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Diagnostics"
+      }
+    }
+  ],
+  "healthissue": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Problème de soin"
+      }
+    }
+  ],
+  "transactionreason": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Motifs de contact"
+      }
+    }
+  ],
+  "allergy": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Allergies"
+      }
+    }
+  ],
+  "adr": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Facteurs de risque social"
+      }
+    }
+  ],
+  "complaint": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Motifs de contact"
+      }
+    }
+  ],
+  "clinical": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Examen clinique"
+      }
+    }
+  ],
+  "medication": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "m",
+      "label": {
+        "fr": "Traitements médicamenteux"
+      }
+    }
+  ],
+  "vaccine": [
+    {
+      "lifecycle": "planned",
+      "content": "*",
+      "type": "m",
+      "label": {
+        "fr": "Vaccination à prévoir"
+      }
+    },
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "m",
+      "label": {
+        "fr": "Vaccination"
+      }
+    }
+  ],
+  "treatment": [
+    {
+      "lifecycle": "planned",
+      "content": "m",
+      "type": "s",
+      "label": {
+        "fr": "Prescription à faire"
+      }
+    },
+    {
+      "lifecycle": "*",
+      "content": "m",
+      "type": "m",
+      "label": {
+        "fr": "Prescription"
+      }
+    },
+    {
+      "lifecycle": "planned",
+      "content": "*",
+      "type": "m",
+      "label": {
+        "fr": "Actes plannifiés"
+      }
+    },
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Traitements non-médicamenteux"
+      }
+    }
+  ],
+  "actionplan": [
+    {
+      "lifecycle": "planned",
+      "content": "*",
+      "type": "m",
+      "label": {
+        "fr": "Actes plannifiés"
+      }
+    },
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Traitements non-médicamenteux"
+      }
+    }
+  ],
+  "referral": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "h",
+      "label": {
+        "fr": "Demande d'avis"
+      }
+    }
+  ],
+  "socialrisk": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Facteurs de risque social"
+      }
+    }
+  ],
+  "professionalrisk": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Facteurs de risque"
+      }
+    }
+  ],
+  "familyrisk": [
+    {
+      "lifecycle": "*",
+      "content": "*",
+      "type": "s",
+      "label": {
+        "fr": "Antécédents familiaux"
+      }
+    }
+  ]
+}

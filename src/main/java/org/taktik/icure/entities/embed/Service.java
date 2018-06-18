@@ -44,7 +44,6 @@ import org.taktik.icure.validation.NotNull;
 public class Service implements ICureDocument, Serializable, Comparable<Service> {
 	@NotNull
 	protected String id; //Two version of the same service in two separate contacts have the same id
-
 	@JsonIgnore
 	private String contactId; //Only used when the Service is emitted outside of its contact
 	@JsonIgnore
@@ -67,10 +66,10 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	protected String dataClassName;
 	protected Long index; //Used for sorting
 
-	protected HashMap<String, Content> content = new HashMap<>(); //Localized, in the case when the service contains a document, the document id is the SerializableValue
+	protected Map<String, Content> content = new HashMap<>(); //Localized, in the case when the service contains a document, the document id is the SerializableValue
 
 	protected String encryptedContent; //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
-	protected HashMap<String, String> textIndexes = new HashMap<>(); //Same structure as content but used for full text indexation
+	protected Map<String, String> textIndexes = new HashMap<>(); //Same structure as content but used for full text indexation
 
 	protected Long valueDate;   // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
@@ -237,11 +236,11 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.contactId = contactId;
 	}
 
-    public HashMap<String, Content> getContent() {
+    public Map<String, Content> getContent() {
         return content;
     }
 
-    public void setContent(HashMap<String, Content> content) {
+    public void setContent(Map<String, Content> content) {
         this.content = content;
     }
 
@@ -253,11 +252,11 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.encryptedContent = encryptedContent;
 	}
 
-	public HashMap<String, String> getTextIndexes() {
+	public Map<String, String> getTextIndexes() {
         return textIndexes;
     }
 
-    public void setTextIndexes(HashMap<String, String> textIndexes) {
+    public void setTextIndexes(Map<String, String> textIndexes) {
         this.textIndexes = textIndexes;
     }
 

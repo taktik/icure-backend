@@ -186,7 +186,29 @@ class IccContactXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
 		return e[lng] || e.fr || e.en || e.nl;
 	}
 
-	promoteServiceInContact(ctc, user, ctcs, svc, formId, poaId, heId, init) {
+    /**
+	 * Modifies the subcontacts this svc belongs to while minimizing the number of references to the svcs inside the subcontacts
+	 * After the invocation, there is at least one subcontact with provided poaId and heId that contains the svc
+	 * The svc is not removed from a previous subcontact it would belong to except if the new conditions are compatible
+	 * Note that undefined and null do not have the same meaning for formId
+	 * If formId is null: the subcontact which refers svc must have a null formId
+	 * If formId is undefined, the subcontact can have any value for formId
+	 *
+	 * When a svc does not exist yet in the current contact but exists in a previous contact, all the scs it was belonging to are
+	 * copied in the current contact
+	 *
+     * @param ctc
+     * @param user
+     * @param ctcs
+     * @param svc
+     * @param formId
+     * @param poaId aMap {heId2: [poaId11, poaId12], heId2: [poaId21] }
+     * @param heId an Array of heIds, equivalent to poaIds = {heId: [], ...}
+     * @param init
+     * @returns {*}
+     */
+
+	promoteServiceInContact(ctc, user, ctcs, svc, formId, poaIds, heIds, init)  {
 		if (!ctc) {
 			return null;
 		}
@@ -195,32 +217,64 @@ class IccContactXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
 		if (!existing) {
 			(ctc.services || (ctc.services = [])).push(promoted);
 		}
+        const currentScs = ctc.subContacts.filter(csc => csc.services.indexOf(svc.id) >= 0);
 
-		let sc = ctc.subContacts.find(sc => (formId === undefined || sc.formId === formId) && sc.planOfActionId === poaId && sc.healthElementId === heId);
-		if (!sc) {
-			const pastCtc = svc.contactId && ctcs.find(c => c.id === svc.ctcId);
-			sc = pastCtc && pastCtc.subContacts.find(sc => (formId === undefined || sc.formId === formId) && sc.planOfActionId === poaId && sc.healthElementId === heId);
+		//Rearrange poaIds and heIds as a hierarchy
+		const hierarchyOfHeAndPoaIds = {}
+        ;(heIds || []).forEach(id => hierarchyOfHeAndPoaIds[id] = [])
+        Object.keys(poaIds || {}).forEach(k => {
+            const poas = hierarchyOfHeAndPoaIds[k]
+            if (poas) {
+                hierarchyOfHeAndPoaIds[k] = _.concat(poas, poaIds[k])
+            } else {
+                hierarchyOfHeAndPoaIds[k] = poaIds[k]
+            }
+        })
 
-			if (!sc) {
-				ctc.subContacts.push(sc = { formId: formId || null, planOfActionId: poaId, healthElementId: heId, services: [] });
-			}
-		}
-		const csc = ctc.subContacts.find(csc => csc.services.indexOf(svc.id) >= 0);
-		if (csc) {
-			if (csc !== sc) {
-				csc.splice(csc.services.indexOf(svc.id), 1);
-				sc.services.push({ serviceId: svc.id });
-			}
-		} else {
-			sc.services.push({ serviceId: svc.id });
-		}
+        const pastCtc = svc.contactId && svc.contactId !== ctc.id && ctcs.find(c => c.id === svc.contactId);
+        //Make sure that all scs the svc was belonging to are copied inside the current contact
+        pastCtc && pastCtc.subContacts.filter(psc => psc.services.some(s=>s.serviceId === svc.id)).forEach(psc => {
+            const sameInCurrent = currentScs.find(csc => csc.formId === psc.formId && csc.planOfActionId === psc.planOfActionId && csc.healthElementId === psc.healthElementId)
+            if (sameInCurrent) {
+                if (!sameInCurrent.services.some(s => s.serviceId === svc.id)) {
+                    sameInCurrent.services.push({serviceId: svc.id})
+                }
+            } else {
+                const newSubContact = _.assign(_.assign({}, psc), {services: [{serviceId: svc.id}]})
+                ctc.subContacts.push(newSubContact)
+				currentScs.push(newSubContact)
+            }
+        })
+
+        Object.keys(hierarchyOfHeAndPoaIds && hierarchyOfHeAndPoaIds.size ?  hierarchyOfHeAndPoaIds : {null:[]}).forEach( heId => {
+            const subPoaIds = hierarchyOfHeAndPoaIds[heId]
+            ;((subPoaIds || []).size ? subPoaIds : [null]).forEach(poaId => {
+                //Create or assign subcontacts for all pairs he/poa (can be null/null)
+                let sc = ctc.subContacts.find(sc => (formId === undefined || sc.formId === formId) && sc.planOfActionId === poaId && sc.healthElementId === heId);
+                if (!sc) {
+                    ctc.subContacts.push(sc = {formId: formId || null, planOfActionId: poaId, healthElementId: heId, services: []});
+                }
+
+                const currentSc = currentScs.find(aSc => sc === aSc) || currentScs.find(aSc =>
+                    (!aSc.planOfActionId || aSc.planOfActionId === sc.planOfActionId)
+                    && (!aSc.healthElementId || aSc.healthElementId === sc.healthElementId)
+                    && (!aSc.formId || aSc.formId === sc.formId)
+                ) // Find a compatible sc: one that does not contain extra and ≠ information than the destination
+
+                if (currentSc && (currentSc !== sc)) {
+                    currentSc.splice(currentSc.services.indexOf(svc.id), 1);
+                }
+				if (!sc.services.some(s => s.serviceId === svc.id)) { sc.services.push({serviceId: svc.id}) }
+            })
+        })
+
 
 		return init && init(svc) || svc;
 	}
 
 	isNumeric(svc, lng) {
 		const c = this.preferredContent(svc, lng);
-		return c && (c.measureValue || c.numberValue || c.numberValue == 0);
+		return c && (c.measureValue || c.numberValue || c.numberValue === 0);
 	}
 
 	service() {
