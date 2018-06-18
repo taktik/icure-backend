@@ -423,9 +423,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getReport(){
-                this.api.message().findMessagesByTransportGuid('REPORT:OUT:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => this.set('messages', messages || []));
+
             }
 
             getEInv(){
@@ -437,51 +436,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getReportIn(){
-                this.api.message().findMessagesByTransportGuid('REPORT:IN:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
             getEInvIn(){
-                this.api.message().findMessagesByTransportGuid('EFACT:IN:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
             getEheIn(){
-                this.api.message().findMessagesByTransportGuid('CHAP4IN:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
             }
 
             getProtIn(){
-                this.api.message().findMessagesByTransportGuid('BININBOX:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('BININBOX:*').then(messages => this.set('messages', messages || []));
             }
 
             getEheOut(){
-                this.api.message().findMessagesByTransportGuid('CHAP4OUT:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('CHAP4OUT:*').then(messages => this.set('messages', messages || []));
             }
 
             getProtOut(){
-                this.api.message().findMessagesByTransportGuid('BINSENTBOX:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('BINSENTBOX:*').then(messages => this.set('messages', messages || []));
             }
 
             getEFactBatch(){
-                this.api.message().findMessagesByTransportGuid('EFACT:BATCH:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('EFACT:BATCH:*').then(messages => this.set('messages', messages || []));
             }
 
             getGMD(){
-                this.api.message().findMessagesByTransportGuid('GMD:IN:*', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
-                }).then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
             }
 
             getEhealthMessages(){
@@ -494,6 +477,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }, [])
                     return this.sortByDates(msg);
                 }).then(messages => this.set('messages', messages || []));
+            }
+
+            findMessagesByTransportGUID(guid){
+                return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
+                    return this.sortByDates(messages.rows);
+                })
             }
 
             _refresh() {

@@ -28,7 +28,13 @@ export module XHR {
                     if (head.data.startsWith("application/json")) {
                         this.body = JSON.parse(jsXHR.response);
                     } else if (head.data.startsWith("application/octet-stream")) {
-                        this.body = jsXHR.response;//todo, somethings else
+                        try{
+                            this.body = JSON.parse(jsXHR.response);
+                            console.log("parse done")
+                        }catch(e){
+                            console.log("parse fail")
+                            this.body = jsXHR.response;//todo, somethings else
+                        }
                     } else {
                         this.body = jsXHR.response;//"text/plain"
                     }
