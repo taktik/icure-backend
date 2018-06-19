@@ -2013,7 +2013,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			}).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged());
 		} else if (this.editedHealthElementModel.he.idService) {
 			const svc = this.editedHealthElementModel.he.svc;
-			return this.api.helement().serviceToHealthElement(this.user, this.patient, svc, this.language).then(he => {
+			return this.api.helement().serviceToHealthElement(this.user, this.patient, svc,
+				this.api.contact().shortServiceDescription(svc, language)).then(he => {
 				if (this.currentContact) {
 					this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, [he.id], null);
 					this.saveCurrentContact().then(c => this.patientChanged());
