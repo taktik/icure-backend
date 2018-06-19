@@ -366,7 +366,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</paper-item>
 
 		<ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
-		<ht-app-first-login-dialog id="firstConnexionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" route="{{route}}"></ht-app-first-login-dialog>
+		<ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
 		<ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
 		<ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
@@ -643,8 +643,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
 				let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
 				if (fullHref !== window.location.href) { window.location.href = fullHref }
-				window.app = this
-				this.set('api', this.$.api)
+                window.app = this
+                this.set('api', this.$.api)
 			}
 
             _userChanged(e) {
@@ -677,7 +677,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				} else {
 					console.log("page is -> "+page)
 					if (!this.authenticated && (!page || !page.startsWith('auth'))) {
-						if (sessionStorage.getItem('auth')) {
+						if (sessionStorage.getItem('auth')||(this.route.__queryParams.token && this.route.__queryParams.userId)) {
 							this.loginAndRedirect(page)
 						} else {
 							this.set('routeData.page', 'auth/'+ (!page ? 'main' : page.startsWith('logout') ? 'main' : page));
@@ -699,20 +699,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			_viewChanged(view) {
+                if (view.startsWith('auth')) {
+                    this.$.loginDialog.opened = true
+                    return
+                }
+                if(this.lazyPages[view]){
+                    this.lazyPages[view]();
+                } else {
+                    this._showPage404();
+                }
 
-	            if(this.route.__queryParams.token && this.route.__queryParams.userId){
-	                this.$.firstConnexionDialog.opened = true;
-				}else{
-                    if (view.startsWith('auth')) {
-                       this.$.loginDialog.opened = true
-                        return
-                    }
-                    if(this.lazyPages[view]){
-                        this.lazyPages[view]();
-                    } else {
-                        this._showPage404();
-                    }
-				}
 			}
 
 			_showPage404() {
@@ -761,9 +757,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			loginAndRedirect(page) {
 				const sAuth = JSON.parse(sessionStorage.getItem('auth'))
-				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
-					this.set('credentials',sAuth) }
-				if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
+                if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
+					this.set('credentials',sAuth)
+				}
+
+                if(this.route.__queryParams.token && this.route.__queryParams.userId) {
+                    this.set('headers', _.assign(_.assign({}, this.headers),
+                        {Authorization:'Basic ' + btoa(this.route.__queryParams.userId + ':' + this.route.__queryParams.token)}))
+                } else if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
 				  {Authorization:'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)})) }
 				else if ((this.credentials.username && this.credentials.password)) { this.set('headers', _.assign(_.assign({}, this.headers),
 				  {Authorization:'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))})) }
@@ -818,8 +819,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								this._routePageChanged(destPage)
 							}
 						} else {
-							this.registerKeyPairDialogMessage = ""
-							this.$.registerKeyPairDialog.opened = true
+                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+
+                                if(hcp.publicKey){
+                                    this.registerKeyPairDialogMessage = ""
+                                    this.$.registerKeyPairDialog.opened = true
+                                }else{
+                                    this.$.firstConnectionDialog.opened = true
+                                }
+
+
+                            })
 						}
 					}
                     this._timeCheck()
@@ -879,9 +889,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         "name" 					: this.lastName+" "+this.firstName,
                         "email" 				: this.email,
                         "applicationTokens" 	: {"tmpFirstLogin" : this.api.crypto().randomUuid()},
-                        "status" 				: "ACTIVE"
+                        "status" 				: "ACTIVE",
+                        "type"                  : "database"
                     }).then(usr => {
-
                         this.invitedHcpLink = 'http://127.0.0.1:9000/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
                         //this.invitedHcpLink = 'https://backend.icure.cloud/tz/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
                         this.$['ht-invite-hcp-link'].open()

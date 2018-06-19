@@ -105,14 +105,14 @@ class IccCryptoXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
 							var keyUsages = ['decrypt', 'encrypt'];
 							return window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages);
 						} else {
-							return new Promise(function (resolve) {
+							return new Promise((resolve) => {
 								var extractable = true;
 								var keyUsages = ['decrypt', 'encrypt'];
-								window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages).then(function (k) {
+								window.crypto.subtle.generateKey(this.aesKeyGenParams, extractable, keyUsages).then((k) => {
 									return this.exportKey(k, 'raw');
 								}, function (err) {
 									console.log('Error in generateKey: ' + err);
-								}).then(function (rawK) {
+								}).then((rawK) => {
 									resolve(this.utils.ua2hex(rawK));
 								}, function (err) {
 									new Error(err);

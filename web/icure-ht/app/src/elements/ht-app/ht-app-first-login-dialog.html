@@ -37,6 +37,10 @@
             align-self:flex-end;
         }
 
+       .generateKeyBtn{
+            display: table;
+        }
+
         .flex{
             display:flex;
             flex-direction: column;
@@ -54,10 +58,10 @@
 
     </style>
 
-		<paper-dialog id="firstConnexionDialog" class="firstConnDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" modal>
-			<h3>[[localize('welcome_mess','Welcome to the Icure application',language)]]</h3>
-			<div>Token: [[token]]</div>
-			<div>User id: [[userId]]</div>
+		<paper-dialog id="firstConnectionDialog" class="firstConnDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" user="[[user]]" modal>
+			<h3>[[localize('welcome_mess','Welcome to the Icure application',language)]] [[user.name]]</h3>
+            <h4>[[localize('generate_key_mess','Click on the following button to generate your key',language)]]</h4>
+            <paper-button class="generateKeyBtn" on-tap="generateKey">[[localize('gen','Generate',language)]]</paper-button>
 		</paper-dialog>
 
 </template>
@@ -78,8 +82,7 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             opened: {
 				type: Boolean,
 				value: false,
-				notify: true,
-                observer: '_displayInfoFirstConnexion'
+				notify: true
 			},
 			token: {
 			    type: String
@@ -97,32 +100,67 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 		};
 	}
 
+	static get observers() {
+        return ['_displayInfoFirstLogin(api, opened)']
+    }
+
 	constructor() {
 		super();
 	}
 
 
-    _displayInfoFirstConnexion(e){
-        if(this.$.firstConnexionDialog.opened === true) {
-			this.set('token', this.$.firstConnexionDialog.route.__queryParams.token)
-            this.set('userId', this.$.firstConnexionDialog.route.__queryParams.userId)
-
-            this.$.api.user().getUser(userId).then(u =>{
-                this.set('user', u)
-                this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-                    const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
-                    language && this.set('language', language)
-                })
-            })
+    _displayInfoFirstConnection(e) {
+        if (this.api) {
+            if (this.$.firstConnectionDialog.opened === true) {
+                this.set('token', this.$.route.__queryParams.token)
+                this.set('userId', this.$.route.__queryParams.userId)
+            }
         }
-	}
+    }
 
-	ready(){
-        super.ready();
-
-	}
+    generateKey(){
 
 
+       this.api.crypto().RSA.generateKeyPair().then(keyPair => {
+           console.log(keyPair)
+           this.api.crypto().AES.generateCryptoKey(true).then(AESKey => {
+               return this.api.crypto().RSA.encrypt(keyPair.publicKey, this.api.crypto().utils.hex2ua(AESKey))
+           }).then(encryptedAESKey => {
+
+               this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{
+
+                   this.api.crypto().RSA.exportKeys(keyPair, 'jwk', 'jwk').then(exportedKeyPair => {
+                           this.api.crypto().RSA.storeKeyPair(this.user.healthcarePartyId, exportedKeyPair)
+                   })
+
+
+                   this.api.crypto().RSA.exportKeys(keyPair, 'pkcs8', 'spki').then(exportedKeyPair => {
+                       const healthcarePartyId = this.user.healthcarePartyId
+
+                       hcp.publicKey = this.api.crypto().utils.ua2hex(exportedKeyPair.publicKey)
+                        hcp.hcPartyKeys[healthcarePartyId] = [this.api.crypto().utils.ua2hex(encryptedAESKey), this.api.crypto().utils.ua2hex(encryptedAESKey)]
+
+
+                       this.api.hcparty().modifyHealthcareParty(hcp).then(h =>{
+
+                           var file = new Blob([exportedKeyPair.privateKey] ,{type: "application/octet-stream"})
+                           var a = document.createElement("a");
+                           document.body.appendChild(a);
+                           a.style = "display: none";
+
+                           var url = window.URL.createObjectURL(file);
+                           a.href = url;
+                           a.download = this.user.healthcarePartyId+".2048.key";
+                           a.click();
+                           window.URL.revokeObjectURL(url);
+
+                       });
+                   })
+               })
+           })
+       })
+
+    }
 }
 
 customElements.define(HtAppFirstLoginDialog.is, HtAppFirstLoginDialog);

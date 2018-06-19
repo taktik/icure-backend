@@ -164,7 +164,9 @@
     "welcome_mess" : "Welcome to the Icure application",
     "e_inv":"E-Invoicing",
     "ehe_mes":"Ehealth Messages",
-    "rep":"Report"
+    "rep":"Report",
+    "gen" : "Generate",
+    "generate_key_mess" : "Click on the following button to generate your keys"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -321,7 +323,9 @@
     "inami" : "INAMI",
     "ssin" : "NISS",
     "first_con" : "Première connexion",
-    "welcome_mess" : "Bienvenue dans l'application Icure"
+    "welcome_mess" : "Bienvenue dans l'application Icure",
+    "gen" : "Générer",
+    "generate_key_mess" : "Cliquez sur le bouton suivant pour générer vos clés"
   },
   "nl": {
     "eng":"English",
@@ -471,6 +475,8 @@
     "inami" : "RIZIV",
     "ssin" : "INSZ",
     "first_con" : "Eerste connectie",
-    "welcome_mess" : "Welkom bij de Icure applicatie"
+    "welcome_mess" : "Welkom bij de Icure applicatie",
+    "gen" : "Generate",
+    "generate_key_mess" : "Click on the following button to generate your keys"
   }
 }
