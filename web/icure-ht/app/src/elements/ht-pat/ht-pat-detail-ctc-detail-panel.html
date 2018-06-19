@@ -1039,9 +1039,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			});
 		}.bind(this);
 
-		climbFormHierarchy(_.uniq(_.flatten(formGroups.map(fg => fg.forms.filter(f => f.id).map(f => f.id)))), {}).then(() => {
+		climbFormHierarchy(_.chain(formGroups).map(fg => fg.forms.filter(f => f.id).map(f => f.id)).flatten().uniq().value(), {}).then(() => {
 			formGroups.forEach(fg => {
-				fg.forms = fg.forms.reduce((acc, form) => {
+				fg.forms = _.chain(fg.forms.reduce((acc, form) => {
 					const slot = acc.find(f => f.id === form.id);
 					if (slot) {
 						_.concat(slot.docs, form.docs);
@@ -1049,7 +1049,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 						acc.push(form);
 					}
 					return acc;
-				}, []);
+				}, [])).sortBy(f=>-f.created).value()
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 		});

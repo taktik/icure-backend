@@ -71,15 +71,16 @@ class IccCodeXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
     }
 
     icpcChapters(listOfCodes) {
-        return Promise.resolve(_.sortBy(_.values(_.reduce(_.fromPairs(listOfCodes.map(code => [code, _.toPairs(this.icpc2).find(([k, v]) => k === code.substr(0,1).toUpperCase())])),
+        const chapters = _.reduce(_.fromPairs(listOfCodes.map(code => [code, _.toPairs(this.icpc2).find(([k, v]) => k === code.substr(0,1).toUpperCase())])),
             (acc, pairOfRangeAndIcdInfo, code) => {
                 if (!pairOfRangeAndIcdInfo) {
-                    return {};
+                    return acc;
                 }
                 const shortKey = pairOfRangeAndIcdInfo[0]
                 ;(acc[shortKey] || (acc[shortKey] = { code: shortKey, descr: pairOfRangeAndIcdInfo[1], subCodes: [] })).subCodes.push(code);
                 return acc;
-        }, {})), c => c.shortKey));
+        }, {})
+        return Promise.resolve(_.sortBy(_.values(chapters), c => c.shortKey));
     }
 
     languageForType(type, lng) {

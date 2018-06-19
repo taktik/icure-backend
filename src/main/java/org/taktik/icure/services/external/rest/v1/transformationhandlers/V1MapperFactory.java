@@ -33,6 +33,7 @@ import com.google.gson.Gson;
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.converter.ConverterFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
@@ -132,90 +133,90 @@ public class V1MapperFactory {
 		ConverterFactory converterFactory = factory.getConverterFactory();
 		converterFactory.registerConverter(new CustomConverter<LocalDate, Long>() {
 			@Override
-			public Long convert(LocalDate source, Type<? extends Long> destinationType) {
+			public Long convert(LocalDate source, Type<? extends Long> destinationType, MappingContext mappingContext) {
 				return source.toDate().getTime();
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<Instant, Long>() {
 			@Override
-			public Long convert(Instant source, Type<? extends Long> destinationType) {
+			public Long convert(Instant source, Type<? extends Long> destinationType, MappingContext mappingContext) {
 				return source.toEpochMilli();
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<Long, Instant>() {
 			@Override
-			public Instant convert(Long source, Type<? extends Instant> destinationType) {
+			public Instant convert(Long source, Type<? extends Instant> destinationType, MappingContext mappingContext) {
 				return Instant.ofEpochMilli(source);
 			}
 		});
 
         converterFactory.registerConverter(new CustomConverter<Instant, Instant>() {
 			@Override
-			public Instant convert(Instant source, Type<? extends Instant> destinationType) {
+			public Instant convert(Instant source, Type<? extends Instant> destinationType, MappingContext mappingContext) {
 				return Instant.ofEpochSecond(source.getEpochSecond(), source.getNano());
 			}
 		});
 		converterFactory.registerConverter(new CustomConverter<org.w3._2005._05.xmlmime.Base64Binary, String>() {
 			@Override
-			public String convert(Base64Binary base64Binary, Type<? extends String> type) {
+			public String convert(Base64Binary base64Binary, Type<? extends String> destinationType, MappingContext mappingContext)  {
 				return Base64.getEncoder().encodeToString(base64Binary.getValue());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<DateTime,Instant>() {
 			@Override
-			public Instant convert(DateTime source, Type<? extends Instant> destinationType) {
+			public Instant convert(DateTime source, Type<? extends Instant> destinationType, MappingContext mappingContext) {
 				return Instant.ofEpochMilli(source.getMillis());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<DateTime,Long>() {
 			@Override
-			public Long convert(DateTime source, Type<? extends Long> destinationType) {
+			public Long convert(DateTime source, Type<? extends Long> destinationType, MappingContext mappingContext) {
 				return source.getMillis();
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<IDPATIENT,KmehrId>() {
 			@Override
-			public KmehrId convert(IDPATIENT source, Type<? extends KmehrId> destinationType) {
+			public KmehrId convert(IDPATIENT source, Type<? extends KmehrId> destinationType, MappingContext mappingContext) {
 				return new KmehrId(source.getS().value(),source.getSL(),source.getSV(),source.getValue());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<CDCONSENT,KmehrCd>() {
 			@Override
-			public KmehrCd convert(CDCONSENT source, Type<? extends KmehrCd> destinationType) {
+			public KmehrCd convert(CDCONSENT source, Type<? extends KmehrCd> destinationType, MappingContext mappingContext) {
 				return new KmehrCd(source.getS().value(),source.getSL(),source.getSV(),source.getValue().value());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<IDHCPARTY,KmehrId>() {
 			@Override
-			public KmehrId convert(IDHCPARTY source, Type<? extends KmehrId> destinationType) {
+			public KmehrId convert(IDHCPARTY source, Type<? extends KmehrId> destinationType, MappingContext mappingContext) {
 				return new KmehrId(source.getS().value(),source.getSL(),source.getSV(),source.getValue());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<IDKMEHR,KmehrId>() {
 			@Override
-			public KmehrId convert(IDKMEHR source, Type<? extends KmehrId> destinationType) {
+			public KmehrId convert(IDKMEHR source, Type<? extends KmehrId> destinationType, MappingContext mappingContext) {
 				return new KmehrId(source.getS().value(),source.getSL(),source.getSV(),source.getValue());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<CDHCPARTY,KmehrCd>() {
 			@Override
-			public KmehrCd convert(CDHCPARTY source, Type<? extends KmehrCd> destinationType) {
+			public KmehrCd convert(CDHCPARTY source, Type<? extends KmehrCd> destinationType, MappingContext mappingContext) {
 				return new KmehrCd(source.getS().value(),source.getSL(),source.getSV(),source.getValue());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<KmehrId, IDPATIENT>() {
 			@Override
-			public IDPATIENT convert(KmehrId source, Type<? extends IDPATIENT> destinationType) {
+			public IDPATIENT convert(KmehrId source, Type<? extends IDPATIENT> destinationType, MappingContext mappingContext) {
 				IDPATIENT idpatient = new IDPATIENT();
 
 				idpatient.setS(IDPATIENTschemes.fromValue(source.getS()));
@@ -229,7 +230,7 @@ public class V1MapperFactory {
 
 		converterFactory.registerConverter(new CustomConverter<KmehrCd, CDCONSENT>() {
 			@Override
-			public CDCONSENT convert(KmehrCd source, Type<? extends CDCONSENT> destinationType) {
+			public CDCONSENT convert(KmehrCd source, Type<? extends CDCONSENT> destinationType, MappingContext mappingContext) {
 				CDCONSENT cdconsent = new CDCONSENT();
 
 				cdconsent.setS(CDCONSENTschemes.fromValue(source.getS()));
@@ -243,7 +244,7 @@ public class V1MapperFactory {
 
 		converterFactory.registerConverter(new CustomConverter<KmehrId, IDHCPARTY>() {
 			@Override
-			public IDHCPARTY convert(KmehrId source, Type<? extends IDHCPARTY> destinationType) {
+			public IDHCPARTY convert(KmehrId source, Type<? extends IDHCPARTY> destinationType, MappingContext mappingContext) {
 				IDHCPARTY idpatient = new IDHCPARTY();
 
 				idpatient.setS(IDHCPARTYschemes.fromValue(source.getS()));
@@ -257,7 +258,7 @@ public class V1MapperFactory {
 
 		converterFactory.registerConverter(new CustomConverter<KmehrCd, CDHCPARTY>() {
 			@Override
-			public CDHCPARTY convert(KmehrCd source, Type<? extends CDHCPARTY> destinationType) {
+			public CDHCPARTY convert(KmehrCd source, Type<? extends CDHCPARTY> destinationType, MappingContext mappingContext) {
 				CDHCPARTY cdconsent = new CDHCPARTY();
 
 				cdconsent.setS(CDHCPARTYschemes.fromValue(source.getS()));
@@ -271,21 +272,21 @@ public class V1MapperFactory {
 
 		converterFactory.registerConverter(new CustomConverter<PaginatedDocumentKeyIdPair,org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair>() {
 			@Override
-			public org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair convert(PaginatedDocumentKeyIdPair source, Type<? extends org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair> destinationType) {
+			public org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair convert(PaginatedDocumentKeyIdPair source, Type<? extends org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair> destinationType, MappingContext mappingContext) {
 				return new org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair<>(source.getStartKey(),source.getStartKeyDocId());
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<FormLayout,byte[]>() {
 			@Override
-			public byte[] convert(FormLayout source, Type<? extends byte[]> destinationType) {
+			public byte[] convert(FormLayout source, Type<? extends byte[]> destinationType, MappingContext mappingContext) {
 				return gsonMapper.toJson(source).getBytes(Charsets.UTF_8);
 			}
 		});
 
 		converterFactory.registerConverter(new CustomConverter<byte[], FormLayout>() {
 			@Override
-			public FormLayout convert(byte[] source, Type<? extends FormLayout> destinationType) {
+			public FormLayout convert(byte[] source, Type<? extends FormLayout> destinationType, MappingContext mappingContext) {
 				try {
 					return gsonMapper.fromJson(new String(source, Charsets.UTF_8), FormLayout.class);
 				} catch (Exception e) {
@@ -297,7 +298,7 @@ public class V1MapperFactory {
 
 		converterFactory.registerConverter(new CustomConverter<CodeDto,Code>() {
 			@Override
-			public Code convert(CodeDto source, Type<? extends Code> destinationType) {
+			public Code convert(CodeDto source, Type<? extends Code> destinationType, MappingContext mappingContext) {
 				String defVersion =  Code.versionsMap.get(source.getType());
 				Code c = new Code(source.getType(), source.getCode(), source.getVersion() != null ? source.getVersion() : defVersion != null ? defVersion : "1");
 

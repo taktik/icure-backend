@@ -161,7 +161,10 @@
     "inami" : "NIHII",
     "ssin" : "SSIN",
     "first_con" : "First connexion",
-    "welcome_mess" : "Welcome to the Icure application"
+    "welcome_mess" : "Welcome to the Icure application",
+    "e_inv":"E-Invoicing",
+    "ehe_mes":"Ehealth Messages",
+    "rep":"Report"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
