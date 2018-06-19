@@ -320,6 +320,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					background: #5a6d75;
 				}
 
+				#sharePatientOption {
+					height: 54px;
+					width: 100%;
+					background-color: #fafafa;
+					position: absolute;
+					z-index: 2;
+					display: none;
+				}
+
 			</style>
 		</custom-style>
 
@@ -344,6 +353,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 
 			<div class="second-filter-panel">
+
+				<div id="sharePatientOption" >
+						[[patientSelected]] patient selected <iron-icon icon="icons:check"></iron-icon>
+				</div>
+
 				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
 				<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 					<vaadin-grid-column width="32px">
@@ -431,6 +445,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-button dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+
 
 	</template>
 

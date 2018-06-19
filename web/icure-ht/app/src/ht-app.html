@@ -59,6 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-import-keychain.html">
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
+<link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 
@@ -328,6 +329,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					display: block;
 				}
 			}
+
+			.inviteHcpInput{
+				width: 400px;
+			}
+
+			.formNewHcp{
+				height:	350px;
+				width: 450px;
+			}
+
+			.buttons{
+				height: 30px;
+			}
+
+			.top-gradient{
+				line-height:0;
+				font-size:0;
+				display:block;
+				background: linear-gradient(90deg, var(--app-secondary-color-dark), var(--app-secondary-color));
+				height:10px;
+				position:relative;
+				top:0;
+				left:0;
+				right:0;
+				margin:0;
+				border-radius:2px 2px 0 0;
+			}
+
 		</style>
 
 		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
@@ -337,15 +366,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</paper-item>
 
 		<ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
+		<ht-app-first-login-dialog id="firstConnexionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]" route="{{route}}"></ht-app-first-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
 		<ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
 		<ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
 		<ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" on-user-changed="_userChanged"></ht-my-profile>
 
 
-		<app-location route="{{route}}" use-hash-as-path="true"></app-location>
+		<app-location route="{{route}}"  query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
 		<app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
 		<app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
+
+
 
 		<app-drawer-layout fullbleed>
 			<!-- Main content -->
@@ -460,6 +492,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
 
 								</paper-listbox>
@@ -481,6 +514,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</iron-pages>
 			</app-header-layout>
 		</app-drawer-layout>
+
+		<paper-dialog id="ht-invite-hcp">
+			<h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+			<div id="" class="formNewHcp">
+				<paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('inami','NIHII',language)]]" value="{{nihii}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('ssin','SSIN',language)]]" value="{{ssin}}"></paper-input>
+			</div>
+
+			<div class="buttons">
+				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirmUserInvitation">[[localize('invite','Invite',language)]]</paper-button>
+			</div>
+		</paper-dialog>
+		<paper-dialog id="ht-invite-hcp-link">
+			<h3>Lien de première connexion</h3>
+			<h4>[[invitedHcpLink]]</h4>
+		</paper-dialog>
+
 	</template>
 
 	<script>
@@ -568,6 +622,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					value() {
 						return require('./elements/language/language.json')
 					}
+				},
+				invitedHcpLink:{
+				    type : String,
+					value : ""
 				}
 			}}
 
@@ -641,14 +699,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			_viewChanged(view) {
-				if (view.startsWith('auth')) {
-					this.$.loginDialog.opened = true
-					return
-				}
-				if(this.lazyPages[view]){
-					this.lazyPages[view]();
-				} else {
-					this._showPage404();
+
+	            if(this.route.__queryParams.token && this.route.__queryParams.userId){
+	                this.$.firstConnexionDialog.opened = true;
+				}else{
+                    if (view.startsWith('auth')) {
+                       this.$.loginDialog.opened = true
+                        return
+                    }
+                    if(this.lazyPages[view]){
+                        this.lazyPages[view]();
+                    } else {
+                        this._showPage404();
+                    }
 				}
 			}
 
@@ -667,6 +730,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			_importKeychain() {
 				this.$['ht-import-keychain'].open()
+			}
+
+            _inviteHCP(){
+	            this.$['ht-invite-hcp'].open()
 			}
 
 			_myProfile() {
@@ -796,6 +863,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			togglePanel(e) {
 			}
+
+            confirmUserInvitation(){
+
+
+                this.api.hcparty().createHealthcareParty({
+                    "name" 			: this.lastName+" "+this.firstName,
+                    "lastName" 		: this.lastName,
+                    "firstName" 	: this.firstName,
+                    "nihii" 		: this.nihii,
+                    "ssin"			: this.ssin
+                }).then(hcp => {
+                    this.api.user().createUser({
+                        "healthcarePartyId" 	: hcp.id,
+                        "name" 					: this.lastName+" "+this.firstName,
+                        "email" 				: this.email,
+                        "applicationTokens" 	: {"tmpFirstLogin" : this.api.crypto().randomUuid()},
+                        "status" 				: "ACTIVE"
+                    }).then(usr => {
+
+                        this.invitedHcpLink = 'http://127.0.0.1:9000/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        //this.invitedHcpLink = 'https://backend.icure.cloud/tz/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        this.$['ht-invite-hcp-link'].open()
+					})
+				})
+			}
+
 		}
 
         customElements.define(HtApp.is, HtApp);

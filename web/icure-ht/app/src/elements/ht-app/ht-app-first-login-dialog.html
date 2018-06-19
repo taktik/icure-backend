@@ -1,0 +1,132 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="ht-app-first-login-dialog">
+
+<template>
+    <style>
+        paper-dialog{
+            border-radius:2px;
+        }
+        .top-gradient{
+            line-height:0;
+            font-size:0;
+            display:block;
+            background: linear-gradient(90deg, var(--app-secondary-color-dark), var(--app-secondary-color));
+            height:10px;
+            position:relative;
+            top:0;
+            left:0;
+            right:0;
+            margin:0;
+            border-radius:2px 2px 0 0;
+        }
+        paper-input{
+            --paper-input-container-focus-color: var(--app-secondary-color-dark);
+            --paper-input-container-invalid-color: var(--app-error-color);
+        }
+        paper-button{
+            margin:2em auto 0 auto;
+            color:var(--app-text-color-light);
+            background:var(--app-secondary-color);
+            --paper-button-ink-color: var(--app-secondary-color-dark);
+            @apply --shadow-elevation-2dp;
+            align-self:flex-end;
+        }
+
+        .flex{
+            display:flex;
+            flex-direction: column;
+            justify-content: center!important;
+        }
+
+        .message.error{
+            color: var(--app-error-color);
+        }
+
+		.firstConnDialog{
+			height: 200px;
+			width: 400px;
+		}
+
+    </style>
+
+		<paper-dialog id="firstConnexionDialog" class="firstConnDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" modal>
+			<h3>[[localize('welcome_mess','Welcome to the Icure application',language)]]</h3>
+			<div>Token: [[token]]</div>
+			<div>User id: [[userId]]</div>
+		</paper-dialog>
+
+</template>
+
+<script>
+
+//noinspection JSUnusedGlobalSymbols
+class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+    static get is() {
+		return "ht-app-first-login-dialog";
+	}
+
+	static get properties() {
+		return {
+			credentials: {
+				type: Object
+			},
+            opened: {
+				type: Boolean,
+				value: false,
+				notify: true,
+                observer: '_displayInfoFirstConnexion'
+			},
+			token: {
+			    type: String
+			},
+			userId:{
+			    type: String
+			},
+            user: {
+                type: Object,
+                value: null
+            },
+			api: {
+                type: Object
+            }
+		};
+	}
+
+	constructor() {
+		super();
+	}
+
+
+    _displayInfoFirstConnexion(e){
+        if(this.$.firstConnexionDialog.opened === true) {
+			this.set('token', this.$.firstConnexionDialog.route.__queryParams.token)
+            this.set('userId', this.$.firstConnexionDialog.route.__queryParams.userId)
+
+            this.$.api.user().getUser(userId).then(u =>{
+                this.set('user', u)
+                this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+                    const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
+                    language && this.set('language', language)
+                })
+            })
+        }
+	}
+
+	ready(){
+        super.ready();
+
+	}
+
+
+}
+
+customElements.define(HtAppFirstLoginDialog.is, HtAppFirstLoginDialog);
+
+</script>
+
+</dom-module>

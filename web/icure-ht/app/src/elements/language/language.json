@@ -154,7 +154,14 @@
     "no_ehe_con":"No Ehealth connection",
     "msg":"Messages",
     "sen_to":"Send To",
-    "prot":"Protocol"
+    "prot":"Protocol",
+    "invoice" : "Invoice",
+    "inviteHCP" : "Invite a colleague",
+    "invite" : "Invite",
+    "inami" : "NIHII",
+    "ssin" : "SSIN",
+    "first_con" : "First connexion",
+    "welcome_mess" : "Welcome to the Icure application"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -304,7 +311,14 @@
     "pl_of_ac":"Planification d'action",
     "sea_for_hea_ele":"Rechercher élément de soins",
     "mod":"modifié",
-    "msg":"Messages"
+    "msg":"Messages",
+    "invoice" : "Facturer",
+    "inviteHCP" : "Inviter un collègue",
+    "invite" : "Inviter",
+    "inami" : "INAMI",
+    "ssin" : "NISS",
+    "first_con" : "Première connexion",
+    "welcome_mess" : "Bienvenue dans l'application Icure"
   },
   "nl": {
     "eng":"English",
@@ -447,6 +461,13 @@
     "m>s": "m>Spam",
     "rec": "Recipient",
     "sub": "Subject",
-    "sen": "Sender"
+    "sen": "Sender",
+    "invoice" : "Factureren",
+    "inviteHCP" : "Invite a colleague",
+    "invite" : "Invite",
+    "inami" : "RIZIV",
+    "ssin" : "INSZ",
+    "first_con" : "Eerste connectie",
+    "welcome_mess" : "Welkom bij de Icure applicatie"
   }
 }

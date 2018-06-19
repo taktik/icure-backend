@@ -340,6 +340,7 @@
 				flex-flow: row nowrap;
 			}
 
+
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -389,7 +390,12 @@
                 </template>
 			</div>
 			<div class="floating-action-bar">
-				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe',language)]]</paper-button></div>
+				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError">
+						<paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">
+								<iron-icon icon="vaadin:pills" ></iron-icon>
+								[[localize('pre','Prescribe',language)]]
+						</paper-button>
+				</div>
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
 						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
@@ -463,6 +469,7 @@
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
