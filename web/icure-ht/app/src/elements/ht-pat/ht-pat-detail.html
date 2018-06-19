@@ -1064,7 +1064,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<div class="second-panel">
 					<div><filter-panel id="contactFilterPanel" items="[[secondPanelItems]]" search-string="{{contactSearchString}}" selected-filters="{{contactFilters}}" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></filter-panel></div>
 					<div class="contacts-container" on-scroll="openToast">
-						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-items="{{selectedContactItems}}">
+						<paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
 							<template is="dom-if" if="[[events.length]]">
 								<span class="contact-year" on-click="openToast">[[localize('to_do','To Do',language)]]</span>
 								<paper-listbox id="_events_listbox" class="todo-list">
@@ -1089,7 +1089,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-material id="ctc_[[contact.id]]"
 													elevation="0"
 													class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
-													contact="[[contact]]"
 													on-click="openToast">
 										<paper-item class="contact-text">
 											<div class="contact-text-row contact-text-date">
@@ -1295,7 +1294,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Boolean,
 				value: false
 			},
-			selectedContactItems: {
+			selectedContactIds: {
 				type: Array,
 				value: function () {
 					return [];
@@ -1322,18 +1321,19 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['patientOpened(patient.id,api,user)', 'patientChanged(api,user,patient)', 'selectedMainElementsSpliced(selectedMainElements.splices)', 'selectedContactItemsChanged(selectedContactItems.*)'];
+		return ['patientOpened(patient.id,api,user)', 'patientChanged(api,user,patient)', 'selectedMainElementsSpliced(selectedMainElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
 	}
 
 	constructor() {
 		super();
 	}
 
-	selectedContactItemsChanged() {
+	selectedContactIdsChanged() {
 		const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
 		ctcDetailPanel && ctcDetailPanel.flushSave();
 
-		this.set('selectedContacts', this.selectedContactItems.map(i => i.contact));
+		const allContacts = _.concat(this.currentContact ? [this.currentContact] : [], this.contacts)
+		this.set('selectedContacts', this.selectedContactIds.map(i => allContacts.find(c => c && c.id === i.substr(4) /* skip ctc_ */)))
 	}
 
 	_shortId(id) {
@@ -1514,6 +1514,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	patientChanged(api, user, patient, forceCreate = true) {
 		if (this.api && this.user && this.patient) {
 			const patient = this.patient;
+			const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id=>id && id.substr(4) /* format is ctc_... see DOM */);
 			Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient), this.api.helement().findBy(this.user.healthcarePartyId, patient)]).then(([ctcs, hes]) => {
 				const descrPattern = this.user.properties.find(p => p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}";
 				const sorter = x => [-x.valueDate || -x.openingDate, -x.closingDate];
@@ -1591,11 +1592,20 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							x.contacts = _.sortBy(x.contacts, sorter);return x;
 						}), x => -x.year));
 						this.filterEvents();
-					});
+
+						if (currentlySelectedContactsIds.some(cId => !ctcs.some(c=>c.id === cId))) {
+                            this.set('selectedContactIds',_.compact(ctcs.filter(c=>currentlySelectedContactsIds.includes(c.id)).map(c=>`ctc_${c.id}`)))
+						}
+						setTimeout(() =>
+                        this.selectedContactIds.forEach(cDomId => {
+                            const pm = this.root.querySelector(`#${cDomId}`)
+							pm.setAttribute("aria-selected","true")
+                            pm.classList.add('iron-selected')
+                        }), 0)
+                    });
 				});
 
 				this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && c.code === 'medication')).then(medications => this.set('medications', _.sortBy(medications, sorter)));
-
 				this._updateFilterPanels();
 			});
 
@@ -2036,7 +2046,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const svc = this.editedHealthElementModel.he.svc;
 			return this.api.helement().serviceToHealthElement(this.user, this.patient, svc, this.language).then(he => {
 				if (this.currentContact) {
-					this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, he.id, null);
+					this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, [he.id], null);
 					this.saveCurrentContact().then(c => this.patientChanged());
 				}
 

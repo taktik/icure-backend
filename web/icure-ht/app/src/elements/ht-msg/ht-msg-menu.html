@@ -395,23 +395,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<collapse-button>
 				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:inbox"></iron-icon>[[localize('inb','Inbox',language)]] <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
+					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
 				</paper-item>
-				<paper-listbox class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
-						<paper-item>[[localize('ehe','Ehealth',language)]]</paper-item>
-						<paper-item>[[localize('prot','Protocol',language)]]</paper-item>
+				<paper-listbox class="menu-content sublist" multi toggle-shift>
+						<paper-item on-tap="_ehe">[[localize('ehe','Ehealth',language)]]</paper-item>
+						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
 						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
+						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
+						<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
 				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:send"></iron-icon>[[localize('sen_mes','Send Messages',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
+					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
 				</paper-item>
-				<paper-listbox class="menu-content sublist" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
-						<paper-item>[[localize('ehe','Report',language)]]</paper-item>
-						<paper-item>[[localize('prot','Ehealth Messages',language)]]</paper-item>
-						<paper-item on-tap="_labRes">[[localize('lab_res','Invoicing',language)]]</paper-item>
+				<paper-listbox class="menu-content sublist" multi toggle-shift>
+						<paper-item on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
+						<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
+						<paper-item on-tap="_ehealthMessages">[[localize('ehe_mes','Ehealth Messages',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
 			<paper-item class="trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
@@ -519,6 +521,56 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
     _labRes(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
     }
+    _report(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
+    }
+
+    _e_inv(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut' } } }));
+    }
+
+    _reportIn(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportIn' } } }));
+    }
+
+    _e_invIn(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invIn' } } }));
+    }
+
+    _ehealthMessages(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'ehealthMessages' } } }));
+    }
+    _ehe(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheIn' } } }));
+    }
+
+    _prot(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protIn' } } }));
+    }
+
+    _unread(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'unread' } } }));
+    }
+
+    _submit(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'submit' } } }));
+    }
+
+    _eheOut(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheOut' } } }));
+    }
+
+    _protOut(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protOut' } } }));
+    }
+
+    _EFactBatch(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'EFactBatch' } } }));
+    }
+
+    _GMD(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'GMD' } } }));
+    }
 
 
 	selectedContactItemsChanged() {
@@ -590,6 +642,18 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 	_concat(a, b) {
 		return (a || []).concat(b || []);
 	}
+
+    selectedMainElementItemsChanged(event) {
+        const domRepeat = event.target.querySelector("dom-repeat");
+        const selectedModels = event.target.selectedItems.map(el => domRepeat.modelForElement(el).he);
+
+        if (!domRepeat || !selectedModels) {
+            return;
+        }
+        const allModels = domRepeat.items || [];
+
+        this.set('selectedMainElements', this.selectedMainElements.filter(he => !allModels.includes(he)).concat(selectedModels));
+    }
 
 }
 
