@@ -1180,11 +1180,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<paper-dialog id="consentDialog">
 			<h2 class="modal-title">[[localize('cons_req','Patient informed consent',language)]]</h2>
 			<div id="legaltext"></div>
-			<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eIDCardNo}}"></paper-input>
-			<paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNo}}"></paper-input>
-			<paper-button on-tab="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>
+			<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
+			<paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
+			<!--<paper-button on-tap="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>-->
 			<div class="buttons">
-				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('clo','Close',language)]]</paper-button>
+				<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
+				<paper-button on-tap="_registerConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
@@ -1223,6 +1225,18 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: function () {
 					return {};
 				}
+			},
+			patientConsent:{
+			    type: Object,
+				value: function(){
+			        return{};
+				}
+			},
+			eidCardNumber:{
+			    type: String
+			},
+			isiCardNumber:{
+			    type: String
 			},
 			selectedAdminFile: {
 				type: Object,
@@ -1360,18 +1374,68 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _getConsent(){
         if (this.patient.ssin && this.api.tokenId) {
-            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all(
-                this.api.fhc().Consentcontroller().getPatientConsentUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-					hcp.Nihii, hcp.Ssin, hcp.FirstName, hcp.LastName,
-					this.patient.Niss, this.patient.FirstName, this.patient.LastName)
-				).then(consentResp => {
-					alert(consenResp)
-				}
-
-			)
-			)
+            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                .then(hcp =>
+                    this.api.fhc().Consentcontroller().getPatientConsentUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                        this.patient.ssin, this.patient.firstName, this.patient.lastName)
+                ).then(consentResp => {
+                        if (consentResp.consent) {
+                            return consentResp.consent;
+                        } else {
+                            return null;
+                        }
+                    }
+                )
+        } else {
+            return Promise.resolve(null)
         }
-	}
+    }
+
+    _revokeConsent(){
+        if (this.patient.ssin && this.api.tokenId) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+				    this._getConsent().then(patientConsent => {
+						if(patientConsent){
+                    	this.api.fhc().Consentcontroller().revokePatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                        	hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+							patientConsent, this.eidCardNumber, this.isiCardNumber)
+                        }
+                        else {
+				        	return Promise.resolve(null)
+						}
+                    }
+                ).then(consentResp => {
+                    this.showPatientConsentState()
+                    return consentResp
+                }
+			)
+			)
+        }else{
+            return Promise.resolve(null)
+		}
+    }
+
+    _registerConsent(){
+        if (this.patient.ssin && this.api.tokenId) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all([
+                    this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                        this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)]
+                ).then(consentResp => {
+                    if(consentResp[0].consent) {
+                        this.showPatientConsentState()
+                        this.patientConsent = consentResp[0].consent;
+                    }
+                    else{
+                        this.patientConsent = null;
+                    }
+                }
+
+                )
+            )
+        }
+    }
 
 	clearEvent(el) {
 		const svcId = el.target.parentElement.parentElement.id.substr(5);
@@ -1640,9 +1704,27 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							}
 						});
 					}
+                    this.showPatientConsentState()
 				}));
+
 			}
 		}
+	}
+
+	showPatientConsentState(){
+        this._getConsent().then(patientConsent => {
+                var consentOk = false;
+                this.$.consentStatus.classList.remove('noConsent');
+                this.$.consentStatus.classList.remove('consentOk');
+
+                if(patientConsent) {
+                    consentOk = !patientConsent.error;
+                    //consentOk = !patientConsent.revokeDate;
+                }
+                this.$.consentStatus.classList.add(consentOk ? 'consentOk' : 'noConsent');
+                Polymer.updateStyles(this.$.consentStatus)
+            }
+        )
 	}
 
 	unselectAdminFile() {
