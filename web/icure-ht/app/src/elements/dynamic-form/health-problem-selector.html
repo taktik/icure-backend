@@ -125,7 +125,8 @@
             <div class="flex">
                 <paper-item class="label">[[localize('sta','Status',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_status(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_statusChanged">
-                    <paper-radio-button name="active">[[localize('act','Active',language)]]</paper-radio-button>
+                    <paper-radio-button name="active-relevant">[[localize('act_rel','Active relevant',language)]]</paper-radio-button>
+                    <paper-radio-button name="active-irrelevant">[[localize('act_irr','Active irrelevant',language)]]</paper-radio-button>
                     <paper-radio-button name="inactive">[[localize('ina','Inactive',language)]]</paper-radio-button>
                     <paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
                 </paper-radio-group>
@@ -152,7 +153,6 @@
             <div class="flex">
                 <paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
-                    <paper-radio-button name="oneshot">[[localize('one-sho','One shot',language)]]</paper-radio-button>
                     <paper-radio-button name="chronic">[[localize('chro','Chronic',language)]]</paper-radio-button>
                     <paper-radio-button name="subbacute">[[localize('sub-acu','Sub-acute',language)]]</paper-radio-button>
                     <paper-radio-button name="acute">[[localize('acu','Acute',language)]]</paper-radio-button>
