@@ -33,6 +33,7 @@
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-es2015": "^6.24.1",
+    "base64-js": "^1.3.0",
     "browser-sync": "^2.7.7",
     "child_process": "^1.0.2",
     "clean-webpack-plugin": "^0.1.17",
@@ -53,6 +54,7 @@
     "image-webpack-loader": "^3.6.0",
     "jshint-stylish": "^1.0.0",
     "json3": "^3.3.2",
+    "lodash": "^4.17.10",
     "lodash-webpack-plugin": "^0.11.4",
     "main-bower-files": "^2.13.1",
     "merge-stream": "^1.0.0",
@@ -73,6 +75,9 @@
     "wiredep": "^4.0.0"
   },
   "dependencies": {
+    "@types/base64-js": "^1.2.5",
+    "@types/lodash": "^4.14.110",
+    "base64-js": "^1.3.0",
     "bower": "^1.8.4",
     "icc-api": "git+https://github.com/taktik/icc-api.git#ca9e7266e31c9d68d89d1fd079585557a7018751",
     "npm": "^6.0.1",
