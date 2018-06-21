@@ -74,7 +74,7 @@
   },
   "dependencies": {
     "bower": "^1.8.4",
-    "icc-api": "git+https://github.com/taktik/icc-api.git#311b2ea81ad19636f0582b593196ecd43527e136",
+    "icc-api": "git+https://github.com/taktik/icc-api.git#ad6feaac08b39a0b87957105d9e2dd6f5c68b342",
     "npm": "^6.0.1",
     "webpack-loader": "0.0.1"
   }
