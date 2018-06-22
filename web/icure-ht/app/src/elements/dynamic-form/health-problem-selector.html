@@ -71,6 +71,10 @@
 				justify-content: space-between;
 			}
 
+            paper-dialog {
+                overflow: auto;
+            }
+
             paper-radio-group{
                 --paper-radio-group-item-padding: 8px;
             }
@@ -400,6 +404,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 	open() {
 	    this.set('filterValue','')
 		this.$.dialog.open();
+	    this.$.dialog.scrollTop = 0;
 	}
 
 	_closingDateChanged(date) {
