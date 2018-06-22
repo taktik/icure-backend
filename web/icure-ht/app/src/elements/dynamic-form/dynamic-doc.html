@@ -117,6 +117,9 @@
 			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
 				<pdf-element src="[[dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
 			</template>
+			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+				<span>[[document]]</span>
+			</template>
 		</paper-card>
 	</template>
 
@@ -165,6 +168,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 		const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en');
 		const docId = serviceContent && serviceContent.documentId;
 		this.api.document().getDocument(docId).then(doc => {
+		    if(_xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                const xml = require("xml-parse");
+                var parsedXML = xml.parse(doc);
+			}
 			this.set('document', doc);
 			if (doc.delegations && Object.keys(doc.delegations).length) {
 				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
@@ -195,6 +202,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 	_pdfMimeType(uti, utis, dataUrl) {
 		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'application/pdf');
 	}
+
+    _xmlMimeType(uti, utis, dataUrl) {
+        return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+    }
 
 	_base64(data) {
 		return base64js.fromByteArray(data);
