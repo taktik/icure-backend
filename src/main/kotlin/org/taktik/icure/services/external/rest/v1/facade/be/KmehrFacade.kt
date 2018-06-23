@@ -23,11 +23,14 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.RequestBody
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
+import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.SessionLogic
@@ -58,7 +61,7 @@ import javax.ws.rs.core.StreamingOutput
 @Api(tags = ["be_kmehr"])
 @Consumes("application/json")
 @Produces("application/json")
-class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val sumehrLogic: SumehrLogic, val softwareMedicalFileLogic: SoftwareMedicalFileLogic, val healthcarePartyLogic: HealthcarePartyLogic, val patientLogic: PatientLogic) {
+class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val sumehrLogic: SumehrLogic, val softwareMedicalFileLogic: SoftwareMedicalFileLogic, val healthcarePartyLogic: HealthcarePartyLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic) {
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
     @POST
     @Path("/sumehr/{patientId}/export")
@@ -130,4 +133,18 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 		return ResponseUtils.ok(StreamingOutput { output -> softwareMedicalFileLogic.createSmfExport(output!!, patientLogic.getPatient(patientId), smfExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", null) })
 	}
 
+	@ApiOperation(value = "Import SMF into patient(s) using existing document")
+	@POST
+	@Path("/smf/{documentId}/import")
+	@Produces("application/octet-stream")
+	fun importSmf(@PathParam("documentId") documentId: String, @QueryParam("documentKet") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, @RequestBody(required = false) mappings: Map<String,List<ImportMapping>>?) : Response {
+		val user = sessionLogic.currentSessionContext.user
+		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
+		val document = documentLogic.get(documentId)
+
+		return ResponseUtils.ok(softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
+		                                                               patientLogic.getPatient(patientId),
+		                                                               mappings ?: HashMap()))
+	}
+	
 }
