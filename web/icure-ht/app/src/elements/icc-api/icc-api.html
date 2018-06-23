@@ -69,7 +69,6 @@
 
         ready() {
             super.ready()
-
             if (this.host != null && this.headers != null) this.refresh()
         }
 
@@ -283,7 +282,7 @@
         }
 
         crypto() {
-            return this.$['icc-crypto-x-api'];
+            return this.cryptoicc
         }
 
         fhc() {
