@@ -22,6 +22,7 @@ import org.taktik.icure.entities.Document;
 import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.services.external.rest.v1.dto.EMailDocumentDto;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public interface DocumentLogic extends EntityPersister<Document, String> {
 	List<Document> get(List<String> documentIds);
 
 	String getAttachment(String documentId, String attachmentId);
+
+	InputStream readAttachment(String documentId, String attachmentId);
 
 	void modifyDocument(Document document);
 

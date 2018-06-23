@@ -48,6 +48,7 @@ import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.utils.FuzzyValues
 import java.io.InputStream
 import java.io.Serializable
+import java.util.LinkedList
 import javax.xml.bind.JAXBContext
 
 
@@ -57,21 +58,26 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val contactLogic: ContactLogic,
                                 val documentLogic: DocumentLogic,
                                 val idGenerator: UUIDGenerator) {
+
     fun importSMF(inputStream: InputStream,
                   author: User,
                   language: String,
-                  mappings: Map<String, List<ImportMapping>>): ImportResult {
+                  mappings: Map<String, List<ImportMapping>>,
+                  dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
-        var res = ImportResult()
+        var allRes = LinkedList<ImportResult>()
 
         val standard = kmehrMessage.header.standard.cd.value
-        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it, res) }
+
+        //TODO Might want to have several implementations babsed on standards
+        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
         kmehrMessage.folders.forEach { folder ->
-            createOrProcessPatient(folder.patient, author, res)?.let { patient ->
+            val res = ImportResult().apply { allRes.add(this) }
+            createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
@@ -89,7 +95,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
             }
         }
-        return res
+        return allRes
     }
 
     private fun parseContactReport(trn: TransactionType,
@@ -170,7 +176,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return Contact().apply {
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
-            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.map { createOrProcessHcp(it, v) }?.firstOrNull()?.id ?:
+            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.map { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
             this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                 trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -360,10 +366,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected fun createOrProcessHcp(p: HcpartyType, v: ImportResult): HealthcareParty? {
+    protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
         val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
         val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
-        v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         return (healthcarePartyLogic.listByNihii(nihii).firstOrNull()
             ?: healthcarePartyLogic.listBySsin(niss).firstOrNull()

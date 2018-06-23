@@ -33,6 +33,7 @@ import org.taktik.icure.services.external.rest.v1.dto.EMailDocumentDto;
 import org.taktik.icure.validation.aspect.Check;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +84,11 @@ public class DocumentLogicImpl extends GenericLogicImpl<Document, DocumentDAO> i
 	@Override
 	public String getAttachment(String documentId, String attachmentId) {
 		return documentDAO.getAttachment(documentId, attachmentId);
+	}
+
+	@Override
+	public InputStream readAttachment(String documentId, String attachmentId) {
+		return documentDAO.readAttachment(documentId, attachmentId);
 	}
 
 	@Override
