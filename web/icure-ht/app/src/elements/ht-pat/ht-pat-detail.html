@@ -1663,8 +1663,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						setTimeout(() =>
                         this.selectedContactIds.forEach(cDomId => {
                             const pm = this.root.querySelector(`#${cDomId}`)
-							pm.setAttribute("aria-selected","true")
-                            pm.classList.add('iron-selected')
+							if (pm) {
+                                pm.setAttribute("aria-selected", "true")
+                                pm.classList.add('iron-selected')
+                            }
                         }), 0)
                     });
 				});
