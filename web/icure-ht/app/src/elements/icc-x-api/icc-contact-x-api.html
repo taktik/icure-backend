@@ -231,7 +231,10 @@ class IccContactXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
             }
         })
 
-        const pastCtc = svc.contactId && svc.contactId !== ctc.id && ctcs.find(c => c.id === svc.contactId);
+        const pastCtc = svc.contactId && svc.contactId !== ctc.id && ctcs.find(c => c.id === svc.contactId) || ctcs.reduce((selected,c) => {
+            const candidate = c.services.find(s => s.id === svc.id);
+            return ctc.id !== c.id && candidate  && (selected[0] === null || this.api.moment(selected[0].modified).isBefore(this.api.moment(candidate.modified))) ? [candidate, c] : selected
+		},[null,null])[1]
         //Make sure that all scs the svc was belonging to are copied inside the current contact
         pastCtc && pastCtc.subContacts.filter(psc => psc.services.some(s=>s.serviceId === svc.id)).forEach(psc => {
             const sameInCurrent = currentScs.find(csc => csc.formId === psc.formId && csc.planOfActionId === psc.planOfActionId && csc.healthElementId === psc.healthElementId)
@@ -247,6 +250,7 @@ class IccContactXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
         })
 
         Object.keys(hierarchyOfHeAndPoaIds && hierarchyOfHeAndPoaIds.size ?  hierarchyOfHeAndPoaIds : {null:[]}).forEach( heId => {
+            if (heId === "null") { heId = null }
             const subPoaIds = hierarchyOfHeAndPoaIds[heId]
             ;((subPoaIds || []).size ? subPoaIds : [null]).forEach(poaId => {
                 //Create or assign subcontacts for all pairs he/poa (can be null/null)
@@ -262,7 +266,7 @@ class IccContactXApi extends Polymer.mixinBehaviors([], Polymer.Element) {
                 ) // Find a compatible sc: one that does not contain extra and ≠ information than the destination
 
                 if (currentSc && (currentSc !== sc)) {
-                    currentSc.splice(currentSc.services.indexOf(svc.id), 1);
+                    currentSc.services.splice(currentSc.services.indexOf(svc.id), 1);
                 }
 				if (!sc.services.some(s => s.serviceId === svc.id)) { sc.services.push({serviceId: svc.id}) }
             })

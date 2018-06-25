@@ -22,6 +22,7 @@ import org.ektorp.Attachment;
 import org.ektorp.support.View;
 import org.taktik.icure.entities.Document;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,4 +33,6 @@ public interface DocumentDAO extends GenericDAO<Document> {
 	List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
 
 	List<Document> findDocumentsWithNoDelegations(int limit);
+
+	InputStream readAttachment(String documentId, String attachmentId);
 }
