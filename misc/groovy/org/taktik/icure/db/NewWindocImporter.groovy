@@ -29,6 +29,7 @@ import org.taktik.icure.entities.embed.*
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.handlers.GsonMessageBodyHandler
 import org.taktik.icure.utils.FuzzyValues
+import sun.plugin2.jvm.CircularByteBuffer
 
 import javax.crypto.KeyGenerator
 import java.security.Key
@@ -387,26 +388,6 @@ class NewWindocImporter extends Importer {
         }
 
         println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
-
-        if (!this.limit) {
-            startImport = System.currentTimeMillis()
-            print("Importing thesaurus... ")
-
-            Importer.class.getResourceAsStream("codes/BE-THESAURUS.xml").withReader("UTF8") { r ->
-                new ClinicalCodeImporter().doScan(r, "BE-THESAURUS")
-            }
-
-            println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
-
-            startImport = System.currentTimeMillis()
-            print("Importing ICPC... ")
-            Importer.class.getResourceAsStream("codes/ICPC.xml").withReader("UTF8") { r ->
-                new ICPCCodeImporter().doScan(r, "ICPC")
-            }
-            println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
-
-
-        }
     }
 
     @SuppressWarnings(["SqlNoDataSourceInspection", "SqlDialectInspection"])

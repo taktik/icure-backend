@@ -1,33 +1,37 @@
 package org.taktik.icure.db
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.ektorp.AttachmentInputStream
 import org.ektorp.CouchDbConnector
+import org.ektorp.CouchDbInstance
+import org.ektorp.ViewQuery
+import org.ektorp.http.HttpClient
+import org.ektorp.http.StdHttpClient
+import org.ektorp.impl.StdCouchDbInstance
 import org.taktik.icure.client.ICureHelper
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.DelegationTag
 import org.taktik.icure.exceptions.EncryptionException
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.security.RSAKeysUtils
+import sun.plugin2.jvm.CircularByteBuffer
 
 import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
+import javax.crypto.KeyGenerator
 import javax.crypto.NoSuchPaddingException
-import java.security.InvalidAlgorithmParameterException
-import java.security.InvalidKeyException
-import java.security.Key
-import java.security.KeyFactory
-import java.security.KeyPair
-import java.security.NoSuchAlgorithmException
-import java.security.NoSuchProviderException
-import java.security.PrivateKey
-import java.security.PublicKey
+import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutionException
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-public class Importer {
+class Importer {
 
     static final def codeFiles=["BE-POSTCODES.xml","CD-ACKNOWLEDGMENT.xml","CD-ADDRESS.xml","CD-ADMINISTRATIONUNIT.xml","CD-ATC.xml","CD-BALLON-DEVICE.xml","CD-BEARING-SURFACE.xml","CD-BVT-AVAILABLEMATERIALS.xml","CD-BVT-CONSERVATIONDELAY.xml",
                                 "CD-BVT-CONSERVATIONMODE.xml","CD-BVT-LATERALITY.xml","CD-BVT-PATIENTOPPOSITION.xml","CD-BVT-SAMPLETYPE.xml","CD-BVT-STATUS.xml","CD-CAREPATH.xml","CD-CERTAINTY.xml","CD-CLINICAL.xml","CD-CLINICALPLAN.xml",
@@ -52,10 +56,8 @@ public class Importer {
 
     protected IDGenerator idg = new UUIDGenerator()
     protected String keyRoot
-	protected String[] patV3Ids
 
 
-    protected List views = []
 	protected String DB_PROTOCOL = System.getProperty("dbprotocol")?:"http"
 	protected String DB_HOST = System.getProperty("dbhost")?:"127.0.0.1"
     protected String DB_PORT = System.getProperty("dbport")?:5984
@@ -66,6 +68,228 @@ public class Importer {
     protected CouchDbConnector couchdbContact
     protected CouchDbConnector couchdbConfig
 
+    Importer() {
+        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:" + DB_PORT)/*.username("admin").password("S3clud3sM@x1m@")*/.build()
+        CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
+
+        // if the second parameter is true, the database will be created if it doesn't exists
+        couchdbBase = dbInstance.createConnector(DB_NAME + '-base', true);
+        couchdbPatient = dbInstance.createConnector(DB_NAME + '-patient', true);
+        couchdbContact = dbInstance.createConnector(DB_NAME + '-healthdata', true);
+        couchdbConfig = dbInstance.createConnector(DB_NAME + '-config', true);
+
+        Security.addProvider(new BouncyCastleProvider())
+    }
+
+    void createAttachment(File file, Document d) {
+        def types = UTI.get(d.mainUti)?.mimeTypes
+        def attId = d.attachmentId.split(/\|/)[0]
+
+        if (file.isFile()) {
+            file.withInputStream { is ->
+                d.rev = couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, is, types?.size() ? types[0] : "application/octet-stream"))
+                d = couchdbContact.get(Document.class, d.id);
+                d.attachmentId = attId
+                couchdbContact.update(d)
+            }
+        } else if (file.isDirectory()) {
+            CircularByteBuffer cbb = new CircularByteBuffer(128000);
+
+            Thread.start {
+                def zo = new ZipOutputStream(cbb.outputStream)
+
+                file.eachFileRecurse { f ->
+                    def name = f.absolutePath.substring(file.absolutePath.length() - file.name.length())
+                    zo.putNextEntry(new ZipEntry(f.isDirectory() ? (name + "/") : name));
+                    if (f.isFile()) {
+                        f.withInputStream { IOUtils.copy(it, zo) }
+                        zo.closeEntry()
+                    }
+                }
+
+                zo.close();
+            }
+
+            d.rev = couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, cbb.inputStream, types?.size() ? types[0] : "application/octet-stream"))
+            d.attachmentId = attId
+            couchdbContact.update(d)
+        }
+    }
+
+    public void doImport(Collection<User> users, Collection<HealthcareParty> parties, Collection<Patient> patients,
+                         Map<String, List<Contact>> contacts, Map<String, List<HealthElement>> healthElements,
+                         Map<String, List<Form>> forms, Collection<Message> messages, Map<String, Collection<String>> messageDocs,
+                         Collection<Map> docs, Collection<AccessLog> accessLogs, Collection<Invoice> invoices) {
+        def startImport = System.currentTimeMillis()
+
+        print("Importing accessLogs... ")
+        new ArrayList(accessLogs).collate(1000).each { couchdbPatient.executeBulk(it) }
+        println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+        startImport = System.currentTimeMillis()
+
+        print("Importing doctors... ")
+        parties.each { dr ->
+            cachedDoctors[dr.id] = dr
+
+            if (users*.healthcarePartyId.contains(dr.id)) {
+                /**** Cryptography *****/
+                def keyPair = loadKeyPair(dr.id)
+                if (!keyPair) {
+                    keyPair = createKeyPair(dr.id)
+                }
+                KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC");
+                aesKeyGenerator.init(256);
+                Key encryptKey = aesKeyGenerator.generateKey();
+
+                def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
+
+                dr.hcPartyKeys = [:]
+                dr.hcPartyKeys[dr.id] = ([crypted, crypted] as String[])
+
+                dr.setPublicKey(keyPair.public.encoded.encodeHex().toString())
+
+                cachedKeyPairs[dr.id] = keyPair
+            }
+        }
+
+        def delegates = new ArrayList<String>(cachedKeyPairs.keySet())
+
+        users.each { user ->
+            if (user.login) {
+                user.autoDelegations[DelegationTag.all] = new HashSet<>(delegates.findAll { it != user.healthcarePartyId });
+            }
+        }
+
+        couchdbBase.executeBulk(parties)
+        couchdbBase.executeBulk(users)
+
+        println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+        startImport = System.currentTimeMillis()
+        println("Importing patients... ")
+
+        println("Delegates are : ${delegates.join(',')}")
+
+        String dbOwnerId = delegates[0]
+
+        def formsPerId = [:]
+        forms.each { pid, fs ->
+            fs.each { f ->
+                formsPerId[f.id] = (formsPerId[f.id] ?: []) + [pid]
+            }
+        }
+
+        def pMessages = [:]
+        messages.each { m ->
+            formsPerId[m.formId].each { pid ->
+                pMessages[pid] = (pMessages[pid] ?: []) + [m]
+            }
+        }
+
+        def pats = []
+        patients.each { p ->
+            /**** Delegations ****/
+            delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
+
+            def pCtcs = contacts[p.id]
+            def pHes = healthElements[p.id]
+            def pForms = forms[p.id]
+            def ppMessages = pMessages[p.id]
+
+            contacts.remove(p.id);
+            healthElements.remove(p.id);
+            forms.remove(p.id);
+            pMessages.remove(p.id);
+
+
+            pCtcs?.each { Contact c ->
+                delegates.each { delegateId -> c = this.appendObjectDelegations(c, p, dbOwnerId, delegateId, this.cachedDocSFKs[c.id], this.cachedDocSFKs[p.id]) as Contact }
+                c.services.each { s ->
+                    s.content.values().each { cnt ->
+                        if (cnt.binaryValue?.length) {
+                            cnt.binaryValue = new File(new String(cnt.binaryValue, 'UTF8')).bytes
+                        }
+                    }
+                }
+            }
+
+            pHes?.each { HealthElement e -> delegates.each { delegateId -> e = this.appendObjectDelegations(e, p, dbOwnerId, delegateId, this.cachedDocSFKs[e.id], this.cachedDocSFKs[p.id]) as HealthElement } }
+            pForms?.each { f -> delegates.each { delegateId -> f = this.appendObjectDelegations(f, p, dbOwnerId, delegateId, this.cachedDocSFKs[f.id], this.cachedDocSFKs[p.id]) as Form } }
+            ppMessages?.each { Message m -> delegates.each { delegateId -> m = this.appendObjectDelegations(m, p, dbOwnerId, delegateId, this.cachedDocSFKs[m.id], this.cachedDocSFKs[p.id]) as Message } }
+
+            pats << [p, pCtcs, pHes, pForms]
+
+            if (pats.size() == 10) {
+                couchdbPatient.executeBulk(pats.collect { it[0] })
+                couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] }.flatten())
+                print(".")
+                pats.clear()
+            }
+        }
+
+        if (pats.size()) {
+            couchdbPatient.executeBulk(pats.collect { it[0] })
+            couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] }.flatten())
+        }
+
+        //Already start indexation
+        Thread.start {
+            try {
+                couchdbContact.queryView(new ViewQuery(includeDocs: false).dbPath(couchdbContact.path()).designDocId("_design/Contact").viewName("all").limit(1), String.class).each {
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        println("\n completed in " + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+        startImport = System.currentTimeMillis()
+        print("Importing messages... ")
+
+        messages.each { Message mm ->
+            if (!this.cachedDocSFKs[mm.id]) {
+                delegates.each { delegateId -> mm = this.appendObjectDelegations(mm, null, dbOwnerId, delegateId, this.cachedDocSFKs[mm.id], null) }
+            }
+            def mDocs = messageDocs[mm.id]
+
+            mDocs?.each { Map dd ->
+                Document d = dd.doc
+                delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, mm, delegates[0], delegateId, this.cachedDocSFKs[d.id], this.cachedDocSFKs[mm.id]) as Document }
+            }
+        }
+        new ArrayList(messages).collate(100).each { couchdbContact.executeBulk(it) }
+
+        println("\n completed in " + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+        startImport = System.currentTimeMillis()
+        print("Importing invoices... ")
+
+        invoices.each { iv ->
+            delegates.each { delegateId -> iv = this.appendObjectDelegations(iv, null, dbOwnerId, delegateId, this.cachedDocSFKs[iv.id], null) }
+            iv.invoicingCodes.each {
+                if (it.code && !it.tarificationId && tarificationsPerCode[it.code]) {
+                    it.tarificationId = tarificationsPerCode[it.code].id
+                }
+            }
+        }
+
+        new ArrayList(invoices).collate(100).each { couchdbContact.executeBulk(it) }
+
+        println("\n completed in " + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+        startImport = System.currentTimeMillis()
+        print("Importing documents... ")
+
+        docs.each { dd ->
+            Document d = dd.doc
+            if (!this.cachedDocSFKs[d.id]) {
+                delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, null, dbOwnerId, delegateId, this.cachedDocSFKs[d.id], null) }
+            }
+        }
+        new ArrayList(docs).collate(1000).each { couchdbContact.executeBulk(it*.doc) };
+
+        docs.each { dd ->
+            createAttachment(dd.file, dd.doc)
+        }
+
+        println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+    }
 
     /**
      * @return the plain skd
