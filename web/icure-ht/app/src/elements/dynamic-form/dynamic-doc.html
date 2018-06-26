@@ -117,10 +117,14 @@
 			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
 				<pdf-element src="[[dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
 			</template>
+			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]]</span>
+			</template>
 		</paper-card>
 	</template>
 
 	<script>
+        import xml from 'xml-parse';
 class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
 	static get is() {
 		return 'dynamic-doc';
@@ -165,6 +169,9 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 		const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en');
 		const docId = serviceContent && serviceContent.documentId;
 		this.api.document().getDocument(docId).then(doc => {
+		    if(this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                var parsedXML = xml.parse(doc);
+			}
 			this.set('document', doc);
 			if (doc.delegations && Object.keys(doc.delegations).length) {
 				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
@@ -189,11 +196,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
 	}
 
 	_pdfMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'application/pdf');
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
+	}
+
+    _xmlMimeType(uti, utis, dataUrl) {
+        return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+    }
+
+    mimeType(u){
+	    return this.api.document().mimeType(u)
 	}
 
 	_base64(data) {

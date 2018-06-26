@@ -378,7 +378,7 @@
 					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
 							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
-													 health-elements="[[healthElements]]" contacts="[[contacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+													 health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
 						</template>
 						<template is="dom-repeat" items="[[form.docs]]">
@@ -417,7 +417,7 @@
 		<paper-dialog id="upload-dialog">
 			<h2>[[localize('upl_fil','Upload files',language)]]<span class="extra-info">(PDF, images and videos)</span></h2>
 			<paper-fab class="close-button-icon" icon="icons:close" dialog-dismiss></paper-fab>
-			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
+			<vaadin-upload id="vaadin-upload" no-auto files="{{files}}" accept="video/*,image/*,application/pdf,text/xml,application/xml" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
 		</paper-dialog>
 
 		<paper-dialog id="loadingPrescriptionDialog">
