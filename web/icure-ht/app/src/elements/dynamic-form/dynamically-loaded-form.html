@@ -126,7 +126,7 @@
 			}
 
 			static get observers() {
-				return ["_prepareDataProvider(contacts.*,servicesMap.*,form,patient,user)"];
+				return ["_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)"];
 			}
 
 			constructor() {
@@ -195,10 +195,14 @@
 				return this.healthElements.filter(he => he.id && (heIds.includes(he.id) || scHeIds.includes(he.id)))
 			}
 
+			_allContacts() {
+			    return this.contacts.includes(this.contact) ? this.contacts : _.concat([this.contact],this.contacts)
+			}
+
 			_prepareDataProvider() {
-				if (this.contacts && this.form && this.user && this.patient && this.servicesMap) {
+				if (this.contacts && this.contact && this.form && this.user && this.patient && this.servicesMap) {
 					this.set('dataProvider', this.getDataProvider(this.form, ''));
-					this.set('dataMap', _.fromPairs(this.form.template.layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this.contacts.map(c => {
+					this.set('dataMap', _.fromPairs(this.form.template.layout ? _.flatten(_.flatten(this.form.template.layout.sections.map(s => s.formColumns)).map(c => c.formDataList)).map(f => [f.name, 1]) : _.flatten(this._allContacts().map(c => {
 						const sc = c.subContacts.find(sc => sc.formId === this.form.id);
 						return sc ? c.services.filter(s => sc.services.map(s => s.serviceId).includes(s.id)).map(s => [s.label, s]) : [];
 					}))));
@@ -228,7 +232,7 @@
 							acc[fli.name] = fli; return acc;
 						}, {}));
 					}
-					this.set('currentContact', this.contacts.find(c => !c.closingDate) || null);
+					this.set('currentContact', this._allContacts().find(c => !c.closingDate) || null);
 				}
 			}
 
@@ -702,7 +706,7 @@
 			}
 
 			promoteServiceInCurrentContact(svc, formId, poaIds, heIds, init) {
-				return this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, formId, poaIds, heIds, init);
+				return this.api.contact().promoteServiceInContact(this.currentContact, this.user, this._allContacts(), svc, formId, poaIds, heIds, init);
 			}
 
 			shortServiceDescription(svc, lng) {

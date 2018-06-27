@@ -168,6 +168,7 @@
     "gen" : "Generate",
     "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
     "share_pat" : "Share patients"
+    "cons_legal":"Merci de donner à votre patient les informations suivantes : <ul><li>Je consens à faciliter l'échange de mes données médicales par voie électronique, dans le cadre de la prise en charge de ma santé. </li><li>Vous avez donné votre accord pour l'échange (par voie électronique et dans le cadre de la prise en charge de votre santé) de données relatives à votre santé entre les prestataires de soins autorisés (un lien thérapeutique avéré existe entre votre personne et ce prestataire et vous n'avez enregistré aucune exclusion envers ce prestataire). </li><li>Afin de permettre cet échange électronique, vous êtes également d'accord pour que ces données de santé soient référencées au sein d'un répertoire indiquant où ces données sont disponibles (par exemple au sein de quel hôpital). </li><li>Pour rappel, cette disposition respecte les droits des patients, la loi relative à la vie privée et la déontologie médicale. </li></ul>"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -182,7 +183,7 @@
     "add_for": "Nouv. form.",
     "clo": "Fermer",
     "con": "Consultation",
-    "med_his": "Historique médical",
+    "med_his": "Premier contact",
     "oth_for": "Autre formulaire",
     "add_doc": "Joindre un document",
     "pre_thi_but_to_pre": "Presser pour éditer la prescription",
@@ -292,7 +293,7 @@
     "tra_pri_key_/_con_tab": "Transférer les clefs / Connecter une tablette",
     "imp_my_ehe_key": "Importer mon trousseau eHealth",
     "my_pro": "Mon profil utilisateur",
-    "new_mes": "New Message",
+    "new_mes": "Nouveau message",
     "lat_pat": "Patients récents",
     "tod_app": "Rendez-vous de la journée",
     "lat_lab_res": "Derniers résultats de labo",
@@ -300,19 +301,19 @@
     "pati": "Patient",
     "due_dat": "éch.",
     "des": "Description",
-    "oop_you_hit_a_404": "Oops une erreur 404. Vous vous êtes perdu.",
+    "oop_you_hit_a_404": "Oops une erreur 404. Vous vous êtes perdu.e.",
     "hea_bac_to_hom": "Retour à l'accueil.",
-    "inb": "Inbox",
-    "lab_res": "Lab Results",
-    "per": "Personal",
+    "inb": "Boîte de réception",
+    "lab_res": "Résultats de labo",
+    "per": "Personnel",
     "pat_(4)": "Patients (4)",
-    "sen_mes": "Send Messages",
+    "sen_mes": "Envoyer messages",
     "spa": "Spam",
-    "tra": "Trash",
+    "tra": "Corbeille",
     "m>s": "m>Spam",
-    "rec": "Recipient",
-    "sub": "Subject",
-    "sen": "Sender",
+    "rec": "Destinataire",
+    "sub": "Sujet",
+    "sen": "Expéditeur",
     "the_ni_of_the_pat_is_not_val_or_mis": "Le niss du patient n'est pas valide ou manquant ",
     "pl_of_ac":"Planification d'action",
     "sea_for_hea_ele":"Rechercher élément de soins",
@@ -328,6 +329,7 @@
     "gen" : "Générer",
     "generate_key_mess" : "Introduisez un mot de passe pour l'application et ensuite cliquez sur le bouton générer pour générer vos clés",
     "share_pat" : "Partager des patients"
+    "cons_legal":"Merci de donner à votre patient les informations suivantes : <ul><li>Je consens à faciliter l'échange de mes données médicales par voie électronique, dans le cadre de la prise en charge de ma santé. </li><li>Vous avez donné votre accord pour l'échange (par voie électronique et dans le cadre de la prise en charge de votre santé) de données relatives à votre santé entre les prestataires de soins autorisés (un lien thérapeutique avéré existe entre votre personne et ce prestataire et vous n'avez enregistré aucune exclusion envers ce prestataire). </li><li>Afin de permettre cet échange électronique, vous êtes également d'accord pour que ces données de santé soient référencées au sein d'un répertoire indiquant où ces données sont disponibles (par exemple au sein de quel hôpital). </li><li>Pour rappel, cette disposition respecte les droits des patients, la loi relative à la vie privée et la déontologie médicale. </li></ul>"
   },
   "nl": {
     "eng":"English",
@@ -459,7 +461,7 @@
     "due_dat": "Due date",
     "des": "Description",
     "oop_you_hit_a_404": "Oops you hit a 404.",
-    "hea_bac_to_hom": "Head back to home.",
+    "hea_bac_to_hom": "Terug naar Home",
     "inb_(7)": "Inbox (7)",
     "lab_res_(3)": "Lab Results (3)",
     "per": "Personal",
@@ -481,5 +483,7 @@
     "gen" : "Generate",
     "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
     "share_pat" : "Share patients"
+    "cons_legal":"Na de patiënt geïnformeerd te hebben, stemt de patiënt ermee in om de uitwisseling van zijn of haar medische gegevens langs elektronische weg te faciliteren in het kader van zijn of haar gezondheidszorg. <ul><li>De patiënt heeft toestemming gegeven voor de uitwisseling (langs elektronische weg in het kader van gezondheidszorg) van gegevens betreffende zijn of haar gezondheid tussen de gemachtigde zorgverleners (er bestaat een bewezen therapeutische relatie tussen de patiënt en deze zorgverlener en de patiënt heeft geen uitsluiting ten aanzien van deze zorgverlener geregistreerd). </li><li>Om deze elektronische uitwisseling mogelijk te maken stemt de patiënt er tevens mee in dat er verwijzingen naar deze gezondheidsgegevens worden opgenomen in een repertorium waarin aangeduid wordt waar deze gegevens beschikbaar zijn (bijvoorbeeld in welk ziekenhuis). </li><li>Deze bepaling houdt rekening met de patiëntenrechten, de wet op de bescherming van de persoonlijke levenssfeer en de medische deontologie.</li></ul>"
+
   }
 }

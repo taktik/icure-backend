@@ -135,4 +135,9 @@ public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements Do
 		return db.queryView(viewQuery, Document.class);
 	}
 
+	@Override
+	public InputStream readAttachment(String documentId, String attachmentId) {
+		return getAttachmentInputStream(documentId, attachmentId);
+	}
+
 }
