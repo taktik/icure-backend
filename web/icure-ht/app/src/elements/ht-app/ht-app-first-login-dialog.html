@@ -3,6 +3,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/gold-password-input/gold-password-input.html">
 
 <dom-module id="ht-app-first-login-dialog">
 
@@ -52,7 +53,7 @@
         }
 
 		.firstConnDialog{
-			height: 200px;
+			height: 300px;
 			width: 400px;
 		}
 
@@ -60,7 +61,8 @@
 
 		<paper-dialog id="firstConnectionDialog" class="firstConnDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" user="[[user]]" modal>
 			<h3>[[localize('welcome_mess','Welcome to the Icure application',language)]] [[user.name]]</h3>
-            <h4>[[localize('generate_key_mess','Click on the following button to generate your key',language)]]</h4>
+            <h4>[[localize('generate_key_mess','Entrer a password for the application and click on the following button to generate your key',language)]]</h4>
+            <gold-password-input label="Mot de passe" reveal suffix strength-meter value="[[password]]"></gold-password-input>
             <paper-button class="generateKeyBtn" on-tap="generateKey">[[localize('gen','Generate',language)]]</paper-button>
 		</paper-dialog>
 
@@ -96,6 +98,9 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             },
 			api: {
                 type: Object
+            },
+            password: {
+			    type: String
             }
 		};
 	}
@@ -119,9 +124,7 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
     }
 
     generateKey(){
-
-
-       this.api.crypto().RSA.generateKeyPair().then(keyPair => {
+        this.api.crypto().RSA.generateKeyPair().then(keyPair => {
            console.log(keyPair)
            this.api.crypto().AES.generateCryptoKey(true).then(AESKey => {
                return this.api.crypto().RSA.encrypt(keyPair.publicKey, this.api.crypto().utils.hex2ua(AESKey))
@@ -139,11 +142,12 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
 
                        hcp.publicKey = this.api.crypto().utils.ua2hex(exportedKeyPair.publicKey)
                         hcp.hcPartyKeys[healthcarePartyId] = [this.api.crypto().utils.ua2hex(encryptedAESKey), this.api.crypto().utils.ua2hex(encryptedAESKey)]
-
-
+                        hcp.passwordHash =  this.password
+                       this.api.crypto().calculateSHA256
+/*
                        this.api.hcparty().modifyHealthcareParty(hcp).then(h =>{
 
-                           var file = new Blob([exportedKeyPair.privateKey] ,{type: "application/octet-stream"})
+                           var file = new Blob([this.api.crypto().utils.ua2hex(exportedKeyPair.privateKey)] ,{type: "text/plain"})
                            var a = document.createElement("a");
                            document.body.appendChild(a);
                            a.style = "display: none";
@@ -154,7 +158,9 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
                            a.click();
                            window.URL.revokeObjectURL(url);
 
-                       });
+                           this.$.firstConnectionDialog.opened = false
+
+                       });*/
                    })
                })
            })

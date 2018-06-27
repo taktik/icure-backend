@@ -166,7 +166,8 @@
     "ehe_mes":"Ehealth Messages",
     "rep":"Report",
     "gen" : "Generate",
-    "generate_key_mess" : "Click on the following button to generate your keys"
+    "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
+    "share_pat" : "Share patients"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -208,7 +209,7 @@
     "mob": "Portable",
     "add_pat": "Nouv. patient",
     "save_filter": "Sauvegarder le filtre",
-    "canc": "Cancel",
+    "canc": "Annuler",
     "cre": "Créer",
     "edi": "Editer",
     "arch": "Archiver",
@@ -325,7 +326,8 @@
     "first_con" : "Première connexion",
     "welcome_mess" : "Bienvenue dans l'application Icure",
     "gen" : "Générer",
-    "generate_key_mess" : "Cliquez sur le bouton suivant pour générer vos clés"
+    "generate_key_mess" : "Introduisez un mot de passe pour l'application et ensuite cliquez sur le bouton générer pour générer vos clés",
+    "share_pat" : "Partager des patients"
   },
   "nl": {
     "eng":"English",
@@ -477,6 +479,7 @@
     "first_con" : "Eerste connectie",
     "welcome_mess" : "Welkom bij de Icure applicatie",
     "gen" : "Generate",
-    "generate_key_mess" : "Click on the following button to generate your keys"
+    "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
+    "share_pat" : "Share patients"
   }
 }
