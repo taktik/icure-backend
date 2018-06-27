@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.31'
+		kotlinVersion = '1.2.50'
 		springBootVersion = '1.5.10.RELEASE'
 	}
 	repositories {
@@ -86,7 +86,6 @@ repositories {
 		dirs 'libs'
 	}
 }
-
 
 dependencies {
 	optional "org.springframework.boot:spring-boot-configuration-processor"
