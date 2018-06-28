@@ -70,7 +70,7 @@
     "iron-collapse-button": "^1.0.1"
   },
   "resolutions": {
-    "iron-selector": "643da76f103cb21ccdd5ecfb670b16f081b42dc3",
+    "iron-selector": "1f6b245bbe94c7693180ff06064e5e1b0b801a90",
     "highcharts": "^5.0.0"
   }
 }
