@@ -7,7 +7,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Matchers
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.any
 import org.mockito.Mockito.mock
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -54,6 +53,6 @@ class SoftwareMedicalFileImportTest {
                 "fr",
                 mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                       )
-        Assert.assertNotNull("Patient must be assigned", res.patient)
+        Assert.assertNotNull("Patient must be assigned", res.firstOrNull()?.patient)
     }
 }

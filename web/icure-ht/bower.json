@@ -49,7 +49,7 @@
     "commonjs": "^0.2.0",
     "paper-toolbar": "^2.0.0",
     "paper-spinner": "^2.0.0",
-    "iron-selector": "https://github.com/taktik/iron-selector.git#643da76f103cb21ccdd5ecfb670b16f081b42dc3",
+    "iron-selector": "https://github.com/taktik/iron-selector.git#1f6b245bbe94c7693180ff06064e5e1b0b801a90",
     "paper-fab-speed-dial": "^2.2.1",
     "iron-label": "^2.0.0",
     "vaadin-upload": "https://github.com/taktik/vaadin-upload.git#0cce7a4827c1340d5aefc7854dd0ce94868837ea",
@@ -70,7 +70,7 @@
     "iron-collapse-button": "^1.0.1"
   },
   "resolutions": {
-    "iron-selector": "643da76f103cb21ccdd5ecfb670b16f081b42dc3",
+    "iron-selector": "1f6b245bbe94c7693180ff06064e5e1b0b801a90",
     "highcharts": "^5.0.0"
   }
 }

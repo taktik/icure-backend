@@ -57,6 +57,7 @@
     "main-bower-files": "^2.13.1",
     "merge-stream": "^1.0.0",
     "node-sass": "^4.5.3",
+    "parse-xml": "^1.0.1",
     "polymer-webpack-loader": "^2.0.0",
     "proxy-middleware": "^0.15.0",
     "require-dir": "^0.3.0",
@@ -70,12 +71,13 @@
     "webpack-cli": "^2.0.15",
     "webpack-defaults": "^2.3.0",
     "webpack-dev-server": "^3.1.4",
-    "wiredep": "^4.0.0"
+    "wiredep": "^4.0.0",
+    "xml-parse": "^0.3.1"
   },
   "dependencies": {
     "bower": "^1.8.4",
     "icc-api": "git+https://github.com/taktik/icc-api.git#47122e4f56cb216f215d19d2566d7e2fc7c5dcd1",
-    "npm": "^6.0.1",
+    "npm": "^6.1.0",
     "webpack-loader": "0.0.1"
   }
 }

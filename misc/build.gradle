@@ -1,0 +1,41 @@
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.8
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.taktik.be/content/groups/public' }
+    maven { url = 'http://repo.spring.io/plugins-release' }
+    maven { url = "https://www.e-contract.be/maven2/" }
+    maven { url = "http://repo.ehealth.fgov.be/artifactory/maven2/" }
+    flatDir {
+        dirs '../libs'
+    }
+}
+
+sourceSets {
+    main {
+        compileClasspath = configurations.compile + rootProject.sourceSets.main.output
+        resources {
+            srcDir 'src/main/groovy'
+        }
+    }
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
+    compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
+
+    compile project(path: ':')
+}
+
+// Setup resolution strategy
+configurations.all {
+    resolutionStrategy {
+        // Don't cache changing modules at all
+        cacheChangingModulesFor 0, 'seconds'
+        force group: 'net.sf.jsignature.io-tools', name: 'easystream', version: '1.2.12'
+    }
+}
