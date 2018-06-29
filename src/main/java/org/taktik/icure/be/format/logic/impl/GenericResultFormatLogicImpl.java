@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
@@ -91,7 +92,7 @@ public abstract class GenericResultFormatLogicImpl {
 	}
 
 	protected String decodeRawData(byte[] rawData) throws IOException {
-		String text = null;
+		String text;
 		String frenchCp850OrCp1252 = org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252(rawData);
 		if ("cp850".equals(frenchCp850OrCp1252)) {
 			text = new String(rawData, "cp850");
@@ -103,10 +104,9 @@ public abstract class GenericResultFormatLogicImpl {
 			CharsetMatch[] cms = cd.detectAll();
 
 			Reader r = null;
-			List<String> languages = Arrays.asList("fr","nl","en","de");
 
 			for (CharsetMatch cm : cms) {
-				if (!cm.getName().startsWith("UTF-16") && (cm.getLanguage() == null || languages.contains(cm.getLanguage()))) {
+				if (cm.getName().startsWith("UTF-8") || cm.getName().startsWith("ISO-8859")) {
 					r = cm.getReader();
 					if (r != null) {
 						break;
@@ -118,6 +118,8 @@ public abstract class GenericResultFormatLogicImpl {
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(r,writer);
 				text = writer.toString();
+			} else {
+				text = new String(rawData, "ISO-8859-1");
 			}
 		}
 		return text;
@@ -129,23 +131,8 @@ public abstract class GenericResultFormatLogicImpl {
 		return dBuilder.parse(new ByteArrayInputStream(doc.getAttachment()));
 	}
 
-	protected BufferedReader getBufferedReader(Document doc) throws UnsupportedEncodingException {
-		CharsetDetector cd = new CharsetDetector();
-		cd.setText(doc.getAttachment());
-		CharsetMatch[] cms = cd.detectAll();
-
-		Reader r = null;
-		List<String> languages = Arrays.asList("fr","nl","en","de");
-
-		for (CharsetMatch cm : cms) {
-			if (!cm.getName().startsWith("UTF-16") && (cm.getLanguage() == null || languages.contains(cm.getLanguage()))) {
-				r = cm.getReader();
-				if (r != null) {
-					break;
-				}
-			}
-		}
-		return new BufferedReader(r != null ? r : new InputStreamReader(new ByteArrayInputStream(doc.getAttachment()), "ISO-8859-1"));
+	protected BufferedReader getBufferedReader(Document doc) throws IOException {
+		return new BufferedReader(new StringReader(decodeRawData(doc.getAttachment())));
 	}
 
 	public static class LaboLine {
