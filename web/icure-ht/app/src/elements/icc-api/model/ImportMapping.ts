@@ -24,44 +24,18 @@
 
 import * as models from './models';
 
-export class TarificationConsultationResultDto {
+export class ImportMapping {
  constructor(json: JSON| any) {
-    Object.assign(this as TarificationConsultationResultDto, json)
+    Object.assign(this as ImportMapping, json)
  }
-    birthdate?: Date;
+    lifecycle?: string;
 
-    date?: Date;
+    content?: string;
 
-    deceased?: Date;
+    type?: string;
 
-    codes?: Array<string>;
+    cdItem?: string;
 
-    errors?: Array<models.TarifConsultationErrorDto>;
-
-    fees?: Array<models.TarifConsultationPaymentDto>;
-
-    financialContracts?: Array<string>;
-
-    firstName?: string;
-
-    insurancePeriodEnd?: Date;
-
-    insurancePeriodStart?: Date;
-
-    justification?: number;
-
-    lastName?: string;
-
-    niss?: string;
-
-    patientFees?: Array<models.TarifConsultationPaymentDto>;
-
-    sex?: string;
-
-    reimbursements?: Array<models.TarifConsultationPaymentDto>;
-
-    ct2?: string;
-
-    ct1?: string;
+    label?: { [key: string]: string; };
 
 }

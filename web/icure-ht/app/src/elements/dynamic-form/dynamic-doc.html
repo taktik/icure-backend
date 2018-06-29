@@ -195,7 +195,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
                                 console.log(typeof att);
                                 this.set('documentAttachment', att);
                                 const xml = XML.parseXml(att)
-                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.s)}
+                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S)}else{this.set("type","Non Valid Type")}
 							});
                         }else {
                             const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);

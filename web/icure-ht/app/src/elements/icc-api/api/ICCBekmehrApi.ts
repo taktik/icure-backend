@@ -116,6 +116,18 @@ export class iccBekmehrApi {
 
 
     }
+    importSmf(documentId: string, documentKet?: string, patientId?: string, language?: string, body?: any) : Promise<any|Boolean> {
+        let _body = null
+        _body = body
+        
+        const _url = this.host+"/be_kmehr/smf/{documentId}/import".replace("{documentId}", documentId+"") + "?ts=" + (new Date).getTime()  + (documentKet ? "&documentKet=" + documentKet : "") + (patientId ? "&patientId=" + patientId : "") + (language ? "&language=" + language : "")
+
+        return XHR.sendCommand('POST', _url , this.headers, _body )
+                .then(doc => doc.contentType.startsWith("application/octet-stream")?doc.body : true)
+                .catch(err => this.handleError(err))
+
+
+    }
     isSumehrValid(patientId: string, hcPartyId?: string, secretFKeys?: string) : Promise<string|any> {
         let _body = null
         
