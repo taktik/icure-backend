@@ -357,9 +357,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				border-radius:2px 2px 0 0;
 			}
 
+			.timer{
+				font-size: 10px;
+				width: auto;
+				position: absolute;
+				margin-top: -10px;
+
+			}
+
 		</style>
 
 		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
+		<!--<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>-->
+
 
 		<paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
 			<iron-icon icon="icons:warning"></iron-icon>
@@ -496,6 +506,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
+							<div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} sec</div>
 						</div>
 					</app-toolbar>
 
@@ -625,6 +636,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				invitedHcpLink:{
 				    type : String,
 					value : ""
+				},
+				disconnectionTimer: {
+				    type: Number,
+					value : 0
 				}
 			}}
 
@@ -646,14 +661,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 window.app = this
                 this.set('api', this.$.api)
+				this._startCheckInactiveTimer()
 			}
 
             _userChanged(e) {
 	        	this.set('user',e.detail)
 			}
 
+
+            _startCheckInactiveTimer(){
+                clearInterval(this.interval)
+                this.set('disconnectionTimer', 3600)
+                this.interval = setInterval(() => {
+
+                    if(this.disconnectionTimer > 0){
+                        var actualTimer = Number(this.disconnectionTimer)
+                        var newTimer = actualTimer - 1
+                        this.set('disconnectionTimer', newTimer)
+					}else{
+                        this.set('routeData.page', 'logout')
+                        this._triggerMenu()
+					}
+
+
+
+                }, 1000);
+
+			}
+
             _timeCheck(period = 300000) {
-                setTimeout(() => {
+               setTimeout(() => {
 	                if (this.api.tokenId) {
 	                    this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
@@ -686,6 +723,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					} else {
 						this.set('view', page ? page.replace(/\/$/,'') : 'main')
 					}
+					this._startCheckInactiveTimer('refresh')
 				}
 			}
 
@@ -877,7 +915,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             confirmUserInvitation(){
 
-
                 this.api.hcparty().createHealthcareParty({
                     "name" 			: this.lastName+" "+this.firstName,
                     "lastName" 		: this.lastName,
@@ -893,13 +930,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         "status" 				: "ACTIVE",
                         "type"                  : "database"
                     }).then(usr => {
-                        this.invitedHcpLink = 'http://127.0.0.1:9000/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
-                        //this.invitedHcpLink = 'https://backend.icure.cloud/tz/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        this.invitedHcpLink = window.location.origin+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
                         this.$['ht-invite-hcp-link'].open()
 					})
 				})
 			}
-
 		}
 
         customElements.define(HtApp.is, HtApp);
