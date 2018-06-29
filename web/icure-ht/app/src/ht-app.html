@@ -639,9 +639,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			ready() {
 	        	super.ready()
-				let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
-				let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
-				if (fullHref !== window.location.href) { window.location.href = fullHref }
+                if(!this.route.__queryParams.token && !this.route.__queryParams.userId){
+                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
+                    let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
+                    if (fullHref !== window.location.href) { window.location.href = fullHref }
+                }
                 window.app = this
                 this.set('api', this.$.api)
 			}
@@ -714,7 +716,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.view = 'view404';
 			}
 
-			doRoute(e) {
+            doRoute(e) {
 				this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name'))+"/")
 				this._triggerMenu()
 			}
