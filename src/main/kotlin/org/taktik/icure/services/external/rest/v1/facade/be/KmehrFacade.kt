@@ -137,7 +137,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 	@POST
 	@Path("/smf/{documentId}/import")
 	@Produces("application/octet-stream")
-	fun importSmf(@PathParam("documentId") documentId: String, @QueryParam("documentKet") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, @RequestBody(required = false) mappings: Map<String,List<ImportMapping>>?) : Response {
+	fun importSmf(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, @RequestBody(required = false) mappings: Map<String,List<ImportMapping>>?) : Response {
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
 		val document = documentLogic.get(documentId)

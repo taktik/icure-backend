@@ -62,7 +62,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 
-<link rel="import" href="elements/icc-x-api/icc-x-api.html">
 <link rel="import" href="elements/icc-api/icc-api.html">
 
 <dom-module id="ht-app-tz">
@@ -347,7 +346,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		</style>
 
-		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
+		<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
 		<paper-item id="noehealth" class="notification-panel noehealth">No Ehealth connection
 			<iron-icon icon="icons:warning"></iron-icon>

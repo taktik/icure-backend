@@ -903,6 +903,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					opacity: 0;
 				}
 			}
+
+            #therLinkDialog{
+                width: 80%;
+            }
 		</style>
 
 		<div class="container">
@@ -925,7 +929,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="statusContainer">
 									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
 									<paper-fab id="consentStatus" mini icon="icons:thumb-up" on-tap="_openConsentDialog"></paper-fab>
-									<paper-fab id="tlStatus" mini icon="vaadin:specialist"></paper-fab>
+									<paper-fab id="tlStatus" mini icon="vaadin:specialist" on-tap="_openTherLinkDialog"></paper-fab>
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub"></paper-fab>
 								</div>
 							</div>
@@ -1186,13 +1190,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
+		<paper-dialog id="therLinkDialog">
+			<h2 class="modal-title">[[localize('tl_req','Therapeutic Link',language)]]</h2>
+			<div id="legaltextTL"></div>
+            <vaadin-grid id="ther-link-list" class="material" overflow="bottom" items=[[currentTherLinks]] active-item="{{selectedTherLink}}">
+                <vaadin-grid-column width="120px">
+                    <template class="header">
+                        <vaadin-grid-sorter path="description">[[localize('hcp_ident','Hcp',language)]]</vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[_hcpIdent(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="120px">
+                    <template class="header">[[localize('pat_ident','Patient',language)]]</template>
+                    <template>
+                        <div class="cell frozen">[[_patIdent(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="80px">
+                    <template class="header">[[localize('sta_dat','Start Date',language)]]</template>
+                    <template>
+                        <div class="cell frozen">[[_startDate(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="80px">
+                    <template class="header">[[localize('end_dat','End Date',language)]]</template>
+                    <template>
+                        <div class="cell frozen">[[_endDate(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="80px">
+                    <template class="header">[[localize('tl_type','Type',language)]]</template>
+                    <template>
+                        <div class="cell frozen">[[_tlType(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column width="80px">
+                    <template class="header">[[localize('status','Status',language)]]</template>
+                    <template>
+                        <div class="cell frozen">[[_tlStatus(item)]]</div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+			<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
+			<paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
+			<!--<paper-button on-tap="_getTherLinks">[[localize('get_TL','Get Therapeutic link',language)]]</paper-button>-->
+			<div class="buttons">
+				<paper-button on-tap="_revokeTherLink" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
+				<paper-button enabled="false" on-tap="_registerTherLink" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
+			</div>
+		</paper-dialog>
 	</template>
 	<script>
 
 import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import styx from '../../../scripts/styx';
-import { AccessLogDto } from "../icc-api/model/AccessLogDto";
+import { AccessLogDto } from "icc-api/icc-api/model/AccessLogDto";
 
 class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -1242,7 +1299,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			selectedHealthcareElements: {
 				type: Array,
-				observer: "selectedHealthcareElementsChanged",
 				value: function () {
 					return [];
 				}
@@ -1315,6 +1371,17 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Boolean,
 				value: false
 			},
+            currentTherLinks: {
+                type: Array,
+                observer: "currentTherLinksChanged",
+                value: function () {
+                    return [];
+                }
+            },
+            selectedTherLink: {
+			    type: Object,
+                value: null
+            },
 			secondPanelItems: {
 				type: Array,
 				value: function () {
@@ -1369,6 +1436,99 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.consentDialog.open();
     }
 
+    _openTherLinkDialog(e) {
+	    e.stopPropagation();
+        this.selectedTherLink = null;
+	    this._getTherLinks();
+        //this.root.querySelector('#legaltext').innerHTML = this.localize('cons_legal', 'Informed consent legal text ...', this.language)
+        this.$.therLinkDialog.open();
+	}
+
+    _hcpIdent(tl){
+	    return tl.therapeuticLink.hcParty.nihii || ''
+    }
+
+    _patIdent(tl){
+        return tl.therapeuticLink.patient.inss || ''
+    }
+
+    _startDate(tl){
+        return tl.therapeuticLink.startDate || ''
+    }
+
+    _endDate(tl){
+        return tl.therapeuticLink.endDate || ''
+    }
+
+    _tlStatus(tl){
+        return tl.therapeuticLink.status || ''
+    }
+
+    _tlType(tl){
+        return tl.therapeuticLink.type || ''
+    }
+
+
+	_getTherLinks(){
+        if (this.patient.ssin && this.api.tokenId) {
+            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                .then(hcp =>
+                    this.api.fhc().Therlinkcontroller().getAllTherapeuticLinksUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                        this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber,
+						null, null,null,null ) //returns Array of therapeuticLink
+                ).then(therLinkResp => {
+                        if (therLinkResp) {
+                            this.set('currentTherLinks', therLinkResp);
+                            return therLinkResp;
+                        } else {
+                            return null;
+                        }
+                    }
+                )
+        } else {
+            return Promise.resolve(null)
+        }
+	}
+
+    _registerTherLink(){
+        if (this.patient.ssin && this.api.tokenId) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                    this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber, null, null, null, null, null)
+            ).then(therLinkResp => {
+                    if(therLinkResp.therapeuticLink) {
+                        this.showPatientTherLinkState()
+                        return(therLinkResp.therapeuticLink)
+                    }
+                    else{
+                        return Promise.resolve(null)
+                    }
+                }
+            )
+        }
+        else
+        {
+            return Promise.resolve(null)
+        }
+    }
+
+    _revokeTherLink(){
+        if (this.patient.ssin && this.api.tokenId && this.selectedTherLink) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                this.api.fhc().Therlinkcontroller().revokeLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                this.selectedTherLink.therapeuticLink, null)
+            }).then(consentResp => {
+                        this.showPatientTherLinkState()
+                        return consentResp
+            	}
+			)
+        }else{
+            return Promise.resolve(null)
+        }
+    }
+
     _getConsent(){
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
@@ -1415,23 +1575,25 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _registerConsent(){
         if (this.patient.ssin && this.api.tokenId) {
-            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => Promise.all([
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.api.fhc().Consentcontroller().registerPatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)]
+                        this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber, this.isiCardNumber)
                 ).then(consentResp => {
-                    if(consentResp[0].consent) {
+                    if(consentResp.consent) {
                         this.showPatientConsentState()
-                        this.patientConsent = consentResp[0].consent;
+                        return(consentResp.consent)
                     }
                     else{
-                        this.patientConsent = null;
+                        return Promise.resolve(null)
                     }
                 }
-
-                )
             )
         }
+        else
+		{
+		    return Promise.resolve(null)
+		}
     }
 
 	clearEvent(el) {
@@ -1703,11 +1865,28 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							}
 						});
 					}
-                    this.showPatientConsentState()
+					this.selectedTherLink = null;
+                    this.showPatientConsentState();
+					this.showPatientTherLinkState();
 				}));
 
 			}
 		}
+	}
+
+	showPatientTherLinkState(){
+		this._getTherLinks().then(therLinks => {
+                var tlOk = false;
+                this.$.tlStatus.classList.remove('noTl');
+                this.$.tlStatus.classList.remove('tlOk');
+
+                if(therLinks[0]) {
+                    tlOk = true;
+                }
+                this.$.tlStatus.classList.add(tlOk ? 'tlOk' : 'noTl');
+                Polymer.updateStyles(this.$.tlStatus)
+            }
+        )
 	}
 
 	showPatientConsentState(){
@@ -1718,7 +1897,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                 if(patientConsent) {
                     consentOk = !patientConsent.error;
-                    //consentOk = !patientConsent.revokeDate;
                 }
                 this.$.consentStatus.classList.add(consentOk ? 'consentOk' : 'noConsent');
                 Polymer.updateStyles(this.$.consentStatus)
@@ -2137,7 +2315,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			}).then(he => this.api.helement().modifyHealthElement(he)).then(he => this.patientChanged());
 		} else if (this.editedHealthElementModel.he.idService) {
 			const svc = this.editedHealthElementModel.he.svc;
-			return this.api.helement().serviceToHealthElement(this.user, this.patient, svc, this.language).then(he => {
+			return this.api.helement().serviceToHealthElement(this.user, this.patient, svc,
+				this.api.contact().shortServiceDescription(svc, language)).then(he => {
 				if (this.currentContact) {
 					this.api.contact().promoteServiceInContact(this.currentContact, this.user, this.contacts, svc, undefined, null, [he.id], null);
 					this.saveCurrentContact().then(c => this.patientChanged());

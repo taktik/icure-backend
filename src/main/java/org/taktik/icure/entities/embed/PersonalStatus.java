@@ -26,5 +26,5 @@ import org.taktik.icure.entities.base.EnumVersion;
 
 @EnumVersion(1l)
 public enum PersonalStatus implements Serializable {
-    single, in_couple, married, divorced,  widower, complicated, unknown
+    single, in_couple, married, separated, divorced,  divorcing, widower, complicated, unknown
 }

@@ -117,10 +117,17 @@
 			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
 				<pdf-element src="[[dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
 			</template>
+			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
+				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <span on-tap="[[_getAttachment()]]"> Details Import</span>
+				<template is="dom-if" if="[[showDetail]]">
+					[[documentAttachment]]
+				</template>
+			</template>
 		</paper-card>
 	</template>
 
 	<script>
+        import XML from 'parse-xml/dist/parse-xml';
 class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
 	static get is() {
 		return 'dynamic-doc';
@@ -143,6 +150,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 				type: Object,
 				value: null
 			},
+            documentAttachment:{
+			    type: String,
+                value: null
+			},
 			dataUrl: {
 				type: String,
 				value: null
@@ -150,6 +161,18 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 			title: {
 				type: String,
 				value: null
+			},
+			showDetail:{
+			    type: Boolean,
+				value: false
+			},
+			type:{
+			    type: String,
+				value: null
+			},
+            patient:{
+			    type: Object,
+				vadue: null
 			}
 		};
 	}
@@ -171,9 +194,18 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 					var collatedAesKeys = {};
 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
 					return this.api.crypto().decryptDelegationsSFKs(doc.delegations[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(sfks => {
-						const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);
-						console.log('url is', url);
-						this.set('dataUrl', url);
+                        if(this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+                            this.api.document().getAttachment(doc.id, doc.attachmentId, sfks).then(att => {
+                                console.log(typeof att);
+                                this.set('documentAttachment', att);
+                                const xml = XML.parseXml(att)
+                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S); this.importPatient();}else{this.set("type","Non Valid Type")}
+							});
+                        }else {
+                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);
+                            console.log('url is', url);
+                            this.set('dataUrl', url);
+                        }
 					});
 				}.bind(this)).catch(() => {
 					const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId);
@@ -189,15 +221,31 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
 	}
 
 	_pdfMimeType(uti, utis, dataUrl) {
-		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.api.document().mimeType(u)).find(m => m === 'application/pdf');
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
+	}
+
+    _xmlMimeType(uti, utis) {
+        return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+    }
+
+    mimeType(u){
+	    return this.api.document().mimeType(u)
 	}
 
 	_base64(data) {
 		return base64js.fromByteArray(data);
+	}
+
+    _getAttachment(){
+        this.showDetail = !this.showDetail
+	}
+
+	importPatient(){
+	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{})
 	}
 
 }
