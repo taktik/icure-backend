@@ -21,736 +21,1044 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-pat-list">
-	<template>
-		<custom-style>
-			<style is="custom-style">
-				:host {
-					display: block;
-					height: 100%;
-					@apply --padding-right-left-32;
-				}
+    <template>
+        <custom-style>
+            <style is="custom-style">
+                :host {
+                    display: block;
+                    height: 100%;
+                    @apply --padding-right-left-32;
+                }
 
-				:host #patients-list {
-					height: calc(100% - 140px);
-					outline: none;
-				}
+                :host #patients-list {
+                    height: calc(100% - 140px);
+                    outline: none;
+                }
 
-				paper-input{
-					--paper-input-container-focus-color: var(--app-primary-color);
-					--paper-input-container-label: {
-						color:var(--app-text-color);
-						opacity:1;
-					};
-					--paper-input-container-underline-disabled: {
-						border-bottom: 1px solid var(--app-text-color);
+                paper-input {
+                    --paper-input-container-focus-color: var(--app-primary-color);
+                    --paper-input-container-label: {
+                        color: var(--app-text-color);
+                        opacity: 1;
+                    };
+                    --paper-input-container-underline-disabled: {
+                        border-bottom: 1px solid var(--app-text-color);
 
-					};
-					--paper-input-container-color: var(--app-text-color);
-				}
+                    };
+                    --paper-input-container-color: var(--app-text-color);
+                }
 
-				.horizontal {
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					flex-basis: 100%;
-					align-items: center;
-				}
+                .horizontal {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    flex-basis: 100%;
+                    align-items: center;
+                }
 
-				.horizontal paper-input {
-					height: 90px;
-					@apply --padding-right-left-16
-				}
+                .horizontal paper-input {
+                    height: 90px;
+                    @apply --padding-right-left-16
+                }
 
-				.horizontal vaadin-date-picker {
-					height: 90px;
-					padding-bottom: 0px;
-					@apply --padding-right-left-16
-				}
+                .horizontal vaadin-date-picker {
+                    height: 90px;
+                    padding-bottom: 0px;
+                    @apply --padding-right-left-16
+                }
 
-				vaadin-grid.material {
+                vaadin-grid.material {
 
-					font-family: Roboto, sans-serif;
-					--divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+                    font-family: Roboto, sans-serif;
+                    --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
 
-					--vaadin-grid-cell: {
-						padding: 8px;
-					};
+                    --vaadin-grid-cell: {
+                        padding: 8px;
+                    };
 
-					--vaadin-grid-header-cell: {
-						height: 64px;
-						color: rgba(0, 0, 0, var(--dark-secondary-opacity));
-						font-size: 12px;
-					};
+                    --vaadin-grid-header-cell: {
+                        height: 64px;
+                        color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                        font-size: 12px;
+                    };
 
-					--vaadin-grid-body-cell: {
-						height: 48px;
-						color: rgba(0, 0, 0, var(--dark-primary-opacity));
-						font-size: 13px;
-					};
+                    --vaadin-grid-body-cell: {
+                        height: 48px;
+                        color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                        font-size: 13px;
+                    };
 
-					--vaadin-grid-body-row-hover-cell: {
-						background-color: var(--paper-grey-200);
-					};
+                    --vaadin-grid-body-row-hover-cell: {
+                        background-color: var(--paper-grey-200);
+                    };
 
-					--vaadin-grid-body-row-selected-cell: {
-						background-color: var(--paper-grey-100);
-					};
+                    --vaadin-grid-body-row-selected-cell: {
+                        background-color: var(--paper-grey-100);
+                    };
 
-					--vaadin-grid-focused-cell: {
-						box-shadow: none;
-						font-weight: bold;
-					};
-				}
+                    --vaadin-grid-focused-cell: {
+                        box-shadow: none;
+                        font-weight: bold;
+                    };
+                }
 
-				vaadin-grid.material .cell {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					padding-right: 56px;
-				}
+                vaadin-grid.material .cell {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    padding-right: 56px;
+                }
 
-				vaadin-grid.material .cell.last {
-					padding-right: 24px;
-				}
+                vaadin-grid.material .cell.last {
+                    padding-right: 24px;
+                }
 
-				vaadin-grid.material .cell.numeric {
-					text-align: right;
-				}
+                vaadin-grid.material .cell.numeric {
+                    text-align: right;
+                }
 
-				vaadin-grid.material paper-checkbox {
-					--primary-color: var(--paper-indigo-500);
-					margin: 0 24px;
-				}
+                vaadin-grid.material paper-checkbox {
+                    --primary-color: var(--paper-indigo-500);
+                    margin: 0 24px;
+                }
 
-				vaadin-grid.material vaadin-grid-sorter .cell {
-					flex: 1;
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-				}
+                vaadin-grid.material vaadin-grid-sorter .cell {
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
 
-				vaadin-grid.material vaadin-grid-sorter iron-icon {
-					transform: scale(0.8);
-				}
+                vaadin-grid.material vaadin-grid-sorter iron-icon {
+                    transform: scale(0.8);
+                }
 
-				vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
-					color: rgba(0, 0, 0, var(--dark-disabled-opacity));
-				}
+                vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                    color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+                }
 
-				vaadin-grid.material vaadin-grid-sorter[direction] {
-					color: rgba(0, 0, 0, var(--dark-primary-opacity));
-				}
+                vaadin-grid.material vaadin-grid-sorter[direction] {
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                }
 
-				vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
-					transform: scale(0.8) rotate(180deg);
-				}
+                vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                    transform: scale(0.8) rotate(180deg);
+                }
 
-				.show-all-patients {
-					left:calc(20% + 16px);
-					position: absolute;
-					bottom: 20px;
-				}
+                .show-all-patients {
+                    left: calc(20% + 16px);
+                    position: absolute;
+                    bottom: 20px;
+                }
 
-				.add-btn-container{
-					width:80%;
-					left:20%;
-					position: absolute;
-					bottom: 16px;
+                .add-btn-container {
+                    width: 80%;
+                    left: 20%;
+                    position: absolute;
+                    bottom: 16px;
 
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					align-items: center;
-					margin-top: 2px;
-				}
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    margin-top: 2px;
+                }
 
-				.add-btn{
-					--paper-button-ink-color: var(--app-secondary-color-dark);
-					background:var(--app-secondary-color);
-					color:var(--app-text-color);
-					font-weight:bold;
-					font-size:14px;
-					height:40px;
-					min-width:100px;
-					@apply --shadow-elevation-2dp;
-					padding: 10px 1.2em;
-				}
+                .add-btn {
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    background: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    font-weight: bold;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    @apply --shadow-elevation-2dp;
+                    padding: 10px 1.2em;
+                }
 
-				.save-btn-container{
-					width:20%;
-					left:0;
-					position: absolute;
-					bottom: 16px;
+                .save-btn-container {
+                    width: 20%;
+                    left: 0;
+                    position: absolute;
+                    bottom: 16px;
 
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					align-items: center;
-					margin-top: 2px;
-				}
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    margin-top: 2px;
+                }
 
-				.save-btn{
-					--paper-button-ink-color: var(--app-secondary-color-dark);
-					background:var(--app-secondary-color);
-					color:var(--app-text-color);
-					font-weight:bold;
-					font-size:14px;
-					height:40px;
-					min-width:100px;
-					@apply --shadow-elevation-2dp;
-					padding: 10px 1.2em;
-				}
+                .save-btn {
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    background: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    font-weight: bold;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    @apply --shadow-elevation-2dp;
+                    padding: 10px 1.2em;
+                }
 
-				.patient-photo {
-					background: rgba(0, 0, 0, 0.1);
-					height: 26px;
-					width: 26px;
-					min-width: 26px;
-					border-radius: 50%;
-					margin-right: 8px;
-					overflow: hidden !important;
-					padding-right: 0 !important;
-				}
+                .patient-photo {
+                    background: rgba(0, 0, 0, 0.1);
+                    height: 26px;
+                    width: 26px;
+                    min-width: 26px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                    overflow: hidden !important;
+                    padding-right: 0 !important;
+                }
 
-				.patient-photo img {
-					width: 100%;
-					margin: 50%;
-					transform: translate(-50%, -50%);
-				}
+                .patient-photo img {
+                    width: 100%;
+                    margin: 50%;
+                    transform: translate(-50%, -50%);
+                }
 
+                .container {
+                    width: 100%;
+                    height: calc(100vh - 64px);
+                    display: grid;
+                    grid-template-columns: 20% 30% 50%;
+                    grid-template-rows: 100%;
+                    position: fixed;
+                    top: 64px;
+                    left: 0;
+                    bottom: 0;
+                    right: 0;
+                }
 
-				.container {
-					width: 100%;
-					height: calc(100vh - 64px);
-					display:grid;
-					grid-template-columns: 20% 30% 50%;
-					grid-template-rows: 100%;
-					position: fixed;
-					top: 64px;
-					left: 0;
-					bottom: 0;
-					right: 0;
-				}
-
-				.first-filter-panel{
-					/*width:20%;
+                .first-filter-panel {
+                    /*width:20%;
                     height:calc(100% - 64px);*/
-					height:100%;
-					background: var(--app-background-color-dark);
-					/*position:fixed;*/
-					top:64px;
-					left:0;
-					@apply --shadow-elevation-3dp;
-					grid-column: 1 / 1;
-					grid-row:1 / 1;
-					z-index:3;
-					overflow:hidden;
-					padding: 5px;
-				}
+                    height: 100%;
+                    background: var(--app-background-color-dark);
+                    /*position:fixed;*/
+                    top: 64px;
+                    left: 0;
+                    @apply --shadow-elevation-3dp;
+                    grid-column: 1 / 1;
+                    grid-row: 1 / 1;
+                    z-index: 3;
+                    overflow: hidden;
+                    padding: 5px;
+                }
 
+                .second-filter-panel {
+                    /*width:30%;*/
+                    height: 100%;
+                    background: var(--app-background-color);
+                    /*position:fixed;*/
+                    top: 64px;
+                    left: 20%;
+                    @apply --shadow-elevation-2dp;
+                    margin: 0;
+                    grid-column: 2 / 4;
+                    grid-row: 1 / 1;
 
-				.second-filter-panel{
-					/*width:30%;*/
-					height:100%;
-					background: var(--app-background-color);
-					/*position:fixed;*/
-					top:64px;
-					left:20%;
-					@apply --shadow-elevation-2dp;
-					margin:0;
-					grid-column: 2 / 4;
-					grid-row:1 / 1;
+                    z-index: 2;
+                    padding: 5px;
 
-					z-index:2;
-					padding: 5px;
+                }
 
+                .display-left-menu {
+                    display: inherit;
+                }
 
-				}
+                .submenus-container {
+                    overflow-x: auto;
+                    height: calc(100% - 140px);
+                    margin-bottom: 16px;
+                }
 
-				.display-left-menu{
-					display:inherit;
-				}
+                collapse-button > .menu-item.iron-selected {
+                    @apply --padding-right-left-16;
+                    color: var(--app-text-color-light);
+                    background: var(--app-primary-color);
+                    @apply --text-shadow;
+                }
 
-				.submenus-container{
-					overflow-x: auto;
-					height: calc(100% - 140px);
-					margin-bottom:16px;
-				}
+                .menu-item {
+                    @apply --padding-right-left-16;
+                    height: 48px;
+                    @apply --paper-font-button;
+                    text-transform: inherit;
+                    justify-content: space-between;
+                    cursor: pointer;
+                    @apply --transition;
+                }
 
-				collapse-button > .menu-item.iron-selected {
-					@apply --padding-right-left-16;
-					color:var(--app-text-color-light);
-					background:var(--app-primary-color);
-					@apply --text-shadow;
-				}
+                .menu-item:hover {
+                    background: var(--app-dark-color-faded);
+                    @apply --transition;
+                }
 
-				.menu-item{
-					@apply --padding-right-left-16;
-					height:48px;
-					@apply --paper-font-button;
-					text-transform: inherit;
-					justify-content: space-between;
-					cursor: pointer;
-					@apply --transition;
-				}
+                .menu-item .iron-selected {
+                    background: var(--app-primary-color);
+                }
 
-				.menu-item:hover{
-					background: var(--app-dark-color-faded);
-					@apply --transition;
-				}
+                .filterNameInput {
+                    width: 400px;
+                }
 
-				.menu-item .iron-selected{
-					background:var(--app-primary-color);
-				}
-
-				.filterNameInput{
-					width: 400px;
-				}
-
-                .deleteFilterIcon{
+                .deleteFilterIcon {
                     float: right;
                     color: var(--app-secondary-color);
                 }
 
-				paper-item.iron-selected {
-					background-color: var(--app-primary-color);
-					color: var(--app-text-color-light);
-				}
+                paper-item.iron-selected {
+                    background-color: var(--app-primary-color);
+                    color: var(--app-text-color-light);
+                }
 
-				paper-item.iron-selected:hover {
-					background: #5a6d75;
-				}
+                paper-item.iron-selected:hover {
+                    background: #5a6d75;
+                }
 
-				paper-listbox {
-					background: none;
-				}
-			</style>
-		</custom-style>
+                #sharePatientOption {
+                    height: 34px;
+                    padding: 10px;
+                    background: #edf4fd;
+                    -webkit-transition: background .15s;
+                    transition: background .15s;
+                    position: absolute;
+                    z-index: 2;
+                    display: none;
+                    width: 78%;
 
-		<div class="container">
-			<div class="first-filter-panel">
-				<h4>Filtres sauvegardés</h4>
-				<div class="submenus-container">
-					<paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]" focused on-selected-values-changed="selectFilter" multi>
-						<template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter" id="filterMenu">
-							<paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]" user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
-								<div class="one-line-menu list-title">
-									[[filter.name]]
-								</div>
-								<div class="deleteFilterIcon">
-									<iron-icon icon="vaadin:close-circle" id="[[filter.name]]" on-tap="deleteFilter"></iron-icon>
-								</div>
-							</paper-item>
+                }
+
+                #sharePatientOption_back {
+                    min-width: 80px;
+                    cursor: pointer;
+                }
+
+                #sharePatientOption_text {
+                    margin: auto;
+                }
+
+                #sharePatientOption_option {
+                    cursor: pointer;
+                }
+
+                paper-listbox {
+                    background: none;
+                }
+
+                #sharePatientDialog {
+                    height: 550px;
+                    width: 1000px;
+                }
+
+            </style>
+        </custom-style>
+
+        <div class="container">
+            <div class="first-filter-panel">
+                <h4>Filtres sauvegardés</h4>
+                <div class="submenus-container">
+                    <paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]"
+                                   focused on-selected-values-changed="selectFilter" multi>
+                        <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
+                                  id="filterMenu">
+                            <paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]"
+                                        user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
+                                <div class="one-line-menu list-title">
+                                    [[filter.name]]
+                                </div>
+                                <div class="deleteFilterIcon">
+                                    <iron-icon icon="vaadin:close-circle" id="[[filter.name]]"
+                                               on-tap="deleteFilter"></iron-icon>
+                                </div>
+                            </paper-item>
                         </template>
-					</paper-listbox>
-				</div>
-				<div class="save-btn-container"><paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save Filter',language)]]</paper-button></div>
-			</div>
+                    </paper-listbox>
+                </div>
+                <div class="save-btn-container">
+                    <paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save
+                        Filter',language)]]
+                    </paper-button>
+                </div>
+            </div>
 
-			<div class="second-filter-panel">
-				<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-				<vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
-					<vaadin-grid-column width="32px">
-						<template class="header">
-							<div class="cell frozen">[[localize('pic','Picture',language)]]</div>
-						</template>
-						<template>
-							<div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
-						</template>
-					</vaadin-grid-column>
+            <div class="second-filter-panel">
 
-					<vaadin-grid-column width="100px">
-						<template class="header">
-							<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-						</template>
-						<template>
-							<div class="cell frozen">[[item.lastName]]</div>
-						</template>
-					</vaadin-grid-column>
-					<vaadin-grid-column width="100px">
-						<template class="header">
-							<vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
-						</template>
-						<template>
-							<div class="cell frozen">[[item.firstName]]</div>
-						</template>
-					</vaadin-grid-column>
-					<vaadin-grid-column width="100px">
-						<template class="header">
-							<vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]</vaadin-grid-sorter>
-						</template>
-						<template>
-							<div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
-						</template>
-					</vaadin-grid-column>
-					<vaadin-grid-column width="100px">
-						<template class="header">
-							<div class="cell frozen">[[localize('ema','Email',language)]]</div>
-						</template>
-						<template>
-							<div class="cell frozen">[[item.email]]</div>
-						</template>
-					</vaadin-grid-column>
-					<vaadin-grid-column>
-						<template class="header">
-							<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
-						</template>
-						<template>
-							<div class="cell numeric">[[item.phone]]</div>
-						</template>
-					</vaadin-grid-column>
-					<vaadin-grid-column>
-						<template class="header">
-							<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
-						</template>
-						<template>
-							<div class="cell numeric">[[item.mobile]]</div>
-						</template>
-					</vaadin-grid-column>
-				</vaadin-grid>
-				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]</paper-button></div>
-				<vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">[[localize('show_inactive_patients','Show inactive patients',language)]]</vaadin-checkbox>
-			</div>
-		</div>
+                <div id="sharePatientOption">
+                    <div id="sharePatientOption_back" on-tap="_deselectAllSharePatient">
+                        <iron-icon icon="vaadin:arrow-left"></iron-icon>
+                        <span>Back</span>
+                    </div>
+                    <div id="sharePatientOption_text">
+                        [[nbSharePatientSelected]] patient(s) selected
+                    </div>
+                    <div id="sharePatientOption_option">
+                        <iron-icon icon="icons:check" on-tap="_openSharePatientDialog"></iron-icon>
+                    </div>
+                </div>
 
-		<paper-dialog id="add-patient-dialog">
-			<div class="horizontal">
-				<paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-				<paper-input label="First name" value="{{firstName}}"></paper-input>
-				<vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}" ></vaadin-date-picker>
-			</div>
-			<div class="buttons">
-				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
-			</div>
-		</paper-dialog>
+                <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
+                             on-keydown="refresh"></paper-input>
+                <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
+                             on-tap="click">
+                    <vaadin-grid-column width="32px">
+                        <template class="header">
+                            <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
+                        </template>
+                        <template>
+                            <template is="dom-if" if="[[!shareOption]]">
+                                <div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
+                            </template>
+                            <template is="dom-if" if="[[shareOption]]">
+                                <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientToShare(item, patientToShare.*)]]"
+                                                 on-checked-changed="_checkSharePatient"></vaadin-checkbox>
+                            </template>
+                        </template>
+                    </vaadin-grid-column>
 
-		<paper-dialog id="saveFilterDialog">
-			<h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
-			<div>
-				<vaadin-text-field class="filterNameInput" label="Filter name" value="{{filterName}}"></vaadin-text-field>
-			</div>
-			<div class="buttons">
-				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]</paper-button>
-			</div>
-		</paper-dialog>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.lastName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.firstName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <div class="cell frozen">[[localize('ema','Email',language)]]</div>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.email]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <div class="cell numeric">[[localize('pho','Phone',language)]]</div>
+                        </template>
+                        <template>
+                            <div class="cell numeric">[[item.phone]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
+                        </template>
+                        <template>
+                            <div class="cell numeric">[[item.mobile]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+                <div class="add-btn-container">
+                    <template is="dom-if" if="[[!shareOption]]">
+                        <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
+                        </paper-button>
 
-	</template>
+                        <template is="dom-if" if="[[btnSharePatient]]">
+                            <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
+                                patients',language)]]
+                            </paper-button>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[shareOption]]">
+                        <paper-button class="add-btn" on-tap="_cancelSharing">[[localize('canc','Cancel',language)]]
+                        </paper-button>
+                    </template>
+                </div>
+                <vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">
+                    [[localize('show_inactive_patients','Show inactive patients',language)]]
+                </vaadin-checkbox>
+            </div>
+        </div>
 
-	<script>
+        <paper-dialog id="add-patient-dialog">
+            <div class="horizontal">
+                <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
+                <paper-input label="First name" value="{{firstName}}"></paper-input>
+                <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
 
-import moment from 'moment/src/moment';
-import _ from 'lodash/lodash';
-import filterExParser from '../../../scripts/filterExParser';
-import {FilterExPrinter} from '../icc-x-api/filterExPrinter';
+        <paper-dialog id="saveFilterDialog">
+            <h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
+            <div>
+                <vaadin-text-field class="filterNameInput" label="Filter name"
+                                   value="{{filterName}}"></vaadin-text-field>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
 
-class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
-	static get is() {
-		return 'ht-pat-list';
-	}
+        <paper-dialog id="sharePatientDialog">
+            <h4>Avec quel prestataire souhaitez-vous partager ces patients ?</h4>
+            <div>
+                <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                        </template>
+                        <template>
+                            <vaadin-checkbox id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.lastName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.firstName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.speciality]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.email]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmSharing">[[localize('share_pat','Share
+                    patients',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
 
-	static get properties() {
-		return {
-			api: {
-				type: Object
-			},
-			user: {
-				type: Object
-			},
-			selectedPatient: {
-				type: Object,
-				notify: true
-			},
-			activeItem: {
-				type: Object
-			},
-            showInactive: {
-                type: Boolean,
-                value: false
-            },
-			i18n: {
-				Type: Object,
-				value: function () {
-					moment.locale('fr');
-					const res = {
-						monthNames: moment.months(),
-						weekdays: moment.weekdays(),
-						weekdaysShort: moment.weekdaysShort(),
-						firstDayOfWeek: moment.localeData().firstDayOfWeek(),
-						week: 'Semaine',
-						calendar: 'Calendrier',
-						clear: 'Clear',
-						today: 'Aujourd\'hui',
-						cancel: 'Annuler',
-						formatDate: function (d) {
-							//return moment(d).format(moment.localeData().longDateFormat('L'))
-							return moment(d).format('DD/MM/YYYY');
-						},
-						parseDate: function (s) {
-							return moment(s, 'DD/MM/YYYY').toDate();
-						},
-						formatTitle: function (monthName, fullYear) {
-							return monthName + ' ' + fullYear;
-						}
-					};
-					return res;
-				}
-			},
-            selectedFilters: {
-                type: Array,
-                notify: true,
-                value: () => []
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment'
+        import _ from 'lodash/lodash'
+        import filterExParser from '../../../scripts/filterExParser'
+        import {FilterExPrinter} from '../icc-x-api/filterExPrinter'
+
+        class HtPatList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+            static get is() {
+                return 'ht-pat-list'
             }
-		};
-	}
 
-	static get observers() { return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)']}
-
-	constructor() {
-		super();
-	}
-
-    _showInactivePatientsChanged(){
-        this.$['patients-list'].clearCache();
-    }
-
-    ready() {
-		super.ready();
-
-		var grid = this.$['patients-list'];
-
-		grid.lastParams = null; //Used to prevent double calls
-		grid.size = 0;
-		grid.pageSize = 50;
-		grid.dataProvider = function (params, callback) {
-			const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || 'lastName';
-			const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
-
-			const pageSize = params.pageSize || grid.pageSize;
-			const startIndex = (params.page || 0) * pageSize;
-			const endIndex = ((params.page || 0) + 1) * pageSize;
-
-			const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":";
-
-			let latestSearchValue = this.filterValue;
-			this.latestSearchValue = latestSearchValue;
-
-			if (!latestSearchValue || latestSearchValue.length < 2) {
-				console.log("Cancelling empty search");
-				grid.set("size", 0);
-				callback([]);
-				return;
-			}
-
-			let svcFilter = null;
-			try {
-				svcFilter = filterExParser.parse(latestSearchValue, { hcpId: this.user.healthcarePartyId });
-			} catch (ignored) {}
-
-			const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
-				'$type': 'PatientByHcPartyAndSsinFilter',
-				'healthcarePartyId': this.user.healthcarePartyId,
-				'ssin': latestSearchValue
-			} : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
-				'$type': 'PatientByHcPartyDateOfBirthFilter',
-				'healthcarePartyId': this.user.healthcarePartyId,
-				'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
-			} : {
-			    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-				'healthcarePartyId': this.user.healthcarePartyId,
-				'searchString': latestSearchValue
-			};
-
-			if (grid.lastParams !== thisParams) {
-				grid.lastParams = thisParams;
-				console.log("Starting search for " + thisParams);
-				grid.latestPromise = svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, { filter: svcFilter }).then(out => {
-					let rows = out.rows;
-
-					const svcDict = rows.reduce((acc, s) => {
-						const cs = acc[s.id];
-						if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
-							acc[s.id] = s;
-						}
-						return acc;
-					}, {});
-					const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)]);
-					const hcpId = this.user.healthcarePartyId;
-
-					const ownersOfDelegations = services.reduce((acc, s) => {
-						s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1);return acc;
-					}, {});
-					const importedAESHcPartyKeys = {};
-					return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
-						return this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {
-							filter: {
-								'$type': 'PatientByIdsFilter',
-								'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
-							}
-						});
-					});
-				}) : this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, { filter: filter });
-			}
-
-			grid.latestPromise.then(function (res) {
-				if (this.filterValue !== latestSearchValue) {
-					console.log("Cancelling obsolete search");
-					return;
-				}
-
-				const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p=>this.showInactive || p.active)
-
-				if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-					grid.set("size", res.totalSize - (res.rows.length - keptPatients.length));
-				}
-				callback(keptPatients.map(this.pimpPatient));
-			}.bind(this));
-		}.bind(this);
-
-	}
-
-
-	formatDateOfBirth(dateOfBirth) {
-		return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A';
-	}
-
-	refresh() {
-		//Give the gui the time to update the field
-		setTimeout(function () {
-			let currentValue = this.filterValue;
-
-			if (this.latestSearchValue === currentValue) {
-				return;
-			}
-			setTimeout(function () {
-				if (currentValue === this.filterValue) {
-					console.log("Triggering search for " + this.filterValue);
-					this.$['patients-list'].clearCache();
-				} else {
-					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
-				}
-			}.bind(this), 500); //Wait for the user to stop typing
-		}.bind(this), 100);
-	}
-
-	pimpPatient(p) {
-		p.email = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || '';
-		p.phone = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'phone').map(t => t.telecomNumber).join()).filter(a => a).join() || '';
-		p.mobile = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'mobile').map(t => t.telecomNumber).join()).filter(a => a).join() || '';
-		return p;
-	}
-
-	click(e) {
-		const selected = this.activeItem;
-		console.log('selected ' + selected + ' - ' + this.latestSelected);
-		this.set('selectedPatient', selected);
-	}
-
-	_addPatient() {
-		this.$['add-patient-dialog'].open();
-	}
-
-	confirm() {
-		this.api.patient().newInstance(this.user, { lastName: this.lastName, firstName: this.firstName, active: true, dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')) }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p));
-	}
-
-    confirmFilter(){
-		const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
-			(this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
-
-		if (!filtersProperty.typedValue) { filtersProperty.typedValue = {type:'STRING', stringValue:'{}'}}
-        if (!filtersProperty.typedValue.stringValue) { filtersProperty.typedValue.type = 'STRING'; filtersProperty.typedValue.stringValue = '{}'}
-
-		const filters = JSON.parse(filtersProperty.typedValue.stringValue)
-		try {
-            filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
-        } catch(e) {
-            filters[this.filterName] = {
-                '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                'healthcarePartyId': this.user.healthcarePartyId,
-                'searchString': this.filterValue
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    selectedPatient: {
+                        type: Object,
+                        notify: true
+                    },
+                    activeItem: {
+                        type: Object
+                    },
+                    hcp:{
+                      type: Object
+                    },
+                    hcpSelectedForSharing: {
+                        type: Object,
+                        notify: true,
+                        value: () => []
+                    },
+                    showInactive: {
+                        type: Boolean,
+                        value: false
+                    },
+                    shareOption: {
+                        type: Boolean,
+                        value: false
+                    },
+                    btnSharePatient: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    },
+                    nbSharePatientSelected:{
+                        type: Number,
+                        value: 0
+                    },
+                    i18n: {
+                        Type: Object,
+                        value: function () {
+                            moment.locale('fr')
+                            const res = {
+                                monthNames: moment.months(),
+                                weekdays: moment.weekdays(),
+                                weekdaysShort: moment.weekdaysShort(),
+                                firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                                week: 'Semaine',
+                                calendar: 'Calendrier',
+                                clear: 'Clear',
+                                today: 'Aujourd\'hui',
+                                cancel: 'Annuler',
+                                formatDate: function (d) {
+                                    //return moment(d).format(moment.localeData().longDateFormat('L'))
+                                    return moment(d).format('DD/MM/YYYY')
+                                },
+                                parseDate: function (s) {
+                                    return moment(s, 'DD/MM/YYYY').toDate()
+                                },
+                                formatTitle: function (monthName, fullYear) {
+                                    return monthName + ' ' + fullYear
+                                }
+                            }
+                            return res
+                        }
+                    },
+                    selectedFilters: {
+                        type: Array,
+                        notify: true,
+                        value: () => []
+                    },
+                    patientToShare: {
+                        type: Array,
+                        notify: true,
+                        value: () => []
+                    }
+                }
             }
-		}
 
-		filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+            static get observers() {
+                return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)']
+            }
 
-		this.set('user.properties',this.user.properties.map(x=>x))
+            constructor() {
+                super()
+            }
 
-		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
-	}
+            _showInactivePatientsChanged() {
+                this.$['patients-list'].clearCache()
+            }
 
-	picture(pat) {
-		if (!pat) {
-			return require('../../../images/Male-128.jpg');
-		}
-		return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg');
-	}
+            ready() {
+                super.ready()
 
-    _saveFilter(e){
-    	this.$['saveFilterDialog'].open();
-	}
+                var grid = this.$['patients-list']
 
-    deleteFilter(e){
-        e.stopPropagation();
+                grid.lastParams = null //Used to prevent double calls
+                grid.size = 0
+                grid.pageSize = 50
+                grid.dataProvider = function (params, callback) {
+                    const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || 'lastName'
+                    const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false
 
-        const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
-            (this.user.properties[this.user.properties.length] = {type:{identifier:'org.taktik.icure.datafilters'}, typedValue:{type:'STRING', stringValue:'{}'}})
+                    const pageSize = params.pageSize || grid.pageSize
+                    const startIndex = (params.page || 0) * pageSize
+                    const endIndex = ((params.page || 0) + 1) * pageSize
 
-        const filters = JSON.parse(filtersProperty.typedValue.stringValue)
-        delete(filters[e.target.id])
+                    const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
 
-        filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+                    let latestSearchValue = this.filterValue
+                    this.latestSearchValue = latestSearchValue
 
-        this.set('user.properties',this.user.properties.map(x=>x))
+                    if (!latestSearchValue || latestSearchValue.length < 2) {
+                        console.log("Cancelling empty search")
+                        this.btnSharePatient = false
+                        this.shareOption = false
+                        grid.set("size", 0)
+                        callback([])
+                        return
+                    }
 
-        this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
-	}
+                    let svcFilter = null
+                    try {
+                        svcFilter = filterExParser.parse(latestSearchValue, {hcpId: this.user.healthcarePartyId})
+                    } catch (ignored) {
+                    }
 
-    _activeFilters() {
-        const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
-        if (filters) {
-            const parsedFilters = JSON.parse(filters.typedValue.stringValue)
-            return _.sortBy(Object.keys(parsedFilters).map(k=>({name:k, filter:parsedFilters[k]})))
+                    const filter = svcFilter ? null : /^[0-9]{11}$/.test(latestSearchValue) ? {
+                        '$type': 'PatientByHcPartyAndSsinFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'ssin': latestSearchValue
+                    } : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
+                        '$type': 'PatientByHcPartyDateOfBirthFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
+                    } : {
+                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'searchString': latestSearchValue
+                    }
+
+                    if (grid.lastParams !== thisParams) {
+                        grid.lastParams = thisParams
+                        console.log("Starting search for " + thisParams)
+                        grid.latestPromise = svcFilter ? this.api.contact().filterServicesBy(null, null, 10000, {filter: svcFilter}).then(out => {
+                            let rows = out.rows
+
+                            const svcDict = rows.reduce((acc, s) => {
+                                const cs = acc[s.id]
+                                if (!cs || !cs.modified || s.modified && this.api.after(s.modified, cs.modified)) {
+                                    acc[s.id] = s
+                                }
+                                return acc
+                            }, {})
+                            const services = _.sortBy(Object.values(svcDict).filter(s => !s.endOfLife), [s => +this.api.moment(s.modified || s.created || s.valueDate)])
+                            const hcpId = this.user.healthcarePartyId
+
+                            const ownersOfDelegations = services.reduce((acc, s) => {
+                                s.cryptedForeignKeys[hcpId].forEach(d => acc[d.owner] = 1)
+                                return acc
+                            }, {})
+                            const importedAESHcPartyKeys = {}
+                            return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys => Promise.all(Object.keys(ownersOfDelegations).map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId]).then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))).then(() => Promise.all(services.map(s => Promise.all(s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key))))))).then(arraysOfArraysOfPatIdsAsUa => {
+                                return this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                    filter: {
+                                        '$type': 'PatientByIdsFilter',
+                                        'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
+                                    }
+                                })
+                            })
+                        }) : this.api.patient().filterBy(null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
+                    }
+
+                    grid.latestPromise.then(function (res) {
+                        if (this.filterValue !== latestSearchValue) {
+                            console.log("Cancelling obsolete search")
+                            return
+                        }
+
+                        const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
+
+                        if (keptPatients.length > 0) {
+                            this.btnSharePatient = true
+                        }
+
+                        if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
+                            grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
+                        }
+                        callback(keptPatients.map(this.pimpPatient))
+                    }.bind(this))
+                }.bind(this)
+
+            }
+
+
+            formatDateOfBirth(dateOfBirth) {
+                return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
+            }
+
+            refresh() {
+                //Give the gui the time to update the field
+                setTimeout(function () {
+                    let currentValue = this.filterValue
+
+                    if (this.latestSearchValue === currentValue) {
+                        return
+                    }
+                    setTimeout(function () {
+                        if (currentValue === this.filterValue) {
+                            console.log("Triggering search for " + this.filterValue)
+                            this.$['patients-list'].clearCache()
+                        } else {
+                            console.log("Skipping search for " + this.filterValue + " != " + currentValue)
+                        }
+                    }.bind(this), 500) //Wait for the user to stop typing
+                }.bind(this), 100)
+            }
+
+            pimpPatient(p) {
+                p.email = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
+                p.phone = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'phone').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
+                p.mobile = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'mobile').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
+                return p
+            }
+
+            click(e) {
+                const selected = this.activeItem
+                console.log('selected ' + selected + ' - ' + this.latestSelected)
+                this.set('selectedPatient', selected)
+            }
+
+            _addPatient() {
+                this.$['add-patient-dialog'].open()
+            }
+
+            confirm() {
+                this.api.patient().newInstance(this.user, {
+                    lastName: this.lastName,
+                    firstName: this.firstName,
+                    active: true,
+                    dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, ''))
+                }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p))
+            }
+
+            confirmFilter() {
+                const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
+                    (this.user.properties[this.user.properties.length] = {
+                        type: {identifier: 'org.taktik.icure.datafilters'},
+                        typedValue: {type: 'STRING', stringValue: '{}'}
+                    })
+
+                if (!filtersProperty.typedValue) {
+                    filtersProperty.typedValue = {type: 'STRING', stringValue: '{}'}
+                }
+                if (!filtersProperty.typedValue.stringValue) {
+                    filtersProperty.typedValue.type = 'STRING'
+                    filtersProperty.typedValue.stringValue = '{}'
+                }
+
+                const filters = JSON.parse(filtersProperty.typedValue.stringValue)
+                try {
+                    filters[this.filterName] = filterExParser.parse(this.filterValue, {hcpId: this.user.healthcarePartyId})
+                } catch (e) {
+                    filters[this.filterName] = {
+                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'searchString': this.filterValue
+                    }
+                }
+
+                filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+
+                this.set('user.properties', this.user.properties.map(x => x))
+
+                this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {
+                    detail: user,
+                    bubbles: true,
+                    composed: true
+                })))
+            }
+
+            picture(pat) {
+                if (!pat) {
+                    return require('../../../images/Male-128.jpg')
+                }
+                return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+            }
+
+            _saveFilter(e) {
+                this.$['saveFilterDialog'].open()
+            }
+
+            deleteFilter(e) {
+                e.stopPropagation()
+
+                const filtersProperty = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters') ||
+                    (this.user.properties[this.user.properties.length] = {
+                        type: {identifier: 'org.taktik.icure.datafilters'},
+                        typedValue: {type: 'STRING', stringValue: '{}'}
+                    })
+
+                const filters = JSON.parse(filtersProperty.typedValue.stringValue)
+                delete(filters[e.target.id])
+
+                filtersProperty.typedValue.stringValue = JSON.stringify(filters)
+
+                this.set('user.properties', this.user.properties.map(x => x))
+
+                this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {
+                    detail: user,
+                    bubbles: true,
+                    composed: true
+                })))
+            }
+
+            _activeFilters() {
+                const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+                if (filters) {
+                    const parsedFilters = JSON.parse(filters.typedValue.stringValue)
+                    return _.sortBy(Object.keys(parsedFilters).map(k => ({name: k, filter: parsedFilters[k]})))
+                }
+                return []
+            }
+
+            _selectedFilterIndexes() {
+                const activeFilters = this._activeFilters()
+                return this.selectedFilters ? this.selectedFilters.map(f => activeFilters.map(ff => ff.name).indexOf(f.name)) : []
+            }
+
+            _selectedFiltersAsString() {
+                const filterPrinter = new FilterExPrinter()
+                return filterPrinter.print(this.selectedFilters.length > 1 ?
+                    {"$type": "IntersectionFilter", filters: this.selectedFilters.map(f => f.filter)} :
+                    this.selectedFilters[0].filter)
+            }
+
+            _filterValueChanged(filterValue) {
+                if (this.selectedFilters[0] && this._selectedFiltersAsString() !== this.filterValue) {
+                    this.set('selectedFilters', [])
+                }
+            }
+
+            selectFilter(e) {
+                const activeFilters = this._activeFilters()
+
+                this.set('selectedFilters', e.target.selectedValues.map(idx => activeFilters[idx]))
+                if (this.selectedFilters[0]) {
+                    this.set('filterValue', this._selectedFiltersAsString())
+                    this.previouslySetFilterValue = this.filterValue
+                } else {
+                    if (this.filterValue === this.previouslySetFilterValue) {
+                        this.set('filterValue', '')
+                    }
+                }
+
+                this.refresh()
+            }
+
+            _sharePatient(e) {
+                e.stopPropagation()
+                this.set('shareOption', true)
+            }
+
+            _checkSharePatient(e) {
+                const targetId = e.target.id
+                var nbPatient = 0
+
+                if (targetId !== "") {
+                    const mark = this.patientToShare.find(m => m.id === targetId)
+                    if (!mark) {
+                        this.push('patientToShare',{id:targetId, check:true})
+                    } else {
+                        mark.check = !mark.check
+                        this.notifyPath('patientToShare.*')
+                    }
+
+                    this.patientToShare.map(pt => {
+                        if(pt.check === true){
+                            nbPatient ++
+                        }
+                    })
+
+                    this.set('nbSharePatientSelected', nbPatient)
+                }
+
+
+
+                if (this.nbSharePatientSelected !== 0) {
+                    this.$['sharePatientOption'].style.display = "flex"
+                } else {
+                    this.$['sharePatientOption'].style.display = "none"
+                }
+
+            }
+
+            _patientToShare(item) {
+                if (item) {
+                    const mark = this.patientToShare.find(m => m.id === item.id)
+                    return mark && mark.check
+                } else {
+                    return false
+                }
+            }
+
+            _openSharePatientDialog() {
+                this.$['sharePatientDialog'].open()
+                this.set('hcp', _.values(this.api.hcParties))
+
+
+            }
+
+            _deselectAllSharePatient() {
+                this.set('patientToShare', [])
+                this.notifyPath('patientToShare.*')
+
+                this.$['sharePatientOption'].style.display = "none"
+                this.set('nbSharePatientSelected', 0)
+            }
+
+            _cancelSharing(){
+                this._deselectAllSharePatient()
+                this.set('shareOption', false)
+
+            }
+
+            _checkHcp(e){
+                if (e.target.id !== "") {
+                    const mark = this.hcpSelectedForSharing.find(m => m.id === e.target.id)
+                    if (!mark) {
+                        this.push('hcpSelectedForSharing',{id:e.target.id, check:true})
+                    } else {
+                        mark.check = !mark.check
+                        this.notifyPath('hcpSelectedForSharing.*')
+                    }
+                }
+
+            }
+
+            _sharingHcp(item){
+                if (item) {
+                    const mark = this.hcpSelectedForSharing.find(m => m.id === item.id)
+                    return mark && mark.check
+                } else {
+                    return false
+                }
+            }
+
+            confirmSharing(){
+
+                var tabDelegations = []
+
+                this.patientToShare.map(pat => {
+                    if(pat.check === true){
+                        this.api.patient().getPatient(pat.id).then( p => {
+                            tabDelegations = p.delegations
+                            this.hcpSelectedForSharing.map(hcp =>{
+                                if(hcp.check === true){
+                                    //tabDelegations[hcp.id] = [{"delegatedTo" : hcp.id, "key" : "", "owner": p.responsible}]
+                                   //this.api.patient().newDelegations(pat.id, hcp.id).then()
+
+                                }
+                            })
+                            console.log(p)
+                        })
+                    }
+                })
+            }
         }
-        return []
-	}
 
-    _selectedFilterIndexes(){
-	    const activeFilters = this._activeFilters()
-        return this.selectedFilters ? this.selectedFilters.map(f => activeFilters.map(ff=>ff.name).indexOf(f.name)) : []
-	}
-
-	_selectedFiltersAsString() {
-        const filterPrinter = new FilterExPrinter()
-        return filterPrinter.print(this.selectedFilters.length>1 ?
-            {"$type":"IntersectionFilter",filters:this.selectedFilters.map(f=>f.filter)}:
-            this.selectedFilters[0].filter)
-	}
-
-    _filterValueChanged(filterValue) {
-        if (this.selectedFilters[0] && this._selectedFiltersAsString() !== this.filterValue) {
-            this.set('selectedFilters',[])
-		}
-    }
-
-    selectFilter(e) {
-        const activeFilters = this._activeFilters()
-
-        this.set('selectedFilters',e.target.selectedValues.map(idx=>activeFilters[idx]))
-        if (this.selectedFilters[0]) {
-            this.set('filterValue', this._selectedFiltersAsString())
-			this.previouslySetFilterValue = this.filterValue
-        } else {
-            if (this.filterValue === this.previouslySetFilterValue) {
-                this.set('filterValue','')
-			}
-		}
-
-		this.refresh()
-    }
-
-}
-
-customElements.define(HtPatList.is, HtPatList);
-</script>
+        customElements.define(HtPatList.is, HtPatList)
+    </script>
 </dom-module>

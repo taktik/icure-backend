@@ -418,7 +418,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 				docs.length ?
         	    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> {
                     console.log("on a un attachment !" + typeof a)
-                    tempSelect.body.push(a)
+                    tempSelect.body.push(a.toString())
                     console.log(tempSelect.body)
                     this.set('messages', [tempSelect]);
                 }))
