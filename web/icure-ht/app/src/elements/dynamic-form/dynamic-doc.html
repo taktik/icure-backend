@@ -169,6 +169,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 			type:{
 			    type: String,
 				value: null
+			},
+            patient:{
+			    type: Object,
+				vadue: null
 			}
 		};
 	}
@@ -195,7 +199,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
                                 console.log(typeof att);
                                 this.set('documentAttachment', att);
                                 const xml = XML.parseXml(att)
-                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.s)}
+                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S); this.importPatient();}else{this.set("type","Non Valid Type")}
 							});
                         }else {
                             const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);
@@ -238,6 +242,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 
     _getAttachment(){
         this.showDetail = !this.showDetail
+	}
+
+	importPatient(){
+	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{})
 	}
 
 }
