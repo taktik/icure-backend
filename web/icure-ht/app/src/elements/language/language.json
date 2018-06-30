@@ -155,10 +155,21 @@
     "msg":"Messages",
     "sen_to":"Send To",
     "prot":"Protocol",
+    "invoice" : "Invoice",
+    "inviteHCP" : "Invite a colleague",
+    "invite" : "Invite",
+    "inami" : "NIHII",
+    "ssin" : "SSIN",
+    "first_con" : "First connexion",
+    "welcome_mess" : "Welcome to the Icure application",
     "e_inv":"E-Invoicing",
     "ehe_mes":"Ehealth Messages",
     "rep":"Report",
-    "cons_legal":"Merci de donner à votre patient les informations suivantes : <ul><li>Je consens à faciliter l'échange de mes données médicales par voie électronique, dans le cadre de la prise en charge de ma santé. </li><li>Vous avez donné votre accord pour l'échange (par voie électronique et dans le cadre de la prise en charge de votre santé) de données relatives à votre santé entre les prestataires de soins autorisés (un lien thérapeutique avéré existe entre votre personne et ce prestataire et vous n'avez enregistré aucune exclusion envers ce prestataire). </li><li>Afin de permettre cet échange électronique, vous êtes également d'accord pour que ces données de santé soient référencées au sein d'un répertoire indiquant où ces données sont disponibles (par exemple au sein de quel hôpital). </li><li>Pour rappel, cette disposition respecte les droits des patients, la loi relative à la vie privée et la déontologie médicale. </li></ul>"
+    "gen" : "Generate",
+    "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
+    "share_pat" : "Share patients",
+    "cons_legal":"Merci de donner à votre patient les informations suivantes : <ul><li>Je consens à faciliter l'échange de mes données médicales par voie électronique, dans le cadre de la prise en charge de ma santé. </li><li>Vous avez donné votre accord pour l'échange (par voie électronique et dans le cadre de la prise en charge de votre santé) de données relatives à votre santé entre les prestataires de soins autorisés (un lien thérapeutique avéré existe entre votre personne et ce prestataire et vous n'avez enregistré aucune exclusion envers ce prestataire). </li><li>Afin de permettre cet échange électronique, vous êtes également d'accord pour que ces données de santé soient référencées au sein d'un répertoire indiquant où ces données sont disponibles (par exemple au sein de quel hôpital). </li><li>Pour rappel, cette disposition respecte les droits des patients, la loi relative à la vie privée et la déontologie médicale. </li></ul>",
+    "time_lft" : "Time left: "
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -309,7 +320,18 @@
     "sea_for_hea_ele":"Rechercher élément de soins",
     "mod":"modifié",
     "msg":"Messages",
-    "cons_legal":"Merci de donner à votre patient les informations suivantes : <ul><li>Je consens à faciliter l'échange de mes données médicales par voie électronique, dans le cadre de la prise en charge de ma santé. </li><li>Vous avez donné votre accord pour l'échange (par voie électronique et dans le cadre de la prise en charge de votre santé) de données relatives à votre santé entre les prestataires de soins autorisés (un lien thérapeutique avéré existe entre votre personne et ce prestataire et vous n'avez enregistré aucune exclusion envers ce prestataire). </li><li>Afin de permettre cet échange électronique, vous êtes également d'accord pour que ces données de santé soient référencées au sein d'un répertoire indiquant où ces données sont disponibles (par exemple au sein de quel hôpital). </li><li>Pour rappel, cette disposition respecte les droits des patients, la loi relative à la vie privée et la déontologie médicale. </li></ul>"
+    "invoice" : "Facturer",
+    "inviteHCP" : "Inviter un collègue",
+    "invite" : "Inviter",
+    "inami" : "INAMI",
+    "ssin" : "NISS",
+    "first_con" : "Première connexion",
+    "welcome_mess" : "Bienvenue dans l'application Icure",
+    "gen" : "Générer",
+    "generate_key_mess" : "Introduisez un mot de passe pour l'application et ensuite cliquez sur le bouton générer pour générer vos clés",
+    "share_pat" : "Partager des patients",
+    "cons_legal":"Merci de donner à votre patient les informations suivantes : <ul><li>Je consens à faciliter l'échange de mes données médicales par voie électronique, dans le cadre de la prise en charge de ma santé. </li><li>Vous avez donné votre accord pour l'échange (par voie électronique et dans le cadre de la prise en charge de votre santé) de données relatives à votre santé entre les prestataires de soins autorisés (un lien thérapeutique avéré existe entre votre personne et ce prestataire et vous n'avez enregistré aucune exclusion envers ce prestataire). </li><li>Afin de permettre cet échange électronique, vous êtes également d'accord pour que ces données de santé soient référencées au sein d'un répertoire indiquant où ces données sont disponibles (par exemple au sein de quel hôpital). </li><li>Pour rappel, cette disposition respecte les droits des patients, la loi relative à la vie privée et la déontologie médicale. </li></ul>",
+    "time_lft" : "Tp restant: "
   },
   "nl": {
     "eng":"English",
@@ -453,7 +475,17 @@
     "rec": "Recipient",
     "sub": "Subject",
     "sen": "Sender",
-    "cons_legal":"Na de patiënt geïnformeerd te hebben, stemt de patiënt ermee in om de uitwisseling van zijn of haar medische gegevens langs elektronische weg te faciliteren in het kader van zijn of haar gezondheidszorg. <ul><li>De patiënt heeft toestemming gegeven voor de uitwisseling (langs elektronische weg in het kader van gezondheidszorg) van gegevens betreffende zijn of haar gezondheid tussen de gemachtigde zorgverleners (er bestaat een bewezen therapeutische relatie tussen de patiënt en deze zorgverlener en de patiënt heeft geen uitsluiting ten aanzien van deze zorgverlener geregistreerd). </li><li>Om deze elektronische uitwisseling mogelijk te maken stemt de patiënt er tevens mee in dat er verwijzingen naar deze gezondheidsgegevens worden opgenomen in een repertorium waarin aangeduid wordt waar deze gegevens beschikbaar zijn (bijvoorbeeld in welk ziekenhuis). </li><li>Deze bepaling houdt rekening met de patiëntenrechten, de wet op de bescherming van de persoonlijke levenssfeer en de medische deontologie.</li></ul>"
-
+    "invoice" : "Factureren",
+    "inviteHCP" : "Invite a colleague",
+    "invite" : "Invite",
+    "inami" : "RIZIV",
+    "ssin" : "INSZ",
+    "first_con" : "Eerste connectie",
+    "welcome_mess" : "Welkom bij de Icure applicatie",
+    "gen" : "Generate",
+    "generate_key_mess" : "Enter a password for the application and after click on the generate button to generate your keys",
+    "share_pat" : "Share patients",
+    "cons_legal":"Na de patiënt geïnformeerd te hebben, stemt de patiënt ermee in om de uitwisseling van zijn of haar medische gegevens langs elektronische weg te faciliteren in het kader van zijn of haar gezondheidszorg. <ul><li>De patiënt heeft toestemming gegeven voor de uitwisseling (langs elektronische weg in het kader van gezondheidszorg) van gegevens betreffende zijn of haar gezondheid tussen de gemachtigde zorgverleners (er bestaat een bewezen therapeutische relatie tussen de patiënt en deze zorgverlener en de patiënt heeft geen uitsluiting ten aanzien van deze zorgverlener geregistreerd). </li><li>Om deze elektronische uitwisseling mogelijk te maken stemt de patiënt er tevens mee in dat er verwijzingen naar deze gezondheidsgegevens worden opgenomen in een repertorium waarin aangeduid wordt waar deze gegevens beschikbaar zijn (bijvoorbeeld in welk ziekenhuis). </li><li>Deze bepaling houdt rekening met de patiëntenrechten, de wet op de bescherming van de persoonlijke levenssfeer en de medische deontologie.</li></ul>",
+    "time_lft" : "Time left: "
   }
 }

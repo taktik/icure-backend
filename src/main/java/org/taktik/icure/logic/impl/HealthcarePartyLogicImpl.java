@@ -45,6 +45,7 @@ public class HealthcarePartyLogicImpl extends GenericLogicImpl<HealthcareParty, 
 	private HealthcarePartyDAO healthcarePartyDAO;
 	private UUIDGenerator uuidGenerator;
 
+	@Autowired
 	public void setUuidGenerator(UUIDGenerator uuidGenerator) {
 		this.uuidGenerator = uuidGenerator;
 	}
