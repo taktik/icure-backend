@@ -951,7 +951,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 	}
 
 	saveCurrentContact() {
-		return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
+		return (this.currentContact.rev ? this.api.contact().modifyContactWithHcParty(this.user, this.currentContact) : this.api.contact().createContactWithHcParty(this.user, this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
 	}
 
 	_addedFormSelected(e, formTemplate) {
