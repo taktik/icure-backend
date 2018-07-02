@@ -367,8 +367,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</style>
 
-		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
-		<!--<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>-->
+		<!--<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>-->
+		<icc-x-api id="api" host="/rest/v1" fhc-host="http://127.0.0.1:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
 
 
 		<paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
@@ -682,8 +682,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('routeData.page', 'logout')
                         this._triggerMenu()
 					}
-
-
 
                 }, 1000);
 
