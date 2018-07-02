@@ -48,7 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 
-<link rel="import" href="elements/icc-x-api/icc-x-api.html">
+<link rel="import" href="elements/icc-api/icc-api.html">
 
 <link rel="import" href="./app-theme.html">
 <link rel="import" href="./shared-styles.html">
@@ -155,7 +155,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		</style>
 
-		<icc-x-api id="api" host="/rest/v1" headers="[[headers]]"></icc-x-api>
+		<icc-api id="api" host="/rest/v1" headers="[[headers]]"></icc-api>
 
 		<ht-app-login-dialog id="loginDialog" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
 		<ht-app-register-keypair-dialog id="registerKeyPairDialog" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"></ht-app-register-keypair-dialog>

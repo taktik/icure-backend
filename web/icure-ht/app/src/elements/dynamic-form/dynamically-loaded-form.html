@@ -696,7 +696,8 @@
 			}
 
 			promoteServiceToHealthElement(heSvc) {
-				return this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc.svc, this.language).then(he => {
+				return this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc.svc,
+					this.api.contact().shortServiceDescription(heSvc.svc, language)).then(he => {
 					this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, [he.id], null);
 					this.scheduleSave(this.currentContact);
 					this.dispatchEvent(new CustomEvent('health-elements-change', { detail: { hes: [he] }, bubbles: true, composed: true }));
