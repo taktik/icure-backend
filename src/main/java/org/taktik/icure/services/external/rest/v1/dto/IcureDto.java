@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 
 import java.util.*;
@@ -47,7 +48,11 @@ public abstract class IcureDto extends StoredDto {
     //The responsible is thus always in the delegations as well
     protected Map<String,List<DelegationDto>> delegations = new HashMap<>();
 
-	public void addDelegation(String healthcarePartyId, DelegationDto delegation) {
+    //When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
+    //He/she encrypts it using his own AES exchange key and stores it as a delegation
+    protected Map<String,Set<Delegation>> encryptionKeys = new HashMap<>();
+
+    public void addDelegation(String healthcarePartyId, DelegationDto delegation) {
 		List<DelegationDto> delegationsForHealthcarePartyId = delegations.get(healthcarePartyId);
 		if (delegationsForHealthcarePartyId == null) {
 			delegationsForHealthcarePartyId = new ArrayList<>();
@@ -155,4 +160,12 @@ public abstract class IcureDto extends StoredDto {
 
 		secretForeignKeys.add(newKey);
 	}
+
+    public Map<String, Set<Delegation>> getEncryptionKeys() {
+        return encryptionKeys;
+    }
+
+    public void setEncryptionKeys(Map<String, Set<Delegation>> encryptionKeys) {
+        this.encryptionKeys = encryptionKeys;
+    }
 }
