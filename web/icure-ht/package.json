@@ -84,6 +84,7 @@
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.10",
     "npm": "^6.1.0",
+    "polymer-password-strength": "^1.0.0",
     "webpack-loader": "0.0.1"
   }
 }

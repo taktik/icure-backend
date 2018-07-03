@@ -36,6 +36,7 @@ import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
+import org.taktik.icure.services.external.rest.v1.dto.ImportResultDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrContentDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
@@ -43,6 +44,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrStatus
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrValidityDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
+import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import org.taktik.icure.utils.ResponseUtils
 import java.util.Arrays
 import java.util.stream.Collectors
@@ -61,7 +63,7 @@ import javax.ws.rs.core.StreamingOutput
 @Api(tags = ["be_kmehr"])
 @Consumes("application/json")
 @Produces("application/json")
-class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val sumehrLogic: SumehrLogic, val softwareMedicalFileLogic: SoftwareMedicalFileLogic, val healthcarePartyLogic: HealthcarePartyLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic) {
+class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val sumehrLogic: SumehrLogic, val softwareMedicalFileLogic: SoftwareMedicalFileLogic, val healthcarePartyLogic: HealthcarePartyLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic) : OpenApiFacade {
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
     @POST
     @Path("/sumehr/{patientId}/export")
@@ -133,10 +135,9 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 		return ResponseUtils.ok(StreamingOutput { output -> softwareMedicalFileLogic.createSmfExport(output!!, patientLogic.getPatient(patientId), smfExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", null) })
 	}
 
-	@ApiOperation(value = "Import SMF into patient(s) using existing document")
+	@ApiOperation(value = "Import SMF into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/smf/{documentId}/import")
-	@Produces("application/octet-stream")
 	fun importSmf(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, @RequestBody(required = false) mappings: Map<String,List<ImportMapping>>?) : Response {
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
@@ -144,7 +145,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, val 
 
 		return ResponseUtils.ok(softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
 		                                                               patientLogic.getPatient(patientId),
-		                                                               mappings ?: HashMap()))
+		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 	
 }
