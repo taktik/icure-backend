@@ -331,7 +331,7 @@ public class ContactFacade implements OpenApiFacade {
 	)
 	@POST
 	@Path("/byHcPartySecretForeignKeys/delegations")
-	public Response setHealthElementsDelegations(List<IcureStubDto> stubs) throws Exception {
+	public Response setContactsDelegations(List<IcureStubDto> stubs) throws Exception {
 		List<Contact> contacts = contactLogic.getContacts(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
 		contacts.forEach(contact -> {
 			stubs.stream().filter(s -> s.getId().equals(contact.getId())).findFirst().ifPresent(stub -> {

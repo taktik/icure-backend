@@ -349,7 +349,7 @@ public class InvoiceFacade implements OpenApiFacade{
 	)
 	@POST
 	@Path("/byHcPartySecretForeignKeys/delegations")
-	public Response setHealthElementsDelegations(List<IcureStubDto> stubs) throws Exception {
+	public Response setInvoicesDelegations(List<IcureStubDto> stubs) throws Exception {
 		List<Invoice> invoices = invoiceLogic.getInvoices(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
 		invoices.forEach(healthElement -> {
 			stubs.stream().filter(s -> s.getId().equals(healthElement.getId())).findFirst().ifPresent(stub -> {
