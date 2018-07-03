@@ -50,7 +50,7 @@ public abstract class IcureDto extends StoredDto {
 
     //When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
     //He/she encrypts it using his own AES exchange key and stores it as a delegation
-    protected Map<String,Set<Delegation>> encryptionKeys = new HashMap<>();
+    protected Map<String,Set<DelegationDto>> encryptionKeys = new HashMap<>();
 
     public void addDelegation(String healthcarePartyId, DelegationDto delegation) {
 		List<DelegationDto> delegationsForHealthcarePartyId = delegations.get(healthcarePartyId);
@@ -161,11 +161,11 @@ public abstract class IcureDto extends StoredDto {
 		secretForeignKeys.add(newKey);
 	}
 
-    public Map<String, Set<Delegation>> getEncryptionKeys() {
+    public Map<String, Set<DelegationDto>> getEncryptionKeys() {
         return encryptionKeys;
     }
 
-    public void setEncryptionKeys(Map<String, Set<Delegation>> encryptionKeys) {
+    public void setEncryptionKeys(Map<String, Set<DelegationDto>> encryptionKeys) {
         this.encryptionKeys = encryptionKeys;
     }
 }
