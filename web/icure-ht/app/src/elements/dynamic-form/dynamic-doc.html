@@ -245,7 +245,13 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 	}
 
 	importPatient(){
-	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{})
+	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
+	        contacts => {
+	            contacts.forEach(contact => {
+	                console.log(contact)
+
+				})
+			})
 	}
 
 }
