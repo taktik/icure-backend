@@ -1,0 +1,1123 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ISO639-1>
+  <VERSION>1</VERSION>
+  <DATE>2002-01-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>languages ISO 639-1 Codes</NAME>
+  <VALUE>
+    <CODE>aa</CODE>
+    <DESCRIPTION L="de">Fern</DESCRIPTION>
+    <DESCRIPTION L="fr">Afar</DESCRIPTION>
+    <DESCRIPTION L="nl">Afar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ab</CODE>
+    <DESCRIPTION L="de">Abchasen</DESCRIPTION>
+    <DESCRIPTION L="fr">Abkhaze</DESCRIPTION>
+    <DESCRIPTION L="nl">Abkhazian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ae</CODE>
+    <DESCRIPTION L="de">Avestisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Avestique</DESCRIPTION>
+    <DESCRIPTION L="nl">Avestan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>af</CODE>
+    <DESCRIPTION L="de">Afrikaans</DESCRIPTION>
+    <DESCRIPTION L="fr">Afrikaans</DESCRIPTION>
+    <DESCRIPTION L="nl">Afrikaans</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ak</CODE>
+    <DESCRIPTION L="de">Akan</DESCRIPTION>
+    <DESCRIPTION L="fr">Akan</DESCRIPTION>
+    <DESCRIPTION L="nl">Akan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>am</CODE>
+    <DESCRIPTION L="de">Amharisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Amharique</DESCRIPTION>
+    <DESCRIPTION L="nl">Amharic</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>an</CODE>
+    <DESCRIPTION L="de">Aragonesischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Aragonais</DESCRIPTION>
+    <DESCRIPTION L="nl">Aragonese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ar</CODE>
+    <DESCRIPTION L="de">Arabisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Arabe</DESCRIPTION>
+    <DESCRIPTION L="nl">Arabic</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>as</CODE>
+    <DESCRIPTION L="de">Assamese</DESCRIPTION>
+    <DESCRIPTION L="fr">Assamais</DESCRIPTION>
+    <DESCRIPTION L="nl">Assamese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>av</CODE>
+    <DESCRIPTION L="de">Avar</DESCRIPTION>
+    <DESCRIPTION L="fr">Avar</DESCRIPTION>
+    <DESCRIPTION L="nl">Avaric</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ay</CODE>
+    <DESCRIPTION L="de">Aymara</DESCRIPTION>
+    <DESCRIPTION L="fr">Aymara</DESCRIPTION>
+    <DESCRIPTION L="nl">Aymara</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>az</CODE>
+    <DESCRIPTION L="de">Azeri</DESCRIPTION>
+    <DESCRIPTION L="fr">Azéri</DESCRIPTION>
+    <DESCRIPTION L="nl">Azerbaijani</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ba</CODE>
+    <DESCRIPTION L="de">Baschkirisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Bachkir</DESCRIPTION>
+    <DESCRIPTION L="nl">Bashkir</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>be</CODE>
+    <DESCRIPTION L="de">Weißrusse</DESCRIPTION>
+    <DESCRIPTION L="fr">Biélorusse</DESCRIPTION>
+    <DESCRIPTION L="nl">Belarusian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bg</CODE>
+    <DESCRIPTION L="de">Bulgarisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Bulgare</DESCRIPTION>
+    <DESCRIPTION L="nl">Bulgarian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bh</CODE>
+    <DESCRIPTION L="de">Bihari</DESCRIPTION>
+    <DESCRIPTION L="fr">Bihari</DESCRIPTION>
+    <DESCRIPTION L="nl">Bihari</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bi</CODE>
+    <DESCRIPTION L="de">Bislama</DESCRIPTION>
+    <DESCRIPTION L="fr">Bichelamar</DESCRIPTION>
+    <DESCRIPTION L="nl">Bislama</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bm</CODE>
+    <DESCRIPTION L="de">Bambara</DESCRIPTION>
+    <DESCRIPTION L="fr">Bambara</DESCRIPTION>
+    <DESCRIPTION L="nl">Bambara</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bn</CODE>
+    <DESCRIPTION L="de">Bengali</DESCRIPTION>
+    <DESCRIPTION L="fr">Bengali</DESCRIPTION>
+    <DESCRIPTION L="nl">Bengali</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bo</CODE>
+    <DESCRIPTION L="de">Tibetisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Tibétain</DESCRIPTION>
+    <DESCRIPTION L="nl">Tibetan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>br</CODE>
+    <DESCRIPTION L="de">Bretonisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Breton</DESCRIPTION>
+    <DESCRIPTION L="nl">Breton</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bs</CODE>
+    <DESCRIPTION L="de">Bosnisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Bosnien</DESCRIPTION>
+    <DESCRIPTION L="nl">Bosnian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ca</CODE>
+    <DESCRIPTION L="de">Katalanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Catalan</DESCRIPTION>
+    <DESCRIPTION L="nl">Catalan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ce</CODE>
+    <DESCRIPTION L="de">Tschetschenisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Tchétchène</DESCRIPTION>
+    <DESCRIPTION L="nl">Chechen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ch</CODE>
+    <DESCRIPTION L="de">Chamorro</DESCRIPTION>
+    <DESCRIPTION L="fr">Chamorro</DESCRIPTION>
+    <DESCRIPTION L="nl">Chamorro</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>co</CODE>
+    <DESCRIPTION L="de">Korsika</DESCRIPTION>
+    <DESCRIPTION L="fr">Corse</DESCRIPTION>
+    <DESCRIPTION L="nl">Corsican</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cr</CODE>
+    <DESCRIPTION L="de">Schrei</DESCRIPTION>
+    <DESCRIPTION L="fr">Cri</DESCRIPTION>
+    <DESCRIPTION L="nl">Cree</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cs</CODE>
+    <DESCRIPTION L="de">Tschechisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Tchèque</DESCRIPTION>
+    <DESCRIPTION L="nl">Czech</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cu</CODE>
+    <DESCRIPTION L="de">Altslawischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Vieux-slave</DESCRIPTION>
+    <DESCRIPTION L="nl">Old Church Slavonic</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cv</CODE>
+    <DESCRIPTION L="de">Tschuwaschien</DESCRIPTION>
+    <DESCRIPTION L="fr">Tchouvache</DESCRIPTION>
+    <DESCRIPTION L="nl">Chuvash</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cy</CODE>
+    <DESCRIPTION L="de">Walisisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Gallois</DESCRIPTION>
+    <DESCRIPTION L="nl">Welsh</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>da</CODE>
+    <DESCRIPTION L="de">Dänisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Danois</DESCRIPTION>
+    <DESCRIPTION L="nl">Danish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>de</CODE>
+    <DESCRIPTION L="de">Deutsch</DESCRIPTION>
+    <DESCRIPTION L="fr">Allemand</DESCRIPTION>
+    <DESCRIPTION L="nl">German</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dv</CODE>
+    <DESCRIPTION L="de">Maledivische</DESCRIPTION>
+    <DESCRIPTION L="fr">Maldivien</DESCRIPTION>
+    <DESCRIPTION L="nl">Divehi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dz</CODE>
+    <DESCRIPTION L="de">Dzongkha</DESCRIPTION>
+    <DESCRIPTION L="fr">Dzongkha</DESCRIPTION>
+    <DESCRIPTION L="nl">Dzongkha</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ee</CODE>
+    <DESCRIPTION L="de">Mutterschaf</DESCRIPTION>
+    <DESCRIPTION L="fr">Ewe</DESCRIPTION>
+    <DESCRIPTION L="nl">Ewe</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>el</CODE>
+    <DESCRIPTION L="de">Modernes Griechisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Grec moderne</DESCRIPTION>
+    <DESCRIPTION L="nl">Greek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>en</CODE>
+    <DESCRIPTION L="de">Englisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Anglais</DESCRIPTION>
+    <DESCRIPTION L="nl">English</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>eo</CODE>
+    <DESCRIPTION L="de">Esperanto</DESCRIPTION>
+    <DESCRIPTION L="fr">Espéranto</DESCRIPTION>
+    <DESCRIPTION L="nl">Esperanto</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>es</CODE>
+    <DESCRIPTION L="de">Spanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Espagnol</DESCRIPTION>
+    <DESCRIPTION L="nl">Spanish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>et</CODE>
+    <DESCRIPTION L="de">Estnisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Estonien</DESCRIPTION>
+    <DESCRIPTION L="nl">Estonian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>eu</CODE>
+    <DESCRIPTION L="de">Baske</DESCRIPTION>
+    <DESCRIPTION L="fr">Basque</DESCRIPTION>
+    <DESCRIPTION L="nl">Basque</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fa</CODE>
+    <DESCRIPTION L="de">Persisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Persan</DESCRIPTION>
+    <DESCRIPTION L="nl">Persian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ff</CODE>
+    <DESCRIPTION L="de">Peul</DESCRIPTION>
+    <DESCRIPTION L="fr">Peul</DESCRIPTION>
+    <DESCRIPTION L="nl">Fulah</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fi</CODE>
+    <DESCRIPTION L="de">Finnisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Finnois</DESCRIPTION>
+    <DESCRIPTION L="nl">Finnish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fj</CODE>
+    <DESCRIPTION L="de">Fidschianischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Fidjien</DESCRIPTION>
+    <DESCRIPTION L="nl">Fijian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fo</CODE>
+    <DESCRIPTION L="de">Färöisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Féroïen</DESCRIPTION>
+    <DESCRIPTION L="nl">Faroese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fr</CODE>
+    <DESCRIPTION L="de">Französisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Français</DESCRIPTION>
+    <DESCRIPTION L="nl">French</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fy</CODE>
+    <DESCRIPTION L="de">Westfriesisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Frison occidental</DESCRIPTION>
+    <DESCRIPTION L="nl">Western Frisian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ga</CODE>
+    <DESCRIPTION L="de">Irisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Irlandais</DESCRIPTION>
+    <DESCRIPTION L="nl">Irish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gd</CODE>
+    <DESCRIPTION L="de">Schottisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Écossais</DESCRIPTION>
+    <DESCRIPTION L="nl">Scottish Gaelic</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gl</CODE>
+    <DESCRIPTION L="de">Gallego</DESCRIPTION>
+    <DESCRIPTION L="fr">Galicien</DESCRIPTION>
+    <DESCRIPTION L="nl">Galician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gn</CODE>
+    <DESCRIPTION L="de">Guarani</DESCRIPTION>
+    <DESCRIPTION L="fr">Guarani</DESCRIPTION>
+    <DESCRIPTION L="nl">Guarani</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gu</CODE>
+    <DESCRIPTION L="de">Gujarati</DESCRIPTION>
+    <DESCRIPTION L="fr">Gujarati</DESCRIPTION>
+    <DESCRIPTION L="nl">Gujarati</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gv</CODE>
+    <DESCRIPTION L="de">Manx</DESCRIPTION>
+    <DESCRIPTION L="fr">Mannois</DESCRIPTION>
+    <DESCRIPTION L="nl">Manx</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ha</CODE>
+    <DESCRIPTION L="de">Hausa</DESCRIPTION>
+    <DESCRIPTION L="fr">Haoussa</DESCRIPTION>
+    <DESCRIPTION L="nl">Hausa</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>he</CODE>
+    <DESCRIPTION L="de">Hebräisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Hébreu</DESCRIPTION>
+    <DESCRIPTION L="nl">Hebrew</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hi</CODE>
+    <DESCRIPTION L="de">Hindi</DESCRIPTION>
+    <DESCRIPTION L="fr">Hindi</DESCRIPTION>
+    <DESCRIPTION L="nl">Hindi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ho</CODE>
+    <DESCRIPTION L="de">Hiri Motu</DESCRIPTION>
+    <DESCRIPTION L="fr">Hiri motu</DESCRIPTION>
+    <DESCRIPTION L="nl">Hiri Motu</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hr</CODE>
+    <DESCRIPTION L="de">Kroatisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Croate</DESCRIPTION>
+    <DESCRIPTION L="nl">Croatian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ht</CODE>
+    <DESCRIPTION L="de">Haitianisches Kreolisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Créole haïtien</DESCRIPTION>
+    <DESCRIPTION L="nl">Haitian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hu</CODE>
+    <DESCRIPTION L="de">Ungarisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Hongrois</DESCRIPTION>
+    <DESCRIPTION L="nl">Hungarian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hy</CODE>
+    <DESCRIPTION L="de">Armenisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Arménien</DESCRIPTION>
+    <DESCRIPTION L="nl">Armenian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hz</CODE>
+    <DESCRIPTION L="de">Herero</DESCRIPTION>
+    <DESCRIPTION L="fr">Héréro</DESCRIPTION>
+    <DESCRIPTION L="nl">Herero</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ia</CODE>
+    <DESCRIPTION L="de">Lingua</DESCRIPTION>
+    <DESCRIPTION L="fr">Interlingua</DESCRIPTION>
+    <DESCRIPTION L="nl">Interlingua</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>id</CODE>
+    <DESCRIPTION L="de">Indonesier</DESCRIPTION>
+    <DESCRIPTION L="fr">Indonésien</DESCRIPTION>
+    <DESCRIPTION L="nl">Indonesian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ie</CODE>
+    <DESCRIPTION L="de">Interlingue</DESCRIPTION>
+    <DESCRIPTION L="fr">Occidental</DESCRIPTION>
+    <DESCRIPTION L="nl">Interlingue</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ig</CODE>
+    <DESCRIPTION L="de">Igbo</DESCRIPTION>
+    <DESCRIPTION L="fr">Igbo</DESCRIPTION>
+    <DESCRIPTION L="nl">Igbo</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ii</CODE>
+    <DESCRIPTION L="de">Yi</DESCRIPTION>
+    <DESCRIPTION L="fr">Yi</DESCRIPTION>
+    <DESCRIPTION L="nl">Sichuan Yi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ik</CODE>
+    <DESCRIPTION L="de">Inupiak</DESCRIPTION>
+    <DESCRIPTION L="fr">Inupiak</DESCRIPTION>
+    <DESCRIPTION L="nl">Inupiaq</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>io</CODE>
+    <DESCRIPTION L="de">Ido</DESCRIPTION>
+    <DESCRIPTION L="fr">Ido</DESCRIPTION>
+    <DESCRIPTION L="nl">Ido</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>is</CODE>
+    <DESCRIPTION L="de">Isländer</DESCRIPTION>
+    <DESCRIPTION L="fr">Islandais</DESCRIPTION>
+    <DESCRIPTION L="nl">Icelandic</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>it</CODE>
+    <DESCRIPTION L="de">Italienisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Italien</DESCRIPTION>
+    <DESCRIPTION L="nl">Italian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>iu</CODE>
+    <DESCRIPTION L="de">Inuktitut</DESCRIPTION>
+    <DESCRIPTION L="fr">Inuktitut</DESCRIPTION>
+    <DESCRIPTION L="nl">Inuktitut</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ja</CODE>
+    <DESCRIPTION L="de">Japanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Japonais</DESCRIPTION>
+    <DESCRIPTION L="nl">Japanese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>jv</CODE>
+    <DESCRIPTION L="de">Javaner</DESCRIPTION>
+    <DESCRIPTION L="fr">Javanais</DESCRIPTION>
+    <DESCRIPTION L="nl">Javanese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ka</CODE>
+    <DESCRIPTION L="de">Georgisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Géorgien</DESCRIPTION>
+    <DESCRIPTION L="nl">Georgian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kg</CODE>
+    <DESCRIPTION L="de">Kikongo</DESCRIPTION>
+    <DESCRIPTION L="fr">Kikongo</DESCRIPTION>
+    <DESCRIPTION L="nl">Kongo</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ki</CODE>
+    <DESCRIPTION L="de">Kikuyu</DESCRIPTION>
+    <DESCRIPTION L="fr">Kikuyu</DESCRIPTION>
+    <DESCRIPTION L="nl">Kikuyu</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kj</CODE>
+    <DESCRIPTION L="de">kuanyama</DESCRIPTION>
+    <DESCRIPTION L="fr">Kuanyama</DESCRIPTION>
+    <DESCRIPTION L="nl">Kwanyama</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kk</CODE>
+    <DESCRIPTION L="de">Kasachisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Kazakh</DESCRIPTION>
+    <DESCRIPTION L="nl">Kazakh</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kl</CODE>
+    <DESCRIPTION L="de">Grönländer</DESCRIPTION>
+    <DESCRIPTION L="fr">Groenlandais</DESCRIPTION>
+    <DESCRIPTION L="nl">Kalaallisut</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>km</CODE>
+    <DESCRIPTION L="de">Khmer</DESCRIPTION>
+    <DESCRIPTION L="fr">Khmer</DESCRIPTION>
+    <DESCRIPTION L="nl">Khmer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kn</CODE>
+    <DESCRIPTION L="de">Kannada</DESCRIPTION>
+    <DESCRIPTION L="fr">Kannada</DESCRIPTION>
+    <DESCRIPTION L="nl">Kannada</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ko</CODE>
+    <DESCRIPTION L="de">Koreanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Coréen</DESCRIPTION>
+    <DESCRIPTION L="nl">Korean</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kr</CODE>
+    <DESCRIPTION L="de">Kanuri</DESCRIPTION>
+    <DESCRIPTION L="fr">Kanouri</DESCRIPTION>
+    <DESCRIPTION L="nl">Kanuri</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ks</CODE>
+    <DESCRIPTION L="de">Kashmiri</DESCRIPTION>
+    <DESCRIPTION L="fr">Cachemiri</DESCRIPTION>
+    <DESCRIPTION L="nl">Kashmiri</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ku</CODE>
+    <DESCRIPTION L="de">Kurde</DESCRIPTION>
+    <DESCRIPTION L="fr">Kurde</DESCRIPTION>
+    <DESCRIPTION L="nl">Kurdish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kv</CODE>
+    <DESCRIPTION L="de">Komi</DESCRIPTION>
+    <DESCRIPTION L="fr">Komi</DESCRIPTION>
+    <DESCRIPTION L="nl">Komi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kw</CODE>
+    <DESCRIPTION L="de">Kornisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Cornique</DESCRIPTION>
+    <DESCRIPTION L="nl">Cornish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ky</CODE>
+    <DESCRIPTION L="de">Kirgisisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Kirghiz</DESCRIPTION>
+    <DESCRIPTION L="nl">Kirghiz</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>la</CODE>
+    <DESCRIPTION L="de">Latein</DESCRIPTION>
+    <DESCRIPTION L="fr">Latin</DESCRIPTION>
+    <DESCRIPTION L="nl">Latin</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lb</CODE>
+    <DESCRIPTION L="de">Luxemburgisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Luxembourgeois</DESCRIPTION>
+    <DESCRIPTION L="nl">Luxembourgish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lg</CODE>
+    <DESCRIPTION L="de">Ganda</DESCRIPTION>
+    <DESCRIPTION L="fr">Ganda</DESCRIPTION>
+    <DESCRIPTION L="nl">Ganda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>li</CODE>
+    <DESCRIPTION L="de">Limburger</DESCRIPTION>
+    <DESCRIPTION L="fr">Limbourgeois</DESCRIPTION>
+    <DESCRIPTION L="nl">Limburgish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ln</CODE>
+    <DESCRIPTION L="de">Lingála</DESCRIPTION>
+    <DESCRIPTION L="fr">Lingala</DESCRIPTION>
+    <DESCRIPTION L="nl">Lingala</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lo</CODE>
+    <DESCRIPTION L="de">lao</DESCRIPTION>
+    <DESCRIPTION L="fr">Lao</DESCRIPTION>
+    <DESCRIPTION L="nl">Lao</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lt</CODE>
+    <DESCRIPTION L="de">Litauisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Lituanien</DESCRIPTION>
+    <DESCRIPTION L="nl">Lithuanian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lu</CODE>
+    <DESCRIPTION L="de">Luba-Katanga</DESCRIPTION>
+    <DESCRIPTION L="fr">Luba-katanga</DESCRIPTION>
+    <DESCRIPTION L="nl">Luba-Katanga</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lv</CODE>
+    <DESCRIPTION L="de">Lettisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Letton</DESCRIPTION>
+    <DESCRIPTION L="nl">Latvian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mg</CODE>
+    <DESCRIPTION L="de">Malagasy</DESCRIPTION>
+    <DESCRIPTION L="fr">Malgache</DESCRIPTION>
+    <DESCRIPTION L="nl">Malagasy</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mh</CODE>
+    <DESCRIPTION L="de">Marshallisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Marshallais</DESCRIPTION>
+    <DESCRIPTION L="nl">Marshallese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mi</CODE>
+    <DESCRIPTION L="de">Maori aus Neuseeland</DESCRIPTION>
+    <DESCRIPTION L="fr">Maori de Nouvelle-Zélande</DESCRIPTION>
+    <DESCRIPTION L="nl">Māori uit Nieuw Zeeland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mk</CODE>
+    <DESCRIPTION L="de">Mazedonisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Macédonien</DESCRIPTION>
+    <DESCRIPTION L="nl">Macedonian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ml</CODE>
+    <DESCRIPTION L="de">Malayalam</DESCRIPTION>
+    <DESCRIPTION L="fr">Malayalam</DESCRIPTION>
+    <DESCRIPTION L="nl">Malayalam</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mn</CODE>
+    <DESCRIPTION L="de">Mongolisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Mongol</DESCRIPTION>
+    <DESCRIPTION L="nl">Mongolian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mo</CODE>
+    <DESCRIPTION L="de">Moldauischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Moldave</DESCRIPTION>
+    <DESCRIPTION L="nl">Moldavian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mr</CODE>
+    <DESCRIPTION L="de">Marathi</DESCRIPTION>
+    <DESCRIPTION L="fr">Marathi</DESCRIPTION>
+    <DESCRIPTION L="nl">Marathi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ms</CODE>
+    <DESCRIPTION L="de">Malaiisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Malais</DESCRIPTION>
+    <DESCRIPTION L="nl">Malay</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mt</CODE>
+    <DESCRIPTION L="de">Malteser</DESCRIPTION>
+    <DESCRIPTION L="fr">Maltais</DESCRIPTION>
+    <DESCRIPTION L="nl">Maltese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>my</CODE>
+    <DESCRIPTION L="de">Birmanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Birman</DESCRIPTION>
+    <DESCRIPTION L="nl">Burmese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>na</CODE>
+    <DESCRIPTION L="de">Nauruischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Nauruan</DESCRIPTION>
+    <DESCRIPTION L="nl">Nauru</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nb</CODE>
+    <DESCRIPTION L="de">Norwegischer Bokmål</DESCRIPTION>
+    <DESCRIPTION L="fr">Norvégien Bokmål</DESCRIPTION>
+    <DESCRIPTION L="nl">Norwegian Bokmål</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nd</CODE>
+    <DESCRIPTION L="de">Sindebele</DESCRIPTION>
+    <DESCRIPTION L="fr">Sindebele</DESCRIPTION>
+    <DESCRIPTION L="nl">North Ndebele</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ne</CODE>
+    <DESCRIPTION L="de">Nepalese</DESCRIPTION>
+    <DESCRIPTION L="fr">Népalais</DESCRIPTION>
+    <DESCRIPTION L="nl">Nepali</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ng</CODE>
+    <DESCRIPTION L="de">Ndonga</DESCRIPTION>
+    <DESCRIPTION L="fr">Ndonga</DESCRIPTION>
+    <DESCRIPTION L="nl">Ndonga</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nl</CODE>
+    <DESCRIPTION L="de">Holländisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Néerlandais</DESCRIPTION>
+    <DESCRIPTION L="nl">Dutch</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nn</CODE>
+    <DESCRIPTION L="de">Norweger Nynorsk</DESCRIPTION>
+    <DESCRIPTION L="fr">Norvégien Nynorsk</DESCRIPTION>
+    <DESCRIPTION L="nl">Norwegian Nynorsk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>no</CODE>
+    <DESCRIPTION L="de">Norwegisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Norvégien</DESCRIPTION>
+    <DESCRIPTION L="nl">Norwegian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nr</CODE>
+    <DESCRIPTION L="de">Nrebele</DESCRIPTION>
+    <DESCRIPTION L="fr">Nrebele</DESCRIPTION>
+    <DESCRIPTION L="nl">South Ndebele</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nv</CODE>
+    <DESCRIPTION L="de">Navajo</DESCRIPTION>
+    <DESCRIPTION L="fr">Navajo</DESCRIPTION>
+    <DESCRIPTION L="nl">Navajo</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ny</CODE>
+    <DESCRIPTION L="de">Chichewa</DESCRIPTION>
+    <DESCRIPTION L="fr">Chichewa</DESCRIPTION>
+    <DESCRIPTION L="nl">Chichewa</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>oc</CODE>
+    <DESCRIPTION L="de">Okzitanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Occitan</DESCRIPTION>
+    <DESCRIPTION L="nl">Occitan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>oj</CODE>
+    <DESCRIPTION L="de">Ojibwe</DESCRIPTION>
+    <DESCRIPTION L="fr">Ojibwé</DESCRIPTION>
+    <DESCRIPTION L="nl">Ojibwa</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>om</CODE>
+    <DESCRIPTION L="de">Oromo</DESCRIPTION>
+    <DESCRIPTION L="fr">Oromo</DESCRIPTION>
+    <DESCRIPTION L="nl">Oromo</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>or</CODE>
+    <DESCRIPTION L="de">Oriya</DESCRIPTION>
+    <DESCRIPTION L="fr">Oriya</DESCRIPTION>
+    <DESCRIPTION L="nl">Oriya</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>os</CODE>
+    <DESCRIPTION L="de">Ossetischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Ossète</DESCRIPTION>
+    <DESCRIPTION L="nl">Ossetian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pa</CODE>
+    <DESCRIPTION L="de">Panjabi</DESCRIPTION>
+    <DESCRIPTION L="fr">Pendjabi</DESCRIPTION>
+    <DESCRIPTION L="nl">Panjabi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pi</CODE>
+    <DESCRIPTION L="de">Pali</DESCRIPTION>
+    <DESCRIPTION L="fr">Pali</DESCRIPTION>
+    <DESCRIPTION L="nl">Pāli</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pl</CODE>
+    <DESCRIPTION L="de">Polnisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Polonais</DESCRIPTION>
+    <DESCRIPTION L="nl">Polish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ps</CODE>
+    <DESCRIPTION L="de">Pashto</DESCRIPTION>
+    <DESCRIPTION L="fr">Pachto</DESCRIPTION>
+    <DESCRIPTION L="nl">Pashto</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pt</CODE>
+    <DESCRIPTION L="de">Portugiesisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Portugais</DESCRIPTION>
+    <DESCRIPTION L="nl">Portuguese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>qu</CODE>
+    <DESCRIPTION L="de">Quechua</DESCRIPTION>
+    <DESCRIPTION L="fr">Quechua</DESCRIPTION>
+    <DESCRIPTION L="nl">Quechua</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>rm</CODE>
+    <DESCRIPTION L="de">Rätoromanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Romanche</DESCRIPTION>
+    <DESCRIPTION L="nl">Romansh</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>rn</CODE>
+    <DESCRIPTION L="de">Kirundi</DESCRIPTION>
+    <DESCRIPTION L="fr">Kirundi</DESCRIPTION>
+    <DESCRIPTION L="nl">Kirundi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ro</CODE>
+    <DESCRIPTION L="de">Rumänisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Roumain</DESCRIPTION>
+    <DESCRIPTION L="nl">Romanian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ru</CODE>
+    <DESCRIPTION L="de">Russisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Russe</DESCRIPTION>
+    <DESCRIPTION L="nl">Russian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>rw</CODE>
+    <DESCRIPTION L="de">kinyarwanda</DESCRIPTION>
+    <DESCRIPTION L="fr">Kinyarwanda</DESCRIPTION>
+    <DESCRIPTION L="nl">Kinyarwanda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sa</CODE>
+    <DESCRIPTION L="de">Sanskrit</DESCRIPTION>
+    <DESCRIPTION L="fr">Sanskrit</DESCRIPTION>
+    <DESCRIPTION L="nl">Sanskrit</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sc</CODE>
+    <DESCRIPTION L="de">Sardisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Sarde</DESCRIPTION>
+    <DESCRIPTION L="nl">Sardinian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sd</CODE>
+    <DESCRIPTION L="de">Sindhi</DESCRIPTION>
+    <DESCRIPTION L="fr">Sindhi</DESCRIPTION>
+    <DESCRIPTION L="nl">Sindhi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>se</CODE>
+    <DESCRIPTION L="de">Nördlich gleich</DESCRIPTION>
+    <DESCRIPTION L="fr">Same du Nord</DESCRIPTION>
+    <DESCRIPTION L="nl">Northern Sami</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sg</CODE>
+    <DESCRIPTION L="de">Sango</DESCRIPTION>
+    <DESCRIPTION L="fr">Sango</DESCRIPTION>
+    <DESCRIPTION L="nl">Sango</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sh</CODE>
+    <DESCRIPTION L="de">Serbokroatisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Serbo-croate</DESCRIPTION>
+    <DESCRIPTION L="nl">Serbo-Croatian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>si</CODE>
+    <DESCRIPTION L="de">Singhalesisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Cingalais</DESCRIPTION>
+    <DESCRIPTION L="nl">Sinhalese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sk</CODE>
+    <DESCRIPTION L="de">Slowakisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Slovaque</DESCRIPTION>
+    <DESCRIPTION L="nl">Slovak</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sl</CODE>
+    <DESCRIPTION L="de">Slowenisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Slovène</DESCRIPTION>
+    <DESCRIPTION L="nl">Slovenian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sm</CODE>
+    <DESCRIPTION L="de">Samoaner</DESCRIPTION>
+    <DESCRIPTION L="fr">Samoan</DESCRIPTION>
+    <DESCRIPTION L="nl">Samoan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sn</CODE>
+    <DESCRIPTION L="de">Shona</DESCRIPTION>
+    <DESCRIPTION L="fr">Shona</DESCRIPTION>
+    <DESCRIPTION L="nl">Shona</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>so</CODE>
+    <DESCRIPTION L="de">Somali</DESCRIPTION>
+    <DESCRIPTION L="fr">Somali</DESCRIPTION>
+    <DESCRIPTION L="nl">Somali</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sq</CODE>
+    <DESCRIPTION L="de">Albanisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Albanais</DESCRIPTION>
+    <DESCRIPTION L="nl">Albanian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sr</CODE>
+    <DESCRIPTION L="de">Serbisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Serbe</DESCRIPTION>
+    <DESCRIPTION L="nl">Serbian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ss</CODE>
+    <DESCRIPTION L="de">Swati</DESCRIPTION>
+    <DESCRIPTION L="fr">Swati</DESCRIPTION>
+    <DESCRIPTION L="nl">Swati</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>st</CODE>
+    <DESCRIPTION L="de">Süd-Sotho</DESCRIPTION>
+    <DESCRIPTION L="fr">Sotho du Sud</DESCRIPTION>
+    <DESCRIPTION L="nl">Sotho</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>su</CODE>
+    <DESCRIPTION L="de">Sundanese</DESCRIPTION>
+    <DESCRIPTION L="fr">Soundanais</DESCRIPTION>
+    <DESCRIPTION L="nl">Sundanese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sv</CODE>
+    <DESCRIPTION L="de">Schwedisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Suédois</DESCRIPTION>
+    <DESCRIPTION L="nl">Swedish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sw</CODE>
+    <DESCRIPTION L="de">Swahili</DESCRIPTION>
+    <DESCRIPTION L="fr">Swahili</DESCRIPTION>
+    <DESCRIPTION L="nl">Swahili</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ta</CODE>
+    <DESCRIPTION L="de">Tamilisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Tamoul</DESCRIPTION>
+    <DESCRIPTION L="nl">Tamil</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>te</CODE>
+    <DESCRIPTION L="de">Telugu</DESCRIPTION>
+    <DESCRIPTION L="fr">Télougou</DESCRIPTION>
+    <DESCRIPTION L="nl">Telugu</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tg</CODE>
+    <DESCRIPTION L="de">Tajik</DESCRIPTION>
+    <DESCRIPTION L="fr">Tadjik</DESCRIPTION>
+    <DESCRIPTION L="nl">Tajik</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>th</CODE>
+    <DESCRIPTION L="de">Thailändisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Thaï</DESCRIPTION>
+    <DESCRIPTION L="nl">Thai</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ti</CODE>
+    <DESCRIPTION L="de">Tigrigna</DESCRIPTION>
+    <DESCRIPTION L="fr">Tigrigna</DESCRIPTION>
+    <DESCRIPTION L="nl">Tigrinya</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tk</CODE>
+    <DESCRIPTION L="de">Turkmenischen</DESCRIPTION>
+    <DESCRIPTION L="fr">Turkmène</DESCRIPTION>
+    <DESCRIPTION L="nl">Turkmen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tl</CODE>
+    <DESCRIPTION L="de">Tagalog</DESCRIPTION>
+    <DESCRIPTION L="fr">Tagalog</DESCRIPTION>
+    <DESCRIPTION L="nl">Tagalog</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tn</CODE>
+    <DESCRIPTION L="de">Tswana</DESCRIPTION>
+    <DESCRIPTION L="fr">Tswana</DESCRIPTION>
+    <DESCRIPTION L="nl">Tswana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>to</CODE>
+    <DESCRIPTION L="de">Tongan</DESCRIPTION>
+    <DESCRIPTION L="fr">Tongien</DESCRIPTION>
+    <DESCRIPTION L="nl">Tonga</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tr</CODE>
+    <DESCRIPTION L="de">Türkisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Turc</DESCRIPTION>
+    <DESCRIPTION L="nl">Turkish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ts</CODE>
+    <DESCRIPTION L="de">Tsonga</DESCRIPTION>
+    <DESCRIPTION L="fr">Tsonga</DESCRIPTION>
+    <DESCRIPTION L="nl">Tsonga</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tt</CODE>
+    <DESCRIPTION L="de">Tatar</DESCRIPTION>
+    <DESCRIPTION L="fr">Tatar</DESCRIPTION>
+    <DESCRIPTION L="nl">Tatar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tw</CODE>
+    <DESCRIPTION L="de">Twi</DESCRIPTION>
+    <DESCRIPTION L="fr">Twi</DESCRIPTION>
+    <DESCRIPTION L="nl">Twi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ty</CODE>
+    <DESCRIPTION L="de">Tahitianer</DESCRIPTION>
+    <DESCRIPTION L="fr">Tahitien</DESCRIPTION>
+    <DESCRIPTION L="nl">Tahitian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ug</CODE>
+    <DESCRIPTION L="de">Uiguren</DESCRIPTION>
+    <DESCRIPTION L="fr">Ouïghour</DESCRIPTION>
+    <DESCRIPTION L="nl">Uighur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>uk</CODE>
+    <DESCRIPTION L="de">Ukrainisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Ukrainien</DESCRIPTION>
+    <DESCRIPTION L="nl">Ukrainian</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ur</CODE>
+    <DESCRIPTION L="de">Urdu</DESCRIPTION>
+    <DESCRIPTION L="fr">Ourdou</DESCRIPTION>
+    <DESCRIPTION L="nl">Urdu</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>uz</CODE>
+    <DESCRIPTION L="de">Usbekisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Ouzbek</DESCRIPTION>
+    <DESCRIPTION L="nl">Uzbek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ve</CODE>
+    <DESCRIPTION L="de">Venda</DESCRIPTION>
+    <DESCRIPTION L="fr">Venda</DESCRIPTION>
+    <DESCRIPTION L="nl">Venda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vi</CODE>
+    <DESCRIPTION L="de">Vietnamesisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Vietnamien</DESCRIPTION>
+    <DESCRIPTION L="nl">Viêt Namese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vo</CODE>
+    <DESCRIPTION L="de">Volapük</DESCRIPTION>
+    <DESCRIPTION L="fr">Volapük</DESCRIPTION>
+    <DESCRIPTION L="nl">Volapük</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>wa</CODE>
+    <DESCRIPTION L="de">Wallonisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Wallon</DESCRIPTION>
+    <DESCRIPTION L="nl">Walloon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>wo</CODE>
+    <DESCRIPTION L="de">Wolof</DESCRIPTION>
+    <DESCRIPTION L="fr">Wolof</DESCRIPTION>
+    <DESCRIPTION L="nl">Wolof</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xh</CODE>
+    <DESCRIPTION L="de">Xhosa</DESCRIPTION>
+    <DESCRIPTION L="fr">Xhosa</DESCRIPTION>
+    <DESCRIPTION L="nl">Xhosa</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>yi</CODE>
+    <DESCRIPTION L="de">Jiddisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Yiddish</DESCRIPTION>
+    <DESCRIPTION L="nl">Yiddish</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>yo</CODE>
+    <DESCRIPTION L="de">Yoruba</DESCRIPTION>
+    <DESCRIPTION L="fr">Yoruba</DESCRIPTION>
+    <DESCRIPTION L="nl">Yoruba</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>za</CODE>
+    <DESCRIPTION L="de">Zhuang</DESCRIPTION>
+    <DESCRIPTION L="fr">Zhuang</DESCRIPTION>
+    <DESCRIPTION L="nl">Zhuang</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>zh</CODE>
+    <DESCRIPTION L="de">Chinesisch</DESCRIPTION>
+    <DESCRIPTION L="fr">Chinois</DESCRIPTION>
+    <DESCRIPTION L="nl">Chinese</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>zu</CODE>
+    <DESCRIPTION L="de">Zulu</DESCRIPTION>
+    <DESCRIPTION L="fr">Zoulou</DESCRIPTION>
+    <DESCRIPTION L="nl">Zulu</DESCRIPTION>
+  </VALUE>
+</ISO639-1>
