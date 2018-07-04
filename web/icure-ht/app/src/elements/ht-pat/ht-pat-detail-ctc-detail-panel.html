@@ -1010,8 +1010,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			return;
 		}
 
+		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
-			ctc: contact, forms: _.sortBy((contact.subContacts || []).map(sc => {
+			ctc: contact, forms: _.sortBy((contact.subContacts.filter(!seenForms) || []).map(sc => {
 				const serviceIds = sc.services.map(s => s.serviceId);
 				return {
 					id: sc.formId,
