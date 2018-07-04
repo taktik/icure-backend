@@ -19,6 +19,7 @@
 package org.taktik.icure.logic;
 
 import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.exceptions.DeletionException;
 
@@ -31,7 +32,7 @@ public interface CalendarItemLogic extends EntityPersister<CalendarItem, String>
 
 	CalendarItem getCalendarItem(String CalendarItemId);
 
-	PaginatedList<CalendarItem> getCalendarItemByPeriodAndHcPartyId(Instant startDate, Instant endDate, String HcPartyId);
+	List<CalendarItem> getCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String HcPartyId);
 
     CalendarItem modifyCalendarItem(CalendarItem CalendarItem);
 

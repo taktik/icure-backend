@@ -21,6 +21,8 @@ package org.taktik.icure.logic.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.CalendarItemDAO;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
@@ -56,8 +58,8 @@ public class CalendarItemLogicImpl extends GenericLogicImpl<CalendarItem, Calend
 	}
 
 	@Override
-	public CalendarItem getCalendarItemByPeriodAndHcPartyId(Instant startDate, Instant endDate, String HcPartyId){
-		return null;
+	public List<CalendarItem> getCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId){
+		return calendarItemDAO.listCalendarItemByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
 	}
 
 	@Override

@@ -26,9 +26,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.CalendarItem;
+import org.taktik.icure.entities.Contact;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
+import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
+import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
@@ -36,7 +39,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/calendarItem")
@@ -101,11 +106,6 @@ public class CalendarItemFacade implements OpenApiFacade {
         if (calendarItemId == null) {
             response = ResponseUtils.badRequest("Cannot get access log: supplied calendarItemId is null");
 
-        } else if (calendarItemId.equalsIgnoreCase("testme")) {
-            CalendarItem calendarItem = new CalendarItem();
-            calendarItem.setEndTime(Instant.now());
-            calendarItem.setExternalId("test");
-            response = ResponseUtils.ok(mapper.map(calendarItem, CalendarItemDto.class));
         } else {
             CalendarItem calendarItem = calendarItemLogic.getCalendarItem(calendarItemId);
             if (calendarItem != null) {
@@ -115,7 +115,6 @@ public class CalendarItemFacade implements OpenApiFacade {
                 response = ResponseUtils.internalServerError("CalendarItem fetching failed");
             }
         }
-
         return response;
     }
 
@@ -139,6 +138,31 @@ public class CalendarItemFacade implements OpenApiFacade {
         }
 
         return response;
+    }
+
+
+    @ApiOperation(
+            value = "Get CalendarItems by Period and HcPartyId",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST",
+            notes = ""
+    )
+    @POST
+    @Path("/byPeriodAndHcPartyId")
+    public Response getContacts(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
+        if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<CalendarItem> contacts = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
+
+        boolean succeed = (contacts != null);
+        if (succeed) {
+            return Response.ok().entity(contacts.stream().map(c->mapper.map(c, ContactDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
+        }
     }
 
     @Context

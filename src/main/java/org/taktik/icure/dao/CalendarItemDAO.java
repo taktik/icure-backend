@@ -19,14 +19,12 @@
 package org.taktik.icure.dao;
 
 
-import org.taktik.icure.db.PaginatedList;
-import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.CalendarItem;
-import org.taktik.icure.entities.Contact;
 
 import java.time.Instant;
+import java.util.List;
 
 public interface CalendarItemDAO extends GenericDAO<CalendarItem> {
 
-    PaginatedList<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Instant startDate, Instant endDate , String hcPartyId, PaginationOffset<String> pagination);
+    List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate , String hcPartyId);
 }

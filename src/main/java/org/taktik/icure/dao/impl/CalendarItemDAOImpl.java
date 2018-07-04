@@ -31,6 +31,7 @@ import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.CalendarItem;
 
 import java.time.Instant;
+import java.util.List;
 
 @Repository("calendarItemDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItem' && !doc.deleted) emit( null, doc._id )}")
@@ -43,7 +44,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
 	}
 
 	@Override
-	public PaginatedList<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Instant startDate, Instant endDate, String hcPartyId, PaginationOffset<String> pagination) {
+	public List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
 		return null;
 	}
 }

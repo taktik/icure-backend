@@ -24,33 +24,33 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.utils.InstantDeserializer;
 import org.taktik.icure.utils.InstantSerializer;
+import org.taktik.icure.validation.AutoFix;
+import org.taktik.icure.validation.NotNull;
 
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CalendarItem extends StoredICureDocument {
 
-    @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer.class)
-    protected Instant startTime;
+    @NotNull(autoFix = AutoFix.FUZZYNOW)
+    protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
-    @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer.class)
-    protected Instant endTime;
+    @NotNull(autoFix = AutoFix.FUZZYNOW)
+    protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
-    public Instant getStartTime() {
+    public Long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Instant startTime) {
+    public void setStartTime(Long startTime) {
         this.startTime = startTime;
     }
 
-    public Instant getEndTime() {
+    public Long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Instant endTime) {
+    public void setEndTime(Long endTime) {
         this.endTime = endTime;
     }
 }
