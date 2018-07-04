@@ -18,15 +18,7 @@
 
 package org.taktik.icure.entities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.base.StoredICureDocument;
@@ -34,7 +26,15 @@ import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
 import org.taktik.icure.entities.utils.MergeUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Invoice extends StoredICureDocument {
 	private Long invoiceDate; //yyyyMMdd
 	private Long sentDate;

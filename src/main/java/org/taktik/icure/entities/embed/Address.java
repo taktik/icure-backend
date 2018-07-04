@@ -19,20 +19,20 @@
 package org.taktik.icure.entities.embed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by aduchate on 21/01/13, 14:43
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Address implements Serializable, Comparable<Address> {
 
 	protected AddressType addressType;

@@ -18,17 +18,17 @@
 
 package org.taktik.icure.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.PlanOfActionTemplate;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HealthElementTemplate extends StoredICureDocument {
     protected String descr;
 

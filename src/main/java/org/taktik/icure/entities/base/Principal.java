@@ -19,8 +19,8 @@
 package org.taktik.icure.entities.base;
 
 import org.taktik.icure.constants.Roles;
-import org.taktik.icure.entities.embed.Permission;
 import org.taktik.icure.entities.Property;
+import org.taktik.icure.entities.embed.Permission;
 
 import java.util.Set;
 

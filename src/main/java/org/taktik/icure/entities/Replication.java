@@ -18,19 +18,18 @@
 
 package org.taktik.icure.entities;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.DatabaseSynchronization;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Replication extends StoredDocument implements Identifiable<String>, Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 
