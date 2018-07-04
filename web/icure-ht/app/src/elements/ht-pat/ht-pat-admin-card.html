@@ -201,7 +201,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return Promise.resolve(s ? Object.values(this.api.users).filter(u=>(u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
                         (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
 						.map(u => ({id: u.id, name: u.name||u.login||u.email})):[])
-                }
+                } else if (data.source === "codes" && data.types.length && text && text.length > 1) {
+				    return Promise.all(data.types.map(ct => {
+                        const typeLng = this.api.code().languageForType(ct.type, this.language)
+                        const words = text.toLowerCase().split(/\s+/)
+                        const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
+
+                        return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
+                            id: code.id, name: code.label[typeLng]
+                        })), sorter))
+                    })).then(responses => _.flatMap(responses))
+				}
+                return Promise.resolve([])
 			}
 		};
 	}
