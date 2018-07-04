@@ -19,17 +19,17 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.TypedValue;
 
-import javax.persistence.Entity;
 import java.io.Serializable;
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Property extends StoredDocument implements Identifiable<String>, Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 	public static final Property EMPTY = new Property();

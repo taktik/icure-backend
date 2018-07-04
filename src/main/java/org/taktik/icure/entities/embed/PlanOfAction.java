@@ -18,24 +18,24 @@
 
 package org.taktik.icure.entities.embed;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
  * Created by aduchate on 09/07/13, 16:30
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanOfAction implements ICureDocument, Serializable {
 	private static final long serialVersionUID = 1L;
 

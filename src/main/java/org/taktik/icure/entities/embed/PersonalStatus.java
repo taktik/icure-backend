@@ -18,11 +18,9 @@
 
 package org.taktik.icure.entities.embed;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.EnumVersion;
+
+import java.io.Serializable;
 
 @EnumVersion(1l)
 public enum PersonalStatus implements Serializable {

@@ -18,11 +18,9 @@
 
 package org.taktik.icure.entities;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.ReportVersion;
 import org.taktik.icure.entities.base.StoredDocument;
@@ -31,7 +29,10 @@ import org.taktik.icure.entities.embed.DocumentType;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
+import java.io.Serializable;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentTemplate extends StoredDocument implements Serializable {
 
 	@NotNull(autoFix = AutoFix.NOW)

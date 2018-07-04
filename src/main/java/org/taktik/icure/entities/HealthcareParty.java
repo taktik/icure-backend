@@ -18,20 +18,10 @@
 
 package org.taktik.icure.entities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredDocument;
@@ -43,7 +33,16 @@ import org.taktik.icure.entities.embed.TelecomType;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.ValidCode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HealthcareParty extends StoredDocument implements Person {
 	protected String name;
 	protected String lastName;
