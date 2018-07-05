@@ -18,6 +18,7 @@
 
 package org.taktik.icure.entities.embed;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.constants.Permissions;
 import org.taktik.icure.entities.User;
@@ -27,6 +28,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PermissionCriterion implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 
