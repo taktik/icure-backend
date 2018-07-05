@@ -92,6 +92,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 					return require('./rsrc/PatientInsuranceForm.json');
 				}
 			},
+            contactPersonForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientContactPersonForm.json');
+                }
+            },
 			user: {
 				type: Object
 			},
@@ -172,11 +178,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			setMeasureValue: setValue,
 			setDateValue: setValue,
 			setBooleanValue: setValue,
-			getSubForms: function (key) {
+			getSubForms: key => {
 				return (root[key] || []).map((a, idx) => {
-					return { dataMap: a, dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())), template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : this.insuranceForm };
+					return {
+					    dataMap: a,
+                        dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
+                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'contactPerson' ? this.contactPersonForm :  this.insuranceForm};
 				});
-			}.bind(this),
+			},
 			getId: () => id,
 			deleteSubForm: (key, id) => {
 				this.flushSave();

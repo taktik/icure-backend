@@ -122,7 +122,7 @@
                     acc[u.id] = u
                     return acc
                 }, {}))
-                return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => id !== null))
+                return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => !!id))
             }).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
