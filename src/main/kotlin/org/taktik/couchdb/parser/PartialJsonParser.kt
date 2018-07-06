@@ -46,7 +46,6 @@ class PartialJsonParser(deserializer: AsyncDeserializer) {
             exceptions.add(DeserializationException(partialJson, e))
         }
     }
-
     private fun _parseObject(partialJson: ByteArray) {
         var i = 0
         readData@ while (i < partialJson.size) {

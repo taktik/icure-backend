@@ -11,7 +11,6 @@ import org.taktik.couchdb.parser.AsyncDeserializerImpl
 import org.taktik.couchdb.parser.PartialJsonParser
 import java.net.URI
 import java.util.*
-import org.h2.value.DataType.readValue
 import java.util.concurrent.CompletableFuture
 
 
