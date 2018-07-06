@@ -361,32 +361,7 @@
 							"type" : "TKString",
 							"name" : "placeOfBirth"
 						},
-						{
-							"editor" : {
-								"readOnly" : false,
-								"height" : 48,
-								"compulsoryFormGuids" : [
 
-								],
-								"labelPosition" : "Left",
-								"width" : 1162,
-								"multiline" : false,
-								"left" : 5,
-								"top" : 206,
-								"key" : "SubFormEditor",
-								"optionalFormGuids" : [
-									"2b915c79-4c29-47f8-9ce9-ae09dc6dc109"
-								]
-							},
-							"sortOrder" : 1616336695,
-							"codeTypes" : [
-
-							],
-							"label" : "Insurances",
-							"type" : "TKSubConsult",
-							"subForm" : true,
-							"name" : "insurabilities"
-						},
 						{
 							"editor" : {
 								"readOnly" : false,
@@ -433,34 +408,7 @@
 							"subForm" : false,
 							"type" : "TKBoolean",
 							"name" : "active"
-						},
-                        {
-                          "editor" : {
-                            "readOnly" : false,
-                            "height" : 67,
-                            "compulsoryFormGuids" : [
-                              "2d6620d1-7ac6-4627-973c-cf06f361c571"
-                            ],
-                            "labelPosition" : "Left",
-                            "width" : 1162,
-                            "multiline" : false,
-                            "left" : 5,
-                            "top" : 323,
-                            "key" : "SubFormEditor",
-                            "optionalFormGuids" : [
-
-                            ]
-                          },
-                          "sortOrder" : 1465341783,
-                          "codeTypes" : [
-
-                          ],
-                          "label" : "Contact person",
-                          "irrelevant" : true,
-                          "subForm" : true,
-                          "type" : "TKSubConsult",
-                          "name" : "contactPerson"
-                        }
+						}
                       ]
 				}
 			]

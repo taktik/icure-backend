@@ -23,7 +23,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "lastName"
+                        "name" : "PC_lastName"
                       },
                       {
                         "editor" : {
@@ -44,7 +44,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "firstName"
+                        "name" : "PC_firstName"
                       },
                       {
                         "editor" : {
@@ -65,7 +65,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKDate",
-                        "name" : "dateOfBirth"
+                        "name" : "PC_dateOfBirth"
                       },
                       {
                         "editor" : {
@@ -86,7 +86,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "ssin"
+                        "name" : "PC_ssin"
                       },
                       {
                         "editor" : {
@@ -107,7 +107,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "partnerName"
+                        "name" : "PC_partnerName"
                       },
                       {
                         "editor" : {
@@ -128,7 +128,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "language"
+                        "name" : "PC_language"
                       },
                       {
                         "editor" : {
@@ -149,7 +149,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "nationality"
+                        "name" : "PC_nationality"
                       },
                       {
                         "editor" : {
@@ -170,7 +170,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "education"
+                        "name" : "PC_education"
                       },
                       {
                         "editor" : {
@@ -191,17 +191,23 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "job"
+                        "name" : "PC_job"
                       },
                       {
                         "editor" : {
                           "readOnly" : false,
                           "height" : 26,
                           "menuOptions" : [
-                            "female",
-                            "male",
-                            "changed",
-                            "indeterminate"
+                            "Grandfather",
+                            "GranMother",
+                            "Father",
+                            "Mother",
+                            "Child",
+                            "Uncle",
+                            "Stepchild",
+                            "Neighbour",
+                            "Friend",
+                            "Other"
                           ],
                           "labelPosition" : "Left",
                           "width" : 501,
@@ -218,7 +224,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "gender"
+                        "name" : "PC_links"
                       },
                       {
                         "editor" : {
@@ -245,34 +251,33 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "gender"
+                        "name" : "PC_gender"
                       },
                       {
                         "editor" : {
                           "readOnly" : false,
-                          "height" : 46,
+                          "height" : 48,
                           "compulsoryFormGuids" : [
-                            "2662246e-0db0-46d6-96f8-5db4363745b6"
+
                           ],
                           "labelPosition" : "Left",
-                          "width" : 1180,
+                          "width" : 1162,
                           "multiline" : false,
-                          "left" : 6,
-                          "top" : 173,
+                          "left" : 5,
+                          "top" : 262,
                           "key" : "SubFormEditor",
                           "optionalFormGuids" : [
-
+                            "2d6620d1-7ac6-4627-973c-cf06f361c569"
                           ]
                         },
-                        "sortOrder" : 1465333559,
+                        "sortOrder" : 1616336695,
                         "codeTypes" : [
 
                         ],
-                        "label" : "Telecoms",
-                        "irrelevant" : true,
-                        "subForm" : false,
+                        "label" : "Addresses",
                         "type" : "TKSubConsult",
-                        "name" : "telecoms"
+                        "subForm" : true,
+                        "name" : "addresses"
                       }
                     ]
 				}

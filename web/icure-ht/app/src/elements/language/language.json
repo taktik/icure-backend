@@ -180,7 +180,12 @@
     "end_dat":"End date",
     "pat_ident":"Patient",
     "hcp_ident":"HCP",
-    "tl_req":"Request therapeutic link"
+    "tl_req":"Request therapeutic link",
+    "adm_form" : "Administrative form",
+    "adm_ins" : "Insurances",
+    "adm_ctc_per" : "Contact persons",
+    "adm_ins_sta" : "Institution stays",
+    "adm_dmg" : "Dmg"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -353,7 +358,12 @@
     "end_dat":"Date fin",
     "pat_ident":"Patient",
     "hcp_ident":"HCP",
-    "tl_req":"Liens thérapeutiques"
+    "tl_req": "Liens thérapeutiques",
+    "adm_form" : "Fiche administrative",
+    "adm_ins" : "Assurances",
+    "adm_ctc_per" : "Personnes de contact",
+    "adm_ins_sta" : "Séjours en institution",
+    "adm_dmg" : "Dmg"
   },
   "nl": {
     "eng":"English",
@@ -519,6 +529,11 @@
     "end_dat":"Date fin",
     "pat_ident":"Patiënt",
     "hcp_ident":"HCP",
-    "tl_req":"Therapeutische relaties"
+    "tl_req":"Therapeutische relaties",
+    "adm_form" : "Administrative form",
+    "adm_ins" : "Insurances",
+    "adm_ctc_per" : "Contact persons",
+    "adm_ins_sta" : "Institution stays",
+    "adm_dmg" : "Dmg"
   }
 }

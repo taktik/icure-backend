@@ -16,6 +16,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/vaadin-tabs/vaadin-tabs.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
 <link rel="import" href="../dynamic-form/dynamic-form.html">
 
@@ -50,12 +55,117 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding-left: 5px;
 				padding-right: 5px;
 			}
-			
 
-		</style>
+            page {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
 
-		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
-	</template>
+            .adm-tab:focus>iron-icon{
+                color: #66dea1;
+            }
+
+            .adm-tab:before{
+                background-color: #66dea1;
+                width: 80%;
+            }
+
+            page{
+                padding: 10px;
+                width: 100%;
+                height: calc(100% - 140px);
+            }
+
+            page>dynamic-form{
+                width: 100%;
+            }
+
+            :host #institution-list {
+                height: calc(100% - 140px);
+                outline: none;
+            }
+
+            #institution-list{
+                width: 100%;
+                padding: 5px;
+                height: calc(100% - 140px);
+            }
+
+
+        </style>
+
+
+        <vaadin-tabs selected="{{tabs}}">
+            <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-text"></iron-icon> Administrative form</vaadin-tab>
+            <vaadin-tab class="adm-tab"><iron-icon icon="hardware:security"></iron-icon> Insurances</vaadin-tab>
+            <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:users"></iron-icon> Contact persons</vaadin-tab>
+            <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:hospital"></iron-icon> Institution stays</vaadin-tab>
+            <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-cross"></iron-icon> Dmg</vaadin-tab>
+        </vaadin-tabs>
+
+        <iron-pages selected="[[tabs]]">
+            <page>
+                <dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+            </page>
+            <page>
+                <dynamic-form id="dynamic-form-insurance" api="[[api]]" user="[[user]]" template="[[insuranceContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+            </page>
+
+            <page>
+                <dynamic-form id="dynamic-form-contactPerson" api="[[api]]" user="[[user]]" template="[[contactPersonContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+            </page>
+            <page>
+                <vaadin-grid id="institution-list" class="material" multi-sort="[[multiSort]]" items="[[institutionStaysList]]">
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">
+                                Start date
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen"></div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">
+                                End date
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen"></div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">
+                                Institution
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen"></div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">
+                                Comment
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen"></div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </page>
+            <page>
+                <dynamic-form id="dynamic-form-dmg" api="[[api]]" user="[[user]]" template="[[dmgForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+            </page>
+        </iron-pages>
+
+
+        </template>
 	<script>
 
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
@@ -98,6 +208,24 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return require('./rsrc/PatientContactPersonForm.json');
                 }
             },
+            insuranceContainerForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientInsuranceContainerForm.json');
+                }
+            },
+            contactPersonContainerForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientContactPersonContainerForm.json');
+                }
+            },
+            dmgForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientDmgForm.json');
+                }
+            },
 			user: {
 				type: Object
 			},
@@ -111,7 +239,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			dataProvider: {
 				type: Object,
 				value: null
-			}
+			},
+            institutionStaysList: {
+			    type: Object
+            }
 		};
 	}
 
