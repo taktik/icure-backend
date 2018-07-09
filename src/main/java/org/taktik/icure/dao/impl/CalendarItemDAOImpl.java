@@ -18,6 +18,8 @@
 
 package org.taktik.icure.dao.impl;
 
+import org.ektorp.ComplexKey;
+import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,14 +39,30 @@ import java.util.List;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItem' && !doc.deleted) emit( null, doc._id )}")
 public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements CalendarItemDAO {
 
-	@Autowired
-	public CalendarItemDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
-		super(CalendarItem.class, db, idGenerator);
-		initStandardDesignDocument();
-	}
+    @Autowired
+    public CalendarItemDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
+        super(CalendarItem.class, db, idGenerator);
+        initStandardDesignDocument();
+    }
 
-	@Override
-	public List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
-		return null;
-	}
+    @Override
+    @View(name = "by_hcparty_and_startdate", map = "classpath:js/calendarItem/by_hcparty_and_startdate.js")
+    public List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+        ComplexKey from = ComplexKey.of(
+                hcPartyId,
+                startDate
+        );
+        ComplexKey to = ComplexKey.of(
+                hcPartyId,
+                endDate == null ? ComplexKey.emptyObject() : endDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_hcparty_and_startdate")
+                .startKey(from)
+                .endKey(to)
+                .includeDocs(false);
+
+        List<CalendarItem> calendarItems = db.queryView(viewQuery, CalendarItem.class);
+        return calendarItems;
+    }
 }
