@@ -754,7 +754,7 @@ public class PatientFacade implements OpenApiFacade{
 		Response response;
 
 		Patient patient = patientLogic.getPatient(patientId);
-		List<Patient> fromPatients = Arrays.asList(fromIds.split(",")).stream().map(id->patientLogic.getPatient(id)).collect(Collectors.toList());
+		List<Patient> fromPatients = Arrays.stream(fromIds.split(",")).map(id->patientLogic.getPatient(id)).collect(Collectors.toList());
 		if (patient != null) {
 			Patient modifiedPatient = patientLogic.mergePatient(patient, fromPatients);
 			response = ResponseUtils.ok(mapper.map(modifiedPatient, PatientDto.class));
