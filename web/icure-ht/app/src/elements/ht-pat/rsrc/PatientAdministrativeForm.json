@@ -138,11 +138,11 @@
 								"multiline" : false,
 								"left" : 664,
 								"top" : 143,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 1463236407,
 							"codeTypes" : [
-
+								{"type":"ISO-639-1"}
 							],
 							"label" : "Language",
 							"subForm" : false,
@@ -158,11 +158,11 @@
 								"multiline" : false,
 								"left" : 90,
 								"top" : 143,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 1463236407,
 							"codeTypes" : [
-
+								{"type":"CD-FED-COUNTRY"}
 							],
 							"label" : "Nationality",
 							"subForm" : false,
