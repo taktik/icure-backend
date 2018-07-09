@@ -27,8 +27,13 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.TimeTableDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.TimeTable;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository("timeTableDAO")
@@ -43,7 +48,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
 
     @Override
     @View(name = "by_hcparty_and_startdate", map = "classpath:js/timeTable/by_hcparty_and_startdate.js")
-    public List<TimeTable> listTimeTableByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+    public List<TimeTable> listTimeTableByStartDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
         ComplexKey from = ComplexKey.of(
                 hcPartyId,
                 startDate
@@ -53,12 +58,54 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
                 endDate == null ? ComplexKey.emptyObject() : endDate
         );
 
-        ViewQuery viewQuery = createQuery("by_hcparty_and_startdate")
+        ViewQuery viewQuery = createQuery("by_hcparty_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
+
+        return timeTables;
+    }
+
+    @Override
+    @View(name = "by_hcparty_and_enddate", map = "classpath:js/timeTable/by_hcparty_and_enddate.js")
+    public List<TimeTable> listTimeTableByEndDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+        ComplexKey from = ComplexKey.of(
+                hcPartyId,
+                startDate
+        );
+        ComplexKey to = ComplexKey.of(
+                hcPartyId,
+                endDate == null ? ComplexKey.emptyObject() : endDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_hcparty_and_enddate")
+                .startKey(from)
+                .endKey(to)
+                .includeDocs(false);
+
+        List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
+
+        return timeTables;
+    }
+
+    @Override
+    public List<TimeTable> listTimeTableByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+        List<TimeTable> timeTables = this.listTimeTableByStartDateAndHcPartyId(startDate, endDate, hcPartyId);
+        List<TimeTable> timeTablesEnd = this.listTimeTableByEndDateAndHcPartyId(startDate, endDate, hcPartyId);
+
+        if (timeTables == null && timeTables != null) {
+            return timeTablesEnd;
+        }
+        if (timeTables != null && timeTablesEnd == null) {
+            return timeTables;
+        }
+        if (!timeTablesEnd.isEmpty()) {
+            for (TimeTable item : timeTablesEnd) {
+                timeTables.add(item);
+            }
+        }
         return timeTables;
     }
 }

@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.TimeTable;
+import org.taktik.icure.entities.TimeTableHour;
+import org.taktik.icure.entities.TimeTableItem;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.TimeTableLogic;
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
@@ -35,6 +37,7 @@ import org.taktik.icure.utils.ResponseUtils;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -102,6 +105,29 @@ public class TimeTableFacade implements OpenApiFacade {
         if (timeTableId == null) {
             response = ResponseUtils.badRequest("Cannot get access log: supplied timeTableId is null");
 
+        } if(timeTableId.equalsIgnoreCase("new")){
+            //Create an hourItem
+            TimeTableHour timeTableHour = new TimeTableHour();
+            timeTableHour.setStartHour(Long.parseLong("0800"));
+            timeTableHour.setStartHour(Long.parseLong("0900"));
+            //Create a timeTableItem
+            TimeTableItem timeTableItem = new TimeTableItem();
+            timeTableItem.setActivityType("consult");
+            timeTableItem.setDays(new ArrayList<>());
+            timeTableItem.getDays().add("monday");
+            timeTableItem.setRecurrenceType("none");
+            timeTableItem.setHours(new ArrayList<>());
+            timeTableItem.getHours().add(timeTableHour);
+            //Create the timeTable
+            TimeTable timeTable = new TimeTable();
+            timeTable.setStartTime(Long.parseLong("20180601000"));
+            timeTable.setEndTime(Long.parseLong("20180801000"));
+            timeTable.setName("myPeriod");
+            timeTable.setItems(new ArrayList<>());
+            timeTable.getItems().add(timeTableItem);
+            //Return it
+            response = ResponseUtils.ok(mapper.map(timeTable, TimeTableDto.class));
+
         } else {
             TimeTable timeTable = timeTableLogic.getTimeTable(timeTableId);
             if (timeTable != null) {
@@ -146,16 +172,16 @@ public class TimeTableFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndHcPartyId")
-    public Response getContacts(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
+    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
         if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> contacts = timeTableLogic.getTimeTableByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
 
-        boolean succeed = (contacts != null);
+        boolean succeed = (timeTables != null);
         if (succeed) {
-            return Response.ok().entity(contacts.stream().map(c->mapper.map(c, ContactDto.class)).collect(Collectors.toList())).build();
+            return Response.ok().entity(timeTables.stream().map(c->mapper.map(c, ContactDto.class)).collect(Collectors.toList())).build();
         } else {
             return Response.status(500).type("text/plain").entity("Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
         }

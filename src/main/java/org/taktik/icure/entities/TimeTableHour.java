@@ -29,4 +29,20 @@ public class TimeTableHour {
     private Long startHour ;// hh:mm:ss
     @NotNull()
     private Long endHour ;// hh:mm:ss
+
+    public Long getStartHour() {
+        return startHour;
+    }
+
+    public void setStartHour(Long startHour) {
+        this.startHour = startHour;
+    }
+
+    public Long getEndHour() {
+        return endHour;
+    }
+
+    public void setEndHour(Long endHour) {
+        this.endHour = endHour;
+    }
 }

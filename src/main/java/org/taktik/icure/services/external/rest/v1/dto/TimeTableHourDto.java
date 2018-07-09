@@ -21,4 +21,21 @@ package org.taktik.icure.services.external.rest.v1.dto;
 public class TimeTableHourDto {
     private Long startHour ;// hh:mm:ss
     private Long endHour ;// hh:mm:ss
+
+
+    public Long getStartHour() {
+        return startHour;
+    }
+
+    public void setStartHour(Long startHour) {
+        this.startHour = startHour;
+    }
+
+    public Long getEndHour() {
+        return endHour;
+    }
+
+    public void setEndHour(Long endHour) {
+        this.endHour = endHour;
+    }
 }

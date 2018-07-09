@@ -26,5 +26,7 @@ import java.util.List;
 
 public interface CalendarItemDAO extends GenericDAO<CalendarItem> {
 
+    List<CalendarItem> listCalendarItemByStartDateAndHcPartyId(Long startDate, Long endDate , String hcPartyId);
+    List<CalendarItem> listCalendarItemByEndDateAndHcPartyId(Long startDate, Long endDate , String hcPartyId);
     List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate , String hcPartyId);
 }

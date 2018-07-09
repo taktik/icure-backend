@@ -33,6 +33,7 @@ import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.CalendarItem;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository("calendarItemDAO")
@@ -47,7 +48,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
 
     @Override
     @View(name = "by_hcparty_and_startdate", map = "classpath:js/calendarItem/by_hcparty_and_startdate.js")
-    public List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+    public List<CalendarItem> listCalendarItemByStartDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
         ComplexKey from = ComplexKey.of(
                 hcPartyId,
                 startDate
@@ -57,12 +58,54 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
                 endDate == null ? ComplexKey.emptyObject() : endDate
         );
 
-        ViewQuery viewQuery = createQuery("by_hcparty_and_startdate")
+        ViewQuery viewQuery = createQuery("by_hcparty_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false);
 
         List<CalendarItem> calendarItems = db.queryView(viewQuery, CalendarItem.class);
+
+        return calendarItems;
+    }
+
+    @Override
+    @View(name = "by_hcparty_and_enddate", map = "classpath:js/calendarItem/by_hcparty_and_enddate.js")
+    public List<CalendarItem> listCalendarItemByEndDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+        ComplexKey from = ComplexKey.of(
+                hcPartyId,
+                startDate
+        );
+        ComplexKey to = ComplexKey.of(
+                hcPartyId,
+                endDate == null ? ComplexKey.emptyObject() : endDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_hcparty_and_enddate")
+                .startKey(from)
+                .endKey(to)
+                .includeDocs(false);
+
+        List<CalendarItem> calendarItems = db.queryView(viewQuery, CalendarItem.class);
+
+        return calendarItems;
+    }
+
+    @Override
+    public List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
+        List<CalendarItem> calendarItems = this.listCalendarItemByStartDateAndHcPartyId(startDate, endDate, hcPartyId);
+        List<CalendarItem> calendarItemsEnd = this.listCalendarItemByEndDateAndHcPartyId(startDate, endDate, hcPartyId);
+
+        if (calendarItems == null && calendarItems != null) {
+            return calendarItemsEnd;
+        }
+        if (calendarItems != null && calendarItemsEnd == null) {
+            return calendarItems;
+        }
+        if (!calendarItemsEnd.isEmpty()) {
+            for (CalendarItem item : calendarItemsEnd) {
+                calendarItems.add(item);
+            }
+        }
         return calendarItems;
     }
 }

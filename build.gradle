@@ -42,7 +42,6 @@ compileKotlin {
 	}
 }
 
-
 compileJava {
 	options.fork = true
 	options.forkOptions.with {
@@ -216,7 +215,7 @@ dependencies {
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
-
+/*
 task installWebResourcesDependencies(type: Exec) {
 	group 'build'
 	description 'Package web resources'
@@ -257,11 +256,11 @@ task copyTzWebResources(type: Copy) {
 }
 
 copyHtWebResources.dependsOn(packageHtWebResources)
-copyTzWebResources.dependsOn(packageTzWebResources)
+copyTzWebResources.dependsOn(packageTzWebResources)*/
 compileJava.dependsOn(processResources)
 
-bootRepackage.dependsOn(copyHtWebResources)
-bootRepackage.dependsOn(copyTzWebResources)
+//bootRepackage.dependsOn(copyHtWebResources)
+//bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {
@@ -285,6 +284,6 @@ configurations.all {
 }
 
 springBoot {
-    mainClass = "org.taktik.icure.ICureBackendApplicationKt"
+	mainClass = "org.taktik.icure.ICureBackendApplicationKt"
 }
 
