@@ -9,10 +9,19 @@ import java.time.Instant;
 
 public class CalendarItemDto extends IcureDto {
 
+	protected String title;
 
 	protected Long startTime;
 
 	protected Long endTime;
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
 	public Long getStartTime() {
 		return startTime;
