@@ -150,16 +150,16 @@ public class CalendarItemFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndHcPartyId")
-    public Response getCalendars(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
+    public Response getCalendars(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("hcPartyId") String hcPartyId) {
         if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<CalendarItem> calendars = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
+        List<CalendarItem> calendars = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate, endDate, hcPartyId);
 
         boolean succeed = (calendars != null);
         if (succeed) {
-            return Response.ok().entity(calendars.stream().map(c->mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
+            return Response.ok().entity(calendars.stream().map(c -> mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
         } else {
             return Response.status(500).type("text/plain").entity("Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
         }

@@ -31,7 +31,7 @@ import org.taktik.icure.entities.TimeTableItem;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.TimeTableLogic;
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
-import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
+import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
@@ -105,7 +105,8 @@ public class TimeTableFacade implements OpenApiFacade {
         if (timeTableId == null) {
             response = ResponseUtils.badRequest("Cannot get access log: supplied timeTableId is null");
 
-        } if(timeTableId.equalsIgnoreCase("new")){
+        }
+        if (timeTableId.equalsIgnoreCase("new")) {
             //Create an hourItem
             TimeTableHour timeTableHour = new TimeTableHour();
             timeTableHour.setStartHour(Long.parseLong("0800"));
@@ -172,16 +173,16 @@ public class TimeTableFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndHcPartyId")
-    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
+    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("hcPartyId") String hcPartyId) {
         if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndHcPartyId(startDate, endDate, hcPartyId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {
-            return Response.ok().entity(timeTables.stream().map(c->mapper.map(c, ContactDto.class)).collect(Collectors.toList())).build();
+            return Response.ok().entity(timeTables.stream().map(c -> mapper.map(c, TimeTableDto.class)).collect(Collectors.toList())).build();
         } else {
             return Response.status(500).type("text/plain").entity("Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
         }

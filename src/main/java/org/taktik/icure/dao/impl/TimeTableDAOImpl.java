@@ -103,7 +103,15 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
         }
         if (!timeTablesEnd.isEmpty()) {
             for (TimeTable item : timeTablesEnd) {
-                timeTables.add(item);
+                Boolean toAdd = true;
+                for (TimeTable itemTest : timeTables) {
+                    if (itemTest.getId().equals(item.getId())) {
+                        toAdd = false;
+                    }
+                }
+                if (toAdd) {
+                    timeTables.add(item);
+                }
             }
         }
         return timeTables;

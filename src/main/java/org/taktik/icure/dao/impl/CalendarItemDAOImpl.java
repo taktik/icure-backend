@@ -103,7 +103,15 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         }
         if (!calendarItemsEnd.isEmpty()) {
             for (CalendarItem item : calendarItemsEnd) {
-                calendarItems.add(item);
+                Boolean toAdd = true;
+                for (CalendarItem itemTest : calendarItems) {
+                    if (itemTest.getId().equals(item.getId())) {
+                        toAdd = false;
+                    }
+                }
+                if (toAdd) {
+                    calendarItems.add(item);
+                }
             }
         }
         return calendarItems;
