@@ -40,6 +40,7 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.entities.embed.Substanceproduct
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthElementLogic
@@ -442,7 +443,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             }
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
-            this.delegations = mapOf(author.healthcarePartyId to arrayListOf())
+            this.delegations = mapOf(author.healthcarePartyId to setOf())
 
 	        copyFromPersonToPatient(p, this, true)
         }) else dbPatient
