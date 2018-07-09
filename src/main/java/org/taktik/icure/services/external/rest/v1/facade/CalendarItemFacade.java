@@ -30,7 +30,7 @@ import org.taktik.icure.entities.Contact;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
-import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
+import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -150,16 +150,16 @@ public class CalendarItemFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndHcPartyId")
-    public Response getContacts(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
+    public Response getCalendars(@QueryParam("startDate") Long startDate,@QueryParam("endDate") Long endDate,@QueryParam("hcPartyId") String hcPartyId) {
         if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<CalendarItem> contacts = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
+        List<CalendarItem> calendars = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
 
-        boolean succeed = (contacts != null);
+        boolean succeed = (calendars != null);
         if (succeed) {
-            return Response.ok().entity(contacts.stream().map(c->mapper.map(c, ContactDto.class)).collect(Collectors.toList())).build();
+            return Response.ok().entity(calendars.stream().map(c->mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
         } else {
             return Response.status(500).type("text/plain").entity("Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
         }
