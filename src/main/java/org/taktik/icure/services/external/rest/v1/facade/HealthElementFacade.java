@@ -162,7 +162,7 @@ public class HealthElementFacade implements OpenApiFacade{
 			notes = "Keys must be delimited by coma"
 	)
 	@POST
-	@Path("/byHcPartySecretForeignKeys/delegations")
+	@Path("/delegations")
 	public Response setHealthElementsDelegations(List<IcureStubDto> stubs) throws Exception {
 		List<HealthElement> healthElements = healthElementLogic.getHealthElements(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
 		healthElements.forEach(healthElement -> {

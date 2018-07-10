@@ -1036,66 +1036,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             confirmSharing() {
-                var tabDelegations = []
-                var contactDelegation = []
-
-                this.patientToShare.map(pat => {
-                    const hcpId = this.user.healthcarePartyId
-                    if(pat.check === true){
-                        this.api.patient().getPatient(pat.id).then(p => {
-                            const psfksPromise = p.delegations && p.delegations[hcpId].length ? this.api.crypto().extractDelegationsSFKs(p, hcpId) : Promise.resolve([])
-                            const peksPromise = p.encryptionKey && p.encryptionKey[hcpId].length ? this.api.crypto().extractEncryptionsSKs(p, hcpId): Promise.resolve([])
-
-                           ;Promise.all([psfksPromise, peksPromise]).then(([psfks, peks]) =>
-                                Promise.all([
-                                    this.api.helement().findDelegationsStubsByHCPartyPatientSecretFKeys(hcpId, psfks.join(",")),
-                                    this.api.contact().findBy(hcpId, p),
-                                    this.api.invoice().findDelegationsStubsByHCPartyPatientSecretFKeys(hcpId, psfks.join(","))
-                                ]).then( ([hes, ctcs, ivs] ) => {
-                                    const ctcsStubs = ctcs.map(c => ({id:c.id, rev:c.rev, delegations:c.delegations, cryptedForeignKeys:c.cryptedForeignKeys, encryptionKeys:c.encryptionKeys}))
-
-                                    tabDelegations = p.delegations
-                                    let markerPromise = Promise.resolve(null)
-                                    this.hcpSelectedForSharing.map(hcp =>{
-                                        if (hcp.check === true) {
-                                            this.api.crypto().addDelegationsAndEncryptionKeys(null, p, hcpId, hcp.id, psfks[0], peks[0])
-                                                .then(() => this.api.patient().modifyPatient(p))
-                                            ;(hes).forEach(x =>
-                                                markerPromise = markerPromise.then(() => Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
-                                                    this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                )
-                                            ))
-                                            ;(ctcsStubs).forEach(x =>
-                                                markerPromise = markerPromise.then(() => Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
-                                                    this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                ))
-                                            )
-                                            ;(ivs).forEach(x =>
-                                                markerPromise = markerPromise.then(() => Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
-                                                    this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                ))
-                                            )
-
-                                            markerPromise.then(() =>
-                                                this.api.contact().setContactsDelegations(ctcsStubs))
-                                                .then(()=>this.api.helement().setHealthElementsDelegations(hes))
-                                                .then(()=>this.api.invoice().setInvoicesDelegations(ivs)).then(() => {
-                                                const docIds = {}
-
-                                                ctcs.forEach(c=>c.services.forEach(s=>Object.values(s.content).forEach(c=>c.documentId && (docIds[c.documentId] = 1))))
-                                                Object.keys(docIds).forEach(dId => this.api.document().getDocument(dId).then(x=>
-                                                    Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
-                                                        this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                    ).then(()=>this.api.document().modifyDocument(x))
-                                                ))
-                                            })
-                                        }
-                                    })
-                                })
-                            )
-                        })
-                    }
+                let pPromise = Promise.resolve([])
+                const hcpId = this.user.healthcarePartyId
+                this.patientToShare.filter(pat => pat.check && pat.id).forEach(pat => {
+                    pPromise = pPromise.then(pats =>
+                        this.api.patient().share(pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
+                            .then(pat => _.concat(pats, pat))
+                    )
                 })
+                return pPromise
             }
         }
 

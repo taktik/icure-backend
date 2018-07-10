@@ -348,16 +348,14 @@ public class InvoiceFacade implements OpenApiFacade{
 			notes = "Keys must be delimited by coma"
 	)
 	@POST
-	@Path("/byHcPartySecretForeignKeys/delegations")
+	@Path("/delegations")
 	public Response setInvoicesDelegations(List<IcureStubDto> stubs) throws Exception {
 		List<Invoice> invoices = invoiceLogic.getInvoices(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
-		invoices.forEach(healthElement -> {
-			stubs.stream().filter(s -> s.getId().equals(healthElement.getId())).findFirst().ifPresent(stub -> {
-				stub.getDelegations().forEach((s, delegationDtos) -> healthElement.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-				stub.getEncryptionKeys().forEach((s, delegationDtos) -> healthElement.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-				stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> healthElement.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-			});
-		});
+		invoices.forEach(healthElement -> stubs.stream().filter(s -> s.getId().equals(healthElement.getId())).findFirst().ifPresent(stub -> {
+			stub.getDelegations().forEach((s, delegationDtos) -> healthElement.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getEncryptionKeys().forEach((s, delegationDtos) -> healthElement.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> healthElement.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+		}));
 		invoiceLogic.updateInvoices(invoices);
 		return Response.ok().build();
 	}

@@ -330,16 +330,14 @@ public class ContactFacade implements OpenApiFacade {
 			notes = "Keys must be delimited by coma"
 	)
 	@POST
-	@Path("/byHcPartySecretForeignKeys/delegations")
+	@Path("/delegations")
 	public Response setContactsDelegations(List<IcureStubDto> stubs) throws Exception {
 		List<Contact> contacts = contactLogic.getContacts(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
-		contacts.forEach(contact -> {
-			stubs.stream().filter(s -> s.getId().equals(contact.getId())).findFirst().ifPresent(stub -> {
-				stub.getDelegations().forEach((s, delegationDtos) -> contact.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-				stub.getEncryptionKeys().forEach((s, delegationDtos) -> contact.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-				stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> contact.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-			});
-		});
+		contacts.forEach(contact -> stubs.stream().filter(s -> s.getId().equals(contact.getId())).findFirst().ifPresent(stub -> {
+			stub.getDelegations().forEach((s, delegationDtos) -> contact.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getEncryptionKeys().forEach((s, delegationDtos) -> contact.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> contact.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+		}));
 		contactLogic.updateEntities(contacts);
 		return Response.ok().build();
 	}
