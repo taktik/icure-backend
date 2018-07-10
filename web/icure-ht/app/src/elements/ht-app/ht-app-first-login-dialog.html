@@ -3,8 +3,6 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../../bower_components/gold-password-input/gold-password-input.html">
-<link rel="import" href="../../../bower_components/polymer-password-strength/password-strength.html">
 
 <dom-module id="ht-app-first-login-dialog">
 
@@ -70,7 +68,7 @@
 		<paper-dialog id="firstConnectionDialog" class="firstConnDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" user="[[user]]" modal>
 			<h3>[[localize('welcome_mess','Welcome to the Icure application',language)]] [[user.name]]</h3>
             <h4>[[localize('generate_key_mess','Entrer a password for the application and click on the following button to generate your key',language)]]</h4>
-            <gold-password-input label="Mot de passe" reveal suffix value="{{password}}"></gold-password-input>
+            <paper-input label="Mot de passe" value="{{password}}"></paper-input>
             <div class="error">[[passwordError]]</div>
             <paper-button class="generateKeyBtn" on-tap="generateKey">[[localize('gen','Generate',language)]]</paper-button>
 		</paper-dialog>
