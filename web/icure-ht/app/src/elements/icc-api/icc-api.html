@@ -111,11 +111,11 @@
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
 
-            this.contacticc = new IccContactXApi(this.host, this.headers,this.cryptoicc)
-            this.documenticc = new IccDocumentXApi(this.host, this.headers,this.cryptoicc)
-            this.formicc = new IccFormXApi(this.host, this.headers,this.cryptoicc)
-            this.helementicc = new IccHelementXApi(this.host, this.headers,this.cryptoicc)
-            this.patienticc = new IccPatientXApi(this.host, this.headers,this.cryptoicc)
+            this.contacticc = new IccContactXApi(this.host, this.headers, this.cryptoicc)
+            this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
+            this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
+            this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
+            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
 
             this.user().listUsers().then(users => {
                 this.set('users', users.rows.reduce((acc, u) => {
