@@ -61,6 +61,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     @apply --padding-right-left-16
                 }
 
+                .horizontal paper-input-container {
+                    height: 90px;
+                    padding-bottom : 22px;
+                    @apply --padding-right-left-16
+                }
+
                 .horizontal vaadin-date-picker {
                     height: 90px;
                     padding-bottom: 0px;
@@ -359,6 +365,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background:none;
                     font-size: var(--form-font-size);
                 }
+
+                #duplicate-list{
+                    max-height: 200px;
+                }
             </style>
         </custom-style>
 
@@ -506,7 +516,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
 
                 <!--agrandir et garnir l'input-->
-                <paper-input-container always-float-label="true">
+                <paper-input-container>
                     <label slot="label">[[localize("gender","Gender",language)]]
                     </label>
                     <iron-input slot="input" bind-value="{{valueGender}}">
@@ -525,7 +535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div>
                 <template is="dom-if" if="[[displayResult]]">
-                    <vaadin-grid id="erp-list" class="material" items="[[listResultPatients]]" style="max-height: 150px;">
+                    <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
                         <vaadin-grid-column>
                             <template class="header">
                                 [[localize('las_nam','Last name',language)]]
