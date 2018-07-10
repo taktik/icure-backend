@@ -180,7 +180,15 @@
     "end_dat":"End date",
     "pat_ident":"Patient",
     "hcp_ident":"HCP",
-    "tl_req":"Request therapeutic link"
+    "tl_req":"Request therapeutic link",
+    "remark":"Remarks",
+    "rem_Ty1_CreatPat" : "Même nom et prénom!",
+    "rem_Ty2_CreatPat" : "Même NISS!",
+    "rem_Ty3_CreatPat" : "Même Patient!",
+    "rem_Ty4_CreatPat" : "Même nom, prénom et date de naissance!",
+    "gender" : "Gender",
+    "rem_Ty5_CreatPat" : "Ressemblance !",
+    "more" : "More"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -353,7 +361,15 @@
     "end_dat":"Date fin",
     "pat_ident":"Patient",
     "hcp_ident":"HCP",
-    "tl_req":"Liens thérapeutiques"
+    "tl_req":"Liens thérapeutiques",
+    "remark":"Remarques",
+    "rem_Ty1_CreatPat" : "Même nom et prénom!",
+    "rem_Ty2_CreatPat" : "Même NISS!",
+    "rem_Ty3_CreatPat" : "Même Patient!",
+    "rem_Ty4_CreatPat" : "Même nom, prénom et date de naissance!",
+    "gender" : "Genre",
+    "rem_Ty5_CreatPat" : "Ressemblance !",
+    "more" : "Plus"
   },
   "nl": {
     "eng":"English",
@@ -519,6 +535,14 @@
     "end_dat":"Date fin",
     "pat_ident":"Patiënt",
     "hcp_ident":"HCP",
-    "tl_req":"Therapeutische relaties"
+    "tl_req":"Therapeutische relaties",
+    "remark":"Remarques",
+    "rem_Ty1_CreatPat" : "Même nom et prénom!",
+    "rem_Ty2_CreatPat" : "Même NISS!",
+    "rem_Ty3_CreatPat" : "Même Patient!",
+    "rem_Ty4_CreatPat" : "Même nom, prénom et date de naissance!",
+    "gender" : "Genre",
+    "rem_Ty5_CreatPat" : "Ressemblance !",
+    "more" : "Plus"
   }
 }
