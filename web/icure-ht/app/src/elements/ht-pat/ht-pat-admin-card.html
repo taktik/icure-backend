@@ -189,7 +189,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .buttons{
-                width:100%;
+                position: absolute;
+                bottom: 0;
+                right: 12px;
             }
 
             #dialogAddInstitution{
@@ -243,7 +245,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 margin: auto;
             }
 
-            .btn-add-stay{
+            .btn{
                 --paper-button-ink-color: var(--app-secondary-color-dark);
                 background: var(--app-secondary-color);
                 color: var(--app-text-color);
@@ -323,7 +325,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid>
                     </div>
                     <div class="add-btn-stay-container">
-                            <paper-button class="btn-add-stay" dialog-confirm autofocus on-tap="addStay">Add stay</paper-button>
+                            <paper-button class="btn" dialog-confirm autofocus on-tap="openInstitutionDialog">Add stay</paper-button>
                     </div>
                 </page>
                 <page class="buttons">
@@ -340,23 +342,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <table class="formAddStay">
                     <tr>
                         <td>
-                            <vaadin-date-picker class="full-width" label="Start date" i18n="[[i18n]]" value=""></vaadin-date-picker>
+                            <vaadin-date-picker class="full-width" label="Start date" i18n="[[i18n]]" value="{{institutionStay.StartDate}}"></vaadin-date-picker>
                         </td>
                         <td>
-                            <vaadin-date-picker class="full-width" label="End date" i18n="[[i18n]]" value=""></vaadin-date-picker>
+                            <vaadin-date-picker class="full-width" label="End date" i18n="[[i18n]]" value="{{institutionStay.EndDate}}"></vaadin-date-picker>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <vaadin-text-field class="full-width" label="Institution"  value=""></vaadin-text-field>
+                            <vaadin-text-field class="full-width" label="Institution"  value="{{institutionStay.Institution}}"></vaadin-text-field>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <vaadin-text-area class="full-width" label="Comment"></vaadin-text-area>
+                            <vaadin-text-area class="full-width" label="Comment">{{institutionStay.Comment}}</vaadin-text-area>
                         </td>
                     </tr>
                 </table>
+            </div>
+            <div class="buttons">
+                <paper-button class="btn" dialog-dismiss>Cancel</paper-button>
+                <paper-button class="btn"dialog-confirm autofocus on-tap="addStay">Add</paper-button>
             </div>
         </paper-dialog>
 
@@ -421,6 +427,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return require('./rsrc/PatientDmgForm.json');
                 }
             },
+            institutionStay: {
+			    type: Object,
+                value: {}
+            },
 			user: {
 				type: Object
 			},
@@ -458,7 +468,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			this.flushSave();
 			this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id);
 			this.set('patientMap', _.cloneDeep(this.patient));
-			this.$['dynamic-form-administrative'].loadDataMap();
+
+			if(!this.root.activeElement){
+                this.$['dynamic-form-administrative'].loadDataMap();
+            }else{
+                this.$[this.root.activeElement.id].loadDataMap();
+            }
+
 		}
 	}
 
@@ -511,7 +527,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 					return {
 					    dataMap: a,
                         dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
-                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'contactPerson' ? this.contactPersonForm :  this.insuranceForm};
+                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'contactPersonContainer' ? this.contactPersonForm :  this.insuranceForm};
 				});
 			},
 			getId: () => id,
@@ -526,6 +542,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 				(root[key] || (root[key] = [])).push({});
 				this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
 				this.scheduleSave(this.patient);
+
 			},
 			filter: (data, text, id) => {
 				if (data.source === 'insurances') {
@@ -558,8 +575,21 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 		return this.api && this.api.contact().localize(e, lng) || "";
 	}
 
-    addStay(){
+    openInstitutionDialog(){
 	    this.$['dialogAddInstitution'].open()
+    }
+
+    addStay(){
+        console.log(this.institutionStay)
+    //    "paymentType": [
+    //        "insurance"
+    //    ]
+
+        const parameters = this.user
+        const InstitutionStay = this.institutionStay
+
+
+
     }
 
 }
