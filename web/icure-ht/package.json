@@ -80,7 +80,7 @@
     "@types/lodash": "^4.14.110",
     "base64-js": "^1.3.0",
     "bower": "^1.8.4",
-    "icc-api": "git+https://github.com/taktik/icc-api.git#446d166ab6d932eb828ff092d33138c5b3f306ad",
+    "icc-api": "git+https://github.com/taktik/icc-api.git#dd5665840b5a5717cf7ea57494c1ac257683d59a",
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.10",
     "npm": "^6.1.0",
