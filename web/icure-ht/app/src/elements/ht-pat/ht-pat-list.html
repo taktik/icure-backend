@@ -1037,6 +1037,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             confirmSharing() {
                 var tabDelegations = []
+                var contactDelegation = []
 
                 this.patientToShare.map(pat => {
                     const hcpId = this.user.healthcarePartyId
@@ -1051,37 +1052,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     this.api.contact().findBy(hcpId, p),
                                     this.api.invoice().findDelegationsStubsByHCPartyPatientSecretFKeys(hcpId, psfks.join(","))
                                 ]).then( ([hes, ctcs, ivs] ) => {
+                                    const ctcsStubs = ctcs.map(c => ({id:c.id, rev:c.rev, delegations:c.delegations, cryptedForeignKeys:c.cryptedForeignKeys, encryptionKeys:c.encryptionKeys}))
+
                                     tabDelegations = p.delegations
+                                    let markerPromise = Promise.resolve(null)
                                     this.hcpSelectedForSharing.map(hcp =>{
                                         if (hcp.check === true) {
                                             this.api.crypto().addDelegationsAndEncryptionKeys(null, p, hcpId, hcp.id, psfks[0], peks[0])
                                                 .then(() => this.api.patient().modifyPatient(p))
-                                            const ctcsStubs = ctcs.map(c => ({delegations:c.delegations, cryptedForeignKeys:c.cryptedForeignKeys, encryptionKeys:c.encryptionKeys}))
                                             ;(hes).forEach(x =>
-                                                ([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
+                                                markerPromise = markerPromise.then(() => Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
                                                     this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
                                                 )
-                                            )
+                                            ))
                                             ;(ctcsStubs).forEach(x =>
-                                                ([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
+                                                markerPromise = markerPromise.then(() => Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
                                                     this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                )
+                                                ))
                                             )
                                             ;(ivs).forEach(x =>
-                                                ([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
+                                                markerPromise = markerPromise.then(() => Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
                                                     this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                )
+                                                ))
                                             )
-                                            this.api.contact().setContactsDelegations(ctcsStubs)
+
+                                            markerPromise.then(() =>
+                                                this.api.contact().setContactsDelegations(ctcsStubs))
                                                 .then(()=>this.api.helement().setHealthElementsDelegations(hes))
-                                                .then(()=>this.api.invoice().setInvoicesDelegations(hes))
-                                            var docIds = {}
-                                            ctcs.forEach(c=>c.services.forEach(s=>Object.values(s.content).forEach(c=>c.documentId && (docIds[c.documentId] = 1))))
-                                            Object.keys(docIds).forEach(dId => this.api.document().getDocument(dId).then(x=>
-                                                ([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
-                                                    this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
-                                                ).then(()=>this.api.document().modifyDocument(x))
-                                            ))
+                                                .then(()=>this.api.invoice().setInvoicesDelegations(ivs)).then(() => {
+                                                const docIds = {}
+
+                                                ctcs.forEach(c=>c.services.forEach(s=>Object.values(s.content).forEach(c=>c.documentId && (docIds[c.documentId] = 1))))
+                                                Object.keys(docIds).forEach(dId => this.api.document().getDocument(dId).then(x=>
+                                                    Promise.all([this.api.crypto().extractDelegationsSFKs(x, hcpId),this.api.crypto().extractEncryptionsSKs(x, hcpId)]).then( ([sfks, eks]) =>
+                                                        this.api.crypto().addDelegationsAndEncryptionKeys(p, x, hcpId, hcp.id, sfks[0], eks[0])
+                                                    ).then(()=>this.api.document().modifyDocument(x))
+                                                ))
+                                            })
                                         }
                                     })
                                 })
