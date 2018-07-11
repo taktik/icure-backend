@@ -193,8 +193,10 @@
     "adm_ins" : "Insurances",
     "adm_ctc_per" : "Contact persons",
     "adm_ins_sta" : "Institution stays",
+    "soc_ris" : "Social risk",
     "adm_dmg" : "Dmg",
-    "soc_ris" : "Social risk"
+    "mdp" : "Password",
+    "mdp_ver" : "Password verification"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -380,8 +382,10 @@
     "adm_ins" : "Assurances",
     "adm_ctc_per" : "Personnes de contact",
     "adm_ins_sta" : "Séjours en institution",
+    "soc_ris" : "Risque social",
     "adm_dmg" : "Dmg",
-    "soc_ris" : "Risque social"
+    "mdp" : "Mot de passe",
+    "mdp_ver" : "Vérification du mot de passe"
   },
   "nl": {
     "eng":"English",
@@ -560,7 +564,8 @@
     "adm_ins" : "Insurances",
     "adm_ctc_per" : "Contact persons",
     "adm_ins_sta" : "Institution stays",
-    "adm_dmg" : "Dmg"
-
+    "adm_dmg" : "Dmg",
+    "mdp" : "Password",
+    "mdp_ver" : "Password verification"
   }
 }
