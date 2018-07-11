@@ -110,7 +110,7 @@
 		<paper-dialog id="dialog">
             <h2 class="modal-title">[[okLabel]] [[entityType]]</h2>
             <vaadin-combo-box id="entities-list" filtered-items="[[items]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
-            <paper-input label="[[localize('labe','Label',language)]]" value="{{entity.descr}}"></paper-input>
+            <paper-input label="[[localize('lab','Label',language)]]" value="{{entity.descr}}"></paper-input>
             <div class="flex">
                 <paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
@@ -136,7 +136,7 @@
                 <paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
                     <paper-radio-button name="probable">[[localize('proba','Probable',language)]]</paper-radio-button>
                     <paper-radio-button name="proven">[[localize('prov','Proven',language)]]</paper-radio-button>
-                    <paper-radio-button name="unprobable">[[localize('unp','Unprobable',language)]]</paper-radio-button>
+                    <paper-radio-button name="unprobable">[[localize('unp','improbable',language)]]</paper-radio-button>
                     <paper-radio-button name="excluded">[[localize('exc','Excluded',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
@@ -145,7 +145,7 @@
                 <paper-radio-group selected="[[_severity(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_severityChanged">
                     <paper-radio-button name="normal">[[localize('no-pro','No problem',language)]]</paper-radio-button>
                     <paper-radio-button name="verylow">[[localize('light','Light',language)]]</paper-radio-button>
-                    <paper-radio-button name="low">[[localize('mod','Moderate',language)]]</paper-radio-button>
+                    <paper-radio-button name="low">[[localize('moder','Moderate',language)]]</paper-radio-button>
                     <paper-radio-button name="high">[[localize('severe','Severe',language)]]</paper-radio-button>
                     <paper-radio-button name="veryhigh">[[localize('tot','Total',language)]]</paper-radio-button>
                 </paper-radio-group>
