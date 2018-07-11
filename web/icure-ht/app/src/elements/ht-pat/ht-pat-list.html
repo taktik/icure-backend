@@ -1179,107 +1179,87 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('valueGender', this.option[selected - 1] || null);
             }
 
-            _searchDuplicate(){
-
-                this.set("displayResult", false)
-
+            _searchDuplicate() {
+                const fingerPrint = this.firstName + '|' + this.lastName + '|' + this.dateAsString + '|' + this.ssin
                 //creation of filters
-                let filters;
-                let filter = [];
-                let filterAnd = []
+                const totalChars = (this.firstName && this.firstName.length || 0) + (this.lastName && this.lastName.length || 0)
+                const firstNameFilter = this.firstName && this.firstName.length >= 2 && totalChars >= 4 && ({
+                    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'searchString': this.firstName
+                })
+                const lastNameFilter = this.lastName && this.lastName.length >= 2 && totalChars >= 4 && ({
+                    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'searchString': this.lastName
+                })
+                const dateOfBirthFilter = (/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/.test(this.dateAsString)) && ({
+                    '$type': 'PatientByHcPartyDateOfBirthFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'dateOfBirth': this.dateAsString.replace(/-/g,"")
+                })
+                const ssinFilter = /^[0-9]{11}$/.test(this.ssin) && ({
+                    '$type': 'PatientByHcPartyAndSsinFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'ssin': this.ssin
+                })
 
-                let cptOfFilters=0;
+                const intersectionFilters = [firstNameFilter, lastNameFilter, dateOfBirthFilter].filter(x => !!x)
+                const unionFilters = [intersectionFilters.length > 1 ? ({
+                    '$type': 'IntersectionFilter',
+                    filters: intersectionFilters
+                }) : intersectionFilters[0], ssinFilter].filter(x => !!x)
 
-                if(this.lastName!="" && this.lastName != null) {
-                    filterAnd.push({
-                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'searchString': this.lastName
+                const unionFilter = unionFilters.length>1 ? ({
+                    '$type': 'UnionFilter',
+                    filters: unionFilters
+                }) : unionFilters[0]
 
-                    })
-                    cptOfFilters++;
-                }
-
-                if(this.firstName!="" && this.firstName!=null){
-                    filterAnd.push({
-                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'searchString': this.firstName
-
-                    })
-                    cptOfFilters++;
-                }
-
-                if(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/.test(this.dateAsString)){
-                    filterAnd.push({
-                        '$type': 'PatientByHcPartyDateOfBirthFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'dateOfBirth': this.dateAsString.replace(/-/g,"")
-
-                    })
-                    cptOfFilters++;
-                }
-
-                filter=filterAnd
-                if(cptOfFilters>=2){
-                    filter=[]
-                    filter.push({
-                        '$type': 'IntersectionFilter',
-                        filters: filterAnd
-                    })
-                }
-
-
-                if(/^[0-9]{11}$/.test(this.ssin)) {
-                    filter.push({
-                        '$type': 'PatientByHcPartyAndSsinFilter',
-                        'healthcarePartyId': this.user.healthcarePartyId,
-                        'ssin': this.ssin
-                    })
-                    cptOfFilters+=2;
-                }
-
-
-                if(cptOfFilters>=2) {
-                    filters = {
-                        '$type': 'UnionFilter',
-                        filters: filter
-                    }
-
-                    console.log(filters)
-                    //research
-                    this.api.patient().filterBy(null, null, 50, 0, 1, 'desc', {filter: filters}).then(tb => {
-                        console.log("result of the research : " + JSON.stringify(tb))
-
-
-                        //construct of the table
-                        if (tb["totalSize"] != 0 && !this.flagConfirm) {
-
-                            tb["rows"].map(row => {
-                                row["remarks"] = this.localize("rem_Ty5_CreatPat", "Ressemblance !", language)
-                                let flagRem = false;
-                                if (row["firstName"].toUpperCase() === this.firstName.toUpperCase() && row["lastName"].toUpperCase() === this.lastName.toUpperCase()) {
-                                    row["remarks"] = this.localize("rem_Ty1_CreatPat", "Même nom et prénom!", language)
-
-                                    if (row["dateOfBirth"] == this.dateAsString.replace(/-/g, '')) {
-                                        flagRem = true;
-                                        row["remarks"] = this.localize("rem_Ty4_CreatPat", "Même nom, prénom et date de naissance!", language)
-                                    }
-                                }
-
-                                if (row["ssin"] === this.ssin && this.ssin != "") {
-                                    row["remarks"] = this.localize("rem_Ty2_CreatPat", "Même NISS!", language)
-                                    if (flagRem) {
-                                        row["remarks"] = this.localize("rem_Ty3_CreatPat", "Même patient!", language)
-                                    }
-                                }
-
-                            })
-
-                            this.set("displayResult", true)
-                            this.set("listResultPatients", tb["rows"])
+                clearTimeout(this.checkDuplicateTimeout)
+                if (unionFilter) {
+                    this.checkDuplicateTimeout = setTimeout(() => {
+                        if (fingerPrint !== this.firstName + '|' + this.lastName + '|' + this.dateAsString + '|' + this.ssin) {
+                            return
                         }
-                    })
+                        console.log(unionFilter)
+                        //research
+                        this.api.patient().filterBy(null, null, 50, 0, 1, 'desc', {filter: unionFilter}).then(tb => {
+                            console.log("result of the research : " + JSON.stringify(tb))
+
+                            //construct of the table
+                            if (tb["totalSize"] !== 0 && !this.flagConfirm) {
+                                tb["rows"].map(row => {
+                                    row["remarks"] = this.localize("rem_Ty5_CreatPat", "Ressemblance !", language)
+                                    let flagRem = false;
+                                    if (row["firstName"].toUpperCase() === this.firstName.toUpperCase() && row["lastName"].toUpperCase() === this.lastName.toUpperCase()) {
+                                        row["remarks"] = this.localize("rem_Ty1_CreatPat", "Même nom et prénom!", language)
+
+                                        if (row["dateOfBirth"] === this.dateAsString.replace(/-/g, '')) {
+                                            flagRem = true;
+                                            row["remarks"] = this.localize("rem_Ty4_CreatPat", "Même nom, prénom et date de naissance!", language)
+                                        }
+                                    }
+
+                                    if (row["ssin"] === this.ssin && this.ssin != "") {
+                                        row["remarks"] = this.localize("rem_Ty2_CreatPat", "Même NISS!", language)
+                                        if (flagRem) {
+                                            row["remarks"] = this.localize("rem_Ty3_CreatPat", "Même patient!", language)
+                                        }
+                                    }
+
+                                })
+
+                                this.set("listResultPatients", tb["rows"])
+                                this.set("displayResult", true)
+                            } else {
+                                this.set("listResultPatients", [])
+                                this.set("displayResult", false)
+                            }
+                        })
+                    }, 300)
+                } else {
+                    this.set("listResultPatients", [])
+                    this.set("displayResult", false)
                 }
             }
         }
