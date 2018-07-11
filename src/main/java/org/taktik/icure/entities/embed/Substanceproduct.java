@@ -18,14 +18,15 @@
 
 package org.taktik.icure.entities.embed;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.taktik.icure.entities.base.Code;
+
 import java.io.Serializable;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.taktik.icure.entities.base.Code;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Substanceproduct implements Serializable {
 	protected List<Code> intendedcds;
 	protected List<Code> deliveredcds;

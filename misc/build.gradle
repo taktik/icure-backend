@@ -1,4 +1,21 @@
+buildscript {
+    ext {
+        kotlinVersion = '1.2.50'
+        springBootVersion = '1.5.10.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.taktik.be/content/groups/public' }
+        maven { url = 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath('io.spring.gradle:propdeps-plugin:0.0.9.RELEASE')
+    }
+}
+
 apply plugin: 'groovy'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 sourceCompatibility = 1.8
 version = '1.0-SNAPSHOT'

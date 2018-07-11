@@ -30,6 +30,8 @@ import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.HealthElementLogic;
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -108,8 +110,6 @@ public class HealthElementFacade implements OpenApiFacade{
 		}
 	}
 
-
-
 	@ApiOperation(
 			value = "List health elements found By Healthcare Party and secret foreign keyelementIds.",
 			response = HealthElementDto.class,
@@ -137,6 +137,44 @@ public class HealthElementFacade implements OpenApiFacade{
 		}
 	}
 
+	@ApiOperation(
+			value = "List helement stubs found By Healthcare Party and secret foreign keys.",
+			response = IcureStubDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys must be delimited by coma"
+	)
+	@GET
+	@Path("/byHcPartySecretForeignKeys/delegations")
+	public Response findDelegationsStubsByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId,
+	                                                                @QueryParam("secretFKeys") String secretFKeys) {
+		if (hcPartyId == null || secretFKeys == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+		return Response.ok().entity(healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, new ArrayList<>(secretPatientKeys)).stream().map(contact -> mapper.map(contact, IcureStubDto.class)).collect(Collectors.toList())).build();
+	}
+
+	@ApiOperation(
+			value = "Update delegations in healthElements.",
+			httpMethod = "POST",
+			notes = "Keys must be delimited by coma"
+	)
+	@POST
+	@Path("/delegations")
+	public Response setHealthElementsDelegations(List<IcureStubDto> stubs) throws Exception {
+		List<HealthElement> healthElements = healthElementLogic.getHealthElements(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+		healthElements.forEach(healthElement -> {
+			stubs.stream().filter(s -> s.getId().equals(healthElement.getId())).findFirst().ifPresent(stub -> {
+				stub.getDelegations().forEach((s, delegationDtos) -> healthElement.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+				stub.getEncryptionKeys().forEach((s, delegationDtos) -> healthElement.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+				stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> healthElement.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			});
+		});
+		healthElementLogic.updateEntities(healthElements);
+		return Response.ok().build();
+	}
 
 	@ApiOperation(
 			value = "Delete health elements.",

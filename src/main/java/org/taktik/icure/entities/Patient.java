@@ -19,6 +19,7 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +47,7 @@ import java.util.TreeSet;
 
 @SuppressWarnings("UnusedDeclaration")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Patient extends StoredICureDocument implements Person {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();

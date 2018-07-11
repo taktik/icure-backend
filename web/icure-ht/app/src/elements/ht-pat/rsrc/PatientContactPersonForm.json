@@ -1,0 +1,289 @@
+{
+	"sections": [
+		{
+			"formColumns": [
+				{
+					"formDataList": [
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 243,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 6,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Name",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_lastName"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 245,
+                          "multiline" : false,
+                          "left" : 408,
+                          "top" : 8,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "First Name",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_firstName"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 100,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 34,
+                          "key" : "DateTimeEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Date of Birth",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKDate",
+                        "name" : "PC_dateOfBirth"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 26,
+                          "labelPosition" : "Left",
+                          "width" : 100,
+                          "multiline" : false,
+                          "left" : 378,
+                          "top" : 34,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Ssin",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_ssin"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 497,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 61,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Partner Name",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_partnerName"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 498,
+                          "multiline" : false,
+                          "left" : 664,
+                          "top" : 127,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Language",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_language"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 502,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 127,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Nationality",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_nationality"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 498,
+                          "multiline" : false,
+                          "left" : 664,
+                          "top" : 92,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Education",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_education"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 497,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 92,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Job",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_job"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 26,
+                          "menuOptions" : [
+                            "Grandfather",
+                            "GranMother",
+                            "Father",
+                            "Mother",
+                            "Child",
+                            "Uncle",
+                            "Stepchild",
+                            "Neighbour",
+                            "Friend",
+                            "Other"
+                          ],
+                          "labelPosition" : "Left",
+                          "width" : 501,
+                          "multiline" : false,
+                          "left" : 661,
+                          "top" : 60,
+                          "key" : "PopupMenuEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Links",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_links"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 26,
+                          "menuOptions" : [
+                            "female",
+                            "male",
+                            "changed",
+                            "indeterminate"
+                          ],
+                          "labelPosition" : "Left",
+                          "width" : 100,
+                          "multiline" : false,
+                          "left" : 233,
+                          "top" : 34,
+                          "key" : "PopupMenuEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Gender",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "PC_gender"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 48,
+                          "compulsoryFormGuids" : [
+
+                          ],
+                          "labelPosition" : "Left",
+                          "width" : 1162,
+                          "multiline" : false,
+                          "left" : 5,
+                          "top" : 262,
+                          "key" : "SubFormEditor",
+                          "optionalFormGuids" : [
+                            "2d6620d1-7ac6-4627-973c-cf06f361c569"
+                          ]
+                        },
+                        "sortOrder" : 1616336695,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Addresses",
+                        "type" : "TKSubConsult",
+                        "subForm" : true,
+                        "name" : "addresses"
+                      }
+                    ]
+				}
+			]
+		}
+	]
+}
+
+

@@ -18,9 +18,9 @@
 
 package org.taktik.icure.entities.embed;
 
-import java.io.Serializable;
-
 import org.taktik.icure.entities.base.EnumVersion;
+
+import java.io.Serializable;
 
 /**
  * Created by aduchate on 21/01/13, 14:53

@@ -1115,8 +1115,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _openSharePatientDialog() {
                 this.$['sharePatientDialog'].open()
                 this.set('hcp', _.values(this.api.hcParties))
-
-
             }
 
             _deselectAllSharePatient() {
@@ -1155,25 +1153,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            confirmSharing(){
-
-                var tabDelegations = []
-
-                this.patientToShare.map(pat => {
-                    if(pat.check === true){
-                        this.api.patient().getPatient(pat.id).then( p => {
-                            tabDelegations = p.delegations
-                            this.hcpSelectedForSharing.map(hcp =>{
-                                if(hcp.check === true){
-                                    //tabDelegations[hcp.id] = [{"delegatedTo" : hcp.id, "key" : "", "owner": p.responsible}]
-                                   //this.api.patient().newDelegations(pat.id, hcp.id).then()
-
-                                }
-                            })
-                            console.log(p)
-                        })
-                    }
+            confirmSharing() {
+                let pPromise = Promise.resolve([])
+                const hcpId = this.user.healthcarePartyId
+                this.patientToShare.filter(pat => pat.check && pat.id).forEach(pat => {
+                    pPromise = pPromise.then(pats =>
+                        this.api.patient().share(pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
+                            .then(pat => _.concat(pats, pat))
+                    )
                 })
+                return pPromise
             }
 
             _openPopupMenu() {

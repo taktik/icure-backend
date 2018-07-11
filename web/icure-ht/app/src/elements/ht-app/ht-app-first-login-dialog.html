@@ -76,7 +76,6 @@
 		</paper-dialog>
 
 </template>
-    </script>
     <script>
     import { sha256, sha224 } from 'js-sha256/src/sha256';
 //noinspection JSUnusedGlobalSymbols
@@ -146,7 +145,6 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             this.user.passwordHash = passwordHash
             this.api.user().modifyUser(this.user).then(u => {
                 this.api.crypto().RSA.generateKeyPair().then(keyPair => {
-                    console.log(keyPair)
                     this.api.crypto().AES.generateCryptoKey(true).then(AESKey => {
                         return this.api.crypto().RSA.encrypt(keyPair.publicKey, this.api.crypto().utils.hex2ua(AESKey))
                     }).then(encryptedAESKey => {
@@ -192,6 +190,8 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             this.set('passwordError', 'Mot de passe invalide');
         }
     }
+
+
 }
 
 customElements.define(HtAppFirstLoginDialog.is, HtAppFirstLoginDialog);

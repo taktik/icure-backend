@@ -16,6 +16,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/vaadin-tabs/vaadin-tabs.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-text-field/vaadin-text-area.html">
+<link rel="import" href="../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+
 
 <link rel="import" href="../dynamic-form/dynamic-form.html">
 
@@ -46,16 +56,317 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding-right: 5px;
 			}
 
+            paper-input {
+                --paper-input-container-focus-color: var(--app-primary-color);
+                --paper-input-container-label: {
+                    color: var(--app-text-color);
+                    opacity: 1;
+                };
+                --paper-input-container-underline-disabled: {
+                    border-bottom: 1px solid var(--app-text-color);
+
+                };
+                --paper-input-container-color: var(--app-text-color);
+            }
+
 			paper-dropdown-menu {
 				padding-left: 5px;
 				padding-right: 5px;
 			}
-			
 
-		</style>
+            iron-pages {
+                padding: 10px;
+                width: 100%;
+                height: calc(100% - 140px);
+            }
 
-		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
-	</template>
+            page>dynamic-form{
+                width: 100%;
+            }
+
+            .adm-tab:focus>iron-icon{
+                color: #66dea1;
+            }
+
+            .adm-tab:before{
+                background-color: #66dea1;
+                width: 80%;
+            }
+
+
+            :host #institution-list {
+                height: calc(100% - 140px);
+                outline: none;
+            }
+
+            #institution-list{
+                width: 98%;
+                padding: 5px;
+                height: calc(100% - 140px);
+            }
+
+            .grid-institution{
+                width: 100%;
+                padding: 5px;
+                height: calc(100% - 20px);
+            }
+
+            vaadin-grid.material {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
+
+                --vaadin-grid-header-cell: {
+                    height: 64px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                };
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
+            }
+
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 56px;
+            }
+
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.material .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            .buttons{
+                position: absolute;
+                bottom: 0;
+                right: 12px;
+            }
+
+            #dialogAddInstitution{
+                height: 400px;
+                width: 600px;
+            }
+
+            .formAddStay{
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .full-width{
+                width: 100%;
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
+            }
+
+            .administrative-panel {
+                height: 100%;
+                background: var(--app-background-color);
+                top: 64px;
+                left: 20%;
+                @apply --shadow-elevation-2dp;
+                margin: 0;
+                grid-column: 2 / 4;
+                grid-row: 1 / 1;
+                z-index: 2;
+                padding: 5px;
+
+            }
+
+            .add-btn-stay-container{
+                display:table;
+                margin: auto;
+            }
+
+            .btn{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-weight: 700;
+                font-size: 12px;
+                height: 40px;
+                min-width: 100px;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                padding: 10px 1.2em;
+            }
+
+
+        </style>
+        <div class="administrative-panel">
+            <vaadin-tabs selected="{{tabs}}">
+                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-text"></iron-icon> Administrative form</vaadin-tab>
+                <vaadin-tab class="adm-tab"><iron-icon icon="hardware:security"></iron-icon> Insurances</vaadin-tab>
+                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:users"></iron-icon> Contact persons</vaadin-tab>
+                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:hospital"></iron-icon> Institution stays</vaadin-tab>
+                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-cross"></iron-icon> Dmg</vaadin-tab>
+            </vaadin-tabs>
+
+            <iron-pages selected="[[tabs]]" class="">
+                <page>
+                    <dynamic-form id="dynamic-form-administrative" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                </page>
+                <page>
+                    <dynamic-form id="dynamic-form-insurance" api="[[api]]" user="[[user]]" template="[[insuranceContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                </page>
+
+                <page>
+                    <dynamic-form id="dynamic-form-contactPerson" api="[[api]]" user="[[user]]" template="[[contactPersonContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                </page>
+                <page>
+                    <div class="grid-institution">
+                        <vaadin-grid id="institution-list" class="material" multi-sort="[[multiSort]]" items="[[institutionStaysList]]">
+                            <vaadin-grid-column width="100px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">
+                                        Start date
+                                    </vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen"></div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="100px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">
+                                        End date
+                                    </vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen"></div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="100px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">
+                                        Institution
+                                    </vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen"></div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="100px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">
+                                        Comment
+                                    </vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen"></div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                    <div class="add-btn-stay-container">
+                            <paper-button class="btn" dialog-confirm autofocus on-tap="openInstitutionDialog">Add stay</paper-button>
+                    </div>
+                </page>
+                <page class="buttons">
+                    <dynamic-form id="dynamic-form-dmg" api="[[api]]" user="[[user]]" template="[[dmgForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                </page>
+            </iron-pages>
+        </div>
+
+
+
+        <paper-dialog id="dialogAddInstitution">
+            <h4 class="modal-title">Add institution stay</h4>
+            <div>
+                <table class="formAddStay">
+                    <tr>
+                        <td>
+                            <vaadin-date-picker class="full-width" label="Start date" i18n="[[i18n]]" value="{{institutionStay.StartDate}}"></vaadin-date-picker>
+                        </td>
+                        <td>
+                            <vaadin-date-picker class="full-width" label="End date" i18n="[[i18n]]" value="{{institutionStay.EndDate}}"></vaadin-date-picker>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <vaadin-text-field class="full-width" label="Institution"  value="{{institutionStay.Institution}}"></vaadin-text-field>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <vaadin-text-area class="full-width" label="Comment">{{institutionStay.Comment}}</vaadin-text-area>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="buttons">
+                <paper-button class="btn" dialog-dismiss>Cancel</paper-button>
+                <paper-button class="btn"dialog-confirm autofocus on-tap="addStay">Add</paper-button>
+            </div>
+        </paper-dialog>
+
+        </template>
 	<script>
 
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
@@ -92,6 +403,34 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 					return require('./rsrc/PatientInsuranceForm.json');
 				}
 			},
+            contactPersonForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientContactPersonForm.json');
+                }
+            },
+            insuranceContainerForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientInsuranceContainerForm.json');
+                }
+            },
+            contactPersonContainerForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientContactPersonContainerForm.json');
+                }
+            },
+            dmgForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientDmgForm.json');
+                }
+            },
+            institutionStay: {
+			    type: Object,
+                value: {}
+            },
 			user: {
 				type: Object
 			},
@@ -105,7 +444,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			dataProvider: {
 				type: Object,
 				value: null
-			}
+			},
+            institutionStaysList: {
+			    type: Object
+            }
 		};
 	}
 
@@ -126,7 +468,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			this.flushSave();
 			this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id);
 			this.set('patientMap', _.cloneDeep(this.patient));
-			this.$['dynamic-form'].loadDataMap();
+
+			if(!this.root.activeElement){
+                this.$['dynamic-form-administrative'].loadDataMap();
+            }else{
+                this.$[this.root.activeElement.id].loadDataMap();
+            }
+
 		}
 	}
 
@@ -151,7 +499,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 		}
 	}
 
-	patientDataProvider(root, rootPath, id) {
+	patientDataProvider(root, rootPath, id){
+
+
 		const getValue = function (key) {
 			return root ? _.get(root, key) : null;
 		};
@@ -172,23 +522,27 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			setMeasureValue: setValue,
 			setDateValue: setValue,
 			setBooleanValue: setValue,
-			getSubForms: function (key) {
+			getSubForms: key => {
 				return (root[key] || []).map((a, idx) => {
-					return { dataMap: a, dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())), template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : this.insuranceForm };
+					return {
+					    dataMap: a,
+                        dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
+                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'contactPersonContainer' ? this.contactPersonForm :  this.insuranceForm};
 				});
-			}.bind(this),
+			},
 			getId: () => id,
 			deleteSubForm: (key, id) => {
 				this.flushSave();
 				_.remove(root[key], root[key].find(a => a.id === id));
-				this.$['dynamic-form'].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
+				this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
 				this.scheduleSave(this.patient);
 			},
 			addSubForm: (key, guid) => {
 				this.flushSave(); //Important
 				(root[key] || (root[key] = [])).push({});
-				this.$['dynamic-form'].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
+				this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
 				this.scheduleSave(this.patient);
+
 			},
 			filter: (data, text, id) => {
 				if (data.source === 'insurances') {
@@ -201,7 +555,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return Promise.resolve(s ? Object.values(this.api.users).filter(u=>(u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
                         (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
 						.map(u => ({id: u.id, name: u.name||u.login||u.email})):[])
-                }
+                } else if (data.source === "codes" && data.types.length && text && text.length > 1) {
+				    return id ? Promise.all(data.types.map(ct => this.api.code().getCodeWithParts(ct,id,'1'))).then(x => _.compact(x)[0]).then(c => ({id:c.code, name: c.label[typeLng]})) : Promise.all(data.types.map(ct => {
+                        const typeLng = this.api.code().languageForType(ct.type, this.language)
+                        const words = text.toLowerCase().split(/\s+/)
+                        const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
+
+                        return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
+                            id: code.code, name: code.label[typeLng]
+                        })), sorter))
+                    })).then(responses => _.flatMap(responses))
+				}
+                return Promise.resolve([])
 			}
 		};
 	}
@@ -209,6 +574,23 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 	localize(e, lng) {
 		return this.api && this.api.contact().localize(e, lng) || "";
 	}
+
+    openInstitutionDialog(){
+	    this.$['dialogAddInstitution'].open()
+    }
+
+    addStay(){
+        console.log(this.institutionStay)
+    //    "paymentType": [
+    //        "insurance"
+    //    ]
+
+        const parameters = this.user
+        const InstitutionStay = this.institutionStay
+
+
+
+    }
 
 }
 

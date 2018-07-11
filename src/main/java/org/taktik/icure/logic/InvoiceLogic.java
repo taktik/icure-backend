@@ -36,6 +36,7 @@ public interface InvoiceLogic {
 	Invoice getInvoice(String invoiceId);
 	List<Invoice> getInvoices(List<String> strings);
 	Invoice modifyInvoice(Invoice invoice);
+	List<Invoice> updateInvoices(List<Invoice> invoices);
 
 	Invoice addDelegation(String invoiceId, Delegation delegation);
 
@@ -63,4 +64,5 @@ public interface InvoiceLogic {
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
 
 	void solveConflicts();
+
 }

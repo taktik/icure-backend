@@ -1,0 +1,42 @@
+{
+  "sections": [
+    {
+      "formColumns": [
+        {
+          "formDataList": [
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 67,
+                "compulsoryFormGuids" : [
+                  "2d6620d1-7ac6-4627-973c-cf06f361c571"
+                ],
+                "labelPosition" : "Left",
+                "width" : 1162,
+                "multiline" : false,
+                "left" : 5,
+                "top" : 323,
+                "key" : "SubFormEditor",
+                "optionalFormGuids" : [
+
+                ]
+              },
+              "sortOrder" : 1465341783,
+              "codeTypes" : [
+
+              ],
+              "label" : "Contact persons",
+              "irrelevant" : true,
+              "subForm" : true,
+              "type" : "TKSubConsult",
+              "name" : "contactPersonContainer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
+

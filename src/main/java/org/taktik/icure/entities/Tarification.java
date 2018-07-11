@@ -18,14 +18,16 @@
 
 package org.taktik.icure.entities;
 
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.embed.Valorisation;
 
+import java.util.Map;
+import java.util.Set;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tarification extends Code {
 	Set<Valorisation> valorisations;
 	Map<String,String> category;

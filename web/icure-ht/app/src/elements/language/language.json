@@ -188,7 +188,13 @@
     "rem_Ty4_CreatPat" : "Même nom, prénom et date de naissance!",
     "gender" : "Gender",
     "rem_Ty5_CreatPat" : "Ressemblance !",
-    "more" : "More"
+    "more" : "More",
+    "adm_form" : "Administrative form",
+    "adm_ins" : "Insurances",
+    "adm_ctc_per" : "Contact persons",
+    "adm_ins_sta" : "Institution stays",
+    "adm_dmg" : "Dmg",
+    "soc_ris" : "Social risk"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -369,7 +375,13 @@
     "rem_Ty4_CreatPat" : "Même nom, prénom et date de naissance!",
     "gender" : "Genre",
     "rem_Ty5_CreatPat" : "Ressemblance !",
-    "more" : "Plus"
+    "more" : "Plus",
+    "adm_form" : "Fiche administrative",
+    "adm_ins" : "Assurances",
+    "adm_ctc_per" : "Personnes de contact",
+    "adm_ins_sta" : "Séjours en institution",
+    "adm_dmg" : "Dmg",
+    "soc_ris" : "Risque social"
   },
   "nl": {
     "eng":"English",
@@ -543,6 +555,12 @@
     "rem_Ty4_CreatPat" : "Même nom, prénom et date de naissance!",
     "gender" : "Genre",
     "rem_Ty5_CreatPat" : "Ressemblance !",
-    "more" : "Plus"
+    "more" : "Plus",
+    "adm_form" : "Administrative form",
+    "adm_ins" : "Insurances",
+    "adm_ctc_per" : "Contact persons",
+    "adm_ins_sta" : "Institution stays",
+    "adm_dmg" : "Dmg"
+
   }
 }

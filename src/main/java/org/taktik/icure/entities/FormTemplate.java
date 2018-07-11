@@ -19,9 +19,8 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.FormGroup;
@@ -30,6 +29,7 @@ import org.taktik.icure.entities.embed.FormGroup;
  * Created by aduchate on 09/07/13, 16:27
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FormTemplate extends StoredDocument {
 	@JsonIgnore
 	protected byte[] layout;

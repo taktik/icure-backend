@@ -18,14 +18,17 @@
 
 package org.taktik.icure.entities;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
+import java.util.List;
+import java.util.Map;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EntityTemplate extends StoredDocument {
 	@NotNull(autoFix = AutoFix.CURRENTUSERID)
 	String userId;

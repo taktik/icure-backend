@@ -55,6 +55,9 @@
 				width: 50%;
 				box-sizing: border-box;
 			}
+			#dialog{
+				overflow: auto;
+			}
 
 		</style>
 
@@ -65,7 +68,7 @@
 					<paper-input colspan="2" label="Group ID" value="{{user.groupId}}"></paper-input>
 					<paper-input label="Login" value="{{user.login}}"></paper-input>
 					<paper-input label="Email" value="{{user.email}}"></paper-input>
-					<paper-input label="Time with no activities (seconde)" type="number" min="0" value=""></paper-input>
+					<paper-input label="Time with no activities (minute)" type="number" min="0" value=""></paper-input>
 				</vaadin-form-layout>
 			</div>
 			<div class="right-col">

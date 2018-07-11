@@ -17,6 +17,7 @@
  */
 
 package org.taktik.icure.entities.utils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.function.BiFunction;
 /**
  * Created by aduchate on 07/06/2017.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MergeUtil {
 	protected static class ItemWithIndices<K>{
 		K x;

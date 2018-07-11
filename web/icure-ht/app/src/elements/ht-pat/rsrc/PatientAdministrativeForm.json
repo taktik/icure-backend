@@ -138,11 +138,11 @@
 								"multiline" : false,
 								"left" : 664,
 								"top" : 143,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 1463236407,
 							"codeTypes" : [
-
+								{"type":"ISO-639-1"}
 							],
 							"label" : "Language",
 							"subForm" : false,
@@ -158,11 +158,11 @@
 								"multiline" : false,
 								"left" : 90,
 								"top" : 143,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 1463236407,
 							"codeTypes" : [
-
+								{"type":"CD-FED-COUNTRY"}
 							],
 							"label" : "Nationality",
 							"subForm" : false,
@@ -361,32 +361,7 @@
 							"type" : "TKString",
 							"name" : "placeOfBirth"
 						},
-						{
-							"editor" : {
-								"readOnly" : false,
-								"height" : 48,
-								"compulsoryFormGuids" : [
 
-								],
-								"labelPosition" : "Left",
-								"width" : 1162,
-								"multiline" : false,
-								"left" : 5,
-								"top" : 206,
-								"key" : "SubFormEditor",
-								"optionalFormGuids" : [
-									"2b915c79-4c29-47f8-9ce9-ae09dc6dc109"
-								]
-							},
-							"sortOrder" : 1616336695,
-							"codeTypes" : [
-
-							],
-							"label" : "Insurances",
-							"type" : "TKSubConsult",
-							"subForm" : true,
-							"name" : "insurabilities"
-						},
 						{
 							"editor" : {
 								"readOnly" : false,
@@ -434,7 +409,7 @@
 							"type" : "TKBoolean",
 							"name" : "active"
 						}
-					]
+                      ]
 				}
 			]
 		}
