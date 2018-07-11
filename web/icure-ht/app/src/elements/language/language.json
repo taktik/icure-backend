@@ -185,7 +185,8 @@
     "adm_ins" : "Insurances",
     "adm_ctc_per" : "Contact persons",
     "adm_ins_sta" : "Institution stays",
-    "adm_dmg" : "Dmg"
+    "adm_dmg" : "Dmg",
+    "soc_ris" : "Social risk"
   },
   "fr": {
     "loa_pre":"Chargement des prescriptions...",
@@ -363,7 +364,8 @@
     "adm_ins" : "Assurances",
     "adm_ctc_per" : "Personnes de contact",
     "adm_ins_sta" : "Séjours en institution",
-    "adm_dmg" : "Dmg"
+    "adm_dmg" : "Dmg",
+    "soc_ris" : "Risque social"
   },
   "nl": {
     "eng":"English",

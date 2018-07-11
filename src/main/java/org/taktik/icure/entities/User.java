@@ -58,7 +58,7 @@ public class User extends StoredDocument implements Principal, Cloneable, Serial
 
 	protected String groupId;
     protected String healthcarePartyId;
-	protected Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcareIds
+	protected Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcarePartyIds
 
 	@JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
