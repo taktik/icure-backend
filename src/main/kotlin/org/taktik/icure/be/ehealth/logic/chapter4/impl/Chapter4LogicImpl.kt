@@ -127,7 +127,6 @@ import kotlin.collections.ArrayList
  */
 @Service
 class Chapter4LogicImpl : KmehrExport(), Chapter4Logic {
-
     private val idg = UUIDGenerator()
 
     private var messageLogic: MessageLogic? = null
@@ -171,14 +170,13 @@ class Chapter4LogicImpl : KmehrExport(), Chapter4Logic {
         return CommonInputMapper.mapCommonInputType(commonInput)
     }
 
-
     protected fun getUnknownKey(subTypeName: String): KeyResult {
         val acl = ACLUtils.createAclChapterIV(subTypeName)
         if (KeyDepotManagerFactory.getKeyDepotManager().getETK(KeyDepotManager.EncryptionTokenType.ENCRYPTION) == null) {
             log.debug("\t## EncryptionETK is null")
             throw TechnicalConnectorException(TechnicalConnectorExceptionValues.ERROR_ETK_NOTFOUND, *arrayOf<Any>("EncryptionETK is undefined"))
         } else {
-            val systemETK = null//KeyDepotManagerFactory.getKeyDepotManager().getETK(KeyDepotManager.EncryptionTokenType.ENCRYPTION).etk.encoded
+            val systemETK = KeyDepotManagerFactory.getKeyDepotManager().getETK(KeyDepotManager.EncryptionTokenType.ENCRYPTION).etk.encoded
             val unknownKey = KgssManager.getInstance().getNewKeyFromKgss(acl, systemETK)
             return unknownKey
         }
@@ -218,10 +216,10 @@ class Chapter4LogicImpl : KmehrExport(), Chapter4Logic {
 
     private fun createAndValidateUnsealedRequest(message: Kmehrmessage, xmlObjectFactory: XmlObjectFactory): UnsealedRequestWrapper<*> {
         val request = xmlObjectFactory.createUnsealedRequest()
-        request.etkHcp = null//KeyDepotManagerFactory.getKeyDepotManager().getETK(KeyDepotManager.EncryptionTokenType.ENCRYPTION).etk.encoded
+        request.etkHcp = KeyDepotManagerFactory.getKeyDepotManager().getETK(KeyDepotManager.EncryptionTokenType.ENCRYPTION).etk.encoded
         request.kmehrRequest = this.createAndValidateKmehrRequestXmlByteArray(message)
         this.chapter4XmlValidator.validate(request.xmlObject)
-       return request
+        return request
     }
 
     private fun createAndValidateKmehrRequestXmlByteArray(message: Kmehrmessage): ByteArray {
