@@ -1,5 +1,4 @@
 {
-  "allowTsInNodeModules": true,
   "compilerOptions": {
     "target": "es6",
     "module": "esnext", // Use esnext to enable lazy loading
@@ -11,6 +10,7 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
+    "allowTsInNodeModules": true,
     "lib": [
       "es2017",
       "es6",
@@ -21,7 +21,7 @@
     /* Generates corresponding '.d.ts' file. */
     "outDir": "./dist",
     "strict": true,
-    "baseUrl": "./"
+    "baseUrl": "./",
     //"paths": {
       //"polymer-redux": [
         //"types/polymer-redux"
