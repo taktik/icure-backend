@@ -61,6 +61,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     @apply --padding-right-left-16
                 }
 
+                .horizontal paper-input-container {
+                    height: 90px;
+                    padding-bottom : 22px;
+                    @apply --padding-right-left-16
+                }
+
                 .horizontal vaadin-date-picker {
                     height: 90px;
                     padding-bottom: 0px;
@@ -352,6 +358,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 1000px;
                 }
 
+                #inputGender{
+                    border:none;
+                    width: calc(100% - 24px);
+                    outline: 0;
+                    background:none;
+                    font-size: var(--form-font-size);
+                }
+
+                #duplicate-list{
+                    max-height: 200px;
+                }
             </style>
         </custom-style>
 
@@ -493,9 +510,74 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="add-patient-dialog">
             <div class="horizontal">
-                <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-                <paper-input label="First name" value="{{firstName}}"></paper-input>
-                <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+                <paper-input label="Last name" style="min-width:200px" value="{{lastName}}" on-keyup="_searchDuplicate"></paper-input>
+                <paper-input label="First name" value="{{firstName}}" on-keyup="_searchDuplicate"></paper-input>
+                <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}" on-value-changed="_searchDuplicate" on-keyup="_searchDuplicate"></vaadin-date-picker>
+                <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
+
+                <!--agrandir et garnir l'input-->
+                <paper-input-container>
+                    <label slot="label">[[localize("gender","Gender",language)]]
+                    </label>
+                    <iron-input slot="input" bind-value="{{valueGender}}">
+                        <input id="inputGender"  readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
+                    </iron-input>
+                    <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+                        <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+                        <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
+                            <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
+                            <template is="dom-repeat" items="[[option]]">
+                                <paper-item>[[item]]</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-menu-button>
+                </paper-input-container>
+            </div>
+            <div>
+                <template is="dom-if" if="[[displayResult]]">
+                    <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
+                        <vaadin-grid-column>
+                            <template class="header">
+                                [[localize('las_nam','Last name',language)]]
+                            </template>
+                            <template>
+                                <div>[[item.lastName]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">
+                                [[localize('fir_nam','First name',language)]]
+                            </template>
+                            <template>
+                                <div>[[item.firstName]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">
+                                [[localize('dat_of_bir','Date of birth',language)]]
+                            </template>
+                            <template>
+                                <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">
+                                [[localize('ssin','SSIN',language)]]
+                            </template>
+                            <template>
+                                <div>[[item.ssin]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">
+                                [[localize('remark','Remarks',language)]]
+                            </template>
+                            <template>
+                                <div>[[item.remarks]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </template>
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
@@ -665,6 +747,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Array,
                         notify: true,
                         value: () => []
+                    },
+                    displayResult: {
+                        type: Boolean,
+                        value: false
+                    },
+                    listResultPatients :{
+                        type: Object,
+                        value: () => []
+                    },
+                    form:{
+                        type: Object,
+                        value: function () {
+                            return require('./rsrc/PatientAdministrativeForm.json');
+                        }
+                    },
+                    listBoxOffsetWidth: {
+                        type: Number,
+                        value: -100
+                    },
+                    selected: {
+                        type: Number,
+                        observer: '_selectedChanged'
+                    },
+                    option:{
+                        type: Array
+                    },
+                    valueGender: {
+                        type: String,
+                        notify: true
                     }
                 }
             }
@@ -721,10 +832,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         '$type': 'PatientByHcPartyAndSsinFilter',
                         'healthcarePartyId': this.user.healthcarePartyId,
                         'ssin': latestSearchValue
-                    } : /^[0-3][0-9]?\/(1[0-2]|[0-9])\/([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
+                    } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
                         '$type': 'PatientByHcPartyDateOfBirthFilter',
                         'healthcarePartyId': this.user.healthcarePartyId,
-                        'dateOfBirth': latestSearchValue.replace(/([0-3][0-9]?)\/(1[0-2]|[0-9])\/(([1-2][89012])?[0-9][0-9])/g, '$3$2$1')
+                        'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine )=>(p3.length===4 ? p3 : (p3 >20) ? "19"+p3 : "20"+p3)+(p2.length===2 ? p2 : "0"+p2)+(p1.length===2 ? p1 : "0"+p1))
                     } : {
                         '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
                         'healthcarePartyId': this.user.healthcarePartyId,
@@ -782,6 +893,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }.bind(this))
                 }.bind(this)
 
+                //get Genders
+                let jsonGender;
+                this.form.sections.forEach(s => s.formColumns.forEach(c => c.formDataList.forEach(d =>{ if(d.label === "Gender"){jsonGender = d.editor.menuOptions}})));
+                this.set("option", jsonGender ? jsonGender : [])
+
             }
 
 
@@ -830,7 +946,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     lastName: this.lastName,
                     firstName: this.firstName,
                     active: true,
-                    dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, ''))
+                    dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')),
+                    ssin : this.ssin,
+                    gender : this.valueGender,
                 }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p))
             }
 
@@ -1045,6 +1163,124 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     )
                 })
                 return pPromise
+            }
+
+            _openPopupMenu() {
+                if (this.readOnly) {
+                    return;
+                }
+                this.shadowRoot.querySelector('#paper-menu-button').open();
+            }
+
+            _selectedChanged(selected) {
+                if (this.readOnly) {
+                    return;
+                }
+                this.set('valueGender', this.option[selected - 1] || null);
+            }
+
+            _searchDuplicate(){
+
+                this.set("displayResult", false)
+
+                //creation of filters
+                let filters;
+                let filter = [];
+                let filterAnd = []
+
+                let cptOfFilters=0;
+
+                if(this.lastName!="" && this.lastName != null) {
+                    filterAnd.push({
+                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'searchString': this.lastName
+
+                    })
+                    cptOfFilters++;
+                }
+
+                if(this.firstName!="" && this.firstName!=null){
+                    filterAnd.push({
+                        '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'searchString': this.firstName
+
+                    })
+                    cptOfFilters++;
+                }
+
+                if(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/.test(this.dateAsString)){
+                    filterAnd.push({
+                        '$type': 'PatientByHcPartyDateOfBirthFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'dateOfBirth': this.dateAsString.replace(/-/g,"")
+
+                    })
+                    cptOfFilters++;
+                }
+
+                filter=filterAnd
+                if(cptOfFilters>=2){
+                    filter=[]
+                    filter.push({
+                        '$type': 'IntersectionFilter',
+                        filters: filterAnd
+                    })
+                }
+
+
+                if(/^[0-9]{11}$/.test(this.ssin)) {
+                    filter.push({
+                        '$type': 'PatientByHcPartyAndSsinFilter',
+                        'healthcarePartyId': this.user.healthcarePartyId,
+                        'ssin': this.ssin
+                    })
+                    cptOfFilters+=2;
+                }
+
+
+                if(cptOfFilters>=2) {
+                    filters = {
+                        '$type': 'UnionFilter',
+                        filters: filter
+                    }
+
+                    console.log(filters)
+                    //research
+                    this.api.patient().filterBy(null, null, 50, 0, 1, 'desc', {filter: filters}).then(tb => {
+                        console.log("result of the research : " + JSON.stringify(tb))
+
+
+                        //construct of the table
+                        if (tb["totalSize"] != 0 && !this.flagConfirm) {
+
+                            tb["rows"].map(row => {
+                                row["remarks"] = this.localize("rem_Ty5_CreatPat", "Ressemblance !", language)
+                                let flagRem = false;
+                                if (row["firstName"].toUpperCase() === this.firstName.toUpperCase() && row["lastName"].toUpperCase() === this.lastName.toUpperCase()) {
+                                    row["remarks"] = this.localize("rem_Ty1_CreatPat", "Même nom et prénom!", language)
+
+                                    if (row["dateOfBirth"] == this.dateAsString.replace(/-/g, '')) {
+                                        flagRem = true;
+                                        row["remarks"] = this.localize("rem_Ty4_CreatPat", "Même nom, prénom et date de naissance!", language)
+                                    }
+                                }
+
+                                if (row["ssin"] === this.ssin && this.ssin != "") {
+                                    row["remarks"] = this.localize("rem_Ty2_CreatPat", "Même NISS!", language)
+                                    if (flagRem) {
+                                        row["remarks"] = this.localize("rem_Ty3_CreatPat", "Même patient!", language)
+                                    }
+                                }
+
+                            })
+
+                            this.set("displayResult", true)
+                            this.set("listResultPatients", tb["rows"])
+                        }
+                    })
+                }
             }
         }
 

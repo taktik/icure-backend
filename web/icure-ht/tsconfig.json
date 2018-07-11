@@ -1,4 +1,5 @@
 {
+  "allowTsInNodeModules": true,
   "compilerOptions": {
     "target": "es6",
     "module": "esnext", // Use esnext to enable lazy loading

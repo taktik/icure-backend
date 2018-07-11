@@ -353,6 +353,20 @@
 			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
 				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
 			</template>
+			<div class="regimen-line">
+				<paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="1">
+					<div slot="suffix">X</div>
+				</paper-input>
+				<paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
+					<paper-listbox slot="dropdown-content"  selected="0">
+						<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
+						<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+						<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+					</paper-listbox>
+				</paper-dropdown-menu>
+				<paper-button on-tap="_setFrequencyList">{{localize("more","More",language)}}<iron-icon icon="arrow-forward"></iron-icon></paper-button>
+			</div>
+			<template is="dom-if" if="[[flagTableFrequency]]">
 				<template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
 					<div class="regimen-line">
 						<paper-dropdown-menu label="Frequency" class="regimen--frequency">
@@ -394,8 +408,8 @@
 						<paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
 					</div>
 				</template>
-
-			<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>[[localize('add_pos_reg','Add posology regimen',language)]]</paper-button>
+				<paper-button on-tap="addPosologyRegimen"><iron-icon  icon="add"></iron-icon>[[localize('add_pos_reg','Add posology regimen',language)]]</paper-button>
+			</template>
 			<div class="buttons">
 				<paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
 			</div>
@@ -522,7 +536,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     "evening",
                     "night"
 				]
-			}
+            },
+            flagTableFrequency :{
+                type: Boolean,
+                value : false
+            }
         }
     }
 
@@ -683,6 +701,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
 	close() {
         this.set('selectedMedicationContentWithId', null)
+        this.set('flagTableFrequency',false)
 	}
 
 	select(item) {
@@ -763,6 +782,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		const item = this.value.find(s => s.id === id);
 		if (item) {
 			this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item));
+            this.set('flagTableFrequency',true)
 			this.$['medication-detail'].open();
 		}
 	}
@@ -817,7 +837,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	}
 
 	clearPosologyRegimen(event, target) {
-		const rgModel = this.$.rgRepeat.modelForElement(event.target);
+        const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
 		this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1);
 	}
 
@@ -830,7 +850,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	}
 
 	_selectFrequency(event, target) {
-		const rgModel = this.$.rgRepeat.modelForElement(event.target);
+        const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
 		if (!rgModel) {
 			return;
 		}
@@ -848,13 +868,27 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 	}
 
 	_selectDayPeriod(event, target) {
-		const rgModel = this.$.rgRepeat.modelForElement(event.target);
+        const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
 		if (!rgModel) {
 			return;
 		}
 		rgModel.set('rg.dayPeriod', { type: "CD-DAYPERIOD", code: target.item.id });
 		this._valueChanged();
 	}
+
+    _setFrequencyList(){
+        let bufferTable = []
+        bufferTable.length=this.$.numberByFrequency.value
+        bufferTable.fill({
+            weekday: this.$.generalFrequency.selectedItem.id==="weekly" ? {} : null,
+            date: this.$.generalFrequency.selectedItem.id==="monthly" ? -1 : null,
+            administratedQuantity: {quantity: 1, unit: this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit}
+        },0)
+
+        this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
+        this.set("flagTableFrequency",true)
+
+    }
 
 }
 
