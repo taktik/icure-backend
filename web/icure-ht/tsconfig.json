@@ -21,7 +21,7 @@
     /* Generates corresponding '.d.ts' file. */
     "outDir": "./dist",
     "strict": true,
-    "baseUrl": "./",
+    "baseUrl": "./"
     //"paths": {
       //"polymer-redux": [
         //"types/polymer-redux"
