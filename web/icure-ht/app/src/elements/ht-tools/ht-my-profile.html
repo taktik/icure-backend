@@ -58,6 +58,9 @@
 			#dialog{
 				overflow: auto;
 			}
+			#printable {
+				width: fit-content;
+			}
 
 		</style>
 
@@ -114,7 +117,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 			},
 			qrCodeWidth: {
 				type: Number,
-				value: 200
+				value: 0
 			},
 			opened: {
 				type: Boolean,
@@ -136,7 +139,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 		this.addEventListener('iron-resize', () => this.onWidthChange());
 	}
 
-	_userChanged(user, api) {
+	_userChanged(user) {
 		if (this.user && this.api) {
 			this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp => {
 				if (!hcp.languages || !hcp.languages.length) {
@@ -164,7 +167,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 		if (!offsetWidth || !offsetHeight) {
 			return;
 		}
-		this.set('qrCodeWidth', Math.max(Math.min(Math.min(offsetWidth / 2 - 64, offsetHeight - 120), 400), 120));
+		this.set('qrCodeWidth', Math.max(Math.min(offsetWidth / 2 - 64, 280), 120));
 	}
 
 	open() {
@@ -176,7 +179,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 	}
 
 	confirm() {
-		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {detail:user, bubbles: true, composed: true})))
+		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {detail:user, bubbles: true, composed: true})))
 		this.api.hcparty().modifyHealthcareParty(this.hcp);
 	}
 }
