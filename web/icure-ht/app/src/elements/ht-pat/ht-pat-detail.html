@@ -1145,7 +1145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</paper-button>
 						<paper-button class="selection-toast-button" name="select-all" role="button" tabindex="0"
 									  animated aria-disabled="false" elevation="0" on-tap="_selectMoreOptions">
-							<!--<iron-icon class="selection-toast-icon" icon="icure-svg-icons:select-all"></iron-icon>-->
+							<iron-icon class="selection-toast-icon" icon="icons:add"></iron-icon>
 							{{localize("more","More",language)}}
 						</paper-button>
 					</paper-toast>
@@ -1251,8 +1251,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<paper-dialog id="select-more-options-dialog">
 			<div class="horizontal">
-				<vaadin-date-picker label="Date Start Research" i18n="[[i18n]]" value="{{dateStartAsString}}"></vaadin-date-picker>
-				<vaadin-date-picker label="Date End Research" i18n="[[i18n]]" value="{{dateEndAsString}}"></vaadin-date-picker>
+                <label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
+				<vaadin-date-picker label="[[localize('startDate','Start date',language)]]" i18n="[[i18n]]" value="{{dateStartAsString}}"></vaadin-date-picker>
+				<vaadin-date-picker label="[[localize('endDate','End date',language)]]" i18n="[[i18n]]" value="{{dateEndAsString}}"></vaadin-date-picker>
 			</div>
 		</paper-dialog>
 	</template>
@@ -2087,13 +2088,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _selectBetweenTwoDates() {
-		console.log(moment(this.dateStartAsString))
-	    if(moment(this.dateStartAsString)!== "invalid date" && moment(this.dateEndAsString)!== "invalid date") {
-            this.set('timeSpanStart', parseInt(moment(this.dateStartAsString).format('YYYYMMDD')));
-            this.set('timeSpanEnd', parseInt(moment(this.dateEndAsString).format('YYYYMMDD')));
 
-            this.updateContactYears();
-        }
+        this.set('timeSpanStart', moment(this.dateStartAsString).format('YYYYMMDD')==="Invalid date" ? null :parseInt(moment(this.dateStartAsString).format('YYYYMMDD')));
+        this.set('timeSpanEnd', moment(this.dateEndAsString).format('YYYYMMDD')==="Invalid date" ? null : parseInt(moment(this.dateEndAsString).format('YYYYMMDD')));
+
+        this.updateContactYears();
     }
 
 	_selectCurrentContact() {

@@ -196,6 +196,9 @@
     "soc_ris" : "Social risk",
     "adm_dmg" : "Dmg",
     "mdp" : "Password",
+    "slctBtw2Date" : "Select between 2 dates",
+    "startDate" : "Start date",
+    "endDate" : "End date",
     "mdp_ver" : "Password verification"
   },
   "fr": {
@@ -385,6 +388,9 @@
     "soc_ris" : "Risque social",
     "adm_dmg" : "Dmg",
     "mdp" : "Mot de passe",
+    "slctBtw2Date" : "Recherche entre 2 dates",
+    "startDate" : "Date de départ",
+    "endDate" : "Date de fin",
     "mdp_ver" : "Vérification du mot de passe"
   },
   "nl": {
@@ -566,6 +572,9 @@
     "adm_ins_sta" : "Institution stays",
     "adm_dmg" : "Dmg",
     "mdp" : "Password",
+    "slctBtw2Date" : "Select between 2 dates",
+    "startDate" : "Date de départ",
+    "endDate" : "Date de fin",
     "mdp_ver" : "Password verification"
   }
 }
