@@ -28,7 +28,7 @@
 							"label" : "Insurances",
 							"type" : "TKSubConsult",
 							"subForm" : true,
-							"name" : "insurabilitiesContainer"
+							"name" : "insurabilities"
 						}
 					]
 				}
