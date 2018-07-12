@@ -658,7 +658,7 @@ class Importer {
         byte[] exchangeAESKeyOwnerDelegate = getOwnerHcPartyKey(ownerId, delegateId, ownerPrivateKey)
 
         // append the new delegation to modifiedObject
-        if (modifiedObject.delegations[delegateId] == null) {modifiedObject.delegations[delegateId] = []}
+        if (modifiedObject.delegations[delegateId] == null) {modifiedObject.delegations[delegateId] = new HashSet<>()}
         modifiedObject.delegations[delegateId] << newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
 
 
