@@ -467,7 +467,7 @@ class Importer {
         return newDelegation(ownerId, delegateId, documentId, key, getOwnerHcPartyKey(ownerId, delegateId, hcPartyKey))
     }
 
-    protected Set<String> getSecureKeys(Map<String, List<Delegation>> delegations, String delegateId, PrivateKey delegatePrivateKey) throws EncryptionException, IOException {
+    protected Set<String> getSecureKeys(Map<String, Set<Delegation>> delegations, String delegateId, PrivateKey delegatePrivateKey) throws EncryptionException, IOException {
         List<Delegation> myDelegations = delegations.get(delegateId)
         Set<String> result = new HashSet<>()
         for (Delegation d : myDelegations) {
@@ -610,7 +610,7 @@ class Importer {
 
         // append the self delegation to createdObject
         if (!createdObject.delegations) {createdObject.delegations =  [:]}
-        createdObject.delegations[ownerId] = [selfDelegation]
+        createdObject.delegations[ownerId] = new HashSet<Delegation>([selfDelegation])
 
         if (parentObject != null) {
             // Appending crypted Foreign Key
