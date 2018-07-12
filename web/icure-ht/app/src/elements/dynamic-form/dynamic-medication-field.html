@@ -540,7 +540,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
             flagTableFrequency :{
                 type: Boolean,
                 value : false
-            }
+            },
+			bufferUnit : {
+                type: String,
+				value : null
+			}
         }
     }
 
@@ -783,6 +787,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 		if (item) {
 			this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item));
             this.set('flagTableFrequency',true)
+			this.set('bufferUnit',this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit)
 			this.$['medication-detail'].open();
 		}
 	}
@@ -805,7 +810,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                     date: null,
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
                 }])
-
+                this.set("bufferUnit",mppInfos.gal.name)
             })
         } else {
             if (med.inncluster) {
@@ -823,7 +828,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
                 date: null,
                 administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
             }])
-
+            this.set("bufferUnit",this.localize('generic_unit','unit',language))
         }
         if (this.selectedMedicationContentWithId.isNew) {
             this.push('value',this.newMedication)
@@ -878,16 +883,21 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.mixinBehav
 
     _setFrequencyList(){
         let bufferTable = []
-        bufferTable.length=this.$.numberByFrequency.value
-        bufferTable.fill({
-            weekday: this.$.generalFrequency.selectedItem.id==="weekly" ? {} : null,
-            date: this.$.generalFrequency.selectedItem.id==="monthly" ? -1 : null,
-            administratedQuantity: {quantity: 1, unit: this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit}
-        },0)
+        const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
+
+		for(let cpt=0;cpt<this.$.numberByFrequency.value;cpt++) {
+            bufferTable.push({
+                weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
+                date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
+                administratedQuantity: {
+                    quantity: 1,
+                    unit: reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                }
+            })
+        }
 
         this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
         this.set("flagTableFrequency",true)
-
     }
 
 }
