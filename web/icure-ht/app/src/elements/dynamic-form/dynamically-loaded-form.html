@@ -42,7 +42,7 @@
 
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
 		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]"
-		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact)]]" show-title="true" health-elements="[[healthElements]]"
+		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
 					  on-link-form="linkForm" on-delete-form="deleteForm">
 			<div slot="titlebar" class="title-bar">
 				<template is="dom-repeat" items="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" as="he">
@@ -137,8 +137,8 @@
 				this.flushSave();
 			}
 
-			_isNotInCurrentContact(currentContact, contact) {
-				return currentContact === null || contact !== currentContact;
+			_isNotInCurrentContact(currentContact, contact, form) {
+				return form && contact && (!currentContact || (contact !== currentContact && !currentContact.subContacts.some(sc => sc.formId === form.id)));
 			}
 
             linkForm(e) {
@@ -232,7 +232,7 @@
 							acc[fli.name] = fli; return acc;
 						}, {}));
 					}
-					this.set('currentContact', this._allContacts().find(c => !c.closingDate) || null);
+					!this.currentContact && this.set('currentContact', this._allContacts().find(c => !c.closingDate) || null);
 				}
 			}
 

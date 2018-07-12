@@ -390,7 +390,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
         <ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
         <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
-                       on-user-changed="_userChanged"></ht-my-profile>
+                       on-user-saved="_userSaved"></ht-my-profile>
 
 
         <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
@@ -527,7 +527,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}" on-user-changed="_userChanged"><splash-screen></splash-screen></ht-pat>
+					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}" on-user-saved="_userSaved"><splash-screen></splash-screen></ht-pat>
 					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
 					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
@@ -685,7 +685,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('connectionTime',+new Date())
             }
 
-            _userChanged(e) {
+            _userSaved(e) {
 	        	this.set('user',e.detail)
 			}
 

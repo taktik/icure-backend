@@ -1002,7 +1002,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('user.properties', this.user.properties.map(x => x))
 
-                this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {
+                this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
                     detail: user,
                     bubbles: true,
                     composed: true
@@ -1036,7 +1036,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('user.properties', this.user.properties.map(x => x))
 
-                this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-changed', {
+                this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
                     detail: user,
                     bubbles: true,
                     composed: true

@@ -147,7 +147,7 @@
 							"label" : "Language",
 							"subForm" : false,
 							"type" : "TKString",
-							"name" : "language"
+							"name" : "languages.0"
 						},
 						{
 							"editor" : {

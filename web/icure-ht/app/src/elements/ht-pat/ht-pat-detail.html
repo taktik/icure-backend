@@ -2096,7 +2096,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 	_selectCurrentContact() {
-		this.shadowRoot.querySelector('#_contacts_listbox').set('selectedValues', [0]);
+		this.currentContact && this.currentContact.id && this.shadowRoot.querySelector('#_contacts_listbox').set('selectedValues', [this.currentContact.id]);
 	}
 
 	updateContactYears() {
