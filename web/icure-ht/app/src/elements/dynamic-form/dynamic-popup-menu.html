@@ -267,8 +267,11 @@ class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBeha
 	_valueChanged(value) {
 		value && this.dataSource && (!this.items || !this.items.find(i => i.id === value)) && this.dataSource.get(this.value).then(res => {
 			if (res) {
-				this.set('items', [res].concat(this.items || []));
-				this.set('value', value);
+			    if (!this.items.map(x => x.id).includes(res.id)) {
+                    this.set('items', [res].concat(this.items || []))
+                }
+				this.set('value', null);
+                this.set('value', value);
 			}
 		});
 		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));

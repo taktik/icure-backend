@@ -483,11 +483,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			clearTimeout(this.saveTimeout);
 		}
 		this.saveAction = function () {
-			this.api.patient().modifyPatient(patient).then(p => this.patient && (this.patient.rev = p.rev)).catch(e => this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
-				this.patient = p;
-				this.saveTimeout = undefined;
-				this.saveAction = undefined;
-			}));
+			this.api.patient().modifyPatient(patient).then(p => {
+                this.patient && (this.patient.rev = p.rev)
+
+                this.saveTimeout = undefined;
+                this.saveAction = undefined;
+            }).catch(() => this.patient &&
+                this.api.patient().getPatient(this.patient.id).then(p => {
+				    this.set('patient', p)
+                    this.saveTimeout = undefined;
+                    this.saveAction = undefined;
+                })
+            );
 		}.bind(this);
 		this.saveTimeout = setTimeout(this.saveAction, 10000);
 	}
@@ -500,13 +507,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 	}
 
 	patientDataProvider(root, rootPath, id){
-
+        const getRoot = (function(key) {
+            return root === this.patient ? this.get('patient.' + key) : _.get(root, key)
+        }.bind(this))
 
 		const getValue = function (key) {
-			return root ? _.get(root, key) : null;
+			return root ? getRoot(key) : null;
 		};
 		const setValue = function (key, value) {
-			if (root && _.get(root, key) !== value) {
+			if (root && getRoot(key) !== value) {
 				root === this.patient ? this.set('patient.' + key, value) : _.set(root, key, value);
 				this.scheduleSave(this.patient);
 			}
@@ -516,7 +525,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			getNumberValue: getValue,
 			getMeasureValue: getValue,
 			getDateValue: getValue,
-			getBooleanValue: key => root ? _.get(root, key) && _.get(root, key) !== 'false' : null,
+			getBooleanValue: key => root ? getRoot(key) && getRoot(key) !== 'false' : null,
 			setStringValue: setValue,
 			setNumberValue: setValue,
 			setMeasureValue: setValue,
@@ -555,16 +564,25 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return Promise.resolve(s ? Object.values(this.api.users).filter(u=>(u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
                         (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
 						.map(u => ({id: u.id, name: u.name||u.login||u.email})):[])
-                } else if (data.source === "codes" && data.types.length && text && text.length > 1) {
-				    return id ? Promise.all(data.types.map(ct => this.api.code().getCodeWithParts(ct,id,'1'))).then(x => _.compact(x)[0]).then(c => ({id:c.code, name: c.label[typeLng]})) : Promise.all(data.types.map(ct => {
-                        const typeLng = this.api.code().languageForType(ct.type, this.language)
-                        const words = text.toLowerCase().split(/\s+/)
-                        const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
+                } else if (data.source === "codes" && data.types.length && (id || text && text.length > 1)) {
+				    return id ?
+                        Promise.all(data.types.map(ct =>
+                            this.api.code().getCodeWithParts(ct.type, id, '1')))
+                            .then(x => _.compact(x)[0])
+                            .then(c => {
+                                if (!c) { return null }
+                                const typeLng = this.api.code().languageForType(c.type, this.language)
+                                return {id: c.code, name: c.label[typeLng]}
+                            }) :
+                        Promise.all(data.types.map(ct => {
+                            const typeLng = this.api.code().languageForType(ct.type, this.language)
+                            const words = text.toLowerCase().split(/\s+/)
+                            const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
 
-                        return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
-                            id: code.code, name: code.label[typeLng]
-                        })), sorter))
-                    })).then(responses => _.flatMap(responses))
+                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
+                                id: code.code, name: code.label[typeLng]
+                            })), sorter))
+                        })).then(responses => _.flatMap(responses))
 				}
                 return Promise.resolve([])
 			}
