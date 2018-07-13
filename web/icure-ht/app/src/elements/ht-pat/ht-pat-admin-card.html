@@ -85,11 +85,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .adm-tab:focus>iron-icon{
-                color: #66dea1;
+                color: var(--app-secondary-color);
             }
 
             .adm-tab:before{
-                background-color: #66dea1;
+                color: var(--app-secondary-color);
                 width: 80%;
             }
 
@@ -266,9 +266,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="administrative-panel">
             <vaadin-tabs selected="{{tabs}}">
                 <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</vaadin-tab>
-                <vaadin-tab class="adm-tab"><iron-icon icon="hardware:security"></iron-icon>[[localize('adm_ins','Insurances',language)]]</vaadin-tab>
-                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:users"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</vaadin-tab>
-                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-cross"></iron-icon>[[localize('adm_dmg','Dmg',language)]]</vaadin-tab>
+                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</vaadin-tab>
+                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:users"></iron-icon>[[localize('adm_h_t','Care team',language)]]</vaadin-tab>
             </vaadin-tabs>
 
             <iron-pages selected="[[tabs]]" class="">
@@ -276,13 +275,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <dynamic-form id="dynamic-form-administrative" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
                 </page>
                 <page>
-                    <dynamic-form id="dynamic-form-insurance" api="[[api]]" user="[[user]]" template="[[insuranceContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
-                </page>
-                <page>
                     <dynamic-form id="dynamic-form-partnerships" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
                 </page>
                 <page>
-                    <dynamic-form id="dynamic-form-dmg" api="[[api]]" user="[[user]]" template="[[dmgForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    <dynamic-form id="dynamic-form-care-team" api="[[api]]" user="[[user]]" template="[[careTeamForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
                 </page>
             </iron-pages>
         </div>
@@ -329,22 +325,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return require('./rsrc/PatientPartnershipsForm.json');
                 }
             },
-            insuranceContainerForm: {
-                type: Object,
-                value: function () {
-                    return require('./rsrc/PatientInsuranceContainerForm.json');
-                }
-            },
             partnershipsContainerForm: {
                 type: Object,
                 value: function () {
                   return require('./rsrc/PatientPartnershipsContainerForm.json');
                 }
             },
-            dmgForm: {
+            careTeamForm: {
                 type: Object,
                 value: function () {
-                    return require('./rsrc/PatientDmgForm.json');
+                    return require('./rsrc/PatientCareTeamForm.json');
                 }
             },
 			user: {
@@ -405,6 +395,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                 }else{
                     this.$[this.root.activeElement.id].loadDataMap();
                 }
+
             }
 		}
 	}
@@ -437,7 +428,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                                 this.set('patient.partnerships.' + index + '.partnerInfo', np)
                             })
                         })
-
                     }else{
                         //patient present
                         this.api.patient().modifyPatient(partner.partnerInfo).then(partner =>{
