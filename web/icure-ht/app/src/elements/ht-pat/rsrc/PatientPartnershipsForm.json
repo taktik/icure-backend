@@ -274,7 +274,7 @@
                         "label" : "Addresses",
                         "type" : "TKSubConsult",
                         "subForm" : true,
-                        "name" : "partnerInfo.addresses"
+                        "name" : "addresses"
                       }
                     ]
 				}

@@ -422,31 +422,31 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 		        const partnerships = this.patient.partnerships
 
                 partnerships.map(partner => {
-                    const mark = partnerships.find(fp => fp.partnerId === partner.partnerInfo.id)
+                    const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
                     const index = partnerships.indexOf(partner)
+                    partner.partnerInfo.addresses = partner.addresses
 
-                    if(!mark){
+                    if(!mark || !partner.partnerId){
                         //patient not present
                         partner.partnerInfo.active = false
                         partner.partnerInfo.id = partner.id
                         partner.partnerId = partner.id
+
                         this.api.patient().newInstance(this.user, partner.partnerInfo).then(np => {
                             this.api.patient().createPatient(np).then(np => {
-
+                                this.set('patient.partnerships.' + index + '.partnerInfo', np)
                             })
                         })
 
                     }else{
                         //patient present
-                        const index = partnerships.indexOf(mark)
-                        partnerships[index].type = partner.type
-                        this.api.patient().getPatient(partner.partnerId).then(p =>{
-                            this.api.patient().modifyPatient(partner.partnerInfo).then(p=>p)
+                        this.api.patient().modifyPatient(partner.partnerInfo).then(partner =>{
+                            this.set('patient.partnerships.'+index+'.partnerInfo', partner)
                         })
+
                     }
                 })
             }
-
 
 			this.api.patient().modifyPatient(patient).then(p =>{
                 this.patient && (this.patient.rev = p.rev)
