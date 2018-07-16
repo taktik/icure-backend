@@ -88,9 +88,9 @@ public class CalendarItemFacade implements OpenApiFacade {
         } else {
             List<String> deletedCalendarItemIds = calendarItemLogic.deleteCalendarItems(Arrays.asList(calendarItemIds.split(",")));
             if (deletedCalendarItemIds != null) {
-                response = ResponseUtils.ok();
+                response = Response.ok().entity(deletedCalendarItemIds).build();
             } else {
-                response = ResponseUtils.internalServerError("CalendarItem deletion failed");
+                return Response.status(500).type("text/plain").entity("CalendarItem deletion failed.").build();
             }
         }
 
