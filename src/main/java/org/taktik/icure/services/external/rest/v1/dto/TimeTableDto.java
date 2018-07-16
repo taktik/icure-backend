@@ -6,7 +6,7 @@ import java.util.List;
 public class TimeTableDto extends IcureDto {
 
 
-	protected String libelle;
+	protected String name;
 	protected Long startTime;
 	protected Long endTime;
 	protected List<TimeTableItemDto> items;
@@ -27,12 +27,12 @@ public class TimeTableDto extends IcureDto {
 		this.endTime = endTime;
 	}
 
-	public String getLibelle() {
-		return libelle;
+	public String getName() {
+		return name;
 	}
 
-	public void setLibelle(String libelle) {
-		this.libelle = libelle;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public List<TimeTableItemDto> getItems() {

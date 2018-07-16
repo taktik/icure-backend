@@ -30,7 +30,7 @@ public class TimeTable extends StoredICureDocument {
 
 
     @NotNull()
-    protected String libelle;
+    protected String name;
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
@@ -56,12 +56,12 @@ public class TimeTable extends StoredICureDocument {
         this.endTime = endTime;
     }
 
-    public String getLibelle() {
-        return libelle;
+    public String getName() {
+        return name;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<TimeTableItem> getItems() { return items; }
