@@ -279,7 +279,10 @@ class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBeha
 
 	_filterChanged(e) {
 		const text = e.detail.value;
-		this.dataSource && this.dataSource.filter(text).then(items => this.value ? this.dataSource.get(this.value).then(res => res ? [res].concat(items) : items) : items).then(items => this.set('items', items));
+		this.dataSource && this.dataSource.filter(text)
+			.then(items => this.value ? this.dataSource.get(this.value).then(res => {
+					return (res && !items.map(x => x.id).includes(res.id)) ? [res].concat(items) : items
+		}) : Promise.resolve(items)).then(items => this.set('items', items));
 	}
 
 	_label(label) {
