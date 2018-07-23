@@ -514,8 +514,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-input label="First name" value="{{firstName}}"></paper-input>
                 <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
                 <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
-
-                <!--agrandir et garnir l'input-->
                 <paper-input-container>
                     <label slot="label">[[localize("gender","Gender",language)]]
                     </label>
@@ -644,6 +642,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                         <template>
                             <div class="cell frozen">[[item.email]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
+                    patients',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
+
+        <!-- user.autodelegation mettre un tag avec un set<string> ??? ensuite avec des simples events on mets a jour l'enable et le checked-->
+        <paper-dialog id="sharePatientDelegationDialog" style="width:800px;">
+            <h4>[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h4>
+            <div>
+                <vaadin-grid items="[[hcpSelectedForSharing]]">
+                    <vaadin-grid-column  width="100px">
+                        <template class="header">
+                            Prestataires
+                        </template>
+                        <template>
+                            [[getNamesWithHcpId(item.id)]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column  width="500px">
+                        <template class="header">
+                            Droits d'accès
+                        </template>
+                        <template>
+                            <div>
+                                <template is="dom-repeat" items="[[delegation]]" as="delegationTag">
+                                    <vaadin-checkbox id="[[item.id]][[delegationTag]]" checked="{{checkingDelegation(delegationTag,item.delegation,hcpSelectedForSharing.*)}}" on-checked-changed="_checkDelegation">[[localize(delegationTag,delegationTag,language)]]</vaadin-checkbox>
+                                </template>
+                            </div>
                         </template>
                     </vaadin-grid-column>
                 </vaadin-grid>
@@ -796,6 +829,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type : String,
                         value : null,
                         observer : '_searchDuplicate'
+                    },
+                    delegation : {
+                        type : Array,
+                        value : [
+                            "all",
+                            "administrativeData",
+                            "generalInformation",
+                            "medicalInformation",
+                            "financialInformation",
+                            "sensitiveInformation",
+                            "confidentialInformation",
+                            "cdItemRisk",
+                            "cdItemFamilyRisk",
+                            "cdItemHealthcareelement",
+                            "cdItemHealthcareapproach",
+                            "cdItemAllergy",
+                            "cdItemDiagnosis",
+                            "cdItemLab",
+                            "cdItemResult",
+                            "cdItemParameter",
+                            "cdItemMedication",
+                            "cdItemTreatment",
+                            "cdItemVaccine"
+                        ]
                     }
                 }
             }
@@ -1155,7 +1212,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (e.target.id !== "") {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === e.target.id)
                     if (!mark) {
-                        this.push('hcpSelectedForSharing',{id:e.target.id, check:true})
+                        this.push('hcpSelectedForSharing',{
+                            id:e.target.id,
+                            check:true,
+                            delegation : ["all"]
+                        })
                     } else {
                         mark.check = !mark.check
                         this.notifyPath('hcpSelectedForSharing.*')
@@ -1173,7 +1234,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            confirmSharing() {
+            confirmSharingNextStep(){
+
                 let pPromise = Promise.resolve([])
                 const hcpId = this.user.healthcarePartyId
                 this.patientToShare.filter(pat => pat.check && pat.id).forEach(pat => {
@@ -1182,7 +1244,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             .then(pat => _.concat(pats, pat))
                     )
                 })
+
+                this.$['sharePatientDialog'].close();
+
+                //erase uncheck user
+                const tab = _.differenceBy(this.hcpSelectedForSharing,[{'check' : false}], 'check')
+                this.set("hcpSelectedForSharing",tab)
+
+                //loading existing delegation of shared users
+                this.hcpSelectedForSharing.forEach( (userShared,index)  => {
+                    let delegationTag = [];
+                    const keys = Object.keys(this.user.autoDelegations)
+                    keys.forEach(key => {
+                        if(this.user.autoDelegations[key].find(x => x===userShared.id))
+                            delegationTag.push(key)
+                    })
+                    if(delegationTag.length!==0)
+                        this.set("hcpSelectedForSharing."+index+".delegation",delegationTag);
+                })
+
+                this.$['sharePatientDelegationDialog'].open();
+
                 return pPromise
+            }
+
+            confirmSharing() {
+                this.updateDelegation();
+                this.$['sharePatientDelegationDialog'].close();
             }
 
             _openPopupMenu() {
@@ -1281,6 +1369,88 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set("listResultPatients", [])
                     this.set("displayResult", false)
                 }
+            }
+
+            getNamesWithHcpId(id){
+                const element = this.hcp.find( x => x.id===id)
+                return element.lastName+" "+element.firstName
+            }
+
+            _checkDelegation(event){
+
+                const index = this.hcpSelectedForSharing.indexOf(event.model.__data.item)
+                const tag = event.target.id.substr(event.model.__data.item.id.length)
+                const value = event.detail.value
+
+                if(this.hcpSelectedForSharing[index].delegation.find(x => x==='all')){
+                    this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter(x=> true))
+                    this.hcpSelectedForSharing[index].delegation.shift()
+                }
+                if(value===true){
+                    if(tag==="all"){
+                        this.set("hcpSelectedForSharing."+index+".delegation",[])
+                    }
+                    this.push("hcpSelectedForSharing."+index+".delegation",tag)
+                    if(this.hcpSelectedForSharing[index].delegation.length===18){
+                        this.set("hcpSelectedForSharing."+index+".delegation",["all"])
+                    }
+                }
+                else{
+                    if(tag==="all"){
+                        this.set("hcpSelectedForSharing."+index+".delegation",[])
+                    }
+                    else{
+                        this.set("hcpSelectedForSharing."+index+".delegation",
+                            this.hcpSelectedForSharing[index].delegation.filter(x => x!==tag))
+                    }
+                }
+            }
+
+            checkingDelegation(tagInput,delegationTag){
+                if(!delegationTag)return ;
+                return delegationTag.find( x =>x==="all" || x===tagInput );
+            }
+
+            updateDelegation(){
+                let userDelegation = this.user.autoDelegations
+
+                this.hcpSelectedForSharing.forEach( userShared =>{
+                    //delete old delegations for this user
+                    Object.keys(userDelegation).forEach(key => {
+                        userDelegation[key]= userDelegation[key].filter( x => x!==userShared.id)
+                        if(userDelegation[key].length===0) delete userDelegation[key]
+                    })
+
+                    userShared.delegation.forEach( delegationTag => {
+                        //add news delegations for this user
+                        if(userDelegation.hasOwnProperty(delegationTag)){
+                            userDelegation[delegationTag].push(userShared.id)
+                        }
+                        else{
+                            userDelegation[delegationTag]=[userShared.id]
+                        }
+                    })}
+                )
+                this.set("user.autoDelegations",userDelegation)
+
+
+                console.log(this.user)
+                //plante ici
+                const response = this.api.user().modifyUser(this.user).then(user =>{
+                    this.dispatchEvent(new CustomEvent('user-saved', {
+                        detail: user,
+                        bubbles: true,
+                        composed: true
+                    }))
+                    console.log(user)
+                }).catch( e => {
+                    console.log(e)
+                }).finally(e => {
+                    this.api.user().getUser(this.user.id).then(x => {
+                        this.set("user",x)
+                        //console.log(this.user.autoDelegations)
+                    })
+                })
             }
         }
 
