@@ -182,11 +182,11 @@ class Importer {
             /**** Delegations ****/
             delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
 
-            def pCtcs = contacts[p.id]
-            def pHes = healthElements[p.id]
-            def pForms = forms[p.id]
-            def pInvoices = invoices[p.id]
-            def ppMessages = pMessages[p.id]
+            def pCtcs = contacts[p.id] ?: []
+            def pHes = healthElements[p.id] ?: []
+            def pForms = forms[p.id] ?: []
+            def pInvoices = invoices[p.id] ?: []
+            def ppMessages = pMessages[p.id] ?: []
 
             contacts.remove(p.id)
             healthElements.remove(p.id)
