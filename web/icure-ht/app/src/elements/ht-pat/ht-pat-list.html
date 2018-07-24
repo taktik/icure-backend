@@ -369,6 +369,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #duplicate-list{
                     max-height: 200px;
                 }
+                #sharePatientDelegationDialog{
+                    width : 900px;
+                }
+                .delegationCheckBox{
+                    width : 220px;
+                }
             </style>
         </custom-style>
 
@@ -655,11 +661,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <!-- user.autodelegation mettre un tag avec un set<string> ??? ensuite avec des simples events on mets a jour l'enable et le checked-->
-        <paper-dialog id="sharePatientDelegationDialog" style="width:800px;">
+        <paper-dialog id="sharePatientDelegationDialog">
             <h4>[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h4>
             <div>
                 <vaadin-grid items="[[hcpSelectedForSharing]]">
-                    <vaadin-grid-column  width="100px">
+                    <vaadin-grid-column  width="150px">
                         <template class="header">
                             Prestataires
                         </template>
@@ -667,14 +673,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             [[getNamesWithHcpId(item.id)]]
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column  width="500px">
+                    <vaadin-grid-column  width="700px">
                         <template class="header">
                             Droits d'accès
                         </template>
                         <template>
                             <div>
                                 <template is="dom-repeat" items="[[delegation]]" as="delegationTag">
-                                    <vaadin-checkbox id="[[item.id]][[delegationTag]]" checked="{{checkingDelegation(delegationTag,item.delegation,hcpSelectedForSharing.*)}}" on-checked-changed="_checkDelegation">[[localize(delegationTag,delegationTag,language)]]</vaadin-checkbox>
+                                    <template is="dom-if" if="{{_showAllDelegation(delegationTag,item.id,hcpSelectedForSharing.*)}}">
+                                        <vaadin-checkbox class="delegationCheckBox" id="[[item.id]][[delegationTag]]" checked="{{checkingDelegation(delegationTag,item.delegation,hcpSelectedForSharing.*)}}" on-checked-changed="_checkDelegation">[[localize(delegationTag,delegationTag,language)]]</vaadin-checkbox>
+                                        <template is="dom-if" if="{{_neededBr(delegationTag)}}">
+                                            <br>
+                                        </template>
+                                    </template>
                                 </template>
                             </div>
                         </template>
@@ -1433,24 +1444,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 )
                 this.set("user.autoDelegations",userDelegation)
 
-
-                console.log(this.user)
-
                 this.api.user().modifyUser(this.user).then(user =>{
                     this.dispatchEvent(new CustomEvent('user-saved', {
                         detail: user,
                         bubbles: true,
                         composed: true
                     }))
-                    console.log(user)
                 }).catch( e => {
                     console.log(e)
                 }).finally(e => {
                     this.api.user().getUser(this.user.id).then(x => {
                         this.set("user",x)
-                        console.log(x)
                     })
                 })
+            }
+
+            _neededBr(tag){
+                return tag==="all";
+            }
+
+            _showAllDelegation(tag,id){
+
+                if(tag==="all") return true;
+                const index = this.hcpSelectedForSharing.findIndex( x => x.id===id)
+                if(index===-1) return false;
+                return !this.hcpSelectedForSharing[index].delegation.find(x => x==="all")
             }
         }
 
