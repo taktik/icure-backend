@@ -1435,8 +1435,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
                 console.log(this.user)
-                //plante ici
-                const response = this.api.user().modifyUser(this.user).then(user =>{
+
+                this.api.user().modifyUser(this.user).then(user =>{
                     this.dispatchEvent(new CustomEvent('user-saved', {
                         detail: user,
                         bubbles: true,
@@ -1448,7 +1448,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).finally(e => {
                     this.api.user().getUser(this.user.id).then(x => {
                         this.set("user",x)
-                        //console.log(this.user.autoDelegations)
+                        console.log(x)
                     })
                 })
             }
