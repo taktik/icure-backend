@@ -370,7 +370,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     max-height: 200px;
                 }
                 #sharePatientDelegationDialog{
-                    width : 900px;
+                    width : 920px;
                 }
                 .delegationCheckBox{
                     width : 220px;
@@ -660,7 +660,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
-        <!-- user.autodelegation mettre un tag avec un set<string> ??? ensuite avec des simples events on mets a jour l'enable et le checked-->
         <paper-dialog id="sharePatientDelegationDialog">
             <h4>[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h4>
             <div>
@@ -847,8 +846,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             "all",
                             "administrativeData",
                             "generalInformation",
-                            "medicalInformation",
                             "financialInformation",
+                            "medicalInformation",
                             "sensitiveInformation",
                             "confidentialInformation",
                             "cdItemRisk",
@@ -1393,22 +1392,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const tag = event.target.id.substr(event.model.__data.item.id.length)
                 const value = event.detail.value
 
+                //idem of checkingDelegation
+
                 if(this.hcpSelectedForSharing[index].delegation.find(x => x==='all')){
                     this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter(x=> true))
                     this.hcpSelectedForSharing[index].delegation.shift()
                 }
-                if(value===true){
+                if(value===true){//check
                     if(tag==="all"){
                         this.set("hcpSelectedForSharing."+index+".delegation",[])
                     }
                     this.push("hcpSelectedForSharing."+index+".delegation",tag)
-                    if(this.hcpSelectedForSharing[index].delegation.length===18){
+                    
+                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length==12){
+                        this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
+                    }
+
+                    if(this.hcpSelectedForSharing[index].delegation.find(x => x==="medicalInformation")){
+                        this.set("hcpSelectedForSharing."+index+".delegation",this.hcpSelectedForSharing[index].delegation.filter(x => !x.includes("cdItem")))
+                    }
+
+                    if(this.hcpSelectedForSharing[index].delegation.filter(element=> !(element.includes("cdItem")||element==="all")).length===6){
                         this.set("hcpSelectedForSharing."+index+".delegation",["all"])
                     }
                 }
-                else{
+                else{//uncheck
                     if(tag==="all"){
-                        this.set("hcpSelectedForSharing."+index+".delegation",[])
+                        this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter( (element,index,array) => (index<=4 && element!=="all")))
                     }
                     else{
                         this.set("hcpSelectedForSharing."+index+".delegation",
@@ -1417,9 +1427,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            checkingDelegation(tagInput,delegationTag){
-                if(!delegationTag)return ;
-                return delegationTag.find( x =>x==="all" || x===tagInput );
+            checkingDelegation(tagInput,delegations){
+                if(!delegations)return ;
+                return delegations.find( x => x===tagInput );
             }
 
             updateDelegation(){
@@ -1468,7 +1478,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(tag==="all") return true;
                 const index = this.hcpSelectedForSharing.findIndex( x => x.id===id)
                 if(index===-1) return false;
-                return !this.hcpSelectedForSharing[index].delegation.find(x => x==="all")
+
+                let value = !this.hcpSelectedForSharing[index].delegation.find(x =>x==="all")
+                if(tag.includes("cdItem") && this.hcpSelectedForSharing[index].delegation.find(x =>x==="medicalInformation"))
+                    value = false;
+                return value
             }
         }
 
