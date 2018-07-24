@@ -1677,7 +1677,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	saveContact(ctc) {
-		return (ctc.rev ? this.api.contact().modifyContactWithHcParty(this.user, ctc) : this.api.contact().createContactWithHcParty(this.user, ctc)).then(c => {
+		return (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c => {
 			ctc.rev = c.rev;
 			console.log("contact saved: " + ctc.id + ":" + ctc.rev);
 
@@ -1939,7 +1939,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		e.stopPropagation();
 		e.preventDefault();
 
-		const ctcId = e.target.id.substr(6);
+        const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+        ctcDetailPanel && ctcDetailPanel.flushSave();
+
+        const ctcId = e.target.id.substr(6);
 		const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId));
 		const contact = year.contacts.find(c => c.id === ctcId);
 
@@ -1951,9 +1954,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 				this.set('currentContact', null);
 			} else {
-				this.api.contact().getContact(contact.id).then(c => {
+				this.api.contact().getContactWithUser(this.user, contact.id).then(c => {
 					c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-					(c.rev ? this.api.contact().modifyContactWithHcParty(this.user, c) : this.api.contact().createContact(c)).then(() => this.patientChanged());
+					(c.rev ? this.api.contact().modifyContactWithUser(this.user, c) : this.api.contact().createContact(c)).then(() => this.patientChanged());
 					//this.notifyPath('currentContact.closingDate')
 				});
 			}

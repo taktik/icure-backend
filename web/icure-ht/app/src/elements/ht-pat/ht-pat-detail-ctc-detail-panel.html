@@ -401,7 +401,7 @@
 						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
 					</template>
 					<template is="dom-if" if=[[showAddFormsContainer]]>
-						<paper-button class="close-add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
+						<paper-button class="close-add-forms-btn" on-tap="_toggleAddActions"><iron-icon ic on="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 					</template>
 					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
 						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
@@ -951,7 +951,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 	}
 
 	saveCurrentContact() {
-		return (this.currentContact.rev ? this.api.contact().modifyContactWithHcParty(this.user, this.currentContact) : this.api.contact().createContactWithHcParty(this.user, this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
+		return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
 	}
 
 	_addedFormSelected(e, formTemplate) {
