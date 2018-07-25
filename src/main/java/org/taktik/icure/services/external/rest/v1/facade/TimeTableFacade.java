@@ -197,8 +197,8 @@ public class TimeTableFacade implements OpenApiFacade {
             notes = ""
     )
     @POST
-    @Path("/byPeriodAndHcPartyId")
-    public Response getTimeTableByPeriodAnHcPartyId( @QueryParam("hcPartyId") String hcPartyId) {
+    @Path("/byHcPartyId")
+    public Response getTimeTableByHcPartyId( @QueryParam("hcPartyId") String hcPartyId) {
         if (hcPartyId == null || hcPartyId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
