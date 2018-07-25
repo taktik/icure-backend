@@ -1,41 +1,64 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.taktik.icure.utils.InstantDeserializer;
-import org.taktik.icure.utils.InstantSerializer;
-
-import java.time.Instant;
-
 public class CalendarItemDto extends IcureDto {
 
-	protected String title;
+    protected String title;
 
-	protected Long startTime;
+    protected String type;
 
-	protected Long endTime;
+    protected Long startTime;
 
-	public String getTitle() {
-		return title;
-	}
+    protected Long endTime;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    protected String patient;
 
-	public Long getStartTime() {
-		return startTime;
-	}
+    protected String note;
 
-	public void setStartTime(Long startTime) {
-		this.startTime = startTime;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public Long getEndTime() {
-		return endTime;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setEndTime(Long endTime) {
-		this.endTime = endTime;
-	}
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getPatient() {
+        return patient;
+    }
+
+    public void setPatient(String patient) {
+        this.patient = patient;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 }

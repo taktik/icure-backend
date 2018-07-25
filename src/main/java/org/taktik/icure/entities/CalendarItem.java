@@ -35,11 +35,19 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String title;
 
+    protected String type;
+
+    protected String responsible;
+
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+
+    protected String patient;
+
+    protected String note;
 
     public String getTitle() {
         return title;
@@ -47,6 +55,22 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getResponsible() {
+        return responsible;
+    }
+
+    public void setResponsible(String responsible) {
+        this.responsible = responsible;
     }
 
     public Long getStartTime() {
@@ -63,5 +87,21 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setEndTime(Long endTime) {
         this.endTime = endTime;
+    }
+
+    public String getPatient() {
+        return patient;
+    }
+
+    public void setPatient(String patient) {
+        this.patient = patient;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

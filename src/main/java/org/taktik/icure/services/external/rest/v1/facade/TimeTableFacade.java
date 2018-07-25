@@ -87,7 +87,7 @@ public class TimeTableFacade implements OpenApiFacade {
         } else {
             List<String> deletedTimeTableIds = timeTableLogic.deleteTimeTables(Arrays.asList(timeTableIds.split(",")));
             if (deletedTimeTableIds != null) {
-                response = ResponseUtils.ok();
+                response = Response.ok().entity(deletedTimeTableIds).build();
             } else {
                 response = ResponseUtils.internalServerError("TimeTable deletion failed");
             }
