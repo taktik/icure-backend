@@ -60,6 +60,10 @@ public class TimeTableLogicImpl extends GenericLogicImpl<TimeTable, TimeTableDAO
 	}
 
 	@Override
+	public List<TimeTable> getTimeTableByHcPartyId(String hcPartyId){
+		return timeTableDAO.listTimeTableByHcPartyId(hcPartyId);
+	}
+	@Override
 	public TimeTable modifyTimeTable(TimeTable timeTable) {
 		return timeTableDAO.save(timeTable);
 	}

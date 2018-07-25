@@ -96,7 +96,7 @@ public class TimeTableFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(response = TimeTableDto.class, value = "Gets an timeTable")
+    @ApiOperation(response = TimeTableDto.class, value = "Gets a timeTable")
     @GET
     @Path("/{timeTableId}")
     public Response getTimeTable(@PathParam("timeTableId") String timeTableId) {
@@ -188,6 +188,30 @@ public class TimeTableFacade implements OpenApiFacade {
         }
     }
 
+
+    @ApiOperation(
+            value = "Get TimeTables by HcPartyId",
+            response = TimeTableDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST",
+            notes = ""
+    )
+    @POST
+    @Path("/byPeriodAndHcPartyId")
+    public Response getTimeTableByPeriodAnHcPartyId( @QueryParam("hcPartyId") String hcPartyId) {
+        if (hcPartyId == null || hcPartyId.isEmpty()) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByHcPartyId(hcPartyId);
+
+        boolean succeed = (timeTables != null);
+        if (succeed) {
+            return Response.ok().entity(timeTables.stream().map(c -> mapper.map(c, TimeTableDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
+        }
+    }
     @Context
     public void setTimeTableLogic(TimeTableLogic timeTableLogic) {
         this.timeTableLogic = timeTableLogic;

@@ -47,6 +47,18 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     }
 
     @Override
+    @View(name = "by_hcparty", map = "classpath:js/timeTable/by_hcparty.js")
+    public List<TimeTable> listTimeTableByHcPartyId(String hcPartyId) {
+        ViewQuery viewQuery = createQuery("by_hcparty")
+                .startKey(hcPartyId)
+                .includeDocs(false);
+
+        List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
+
+        return timeTables;
+    }
+
+    @Override
     @View(name = "by_hcparty_and_startdate", map = "classpath:js/timeTable/by_hcparty_and_startdate.js")
     public List<TimeTable> listTimeTableByStartDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
         ComplexKey from = ComplexKey.of(
