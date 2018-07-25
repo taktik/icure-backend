@@ -1019,6 +1019,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
+                if(this.shareOption) return;
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
