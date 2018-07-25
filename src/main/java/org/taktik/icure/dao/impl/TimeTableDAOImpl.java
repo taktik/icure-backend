@@ -104,28 +104,41 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
 
     @Override
     public List<TimeTable> listTimeTableByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {
-        List<TimeTable> timeTables = this.listTimeTableByStartDateAndHcPartyId(startDate, endDate, hcPartyId);
+        List<TimeTable> timeTablesStart = this.listTimeTableByStartDateAndHcPartyId(startDate, endDate, hcPartyId);
         List<TimeTable> timeTablesEnd = this.listTimeTableByEndDateAndHcPartyId(startDate, endDate, hcPartyId);
+        /* Special case : timeTableStart < research.start < rechearch.end < timetableEnd*/
+        List<TimeTable> timeTableStartBefore = this.listTimeTableByStartDateAndHcPartyId(0l,startDate,hcPartyId);
+        List<TimeTable> timeTableEndAfter = this.listTimeTableByEndDateAndHcPartyId(endDate,999999999999999l,hcPartyId);
+        List<TimeTable> timeTableMerged = new ArrayList<>();
 
-        if (timeTables == null && timeTables != null) {
-            return timeTablesEnd;
-        }
-        if (timeTables != null && timeTablesEnd == null) {
-            return timeTables;
-        }
-        if (!timeTablesEnd.isEmpty()) {
-            for (TimeTable item : timeTablesEnd) {
-                Boolean toAdd = true;
-                for (TimeTable itemTest : timeTables) {
-                    if (itemTest.getId().equals(item.getId())) {
-                        toAdd = false;
-                    }
-                }
-                if (toAdd) {
-                    timeTables.add(item);
-                }
+        /* Add in merged TimeTable that are in both timeTableStartBefore AND timeTableEndAfter, avoiding duplicates*/
+        for(TimeTable elem : timeTableStartBefore){
+            if(listContains(timeTableEndAfter,elem) && !listContains(timeTableMerged,elem)){
+                timeTableMerged.add(elem);
             }
         }
-        return timeTables;
+        /* Add in merged elem that are in timeTablesStart, avoiding duplicate */
+        for(TimeTable elem : timeTablesStart){
+            if(!listContains(timeTableMerged,elem)){
+                timeTableMerged.add(elem);
+            }
+        }
+
+        /* Add in merged elem that are in timeTablesEnd, avoiding duplicate */
+        for(TimeTable elem : timeTablesEnd){
+            if(!listContains(timeTableMerged,elem)){
+                timeTableMerged.add(elem);
+            }
+        }
+        return timeTableMerged;
+    }
+
+    private boolean listContains(List<TimeTable> list, TimeTable obj){
+        for(TimeTable elem : list){
+            if(elem.getId().equals(obj.getId())){
+                return true;
+            }
+        }
+        return false;
     }
 }
