@@ -1,0 +1,99 @@
+{
+	"sections": [
+		{
+			"formColumns": [
+				{
+					"formDataList": [
+							{
+								"editor" : {
+									"readOnly" : false,
+									"height" : 22,
+									"labelPosition" : "Left",
+									"width" : 245,
+									"multiline" : false,
+									"left" : 67,
+									"top" : 32,
+									"key" : "StringEditor"
+								},
+								"sortOrder" : 928470871,
+								"codeTypes" : [
+
+								],
+								"label" : "First Name",
+								"irrelevant" : true,
+								"subForm" : false,
+								"type" : "TKString",
+								"name" : "dmg-firstName"
+							},
+							{
+								"editor" : {
+									"readOnly" : false,
+									"height" : 22,
+									"labelPosition" : "Left",
+									"width" : 245,
+									"multiline" : false,
+									"left" : 67,
+									"top" : 66,
+									"key" : "StringEditor"
+								},
+								"sortOrder" : 1465333591,
+								"codeTypes" : [
+
+								],
+								"label" : "Nihii",
+								"irrelevant" : true,
+								"subForm" : false,
+								"type" : "TKString",
+								"name" : "dmg-nihii"
+							},
+							{
+								"editor" : {
+									"readOnly" : false,
+									"height" : 22,
+									"labelPosition" : "Left",
+									"width" : 245,
+									"multiline" : false,
+									"left" : 394,
+									"top" : 32,
+									"key" : "StringEditor"
+								},
+								"sortOrder" : 1465333591,
+								"codeTypes" : [
+
+								],
+								"label" : "Last Name",
+								"irrelevant" : true,
+								"subForm" : false,
+								"type" : "TKString",
+								"name" : "dmg-lastName"
+							},
+							{
+								"editor" : {
+									"readOnly" : false,
+									"height" : 22,
+									"labelPosition" : "Left",
+									"width" : 100,
+									"multiline" : false,
+									"left" : 427,
+									"top" : 66,
+									"key" : "DateTimeEditor"
+								},
+								"sortOrder" : 1465341751,
+								"codeTypes" : [
+
+								],
+								"label" : "Date of signature",
+								"irrelevant" : true,
+								"subForm" : false,
+								"type" : "TKDate",
+								"name" : "dmg-dateOfSignature"
+							}
+					]
+				}
+			]
+		}
+	]
+}
+
+
+

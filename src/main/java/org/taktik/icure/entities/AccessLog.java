@@ -18,6 +18,7 @@
 
 package org.taktik.icure.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,6 +29,7 @@ import org.taktik.icure.utils.InstantSerializer;
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AccessLog extends StoredDocument {
 
 	public static final String USER_ACCESS = "USER_ACCESS";

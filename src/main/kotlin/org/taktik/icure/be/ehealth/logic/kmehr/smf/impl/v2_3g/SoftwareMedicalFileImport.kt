@@ -40,6 +40,7 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.entities.embed.Substanceproduct
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthElementLogic
@@ -176,7 +177,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return Contact().apply {
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
-            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.map { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
+            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
             this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                 trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -210,8 +211,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 when (cdItem) {
                     "healthcareelement" -> {
                         val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v)
-                        healthElementLogic.createHealthElement(he)
-
+                        v.hes.add(healthElementLogic.createHealthElement(he))
                     }
                 //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
                 //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
@@ -234,7 +234,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                        v: ImportResult): HealthElement? {
         return HealthElement().apply {
             this.id = idGenerator.newGUID().toString()
-            descr = label
+	        this.healthElementId = idGenerator.newGUID().toString()
+	        descr = label
             this.tags.add(Code("be", "CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.author = author.id
@@ -370,16 +371,24 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
         val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
 
-        return (healthcarePartyLogic.listByNihii(nihii).firstOrNull()
-            ?: healthcarePartyLogic.listBySsin(niss).firstOrNull()
-            ?: healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
-                this.nihii = nihii; this.ssin = niss
-            })).apply {
-            copyFromHcpToHcp(p, this)
-        }
+        return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
+            ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
+            ?: try { healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
+                this.nihii = nihii; this.ssin = niss;
+	            copyFromHcpToHcp(p, this)
+            }) } catch (e : MissingRequirementsException) { null })
     }
 
     protected fun copyFromHcpToHcp(p: HcpartyType, hcp: HealthcareParty) {
+	    if (hcp.firstName == null) {
+		    hcp.firstName = p.firstname
+	    }
+	    if (hcp.lastName == null) {
+		    hcp.lastName = p.familyname
+	    }
+	    if (hcp.name == null) {
+		    hcp.name = p.name
+	    }
         if (hcp.ssin == null) {
             hcp.ssin = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
         }
@@ -387,7 +396,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             hcp.nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
         }
         p.addresses?.let { addresses ->
-            hcp.addresses.addAll(p.addresses.map {
+            hcp.addresses.addAll(addresses.map {
                 Address().apply {
                     addressType =
                         it.cds.find { it.s == CDADDRESSschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) }
@@ -400,11 +409,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
             })
         }
-        p.telecoms.forEach {
+        p.telecoms?.forEach {
             val addressType = it.cds.find { it.s == CDTELECOMschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) }
             val telecomType = it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }
 
-            (hcp.addresses.find { it.addressType == addressType }
+            (hcp.addresses?.find { it.addressType == addressType }
                 ?: Address(addressType).apply { hcp.addresses.add(this) }).telecoms.add(Telecom(telecomType, it.telecomnumber))
         }
     }
@@ -434,7 +443,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             }
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
-            copyFromPersonToPatient(p, this, true)
+            this.delegations = mapOf(author.healthcarePartyId to setOf())
+
+	        copyFromPersonToPatient(p, this, true)
         }) else dbPatient
     }
 

@@ -18,17 +18,17 @@
 
 package org.taktik.icure.entities.embed;
 
-import java.io.Serializable;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
 
 /**
  * Created by aduchate on 21/01/13, 14:47
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Telecom implements Serializable, Comparable<Telecom> {
 
     protected TelecomType telecomType;

@@ -33,6 +33,7 @@ import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.Contact;
+import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.entities.embed.SubContact;
@@ -41,6 +42,8 @@ import org.taktik.icure.logic.ContactLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto;
@@ -302,8 +305,45 @@ public class ContactFacade implements OpenApiFacade {
         }
     }
 
+	@ApiOperation(
+			value = "List contacts found By Healthcare Party and secret foreign keys.",
+			response = ContactDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys must be delimited by coma"
+	)
+	@GET
+	@Path("/byHcPartySecretForeignKeys/delegations")
+	public Response findDelegationsStubsByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId,
+	                                                @QueryParam("secretFKeys") String secretFKeys) {
+		if (hcPartyId == null || secretFKeys == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
 
-    @ApiOperation(
+		Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+		return Response.ok().entity(contactLogic.findByHCPartyPatient(hcPartyId, new ArrayList<>(secretPatientKeys)).stream().map(contact -> mapper.map(contact, IcureStubDto.class)).collect(Collectors.toList())).build();
+	}
+
+	@ApiOperation(
+			value = "Update delegations in healthElements.",
+			httpMethod = "POST",
+			notes = "Keys must be delimited by coma"
+	)
+	@POST
+	@Path("/delegations")
+	public Response setContactsDelegations(List<IcureStubDto> stubs) throws Exception {
+		List<Contact> contacts = contactLogic.getContacts(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+		contacts.forEach(contact -> stubs.stream().filter(s -> s.getId().equals(contact.getId())).findFirst().ifPresent(stub -> {
+			stub.getDelegations().forEach((s, delegationDtos) -> contact.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getEncryptionKeys().forEach((s, delegationDtos) -> contact.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> contact.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+		}));
+		contactLogic.updateEntities(contacts);
+		return Response.ok().build();
+	}
+
+
+	@ApiOperation(
             value = "Close contacts for Healthcare Party and secret foreign keys.",
             response = ContactDto.class,
             responseContainer = "Array",
