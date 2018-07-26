@@ -37,7 +37,7 @@ class Importer {
     protected Map<String, Map<String, EncryptedCryptedKey>> cachedHcDelegatePartyKeys = [:]
     protected Map<String, Map<String, EncryptedCryptedKey>> cachedHcOwnerPartyKeys = [:]
 
-    protected Map<String,String> cachedDocSFKs = [:] // in plaintext, could be patientId:skf
+    protected Map<String, String> cachedDocSFKs = [:] // in plaintext, could be patientId:skf
     protected Map<String, KeyPair> cachedKeyPairs = [:]
     protected Map<String, HealthcareParty> cachedDoctors = [:]
 
@@ -45,17 +45,19 @@ class Importer {
     protected String keyRoot
     protected def tarificationsPerCode = [:]
 
-	protected String DB_PROTOCOL = System.getProperty("dbprotocol")?:"http"
-	protected String DB_HOST = System.getProperty("dbhost")?:"127.0.0.1"
-    protected String DB_PORT = System.getProperty("dbport")?:5984
+    protected String DB_PROTOCOL = System.getProperty("dbprotocol") ?: "http"
+    protected String DB_HOST = System.getProperty("dbhost") ?: "127.0.0.1"
+    protected String DB_PORT = System.getProperty("dbport") ?: 5984
     protected String DEFAULT_KEY_DIR = "/Users/aduchate/Library/icure-cloud/keys"
-    protected String DB_NAME = System.getProperty("dbname")?:"icure"
+    protected String DB_NAME = System.getProperty("dbname") ?: "icure"
     protected CouchDbConnector couchdbBase
     protected CouchDbConnector couchdbPatient
     protected CouchDbConnector couchdbContact
     protected CouchDbConnector couchdbConfig
 
     Importer() {
+        // KTH
+        keyRoot = "D://Appl//Icure//PKI"
         HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:" + DB_PORT)/*.username("admin").password("S3clud3sM@x1m@")*/.build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 
@@ -128,18 +130,18 @@ class Importer {
                 def keyPair = loadKeyPair(dr.id)
                 if (!keyPair) {
                     keyPair = createKeyPair(dr.id)
+
+                    KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC")
+                    aesKeyGenerator.init(256)
+                    Key encryptKey = aesKeyGenerator.generateKey()
+
+                    def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
+
+                    dr.hcPartyKeys = [:]
+                    dr.hcPartyKeys[dr.id] = ([crypted, crypted] as String[])
+
+                    dr.setPublicKey(keyPair.public.encoded.encodeHex().toString())
                 }
-                KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC")
-                aesKeyGenerator.init(256)
-                Key encryptKey = aesKeyGenerator.generateKey()
-
-                def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
-
-                dr.hcPartyKeys = [:]
-                dr.hcPartyKeys[dr.id] = ([crypted, crypted] as String[])
-
-                dr.setPublicKey(keyPair.public.encoded.encodeHex().toString())
-
                 cachedKeyPairs[dr.id] = keyPair
             }
         }
@@ -148,7 +150,9 @@ class Importer {
 
         users.each { user ->
             if (user.login) {
-                user.autoDelegations[DelegationTag.all] = new HashSet<>(delegates.findAll { it != user.healthcarePartyId })
+                user.autoDelegations[DelegationTag.all] = new HashSet<>(delegates.findAll {
+                    it != user.healthcarePartyId
+                })
             }
         }
 
@@ -223,7 +227,8 @@ class Importer {
 
             if (pats.size() == 10) {
                 couchdbPatient.executeBulk(pats.collect { it[0] })
-                couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+                // KTH couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+                couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
                 print(".")
                 pats.clear()
             }
@@ -231,7 +236,8 @@ class Importer {
 
         if (pats.size()) {
             couchdbPatient.executeBulk(pats.collect { it[0] })
-            couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+            // KTH couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+            couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
         }
 
         //Already start indexation
@@ -389,9 +395,9 @@ class Importer {
             PrivateKey priv = null
 
             privFile.withReader { Reader r ->
-				def hex = r.text.decodeHex()
-				priv = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(hex))
-			}
+                def hex = r.text.decodeHex()
+                priv = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(hex))
+            }
             pubFile.withReader { Reader r -> pub = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(r.text.decodeHex())) }
 
             return new KeyPair(pub, priv)
@@ -436,13 +442,14 @@ class Importer {
     }
     /**
      *
-     * @param ownerId        owner of the Patient delegation.
-     * @param delegateId     to be delegated to.
-     * @param plainSkd		 Plain version of concatenated documentId:key. SKD: secret key document, and key:  (docId + ":" + generatedKey) encrypted by exchangeAESKey
+     * @param ownerId owner of the Patient delegation.
+     * @param delegateId to be delegated to.
+     * @param plainSkd Plain version of concatenated documentId:key. SKD: secret key document, and key:  (docId + ":" + generatedKey) encrypted by exchangeAESKey
      * @param exchangeAESKey is an exchange AES key of owner and delegate party.
      * @throws EncryptionException
      */
-    protected static Delegation newDelegation(String ownerId, String delegateId, String plainSkd, byte[] exchangeAESKey) throws EncryptionException {
+    protected
+    static Delegation newDelegation(String ownerId, String delegateId, String plainSkd, byte[] exchangeAESKey) throws EncryptionException {
         String skd
         try {
             skd = encodeHex(
@@ -525,8 +532,8 @@ class Importer {
         Map<String, EncryptedCryptedKey> keyMap = cachedHcOwnerPartyKeys.get(myId)
         if (keyMap == null || keyMap.get(delegateId) == null) {
             HealthcareParty ownerHcParty = this.cachedDoctors[myId]
-            cachedHcOwnerPartyKeys[myId] =  keyMap = [:]
-            ownerHcParty.hcPartyKeys.each { k,v ->
+            cachedHcOwnerPartyKeys[myId] = keyMap = [:]
+            ownerHcParty.hcPartyKeys.each { k, v ->
                 keyMap[k] = new EncryptedCryptedKey(v[0], null)
             }
         }
@@ -558,9 +565,11 @@ class Importer {
             ).toString()
 
             // update the owner (myself) in cache and server
-            HealthcareParty ownerHcParty =  this.cachedDoctors[myId]
+            HealthcareParty ownerHcParty = this.cachedDoctors[myId]
             ownerHcParty.hcPartyKeys[delegateId] = ([myCryptedKey, delegateCryptedKey] as String[])
             // 1. update the owner dr on the server
+            HealthcareParty kthHcRead = this.couchdbBase.get(HealthcareParty.class, ownerHcParty.id)
+            ownerHcParty.setRev(kthHcRead.getRev())
             this.couchdbBase.update(ownerHcParty)
             HealthcareParty updatedOwnerHcParty = this.couchdbBase.get(HealthcareParty.class, ownerHcParty.id)
             // 2. update the cache
@@ -570,10 +579,9 @@ class Importer {
             Map<String, EncryptedCryptedKey> existingKeyMapOfOwner = cachedHcOwnerPartyKeys[myId]
             if (existingKeyMapOfOwner == null) {
                 existingKeyMapOfOwner = [:]
-                cachedHcOwnerPartyKeys[myId] =  existingKeyMapOfOwner
+                cachedHcOwnerPartyKeys[myId] = existingKeyMapOfOwner
             }
             existingKeyMapOfOwner[delegateId] = new EncryptedCryptedKey(myCryptedKey, clearTextAESExchangeKey)
-
 
             // update the 'cachedHcDelegatePartyKeys'
             Map<String, EncryptedCryptedKey> existingKeyMapOfDelegate = cachedHcDelegatePartyKeys[delegateId]
@@ -581,7 +589,7 @@ class Importer {
                 existingKeyMapOfDelegate = [:]
                 cachedHcDelegatePartyKeys.put(delegateId, existingKeyMapOfDelegate)
             }
-            existingKeyMapOfDelegate[myId] =  new EncryptedCryptedKey(delegateCryptedKey, clearTextAESExchangeKey)
+            existingKeyMapOfDelegate[myId] = new EncryptedCryptedKey(delegateCryptedKey, clearTextAESExchangeKey)
 
             return clearTextAESExchangeKey
         } else {
@@ -609,8 +617,13 @@ class Importer {
         Delegation selfDelegation = newDelegation(ownerId, ownerId, createdObject.getId(), cachedDocSFKs[createdObject.id], ownerPrivateKey)
 
         // append the self delegation to createdObject
-        if (!createdObject.delegations) {createdObject.delegations =  [:]}
-        createdObject.delegations[ownerId] = [selfDelegation]
+        if (!createdObject.delegations) {
+            createdObject.delegations = [:]
+        }
+        // kth createdObject.delegations[ownerId] = [selfDelegation]
+        LinkedHashSet<Delegation> myLinkedHashSet = new LinkedHashSet<>()
+        myLinkedHashSet.add(selfDelegation)
+        createdObject.delegations.put(ownerId, myLinkedHashSet)
 
         if (parentObject != null) {
             // Appending crypted Foreign Key
@@ -618,7 +631,15 @@ class Importer {
             createdObject.cryptedForeignKeys[ownerId] = new HashSet<>([delegationForCryptedForeignKey])
 
             // Appending Secret Foreign Key
-            Set<String> secureKeys = getSecureKeys(parentObject.getDelegations(), ownerId, ownerPrivateKey)
+            LinkedHashMap<String,LinkedHashSet<Delegation>> fromMap;
+            fromMap = parentObject.getDelegations()
+            LinkedHashSet<Delegation> fromSet = fromMap.get(ownerId)
+
+            Map<String,List<Delegation>>  toMap = new HashMap()
+            toMap.put(ownerId,fromSet.asList())
+
+            // KTH Set<String> secureKeys = getSecureKeys(parentObject.getDelegations(), ownerId, ownerPrivateKey)
+            Set<String> secureKeys = getSecureKeys(toMap, ownerId, ownerPrivateKey)
             createdObject.setSecretForeignKeys(secureKeys)
         }
 
@@ -637,7 +658,9 @@ class Importer {
      * @throws IOException
      */
     def <T extends StoredICureDocument> T appendObjectDelegations(T modifiedObject, StoredICureDocument parentObject, String ownerId, String delegateId, String secretForeignKeyOfModifiedObject, String secretForeignKeyOfParent) throws EncryptionException, ExecutionException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
-        if (ownerId == delegateId) { return this.initObjectDelegations(modifiedObject, parentObject, ownerId)}
+        if (ownerId == delegateId) {
+            return this.initObjectDelegations(modifiedObject, parentObject, ownerId)
+        }
         PrivateKey ownerPrivateKey = this.cachedKeyPairs[ownerId].private
 
         if (parentObject != null && secretForeignKeyOfParent == null) {
@@ -658,14 +681,18 @@ class Importer {
         byte[] exchangeAESKeyOwnerDelegate = getOwnerHcPartyKey(ownerId, delegateId, ownerPrivateKey)
 
         // append the new delegation to modifiedObject
-        if (modifiedObject.delegations[delegateId] == null) {modifiedObject.delegations[delegateId] = []}
-        modifiedObject.delegations[delegateId] << newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
-
+        if (modifiedObject.delegations[delegateId] == null) {
+            modifiedObject.delegations[delegateId] = []
+        }
+        // KTH modifiedObject.delegations[delegateId] << newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
+        Delegation addDelegation = newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
+        LinkedHashSet<Delegation> myLinkedHashSet = new LinkedHashSet<>()
+        myLinkedHashSet.add(addDelegation)
+        modifiedObject.getDelegations().put(delegateId, myLinkedHashSet)
 
         if (parentObject != null) {
             /* append the CryptedForeignKeys */
             modifiedObject.cryptedForeignKeys[delegateId] = new HashSet([newDelegation(ownerId, delegateId, modifiedObject.id, parentObject.id, ownerPrivateKey)])
-
 
             /* append the Secret Foreign Key */
             modifiedObject.secretForeignKeys << secretForeignKeyOfParent
@@ -686,7 +713,7 @@ class Importer {
 //        byte[] delegateOwnerAesExchangeKey = getDelegateHcPartyKey(delegateId, ownerId, RSAKeysUtils.loadMyKeyPair(delegateId).getPrivate());
         byte[] delegateOwnerAesExchangeKey = getDelegateHcPartyKey(delegateId, ownerId, this.cachedKeyPairs[delegateId].private)
 
-        List<String> results = new ArrayList<>()
+        List<String> results = new LinkedHashMap<String, T>()
         for (Delegation delegation : childObject.getDelegations().get(delegateId)) {
             String plainSkd = decryptSkdInDelegate(delegation.getKey(), delegateOwnerAesExchangeKey)
 
