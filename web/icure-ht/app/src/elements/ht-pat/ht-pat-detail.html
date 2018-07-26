@@ -2118,7 +2118,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			return this.api.after(ctc.openingDate, this.timeSpanStart)
 				&& this.api.before(ctc.openingDate, this.timeSpanEnd)
 				&& (!regExp || ctc.subContacts.some(sc => sc.descr && sc.descr.match(regExp) && sc.services.length)
-					|| ctc.services.some(s => this.shortServiceDescription(s, this.language).match(regExp)))
+					|| ctc.services.some(s => this.shortServiceDescription(s, this.language).match(regExp))
+					|| this.hcp(ctc).match(regExp) )
 				&& (!heIds.length && !poaIds.length && !svcIds.length
 					|| ctc.subContacts.some(sc => (sc.healthElementId && heIds.includes(sc.healthElementId)
 						|| sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length)
@@ -2277,6 +2278,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	shortServiceDescription(svc, lng) {
+
 		let rawDesc = svc && this.api && this.api.contact().shortServiceDescription(svc, lng);
 		return rawDesc && '' + rawDesc || '';
 	}
