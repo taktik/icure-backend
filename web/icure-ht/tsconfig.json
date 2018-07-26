@@ -10,6 +10,7 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
+    "allowTsInNodeModules": true,
     "lib": [
       "es2017",
       "es6",
@@ -26,7 +27,7 @@
         //"types/polymer-redux"
       //]
     //}
-  },
+  }
   //"include": [
   //  "./src",
   //  "./types/*",

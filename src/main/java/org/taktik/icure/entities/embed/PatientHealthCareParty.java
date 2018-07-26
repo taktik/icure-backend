@@ -18,19 +18,22 @@
 
 package org.taktik.icure.entities.embed;
 
-/** Created by aduchate on 02/07/13, 11:59 */
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.jetbrains.annotations.Nullable;
+
+/**
+ * Created by aduchate on 02/07/13, 11:59
+ */
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PatientHealthCareParty implements Serializable {
 	private static final long serialVersionUID = 1L;
 

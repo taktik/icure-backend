@@ -18,6 +18,7 @@
 
 package org.taktik.icure.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.constants.PropertyTypeScope;
 import org.taktik.icure.constants.TypedValuesType;
@@ -27,6 +28,7 @@ import org.taktik.icure.entities.base.StoredDocument;
 import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertyType extends StoredDocument implements Cloneable, Serializable, Identifiable<String> {
 	private static final long serialVersionUID = 1L;
 

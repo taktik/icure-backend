@@ -19,8 +19,8 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.Delegation;
@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message extends StoredICureDocument implements Serializable {
 
 	public final static int STATUS_LABO_RESULT 				= 1 << 0;

@@ -19,13 +19,20 @@
 package org.taktik.icure.entities.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Code extends StoredDocument {
 	private static final long serialVersionUID = 1L;
 	public static final Map<String,String> versionsMap = ImmutableMap.of(

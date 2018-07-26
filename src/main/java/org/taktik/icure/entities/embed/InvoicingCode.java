@@ -18,12 +18,13 @@
 
 package org.taktik.icure.entities.embed;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.Identifiable;
 
 @SuppressWarnings("UnusedDeclaration")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InvoicingCode implements Identifiable<String>, Comparable<InvoicingCode> {
 	public static final long STATUS_PAID = 1;
 	public static final long STATUS_PRINTED = 2;

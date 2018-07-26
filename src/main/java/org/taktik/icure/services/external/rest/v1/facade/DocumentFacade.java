@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.Document;
+import org.taktik.icure.entities.Invoice;
+import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.DocumentLogic;
@@ -37,6 +39,8 @@ import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.security.CryptoUtils;
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EMailDocumentDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.GenericResult;
 import org.taktik.icure.utils.FormUtils;
 import org.taktik.icure.utils.ResponseUtils;
@@ -342,6 +346,25 @@ public class DocumentFacade implements OpenApiFacade{
 		} else {
 			return Response.status(500).type("text/plain").entity("Getting Documents failed. Please try again or read the server log.").build();
 		}
+	}
+
+	@ApiOperation(
+			value = "Update delegations in healthElements.",
+			httpMethod = "POST",
+			notes = "Keys must be delimited by coma"
+	)
+	@POST
+	@Path("/delegations")
+	public Response setDocumentsDelegations(List<IcureStubDto> stubs) throws Exception {
+		List<Document> invoices = documentLogic.getDocuments(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+		invoices.forEach(healthElement -> stubs.stream().filter(s -> s.getId().equals(healthElement.getId())).findFirst().ifPresent(stub -> {
+			stub.getDelegations().forEach((s, delegationDtos) -> healthElement.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getEncryptionKeys().forEach((s, delegationDtos) -> healthElement.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> healthElement.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+		}));
+		documentLogic.updateDocuments(invoices);
+
+		return Response.ok().build();
 	}
 
 	@Context

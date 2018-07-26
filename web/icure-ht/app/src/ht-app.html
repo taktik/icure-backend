@@ -59,373 +59,425 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-tools/ht-import-keychain.html">
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
+<link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-register-keypair-dialog.html">
 <link rel="import" href="elements/menu-bar/menu-bar.html">
 
-<link rel="import" href="elements/icc-x-api/icc-x-api.html">
 <link rel="import" href="elements/icc-api/icc-api.html">
 
 <dom-module id="ht-app">
 
-	<template>
-		<style include="shared-styles">
-			:host {
-				display: block;
-			}
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
 
-			app-header {
-				color: var(--app-text-color-light);
-				background-color: var(--app-primary-color-dark);
-				height:64px;
-				@apply --shadow-elevation-4dp;
-			}
+            app-header {
+                color: var(--app-text-color-light);
+                background-color: var(--app-primary-color-dark);
+                height: 64px;
+                @apply --shadow-elevation-4dp;
+            }
 
-			app-header paper-icon-button {
-				--paper-icon-button-ink-color: white;
-			}
+            app-header paper-icon-button {
+                --paper-icon-button-ink-color: white;
+            }
 
-			app-toolbar {
-				padding-right: 0;
-				height:64px;
-				display:flex;
-				flex-flow: row nowrap;
-				justify-content: space-between;
-				align-items: stretch;
-				
-			}
+            app-toolbar {
+                padding-right: 0;
+                height: 64px;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+                align-items: stretch;
 
-			:host iron-pages {
-				height: calc(100% - 64px);
-			}
+            }
 
-			:host app-header-layout {
-				height: 100%;
-			}
+            :host iron-pages {
+                height: calc(100% - 64px);
+            }
 
-			iron-icon {
-				max-height: 20px;
-				width: 20px;
-				margin-right: 8px;
-				color: rgba(255,255,255,0.5);
-			}
+            :host app-header-layout {
+                height: 100%;
+            }
 
-			iron-icon.smaller {
-				height: 16px!important;
-				width: 16px!important;
-			}
+            iron-icon {
+                max-height: 20px;
+                width: 20px;
+                margin-right: 8px;
+                color: rgba(255, 255, 255, 0.5);
+            }
 
-			.icure-logo {
-				float: left;
-				height: 64px;
-				margin-right: 8px;
-			}
+            iron-icon.smaller {
+                height: 16px !important;
+                width: 16px !important;
+            }
 
-			paper-menu-button {
-				position: relative;
-				top: 50%;
-				transform: translateY(-50%);
-				--paper-menu-button-content: {
-					width:300px;
-				};
-				--paper-menu-button-dropdown: {
-					padding:0;
-				}
-			}
+            .icure-logo {
+                float: left;
+                height: 64px;
+                margin-right: 8px;
+            }
 
-			.extra-menu{
-				padding: 0;
-			}
-			.extra-menu-item{
-				--paper-item-focused: {
-					background: white;
-				}
-			}
-			.extra-menu-item:last-child{
-				border-top:1px solid var(--app-background-color-dark);				
-			}
+            paper-menu-button {
+                position: relative;
+                top: 50%;
+                transform: translateY(-50%);
+                --paper-menu-button-content: {
+                    width: 480px;
+                };
+                --paper-menu-button-dropdown: {
+                    padding: 0;
+                }
+            }
 
-			.extra-menu-item iron-icon{
-				color: var(--app-text-color-disabled);
-			}
+            .extra-menu {
+                padding: 0;
+            }
 
-			paper-tabs {
-				--paper-tabs-selection-bar-color: var(--app-secondary-color);
-				height: 64px;
-			}
+            .extra-menu-item {
+                --paper-item-focused: {
+                    background: white;
+                }
+            }
 
-			paper-tab {
-				--paper-tab-ink: var(--app-secondary-color);
-			}
+            .extra-menu-item:last-child {
+                border-top: 1px solid var(--app-background-color-dark);
+            }
 
-			paper-tab.iron-selected {
-				font-weight: bold;
-			}
+            .extra-menu-item iron-icon {
+                color: var(--app-text-color-disabled);
+            }
 
-			paper-tab.iron-selected > iron-icon {
-				color: var(--app-secondary-color);
-			}
+            paper-tabs {
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+                height: 64px;
+            }
 
-			.mobile-menu-btn {
-				align-self: center;
-				display: none;
-			}
-			
-			.mobile-menu {
-				position: fixed;
-				top: 64px;
-				left: 0;
-				bottom: 0;
-				background: var(--app-light-color);
-				height: calc(100vh - 64px);
-				overflow: hidden;
-				width: 0;
-				transition: width .24s cubic-bezier(0.4, 0.0, 0.2, 1);
-				visibility: hidden;
-				@apply --shadow-elevation-6dp;
-				padding: 0 1em;
-			}
+            paper-tab {
+                --paper-tab-ink: var(--app-secondary-color);
+            }
 
-			.mobile-menu.open {
-				visibility: visible;
-				width: 180px;
-			}
+            paper-tab.iron-selected {
+                font-weight: bold;
+            }
 
-			.mobile-menu paper-button {
-				font-size: 14px;
-				color: var(--app-text-color);
-				width: 100%;
-				margin: 8px 0;
-				justify-content: flex-start;
-				--paper-button-ink-color: var(--app-secondary-color);
-			}
+            paper-tab.iron-selected > iron-icon {
+                color: var(--app-secondary-color);
+            }
 
-			.mobile-menu paper-button iron-icon {
-				color: var(--app-text-color-disabled);
-			}
+            .mobile-menu-btn {
+                align-self: center;
+                display: none;
+            }
 
-			.mobile-menu paper-button.iron-selected {
-				font-weight: 600;
-			}
+            .mobile-menu {
+                position: fixed;
+                top: 64px;
+                left: 0;
+                bottom: 0;
+                background: var(--app-light-color);
+                height: calc(100vh - 64px);
+                overflow: hidden;
+                width: 0;
+                transition: width .24s cubic-bezier(0.4, 0.0, 0.2, 1);
+                visibility: hidden;
+                @apply --shadow-elevation-6dp;
+                padding: 0 1em;
+            }
 
-			.mobile-menu paper-button.iron-selected iron-icon {
-				color: var(--app-secondary-color);
-			}
+            .mobile-menu.open {
+                visibility: visible;
+                width: 180px;
+            }
 
-			.mobile-menu-overlay {
-				position: absolute;
-				top: 64px;
-				left: 0;
-				width: 100vw;
-				height: calc(100vh - 64px);
-				display: none;
-				background: var(--app-text-color-disabled);
-			}
+            .mobile-menu paper-button {
+                font-size: 14px;
+                color: var(--app-text-color);
+                width: 100%;
+                margin: 8px 0;
+                justify-content: flex-start;
+                --paper-button-ink-color: var(--app-secondary-color);
+            }
 
-			.mobile-menu-overlay.open {
-				display: block;
+            .mobile-menu paper-button iron-icon {
+                color: var(--app-text-color-disabled);
+            }
 
-			}
+            .mobile-menu paper-button.iron-selected {
+                font-weight: 600;
+            }
 
-			.mobile-menu-container {
-				display: none;
-			}
+            .mobile-menu paper-button.iron-selected iron-icon {
+                color: var(--app-secondary-color);
+            }
 
-			.notification-panel {
-				position: fixed;
-				top:50%;
-				right: 0;
-				z-index:1000;
-				color: white;
-				font-size: 13px;
-				background: rgba(255, 0, 0, 0.55);
-				height: 48px;
-				padding: 0 8px 0 12px;
-				border-radius: 3px 0 0 3px;
-				width: 0;
-				opacity: 0;
-			}
+            .mobile-menu-overlay {
+                position: absolute;
+                top: 64px;
+                left: 0;
+                width: 100vw;
+                height: calc(100vh - 64px);
+                display: none;
+                background: var(--app-text-color-disabled);
+            }
 
-			.notification {
-				animation: notificationAnim 7.5s ease-in;
-			}
+            .mobile-menu-overlay.open {
+                display: block;
 
-			.log-info{
-				align-self: center;
-			}
-			.log-info p{
-				position:relative;
-				font-family: 'Roboto', Arial, Helvetica, sans-serif;
-				font-size: 12px;
-				color: var(--app-text-color-light);
-			}
+            }
 
-			.log-info p .ehealth-connection-status{
-				content:'';
-				display:block;
-				position: absolute;
-				top: 50%;
-				transform: translateY(-50%);
-				right: -11px;
-				height: 7px;
-				width: 7px;
-				border-radius: 8px;
-			}
+            .mobile-menu-container {
+                display: none;
+            }
 
-			.connected{
-				background: var(--app-status-color-ok);
-			}
-			.pending{
-				background: var(--app-status-color-pending);
-				animation: pendingAnim .8s ease-in-out infinite alternate;
-			}
-			.disconnected{
-				background: var(--app-status-color-nok);
-			}
+            .notification-panel {
+                position: fixed;
+                top: 50%;
+                right: 0;
+                z-index: 1000;
+                color: white;
+                font-size: 13px;
+                background: rgba(255, 0, 0, 0.55);
+                height: 48px;
+                padding: 0 8px 0 12px;
+                border-radius: 3px 0 0 3px;
+                width: 0;
+                opacity: 0;
+            }
 
-			@keyframes pendingAnim{
-				from{
-					background: var(--app-status-color-pending);
-				}
-				to{
-					background: transparent;
-				}
-			}
+            .notification {
+                animation: notificationAnim 7.5s ease-in;
+            }
 
-			@keyframes notificationAnim {
-				0%{
-					width: 0;
-					opacity: 0;
-				}
-				10%{
-					width: 160px;
-					opacity: 1;
-				}
-				12%{
-					width: 144px;
-					opacity: 1;
-				}
-				88%{
-					width: 144px;
-					opacity: 1;
-				}
-				100%{
-					width: 0;
-					opacity: 0;
-				}
-			}
+            .log-info {
+                align-self: center;
+            }
 
-			@media (max-width: 768px) {
-				paper-button {
-					margin-right: 10px;
-				}
-				paper-tabs {
-					display: none;
-				}
-				.mobile-menu-btn {
-					display: block;
-				}
-				.mobile-menu-container {
-					display: block;
-				}
-			}
-		</style>
+            .log-info p {
+                position: relative;
+                font-family: 'Roboto', Arial, Helvetica, sans-serif;
+                font-size: 12px;
+                color: var(--app-text-color-light);
+            }
 
-		<icc-x-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-x-api>
+            .log-info p .ehealth-connection-status {
+                content: '';
+                display: block;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                right: -11px;
+                height: 7px;
+                width: 7px;
+                border-radius: 8px;
+            }
 
-		<paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
-			<iron-icon icon="icons:warning"></iron-icon>
-		</paper-item>
+            .connected {
+                background: var(--app-status-color-ok);
+            }
 
-		<ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" on-login="login"></ht-app-login-dialog>
-		<ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey" on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
-		<ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
-		<ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
-		<ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]" on-user-changed="_userChanged"></ht-my-profile>
+            .pending {
+                background: var(--app-status-color-pending);
+                animation: pendingAnim .8s ease-in-out infinite alternate;
+            }
+
+            .disconnected {
+                background: var(--app-status-color-nok);
+            }
+
+            @keyframes pendingAnim {
+                from {
+                    background: var(--app-status-color-pending);
+                }
+                to {
+                    background: transparent;
+                }
+            }
+
+            @keyframes notificationAnim {
+                0% {
+                    width: 0;
+                    opacity: 0;
+                }
+                10% {
+                    width: 160px;
+                    opacity: 1;
+                }
+                12% {
+                    width: 144px;
+                    opacity: 1;
+                }
+                88% {
+                    width: 144px;
+                    opacity: 1;
+                }
+                100% {
+                    width: 0;
+                    opacity: 0;
+                }
+            }
+
+            @media (max-width: 768px) {
+                paper-button {
+                    margin-right: 10px;
+                }
+
+                paper-tabs {
+                    display: none;
+                }
+
+                .mobile-menu-btn {
+                    display: block;
+                }
+
+                .mobile-menu-container {
+                    display: block;
+                }
+            }
+
+            .inviteHcpInput {
+                width: 400px;
+            }
+
+            .formNewHcp {
+                height: 350px;
+                width: 450px;
+            }
+
+            .buttons {
+                height: 30px;
+            }
+
+            .top-gradient {
+                line-height: 0;
+                font-size: 0;
+                display: block;
+                background: linear-gradient(90deg, var(--app-secondary-color-dark), var(--app-secondary-color));
+                height: 10px;
+                position: relative;
+                top: 0;
+                left: 0;
+                right: 0;
+                margin: 0;
+                border-radius: 2px 2px 0 0;
+            }
+
+            .timer {
+                font-size: 10px;
+                width: auto;
+                position: absolute;
+                margin-top: -10px;
+
+            }
+
+        </style>
+
+		<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+
+        <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
+            <iron-icon icon="icons:warning"></iron-icon>
+        </paper-item>
+
+        <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
+                             on-login="login"></ht-app-login-dialog>
+        <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
+                                   route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
+        <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                                        message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
+                                        on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
+        <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
+        <ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
+        <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                       on-user-saved="_userSaved"></ht-my-profile>
 
 
-		<app-location route="{{route}}" use-hash-as-path="true"></app-location>
-		<app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
-		<app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
+        <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
+        <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+        <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
 
-		<app-drawer-layout fullbleed>
-			<!-- Main content -->
-			<app-header-layout fullbleed>
-				<app-header slot="header" fixed condenses effects="waterfall">
-					<app-toolbar id="mainToolbar" class="" sticky>	
-						<!-- Mobile Menu -->
-						<paper-icon-button class="mobile-menu-btn" icon="menu" on-tap="_triggerMenu"></paper-icon-button>
-						<div class="mobile-menu-container">
-							<div id="overlayMenu" class="mobile-menu-overlay" on-tap="_triggerMenu"></div>
-								<paper-listbox  id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
-									<paper-button name="main" on-tap="doRoute">
-										<iron-icon class="iron-icon" icon="home"></iron-icon>
-										[[localize('sum')]]
-									</paper-button>
-									<paper-button name="pat" on-tap="doRoute">
-										<iron-icon icon="vaadin:user-heart"></iron-icon>
-										[[localize('pat')]]
-									</paper-button>
-									<paper-button name="hcp" on-tap="doRoute">
-										<iron-icon icon="vaadin:hospital"></iron-icon>
-										[[localize('hc_par')]]
-									</paper-button>
-									<paper-tab name="msg" on-tap="doRoute">
-										<iron-icon class="smaller" icon="communication:email"></iron-icon>
-										[[localize('msg')]]
-									</paper-tab>
-									<paper-button name="logout" on-tap="doRoute">
-										<iron-icon icon="power-settings-new"></iron-icon>
-										[[localize('log_out')]]
-									</paper-button>
-								</paper-listbox>
-							</div>
-						</div>
-						<!-- Regular Tabs Menu -->
-						<paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
-							<paper-tab name="main" on-tap="doRoute">
-								<iron-icon class="iron-icon" icon="home"></iron-icon>
-								[[localize('sum')]]
-							</paper-tab>
-							<paper-tab name="pat" on-tap="doRoute">
-								<iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-								[[localize('pat')]]
-							</paper-tab>
-							<paper-tab name="hcp" on-tap="doRoute">
-								<iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-								[[localize('hc_par')]]
-							</paper-tab>
-							<paper-tab name="msg" on-tap="doRoute">
-								<iron-icon class="smaller" icon="communication:email"></iron-icon>
-								[[localize('msg')]]
-							</paper-tab>
-							<paper-tab name="logout" on-tap="doRoute">
-								<iron-icon icon="power-settings-new"></iron-icon>
-								[[localize('log_out')]]
-							</paper-tab>
-						</paper-tabs>
-						<div class="log-info">
-							<p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus" class="ehealth-connection-status pending"></span></p>
-							<paper-tooltip for="ehealth">
-								<template is="dom-if" if="[[api.tokenId]]">
-									[[localize('ehe_is_con','eHealth is connected',language)]]
-								</template>
-								<template is="dom-if" if="[[!api.tokenId]]">
-									[[localize('ehe_is_not_con','eHealth is not connected',language)]]
-								</template>
-							</paper-tooltip>
-						</div>
-						<div>
-							<svg version="1.1"
+
+        <app-drawer-layout fullbleed>
+            <!-- Main content -->
+            <app-header-layout fullbleed>
+                <app-header slot="header" fixed condenses effects="waterfall">
+                    <app-toolbar id="mainToolbar" class="" sticky>
+                        <!-- Mobile Menu -->
+                        <paper-icon-button class="mobile-menu-btn" icon="menu" on-tap="_triggerMenu"></paper-icon-button>
+                        <div class="mobile-menu-container">
+                            <div id="overlayMenu" class="mobile-menu-overlay" on-tap="_triggerMenu"></div>
+                            <paper-listbox id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
+                                <paper-button name="main" on-tap="doRoute">
+                                    <iron-icon class="iron-icon" icon="home"></iron-icon>
+                                    [[localize('sum')]]
+                                </paper-button>
+                                <paper-button name="pat" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:user-heart"></iron-icon>
+                                    [[localize('pat')]]
+                                </paper-button>
+                                <paper-button name="hcp" on-tap="doRoute">
+                                    <iron-icon icon="vaadin:hospital"></iron-icon>
+                                    [[localize('hc_par')]]
+                                </paper-button>
+                                <paper-tab name="msg" on-tap="doRoute">
+                                    <iron-icon class="smaller" icon="communication:email"></iron-icon>
+                                    [[localize('msg')]]
+                                </paper-tab>
+                                <paper-button name="logout" on-tap="doRoute">
+                                    <iron-icon icon="power-settings-new"></iron-icon>
+                                    [[localize('log_out')]]
+                                </paper-button>
+                            </paper-listbox>
+                        </div>
+                        </div>
+                        <!-- Regular Tabs Menu -->
+                        <paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
+                            <paper-tab name="main" on-tap="doRoute">
+                                <iron-icon class="iron-icon" icon="home"></iron-icon>
+                                [[localize('sum')]]
+                            </paper-tab>
+                            <paper-tab name="pat" on-tap="doRoute">
+                                <iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
+                                [[localize('pat')]]
+                            </paper-tab>
+                            <paper-tab name="hcp" on-tap="doRoute">
+                                <iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
+                                [[localize('hc_par')]]
+                            </paper-tab>
+                            <paper-tab name="msg" on-tap="doRoute">
+                                <iron-icon class="smaller" icon="communication:email"></iron-icon>
+                                [[localize('msg')]]
+                            </paper-tab>
+                            <paper-tab name="logout" on-tap="doRoute">
+                                <iron-icon icon="power-settings-new"></iron-icon>
+                                [[localize('log_out')]]
+                            </paper-tab>
+                        </paper-tabs>
+                        <div class="log-info">
+                            <p>[[user.login]] – <span id="ehealth">[[localize('ehe','eHealth',language)]]</span> <span id="eHealthStatus"
+                                                                                                                       class="ehealth-connection-status pending"></span></p>
+                            <paper-tooltip for="ehealth">
+                                <template is="dom-if" if="[[api.tokenId]]">
+                                    [[localize('ehe_is_con','eHealth is connected',language)]]
+                                </template>
+                                <template is="dom-if" if="[[!api.tokenId]]">
+                                    [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                                </template>
+                            </paper-tooltip>
+                        </div>
+                        <div>
+                            <svg version="1.1"
 							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
 							x="0px" y="0px" width="92px" height="64px" viewBox="0 0 92 64" style="enable-background:new 0 0 92 64;" xml:space="preserve" class="icure-logo">
 								<style type="text/css">
 								.st1 {
-								fill: #FFFFFF;
-								}
+                                    fill: #FFFFFF;
+                                }
 
-								.st2 {
-								fill: #66DEA1;
-								}
+                                .st2 {
+                                    fill: #66DEA1;
+                                }
 								</style>
 								<defs>
 								</defs>
@@ -460,9 +512,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
+									<paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
+							<div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
 						</div>
 					</app-toolbar>
 
@@ -473,13 +527,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}" on-user-changed="_userChanged"><splash-screen></splash-screen></ht-pat>
+					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}" on-user-saved="_userSaved"><splash-screen></splash-screen></ht-pat>
 					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
 					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-msg>
 					<ht-view404 name="view404"></ht-view404>
 				</iron-pages>
 			</app-header-layout>
 		</app-drawer-layout>
+
+		<paper-dialog id="ht-invite-hcp">
+			<h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+			<div id="" class="formNewHcp">
+				<paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('inami','NIHII',language)]]" value="{{nihii}}"></paper-input>
+				<paper-input class="inviteHcpInput" label="[[localize('ssin','SSIN',language)]]" value="{{ssin}}"></paper-input>
+			</div>
+
+			<div class="buttons">
+				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirmUserInvitation">[[localize('invite','Invite',language)]]</paper-button>
+			</div>
+		</paper-dialog>
+		<paper-dialog id="ht-invite-hcp-link">
+			<h3>Lien de première connexion</h3>
+			<h4>[[invitedHcpLink]]</h4>
+		</paper-dialog>
+
 	</template>
 
 	<script>
@@ -567,7 +642,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					value() {
 						return require('./elements/language/language.json')
 					}
-				}
+				},
+				invitedHcpLink:{
+				    type : String,
+					value : ""
+				},
+                disconnectionTimer: {
+                    type: Number,
+                    value: 60
+                },
+                connectionTime: {
+                    type: Number
+                }
 			}}
 
 	        static get observers() {
@@ -581,19 +667,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			ready() {
 	        	super.ready()
-				let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
-				let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
-				if (fullHref !== window.location.href) { window.location.href = fullHref }
-				window.app = this
-				this.set('api', this.$.api)
-			}
+                if(!this.route.__queryParams.token && !this.route.__queryParams.userId){
+                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
+                    let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
+                    if (fullHref !== window.location.href) { window.location.href = fullHref }
+                }
+                window.app = this
+                this.set('api', this.$.api)
 
-            _userChanged(e) {
+                document.onmousemove = this.resetTimer.bind(this);
+                document.onkeypress = this.resetTimer.bind(this);
+
+                this._startCheckInactiveTimer()
+            }
+
+            resetTimer() {
+                this.set('connectionTime',+new Date())
+            }
+
+            _userSaved(e) {
 	        	this.set('user',e.detail)
 			}
 
+
+            _startCheckInactiveTimer(){
+                clearInterval(this.interval)
+                this.interval = setInterval(() => {
+                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime)/1000/60)
+                    if (newTimer > 0) {
+                        this.set('disconnectionTimer', newTimer)
+                    } else {
+                        this.set('routeData.page', 'logout')
+                        this._triggerMenu()
+                    }
+                }, 10000)
+
+            }
+
             _timeCheck(period = 300000) {
-                setTimeout(() => {
+               setTimeout(() => {
 	                if (this.api.tokenId) {
 	                    this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
@@ -618,7 +730,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				} else {
 					console.log("page is -> "+page)
 					if (!this.authenticated && (!page || !page.startsWith('auth'))) {
-						if (sessionStorage.getItem('auth')) {
+						if (sessionStorage.getItem('auth')||(this.route.__queryParams.token && this.route.__queryParams.userId)) {
 							this.loginAndRedirect(page)
 						} else {
 							this.set('routeData.page', 'auth/'+ (!page ? 'main' : page.startsWith('logout') ? 'main' : page));
@@ -626,6 +738,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					} else {
 						this.set('view', page ? page.replace(/\/$/,'') : 'main')
 					}
+					this._startCheckInactiveTimer('refresh')
 				}
 			}
 
@@ -640,22 +753,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			_viewChanged(view) {
-				if (view.startsWith('auth')) {
-					this.$.loginDialog.opened = true
-					return
-				}
-				if(this.lazyPages[view]){
-					this.lazyPages[view]();
-				} else {
-					this._showPage404();
-				}
+                if (view.startsWith('auth')) {
+                    this.$.loginDialog.opened = true
+                    return
+                }
+                if(this.lazyPages[view]){
+                    this.lazyPages[view]();
+                } else {
+                    this._showPage404()
+                }
+
 			}
 
 			_showPage404() {
 				this.view = 'view404';
 			}
 
-			doRoute(e) {
+            doRoute(e) {
 				this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name'))+"/")
 				this._triggerMenu()
 			}
@@ -666,6 +780,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			_importKeychain() {
 				this.$['ht-import-keychain'].open()
+			}
+
+            _inviteHCP(){
+	            this.$['ht-invite-hcp'].open()
 			}
 
 			_myProfile() {
@@ -693,9 +811,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			loginAndRedirect(page) {
 				const sAuth = JSON.parse(sessionStorage.getItem('auth'))
-				if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
-					this.set('credentials',sAuth) }
-				if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
+                if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
+					this.set('credentials',sAuth)
+				}
+
+                if(this.route.__queryParams.token && this.route.__queryParams.userId) {
+                    this.set('headers', _.assign(_.assign({}, this.headers),
+                        {Authorization:'Basic ' + btoa(this.route.__queryParams.userId + ':' + this.route.__queryParams.token)}))
+                } else if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
 				  {Authorization:'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)})) }
 				else if ((this.credentials.username && this.credentials.password)) { this.set('headers', _.assign(_.assign({}, this.headers),
 				  {Authorization:'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))})) }
@@ -703,7 +826,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				//Be careful not to use this.api here as it might not have been defined yet
 				this.$.api.user().getCurrentUser().then(u => {
 				    this.set('user', u)
-					this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+                    this.set('connectionTime', +new Date())
+                    this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
 						const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
 						language && this.set('language', language)
 					})
@@ -750,8 +874,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								this._routePageChanged(destPage)
 							}
 						} else {
-							this.registerKeyPairDialogMessage = ""
-							this.$.registerKeyPairDialog.opened = true
+                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+
+                                if(hcp.publicKey){
+                                    this.registerKeyPairDialogMessage = ""
+                                    this.$.registerKeyPairDialog.opened = true
+                                }else{
+                                    this.$.firstConnectionDialog.opened = true
+                                }
+
+
+                            })
 						}
 					}
                     this._timeCheck()
@@ -794,6 +927,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			togglePanel(e) {
+			}
+
+            confirmUserInvitation(){
+
+                this.api.hcparty().createHealthcareParty({
+                    "name" 			: this.lastName+" "+this.firstName,
+                    "lastName" 		: this.lastName,
+                    "firstName" 	: this.firstName,
+                    "nihii" 		: this.nihii,
+                    "ssin"			: this.ssin
+                }).then(hcp => {
+                    this.api.user().createUser({
+                        "healthcarePartyId" 	: hcp.id,
+                        "name" 					: this.lastName+" "+this.firstName,
+                        "email" 				: this.email,
+                        "applicationTokens" 	: {"tmpFirstLogin" : this.api.crypto().randomUuid()},
+                        "status" 				: "ACTIVE",
+                        "type"                  : "database"
+                    }).then(usr => {
+                        this.invitedHcpLink = window.location.origin+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        this.$['ht-invite-hcp-link'].open()
+					})
+				})
 			}
 		}
 

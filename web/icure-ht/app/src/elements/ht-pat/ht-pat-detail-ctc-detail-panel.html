@@ -340,6 +340,7 @@
 				flex-flow: row nowrap;
 			}
 
+
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -377,19 +378,24 @@
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
 					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
-							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
+							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" current-contact="[[currentContact]]"
 													 health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
 						</template>
 						<template is="dom-repeat" items="[[form.docs]]">
-							<dynamic-doc api="[[api]]" user="[[user]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+							<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
 						</template>
 					</template>
 				</template>
                 </template>
 			</div>
 			<div class="floating-action-bar">
-				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError"><paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]"><iron-icon icon="vaadin:pills" ></iron-icon>[[localize('pre','Prescribe',language)]]</paper-button></div>
+				<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError">
+						<paper-button id="prescribeBtn" class="prescribe-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">
+								<iron-icon icon="vaadin:pills" ></iron-icon>
+								[[localize('pre','Prescribe',language)]]
+						</paper-button>
+				</div>
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
 					<template is="dom-if" if=[[!showAddFormsContainer]]>
 						<paper-button class="add-forms-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
@@ -463,6 +469,7 @@
 				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
 			</div>
 		</paper-dialog>
+
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -944,7 +951,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 	}
 
 	saveCurrentContact() {
-		return (this.currentContact.rev ? this.api.contact().modifyContact(this.currentContact) : this.api.contact().createContact(this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
+		return (this.currentContact.rev ? this.api.contact().modifyContactWithHcParty(this.user, this.currentContact) : this.api.contact().createContactWithHcParty(this.user, this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
 	}
 
 	_addedFormSelected(e, formTemplate) {
@@ -953,9 +960,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 
 	edit(e, form) {
 		if (!this.currentContact.subContacts.find(sc => sc.formId === form.id)) {
-			this.currentContact.subContacts.push({ formId: form.id, services: [], healthElementId: form.healthElementId, planOfActionId: form.planOfActionId });
+			this.push('currentContact.subContacts',{ formId: form.id, services: [], healthElementId: form.healthElementId, planOfActionId: form.planOfActionId });
 		}
-		this.dispatchEvent(new CustomEvent('select-current-contact', { detail: form, composed: true }));
 	}
 
 	formDeleted(e, form) {
@@ -1003,8 +1009,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBe
 			return;
 		}
 
+		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
-			ctc: contact, forms: _.sortBy((contact.subContacts || []).map(sc => {
+			ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !sc.formId || !seenForms[sc.formId]) || []).map(sc => {
 				const serviceIds = sc.services.map(s => s.serviceId);
 				return {
 					id: sc.formId,

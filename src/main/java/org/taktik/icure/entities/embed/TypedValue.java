@@ -19,6 +19,7 @@
 package org.taktik.icure.entities.embed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -31,6 +32,7 @@ import java.time.Instant;
 import java.util.Date;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TypedValue implements Comparable<TypedValue>, Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 

@@ -95,6 +95,11 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
+	public List<Invoice> updateInvoices(List<Invoice> invoices) {
+		return invoiceDAO.save(invoices);
+	}
+
+	@Override
 	public Invoice addDelegation(String invoiceId, Delegation delegation) {
 		Invoice invoice = invoiceDAO.get(invoiceId);
 		invoice.addDelegation(delegation.getDelegatedTo(), delegation);

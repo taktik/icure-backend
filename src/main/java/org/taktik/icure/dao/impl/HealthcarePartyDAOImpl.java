@@ -35,6 +35,7 @@ import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.db.StringUtils;
 import org.taktik.icure.entities.HealthcareParty;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,7 @@ class HealthcarePartyDAOImpl extends CachedDAOImpl<HealthcareParty> implements H
 	@Override
 	@View(name = "by_nihii", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.nihii.substr(0,8), doc._id )}")
 	public List<HealthcareParty> findByNihii(String nihii) {
+		if (nihii == null) { return new ArrayList<>(); }
 		return queryView("by_nihii", nihii.length()>8 ? nihii.substring(0,8) : nihii);
     }
 
