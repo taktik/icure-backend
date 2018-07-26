@@ -105,7 +105,8 @@ class NsiImporter {
         return completeStringWith(sText, sInfo, sValeur.toString())
     }
 
-    private void execute() {
+    //private void execute() {
+    def execute() {
 
         // Chargement des codes
         List<String> lstTypePatient = Arrays.asList("Maison", "Appartement", "Studio", "Home privé", "Home cpas", "Logement social", "Hôpital", "Vivant en famille", "Vivant isolé", "Vivant en communauté", "Vivant en maison d'acceuil", "Autre")
@@ -352,11 +353,11 @@ class NsiImporter {
             //
         }
 
-        /*
+        // /*
         def importer = new Importer()
         importer.doImport(users, parties, patients, invoices, contacts, healthElements, forms, messages, messageDocs,
                 docs, accessLogs)
-        */
+        // */
     }
 
     static public void main(String... args) {

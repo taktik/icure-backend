@@ -1,4 +1,6 @@
 apply plugin: 'groovy'
+apply plugin: 'application'
+mainClassName='org.taktik.icure.db.NsiImporter'
 
 sourceCompatibility = 1.8
 version = '1.0-SNAPSHOT'
@@ -28,6 +30,12 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
 
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jetty', version: '2.0.3.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jersey', version: '2.0.3.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.0.3.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.3.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.0.3.RELEASE'
+
     compile project(path: ':')
 }
 
@@ -39,3 +47,14 @@ configurations.all {
         force group: 'net.sf.jsignature.io-tools', name: 'easystream', version: '1.2.12'
     }
 }
+
+/*
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.taktik.icure.db.Runner'
+        )
+    }
+}
+*/
+
