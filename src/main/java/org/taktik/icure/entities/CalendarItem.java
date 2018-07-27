@@ -35,7 +35,7 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String title;
 
-    protected String type;
+    protected CalendarItemType type;
 
     protected String responsible;
 
@@ -57,11 +57,11 @@ public class CalendarItem extends StoredICureDocument {
         this.title = title;
     }
 
-    public String getType() {
+    public CalendarItemType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CalendarItemType type) {
         this.type = type;
     }
 

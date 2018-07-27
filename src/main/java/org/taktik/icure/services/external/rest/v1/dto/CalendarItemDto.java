@@ -4,7 +4,7 @@ public class CalendarItemDto extends IcureDto {
 
     protected String title;
 
-    protected String type;
+    protected CalendarItemTypeDto type;
 
     protected Long startTime;
 
@@ -22,11 +22,11 @@ public class CalendarItemDto extends IcureDto {
         this.title = title;
     }
 
-    public String getType() {
+    public CalendarItemTypeDto getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CalendarItemTypeDto type) {
         this.type = type;
     }
 

@@ -70,7 +70,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
                 endDate == null ? ComplexKey.emptyObject() : endDate
         );
 
-        ViewQuery viewQuery = createQuery("by_hcparty_and_enddate")
+        ViewQuery viewQuery = createQuery("by_hcparty_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false);
