@@ -1,5 +1,7 @@
 package org.taktik.icure.db
 
+import org.ektorp.CouchDbConnector
+
 import org.taktik.icure.constants.Users
 
 import org.taktik.icure.db.epicure.dao.ContactDao
@@ -12,6 +14,7 @@ import org.taktik.icure.db.epicure.entity.ElementsoinsEpi
 import org.taktik.icure.db.epicure.entity.PatientEpi
 import org.taktik.icure.db.epicure.entity.ProfessiEpi
 import org.taktik.icure.entities.AccessLog
+import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
@@ -27,11 +30,17 @@ import org.taktik.icure.entities.embed.Insurability
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 
-import java.sql.Connection
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
 class NsiImporter {
+
+    protected String DB_PROTOCOL = System.getProperty("dbprotocol") ?: "http"
+    protected String DB_HOST = System.getProperty("dbhost") ?: "127.0.0.1"
+    protected String DB_PORT = System.getProperty("dbport") ?: 5984
+    protected String DEFAULT_KEY_DIR = "/Users/aduchate/Library/icure-cloud/keys"
+    protected String DB_NAME = System.getProperty("dbname") ?: "icure"
+    protected CouchDbConnector couchdbBase
+
     private Collection<User> users
     private Collection<HealthcareParty> parties
     private Collection<Patient> patients
@@ -125,13 +134,10 @@ class NsiImporter {
         String sUuidClassificationTemplate;
         String sUuidParentClassificationTemplate;
 
+        Collection<ClassificationTemplate> classificationTemplates = new ArrayList<>();
 
         ElementsoinsDao elementsoinsDao = new ElementsoinsDao();
         List<ElementsoinsEpi> lstElementsoinsEpi = elementsoinsDao.getElementsoinsList();
-
-        // RestTemplate restTemplate = new RestTemplate();
-        // List<ElementsoinsEpi> lstElementsoinsEpi = restTemplate.getForObject("http://localhost:8080/elementsoins", List.class);
-
 
         Iterator itrElementsoinsEpi = lstElementsoinsEpi.iterator()
         while (itrElementsoinsEpi.hasNext()) {
@@ -142,9 +148,19 @@ class NsiImporter {
                 sUuidParentClassificationTemplate = hashMapClassificationTemplate.get(elementsoinsEpi.getId_es_reference())
             else
                 sUuidClassificationTemplate = null
-            System.out.println(elementsoinsEpi.getNiveau() + "\t" + elementsoinsEpi.getFichecontact() + "\t" + elementsoinsEpi.getReference_fr() + "\t" + sUuidClassificationTemplate + "\t" + elementsoinsEpi.getId_es_reference() + "\t" + sUuidParentClassificationTemplate + "\t" + elementsoinsEpi.getBranche_fr())
-
+            //println(elementsoinsEpi.getNiveau() + "\t" + elementsoinsEpi.getFichecontact() + "\t" + elementsoinsEpi.getReference_fr() + "\t" + sUuidClassificationTemplate + "\t" + elementsoinsEpi.getId_es_reference() + "\t" + sUuidParentClassificationTemplate + "\t" + elementsoinsEpi.getBranche_fr())
+            ClassificationTemplate classificationTemplate = new ClassificationTemplate();
+            classificationTemplate.setId(sUuidClassificationTemplate);
+            if ("".equals(elementsoinsEpi.branche_fr))
+                classificationTemplate.setLabel(elementsoinsEpi.getReference_fr());
+            else
+                classificationTemplate.setLabel(elementsoinsEpi.getBranche_fr());
+            if (!sUuidClassificationTemplate.equals(sUuidParentClassificationTemplate))
+                classificationTemplate.setParentId(sUuidParentClassificationTemplate);
+            // println(classificationTemplate.getLabel());
+            classificationTemplates.add(classificationTemplate);
         }
+        //couchdbBase.executeBulk(classificationTemplates);
 
         // Traitement AccessLog
         AccessLog accessLog
@@ -353,11 +369,11 @@ class NsiImporter {
             //
         }
 
-        // /*
+
         def importer = new Importer()
         importer.doImport(users, parties, patients, invoices, contacts, healthElements, forms, messages, messageDocs,
-                docs, accessLogs)
-        // */
+                docs, accessLogs, classificationTemplates)
+
     }
 
     static public void main(String... args) {

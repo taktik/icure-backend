@@ -3,6 +3,7 @@ package org.taktik.icure.db
 import org.apache.commons.io.IOUtils
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.ektorp.AttachmentInputStream
+import org.ektorp.BulkDeleteDocument
 import org.ektorp.CouchDbConnector
 import org.ektorp.CouchDbInstance
 import org.ektorp.ViewQuery
@@ -69,9 +70,9 @@ class Importer {
 
         Security.addProvider(new BouncyCastleProvider())
 
-        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
-            tarificationsPerCode[t.code] = t
-        }
+       // KTH  couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
+       // KTH     tarificationsPerCode[t.code] = t
+       // KTH }
     }
 
     void createAttachment(File file, Document d) {
@@ -112,7 +113,8 @@ class Importer {
     @SuppressWarnings("GroovyUnusedDeclaration")
     void doImport(Collection<User> users, Collection<HealthcareParty> parties, Collection<Patient> patients, Map<String, List<Invoice>> invoices,
                   Map<String, List<Contact>> contacts, Map<String, List<HealthElement>> healthElements, Map<String, List<Form>> forms,
-                  Collection<Message> messages, Map<String, Collection<String>> messageDocs, Collection<Map> docs, Collection<AccessLog> accessLogs) {
+                  Collection<Message> messages, Map<String, Collection<String>> messageDocs, Collection<Map> docs, Collection<AccessLog> accessLogs,
+                  Collection<ClassificationTemplate> classificationTemplates) {
 
         def startImport = System.currentTimeMillis()
 
@@ -161,11 +163,28 @@ class Importer {
 
         println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
         startImport = System.currentTimeMillis()
-        println("Importing patients... ")
 
         println("Delegates are : ${delegates.join(',')}")
 
         String dbOwnerId = delegates[0]
+
+        println("Removeall classificationsTemplate... ")
+        Collection<ClassificationTemplate> classificationTemplatesExisting = new ArrayList<>();
+        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/ClassificationTemplate").viewName("all"), ClassificationTemplate.class).each { ClassificationTemplate t ->
+            classificationTemplatesExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbBase.executeBulk(classificationTemplatesExisting);
+
+        println("Importing classificationsTemplate... ")
+        def classifications = []
+        classificationTemplates.each { p ->
+            /**** Delegations ****/
+            delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
+            classifications << [p]
+        }
+        couchdbBase.executeBulk(classificationTemplates);
+
+        println("Importing patients... ")
 
         def formsPerId = [:]
         forms.each { pid, fs ->
@@ -185,53 +204,6 @@ class Importer {
         patients.each { p ->
             /**** Delegations ****/
             delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
-
-            def pCtcs = contacts[p.id]
-            def pHes = healthElements[p.id]
-            def pForms = forms[p.id]
-            def pInvoices = invoices[p.id]
-            def ppMessages = pMessages[p.id]
-
-            contacts.remove(p.id)
-            healthElements.remove(p.id)
-            forms.remove(p.id)
-            invoices.remove(p.id)
-            pMessages.remove(p.id)
-
-
-            pCtcs?.each { Contact c ->
-                delegates.each { delegateId -> c = this.appendObjectDelegations(c, p, dbOwnerId, delegateId, this.cachedDocSFKs[c.id], this.cachedDocSFKs[p.id]) as Contact }
-                c.services.each { s ->
-                    s.content.values().each { cnt ->
-                        if (cnt.binaryValue?.length) {
-                            cnt.binaryValue = new File(new String(cnt.binaryValue, 'UTF8')).bytes
-                        }
-                    }
-                }
-            }
-
-            pHes?.each { HealthElement e -> delegates.each { delegateId -> e = this.appendObjectDelegations(e, p, dbOwnerId, delegateId, this.cachedDocSFKs[e.id], this.cachedDocSFKs[p.id]) as HealthElement } }
-            pForms?.each { f -> delegates.each { delegateId -> f = this.appendObjectDelegations(f, p, dbOwnerId, delegateId, this.cachedDocSFKs[f.id], this.cachedDocSFKs[p.id]) as Form } }
-            pInvoices?.each { iv ->
-                iv.invoicingCodes.each {
-                    if (it.code && !it.tarificationId && tarificationsPerCode[it.code]) {
-                        it.tarificationId = tarificationsPerCode[it.code].id
-                    }
-                }
-
-                delegates.each { delegateId -> iv = this.appendObjectDelegations(iv, p, dbOwnerId, delegateId, this.cachedDocSFKs[iv.id], this.cachedDocSFKs[p.id]) as Invoice }
-            }
-            ppMessages?.each { Message m -> delegates.each { delegateId -> m = this.appendObjectDelegations(m, p, dbOwnerId, delegateId, this.cachedDocSFKs[m.id], this.cachedDocSFKs[p.id]) as Message } }
-
-            pats << [p, pCtcs, pHes, pForms, pInvoices]
-
-            if (pats.size() == 10) {
-                couchdbPatient.executeBulk(pats.collect { it[0] })
-                // KTH couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
-                couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
-                print(".")
-                pats.clear()
-            }
         }
 
         if (pats.size()) {
