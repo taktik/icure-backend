@@ -340,7 +340,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <page>
                     <div>
                         <h4>Prestataires de soins internes</h4>
-                        <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedInternalCareTeam}}" on-tap="showInfoSelectedHcp">
+                        <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="120px">
                                 <template class="header">
                                     <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
@@ -385,7 +385,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                     <div>
                         <h4>Prestataires de soins externes</h4>
-                        <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedExternalCareTeam}}" on-tap="showInfoSelectedHcp">
+                        <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="120px">
                                 <template class="header">
                                     <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
@@ -657,23 +657,22 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 
             currentInternalCareTeam:{
                 type: Array,
-                value: []
+                value: [],
+                notify: true
             },
 
             currentExternalCareTeam:{
 			    type: Array,
-                value: []
+                value: [],
+                notify: true
             },
 
             currentHcp:{
                 type: Array,
                 value: []
             },
-            selectedExternalCareTeam:{
-			    type: Object
-            },
-            selectedInternalCareTeam:{
-			    type: Object
+            selectedCareProvider:{
+                type: Object
             },
             selectedPerson:{
 			    type: Object
@@ -885,33 +884,34 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 
     }
 
-    addPersonToCareTeam(){
-
-    }
-
     initCurrentCareTeam(){
-	    const internalHcp = this.patient.delegations
-        const externalHcp = this.patient.patientHealthCareParties
+
         var internalTeam = []
         var externalTeam = []
 
-        //internal team
-        Promise.all(
-            _.keys(internalHcp).map(hcpId =>
-                this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
-                    internalTeam.push(hcp)
-                )
-            )
-        ).then(() => this.set('currentInternalCareTeam', internalTeam))
+        this.api.patient().getPatient(this.patient.id).then(patient => {
 
-        //external team
-        Promise.all(
-            externalHcp.map(patientHcp =>
-                this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp =>
-                    externalTeam.push(hcp)
+            const internalHcp = patient.delegations
+            const externalHcp = patient.patientHealthCareParties
+
+            //internal team
+            Promise.all(
+                _.keys(internalHcp).map(hcpId =>
+                    this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
+                        internalTeam.push(hcp)
+                    )
                 )
-            )
-        ).then(() => this.set('currentExternalCareTeam', externalTeam))
+            ).then(() => this.set('currentInternalCareTeam', internalTeam))
+
+            //external team
+            Promise.all(
+                externalHcp.map(patientHcp =>
+                    this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp =>
+                        externalTeam.push(hcp)
+                    )
+                )
+            ).then(() => this.set('currentExternalCareTeam', externalTeam))
+        })
 
 
     }
@@ -920,18 +920,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 
 	    this.$['showHcpInfo'].open()
 
-        if(this.selectedInternalCareTeam){
-            this.selectedInternalCareTeam.hcpType = "Internal Care Providers"
-            this.set('selectedPerson', this.selectedInternalCareTeam)
+        const pphcTab = this.patient.patientHealthCareParties
+        const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedCareProvider.id)
+
+        //Comparer les dates pour le detenteur du dmg
+        if(pphcTarget){
+            pphcTarget.referralPeriods.map(rp => rp)
         }
 
-        if(this.selectedExternalCareTeam){
-            this.selectedExternalCareTeam.hcpType = "External Care Providers"
-            const pphcTab = this.patient.patientHealthCareParties
-            const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedExternalCareTeam.id)
-            this.selectedExternalCareTeam.pphc = pphcTarget
-            this.set('selectedPerson', this.selectedExternalCareTeam)
-        }
+        this.selectedCareProvider.pphc = pphcTarget
+        this.set('selectedPerson', this.selectedCareProvider)
 
     }
 
@@ -968,9 +966,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
         pPromise = pPromise.then(pats =>
                 this.api.patient().share(this.patient.id, hcpId, this.hcpSelectedForTeam.filter(hcp =>
                     hcp.check && hcp.id).map(hcp => hcp.id))
-                    .then(pat => _.concat(pats, pat))
+                    .then(pat => {
+                            _.concat(pats, pat)
+                            this.initCurrentCareTeam()
+                        }
+                    )
             )
-
         return pPromise
     }
 
