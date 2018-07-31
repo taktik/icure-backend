@@ -261,6 +261,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 140px;
             }
 
+            #add-person-to-care-team{
+                height: 600px;
+                width: 800px;
+            }
+
+            #add-new-person-to-care-team{
+                height: 450px;
+                width: 500px;
+            }
+
+            #internal-care-team-list{
+                height: 250px;
+            }
+
+            #external-care-team-list{
+                height: 250px;
+            }
+
+            #showHcpInfo{
+                height: 600px;
+                width: 700px;
+                overflow: auto;
+            }
+
+            .iconHcpInfo{
+                height: 18px;
+            }
+
+            .titleHcpInfo{
+                height: 25px;
+                width: auto;
+                color: var(--app-secondary-color);
+                background-color: var(--app-primary-color-dark);
+                padding: 2px;
+                margin-top: 5px;
+            }
+
+            .titleHcpInfo_Icon{
+                height: 30px;
+                width: 30px;
+                float: left;
+            }
+
+            .titleHcpInfo_Txt{
+                float: left;
+                padding: 2px;
+            }
+
+            .indent{
+                margin-left: 2%;
+            }
+
+            .label{
+                font-weight: bold;
+            }
+
+            .hcpAdr{
+                margin-bottom: 10px;
+            }
+
 
         </style>
         <div class="administrative-panel">
@@ -278,11 +338,249 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <dynamic-form id="dynamic-form-partnerships" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
                 </page>
                 <page>
-                    <dynamic-form id="dynamic-form-care-team" api="[[api]]" user="[[user]]" template="[[careTeamForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    <div>
+                        <h4>Prestataires de soins internes</h4>
+                        <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedInternalCareTeam}}" on-tap="showInfoSelectedHcp">
+                            <vaadin-grid-column width="120px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.firstName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="120px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.lastName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="80px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.nihii]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="80px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.speciality]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="dmg">[[localize('adm_dmg','Dmg',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen"></div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                    <div>
+                        <h4>Prestataires de soins externes</h4>
+                        <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedExternalCareTeam}}" on-tap="showInfoSelectedHcp">
+                            <vaadin-grid-column width="120px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.firstName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="120px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.lastName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="80px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.nihii]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="80px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.speciality]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="dmg">[[localize('adm_dmg','Dmg',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen"></div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                    <div class="buttons">
+                        <paper-button on-tap="showAddPersonToCareTeam">Add</paper-button>
+                    </div>
                 </page>
             </iron-pages>
         </div>
+
+        <paper-dialog id="add-person-to-care-team">
+            <div>
+                <h3>[[localize('add_per_to_car_tea','Last name',language)]]</h3>
+            </div>
+            <div>
+                <vaadin-grid id="hcp-list" class="material" overflow="bottom" items=[[currentHcp]] active-item="{{selectedHcp}}">
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                        </template>
+                        <template>
+                            <vaadin-checkbox id="[[item.id]]" checked="[[_sharingHcp(item, currentHcp.*)]]" on-checked-changed="_checkHcp"></vaadin-checkbox>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="120px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.lastName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="120px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.firstName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="80px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.nihii]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="80px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.speciality]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button" on-tap="showAddNewPersonToCareTeamForm">[[localize('new_per','New person',language)]]</paper-button>
+                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirmSharing">[[localize('save','Save',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="add-new-person-to-care-team">
+            <div>
+                <h3>Add new person to the care team</h3>
+            </div>
+            <div>
+                <paper-input id="" label="Last name" value="{{newHcpCareTeam.LastName}}"></paper-input>
+                <paper-input id="" label="First name" value="{{newHcpCareTeam.FirstName}}"></paper-input>
+                <paper-input id="" label="Nihii" value="{{newHcpCareTeam.Nihii}}"></paper-input>
+                <paper-input id="" label="Job" value="{{newHcpCareTeam.Job}}"></paper-input>
+                <vaadin-checkbox id="" checked="[[newHcpCareTeam.Dmg]]"></vaadin-checkbox>
+                <vaadin-date-picker id="" label="Date of signature" value="{{newHcpCareTeam.DateOfSignature}}" i18n="[[i18n]]"></vaadin-date-picker>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="addNewPersonToCareTeam">[[localize('save','Save',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
+
+        <paper-dialog id="showHcpInfo">
+            <div>
+                <div>
+                   <div class="titleHcpInfo">
+                       <div class="titleHcpInfo_Icon">
+                            <iron-icon icon="vaadin:info-circle-o"></iron-icon>
+                       </div>
+                       <div class="titleHcpInfo_Txt">
+                           [[localize('gen_info','General informations',language)]]
+                       </div>
+                   </div>
+                   <div class="indent">
+                        <div><span class="label">[[localize('las_nam','Last name',language)]]: </span>[[selectedPerson.lastName]]</div>
+                        <div><span class="label">[[localize('fir_name','First name',language)]]:</span>[[selectedPerson.firstName]]</div>
+                        <div><span class="label">Type:</span> [[selectedPerson.hcpType]]</div>
+                        <div><span class="label">[[localize('inami','Nihii',language)]]: </span>[[selectedPerson.nihii]]</div>
+                        <div><span class="label">[[localize('ssin','Ssin',language)]]: </span>[[selectedPerson.ssin]]</div>
+                        <div><span class="label">[[localize('speciality','Speciality',language)]]: </span>[[selectedPerson.speciality]]</div>
+                   </div>
+                   <template is="dom-if" if="[[selectedPerson.addresses]]">
+                        <div>
+                            <div class="titleHcpInfo">
+                                <div class="titleHcpInfo_Icon">
+                                    <iron-icon class="iconHcpInfo" icon="vaadin:home-o"></iron-icon>
+                                </div>
+                                <div class="titleHcpInfo_Txt">
+                                    [[localize('addresses','Addresses',language)]]
+                                </div>
+                            </div>
+                            <div class="indent">
+                                <template is="dom-repeat" items="[[selectedPerson.addresses]]" as="adr">
+                                    <div class="hcpAdr">
+                                        <div><span class="label">[[localize('street','Street',language)]]: </span>[[adr.street]]</div>
+                                        <div><span class="label">[[localize('number','Number',language)]]: </span>[[adr.number]]</div>
+                                        <div><span class="label">[[localize('postalCode','Postal code',language)]]: </span>[[adr.postalCode]]</div>
+                                        <div><span class="label">[[localize('city','City',language)]]: </span>[[adr.city]]</div>
+
+                                        <template is="dom-repeat" items="[[adr.telecoms]]" as="telecom">
+                                            <div><span class="label">[[localize('tel_type','Telecom type',language)]]: </span>[[telecom.telecomType]]</div>
+                                            <div><span class="label">[[localize('tel_num','Telecom number',language)]]: </span>[[telecom.telecomNumber]]</div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                   </template>
+                </div>
+                <template is="dom-if" if="[[selectedPerson.pphc.referralPeriods]]">
+                    <div>
+                        <div class="titleHcpInfo">
+                            <div class="titleHcpInfo_Icon">
+                                <iron-icon class="iconHcpInfo" icon="vaadin:clock"></iron-icon>
+                            </div>
+                            <div class="titleHcpInfo_Txt">
+                                [[localize('ref_per','Referral periods',language)]]
+                            </div>
+                        </div>
+                        <div class="indent">
+                            <template is="dom-repeat" items="[[selectedPerson.pphc.referralPeriods]]" as="referralPeriod">
+                                <div><span class="label">[[localize('startDate','Start date',language)]]: </span>[[_timeFormat(referralPeriod.startDate)]]</div>
+                                <div><span class="label">[[localize('endDate','End date',language)]]: </span>[[_timeFormat(referralPeriod.endDate)]]</div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
         </template>
+
 	<script>
 
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
@@ -350,7 +648,41 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 			dataProvider: {
 				type: Object,
 				value: null
-			}
+			},
+
+			newHcpCareTeam:{
+			    type: Object,
+                value: {'LastName' : '', 'FirstName' : '', 'Nihii' : '', 'Job' : '', 'Dmg' : false, 'DateOfSignature' : ''}
+            },
+
+            currentInternalCareTeam:{
+                type: Array,
+                value: []
+            },
+
+            currentExternalCareTeam:{
+			    type: Array,
+                value: []
+            },
+
+            currentHcp:{
+                type: Array,
+                value: []
+            },
+            selectedExternalCareTeam:{
+			    type: Object
+            },
+            selectedInternalCareTeam:{
+			    type: Object
+            },
+            selectedPerson:{
+			    type: Object
+            },
+            hcpSelectedForTeam: {
+                type: Object,
+                notify: true,
+                value: () => []
+            },
 		};
 	}
 
@@ -365,6 +697,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 	detached() {
 		this.flushSave();
 	}
+
+	ready(){
+	    super.ready();
+        this.initCurrentCareTeam();
+
+    }
 
 	patientChanged() {
 		if (this.api && this.user && this.patient) {
@@ -532,6 +870,109 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 	localizeContent(e, lng) {
 		return this.api && this.api.contact().localize(e, lng) || "";
 	}
+
+    showAddPersonToCareTeam(){
+        this.$['add-person-to-care-team'].open()
+        this.set('currentHcp', _.values(this.api.hcParties))
+    }
+
+    showAddNewPersonToCareTeamForm(){
+        this.$['add-person-to-care-team'].close()
+        this.$['add-new-person-to-care-team'].open()
+    }
+
+    addNewPersonToCareTeam(){
+
+    }
+
+    addPersonToCareTeam(){
+
+    }
+
+    initCurrentCareTeam(){
+	    const internalHcp = this.patient.delegations
+        const externalHcp = this.patient.patientHealthCareParties
+        var internalTeam = []
+        var externalTeam = []
+
+        //internal team
+        Promise.all(
+            _.keys(internalHcp).map(hcpId =>
+                this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
+                    internalTeam.push(hcp)
+                )
+            )
+        ).then(() => this.set('currentInternalCareTeam', internalTeam))
+
+        //external team
+        Promise.all(
+            externalHcp.map(patientHcp =>
+                this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp =>
+                    externalTeam.push(hcp)
+                )
+            )
+        ).then(() => this.set('currentExternalCareTeam', externalTeam))
+
+
+    }
+
+    showInfoSelectedHcp(e){
+
+	    this.$['showHcpInfo'].open()
+
+        if(this.selectedInternalCareTeam){
+            this.selectedInternalCareTeam.hcpType = "Internal Care Providers"
+            this.set('selectedPerson', this.selectedInternalCareTeam)
+        }
+
+        if(this.selectedExternalCareTeam){
+            this.selectedExternalCareTeam.hcpType = "External Care Providers"
+            const pphcTab = this.patient.patientHealthCareParties
+            const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedExternalCareTeam.id)
+            this.selectedExternalCareTeam.pphc = pphcTarget
+            this.set('selectedPerson', this.selectedExternalCareTeam)
+        }
+
+    }
+
+    _timeFormat(date) {
+        return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+    }
+
+    _sharingHcp(item){
+        if (item) {
+            const mark = this.hcpSelectedForTeam.find(m => m.id === item.id)
+            return mark && mark.check
+        } else {
+            return false
+        }
+    }
+
+    _checkHcp(e){
+        if (e.target.id !== "") {
+            const mark = this.hcpSelectedForTeam.find(m => m.id === e.target.id)
+            if (!mark) {
+                this.push('hcpSelectedForTeam',{id:e.target.id, check:true})
+            } else {
+                mark.check = !mark.check
+                this.notifyPath('hcpSelectedForTeam.*')
+            }
+        }
+
+    }
+
+    confirmSharing() {
+        let pPromise = Promise.resolve([])
+        const hcpId = this.user.healthcarePartyId
+
+        pPromise = pPromise.then(pats =>
+                this.api.patient().share(this.patient.id, hcpId, this.hcpSelectedForTeam.filter(hcp =>
+                    hcp.check && hcp.id).map(hcp => hcp.id))
+                    .then(pat => _.concat(pats, pat))
+            )
+
+        return pPromise
+    }
 
 }
 
