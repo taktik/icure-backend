@@ -267,7 +267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             #add-new-person-to-care-team{
-                height: 450px;
+                height: 520px;
                 width: 500px;
             }
 
@@ -321,6 +321,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 margin-bottom: 10px;
             }
 
+            .button_add_provider{
+                width:75%;
+                position: fixed;
+                bottom: 16px;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .add-btn{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                background:var(--app-secondary-color);
+                color:var(--app-text-color);
+                font-weight:bold;
+                font-size:12px;
+                height:40px;
+                min-width:100px;
+                @apply --shadow-elevation-2dp;
+                padding: 10px 1.2em;
+            }
+
 
         </style>
         <div class="administrative-panel">
@@ -339,7 +361,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </page>
                 <page>
                     <div>
-                        <h4>Prestataires de soins internes</h4>
+                        <h4>[[localize('icp','Internal care provider',language)]]</h4>
                         <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="120px">
                                 <template class="header">
@@ -362,7 +384,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.nihii]]</div>
+                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="80px">
@@ -373,18 +395,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <div class="cell frozen">[[item.speciality]]</div>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="dmg">[[localize('adm_dmg','Dmg',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen"></div>
-                                </template>
-                            </vaadin-grid-column>
                         </vaadin-grid>
                     </div>
                     <div>
-                        <h4>Prestataires de soins externes</h4>
+                        <h4>[[localize('ecp','External care provider',language)]]</h4>
                         <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="120px">
                                 <template class="header">
@@ -407,7 +421,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.nihii]]</div>
+                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="80px">
@@ -418,18 +432,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <div class="cell frozen">[[item.speciality]]</div>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="dmg">[[localize('adm_dmg','Dmg',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen"></div>
-                                </template>
-                            </vaadin-grid-column>
                         </vaadin-grid>
                     </div>
-                    <div class="buttons">
-                        <paper-button on-tap="showAddPersonToCareTeam">Add</paper-button>
+                    <div class="button_add_provider">
+                        <paper-button class="add-btn" on-tap="showAddPersonToCareTeam">[[localize('add_per','Add person',language)]]</paper-button>
                     </div>
                 </page>
             </iron-pages>
@@ -437,7 +443,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="add-person-to-care-team">
             <div>
-                <h3>[[localize('add_per_to_car_tea','Last name',language)]]</h3>
+                <h3>[[localize('add_per_to_car_tea','Add person',language)]]</h3>
             </div>
             <div>
                 <vaadin-grid id="hcp-list" class="material" overflow="bottom" items=[[currentHcp]] active-item="{{selectedHcp}}">
@@ -469,7 +475,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
                         </template>
                         <template>
-                            <div class="cell frozen">[[item.nihii]]</div>
+                            <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
                         </template>
                     </vaadin-grid-column>
                     <vaadin-grid-column width="80px">
@@ -491,19 +497,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="add-new-person-to-care-team">
             <div>
-                <h3>Add new person to the care team</h3>
+                <h3>[[localize('add_new_per_to_car_tea','Add new person to the care team',language)]]</h3>
+
             </div>
             <div>
-                <paper-input id="" label="Last name" value="{{newHcpCareTeam.LastName}}"></paper-input>
-                <paper-input id="" label="First name" value="{{newHcpCareTeam.FirstName}}"></paper-input>
-                <paper-input id="" label="Nihii" value="{{newHcpCareTeam.Nihii}}"></paper-input>
-                <paper-input id="" label="Job" value="{{newHcpCareTeam.Job}}"></paper-input>
-                <vaadin-checkbox id="" checked="[[newHcpCareTeam.Dmg]]"></vaadin-checkbox>
-                <vaadin-date-picker id="" label="Date of signature" value="{{newHcpCareTeam.DateOfSignature}}" i18n="[[i18n]]"></vaadin-date-picker>
+                <paper-input id="" label="[[localize('las_nam','Last name',language)]]" value="{{newHcpCareTeam.LastName}}"></paper-input>
+                <paper-input id="" label="[[localize('fir_nam','First name',language)]]" value="{{newHcpCareTeam.FirstName}}"></paper-input>
+                <paper-input id="" label="[[localize('ema','Email',language)]]" value="{{newHcpCareTeam.Email}}"></paper-input>
+                <paper-input id="" label="[[localize('inami','Nihii',language)]]" value="{{newHcpCareTeam.Nihii}}"></paper-input>
+                <paper-input id="" label="[[localize('niss','Niss',language)]]" value="{{newHcpCareTeam.Niss}}"></paper-input>
+                <paper-input id="" label="[[localize('speciality','Speciality',language)]]" value="{{newHcpCareTeam.Speciality}}"></paper-input>
+                <paper-checkbox value="{{newHcpCareTeam.Invite}}" on-change="chckInvite">Invite care provider ?</paper-checkbox>
             </div>
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="addNewPersonToCareTeam">[[localize('save','Save',language)]]</paper-button>
+                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="addNewExternalPersonToCareTeam">[[localize('save','Save',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -523,7 +531,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div><span class="label">[[localize('las_nam','Last name',language)]]: </span>[[selectedPerson.lastName]]</div>
                         <div><span class="label">[[localize('fir_name','First name',language)]]:</span>[[selectedPerson.firstName]]</div>
                         <div><span class="label">Type:</span> [[selectedPerson.hcpType]]</div>
-                        <div><span class="label">[[localize('inami','Nihii',language)]]: </span>[[selectedPerson.nihii]]</div>
+                        <div><span class="label">[[localize('inami','Nihii',language)]]: </span>[[formatNihiiNumber(selectedPerson.nihii)]]</div>
                         <div><span class="label">[[localize('ssin','Ssin',language)]]: </span>[[selectedPerson.ssin]]</div>
                         <div><span class="label">[[localize('speciality','Speciality',language)]]: </span>[[selectedPerson.speciality]]</div>
                    </div>
@@ -579,6 +587,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
+        <paper-dialog id="ht-invite-hcp-link">
+            <h3>Lien de première connexion</h3>
+            <h4>[[invitedHcpLink]]</h4>
+        </paper-dialog>
+
         </template>
 
 	<script>
@@ -629,12 +642,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                   return require('./rsrc/PatientPartnershipsContainerForm.json');
                 }
             },
-            careTeamForm: {
-                type: Object,
-                value: function () {
-                    return require('./rsrc/PatientCareTeamForm.json');
-                }
-            },
 			user: {
 				type: Object
 			},
@@ -652,7 +659,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 
 			newHcpCareTeam:{
 			    type: Object,
-                value: {'LastName' : '', 'FirstName' : '', 'Nihii' : '', 'Job' : '', 'Dmg' : false, 'DateOfSignature' : ''}
+                value: {'LastName' : '', 'FirstName' : '', 'Nihii' : '', 'Speciality' : '', 'Email' : '', 'Niss' : '', 'Invite' : false}
             },
 
             currentInternalCareTeam:{
@@ -682,6 +689,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                 notify: true,
                 value: () => []
             },
+            invitedHcpLink:{
+                type : String,
+                value : ""
+            }
 		};
 	}
 
@@ -700,7 +711,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 	ready(){
 	    super.ready();
         this.initCurrentCareTeam();
-
     }
 
 	patientChanged() {
@@ -880,8 +890,45 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
         this.$['add-new-person-to-care-team'].open()
     }
 
-    addNewPersonToCareTeam(){
+    addNewExternalPersonToCareTeam(){
+        const careProvider = this.newHcpCareTeam
 
+        this.api.hcparty().createHealthcareParty({
+            "name" 			: careProvider.LastName+" "+careProvider.FirstName,
+            "lastName" 		: careProvider.LastName,
+            "firstName" 	: careProvider.FirstName,
+            "nihii" 		: careProvider.Nihii,
+            "ssin"			: careProvider.Niss
+        }).then(hcp => {
+            this.api.user().createUser({
+                "healthcarePartyId" 	: hcp.id,
+                "name" 					: careProvider.LastName+" "+careProvider.FirstName,
+                "email" 				: careProvider.Email,
+                "applicationTokens" 	: {"tmpFirstLogin" : this.api.crypto().randomUuid()},
+                "status" 				: "ACTIVE",
+                "type"                  : "database"
+            }).then(usr => {
+                this.api.patient().getPatient(this.patient.id).then(patient => {
+                    var phcp = patient.patientHealthCareParties
+                    var newPhcp = {}
+                    newPhcp.healthcarePartyId = hcp.id
+                    newPhcp.referral = false
+                    newPhcp.sendFormats = {}
+                    phcp.push(newPhcp)
+
+                    this.api.patient().modifyPatient(patient).then(patient => {
+                        this.set('patient.patientHealthCareParties', phcp)
+                        this.$['add-new-person-to-care-team'].close()
+                        this.initCurrentCareTeam()
+
+                        if(careProvider.Invite === true){
+                            this.$['ht-invite-hcp-link'].open()
+                            this.invitedHcpLink = window.location.origin+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        }
+                    })
+                })
+            })
+        })
     }
 
     initCurrentCareTeam(){
@@ -973,6 +1020,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     )
             )
         return pPromise
+    }
+
+    formatNihiiNumber(nihii) {
+        return nihii ? ("" + nihii).replace(/([0-9]{1})([0-9]{5})([0-9]{2})([0-9]{3})/, '$1-$2-$3-$4') : ''
+    }
+
+    chckInvite(e){
+        if(e.target.checked){
+            this.newHcpCareTeam.Invite = true
+        }else{
+            this.newHcpCareTeam.Invite = false
+        }
     }
 
 }
