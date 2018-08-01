@@ -282,7 +282,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             #showHcpInfo{
                 height: 600px;
                 width: 700px;
-                overflow: auto;
             }
 
             .iconHcpInfo{
@@ -341,6 +340,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 min-width:100px;
                 @apply --shadow-elevation-2dp;
                 padding: 10px 1.2em;
+            }
+
+            .hcpInfo{
+                height: 85%;
+                overflow: auto;
             }
 
 
@@ -507,7 +511,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-input id="" label="[[localize('inami','Nihii',language)]]" value="{{newHcpCareTeam.Nihii}}"></paper-input>
                 <paper-input id="" label="[[localize('niss','Niss',language)]]" value="{{newHcpCareTeam.Niss}}"></paper-input>
                 <paper-input id="" label="[[localize('speciality','Speciality',language)]]" value="{{newHcpCareTeam.Speciality}}"></paper-input>
-                <paper-checkbox value="{{newHcpCareTeam.Invite}}" on-change="chckInvite">Invite care provider ?</paper-checkbox>
+                <paper-checkbox value="{{newHcpCareTeam.Invite}}" on-change="chckInvite">Invite care provider</paper-checkbox>
             </div>
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
@@ -517,7 +521,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
         <paper-dialog id="showHcpInfo">
-            <div>
+            <div class="hcpInfo">
                 <div>
                    <div class="titleHcpInfo">
                        <div class="titleHcpInfo_Icon">
@@ -528,12 +532,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        </div>
                    </div>
                    <div class="indent">
-                        <div><span class="label">[[localize('las_nam','Last name',language)]]: </span>[[selectedPerson.lastName]]</div>
-                        <div><span class="label">[[localize('fir_name','First name',language)]]:</span>[[selectedPerson.firstName]]</div>
-                        <div><span class="label">Type:</span> [[selectedPerson.hcpType]]</div>
-                        <div><span class="label">[[localize('inami','Nihii',language)]]: </span>[[formatNihiiNumber(selectedPerson.nihii)]]</div>
-                        <div><span class="label">[[localize('ssin','Ssin',language)]]: </span>[[selectedPerson.ssin]]</div>
-                        <div><span class="label">[[localize('speciality','Speciality',language)]]: </span>[[selectedPerson.speciality]]</div>
+                       <paper-input id="" label="[[localize('las_nam','Last name',language)]]" value="[[selectedPerson.lastName]]" readonly></paper-input>
+                       <paper-input id="" label="[[localize('fir_name','First name',language)]]" value="[[selectedPerson.firstName]]" readonly></paper-input>
+                       <paper-input id="" label="Type:" value="[[selectedPerson.hcpType]]" readonly></paper-input>
+                       <paper-input id="" label="[[localize('inami','Nihii',language)]]" value="[[formatNihiiNumber(selectedPerson.nihii)]]" readonly></paper-input>
+                       <paper-input id="" label="[[localize('ssin','Ssin',language)]]" value="[[formatNissNumber(selectedPerson.ssin)]]" readonly></paper-input>
+                       <paper-input id="" label="[[localize('speciality','Speciality',language)]]" value="[[selectedPerson.speciality]]" readonly></paper-input>
                    </div>
                    <template is="dom-if" if="[[selectedPerson.addresses]]">
                         <div>
@@ -548,14 +552,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="indent">
                                 <template is="dom-repeat" items="[[selectedPerson.addresses]]" as="adr">
                                     <div class="hcpAdr">
-                                        <div><span class="label">[[localize('street','Street',language)]]: </span>[[adr.street]]</div>
-                                        <div><span class="label">[[localize('number','Number',language)]]: </span>[[adr.number]]</div>
-                                        <div><span class="label">[[localize('postalCode','Postal code',language)]]: </span>[[adr.postalCode]]</div>
-                                        <div><span class="label">[[localize('city','City',language)]]: </span>[[adr.city]]</div>
+                                        <paper-input id="" label="[[localize('street','Street',language)]]" value="[[adr.street]]" readonly></paper-input>
+                                        <paper-input id="" label="[[localize('number','Number',language)]]" value="[[adr.number]]" readonly></paper-input>
+                                        <paper-input id="" label="[[localize('postalCode','Postal code',language)]]" value="[[adr.postalCode]]" readonly></paper-input>
+                                        <paper-input id="" label="[[localize('city','City',language)]]" value="[[adr.city]]" readonly></paper-input>
 
                                         <template is="dom-repeat" items="[[adr.telecoms]]" as="telecom">
-                                            <div><span class="label">[[localize('tel_type','Telecom type',language)]]: </span>[[telecom.telecomType]]</div>
-                                            <div><span class="label">[[localize('tel_num','Telecom number',language)]]: </span>[[telecom.telecomNumber]]</div>
+                                            <div class="titleHcpInfo">
+                                                <div class="titleHcpInfo_Icon">
+                                                    <iron-icon class="iconHcpInfo" icon="vaadin:clipboard-user"></iron-icon>
+                                                </div>
+                                                <div class="titleHcpInfo_Txt">
+                                                    [[localize('telecom','Telecom',language)]]
+                                                </div>
+                                            </div>
+                                            <paper-input id="" label="[[localize('tel_type','Telecom type',language)]]" value="[[telecom.telecomType]]" readonly></paper-input>
+                                            <paper-input id="" label="[[localize('tel_num','Telecom number',language)]]" value="[[telecom.telecomNumber]]" readonly></paper-input>
                                         </template>
                                     </div>
                                 </template>
@@ -575,8 +587,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
                         <div class="indent">
                             <template is="dom-repeat" items="[[selectedPerson.pphc.referralPeriods]]" as="referralPeriod">
-                                <div><span class="label">[[localize('startDate','Start date',language)]]: </span>[[_timeFormat(referralPeriod.startDate)]]</div>
-                                <div><span class="label">[[localize('endDate','End date',language)]]: </span>[[_timeFormat(referralPeriod.endDate)]]</div>
+                                <paper-input id="" label="[[localize('startDate','Start date',language)]]" value="[[_timeFormat(referralPeriod.startDate)]]" readonly></paper-input>
+                                <paper-input id="" label="[[localize('endDate','End date',language)]]" value="[[_timeFormat(referralPeriod.endDate)]]" readonly></paper-input>
                             </template>
                         </div>
                     </div>
@@ -1024,6 +1036,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 
     formatNihiiNumber(nihii) {
         return nihii ? ("" + nihii).replace(/([0-9]{1})([0-9]{5})([0-9]{2})([0-9]{3})/, '$1-$2-$3-$4') : ''
+    }
+
+    formatNissNumber(niss) {
+        return niss ? ("" + niss).replace(/([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{3})([0-9]{2})/, '$1.$2.$3-$4.$5') : ''
     }
 
     chckInvite(e){
