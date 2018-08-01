@@ -26,15 +26,17 @@ import org.taktik.icure.validation.NotNull;
 import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CalendarItemType implements Serializable {
+public class CalendarItemType extends StoredICureDocument implements Serializable {
 
     private String id;
-
-    private String code;
 
     private String name;
 
     private String color;
+
+    private int duration;
+
+    private boolean visit;
 
     public String getId() {
         return id;
@@ -42,14 +44,6 @@ public class CalendarItemType implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public String getName() {
@@ -66,5 +60,21 @@ public class CalendarItemType implements Serializable {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public boolean isVisit() {
+        return visit;
+    }
+
+    public void setVisit(boolean visit) {
+        this.visit = visit;
     }
 }
