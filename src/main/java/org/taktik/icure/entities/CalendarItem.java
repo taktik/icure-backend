@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.utils.InstantDeserializer;
 import org.taktik.icure.utils.InstantSerializer;
 import org.taktik.icure.validation.AutoFix;
@@ -39,15 +40,21 @@ public class CalendarItem extends StoredICureDocument {
 
     protected String responsible;
 
+    protected String patient;
+
+    protected Boolean homeVisit;
+
+    protected Address address;
+
+    protected String addressText;
+
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
-    protected String patient;
-
-    protected String note;
+    protected String details;
 
     public String getTitle() {
         return title;
@@ -65,12 +72,46 @@ public class CalendarItem extends StoredICureDocument {
         this.type = type;
     }
 
+    @Override
     public String getResponsible() {
         return responsible;
     }
 
+    @Override
     public void setResponsible(String responsible) {
         this.responsible = responsible;
+    }
+
+    public String getPatient() {
+        return patient;
+    }
+
+    public void setPatient(String patient) {
+        this.patient = patient;
+    }
+
+    public Boolean getHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(Boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public String getAddressText() {
+        return addressText;
+    }
+
+    public void setAddressText(String addressText) {
+        this.addressText = addressText;
     }
 
     public Long getStartTime() {
@@ -89,19 +130,11 @@ public class CalendarItem extends StoredICureDocument {
         this.endTime = endTime;
     }
 
-    public String getPatient() {
-        return patient;
+    public String getDetails() {
+        return details;
     }
 
-    public void setPatient(String patient) {
-        this.patient = patient;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
+    public void setDetails(String details) {
+        this.details = details;
     }
 }

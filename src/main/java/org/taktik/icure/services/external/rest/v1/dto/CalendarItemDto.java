@@ -1,18 +1,26 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
+
 public class CalendarItemDto extends IcureDto {
 
     protected String title;
 
     protected CalendarItemTypeDto type;
 
+    protected String patient;
+
+    protected Boolean homeVisit;
+
+    protected AddressDto address;
+
+    protected String addressText;
+
     protected Long startTime;
 
     protected Long endTime;
 
-    protected String patient;
-
-    protected String note;
+    protected String details;
 
     public String getTitle() {
         return title;
@@ -28,6 +36,38 @@ public class CalendarItemDto extends IcureDto {
 
     public void setType(CalendarItemTypeDto type) {
         this.type = type;
+    }
+
+    public String getPatient() {
+        return patient;
+    }
+
+    public void setPatient(String patient) {
+        this.patient = patient;
+    }
+
+    public Boolean getHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(Boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
+    public AddressDto getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDto address) {
+        this.address = address;
+    }
+
+    public String getAddressText() {
+        return addressText;
+    }
+
+    public void setAddressText(String addressText) {
+        this.addressText = addressText;
     }
 
     public Long getStartTime() {
@@ -46,19 +86,11 @@ public class CalendarItemDto extends IcureDto {
         this.endTime = endTime;
     }
 
-    public String getPatient() {
-        return patient;
+    public String getDetails() {
+        return details;
     }
 
-    public void setPatient(String patient) {
-        this.patient = patient;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
+    public void setDetails(String details) {
+        this.details = details;
     }
 }
