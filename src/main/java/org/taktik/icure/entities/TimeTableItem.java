@@ -31,8 +31,8 @@ public class TimeTableItem {
     private List<String> days;
     @NotNull()
     private List<TimeTableHour> hours;
-
-    private String recurrenceType;
+    @NotNull()
+    private List<String> recurrenceTypes;
     private String activityType;
 
     public List<String> getDays() {
@@ -51,12 +51,12 @@ public class TimeTableItem {
         this.hours = hours;
     }
 
-    public String getRecurrenceType() {
-        return recurrenceType;
+    public List<String> getRecurrenceTypes() {
+        return recurrenceTypes;
     }
 
-    public void setRecurrenceType(String recurrenceType) {
-        this.recurrenceType = recurrenceType;
+    public void setRecurrenceTypes(List<String> recurrenceTypes) {
+        this.recurrenceTypes = recurrenceTypes;
     }
 
     public String getActivityType() {

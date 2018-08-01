@@ -116,7 +116,7 @@ public class TimeTableFacade implements OpenApiFacade {
             timeTableItem.setActivityType("consult");
             timeTableItem.setDays(new ArrayList<>());
             timeTableItem.getDays().add("monday");
-            timeTableItem.setRecurrenceType("none");
+            timeTableItem.setRecurrenceTypes(new ArrayList<>());
             timeTableItem.setHours(new ArrayList<>());
             timeTableItem.getHours().add(timeTableHour);
             //Create the timeTable
