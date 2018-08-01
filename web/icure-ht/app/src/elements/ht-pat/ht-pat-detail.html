@@ -1086,7 +1086,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<span class="contact-year" on-click="openToast">
 									[[contactYear.year]]
 								</span>
-								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact)]]" sort="compareContacts">
+								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact,contactStatutChecked.*)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"
 													elevation="0"
 													class$="layout vertical contact [[_isLatestYearContact(contactYear, contactYears)]] [[_contactClasses(contact, contact.closingDate)]]"
@@ -1251,9 +1251,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<paper-dialog id="select-more-options-dialog">
 			<div class="horizontal">
-                <label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
+				<label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
 				<vaadin-date-picker label="[[localize('startDate','Start date',language)]]" i18n="[[i18n]]" value="{{dateStartAsString}}"></vaadin-date-picker>
 				<vaadin-date-picker label="[[localize('endDate','End date',language)]]" i18n="[[i18n]]" value="{{dateEndAsString}}"></vaadin-date-picker>
+			</div>
+			<div class="horizontal">
+				<label style="display:flex;"><b>[[localize('sta','Status',language)]]</b></label>
+				<paper-radio-group selected="{{statutFilter}}">
+					<paper-radio-button name="all">[[localize('all','All',language)]]</paper-radio-button>
+					<paper-radio-button name="active-relevant">[[localize('act_rel','Active relevant',language)]]</paper-radio-button>
+					<paper-radio-button name="active-irrelevant">[[localize('act_irr','Active irrelevant',language)]]</paper-radio-button>
+					<paper-radio-button name="inactive">[[localize('ina','Inactive',language)]]</paper-radio-button>
+					<paper-radio-button name="archived">[[localize('archiv','Archived',language)]]</paper-radio-button>
+				</paper-radio-group>
 			</div>
 		</paper-dialog>
 	</template>
@@ -1417,7 +1427,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type : String,
                 value : null,
                 observer: '_selectBetweenTwoDates'
-            }
+            },
+            statutFilter :{
+			    type : String,
+				value : "all",
+				observer : 'checkingStatus'
+			},
+            contactStatutChecked : {
+			    type : Array,
+				value : []
+			}
 		};
 	}
 
@@ -2114,25 +2133,29 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const heIds = this.selectedHealthcareElements.map(he => he.id);
 			const poaIds = _.flatMap(this.selectedHealthcareElements, he => he.selectedPlansOfAction ? he.selectedPlansOfAction.map(p => p.id) : []);
 			const svcIds = this.selectedHealthcareElements.filter(he => !he.id).map(he => he.idService);
-
-			return this.api.after(ctc.openingDate, this.timeSpanStart)
-				&& this.api.before(ctc.openingDate, this.timeSpanEnd)
-				&& (!regExp || ctc.subContacts.some(sc => sc.descr && sc.descr.match(regExp) && sc.services.length)
-					|| ctc.services.some(s => this.shortServiceDescription(s, this.language).match(regExp))
-					|| this.hcp(ctc).match(regExp) )
-				&& (!heIds.length && !poaIds.length && !svcIds.length
-					|| ctc.subContacts.some(sc => (sc.healthElementId && heIds.includes(sc.healthElementId)
-						|| sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length)
-					|| ctc.services.some(s => svcIds.includes(s.id)))
-				&& (!this.contactFilters || !this.contactFilters.length
-					|| ctc.services.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
-					cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
+			
+            return this.api.after(ctc.openingDate, this.timeSpanStart)
+                && this.api.before(ctc.openingDate, this.timeSpanEnd)
+                && (!regExp || ctc.subContacts.some(sc => sc.descr && sc.descr.match(regExp) && sc.services.length)
+                    || ctc.services.some(s => this.shortServiceDescription(s, this.language).match(regExp))
+                    || this.hcp(ctc).match(regExp) )
+                && (!heIds.length && !poaIds.length && !svcIds.length
+                    || ctc.subContacts.some(sc => (sc.healthElementId && heIds.includes(sc.healthElementId)
+                        || sc.planOfActionId && poaIds.includes(sc.planOfActionId)) && sc.services.length)
+                    || ctc.services.some(s => svcIds.includes(s.id)))
+                && (!this.contactFilters || !this.contactFilters.length
+                    || ctc.services.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
+                        cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
                     || ctc.tags.some(t => this.contactFilters.some(cf=>
                         cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code))))
                     || ctc.subContacts.some(s => s.tags && s.tags.some(t => this.contactFilters.some(cf=>
                         cf.every(f=>f.code.some(c=>f.type === t.type && c === t.code)))))
+                )
+                && (
+                    this.statutFilter==="all" || this.contactStatutChecked.some(id => id===ctc.id)
 				)
-				|| !ctc.closingDate;
+                || !ctc.closingDate;
+
 		}.bind(this);
 	}
 
@@ -2413,6 +2436,33 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return (a || []).concat(b || []);
 	}
 
+	checkingStatus(){
+		let promises=[];
+        const table = ["all", "active-relevant","active-irrelevant","inactive","archived"]
+
+        this.set("contactStatutChecked",[]);
+
+		if(this.statutFilter!=="all")
+			this.contactYears.map(
+				contactYear =>{
+					contactYear.contacts.map( ctc =>{
+						ctc.subContacts.map(sbct => {
+							let value;
+							if(sbct.healthElementId){
+								this.api.helement().getHealthElement(sbct.healthElementId).then(element => {
+									value = element.status===table.findIndex( row => row===this.statutFilter)
+									if(value && !this.contactStatutChecked.find(id => id===ctc.id)){
+										this.push("contactStatutChecked",ctc.id);
+									}
+								})
+							}
+
+						})
+					})
+				}
+			)
+
+	}
 }
 
 customElements.define(HtPatDetail.is, HtPatDetail);
