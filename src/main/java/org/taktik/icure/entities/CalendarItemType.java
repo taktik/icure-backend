@@ -19,6 +19,8 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.taktik.icure.entities.base.Identifiable;
+import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
@@ -26,7 +28,7 @@ import org.taktik.icure.validation.NotNull;
 import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CalendarItemType extends StoredICureDocument implements Serializable {
+public class CalendarItemType extends StoredDocument implements Serializable, Identifiable<String> {
 
     private String id;
 
