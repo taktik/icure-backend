@@ -1,3 +1,4 @@
+package org.taktik.icure.db.PricareCodeMapping
 class ISCO {
 
 	// The letter “p” is used to indicate that only part of the ISCO-88 group corresponds with the ISCO-08 group.
