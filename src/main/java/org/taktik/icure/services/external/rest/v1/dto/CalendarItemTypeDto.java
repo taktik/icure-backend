@@ -6,13 +6,13 @@ public class CalendarItemTypeDto implements Serializable {
 
     private String id;
 
+    private String rev;
+
     private String name;
 
     private String color;
 
     private int duration;
-
-    private boolean visit;
 
     public String getId() {
         return id;
@@ -20,6 +20,14 @@ public class CalendarItemTypeDto implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getRev() {
+        return rev;
+    }
+
+    public void setRev(String rev) {
+        this.rev = rev;
     }
 
     public String getName() {
@@ -44,13 +52,5 @@ public class CalendarItemTypeDto implements Serializable {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public boolean isVisit() {
-        return visit;
-    }
-
-    public void setVisit(boolean visit) {
-        this.visit = visit;
     }
 }
