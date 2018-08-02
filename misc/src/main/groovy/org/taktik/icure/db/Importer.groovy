@@ -45,6 +45,8 @@ class Importer {
     protected String keyRoot
     protected def tarificationsPerCode = [:]
 
+    protected String customOwnerId
+
 	protected String DB_PROTOCOL = System.getProperty("dbprotocol")?:"http"
 	protected String DB_HOST = System.getProperty("dbhost")?:"127.0.0.1"
     protected String DB_PORT = System.getProperty("dbport")?:5984
@@ -161,7 +163,18 @@ class Importer {
 
         println("Delegates are : ${delegates.join(',')}")
 
-        String dbOwnerId = delegates[0]
+        String dbOwnerId
+        if(customOwnerId != null) {
+            dbOwnerId = customOwnerId
+            this.cachedDoctors[dbOwnerId] = couchdbBase.get(HealthcareParty, dbOwnerId)
+            this.cachedKeyPairs[dbOwnerId] = loadKeyPair(dbOwnerId)
+            if (!this.cachedKeyPairs[dbOwnerId]  ) {
+                println("ERROR: key not found for customOwnerId")
+            }
+        } else {
+            dbOwnerId = delegates[0]
+        }
+        println("OwnerId = ${dbOwnerId}")
 
         def formsPerId = [:]
         forms.each { pid, fs ->
@@ -468,7 +481,7 @@ class Importer {
     }
 
     protected Set<String> getSecureKeys(Map<String, Set<Delegation>> delegations, String delegateId, PrivateKey delegatePrivateKey) throws EncryptionException, IOException {
-        List<Delegation> myDelegations = delegations.get(delegateId)
+        Set<Delegation> myDelegations = delegations.get(delegateId)
         Set<String> result = new HashSet<>()
         for (Delegation d : myDelegations) {
             byte[] exchangeAESKey = getDelegateHcPartyKey(delegateId, d.getOwner(), delegatePrivateKey)
