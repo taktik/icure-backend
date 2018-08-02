@@ -2,32 +2,37 @@ package org.taktik.icure.db
 
 import groovy.json.JsonSlurper
 import groovy.sql.Sql
-import org.json.JSON
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 
 
 import org.taktik.icure.entities.*
 
 class PricareImporter extends Importer {
+
+
+    def db
+    def sql
+    def measMapping = [:]
+
     static void main(String... args) {
         loadCodeMappings()
         def imp = new PricareImporter()
         imp.customOwnerId = "562e8e1f-fee3-4164-ae8e-1ffee3716480"
         imp.keyRoot = "c:\\topaz\\keys"
+        imp.openMedinoteDatabase()
+        imp.loadMeasMappings()
         imp.scan(args)
     }
 
-    void scan(String... args) {
-        def db = [url:'jdbc:sqlserver://localhost\\pricaresql;databaseName=modelbird_670_20170713_medinote', user:'MedinoteUser', password:'xyz123', driver:'com.microsoft.sqlserver.jdbc.SQLServerDriver']
-        def sql = Sql.newInstance(db.url, db.user, db.password, db.driver)
-        def passwordEncoder = new ShaAndVerificationCodePasswordEncoder(256)
+    void openMedinoteDatabase() {
+        db = [url:'jdbc:sqlserver://localhost\\pricaresql;databaseName=modelbird_670_20170713_medinote', user:'MedinoteUser', password:'xyz123', driver:'com.microsoft.sqlserver.jdbc.SQLServerDriver']
+        sql = Sql.newInstance(db.url, db.user, db.password, db.driver)
+    }
 
-        def patientMap = [:]
-        def contacts_by_medinoteId = [:]
+    void scan(String... args) {
+        def passwordEncoder = new ShaAndVerificationCodePasswordEncoder(256)
 
         Map<String, User>  users = [:]
         Map<String,HealthcareParty> hcParties = [:]
@@ -41,6 +46,11 @@ class PricareImporter extends Importer {
         List<Map> docs = []
         List<AccessLog> accessLogs = []
 
+        def patientMap = [:]
+        def contacts_by_medinoteId = [:]
+        def users_by_medinoteId = [:]
+        def hcparties_by_medinoteId = [:]
+
         try {
 
             // users, parties
@@ -53,6 +63,7 @@ class PricareImporter extends Importer {
                         firstName: it.Fname,
                         civility: it.Title
                 )
+                hcparties_by_medinoteId[it.id] = hcParties[id]
 
                 if (it.UserName) {
                     def uid = idg.newGUID().toString()
@@ -66,6 +77,8 @@ class PricareImporter extends Importer {
                             //status: it.inactive ? "DISABLED" : "ACTIVE",
                             passwordHash: passwordEncoder.encodePassword(it.Password, null)
                     )
+
+                    users_by_medinoteId[it.id] = users[uid]
                 }
             }
 
@@ -102,6 +115,7 @@ class PricareImporter extends Importer {
                 )
                 contacts_by_medinoteId[it.id] = con
                 contacts[pid].add(con)
+                println("Adding contact (medi=${it.id}, tz=${id})")
             }
 
             // healthElements
@@ -157,27 +171,114 @@ class PricareImporter extends Importer {
                                     new Code("CD-ITEM", "healthcareelement", "1")
                             ],
                             codes: [
-                                    MedinoteMedicalCodeId_to_Topaz(it.MedicalCodeId)
+                                    medinote_medicalCodeId_to_topaz_code(it.MedicalCodeId)
                             ]
                     ))
                 }
             }
-            /*
-
-            ///// motifs
-
-
-            sql.eachRow("select * from tblmotive") {
-                def id = idg.newGUID().toString()
-                def service = [
-                        id: id
-                ]
-                contacts[id].services.add(service)
-            }
-
-            */
 
             // forms
+
+            //def form = new Form()
+
+            ///////// services
+
+            // motifs (full)
+
+            def service_index = 0
+            sql.eachRow("select * from tblmotive") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def service = new Service(
+                            id: id,
+                            author: users_by_medinoteId[it.authorId],
+                            responsible: hcparties_by_medinoteId[it.respid],
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            label: "Motifs de contact",
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            codes: [
+                                    medinote_medicalCodeId_to_topaz_code(it.MedicalCodeId)
+                            ].findAll({ it != null }),
+                            tags: [
+                                    new Code("CD-ITEM", "transactionreason", "1")
+                            ],
+                            content: [
+                                    fr: [
+                                            s: it.Desc
+                                    ]
+                            ],
+                    )
+                    contact.services.add(service)
+                    println("Adding motive (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+            // Anamneses
+
+            sql.eachRow("select * from tblanam") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def service = new Service(
+                            id: id,
+                            author: users_by_medinoteId[it.authorId],
+                            responsible: hcparties_by_medinoteId[it.respid],
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            label: it.desc,
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            codes: [
+                                    medinote_medicalCodeId_to_topaz_code(it.MedicalCodeId)
+                            ].findAll({ it != null }),
+                            tags: [
+                                    new Code("CD-ITEM", "transactionreason", "1")
+                            ],
+                            content: [
+                                    fr: [
+                                            s: it.Desc
+                                    ]
+                            ],
+                    )
+                    contact.services.add(service)
+                    println("Adding anamneses (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+            // measures
+
+            sql.eachRow("select * from tblMeas") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                def measName = measMapping[it.measDefId]
+                if(contact != null) {
+                    def service = new Service(
+                            id: id,
+                            author: users_by_medinoteId[it.authorId],
+                            responsible: hcparties_by_medinoteId[it.respid],
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            label: measName,
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            codes: [],
+                            tags: medinote_measDefId_to_topaz_tags(it.measDefId),
+                            content: [
+                                    fr: [
+                                            s: it.Value.toString()
+                                    ]
+                            ],
+                    )
+                    contact.services.add(service)
+                    println("Adding measure ${measName} (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+
+            ///////// others
 
             // messages
 
@@ -186,6 +287,7 @@ class PricareImporter extends Importer {
             // docs
 
             // accessLogs
+
         } catch(ex) {
             throw ex
 
@@ -204,9 +306,17 @@ class PricareImporter extends Importer {
 
         this.EncounterTypeMap = data
 
+
     }
 
-    static Code MedinoteMedicalCodeId_to_Topaz(String medinoteCode) {
+    def loadMeasMappings() {
+        sql.eachRow("select * from tblMeasDef") {
+            measMapping[it.Id] = it.Name
+        }
+    }
+
+
+    static Code medinote_medicalCodeId_to_topaz_code(String medinoteCode) {
         def parts = medinoteCode.split(";")
         Code retcode
         parts.any {
@@ -218,6 +328,31 @@ class PricareImporter extends Importer {
         }
         return retcode
 
+    }
+
+    static List<String> standardMeasureNames = [
+        "weight", "height", "bmi", "heartpulse", "craneperim", "hipperim", "apgarscore", "systolic", "diastolic"
+        // and compound "tension"
+    ]
+
+    List<Code> medinote_measDefId_to_topaz_tags(String medinoteMeasDefId) {
+        List<Code> retcodes
+        def item_code = new Code("CD-ITEM", "parameter", "1")
+        def param_code
+
+        def name = measMapping[medinoteMeasDefId]
+        if (standardMeasureNames.contains(name)) {
+            param_code = new Code("CD-PARAMETER", name, "1")
+        } else {
+            param_code = new Code("TOPAZ-PARAMETER", name, "1")
+        }
+
+        retcodes = [
+                item_code,
+                param_code
+        ]
+
+        return retcodes
     }
 
     static long medinote_fuzzydate_to_topaz_fuzzydate(String date) {
