@@ -1762,6 +1762,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const patient = this.patient;
 			const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id=>id && id.substr(4) /* format is ctc_... see DOM */);
 			Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient), this.api.helement().findBy(this.user.healthcarePartyId, patient)]).then(([ctcs, hes]) => {
+                ctcs.sort((a,b) => (a.created||0)-(b.created||0))
 				const descrPattern = this.user.properties.find(p => p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}";
 				const sorter = x => [-x.valueDate || -x.openingDate, -x.closingDate];
 				const idServicesInHes = _.compact(hes.map(he => he.idService));
@@ -1821,12 +1822,27 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						if (!ctc.userDescr || ctc.userDescr.length < 3) {
 							ctc.userDescr = ctc.descr;
 						}
-					});(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
+					})
+                    ;(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
 						const thisYear = moment().year();
 						this.set('contacts', ctcs);
 						this.set('currentContact', newCtc);
+						const formIds = {}
+						this.hiddenSubContactsId = _.reduce(ctcs, (acc, ctc) => {
+						    const batch = ctc.subContacts.filter(sc => {
+                                if (sc.formId && formIds[sc.formId]) {
+                                    return true
+                                } else if (sc.formId) {
+                                    formIds[sc.formId] = true
+                                }
+                                return false
+                            }).map(sc => sc.id || (sc.id = this.api.crypto().randomUuid()))
+
+                            return _.concat(acc,batch)
+						}, [])
 						this.set('contactYears', _.sortBy(_.values(_.reduce(ctcs, (acc, ctc) => {
-							if (ctc.subContacts && ctc.subContacts.length || ctc.services.find(s => _.values(s.content).find(this.contentHasData.bind(this)))) {
+							if (ctc.subContacts && ctc.subContacts.filter(sc=>!_.includes(this.hiddenSubContactsId, sc.id)).length ||
+                                ctc.services.some(s => !ctc.subContacts.some(sc=>sc.services.some(scs=>scs.idService === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
 								let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4));
 								const contacts = (acc[year] || (acc[year] = { year: year, contacts: [] })).contacts;
 								if (!contacts.includes(ctc)) {
