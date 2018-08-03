@@ -34,18 +34,122 @@
                 font-size: 14px;
                 min-height: 30px;
             }
+
+            .dropdown_icon{
+                height: 12px;
+            }
+
+            .status_icon{
+                height: 8px;
+            }
+
+            .stat_act{
+                color: var( --paper-green-400);
+            }
+
+            .stat_pass_rev{
+                color: var(--paper-orange-400);
+            }
+
+            .stat_pass_n_rev{
+                color: var( --paper-red-400);
+            }
+
+            .stat_not_pres{
+                color: var(--paper-grey-400);
+            }
+
+            #planActionForm{
+                height: 400px;
+                width: 500px;
+            }
+
+            #cpa_description{
+                height: 125px;
+                width: 445px;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
+            }
+
+            .containerPlanAction{
+                height: 278px;
+                width: auto;
+            }
+
         </style>
 
+
         <template is="dom-if" if="[[linkables]]">
+
             <paper-menu-button id="mb" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
-                <paper-icon-button class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
+                <paper-icon-button id="hc_menu" class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
                 <paper-listbox slot="dropdown-content">
                     <template is="dom-repeat" items="[[linkables]]" as="he">
                         <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
                     </template>
                 </paper-listbox>
             </paper-menu-button>
+
+            <paper-menu-button id="stat" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
+                <paper-icon-button id="stat_menu" class="form-title-bar-btn" icon="more-horiz" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
+                <paper-listbox slot="dropdown-content">
+                    <paper-item id="plan_act" class="link" on-tap="showPlanActionForm">
+                        <iron-icon icon="vaadin:flag" class="dropdown_icon"></iron-icon>
+                        [[localize('plan_act','Plan an action',language)]]
+                    </paper-item>
+                </paper-listbox>
+                <paper-listbox slot="dropdown-content">
+                    <paper-item id="stat_act" class="link" on-tap="_setStatus">
+                        <iron-icon icon="vaadin:circle" class="status_icon stat_act"></iron-icon>
+                        [[localize('stat_act','Plan an action',language)]]
+                    </paper-item>
+                </paper-listbox>
+                <paper-listbox slot="dropdown-content">
+                    <paper-item id="stat_pas_rev" class="link" on-tap="_setStatus">
+                        <iron-icon icon="vaadin:circle" class="status_icon stat_pass_rev"></iron-icon>
+                        [[localize('stat_pas_rev','Plan an action',language)]]
+                    </paper-item>
+                </paper-listbox>
+                <paper-listbox slot="dropdown-content">
+                    <paper-item id="stat_pas_n_rev" class="link" on-tap="_setStatus">
+                        <iron-icon icon="vaadin:circle" class="status_icon stat_pass_n_rev"></iron-icon>
+                        [[localize('stat_pas_n_rev','Plan an action',language)]]
+                    </paper-item>
+                </paper-listbox>
+                <paper-listbox slot="dropdown-content">
+                    <paper-item id="stat_n_pres" class="link" on-tap="_setStatus">
+                        <iron-icon icon="vaadin:circle" class="status_icon stat_not_pres"></iron-icon>
+                        [[localize('stat_n_pres','Plan an action',language)]]
+                    </paper-item>
+                </paper-listbox>
+            </paper-menu-button>
         </template>
+
+        <paper-dialog id="planActionForm">
+            <h3>[[localize('plan_act','Plan an action',language)]]</h3>
+            <div class="containerPlanAction">
+                <div>
+                    <vaadin-combo-box filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Procédures" value=""></vaadin-combo-box>
+                </div>
+                <div>
+                    <vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]"></vaadin-date-picker>
+                </div>
+                <div>
+                    <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
+                </div>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
 
     </template>
     <script>
@@ -62,6 +166,10 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             },
             representedObject: {
                 type: Object
+            },
+            plannedAction:{
+                type: Object,
+                value : {"Deadline" : "", "Description" : ""}
             }
         };
     }
@@ -77,7 +185,14 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
     _show(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.root.querySelector('#mb').open();
+
+        if(e.target.id === "stat_menu"){
+            this.root.querySelector('#stat').open();
+        }else{
+            this.root.querySelector('#mb').open();
+        }
+
+
     }
 
     link(e, target) {
@@ -86,6 +201,19 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             return;
         }
         this.dispatchEvent(new CustomEvent('link-to-health-element', { bubbles: true, composed: true, detail: { representedObject: this.representedObject, healthElement: he } }));
+    }
+
+    showPlanActionForm(e){
+        this.$['planActionForm'].open()
+    }
+
+    planAction(){
+        console.log(this.plannedAction)
+
+    }
+
+    _setStatus(e){
+        console.log("set status: "+e.target.id)
     }
 
 }
