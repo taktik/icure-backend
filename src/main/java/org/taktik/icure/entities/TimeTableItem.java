@@ -34,6 +34,8 @@ public class TimeTableItem {
     @NotNull()
     private List<String> recurrenceTypes;
     private String activityType;
+    private Place place;
+    private boolean visit;
 
     public List<String> getDays() {
         return days;
@@ -65,5 +67,21 @@ public class TimeTableItem {
 
     public void setActivityType(String activityType) {
         this.activityType = activityType;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
+    }
+
+    public boolean isVisit() {
+        return visit;
+    }
+
+    public void setVisit(boolean visit) {
+        this.visit = visit;
     }
 }

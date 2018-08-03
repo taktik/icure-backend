@@ -1,5 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.entities.Place;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 
 public class CalendarItemDto extends IcureDto {
@@ -21,6 +22,10 @@ public class CalendarItemDto extends IcureDto {
     protected Long endTime;
 
     protected String details;
+
+    protected String agenda;
+
+    protected Place place;
 
     public String getTitle() {
         return title;
@@ -92,5 +97,21 @@ public class CalendarItemDto extends IcureDto {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public String getAgenda() {
+        return agenda;
+    }
+
+    public void setAgenda(String agenda) {
+        this.agenda = agenda;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
     }
 }

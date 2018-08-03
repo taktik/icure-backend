@@ -30,6 +30,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.AccessLog;
+import org.taktik.icure.entities.Agenda;
 import org.taktik.icure.entities.CalendarItem;
 
 import java.time.Instant;
@@ -95,7 +96,74 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         List<CalendarItem> calendarItems = this.listCalendarItemByStartDateAndHcPartyId(startDate, endDate, hcPartyId);
         List<CalendarItem> calendarItemsEnd = this.listCalendarItemByEndDateAndHcPartyId(startDate, endDate, hcPartyId);
 
-        if (calendarItems == null && calendarItems != null) {
+        if (calendarItems == null && calendarItemsEnd != null) {
+            return calendarItemsEnd;
+        }
+        if (calendarItems != null && calendarItemsEnd == null) {
+            return calendarItems;
+        }
+        if (!calendarItemsEnd.isEmpty()) {
+            for (CalendarItem item : calendarItemsEnd) {
+                Boolean toAdd = true;
+                for (CalendarItem itemTest : calendarItems) {
+                    if (itemTest.getId().equals(item.getId())) {
+                        toAdd = false;
+                    }
+                }
+                if (toAdd) {
+                    calendarItems.add(item);
+                }
+            }
+        }
+        return calendarItems;
+    }
+
+    @Override
+    @View(name = "by_agenda_and_startdate", map = "classpath:js/calendarItem/by_agenda_and_startdate.js")
+    public List<CalendarItem> listCalendarItemByStartDateAndAgenda(Long startDate, Long endDate, String agenda) {
+        ComplexKey from = ComplexKey.of(
+            agenda,
+            startDate
+        );
+        ComplexKey to = ComplexKey.of(
+            agenda,
+            endDate == null ? ComplexKey.emptyObject() : endDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_agenda_and_startdate")
+            .startKey(from)
+            .endKey(to)
+            .includeDocs(false);
+
+        return db.queryView(viewQuery, CalendarItem.class);
+    }
+
+    @Override
+    @View(name = "by_hcparty_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
+    public List<CalendarItem> listCalendarItemByEndDateAndAgenda(Long startDate, Long endDate, String agenda) {
+        ComplexKey from = ComplexKey.of(
+            agenda,
+            startDate
+        );
+        ComplexKey to = ComplexKey.of(
+            agenda,
+            endDate == null ? ComplexKey.emptyObject() : endDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_agenda_and_enddate")
+            .startKey(from)
+            .endKey(to)
+            .includeDocs(false);
+
+        return db.queryView(viewQuery, CalendarItem.class);
+    }
+
+    @Override
+    public List<CalendarItem> listCalendarItemByPeriodAndAgenda(Long startDate, Long endDate, String agenda) {
+        List<CalendarItem> calendarItems = this.listCalendarItemByStartDateAndAgenda(startDate, endDate, agenda);
+        List<CalendarItem> calendarItemsEnd = this.listCalendarItemByEndDateAndAgenda(startDate, endDate, agenda);
+
+        if (calendarItems == null && calendarItemsEnd != null) {
             return calendarItemsEnd;
         }
         if (calendarItems != null && calendarItemsEnd == null) {

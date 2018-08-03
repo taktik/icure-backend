@@ -1,0 +1,31 @@
+package org.taktik.icure.dao.impl;
+
+import org.ektorp.ViewQuery;
+import org.ektorp.support.View;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
+import org.taktik.icure.dao.AgendaDAO;
+import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
+import org.taktik.icure.entities.Agenda;
+
+import java.util.List;
+
+@Repository("AgendaDAO")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Agenda' && !doc.deleted) emit( null, doc._id )}")
+public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
+    @Autowired
+    public AgendaDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
+        super(Agenda.class, db, idGenerator);
+        initStandardDesignDocument();
+    }
+
+    @Override
+    public List<Agenda> getAllAgendaForUser(String userId) {
+
+        ViewQuery viewQuery = new ViewQuery().queryParam("user", userId);
+
+        return db.queryView(viewQuery, Agenda.class);
+    }
+}

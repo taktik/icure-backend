@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.entities.Place;
+
 import java.util.List;
 
 
@@ -26,6 +28,8 @@ public class TimeTableItemDto {
     private List<TimeTableHourDto> hours;
     private List<String> recurrenceTypes;
     private String activityType;
+    private Place place;
+    private boolean visit;
 
     public List<String> getDays() {
         return days;
@@ -57,5 +61,21 @@ public class TimeTableItemDto {
 
     public void setActivityType(String activityType) {
         this.activityType = activityType;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
+    }
+
+    public boolean isVisit() {
+        return visit;
+    }
+
+    public void setVisit(boolean visit) {
+        this.visit = visit;
     }
 }

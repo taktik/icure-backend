@@ -19,15 +19,9 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.utils.InstantDeserializer;
-import org.taktik.icure.utils.InstantSerializer;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
-
-import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CalendarItem extends StoredICureDocument {
@@ -48,6 +42,11 @@ public class CalendarItem extends StoredICureDocument {
     protected String patient;
 
     protected String note;
+
+    @NotNull
+    protected String agenda;
+
+    protected Place place;
 
     public String getTitle() {
         return title;
@@ -103,5 +102,21 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getAgenda() {
+        return agenda;
+    }
+
+    public void setAgenda(String agenda) {
+        this.agenda = agenda;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
     }
 }
