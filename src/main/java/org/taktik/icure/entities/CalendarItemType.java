@@ -28,9 +28,7 @@ import org.taktik.icure.validation.NotNull;
 import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CalendarItemType extends StoredDocument implements Serializable, Identifiable<String> {
-
-    private String id;
+public class CalendarItemType extends StoredDocument implements Serializable {
 
     private String name;
 
@@ -39,14 +37,6 @@ public class CalendarItemType extends StoredDocument implements Serializable, Id
     private int duration;
 
     private boolean visit;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
