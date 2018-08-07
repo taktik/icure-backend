@@ -165,6 +165,23 @@ public class CalendarItemFacade implements OpenApiFacade {
         }
     }
 
+    @POST
+    @Path("/byPeriodAndAgenda")
+    public Response getCalendarsForAgenda(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
+        if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<CalendarItem> calendars = calendarItemLogic.getCalendarItemByPeriodAndAgenda(startDate, endDate, agendaId);
+
+        boolean succeed = (calendars != null);
+        if (succeed) {
+            return Response.ok().entity(calendars.stream().map(c -> mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
+        }
+    }
+
     @Context
     public void setcalendarItemLogic(CalendarItemLogic calendarItemLogic) {
         this.calendarItemLogic = calendarItemLogic;

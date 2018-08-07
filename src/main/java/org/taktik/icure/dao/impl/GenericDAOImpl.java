@@ -38,6 +38,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.dao.impl.keymanagers.KeyManager;
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager;
+import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
 
@@ -546,5 +547,4 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 			log.debug("DesignDocument was unchanged. Database was not updated.");
 		}
 	}
-
 }

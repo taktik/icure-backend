@@ -1,7 +1,6 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.entities.base.StoredDocument;
 
 import java.io.Serializable;
@@ -9,35 +8,13 @@ import java.io.Serializable;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CalendarItemType extends StoredDocument implements Serializable {
 
-    private String id;
-
-    private String rev;
-
     private String name;
 
     private String color;
 
     private int duration;
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getRev() {
-        return rev;
-    }
-
-    @Override
-    public void setRev(String rev) {
-        this.rev = rev;
-    }
+    private boolean visit;
 
     public String getName() {
         return name;
