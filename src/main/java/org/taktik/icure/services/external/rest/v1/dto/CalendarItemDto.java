@@ -20,6 +20,8 @@ public class CalendarItemDto extends IcureDto {
 
     protected Long endTime;
 
+    protected Long duration;
+
     protected String details;
 
     public String getTitle() {
@@ -84,6 +86,14 @@ public class CalendarItemDto extends IcureDto {
 
     public void setEndTime(Long endTime) {
         this.endTime = endTime;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
     }
 
     public String getDetails() {

@@ -54,6 +54,8 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
+    protected Long duration;
+
     protected String details;
 
     public String getTitle() {
@@ -128,6 +130,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setEndTime(Long endTime) {
         this.endTime = endTime;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
     }
 
     public String getDetails() {
