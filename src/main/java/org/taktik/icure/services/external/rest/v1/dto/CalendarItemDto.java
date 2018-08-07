@@ -7,7 +7,7 @@ public class CalendarItemDto extends IcureDto {
 
     protected String title;
 
-    protected CalendarItemDto type;
+    protected String type;
 
     protected String patient;
 
@@ -37,11 +37,11 @@ public class CalendarItemDto extends IcureDto {
         this.title = title;
     }
 
-    public CalendarItemDto getType(){
+    public String getType() {
         return type;
     }
 
-    public void setType(CalendarItemDto type){
+    public void setType(String type) {
         this.type = type;
     }
 

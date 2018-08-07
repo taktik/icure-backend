@@ -129,12 +129,12 @@ public class AgendaFacade implements OpenApiFacade {
 
     @ApiOperation(response = AgendaDto.class, value = "Gets all agendas")
     @GET
-    @Path("/byUser/{userId}")
-    public Response getAgendasForUser(String userId) {
+    @Path("/byUser")
+    public Response getAgendasForUser(@QueryParam("userId") String userId) {
         Response response;
         List<Agenda> agendas = agendaLogic.getAllAgendaForUser(userId);
         if (agendas != null) {
-            response = Response.ok().entity(agendas.stream().map(c -> mapper.map(c, AgendaDto.class)).collect(Collectors.toList())).build();
+            response = Response.ok().entity(mapper.map(agendas.get(0), AgendaDto.class)).build();
 
         } else {
             response = ResponseUtils.internalServerError("Agendas fetching failed");
