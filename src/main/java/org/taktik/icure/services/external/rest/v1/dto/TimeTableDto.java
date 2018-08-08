@@ -5,7 +5,6 @@ import java.util.List;
 
 public class TimeTableDto extends IcureDto {
 
-
 	protected String name;
 	protected Long startTime;
 	protected Long endTime;
