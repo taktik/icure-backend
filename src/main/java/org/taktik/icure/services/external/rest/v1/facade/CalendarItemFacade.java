@@ -26,11 +26,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.CalendarItem;
+import org.taktik.icure.entities.CalendarItemType;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
+import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -197,4 +199,19 @@ public class CalendarItemFacade implements OpenApiFacade {
         logger.error(e.getMessage(), e);
         return ResponseUtils.internalServerError(e.getMessage());
     }
+
+    @ApiOperation(response = CalendarItemDto.class, value = "Gets all calendarItems")
+    @GET
+    public Response getCalendarItems() {
+        Response response;
+        List<CalendarItem> calendarItems = calendarItemLogic.getAllEntities();
+        if (calendarItems != null) {
+            response = Response.ok().entity(calendarItems.stream().map(c -> mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
+
+        } else {
+            response = ResponseUtils.internalServerError("CalendarItemTypes fetching failed");
+        }
+        return response;
+    }
+
 }

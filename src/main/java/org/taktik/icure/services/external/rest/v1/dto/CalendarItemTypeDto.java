@@ -1,18 +1,19 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 
-public class CalendarItemTypeDto implements Serializable {
-
-    private String id;
-
-    private String rev;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CalendarItemTypeDto extends StoredDto implements Serializable {
 
     private String name;
 
     private String color;
 
     private int duration;
+
+    private boolean visit;
 
     public String getId() {
         return id;
@@ -52,5 +53,13 @@ public class CalendarItemTypeDto implements Serializable {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public boolean isVisit() {
+        return visit;
+    }
+
+    public void setVisit(boolean visit) {
+        this.visit = visit;
     }
 }
