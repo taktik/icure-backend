@@ -1,11 +1,13 @@
 package org.taktik.icure.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredDocument;
 
 import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CalendarItemType extends StoredDocument implements Serializable {
 
     private String name;
@@ -38,5 +40,13 @@ public class CalendarItemType extends StoredDocument implements Serializable {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public boolean isVisit() {
+        return visit;
+    }
+
+    public void setVisit(boolean visit) {
+        this.visit = visit;
     }
 }

@@ -139,7 +139,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
     }
 
     @Override
-    @View(name = "by_hcparty_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
+    @View(name = "by_agenda_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
     public List<CalendarItem> listCalendarItemByEndDateAndAgenda(Long startDate, Long endDate, String agenda) {
         ComplexKey from = ComplexKey.of(
             agenda,
