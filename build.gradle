@@ -119,7 +119,11 @@ dependencies {
 		exclude group: 'org.taktik.commons', module: 'commons-utils'
 	}
 
-	//Hibernate
+    //Reflection
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
+
+
+    //Hibernate
 	compile group:'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
 	compile group:'com.h2database', name: 'h2', version: '1.4.187'
 

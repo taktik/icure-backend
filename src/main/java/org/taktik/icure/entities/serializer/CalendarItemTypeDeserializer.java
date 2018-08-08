@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.taktik.icure.dao.CalendarItemTypeDAO;
 import org.taktik.icure.entities.CalendarItemType;
+import org.taktik.icure.entities.serializer.annotations.ConfigurableSerializer;
 
 import java.io.IOException;
 
+@ConfigurableSerializer(using = CalendarItemTypeDAO.class)
 public class CalendarItemTypeDeserializer extends JsonDeserializer<CalendarItemType> {
 
 
