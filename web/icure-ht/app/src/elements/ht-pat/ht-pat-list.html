@@ -366,6 +366,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-size: var(--form-font-size);
                 }
 
+                #fusionPatSelect{
+                    border:none;
+                    width: calc(100% - 24px);
+                    outline: 0;
+                    background:none;
+                    font-size: var(--form-font-size);
+                }
+                #fusionDialog {
+                    height: 200px;
+                    width: 700px;
+                }
+
                 #duplicate-list{
                     max-height: 200px;
                 }
@@ -430,10 +442,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
                         <template>
-                            <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*)]]">
+                            <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                                 <div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
                             </template>
-                            <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*)]]">
+                            <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                                 <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientToShare(item, patientToShare.*)]]"
                                                  on-checked-changed="_checkSharePatient"></vaadin-checkbox>
                             </template>
@@ -493,7 +505,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                 </vaadin-grid>
                 <div class="add-btn-container">
-                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*)]]">
+                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
                         </paper-button>
 
@@ -504,10 +516,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export
                                 patients',language)]]
                             </paper-button>
+                            <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
+                                patients',language)]]
+                            </paper-button>
                         </template>
 
                     </template>
-                    <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*)]]">
+                    <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button class="add-btn" on-tap="_cancelSharing">[[localize('canc','Cancel',language)]]
                         </paper-button>
                     </template>
@@ -703,6 +718,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
+        <paper-dialog id="fusionDialog">
+            <div>
+                <label slot="label">[[localize('fir_pat_fus','Selectionner le patient qui restera',language)]]
+                </label>
+                <paper-input-container>
+                    <iron-input slot="input">
+                        <input id="fusionPatSelect" value="{{getNamePat(idFusionPat,idFusionPat.*)}}" readonly on-tap="_openPopupMenu"></input>
+                    </iron-input>
+                    <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+                        <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+                        <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{fusionSelected}}">
+                            <template is="dom-repeat" items="{{patientToShare}}">
+                                <paper-item>{{item.names}}</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-menu-button>
+                </paper-input-container>
+
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion
+                    patients',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
+
     </template>
 
     <script>
@@ -871,6 +913,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     exportOption :{
                         type : Boolean,
                         value : false
+                    },
+                    fusionOption :{
+                        type : Boolean,
+                        value : false
+                    },
+                    idFusionPat : {
+                        type : String,
+                        notify: true
+                    },
+                    fusionSelected : {
+                        type: Number,
+                        observer: '_fusionSelectedChanged'
                     }
                 }
             }
@@ -913,6 +967,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.btnSharePatient = false
                         this.shareOption = false
                         this.exportOption = false
+                        this.fusionOption = false
                         grid.set("size", 0)
                         callback([])
                         return
@@ -1028,7 +1083,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
-                if(this.shareOption || this.exportOption) return;
+                if(this.shareOption || this.exportOption || this.fusionOption) return;
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
@@ -1166,12 +1221,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _sharePatient(e) {
                 e.stopPropagation()
                 this.set('shareOption', true)
+                this.set('exportOption', false)
+                this.set('fusionOption', false)
+
             }
 
             _exportPatient(e) {
                 e.stopPropagation()
                 this.set('exportOption', true)
+                this.set('shareOption', false)
+                this.set('fusionOption', false)
             }
+
+            _fusionPatient(e){
+                e.stopPropagation()
+                this.set('fusionOption', true)
+                this.set('shareOption', false)
+                this.set('exportOption', false)
+            }
+
             _checkSharePatient(e) {
                 const targetId = e.target.id
                 var nbPatient = 0
@@ -1179,7 +1247,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (targetId !== "") {
                     const mark = this.patientToShare.find(m => m.id === targetId)
                     if (!mark) {
-                        this.push('patientToShare',{id:targetId, check:true})
+                        this.api.patient().getPatient(targetId).then(result =>{
+                            this.push('patientToShare',{id:targetId, check:true, names : result.firstName+" "+result.lastName})
+                        })
                     } else {
                         mark.check = !mark.check
                         this.notifyPath('patientToShare.*')
@@ -1235,7 +1305,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     })
                 }
-
+                if(this.fusionOption){
+                    this.set("patientToShare",this.patientToShare.filter(element => element.check===true))
+                    if(this.patientToShare.length>1)
+                        this.$['fusionDialog'].open()
+                }
             }
 
             _deselectAllSharePatient() {
@@ -1250,6 +1324,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this._deselectAllSharePatient()
                 this.set('shareOption', false)
                 this.set('exportOption', false)
+                this.set('fusionOption', false)
             }
 
             _checkHcp(e){
@@ -1520,7 +1595,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _optionsChecked(){
-                return this.shareOption || this.exportOption
+                return this.shareOption || this.exportOption || this.fusionOption
+            }
+
+            _fusionSelectedChanged(selected) {
+                if (this.readOnly) {
+                    return;
+                }
+                this.set('idFusionPat', this.patientToShare[selected].id || null);
+            }
+
+            getNamePat(id){
+                const pat = this.patientToShare.find(patient => patient.id===id)
+                return pat.names;
+            }
+
+            confirmFusion(){
+                let listIds = "";
+                this.patientToShare.forEach(patient => {
+                    if(patient.id!==this.idFusionPat)
+                        listIds +=patient.id+",";
+                })
+                listIds = listIds.substring(0, listIds.length-1)
+                //console.log(listIds)
+                if(this.idFusionPat)
+                    this.api.patient().mergeInto(this.idFusionPat,listIds).then(response => {
+                        console.log(response)
+                        this.set('selectedPatient', response)
+                    })
             }
         }
 
