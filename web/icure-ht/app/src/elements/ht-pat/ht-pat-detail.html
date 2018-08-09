@@ -1186,13 +1186,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<paper-dialog id="consentDialog">
 			<h2 class="modal-title">[[localize('cons_req','Patient informed consent',language)]]</h2>
-			<div id="legaltext"></div>
+			<template is="dom-if" if="{{!patientConsent.consent}}">
+				<div id="legaltext"></div>
+			</template>
 			<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
 			<paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
 			<!--<paper-button on-tap="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>-->
 			<div class="buttons">
-				<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
-				<paper-button on-tap="_registerConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+				<template is="dom-if" if="{{patientConsent.consent}}">
+					<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>
+				</template>
+				<template is="dom-if" if="{{!patientConsent.consent}}">
+					<paper-button on-tap="_registerConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
+				</template>
 				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
 			</div>
 		</paper-dialog>
@@ -1553,7 +1559,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _openConsentDialog(e) {
         e.stopPropagation();
-        this.root.querySelector('#legaltext').innerHTML = this.localize('cons_legal', 'Informed consent legal text ...', this.language)
+        var legaltext = this.root.querySelector('#legaltext')
+        if(legaltext != null) {
+            legaltext.innerHTML = this.localize('cons_legal', 'Informed consent legal text ...', this.language)
+        }
         this.$.consentDialog.open();
     }
 
@@ -1946,6 +1955,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.firstName, this.patient.lastName)
                 ).then(consentResp => {
+                        this.set('patientConsent', consentResp);
                         if (consentResp.consent) {
                             return consentResp.consent;
                         } else {
