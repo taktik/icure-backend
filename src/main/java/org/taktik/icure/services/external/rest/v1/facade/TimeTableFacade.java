@@ -31,7 +31,6 @@ import org.taktik.icure.entities.TimeTableItem;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.TimeTableLogic;
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
-import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
@@ -113,7 +112,7 @@ public class TimeTableFacade implements OpenApiFacade {
             timeTableHour.setStartHour(Long.parseLong("0900"));
             //Create a timeTableItem
             TimeTableItem timeTableItem = new TimeTableItem();
-            timeTableItem.setActivityType("consult");
+            timeTableItem.setCalendarItemTypeId("consult");
             timeTableItem.setDays(new ArrayList<>());
             timeTableItem.getDays().add("monday");
             timeTableItem.setRecurrenceTypes(new ArrayList<>());

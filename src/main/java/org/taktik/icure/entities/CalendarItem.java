@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.entities.serializer.CalendarItemTypeDeserializer;
 import org.taktik.icure.entities.serializer.IdentifiableSerializer;
 import org.taktik.icure.validation.AutoFix;
@@ -52,6 +53,14 @@ public class CalendarItem extends StoredICureDocument {
     protected String patient;
 
     protected Boolean homeVisit;
+
+    protected String phoneNumber;
+
+    protected String placeId;
+
+    protected Address address;
+
+    protected String addressText;
 
     protected String note;
 
@@ -108,6 +117,38 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setHomeVisit(Boolean homeVisit) {
         this.homeVisit = homeVisit;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public String getAddressText() {
+        return addressText;
+    }
+
+    public void setAddressText(String addressText) {
+        this.addressText = addressText;
     }
 
     public String getNote() {

@@ -16,6 +16,10 @@ public class CalendarItemDto extends IcureDto {
 
     protected Boolean homeVisit;
 
+    protected String phoneNumber;
+
+    protected String placeId;
+
     protected AddressDto address;
 
     protected String addressText;
@@ -56,6 +60,22 @@ public class CalendarItemDto extends IcureDto {
 
     public void setHomeVisit(Boolean homeVisit) {
         this.homeVisit = homeVisit;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 
     public AddressDto getAddress() {
