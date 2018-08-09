@@ -3,6 +3,9 @@ package org.taktik.icure.services.external.rest.v1.dto;
 import org.taktik.icure.entities.Place;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 
+import java.util.List;
+import java.util.Set;
+
 public class CalendarItemDto extends IcureDto {
 
     protected String title;
@@ -28,6 +31,8 @@ public class CalendarItemDto extends IcureDto {
     protected String agenda;
 
     protected Place place;
+
+    protected Set<String> meetingTags;
 
     public String getTitle() {
         return title;
@@ -115,6 +120,14 @@ public class CalendarItemDto extends IcureDto {
 
     public void setPlace(Place place) {
         this.place = place;
+    }
+
+    public Set<String> getMeetingTags() {
+        return meetingTags;
+    }
+
+    public void setMeetingTags(Set<String> meetingTags) {
+        this.meetingTags = meetingTags;
     }
 
     public CalendarItemTypeDto getType() {

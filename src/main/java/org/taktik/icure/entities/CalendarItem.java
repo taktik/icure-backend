@@ -27,6 +27,8 @@ import org.taktik.icure.entities.serializer.IdentifiableSerializer;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
+import java.util.Set;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CalendarItem extends StoredICureDocument {
 
@@ -49,12 +51,16 @@ public class CalendarItem extends StoredICureDocument {
 
     protected String patient;
 
+    protected Boolean homeVisit;
+
     protected String note;
 
     @NotNull
     protected String agenda;
 
     protected Place place;
+
+    protected Set<String> meetingTags;
 
     public String getTitle() {
         return title;
@@ -96,6 +102,14 @@ public class CalendarItem extends StoredICureDocument {
         this.patient = patient;
     }
 
+    public Boolean getHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(Boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
     public String getNote() {
         return note;
     }
@@ -134,6 +148,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setPlace(Place place) {
         this.place = place;
+    }
+
+    public Set<String> getMeetingTags() {
+        return meetingTags;
+    }
+
+    public void setMeetingTags(Set<String> meetingTags) {
+        this.meetingTags = meetingTags;
     }
 
     @JsonSerialize(using = IdentifiableSerializer.class)
