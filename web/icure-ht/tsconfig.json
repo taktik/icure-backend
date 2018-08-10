@@ -10,7 +10,7 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
-    "allowTsInNodeModules": true,
+    "allowTsInNodeModules": false,
     "lib": [
       "es2017",
       "es6",
