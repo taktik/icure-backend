@@ -36,7 +36,7 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String title;
 
-    private CalendarItemType type;
+    private String calendarItemTypeId;
 
     protected String responsible;
 
@@ -67,8 +67,6 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String agenda;
 
-    protected Place place;
-
     protected Set<String> meetingTags;
 
     public String getTitle() {
@@ -77,6 +75,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCalendarItemTypeId() {
+        return calendarItemTypeId;
+    }
+
+    public void setCalendarItemTypeId(String calendarItemTypeId) {
+        this.calendarItemTypeId = calendarItemTypeId;
     }
 
     public String getResponsible() {
@@ -183,14 +189,6 @@ public class CalendarItem extends StoredICureDocument {
         this.details = details;
     }
 
-    public Place getPlace() {
-        return place;
-    }
-
-    public void setPlace(Place place) {
-        this.place = place;
-    }
-
     public Set<String> getMeetingTags() {
         return meetingTags;
     }
@@ -199,13 +197,13 @@ public class CalendarItem extends StoredICureDocument {
         this.meetingTags = meetingTags;
     }
 
-    @JsonSerialize(using = IdentifiableSerializer.class)
-    @JsonDeserialize(using = CalendarItemTypeDeserializer.class)
-    public CalendarItemType getType() {
-        return type;
-    }
-
-    public void setType(CalendarItemType type) {
-        this.type = type;
-    }
+//    @JsonSerialize(using = IdentifiableSerializer.class)
+//    @JsonDeserialize(using = CalendarItemTypeDeserializer.class)
+//    public CalendarItemType getType() {
+//        return type;
+//    }
+//
+//    public void setType(CalendarItemType type) {
+//        this.type = type;
+//    }
 }

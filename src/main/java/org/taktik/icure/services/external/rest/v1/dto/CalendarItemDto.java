@@ -10,7 +10,7 @@ public class CalendarItemDto extends IcureDto {
 
     protected String title;
 
-    private CalendarItemTypeDto type;
+    private String calendarItemTypeId;
 
     protected String patient;
 
@@ -34,8 +34,6 @@ public class CalendarItemDto extends IcureDto {
 
     protected String agenda;
 
-    protected Place place;
-
     protected Set<String> meetingTags;
 
     public String getTitle() {
@@ -44,6 +42,14 @@ public class CalendarItemDto extends IcureDto {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCalendarItemTypeId() {
+        return calendarItemTypeId;
+    }
+
+    public void setCalendarItemTypeId(String calendarItemTypeId) {
+        this.calendarItemTypeId = calendarItemTypeId;
     }
 
     public String getPatient() {
@@ -134,13 +140,6 @@ public class CalendarItemDto extends IcureDto {
         this.agenda = agenda;
     }
 
-    public Place getPlace() {
-        return place;
-    }
-
-    public void setPlace(Place place) {
-        this.place = place;
-    }
 
     public Set<String> getMeetingTags() {
         return meetingTags;
@@ -148,13 +147,5 @@ public class CalendarItemDto extends IcureDto {
 
     public void setMeetingTags(Set<String> meetingTags) {
         this.meetingTags = meetingTags;
-    }
-
-    public CalendarItemTypeDto getType() {
-        return type;
-    }
-
-    public void setType(CalendarItemTypeDto type) {
-        this.type = type;
     }
 }
