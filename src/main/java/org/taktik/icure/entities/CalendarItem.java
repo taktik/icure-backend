@@ -50,7 +50,7 @@ public class CalendarItem extends StoredICureDocument {
 
     protected String details;
 
-    protected String patient;
+    protected String patientId;
 
     protected Boolean homeVisit;
 
@@ -109,12 +109,12 @@ public class CalendarItem extends StoredICureDocument {
         this.endTime = endTime;
     }
 
-    public String getPatient() {
-        return patient;
+    public String getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(String patient) {
-        this.patient = patient;
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public Boolean getHomeVisit() {

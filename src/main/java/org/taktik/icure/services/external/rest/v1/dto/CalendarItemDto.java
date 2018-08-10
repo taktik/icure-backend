@@ -12,7 +12,7 @@ public class CalendarItemDto extends IcureDto {
 
     private String calendarItemTypeId;
 
-    protected String patient;
+    protected String patientId;
 
     protected Boolean homeVisit;
 
@@ -52,12 +52,12 @@ public class CalendarItemDto extends IcureDto {
         this.calendarItemTypeId = calendarItemTypeId;
     }
 
-    public String getPatient() {
-        return patient;
+    public String getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(String patient) {
-        this.patient = patient;
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public Boolean getHomeVisit() {
