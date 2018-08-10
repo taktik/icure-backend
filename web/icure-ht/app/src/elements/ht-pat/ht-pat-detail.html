@@ -913,6 +913,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 75%;
                 height: 80%;
             }
+			#kmehr_slot{
+				overflow-y: scroll;
+				height: 90%;
+			}
 		</style>
 
 		<div class="container">
@@ -1321,11 +1325,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</paper-dialog>
 
 		<paper-dialog id="transactionDialog">
-			<h2 class="modal-title">[[localize('trn','Transaction',language)]]</h2>
-			<paper-input-container always-float-label="true">
-				<label slot="label">C[[localize('trn','Transaction',language)]]</label>
-				<iron-autogrow-textarea class="paper-input-input" slot="input" id="transactionText" value="{{transactionText}}" ></iron-autogrow-textarea>
-			</paper-input-container>
+			<h2 class="modal-title">[[localize('trn','Transaction',language)]] [[_transactionId(selectedTransaction)]]</h2>
+            <div id="kmehr_slot"></div>
 		</paper-dialog>
 
 		<paper-dialog id="select-more-options-dialog">
@@ -1410,10 +1411,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             selectedTransaction:{
                 type: Object
             },
-			transactionText:{
-			    type: String,
-				value: ''
-			}            ,
 			selectedAdminOrCompleteFileIndex: {
 				type: Object,
 				observer: 'selectedAdminFileChanged',
@@ -1832,15 +1829,49 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _showTransaction(){
 	    this.$.transactionDialog.open();
+        //this.shadowRoot.querySelector("#transaction_name").innerHTML = "" // erase previous title
+        this.shadowRoot.querySelector("#kmehr_slot").innerHTML = "Loading..." // erase previous content
 	    this._getHubTransaction().then(tranResp =>
 	    {
+            var slot = this.shadowRoot.querySelector("#kmehr_slot");
 	        if(tranResp) {
-                var xml_serializer = new XMLSerializer();
-                var str = xml_serializer.serializeToString(tranResp);
-                this.set('transactionText', str);
-            }
-            else {
-                this.set('transactionText', '--');
+
+                //this.shadowRoot.querySelector("#transaction_name").innerHTML = this._transactionId(this.selectedTransaction)
+
+                const req = new XMLHttpRequest();
+
+                req.onreadystatechange = function(event) {
+                    if (this.readyState === XMLHttpRequest.DONE) {
+                        if (this.status === 200) {
+
+                            var xsltProcessor = new XSLTProcessor();
+                            var xslStylesheet = this.responseXML;
+                            xsltProcessor.importStylesheet(xslStylesheet);
+
+                            var fragment = xsltProcessor.transformToFragment(tranResp, document);
+
+                            slot.innerHTML = "";
+                            slot.appendChild(fragment);
+
+                        } else {
+                            slot.innerHTML = "ERROR: XSLT not found";
+                        }
+                    }
+                };
+
+                var transtype =  this._transactionType(this.selectedTransaction);
+				var xslt;
+                if(transtype == "sumehr") {
+                    xslt = "sumehr_to_html.xslt"
+                    req.open("GET", xslt, true);
+                    req.send(null);
+				} else {
+                    var slot = this.shadowRoot.querySelector("#kmehr_slot");
+                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype
+				}
+
+            } else {
+                slot.innerHTML = "No transaction found";
             }
 		}
 		)
