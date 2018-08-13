@@ -19,12 +19,8 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.Address;
-import org.taktik.icure.entities.serializer.CalendarItemTypeDeserializer;
-import org.taktik.icure.entities.serializer.IdentifiableSerializer;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
@@ -35,8 +31,6 @@ public class CalendarItem extends StoredICureDocument {
 
     @NotNull
     protected String title;
-
-    protected String responsible;
 
     private String calendarItemTypeId;
 

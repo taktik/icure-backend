@@ -2,12 +2,12 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.entities.Right;
+import org.taktik.icure.entities.base.StoredDocument;
 
 import java.util.List;
 
-public class AgendaDto {
+public class AgendaDto extends StoredDto {
 
-    private String id;
     private String name;
     private String user;
     private List<CalendarItem> events;
