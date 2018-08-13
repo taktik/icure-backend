@@ -46,6 +46,11 @@ public class AgendaLogicImpl extends GenericLogicImpl<Agenda, AgendaDAO> impleme
         return agendaDAO.getAllAgendaForUser(userId);
     }
 
+    @Override
+    public List<Agenda> getReadableAgendaForUser(String userId) {
+        return agendaDAO.getReadableAgendaForUser(userId);
+    }
+
     @Autowired
     public void setCalendarItemDAO(AgendaDAO agenda) {
         this.agendaDAO = agenda;
