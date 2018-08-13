@@ -27,14 +27,8 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.CalendarItemDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
-import org.taktik.icure.db.PaginatedList;
-import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.entities.AccessLog;
-import org.taktik.icure.entities.Agenda;
 import org.taktik.icure.entities.CalendarItem;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository("calendarItemDAO")
@@ -120,13 +114,13 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
 
     @Override
     @View(name = "by_agenda_and_startdate", map = "classpath:js/calendarItem/by_agenda_and_startdate.js")
-    public List<CalendarItem> listCalendarItemByStartDateAndAgenda(Long startDate, Long endDate, String agenda) {
+    public List<CalendarItem> listCalendarItemByStartDateAndAgendaId(Long startDate, Long endDate, String agendaId) {
         ComplexKey from = ComplexKey.of(
-            agenda,
+            agendaId,
             startDate
         );
         ComplexKey to = ComplexKey.of(
-            agenda,
+            agendaId,
             endDate == null ? ComplexKey.emptyObject() : endDate
         );
 
@@ -140,7 +134,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
 
     @Override
     @View(name = "by_agenda_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
-    public List<CalendarItem> listCalendarItemByEndDateAndAgenda(Long startDate, Long endDate, String agenda) {
+    public List<CalendarItem> listCalendarItemByEndDateAndAgendaId(Long startDate, Long endDate, String agenda) {
         ComplexKey from = ComplexKey.of(
             agenda,
             startDate
@@ -159,9 +153,9 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
     }
 
     @Override
-    public List<CalendarItem> listCalendarItemByPeriodAndAgenda(Long startDate, Long endDate, String agenda) {
-        List<CalendarItem> calendarItems = this.listCalendarItemByStartDateAndAgenda(startDate, endDate, agenda);
-        List<CalendarItem> calendarItemsEnd = this.listCalendarItemByEndDateAndAgenda(startDate, endDate, agenda);
+    public List<CalendarItem> listCalendarItemByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId) {
+        List<CalendarItem> calendarItems = this.listCalendarItemByStartDateAndAgendaId(startDate, endDate, agendaId);
+        List<CalendarItem> calendarItemsEnd = this.listCalendarItemByEndDateAndAgendaId(startDate, endDate, agendaId);
 
         if (calendarItems == null && calendarItemsEnd != null) {
             return calendarItemsEnd;

@@ -171,13 +171,13 @@ public class TimeTableFacade implements OpenApiFacade {
             notes = ""
     )
     @POST
-    @Path("/byPeriodAndUserId")
-    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("userId") String userId) {
-        if (startDate == null || endDate == null || userId == null || userId.isEmpty()) {
+    @Path("/byPeriodAndAgendaId")
+    public Response getTimeTableByPeriodAnAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
+        if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndUserId(startDate, endDate, userId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndAgendaId(startDate, endDate, agendaId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {
@@ -196,13 +196,13 @@ public class TimeTableFacade implements OpenApiFacade {
             notes = ""
     )
     @POST
-    @Path("/byUserId")
-    public Response getTimeTableByHcPartyId( @QueryParam("userId") String userId) {
-        if (userId == null || userId.isEmpty()) {
+    @Path("/byAgendaId")
+    public Response getTimeTableByAgendaId(@QueryParam("agendaId") String agendaId) {
+        if (agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByUserId(userId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByAgendaId(agendaId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {

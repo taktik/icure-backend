@@ -34,7 +34,7 @@ public interface CalendarItemLogic extends EntityPersister<CalendarItem, String>
 
 	List<CalendarItem> getCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String HcPartyId);
 
-    List<CalendarItem> getCalendarItemByPeriodAndAgenda(Long startDate, Long endDate, String agenda);
+    List<CalendarItem> getCalendarItemByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
 
     CalendarItem modifyCalendarItem(CalendarItem CalendarItem);
 

@@ -6,7 +6,7 @@ import java.util.List;
 public class TimeTableDto extends IcureDto {
 
 	protected String name;
-	protected String userId;
+	protected String agendaId;
 	protected Long startTime;
 	protected Long endTime;
 	protected List<TimeTableItemDto> items;
@@ -19,12 +19,12 @@ public class TimeTableDto extends IcureDto {
 		this.name = name;
 	}
 
-	public String getUserId() {
-		return userId;
+	public String getAgendaId() {
+		return agendaId;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setAgendaId(String agendaId) {
+		this.agendaId = agendaId;
 	}
 
 	public Long getStartTime() {

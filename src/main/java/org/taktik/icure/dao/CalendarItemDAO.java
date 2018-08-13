@@ -29,15 +29,15 @@ public interface CalendarItemDAO extends GenericDAO<CalendarItem> {
 
     List<CalendarItem> listCalendarItemByStartDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId);
 
-    @View(name = "by_agenda_and_startdate", map = "classpath:js/calendarItem/by_hcparty_and_startdate.js")
-    List<CalendarItem> listCalendarItemByStartDateAndAgenda(Long startDate, Long endDate, String agenda);
+    @View(name = "by_agenda_and_startdate", map = "classpath:js/calendarItem/by_agenda_and_startdate.js")
+    List<CalendarItem> listCalendarItemByStartDateAndAgendaId(Long startDate, Long endDate, String agendaId);
 
     List<CalendarItem> listCalendarItemByEndDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId);
 
     @View(name = "by_agenda_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
-    List<CalendarItem> listCalendarItemByEndDateAndAgenda(Long startDate, Long endDate, String agenda);
+    List<CalendarItem> listCalendarItemByEndDateAndAgendaId(Long startDate, Long endDate, String agenda);
 
     List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId);
 
-    List<CalendarItem> listCalendarItemByPeriodAndAgenda(Long startDate, Long endDate, String agenda);
+    List<CalendarItem> listCalendarItemByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
 }

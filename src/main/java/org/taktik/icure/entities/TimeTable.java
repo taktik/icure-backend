@@ -31,7 +31,7 @@ public class TimeTable extends StoredICureDocument {
     @NotNull()
     protected String name;
 
-    protected String userId;
+    protected String agendaId;
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
@@ -49,12 +49,12 @@ public class TimeTable extends StoredICureDocument {
         this.name = name;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getAgendaId() {
+        return agendaId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAgendaId(String agendaId) {
+        this.agendaId = agendaId;
     }
 
     public Long getStartTime() {

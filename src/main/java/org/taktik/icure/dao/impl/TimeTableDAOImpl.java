@@ -43,10 +43,10 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     }
 
     @Override
-    @View(name = "by_user", map = "classpath:js/timeTable/by_user.js")
-    public List<TimeTable> listTimeTableByUserId(String userId) {
-        ViewQuery viewQuery = createQuery("by_user")
-                .startKey(userId)
+    @View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
+    public List<TimeTable> listTimeTableByAgendaId(String agendaId) {
+        ViewQuery viewQuery = createQuery("by_agenda")
+                .startKey(agendaId)
                 .includeDocs(false);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
@@ -55,18 +55,18 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     }
 
     @Override
-    @View(name = "by_user_and_startdate", map = "classpath:js/timeTable/by_user_and_startdate.js")
-    public List<TimeTable> listTimeTableByStartDateAndUser(Long startDate, Long endDate, String user) {
+    @View(name = "by_agenda_and_startdate", map = "classpath:js/timeTable/by_agenda_and_startdate.js")
+    public List<TimeTable> listTimeTableByStartDateAndAgendaId(Long startDate, Long endDate, String agendaId) {
         ComplexKey from = ComplexKey.of(
-                user,
+                agendaId,
                 startDate
         );
         ComplexKey to = ComplexKey.of(
-                user,
+                agendaId,
                 endDate == null ? ComplexKey.emptyObject() : endDate
         );
 
-        ViewQuery viewQuery = createQuery("by_user_and_startdate")
+        ViewQuery viewQuery = createQuery("by_agenda_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false);
@@ -77,18 +77,18 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     }
 
     @Override
-    @View(name = "by_user_and_enddate", map = "classpath:js/timeTable/by_user_and_enddate.js")
-    public List<TimeTable> listTimeTableByEndDateAndUser(Long startDate, Long endDate, String user) {
+    @View(name = "by_agenda_and_enddate", map = "classpath:js/timeTable/by_agenda_and_enddate.js")
+    public List<TimeTable> listTimeTableByEndDateAndAgendaId(Long startDate, Long endDate, String agendaId) {
         ComplexKey from = ComplexKey.of(
-                user,
+                agendaId,
                 startDate
         );
         ComplexKey to = ComplexKey.of(
-                user,
+                agendaId,
                 endDate == null ? ComplexKey.emptyObject() : endDate
         );
 
-        ViewQuery viewQuery = createQuery("by_user_and_enddate")
+        ViewQuery viewQuery = createQuery("by_agenda_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false);
@@ -99,12 +99,12 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     }
 
     @Override
-    public List<TimeTable> listTimeTableByPeriodAndUserId(Long startDate, Long endDate, String userId) {
-        List<TimeTable> timeTablesStart = this.listTimeTableByStartDateAndUser(startDate, endDate, userId);
-        List<TimeTable> timeTablesEnd = this.listTimeTableByEndDateAndUser(startDate, endDate, userId);
+    public List<TimeTable> listTimeTableByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId) {
+        List<TimeTable> timeTablesStart = this.listTimeTableByStartDateAndAgendaId(startDate, endDate, agendaId);
+        List<TimeTable> timeTablesEnd = this.listTimeTableByEndDateAndAgendaId(startDate, endDate, agendaId);
         /* Special case : timeTableStart < research.start < rechearch.end < timetableEnd*/
-        List<TimeTable> timeTableStartBefore = this.listTimeTableByStartDateAndUser(0l,startDate,userId);
-        List<TimeTable> timeTableEndAfter = this.listTimeTableByEndDateAndUser(endDate,999999999999999l,userId);
+        List<TimeTable> timeTableStartBefore = this.listTimeTableByStartDateAndAgendaId(0l,startDate,agendaId);
+        List<TimeTable> timeTableEndAfter = this.listTimeTableByEndDateAndAgendaId(endDate,999999999999999l,agendaId);
         List<TimeTable> timeTableMerged = new ArrayList<>();
 
         /* Add in merged TimeTable that are in both timeTableStartBefore AND timeTableEndAfter, avoiding duplicates*/

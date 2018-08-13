@@ -26,22 +26,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.CalendarItem;
-import org.taktik.icure.entities.CalendarItemType;
-import org.taktik.icure.entities.Contact;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
-import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
-import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto;
-import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -168,13 +161,13 @@ public class CalendarItemFacade implements OpenApiFacade {
     }
 
     @POST
-    @Path("/byPeriodAndAgenda")
+    @Path("/byPeriodAndAgendaId")
     public Response getCalendarsForAgenda(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
         if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<CalendarItem> calendars = calendarItemLogic.getCalendarItemByPeriodAndAgenda(startDate, endDate, agendaId);
+        List<CalendarItem> calendars = calendarItemLogic.getCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId);
 
         boolean succeed = (calendars != null);
         if (succeed) {
