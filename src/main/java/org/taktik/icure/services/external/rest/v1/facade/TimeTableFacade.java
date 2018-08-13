@@ -164,20 +164,20 @@ public class TimeTableFacade implements OpenApiFacade {
 
 
     @ApiOperation(
-            value = "Get TimeTables by Period and HcPartyId",
+            value = "Get TimeTables by Period and UserId",
             response = TimeTableDto.class,
             responseContainer = "Array",
             httpMethod = "POST",
             notes = ""
     )
     @POST
-    @Path("/byPeriodAndHcPartyId")
-    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("hcPartyId") String hcPartyId) {
-        if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
+    @Path("/byPeriodAndUserId")
+    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("userId") String userId) {
+        if (startDate == null || endDate == null || userId == null || userId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndHcPartyId(startDate, endDate, hcPartyId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndUserId(startDate, endDate, userId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {
@@ -189,20 +189,20 @@ public class TimeTableFacade implements OpenApiFacade {
 
 
     @ApiOperation(
-            value = "Get TimeTables by HcPartyId",
+            value = "Get TimeTables by UserId",
             response = TimeTableDto.class,
             responseContainer = "Array",
             httpMethod = "POST",
             notes = ""
     )
     @POST
-    @Path("/byHcPartyId")
-    public Response getTimeTableByHcPartyId( @QueryParam("hcPartyId") String hcPartyId) {
-        if (hcPartyId == null || hcPartyId.isEmpty()) {
+    @Path("/byUserId")
+    public Response getTimeTableByHcPartyId( @QueryParam("userId") String userId) {
+        if (userId == null || userId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByHcPartyId(hcPartyId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByUserId(userId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {

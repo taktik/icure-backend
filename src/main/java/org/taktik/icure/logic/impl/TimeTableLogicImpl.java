@@ -55,13 +55,13 @@ public class TimeTableLogicImpl extends GenericLogicImpl<TimeTable, TimeTableDAO
 	}
 
 	@Override
-	public List<TimeTable> getTimeTableByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId){
-		return timeTableDAO.listTimeTableByPeriodAndHcPartyId(startDate,endDate,hcPartyId);
+	public List<TimeTable> getTimeTableByPeriodAndUserId(Long startDate, Long endDate, String userId){
+		return timeTableDAO.listTimeTableByPeriodAndUserId(startDate,endDate,userId);
 	}
 
 	@Override
-	public List<TimeTable> getTimeTableByHcPartyId(String hcPartyId){
-		return timeTableDAO.listTimeTableByHcPartyId(hcPartyId);
+	public List<TimeTable> getTimeTableByUserId(String hcPartyId){
+		return timeTableDAO.listTimeTableByUserId(hcPartyId);
 	}
 	@Override
 	public TimeTable modifyTimeTable(TimeTable timeTable) {
