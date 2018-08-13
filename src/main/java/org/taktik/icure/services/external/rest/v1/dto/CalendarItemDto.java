@@ -30,6 +30,8 @@ public class CalendarItemDto extends IcureDto {
 
     protected Long duration;
 
+    protected Boolean allDay;
+
     protected String details;
 
     protected String agenda;
@@ -122,6 +124,14 @@ public class CalendarItemDto extends IcureDto {
 
     public void setDuration(Long duration) {
         this.duration = duration;
+    }
+
+    public Boolean getAllDay() {
+        return allDay;
+    }
+
+    public void setAllDay(Boolean allDay) {
+        this.allDay = allDay;
     }
 
     public String getDetails() {

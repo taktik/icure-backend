@@ -36,19 +36,9 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String title;
 
-    private String calendarItemTypeId;
-
     protected String responsible;
 
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-
-    protected Long duration;
-
-    protected String details;
+    private String calendarItemTypeId;
 
     protected String patientId;
 
@@ -62,7 +52,17 @@ public class CalendarItem extends StoredICureDocument {
 
     protected String addressText;
 
-    protected String note;
+    @NotNull(autoFix = AutoFix.FUZZYNOW)
+    protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+
+    @NotNull(autoFix = AutoFix.FUZZYNOW)
+    protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+
+    protected Long duration;
+
+    protected Boolean allDay;
+
+    protected String details;
 
     @NotNull
     protected String agenda;
@@ -157,14 +157,6 @@ public class CalendarItem extends StoredICureDocument {
         this.addressText = addressText;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
     public String getAgenda() {
         return agenda;
     }
@@ -179,6 +171,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setDuration(Long duration) {
         this.duration = duration;
+    }
+
+    public Boolean getAllDay() {
+        return allDay;
+    }
+
+    public void setAllDay(Boolean allDay) {
+        this.allDay = allDay;
     }
 
     public String getDetails() {
