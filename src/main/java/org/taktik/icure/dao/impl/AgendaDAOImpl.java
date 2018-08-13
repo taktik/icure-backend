@@ -22,6 +22,7 @@ public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
     }
 
     @Override
+    @View(name = "by_user", map = "classpath:js/agenda/by_user.js")
     public List<Agenda> getAllAgendaForUser(String userId) {
 
         ViewQuery viewQuery = new ViewQuery().queryParam("user", userId);
