@@ -1,5 +1,6 @@
 package org.taktik.icure.dao.impl;
 
+import org.ektorp.ComplexKey;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.AgendaDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
+import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Agenda;
+import org.taktik.icure.entities.CalendarItem;
 
 import java.util.List;
 
@@ -25,7 +28,10 @@ public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
     @View(name = "by_user", map = "classpath:js/agenda/by_user.js")
     public List<Agenda> getAllAgendaForUser(String userId) {
 
-        ViewQuery viewQuery = new ViewQuery().queryParam("user", userId);
+        ViewQuery viewQuery = createQuery("by_user")
+            .startKey(userId)
+            .endKey(userId)
+            .includeDocs(false);
 
         return db.queryView(viewQuery, Agenda.class);
     }
