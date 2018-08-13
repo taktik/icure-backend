@@ -11,7 +11,7 @@ import java.util.List;
 public class Agenda extends StoredDocument implements Serializable {
 
     private String name;
-    private String user;
+    private String userId;
     private List<CalendarItem> events;
     private List<Right> rights;
 
@@ -23,12 +23,12 @@ public class Agenda extends StoredDocument implements Serializable {
         this.name = name;
     }
 
-    public String getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public List<CalendarItem> getEvents() {

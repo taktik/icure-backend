@@ -59,7 +59,7 @@ public class CalendarItem extends StoredICureDocument {
     protected String details;
 
     @NotNull
-    protected String agenda;
+    protected String agendaId;
 
     protected Set<String> meetingTags;
 
@@ -151,12 +151,12 @@ public class CalendarItem extends StoredICureDocument {
         this.addressText = addressText;
     }
 
-    public String getAgenda() {
-        return agenda;
+    public String getAgendaId() {
+        return agendaId;
     }
 
-    public void setAgenda(String agenda) {
-        this.agenda = agenda;
+    public void setAgendaId(String agendaId) {
+        this.agendaId = agendaId;
     }
 
     public Long getDuration() {
