@@ -44,9 +44,9 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
 
     @Override
     @View(name = "by_user", map = "classpath:js/timeTable/by_user.js")
-    public List<TimeTable> listTimeTableByUser(String user) {
+    public List<TimeTable> listTimeTableByUserId(String userId) {
         ViewQuery viewQuery = createQuery("by_user")
-                .startKey(user)
+                .startKey(userId)
                 .includeDocs(false);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
@@ -99,12 +99,12 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     }
 
     @Override
-    public List<TimeTable> listTimeTableByPeriodAndUser(Long startDate, Long endDate, String user) {
-        List<TimeTable> timeTablesStart = this.listTimeTableByStartDateAndUser(startDate, endDate, user);
-        List<TimeTable> timeTablesEnd = this.listTimeTableByEndDateAndUser(startDate, endDate, user);
+    public List<TimeTable> listTimeTableByPeriodAndUserId(Long startDate, Long endDate, String userId) {
+        List<TimeTable> timeTablesStart = this.listTimeTableByStartDateAndUser(startDate, endDate, userId);
+        List<TimeTable> timeTablesEnd = this.listTimeTableByEndDateAndUser(startDate, endDate, userId);
         /* Special case : timeTableStart < research.start < rechearch.end < timetableEnd*/
-        List<TimeTable> timeTableStartBefore = this.listTimeTableByStartDateAndUser(0l,startDate,user);
-        List<TimeTable> timeTableEndAfter = this.listTimeTableByEndDateAndUser(endDate,999999999999999l,user);
+        List<TimeTable> timeTableStartBefore = this.listTimeTableByStartDateAndUser(0l,startDate,userId);
+        List<TimeTable> timeTableEndAfter = this.listTimeTableByEndDateAndUser(endDate,999999999999999l,userId);
         List<TimeTable> timeTableMerged = new ArrayList<>();
 
         /* Add in merged TimeTable that are in both timeTableStartBefore AND timeTableEndAfter, avoiding duplicates*/
