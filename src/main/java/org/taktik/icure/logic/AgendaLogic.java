@@ -17,4 +17,5 @@ public interface AgendaLogic extends EntityPersister<Agenda, String>{
 
     List<Agenda> getAllAgendaForUser(String userId);
 
+    List<Agenda> getReadableAgendaForUser(String userId);
 }

@@ -35,4 +35,15 @@ public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
 
         return db.queryView(viewQuery, Agenda.class);
     }
+
+    @Override
+    @View(name = "readable_by_user", map = "classpath:js/agenda/readable_by_user.js")
+    public List<Agenda> getReadableAgendaForUser(String userId) {
+        ViewQuery viewQuery = createQuery("readable_by_user")
+            .startKey(userId)
+            .endKey(userId)
+            .includeDocs(false);
+
+        return db.queryView(viewQuery, Agenda.class);
+    }
 }
