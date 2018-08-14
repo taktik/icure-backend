@@ -1255,12 +1255,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template>
                 </vaadin-grid-column>
             </vaadin-grid>
-			<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
-			<paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
+			<template is="dom-if" if="[[!haveTherLinks]]">
+				<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
+				<paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
+			</template>
 			<!--<paper-button on-tap="_getTherLinks">[[localize('get_TL','Get Therapeutic link',language)]]</paper-button>-->
 			<div class="buttons">
-				<paper-button on-tap="_revokeTherLink" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
-				<paper-button enabled="false" on-tap="_registerTherLink" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
+				<paper-button on-tap="_revokeTherLink" hidden="[[!haveTherLinks]]" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
+				<paper-button enabled="false" on-tap="_registerTherLink" hidden="[[haveTherLinks]]" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
 				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
 			</div>
 		</paper-dialog>
@@ -1492,11 +1494,15 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             currentTherLinks: {
                 type: Array,
-                //observer: "currentTherLinksChanged",
+                observer: 'currentTherLinksChanged',
                 value: function () {
                     return [];
                 }
             },
+			haveTherLinks:{
+				type: Boolean,
+				value: false
+			},
             selectedTherLink: {
 			    type: Object,
                 value: null
@@ -1921,7 +1927,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         //putTransactionSetUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, hubId, patientSsin, message, hubApplication)
     }
 
-
+	currentTherLinksChanged(){
+		this.set('haveTherLinks', this.currentTherLinks.length > 0)
+	}
 
     _getTherLinks(){
         if (this.patient.ssin && this.api.tokenId) {
