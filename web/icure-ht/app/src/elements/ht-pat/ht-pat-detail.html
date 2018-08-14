@@ -1883,27 +1883,43 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		)
 	}
 
+	_isTransactionSet(tr){
+	   var cd = tr.cds.find(cd => cd.value==='gettransactionset');
+	   if(cd){
+	       return true;
+	   }else
+	   {
+	      return false;
+	   }
+	}
+
     _getHubTransaction(){
         //getTransactionUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, ssin, sv, sl, value)
-        if (this.patient.ssin && this.api.tokenId) {
-            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                .then(hcp =>
-                    this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                        hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
-                        this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
-						this.selectedTransaction.ids.find(id => id.s==='LOCAL').value)
-                ).then(tranResp => {
-                        if (tranResp) {
+		if(this._isTransactionSet(this.selectedTransaction))
+		{
+		    return this._getHubTransactionSet();
+		}
+		else {
+            if (this.patient.ssin && this.api.tokenId) {
+                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                    .then(hcp =>
+                        this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                            this.patient.ssin, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sv, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sl,
+                            this.selectedTransaction.ids.find(id => id.s === 'LOCAL').value)
+                    ).then(tranResp => {
+                            if (tranResp) {
 
 
-                            return tranResp;
-                        } else {
-                            return null;
+                                return tranResp;
+                            } else {
+                                return null;
+                            }
                         }
-                    }
-                )
-        } else {
-            return Promise.resolve(null)
+                    )
+            } else {
+                return Promise.resolve(null)
+            }
         }
     }
 
@@ -1921,6 +1937,26 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _getHubTransactionSet(){
         //getTransactionSetUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, ssin, sv, sl, value)
+        if (this.patient.ssin && this.api.tokenId) {
+            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                .then(hcp =>
+                    this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                        this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
+                        this.selectedTransaction.ids.find(id => id.s==='LOCAL').value)
+                ).then(tranResp => {
+                        if (tranResp) {
+
+
+                            return tranResp;
+                        } else {
+                            return null;
+                        }
+                    }
+                )
+        } else {
+            return Promise.resolve(null)
+        }
     }
 
     _putHubTransactionSet(){
