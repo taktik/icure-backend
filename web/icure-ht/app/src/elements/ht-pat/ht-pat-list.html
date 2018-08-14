@@ -181,6 +181,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding: 10px 1.2em;
                 }
 
+                .exportcsv-btn {
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    background: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    font-weight: bold;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    @apply --shadow-elevation-2dp;
+                    padding: 10px 1.2em;
+                }
+
                 .save-btn-container {
                     width: 20%;
                     left: 0;
@@ -496,6 +508,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 patients',language)]]
                             </paper-button>
                         </template>
+
+                        <paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
+                        </paper-button>
                     </template>
                     <template is="dom-if" if="[[shareOption]]">
                         <paper-button class="add-btn" on-tap="_cancelSharing">[[localize('canc','Cancel',language)]]
@@ -959,6 +974,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _addPatient() {
                 this.$['add-patient-dialog'].open()
+            }
+
+            _exportListToCsv() {
+                var columns = ["lastName", "firstName", "gender", "dateOfBirth", "ssin", "email", "phone", "mobile"];
+                var csv = columns.join(";") + "\n";
+                var grid = this.$['patients-list'];
+                grid.dataProvider({}, function(items) {
+                    items.forEach( item =>
+                        csv += columns.map(col => item[col]).join(";") + '\n'
+                    );
+
+                    var file = new Blob([csv] ,{type: "text/csv"});
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.style = "display: none";
+
+                    var url = window.URL.createObjectURL(file);
+                    a.href = url;
+                    a.download = "patients-list.csv";
+                    a.click();
+                    window.URL.revokeObjectURL(url)
+                })
+
             }
 
             confirm() {
