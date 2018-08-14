@@ -980,7 +980,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 var columns = ["lastName", "firstName", "gender", "dateOfBirth", "ssin", "email", "phone", "mobile"];
                 var csv = columns.join(";") + "\n";
                 var grid = this.$['patients-list'];
-                grid.dataProvider({}, function(items) {
+                grid.dataProvider({pageSize:10000}, function(items) {
                     items.forEach( item =>
                         csv += columns.map(col => item[col]).join(";") + '\n'
                     );

@@ -118,60 +118,95 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					--paper-input-container-color: var(--app-text-color);
 				}
 
+				.exportcsv-btn {
+					--paper-button-ink-color: var(--app-secondary-color-dark);
+					background: var(--app-secondary-color);
+					color: var(--app-text-color);
+					font-weight: bold;
+					font-size: 14px;
+					height: 40px;
+					min-width: 100px;
+					@apply --shadow-elevation-2dp;
+					padding: 10px 1.2em;
+				}
+
+				.container {
+					height: calc(100vh - 164px);
+				}
+
+				.btn-container {
+					width: 80%;
+					left: 20%;
+					position: absolute;
+					bottom: 16px;
+
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					align-items: center;
+					margin-top: 2px;
+				}
+
 			</style>
 		</custom-style>
 
-		<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-		<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.lastName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<div path="firstName">[[localize('fir_nam','First name',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.firstName]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<div path="speciality">[[localize('spe','Speciality',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.speciality]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column width="100px">
-				<template class="header">
-					<div class="cell frozen">[[localize('ema','Email',language)]]</div>
-				</template>
-				<template>
-					<div class="cell frozen">[[item.email]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.phone]]</div>
-				</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column>
-				<template class="header">
-					<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
-				</template>
-				<template>
-					<div class="cell numeric">[[item.mobile]]</div>
-				</template>
-			</vaadin-grid-column>
-		</vaadin-grid>
+		<div class="container">
+			<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+			<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
+				<vaadin-grid-column width="100px">
+					<template class="header">
+						<vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+					</template>
+					<template>
+						<div class="cell frozen">[[item.lastName]]</div>
+					</template>
+				</vaadin-grid-column>
+				<vaadin-grid-column width="100px">
+					<template class="header">
+						<div path="firstName">[[localize('fir_nam','First name',language)]]</div>
+					</template>
+					<template>
+						<div class="cell frozen">[[item.firstName]]</div>
+					</template>
+				</vaadin-grid-column>
+				<vaadin-grid-column width="100px">
+					<template class="header">
+						<div path="speciality">[[localize('spe','Speciality',language)]]</div>
+					</template>
+					<template>
+						<div class="cell frozen">[[item.speciality]]</div>
+					</template>
+				</vaadin-grid-column>
+				<vaadin-grid-column width="100px">
+					<template class="header">
+						<div class="cell frozen">[[localize('ema','Email',language)]]</div>
+					</template>
+					<template>
+						<div class="cell frozen">[[item.email]]</div>
+					</template>
+				</vaadin-grid-column>
+				<vaadin-grid-column>
+					<template class="header">
+						<div class="cell numeric">[[localize('pho','Phone',language)]]</div>
+					</template>
+					<template>
+						<div class="cell numeric">[[item.phone]]</div>
+					</template>
+				</vaadin-grid-column>
+				<vaadin-grid-column>
+					<template class="header">
+						<div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
+					</template>
+					<template>
+						<div class="cell numeric">[[item.mobile]]</div>
+					</template>
+				</vaadin-grid-column>
+			</vaadin-grid>
+
+			<div class="btn-container">
+				<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
+			</div>
+		</div>
 	</template>
 
 	<script>
@@ -311,6 +346,29 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Poly
 			}, 500);
 		}
 	}
+
+    _exportListToCsv() {
+        var columns = ["lastName", "firstName", "gender", "dateOfBirth", "ssin", "email", "phone", "mobile"];
+        var csv = columns.join(";") + "\n";
+        var grid = this.$['hcps-list'];
+        grid.dataProvider({pageSize:10000}, function(items) {
+            items.forEach( item =>
+                csv += columns.map(col => item[col]).join(";") + '\n'
+            );
+
+            var file = new Blob([csv] ,{type: "text/csv"});
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+
+            var url = window.URL.createObjectURL(file);
+            a.href = url;
+            a.download = "hcps-list.csv";
+            a.click();
+            window.URL.revokeObjectURL(url)
+        })
+
+    }
 
 }
 
