@@ -47,6 +47,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     public List<TimeTable> listTimeTableByAgendaId(String agendaId) {
         ViewQuery viewQuery = createQuery("by_agenda")
                 .startKey(agendaId)
+                .endKey(agendaId)
                 .includeDocs(false);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
