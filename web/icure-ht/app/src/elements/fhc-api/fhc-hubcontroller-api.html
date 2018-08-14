@@ -15,7 +15,7 @@
 									 on-error="handleError" with-credentials></iron-ajax>
 				<iron-ajax id="getTherapeuticLinksUsingGET" method="GET" headers="[[headers]]" url="/hub/therlink/{hcpNihii}/{patientSsin}" handle-as="json"
 									 on-error="handleError" with-credentials></iron-ajax>
-				<iron-ajax id="getTransactionSetUsingGET" method="GET" headers="[[headers]]" url="/hub/ts/{ssin}/{sv}/{sl}/{value}" handle-as="json"
+				<iron-ajax id="getTransactionSetUsingGET" method="GET" headers="[[headers]]" url="/hub/ts/{ssin}/{sv}/{sl}/{value}" handle-as="document"
 									 on-error="handleError" with-credentials></iron-ajax>
 				<iron-ajax id="getTransactionUsingGET" method="GET" headers="[[headers]]" url="/hub/t/{ssin}/{sv}/{sl}" handle-as="document"
 									 on-error="handleError" with-credentials></iron-ajax>
@@ -83,7 +83,7 @@
 				getTransactionSetUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, ssin, sv, sl, value) {
 					var xhr = this.$.getTransactionSetUsingGET
 					
-					xhr.url = this.host+"/hub/ts/{ssin}/{sv}/{sl}/{value}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl).replace("{value}", value) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
+					xhr.url = this.host+"/hub/ts/{ssin}/{sv}/{sl}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (value ? "&id=" + value : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
@@ -91,7 +91,7 @@
 				getTransactionUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, ssin, sv, sl, value) {
 					var xhr = this.$.getTransactionUsingGET
 					
-					xhr.url = this.host+"/hub/t/{ssin}/{sv}/{sl}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl).replace("{value}", value) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (value ? "&id=" + value : "")
+					xhr.url = this.host+"/hub/t/{ssin}/{sv}/{sl}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (value ? "&id=" + value : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
