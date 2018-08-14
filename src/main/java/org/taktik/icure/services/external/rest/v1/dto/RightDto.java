@@ -1,16 +1,17 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
 public class RightDto {
-    private String user;
+
+    private String userId;
     private boolean read;
     private boolean write;
 
-    public String getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public boolean isRead() {

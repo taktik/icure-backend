@@ -8,9 +8,17 @@ import java.io.Serializable;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Right implements Serializable {
 
-    private String user;
+    private String userId;
     private boolean read;
     private boolean write;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public boolean isRead() {
         return read;
@@ -26,13 +34,5 @@ public class Right implements Serializable {
 
     public void setWrite(boolean write) {
         this.write = write;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
     }
 }
