@@ -149,50 +149,59 @@
 
                 <vaadin-form-layout>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box  filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Procédure" value="{{plannedAction.Procedure}}"></vaadin-combo-box>
+                        <vaadin-combo-box  filtered-items="[[proceduresListItem]]" item-label-path="label.fr" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="detectVaccinProcedure" label="Procédure" value="{{plannedAction.Procedure}}"></vaadin-combo-box>
+                    </vaadin-form-item>
+                </vaadin-form-layout>
+                    <template is="dom-if" if="[[isVaccineProcedure]]">
+                        <vaadin-form-layout>
+                            <vaadin-form-item  colspan="2">
+                                <vaadin-combo-box filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Nom commercial" value="{{plannedAction.VaccineCommercialName}}"></vaadin-combo-box>
+                            </vaadin-form-item>
+                            <vaadin-form-item>
+                                <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
+                            </vaadin-form-item>
+                            <vaadin-form-item>
+                                <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}"></paper-input>
+                            </vaadin-form-item>
+                        </vaadin-form-layout>
+                    </template>
+                <vaadin-form-layout>
+                    <vaadin-form-item colspan="2">
+                        <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié"></vaadin-combo-box>
+                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" value="{{plannedAction.HcpId}}"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
                         <vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.en" item-value-path="id" on-filter-changed="" label="Profession liée" value="{{plannedAction.JobLink}}"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="name" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.fr" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
 
-                <vaadin-checkbox on-checked-changed="_isVaccine"></vaadin-checkbox> Vaccin
-                <template is="dom-if" if="[[plannedAction.isVaccine]]">
-                    <vaadin-form-layout>
-                        <vaadin-form-item  colspan="2">
-                            <vaadin-combo-box filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Nom commercial" value="{{plannedAction.VaccineCommercialName}}"></vaadin-combo-box>
-                        </vaadin-form-item>
-                        <vaadin-form-item>
-                            <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
-                        </vaadin-form-item>
-                        <vaadin-form-item>
-                            <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}"></paper-input>
-                        </vaadin-form-item>
-                    </vaadin-form-layout>
+                <template is="dom-if" if="[[isStatusRefusal]]">
+                    <div>
+                        <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}"></vaadin-text-area>
+                    </div>
                 </template>
 
                 <vaadin-form-layout>
+                    <vaadin-form-item colspan="2">
+                       <template is="dom-if" if="[[isStatusDone]]">
+                            <vaadin-checkbox on-checked-changed="_isSurgical"></vaadin-checkbox> Chirurgical
+                       </template>
+                    </vaadin-form-item>
                     <vaadin-form-item>
                         <vaadin-checkbox on-checked-changed="_isDeadLineCheck"></vaadin-checkbox> Echéance
                     </vaadin-form-item>
+
                     <vaadin-form-item>
                         <template is="dom-if" if="[[plannedAction.isDeadline]]">
                             <vaadin-checkbox on-checked-changed="_isSendMailCheck"></vaadin-checkbox> Courrier à envoyer
                         </template>
                     </vaadin-form-item>
                 </vaadin-form-layout>
-
-                <vaadin-checkbox on-checked-changed="_isRefusalAction"></vaadin-checkbox> Refus
-                <template is="dom-if" if="[[plannedAction.isRefusalAction]]">
-                    <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}"></vaadin-text-area>
-                </template>
-                <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
 
             </div>
             <div class="buttons">
@@ -222,24 +231,63 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             },
             plannedAction:{
                 type: Object,
-                value : {"Status" : "En attente", "Hcp" : {}, "Procedure" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isRefusalAction : false, isDeadline: false, isVaccine: false, "VaccineCommercialName" : "", "DoseNumber" : "", "BatchNumber" : ""}
+                value : {"Status" : "waiting", "HcpId" : "", "Procedure" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, "VaccineCommercialName" : "", "DoseNumber" : "", "BatchNumber" : ""}
             },
             comboStatus: {
                 type: Array,
-                value: [
-                    "Abandonné / Contre-indiqué",
-                    "Abandonné / Refus patient",
-                    "Abandonné / Trop tard",
-                    "Abandonné / Décès",
-                    "Abandonné / Désabonné",
-                    "Abandonné / Erreur",
-                    "Abandonné / Non pertient",
-                    "Abandonné par le patient",
-                    "En attente",
-                    "En attente planifié",
-                    "Fait",
-                    "Rappel envoyé",
-                    "Plus jamais cette procédure"
+                value:[
+                    {
+                        "id"       : "against_indicated",
+                        "label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}
+                    },
+                    {
+                        "id"       : "patient_refusal",
+                        "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
+                    },
+                    {
+                        "id"       : "too_late",
+                        "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
+                    },
+                    {
+                        "id"       : "death",
+                        "label": {"fr": "Abandonné / Décès", "nl": "Verlaten / ", "en": "Abandoned / Death"}
+                    },
+                    {
+                        "id"       : "unsubscribed",
+                        "label": {"fr": "Abandonné / Désabonné", "nl": "Verlaten / Afgemeld", "en": "Abandoned / Unsubscribed"}
+                    },
+                    {
+                        "id"       : "error",
+                        "label": {"fr": "Abandonné / Erreur", "nl": "Verlaten /", "en": "Abandoned / Error"}
+                    },
+                    {
+                        "id"       : "not_relevant",
+                        "label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}
+                    },
+                    {
+                        "id"       : "abandoned",
+                        "label": {"fr": "Abandonné par le patient", "nl": "Verlaten / erwachting", "en": "Abandoned by patient"}
+                    },
+                    {
+                        "id"       : "waiting",
+                        "label": {"fr": "En attente", "nl": "Verwachting", "en": "Waiting"}
+                    },
+                    {
+                        "id"       : "scheduled",
+                        "label": {"fr": "En attente planifié", "nl": "Gepland wachten", "en": "Scheduled waiting"}
+                    },
+                    {
+                        "id"       : "done",
+                        "label": {"fr": "Fait", "nl": "Geëxecuteerd", "en": "Done"}
+                    },
+                    {
+                        "id"       : "reminder_sent",
+                        "label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}
+                    },
+                    {
+                        "id"       : "never_again",
+                        "label": {"fr": "Plus jamais cette procédure", "nl": "Nooit meer deze procedure", "en": "Never again this procedure"}
+                    }
                 ]
             },
             hcpListItem: {
@@ -247,6 +295,9 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
                 value: []
             },
             filterValue: {
+                type: String
+            },
+            proceduresFilterValue:{
                 type: String
             },
             dataProvider: {
@@ -264,12 +315,29 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             hcpartyTypeList: {
                 type: Array,
                 value: []
+            },
+            isStatusDone : {
+                type: Boolean,
+                value: false
+            },
+            isStatusRefusal:{
+                type: Boolean,
+                value: false
+            },
+            proceduresListItem:{
+                type: Array,
+                value: []
+            },
+            isVaccineProcedure:{
+                type: Boolean,
+                value: false
             }
+
         };
     }
 
     static get observers() {
-        return ['_hcpFilterChanged(filterValue)'];
+        return ['_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)'];
     }
 
     ready() {
@@ -333,6 +401,23 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
         });
     }
 
+    _proceduresFilterChanged(e){
+        let latestSearchValue = this.filterValue || e && e.detail.value;
+        this.latestSearchValue = latestSearchValue;
+        if (!latestSearchValue || latestSearchValue.length < 2) {
+            console.log("Cancelling empty search");
+            this.set('proceduresListItem', []);
+            return;
+        }
+        this._procedureDataProvider() && this._procedureDataProvider().filter(latestSearchValue).then(res => {
+            if (latestSearchValue !== this.latestSearchValue) {
+                console.log("Cancelling obsolete search");
+                return;
+            }
+            this.set('proceduresListItem', res.rows);
+        });
+    }
+
     _DataProvider() {
         return {
             filter: function (filterValue) {
@@ -348,6 +433,21 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
         };
     }
 
+    _procedureDataProvider(){
+        return {
+            filter: function (proceduresFilterValue) {
+                const desc = 'desc';
+                let count = 15;
+                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, null, count)]).then(results => {
+                    const procedureList = results[0];
+                    const filtered = _.flatten(procedureList.rows.map(procedure => ({id: procedure.id , label : procedure.label, code : procedure.code, searchTerms : procedure.searchTerms}) ));
+                    return { totalSize: filtered.length, rows: filtered };
+                });
+
+            }.bind(this)
+        };
+    }
+
     _isDeadLineCheck(e){
         this.set('plannedAction.isDeadline', e.target.checked)
     }
@@ -356,14 +456,37 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
         this.set('plannedAction.isSendMail', e.target.checked)
     }
 
-    _isRefusalAction(e){
-        this.set('plannedAction.isRefusalAction', e.target.checked)
+    _isSurgical(e){
+        this.set('plannedAction.isSurgical', e.target.checked)
     }
 
-    _isVaccine(e){
-        this.set('plannedAction.isVaccine', e.target.checked)
+    analyzeStatus(e){
+        const status = e.detail.value
+
+        if(status === "done"){
+            this.set("isStatusDone", true)
+        }else{
+            this.set("isStatusDone", false)
+        }
+
+        if(status === "patient_refusal"){
+            this.set("isStatusRefusal", true)
+        }else{
+            this.set("isStatusRefusal", false)
+        }
     }
 
+    detectVaccinProcedure(e){
+        const code = e.detail.value
+        let codeExp = code.split(".");
+        let CISPType = codeExp[0].substr(1,3)
+
+        if(CISPType === "44"){
+            this.set("isVaccineProcedure", true)
+        }else{
+            this.set("isVaccineProcedure", false)
+        }
+    }
 
 }
 customElements.define(DynamicLink.is, DynamicLink);
