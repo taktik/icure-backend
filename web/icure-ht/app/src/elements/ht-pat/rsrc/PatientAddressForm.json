@@ -34,11 +34,11 @@
 								"multiline" : false,
 								"left" : 774,
 								"top" : 35,
-								"key" : "StringEditor"
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 1465341783,
 							"codeTypes" : [
-
+								{"type":"CD-FED-COUNTRY"}
 							],
 							"label" : "Country",
 							"type" : "TKString",

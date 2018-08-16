@@ -19,5 +19,23 @@
 package org.taktik.icure.entities.embed;
 
 public enum DelegationTag {
-	all,administrativeData,generalInformation,medicalInformation,financialInformation,sensitiveInformation,confidentialInformation
+	all,
+	administrativeData,
+	generalInformation,
+	financialInformation,
+	medicalInformation,
+	sensitiveInformation,
+	confidentialInformation,
+	cdItemRisk,
+	cdItemFamilyRisk,
+	cdItemHealthcareelement,
+	cdItemHealthcareapproach,
+	cdItemAllergy,
+	cdItemDiagnosis,
+	cdItemLab,
+	cdItemResult,
+	cdItemParameter,
+	cdItemMedication,
+	cdItemTreatment,
+	cdItemVaccine
 }

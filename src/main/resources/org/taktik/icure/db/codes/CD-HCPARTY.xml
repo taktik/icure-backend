@@ -381,105 +381,142 @@
   <VALUE>
     <CODE>persadministrative</CODE>
     <DESCRIPTION L='en'>administrative</DESCRIPTION>
+    <DESCRIPTION L='fr'>Personnel admistratif</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persambulancefirstaid</CODE>
     <DESCRIPTION L='en'>ambulance first aid</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ambulance premier secours</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persaudician</CODE>
     <DESCRIPTION L='en'>audician</DESCRIPTION>
+    <DESCRIPTION L='fr'></DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persaudiologist</CODE>
     <DESCRIPTION L='en'>audiologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Audicien</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persbiologist</CODE>
     <DESCRIPTION L='en'>biologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Biologiste</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perscaregiver</CODE>
     <DESCRIPTION L='en'>caregiver</DESCRIPTION>
+    <DESCRIPTION L='fr'>Soignant</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persdentist</CODE>
     <DESCRIPTION L='en'>dentist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dentiste</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persdietician</CODE>
     <DESCRIPTION L='en'>dietician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Diététicien</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perseducator</CODE>
     <DESCRIPTION L='en'>educator</DESCRIPTION>
+    <DESCRIPTION L='fr'>Educateur</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perslogopedist</CODE>
     <DESCRIPTION L='en'>logopedist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Logopède</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persmidwife</CODE>
     <DESCRIPTION L='en'>midwife</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sage-femme</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persnurse</CODE>
     <DESCRIPTION L='en'>nurse</DESCRIPTION>
+    <DESCRIPTION L='fr'>Infirmière</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persoccupationaltherapist</CODE>
     <DESCRIPTION L='en'>occupational therapist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ergothérapeute</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persoptician</CODE>
     <DESCRIPTION L='en'>optician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Opticien</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persorthopedist</CODE>
     <DESCRIPTION L='en'>orthopedist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Orthopédiste</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persorthoptist</CODE>
     <DESCRIPTION L='en'>orthoptist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Orthoptiste</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persparamedical</CODE>
     <DESCRIPTION L='en'>paramedical</DESCRIPTION>
+    <DESCRIPTION L='fr'>Personnel paramédical</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perspharmacist</CODE>
     <DESCRIPTION L='en'>pharmacist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacien</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perspharmacyassistant</CODE>
     <DESCRIPTION L='en'>pharmacy assistant</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacien assistant</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persphysician</CODE>
     <DESCRIPTION L='en'>physician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Médecin</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persphysiotherapist</CODE>
     <DESCRIPTION L='en'>physiotherapist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kinésithérapeute</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perspodologist</CODE>
     <DESCRIPTION L='en'>podologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Podologue</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perspracticalnurse</CODE>
     <DESCRIPTION L='en'>practical nurse</DESCRIPTION>
+    <DESCRIPTION L='fr'>Aide-soignante</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perspsychologist</CODE>
     <DESCRIPTION L='en'>psychologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Psychologue</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perssocialworker</CODE>
     <DESCRIPTION L='en'>social worker</DESCRIPTION>
+    <DESCRIPTION L='fr'>Travailleur social</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perstechnician</CODE>
     <DESCRIPTION L='en'>technician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Technicien d'imagerie médicale</DESCRIPTION>
   </VALUE>
+  <VALUE>
+    <CODE>perspharmacistclinicalbiologist</CODE>
+    <DESCRIPTION L='en'>pharmacist clinical biologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacien-biologiste clinicien</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persorthotist</CODE>
+    <DESCRIPTION L='en'>orthotist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Prothésiste</DESCRIPTION>
+  </VALUE>
+
 </kmehr-cd>

@@ -19,6 +19,7 @@
 package org.taktik.icure.logic;
 
 import org.taktik.icure.entities.Document;
+import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.services.external.rest.v1.dto.EMailDocumentDto;
 
@@ -43,4 +44,8 @@ public interface DocumentLogic extends EntityPersister<Document, String> {
 	List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
 
 	List<Document> findWithoutDelegation(int limit);
+
+	List<Document> getDocuments(List<String> documentIds);
+
+	List<Document> updateDocuments(List<Document> documents);
 }

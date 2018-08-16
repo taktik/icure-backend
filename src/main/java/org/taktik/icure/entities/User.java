@@ -19,6 +19,7 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends StoredDocument implements Principal, Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -56,7 +58,7 @@ public class User extends StoredDocument implements Principal, Cloneable, Serial
 
 	protected String groupId;
     protected String healthcarePartyId;
-	protected Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcareIds
+	protected Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcarePartyIds
 
 	@JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)

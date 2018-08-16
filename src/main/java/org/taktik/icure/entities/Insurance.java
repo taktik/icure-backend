@@ -18,14 +18,15 @@
 
 package org.taktik.icure.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Address;
 
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Insurance extends StoredDocument {
     protected boolean privateInsurance = false;
     protected boolean hospitalisationInsurance = false;

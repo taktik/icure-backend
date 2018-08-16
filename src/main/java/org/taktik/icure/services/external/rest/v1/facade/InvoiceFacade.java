@@ -185,6 +185,7 @@ public class InvoiceFacade implements OpenApiFacade{
 		return response;
 	}
 
+
 	@ApiOperation(response = InvoiceDto.class, value = "Modifies an invoice")
 	@POST
 	@Path("/reassign")
@@ -320,6 +321,43 @@ public class InvoiceFacade implements OpenApiFacade{
 		} else {
 			return Response.status(500).type("text/plain").entity("Getting the invoices failed. Please try again or read the server log.").build();
 		}
+	}
+
+	@ApiOperation(
+			value = "List helement stubs found By Healthcare Party and secret foreign keys.",
+			response = IcureStubDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys must be delimited by coma"
+	)
+	@GET
+	@Path("/byHcPartySecretForeignKeys/delegations")
+	public Response findDelegationsStubsByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId,
+	                                                                @QueryParam("secretFKeys") String secretFKeys) {
+		if (hcPartyId == null || secretFKeys == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+		return Response.ok().entity(invoiceLogic.listByHcPartyPatientSks(hcPartyId, new HashSet<>(secretPatientKeys)).stream().map(contact -> mapper.map(contact, IcureStubDto.class)).collect(Collectors.toList())).build();
+	}
+
+	@ApiOperation(
+			value = "Update delegations in healthElements.",
+			httpMethod = "POST",
+			notes = "Keys must be delimited by coma"
+	)
+	@POST
+	@Path("/delegations")
+	public Response setInvoicesDelegations(List<IcureStubDto> stubs) throws Exception {
+		List<Invoice> invoices = invoiceLogic.getInvoices(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+		invoices.forEach(healthElement -> stubs.stream().filter(s -> s.getId().equals(healthElement.getId())).findFirst().ifPresent(stub -> {
+			stub.getDelegations().forEach((s, delegationDtos) -> healthElement.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getEncryptionKeys().forEach((s, delegationDtos) -> healthElement.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+			stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> healthElement.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+		}));
+		invoiceLogic.updateInvoices(invoices);
+		return Response.ok().build();
 	}
 
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")

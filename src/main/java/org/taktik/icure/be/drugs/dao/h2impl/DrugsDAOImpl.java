@@ -116,37 +116,58 @@ public class DrugsDAOImpl implements DrugsDAO {
 
 	public File getDbDir() {
 		if (dbDir == null) {
-			String tempDir = propertyLogic.getSystemPropertyValue(PropertyTypes.System.ICURE_PATH_TEMP.getIdentifier());File drugsDir = new File(tempDir, "drugs");
-			if (drugsDir.exists() && drugsDir.isDirectory()) {
-				dbDir = drugsDir;
-			} else {
-				drugsDir.mkdirs();
-				if (drugsDir.exists() && drugsDir.isDirectory()) {
-					InputStream stream = this.getClass().getClassLoader().getResourceAsStream("be/drugs/drugs.zip");
-					ZipInputStream zis = new ZipInputStream(stream);
-					ZipEntry ze;
-					byte[] buffer = new byte[10 * 1024];
-					// while there are entries I process them
-					try {
-						while ((ze = zis.getNextEntry()) != null) {
-							String fileName = ze.getName();
-							File newFile = new File(drugsDir, fileName);
-							new File(newFile.getParent()).mkdirs();
-							FileOutputStream fos = new FileOutputStream(newFile);
-							int len;
-							while ((len = zis.read(buffer)) > 0) {
-								fos.write(buffer, 0, len);
+			String tempDir = propertyLogic.getSystemPropertyValue(PropertyTypes.System.ICURE_PATH_TEMP.getIdentifier());
+			File drugsDir = new File(tempDir, "drugs");
+			File dbFile = new File(drugsDir, dbMainFile);
+
+			if (drugsDir.exists() && drugsDir.isDirectory() && dbFile.exists()) {
+				//Should Check validity
+				InputStream stream = this.getClass().getClassLoader().getResourceAsStream("be/drugs/drugs.zip");
+				ZipInputStream zis = new ZipInputStream(stream);
+				ZipEntry ze;
+				try {
+					while ((ze = zis.getNextEntry()) != null) {
+						if (dbMainFile.equals(ze.getName())) {
+							if (ze.getSize() == dbFile.length()) {
+								dbDir = drugsDir;
+								return dbDir;
 							}
-							fos.close();
 						}
-						dbDir = drugsDir;
-					} catch (Exception ignored) {
-					} finally {
-						try {
-							zis.close();
-							stream.close();
-						} catch (IOException ignored) {
+					}
+				} catch (Exception ignored) {
+				}
+			}
+
+			if (drugsDir.isFile()) {
+				drugsDir.delete();
+			}
+
+			drugsDir.mkdirs();
+			if (drugsDir.exists() && drugsDir.isDirectory()) {
+				InputStream stream = this.getClass().getClassLoader().getResourceAsStream("be/drugs/drugs.zip");
+				ZipInputStream zis = new ZipInputStream(stream);
+				ZipEntry ze;
+				byte[] buffer = new byte[10 * 1024];
+				// while there are entries I process them
+				try {
+					while ((ze = zis.getNextEntry()) != null) {
+						String fileName = ze.getName();
+						File newFile = new File(drugsDir, fileName);
+						new File(newFile.getParent()).mkdirs();
+						FileOutputStream fos = new FileOutputStream(newFile);
+						int len;
+						while ((len = zis.read(buffer)) > 0) {
+							fos.write(buffer, 0, len);
 						}
+						fos.close();
+					}
+					dbDir = drugsDir;
+				} catch (Exception ignored) {
+				} finally {
+					try {
+						zis.close();
+						stream.close();
+					} catch (IOException ignored) {
 					}
 				}
 			}

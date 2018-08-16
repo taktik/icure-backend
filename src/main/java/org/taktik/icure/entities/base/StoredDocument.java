@@ -19,9 +19,9 @@
 package org.taktik.icure.entities.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.ektorp.Attachment;
 import org.ektorp.util.Assert;
 import org.taktik.icure.entities.embed.RevisionInfo;
@@ -35,6 +35,7 @@ import java.util.TreeMap;
 
 @SuppressWarnings({"UnusedDeclaration", "MismatchedQueryAndUpdateOfCollection"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StoredDocument implements Versionable<String> {
 
 	@JsonProperty("_attachments")

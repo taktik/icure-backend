@@ -81,18 +81,28 @@ public class CodeFacade implements OpenApiFacade {
 
 		Response response;
 
-		PaginationOffset paginationOffset = new PaginationOffset(
-				Arrays.asList(region,language,label),
-				startDocumentId,
-				null,
-				limit == null ? null : Integer.valueOf(limit)
-		);
-
 		PaginatedList<Code> codesList;
-		codesList = codeLogic.findCodesByLabel(region, language, label, paginationOffset);
 		if (types != null) {
 			List<String> typesList = Arrays.asList(types.split(","));
-			codesList.setRows(codesList.getRows().stream().filter(c -> typesList.contains(c.getType())).collect(Collectors.toList()));
+
+			List<Code> codes = typesList.stream()
+					.flatMap(type -> codeLogic.findCodesByLabel(region, language, type, label, new PaginationOffset<>(
+							Arrays.asList(region,language,type,label),
+							startDocumentId,
+							null,
+							limit == null ? null : Integer.valueOf(limit)
+					)).getRows().stream())
+					.collect(Collectors.toList());
+			int pageSize = Math.min(limit, codes.size());
+			codesList = new PaginatedList<>(pageSize, codes.size(), codes.subList(0, pageSize), null);
+			codesList.setRows(codesList.getRows().stream().filter(c -> typesList.contains(c.getType())).distinct().collect(Collectors.toList()));
+		} else {
+			codesList = codeLogic.findCodesByLabel(region, language, label, new PaginationOffset<>(
+					Arrays.asList(region,language,label),
+					startDocumentId,
+					null,
+					limit == null ? null : Integer.valueOf(limit)
+			));
 		}
 
 		if (codesList.getRows() == null) {

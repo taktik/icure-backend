@@ -3,8 +3,6 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../../bower_components/gold-password-input/gold-password-input.html">
-<link rel="import" href="../../../bower_components/polymer-password-strength/password-strength.html">
 
 <dom-module id="ht-app-first-login-dialog">
 
@@ -53,9 +51,9 @@
             color: var(--app-error-color);
         }
 
-		.firstConnDialog{
-			height: 350px;
-			width: 400px;
+		#firstConnectionDialog{
+			height: 400px;
+			width: 350px;
 		}
 
         .error{
@@ -67,16 +65,16 @@
 
     </style>
 
-		<paper-dialog id="firstConnectionDialog" class="firstConnDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" user="[[user]]" modal>
+		<paper-dialog id="firstConnectionDialog" opened="{{opened}}" api="[[api]]" route="[[route]]" user="[[user]]" modal>
 			<h3>[[localize('welcome_mess','Welcome to the Icure application',language)]] [[user.name]]</h3>
             <h4>[[localize('generate_key_mess','Entrer a password for the application and click on the following button to generate your key',language)]]</h4>
-            <gold-password-input label="Mot de passe" reveal suffix value="{{password}}"></gold-password-input>
+            <paper-input label="[[localize('mdp','Password',language)]]" value="{{password}}"></paper-input>
+            <paper-input label="[[localize('mdp_ver','Password verification',language)]]" value="{{password_verif}}"></paper-input>
             <div class="error">[[passwordError]]</div>
             <paper-button class="generateKeyBtn" on-tap="generateKey">[[localize('gen','Generate',language)]]</paper-button>
 		</paper-dialog>
 
 </template>
-    </script>
     <script>
     import { sha256, sha224 } from 'js-sha256/src/sha256';
 //noinspection JSUnusedGlobalSymbols
@@ -113,6 +111,9 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             },
             password: {
 			    type: String
+            },
+            password_verif: {
+			    type: String
             }
 		};
 	}
@@ -136,7 +137,7 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
     }
 
     generateKey(){
-        if(this.password !== ""){
+        if(this.password !== "" && this.password === this.password_verif){
             this.set('passwordError', '');
             var jsSha256 = require("js-sha256")
             var hash = sha256.create()
@@ -146,11 +147,9 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             this.user.passwordHash = passwordHash
             this.api.user().modifyUser(this.user).then(u => {
                 this.api.crypto().RSA.generateKeyPair().then(keyPair => {
-                    console.log(keyPair)
                     this.api.crypto().AES.generateCryptoKey(true).then(AESKey => {
                         return this.api.crypto().RSA.encrypt(keyPair.publicKey, this.api.crypto().utils.hex2ua(AESKey))
                     }).then(encryptedAESKey => {
-
                         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{
 
                             this.api.crypto().RSA.exportKeys(keyPair, 'jwk', 'jwk').then(exportedKeyPair => {
@@ -189,9 +188,15 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
             })
 
         }else{
-            this.set('passwordError', 'Mot de passe invalide');
+            if(this.password !== this.password_verif){
+                this.set('passwordError', 'Les mots de passe ne correspondent pas');
+            }else if(this.password === ""){
+                this.set('passwordError', 'Mot de passe invalide');
+            }
         }
     }
+
+
 }
 
 customElements.define(HtAppFirstLoginDialog.is, HtAppFirstLoginDialog);

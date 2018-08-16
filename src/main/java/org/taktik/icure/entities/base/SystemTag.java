@@ -18,13 +18,14 @@
 
 package org.taktik.icure.entities.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Created by aduchate on 21/04/13, 17:50
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SystemTag extends Code {
 	public static final String SYSTEM_TYPE = "ICURE_SYSTEM";
 

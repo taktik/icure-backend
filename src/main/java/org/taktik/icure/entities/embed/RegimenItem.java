@@ -18,15 +18,16 @@
 
 package org.taktik.icure.entities.embed;
 
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.StringUtils;
 import org.taktik.icure.entities.base.Code;
 
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegimenItem  implements Serializable {
 	//Day definition (One and only one of the three following should be not null)
 	//The three are null if it applies to every day

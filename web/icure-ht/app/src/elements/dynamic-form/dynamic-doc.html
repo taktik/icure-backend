@@ -118,7 +118,9 @@
 				<pdf-element src="[[dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
 			</template>
 			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <span on-tap="[[_getAttachment()]]"> Details Import</span>
+				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button><vaadin-button id="todayButton" part="today-button" on-tap="importPatient">
+				import
+			</vaadin-button>
 				<template is="dom-if" if="[[showDetail]]">
 					[[documentAttachment]]
 				</template>
@@ -199,7 +201,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
                                 console.log(typeof att);
                                 this.set('documentAttachment', att);
                                 const xml = XML.parseXml(att)
-                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S); this.importPatient();}else{this.set("type","Non Valid Type")}
+                                if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);}else{this.set("type","Non Valid Type")}
 							});
                         }else {
                             const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);
@@ -245,7 +247,17 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Pol
 	}
 
 	importPatient(){
-	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{})
+	    this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
+	        contacts => {
+	            contacts.forEach(contact => {
+					contact.ctcs.forEach(ctc => {
+                        this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+                            console.log(c)
+                            return c
+                        });
+					})
+				})
+			})
 	}
 
 }

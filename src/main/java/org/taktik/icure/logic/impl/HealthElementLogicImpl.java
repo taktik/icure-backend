@@ -82,7 +82,7 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 
 			// Setting Healthcare problem attributes
 			healthElement.setId(uuidGenerator.newGUID().toString());
-			healthElement.setOpeningDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS));
+			if (healthElement.getOpeningDate() == null) { healthElement.setOpeningDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)); }
 			healthElement.setAuthor(healthcarePartyId);
 			healthElement.setResponsible(healthcarePartyId);
 
@@ -99,6 +99,11 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	@Override
 	public HealthElement getHealthElement(String healthElementId) {
 		return healthElementDAO.getHealthElement(healthElementId);
+	}
+
+	@Override
+	public List<HealthElement> getHealthElements(List<String> healthElementIds) {
+		return healthElementDAO.getList(healthElementIds);
 	}
 
 	@Override

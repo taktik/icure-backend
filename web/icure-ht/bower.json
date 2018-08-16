@@ -69,7 +69,8 @@
     "intl-messageformat": "^1.1.0",
     "iron-collapse-button": "^1.0.1",
     "gold-password-input": "^2.1.0",
-    "polymer-password-strength": "^1.0.0"
+    "polymer-password-strength": "^1.0.0",
+    "vaadin-tabs": "vaadin/vaadin-tabs#^2.0.0"
   },
   "resolutions": {
     "iron-selector": "1f6b245bbe94c7693180ff06064e5e1b0b801a90",

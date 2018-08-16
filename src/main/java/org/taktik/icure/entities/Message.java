@@ -19,8 +19,8 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.Delegation;
@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message extends StoredICureDocument implements Serializable {
 
 	public final static int STATUS_LABO_RESULT 				= 1 << 0;
@@ -68,6 +69,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	private String formId;
 	private Integer status;
 	private String recipientsType;
+
 	private Set<String> recipients = new HashSet<>(); //The id of the hcp whose the message is addressed to
 	private Set<String> toAddresses = new HashSet<>(); //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
 
@@ -77,8 +79,8 @@ public class Message extends StoredICureDocument implements Serializable {
 	private Map<String,String> metas = new HashMap<>();
 
 	/*
-		CHAP4IN:    ${Mycarenet message ref}
-		CHAP4OUT:   ${Mycarenet message ref}
+		CHAP4:IN:   ${Mycarenet message ref}
+		CHAP4:OUT:  ${Mycarenet message ref}
 		EFACT:BATCH:${iCure batch ref}
 		EFACT:IN:   ${Mycarenet message ref}
 		EFACT:OUT:  ${Mycarenet message ref}

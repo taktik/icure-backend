@@ -111,18 +111,18 @@
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
 
-            this.contacticc = new IccContactXApi(this.host, this.headers,this.cryptoicc)
-            this.documenticc = new IccDocumentXApi(this.host, this.headers,this.cryptoicc)
-            this.formicc = new IccFormXApi(this.host, this.headers,this.cryptoicc)
-            this.helementicc = new IccHelementXApi(this.host, this.headers,this.cryptoicc)
-            this.patienticc = new IccPatientXApi(this.host, this.headers,this.cryptoicc)
+            this.contacticc = new IccContactXApi(this.host, this.headers, this.cryptoicc)
+            this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
+            this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
+            this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
+            this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
 
             this.user().listUsers().then(users => {
                 this.set('users', users.rows.reduce((acc, u) => {
                     acc[u.id] = u
                     return acc
                 }, {}))
-                return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => id !== null))
+                return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => !!id))
             }).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc

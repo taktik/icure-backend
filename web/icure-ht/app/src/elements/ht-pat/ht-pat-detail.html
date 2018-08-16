@@ -1143,36 +1143,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<iron-icon class="selection-toast-icon" icon="icure-svg-icons:select-all"></iron-icon>
 							Select All
 						</paper-button>
+						<paper-button class="selection-toast-button" name="select-all" role="button" tabindex="0"
+									  animated aria-disabled="false" elevation="0" on-tap="_selectMoreOptions">
+							<iron-icon class="selection-toast-icon" icon="icons:add"></iron-icon>
+							{{localize("more","More",language)}}
+						</paper-button>
 					</paper-toast>
 					<template is="dom-if" if="[[!currentContact]]">
 						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">[[localize('new_con','New Contact',language)]]</paper-button></div>
 					</template>
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]"
-												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]"
+												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
 												on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
 
-		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Create">
+		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="[[localize('hp','Health Problem',language)]]" entity="{{heEntity}}" ok-label="[[localize('cre','Create',language)]]">
 			<div class="extraDialogFields" slot="suffix">
 			</div>
 		</health-problem-selector>
 
-		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="Health Problem" entity="{{heEntity}}" ok-label="Modify">
+		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="[[localize('hp','Health Problem',language)]]" entity="{{heEntity}}" ok-label="[[localize('modify','Modify',language)]]">
 			<div class="extraDialogFields" slot="suffix">
 					<div class="history">[[localize('his','history',language)]]</div>
 			</div>
 		</health-problem-selector>
 
-		<entity-selector id="add-service-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Create">
+		<entity-selector id="add-service-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="[[localize('cre','Create',language)]]">
 			<div class="extraDialogFields" slot="suffix">
 				<paper-input label="Description" value="[[shortServiceDescription(svcEntity, language)}}" on-value-changed="_svcEntityContentChanged"></paper-input>
 			</div>
 		</entity-selector>
 
-		<entity-selector id="edit-service-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="Modify">
+		<entity-selector id="edit-service-dialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" columns="[[_servicesSelectorColumns()]]" data-provider="[[_servicesSelectorDataProvider(editedSvcLabel)]]" on-entity-selected="_addedOrEditedServiceSelected" entity-type="[[editedSvcLabel]]" entity="{{svcEntity}}" ok-label="[[localize('modify','Modify',language)]]">
 			<div class="extraDialogFields" slot="suffix">
 				<paper-input label="Description" value="[[shortServiceDescription(svcEntity, language)}}" on-value-changed="_svcEntityContentChanged"></paper-input>
 			</div>
@@ -1241,6 +1246,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<paper-button on-tap="_revokeTherLink" dialog-confirm>[[localize('revoke_tl','Revoke Therapeutic Link',language)]]</paper-button>
 				<paper-button enabled="false" on-tap="_registerTherLink" dialog-confirm>[[localize('reg_tl','Register Therapeutic Link',language)]]</paper-button>
 				<paper-button class="modal-button--save" dialog-confirm autofocus >[[localize('can','Cancel',language)]]</paper-button>
+			</div>
+		</paper-dialog>
+
+		<paper-dialog id="select-more-options-dialog">
+			<div class="horizontal">
+                <label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
+				<vaadin-date-picker label="[[localize('startDate','Start date',language)]]" i18n="[[i18n]]" value="{{dateStartAsString}}"></vaadin-date-picker>
+				<vaadin-date-picker label="[[localize('endDate','End date',language)]]" i18n="[[i18n]]" value="{{dateEndAsString}}"></vaadin-date-picker>
 			</div>
 		</paper-dialog>
 	</template>
@@ -1394,6 +1407,20 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			i18n: {
 				type: Object
+			},
+            dateStartAsString :{
+			    type : String,
+				value : null,
+                observer: '_selectBetweenTwoDates'
+			},
+            dateEndAsString :{
+                type : String,
+                value : null,
+                observer: '_selectBetweenTwoDates'
+            },
+            hiddenSubContactsId: {
+			    type: Object,
+				value: {}
 			}
 		};
 	}
@@ -1654,7 +1681,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	saveContact(ctc) {
-		return (ctc.rev ? this.api.contact().modifyContactWithHcParty(this.user, ctc) : this.api.contact().createContactWithHcParty(this.user, ctc)).then(c => {
+		return (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c => {
 			ctc.rev = c.rev;
 			console.log("contact saved: " + ctc.id + ":" + ctc.rev);
 
@@ -1739,6 +1766,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			const patient = this.patient;
 			const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id=>id && id.substr(4) /* format is ctc_... see DOM */);
 			Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient), this.api.helement().findBy(this.user.healthcarePartyId, patient)]).then(([ctcs, hes]) => {
+                ctcs.sort((a,b) => (a.created||0)-(b.created||0))
 				const descrPattern = this.user.properties.find(p => p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}";
 				const sorter = x => [-x.valueDate || -x.openingDate, -x.closingDate];
 				const idServicesInHes = _.compact(hes.map(he => he.idService));
@@ -1798,12 +1826,26 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						if (!ctc.userDescr || ctc.userDescr.length < 3) {
 							ctc.userDescr = ctc.descr;
 						}
-					});(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
+					})
+                    ;(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
 						const thisYear = moment().year();
 						this.set('contacts', ctcs);
 						this.set('currentContact', newCtc);
+						const formIds = {}
+						this.hiddenSubContactsId = _.reduce(ctcs, (acc, ctc) => {
+						    ctc.subContacts.forEach(sc => {
+                                if (sc.formId && formIds[sc.formId]) {
+                                    if (!sc.id) {sc.id = this.api.crypto().randomUuid()}
+                                    acc[sc.id] = 1
+                                } else if (sc.formId) {
+                                    formIds[sc.formId] = true
+                                }
+                            })
+                            return acc
+						}, {})
 						this.set('contactYears', _.sortBy(_.values(_.reduce(ctcs, (acc, ctc) => {
-							if (ctc.subContacts && ctc.subContacts.length || ctc.services.find(s => _.values(s.content).find(this.contentHasData.bind(this)))) {
+							if (ctc.subContacts && ctc.subContacts.filter(sc=>!this.hiddenSubContactsId[sc.id]).length ||
+                                ctc.services.some(s => !ctc.subContacts.some(sc=>sc.services.some(scs=>scs.idService === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
 								let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4));
 								const contacts = (acc[year] || (acc[year] = { year: year, contacts: [] })).contacts;
 								if (!contacts.includes(ctc)) {
@@ -1916,7 +1958,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		e.stopPropagation();
 		e.preventDefault();
 
-		const ctcId = e.target.id.substr(6);
+        const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+        ctcDetailPanel && ctcDetailPanel.flushSave();
+
+        const ctcId = e.target.id.substr(6);
 		const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId));
 		const contact = year.contacts.find(c => c.id === ctcId);
 
@@ -1928,9 +1973,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 				this.set('currentContact', null);
 			} else {
-				this.api.contact().getContact(contact.id).then(c => {
+				this.api.contact().getContactWithUser(this.user, contact.id).then(c => {
 					c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-					(c.rev ? this.api.contact().modifyContactWithHcParty(this.user, c) : this.api.contact().createContact(c)).then(() => this.patientChanged());
+					(c.rev ? this.api.contact().modifyContactWithUser(this.user, c) : this.api.contact().createContact(c)).then(() => this.patientChanged());
 					//this.notifyPath('currentContact.closingDate')
 				});
 			}
@@ -2060,8 +2105,20 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.updateContactYears();
 	}
 
+    _selectMoreOptions() {
+        this.$['select-more-options-dialog'].open()
+    }
+
+    _selectBetweenTwoDates() {
+
+        this.set('timeSpanStart', moment(this.dateStartAsString).format('YYYYMMDD')==="Invalid date" ? null :parseInt(moment(this.dateStartAsString).format('YYYYMMDD')));
+        this.set('timeSpanEnd', moment(this.dateEndAsString).format('YYYYMMDD')==="Invalid date" ? null : parseInt(moment(this.dateEndAsString).format('YYYYMMDD')));
+
+        this.updateContactYears();
+    }
+
 	_selectCurrentContact() {
-		this.shadowRoot.querySelector('#_contacts_listbox').set('selectedValues', [0]);
+		this.currentContact && this.currentContact.id && this.shadowRoot.querySelector('#_contacts_listbox').set('selectedValues', [this.currentContact.id]);
 	}
 
 	updateContactYears() {
