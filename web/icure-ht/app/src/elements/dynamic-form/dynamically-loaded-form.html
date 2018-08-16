@@ -43,7 +43,7 @@
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
 		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]"
 		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-					  on-link-form="linkForm" on-delete-form="deleteForm">
+					  on-link-form="linkForm" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-plan-action="_planAction">
 			<div slot="titlebar" class="title-bar">
 				<template is="dom-repeat" items="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" as="he">
 					<template is="dom-if" if="[[he.descr]]">
@@ -294,6 +294,7 @@
 
 				const self = {
 					servicesMap: {},
+                    //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
 					services: label => {
 						if (label && self.servicesMap[label]) {
 							return self.servicesMap[label];
@@ -326,9 +327,10 @@
 						return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
 					},
 					getOrCreateContent: (svc, lng) => svc && (svc.content && svc.content[lng] || ((svc.content || (svc.content = {}))[lng] = {})),
-					getServicesLineForContact: label => {
+                    //Returns an array of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs share the same svc id. If there is a choice between several series of services. Pick the one that preferably appears in the contact.
+                    getServicesLineForContact: label => {
 						const sss = self.services(label);
-						return sss && (sss.find(svcs => svcs.find(ss => ss.ctc.id === this.contact.id)) || sss[0]);
+						return sss && (sss.find(svcs => svcs.find(ss => ss.ctc.id === this.contact.id)) || sss[0]) || [];
 					},
 					getServiceInContact: label => {
 						const ssLine = self.getServicesLineForContact(label);
@@ -340,14 +342,14 @@
 					},
 					isModifiedAfter: label => {
 						const s = self.getServicesLineForContact(label);
-						return s && s[0] !== self.getServiceInContact(label);
+						return s && s[0] && s[0] !== self.getServiceInContact(label);
 					},
 					latestModification: label => {
 						const s = self.getServicesLineForContact(label);
-						return s && this._timeFormat(s[0].ctc.openingDate);
+						return s && s[0] && this._timeFormat(s[0].ctc.openingDate);
 					},
 					getValueContainers: label => {
-						const c = _.compact(self.services(label).map(line => line && line.find(ss => !this.api.after(ss.ctc.created, this.contact.created))).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(s => _.cloneDeep(s)); //Never provide the real objects so that we can compare them later on
+						const c = _.compact(self.services(label).map(line => line && line[0]).map(s => s && s.svc && !s.svc.endOfLife && s.svc)).map(s => _.cloneDeep(s)); //Never provide the real objects so that we can compare them later on
 						return c;
 					},
 					setValueContainers: (label, containers) => {
@@ -394,33 +396,33 @@
 							this.scheduleSave(this.currentContact);
 						}
 					},
-					getStringValue: (label, latest) => {
-						const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
+					getStringValue: (label, original) => {
+						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
 						return c && c.stringValue;
 					},
-					getNumberValue: (label, latest) => {
-						const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
+					getNumberValue: (label, original) => {
+						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
 						return c && c.numberValue;
 					},
-					getMeasureValue: (label, latest) => {
-						const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
+					getMeasureValue: (label, original) => {
+						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
 						return c && c.measureValue;
 					},
-					getDateValue: (label, latest) => {
-						const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
+					getDateValue: (label, original) => {
+						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
 						return c && c.instantValue;
 					},
-					getBooleanValue: (label, latest) => {
-						const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
+					getBooleanValue: (label, original) => {
+						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
 						return c && c.booleanValue;
 					},
-					getValueDateOfValue: (label, latest) => {
-						const s = latest ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
+					getValueDateOfValue: (label, original) => {
+						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						return s && s.svc && !s.svc.endOfLife && s.svc.valueDate;
 					},
 					setStringValue: function (label, value) {
@@ -660,6 +662,7 @@
                 this.scheduleSave(this.currentContact);
 			}
 
+			//Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
 			servicesInForm(formId, label) {
 				const svcStructs = (label ? this.servicesMap[label] : _.flatten(Object.values(this.servicesMap))) || [];
 				return _.sortBy(_.uniqBy(svcStructs.filter(ss => (ss.scs || []).find(sc => sc.formId === formId)) //Extract all services which appear at some point in that form
@@ -727,7 +730,30 @@
 				return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
 			}
 
+            _statusChanged(detail){
+                console.log('dynamically-loaded-form')
+
+				const flatMapLabel = _.flatMap(this.layoutInfoPerLabel)
+				var label = flatMapLabel.find(label => label.name === detail.detail.label)
+
+				if(label){
+                    const indexOfLabel = flatMapLabel.indexOf(label)
+                    label.status = 0
+                    console.log(label)
+                    this.set('layoutInfoPerLabel[indexOfLabel]', label)
+				}
+            }
+
+            _planAction(detail){
+                console.log(detail.detail.plannedAction)
+
+				//this.createService("plannedAction", null, null, "", null, "")
+
+            }
+
 		}
+
+
 
 		customElements.define(DynamicallyLoadedForm.is, DynamicallyLoadedForm);
 	</script>
