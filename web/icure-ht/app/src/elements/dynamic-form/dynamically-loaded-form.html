@@ -43,7 +43,7 @@
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
 		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]"
 		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-					  on-link-form="linkForm" on-delete-form="deleteForm">
+					  on-link-form="linkForm" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-plan-action="_planAction">
 			<div slot="titlebar" class="title-bar">
 				<template is="dom-repeat" items="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" as="he">
 					<template is="dom-if" if="[[he.descr]]">
@@ -730,7 +730,30 @@
 				return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
 			}
 
+            _statusChanged(detail){
+                console.log('dynamically-loaded-form')
+
+				const flatMapLabel = _.flatMap(this.layoutInfoPerLabel)
+				var label = flatMapLabel.find(label => label.name === detail.detail.label)
+
+				if(label){
+                    const indexOfLabel = flatMapLabel.indexOf(label)
+                    label.status = 0
+                    console.log(label)
+                    this.set('layoutInfoPerLabel[indexOfLabel]', label)
+				}
+            }
+
+            _planAction(detail){
+                console.log(detail.detail.plannedAction)
+
+				//this.createService("plannedAction", null, null, "", null, "")
+
+            }
+
 		}
+
+
 
 		customElements.define(DynamicallyLoadedForm.is, DynamicallyLoadedForm);
 	</script>

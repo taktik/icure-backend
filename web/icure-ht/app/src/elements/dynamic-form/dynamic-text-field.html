@@ -101,7 +101,7 @@
 					<input type="text" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
 		</template>
 
 	</template>
@@ -165,6 +165,13 @@ class DynamicTextField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	_valueChanged(value) {
 		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
 	}
+
+    _statusChanged(inf){
+        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
+    }
+    _planAction(detail){
+        this.dispatchEvent(new CustomEvent('plan-action', detail ));
+    }
 
 }
 
