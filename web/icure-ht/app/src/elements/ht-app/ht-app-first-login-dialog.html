@@ -150,7 +150,6 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehavi
                     this.api.crypto().AES.generateCryptoKey(true).then(AESKey => {
                         return this.api.crypto().RSA.encrypt(keyPair.publicKey, this.api.crypto().utils.hex2ua(AESKey))
                     }).then(encryptedAESKey => {
-
                         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>{
 
                             this.api.crypto().RSA.exportKeys(keyPair, 'jwk', 'jwk').then(exportedKeyPair => {
