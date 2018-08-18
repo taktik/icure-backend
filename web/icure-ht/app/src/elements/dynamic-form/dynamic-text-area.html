@@ -87,7 +87,7 @@
 		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
 	</template>
 	<script>
-class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'dynamic-text-area';
 	}
