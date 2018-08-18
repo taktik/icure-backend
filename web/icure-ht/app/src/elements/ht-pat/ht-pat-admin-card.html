@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../../bower_components/vaadin-tabs/vaadin-tabs.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
@@ -42,6 +42,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				width: 100%;
 				height: 100%;
 			}
+
+            paper-tabs {
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+            }
+
+            paper-tab {
+                --paper-tab-ink: var(--app-secondary-color);
+            }
+
+            paper-tab.iron-selected {
+                font-weight: bold;
+            }
+
+            paper-tab.iron-selected > iron-icon {
+                color: var(--app-secondary-color);
+            }
 
 			paper-material.card {
 				background-color: #fff;
@@ -227,7 +243,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .administrative-panel {
-                height: 100%;
                 background: var(--app-background-color);
                 top: 64px;
                 left: 20%;
@@ -347,14 +362,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: auto;
             }
 
+            iron-icon.smaller {
+                padding-right: 8px;
+                width: 16px;
+                height: 16px;
+            }
 
         </style>
         <div class="administrative-panel">
-            <vaadin-tabs selected="{{tabs}}">
-                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</vaadin-tab>
-                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</vaadin-tab>
-                <vaadin-tab class="adm-tab"><iron-icon icon="vaadin:users"></iron-icon>[[localize('adm_h_t','Care team',language)]]</vaadin-tab>
-            </vaadin-tabs>
+            <paper-tabs selected="{{tabs}}">
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:users"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
+            </paper-tabs>
 
             <iron-pages selected="[[tabs]]" class="">
                 <page>
@@ -608,7 +628,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	<script>
 
-class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'ht-pat-admin-card';
 	}
@@ -704,6 +724,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
             invitedHcpLink:{
                 type : String,
                 value : ""
+            },
+            tabs: {
+			    type: Number,
+                value: 0
             }
 		};
 	}
@@ -722,14 +746,15 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
 
 	ready(){
 	    super.ready();
-        this.initCurrentCareTeam();
     }
 
 	patientChanged() {
 		if (this.api && this.user && this.patient) {
 			this.flushSave();
 
-            if(this.patient.partnerships && this.patient.partnerships.length){
+			this.initCurrentCareTeam();
+
+            if (this.patient.partnerships && this.patient.partnerships.length){
                 Promise.all(this.patient.partnerships.map(ps =>{
                    return this.api.patient().getPatient(ps.partnerId).then(pps => {
                         const index = this.patient.partnerships.indexOf(ps)
@@ -872,18 +897,25 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                     return Promise.resolve(s ? Object.values(this.api.users).filter(u=>(u.login && u.login.toLowerCase().includes(s.toLowerCase())) ||
                         (u.name && u.name.toLowerCase().includes(s.toLowerCase())) || (u.email && u.email.toLowerCase().includes(s.toLowerCase())))
 						.map(u => ({id: u.id, name: u.name||u.login||u.email})):[])
-                } else if (data.source === "codes" && data.types.length && text && text.length > 1) {
-				    return id ? Promise.all(data.types.map(ct => this.api.code().getCodeWithParts(ct,id,'1'))).then(x => _.compact(x)[0]).then(c => ({id:c.code, name: c.label[typeLng]})) : Promise.all(data.types.map(ct => {
-                        const typeLng = this.api.code().languageForType(ct.type, this.language)
-                        const words = text.toLowerCase().split(/\s+/)
-                        const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
+                } else if (data.source === "codes" && data.types.length && (id || (text && text.length > 1))) {
+				    return id ?
+                        Promise.all(data.types.map(ct => this.api.code().getCodeWithParts(ct.type, id, '1')))
+                            .then(x => _.compact(x)[0])
+                            .then(c => {
+                                const typeLng = this.api.code().languageForType(c.type, this.language)
+                                return {id: c.code, name: c.label[typeLng]}
+                            }) :
+                        Promise.all(data.types.map(ct => {
+                            const typeLng = this.api.code().languageForType(ct.type, this.language)
+                            const words = text.toLowerCase().split(/\s+/)
+                            const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
 
-                        return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
-                            id: code.code, name: code.label[typeLng]
-                        })), sorter))
-                    })).then(responses => _.flatMap(responses))
+                            return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
+                                id: code.code, name: code.label[typeLng]
+                            })), sorter))
+                        })).then(responses => _.flatMap(responses))
 				}
-                return Promise.resolve([])
+                return Promise.resolve(id ? null : [])
 			}
 		};
 	}
@@ -943,8 +975,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
         })
     }
 
-    initCurrentCareTeam(){
-
+    initCurrentCareTeam() {
         var internalTeam = []
         var externalTeam = []
 
@@ -971,8 +1002,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([],
                 )
             ).then(() => this.set('currentExternalCareTeam', externalTeam))
         })
-
-
     }
 
     showInfoSelectedHcp(e){
