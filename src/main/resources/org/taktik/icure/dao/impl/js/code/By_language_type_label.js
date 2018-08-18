@@ -1,10 +1,7 @@
 map = function(doc) {
-  var emit_normalized_substrings = function(region,language,type,text,latin_map) {
-    text.trim().split(/[ |/]+/).forEach(function(word) {
-      var r = word.toLowerCase().replace(/[^A-Za-z0-9]/g,function(a){return latin_map[a]||""});
-      if (r.length) {
-        emit([region, language, type, r], 1);
-      }
+  var normalize_substrings = function(text,latin_map) {
+    return text.trim().split(/[ |/]+/).map(function(word) {
+      return word.toLowerCase().replace(/[^A-Za-z0-9]/g,function(a){return latin_map[a]||""});
     });
   };
 
@@ -36,20 +33,32 @@ map = function(doc) {
       "ỷ":"y","ỿ":"y","ȳ":"y","ẙ":"y","ɏ":"y","ỹ":"y","ź":"z","ž":"z","ẑ":"z","ʑ":"z","ⱬ":"z","ż":"z","ẓ":"z","ȥ":"z","ẕ":"z","ᵶ":"z","ᶎ":"z",
       "ʐ":"z","ƶ":"z","ɀ":"z","ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st","ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j",
       "ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"};
-    doc.regions.forEach(function (r) {
-      Object.keys(doc.label).forEach(function (l) {
-				if (doc.code && doc.code.length) emit_normalized_substrings(r, l, doc.type, doc.code, latin_map);
-				if (doc.label[l]) {
-          emit_normalized_substrings(r, l, doc.type, doc.label[l],latin_map);
-        }
-      });
-      if (doc.searchTerms) {
-        Object.keys(doc.searchTerms).forEach(function (l) {
-          doc.searchTerms[l].forEach(function (t) {
-            emit_normalized_substrings(r, l, doc.type, t, latin_map);
-          });
-        });
-      }
-    });
+      doc.regions.forEach(function (r) {
+          var wordsPerLanguage = {}
+          Object.keys(doc.label).forEach(function (l) {
+              wordsPerLanguage[l] = []
+              if (doc.code && doc.code.length) {
+                  wordsPerLanguage[l] = wordsPerLanguage[l].concat(normalize_substrings(doc.code, latin_map))
+              }
+              if (doc.label[l]) {
+                  wordsPerLanguage[l] = wordsPerLanguage[l].concat(normalize_substrings(doc.label[l], latin_map))
+              }
+          })
+          if (doc.searchTerms) {
+              Object.keys(doc.searchTerms).forEach(function (l) {
+                  doc.searchTerms[l].forEach(function (t) {
+                      wordsPerLanguage[l] = (wordsPerLanguage[l] || []).concat(normalize_substrings(t, latin_map))
+                  })
+              })
+          }
+          Object.keys(wordsPerLanguage).forEach(function (l) {
+              var terms = wordsPerLanguage[l]
+              terms.sort().forEach(function (t, idx) {
+                  if (idx === terms.length - 1 || !(terms[idx + 1].indexOf(t) === 0)) {
+                      emit([r, l, doc.type, t], 1)
+                  }
+              })
+          })
+      })
   }
 };
