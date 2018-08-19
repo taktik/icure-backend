@@ -50,7 +50,11 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
                     String name = StdUserDependentCouchDbICureConnector.this.databaseName.replaceAll(couchDbPrefix, "icure-" + key);
 
                     if (!dbInstance.checkIfDbExists(name)) { return fallbackConnector; }
-                    return om == null ? new StdCouchDbICureConnector(name, dbInstance) : new StdCouchDbICureConnector(name, dbInstance, om);
+                    StdCouchDbICureConnector connector = om == null ? new StdCouchDbICureConnector(name, dbInstance) : new StdCouchDbICureConnector(name, dbInstance, om);
+
+                    //Might want to emit some event that can be caught by the DAOs to init the standard documents
+
+                    return connector;
                 }
             });
 
