@@ -74,7 +74,7 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 	protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
-	protected String formId; //Initial formId used for debugging purposes
+	protected String formId; //Used to group logically related services
 
 	@NotNull(autoFix = AutoFix.NOW)
 	protected Long created;

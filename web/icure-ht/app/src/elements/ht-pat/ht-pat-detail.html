@@ -2334,7 +2334,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const words = filterValue && filterValue.toLowerCase().split(/\s+/);
 				const sorter = x => [x[sortKey] && x[sortKey].toLowerCase().startsWith(words[0]) ? 0 : 1, x[sortKey]]
 
-                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
+                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
 					const codes = results[0];
 					const entityTemplates = results[1];
 					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp)))
@@ -2394,7 +2394,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			filter: function (filterValue, limit, offset, sortKey, descending) {
 				const regExp = filterValue && new RegExp(filterValue, "i");
 
-				return this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', filterValue, null, 1000).then(results => {
+				return this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', filterValue, null, null, 1000).then(results => {
 					const filtered = results.rows.map(code => ({ label: label, content: _.mapValues(code.label, v => ({ stringValue: v })), codes: code.links && code.links.map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) || [] }));
 					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
 				});

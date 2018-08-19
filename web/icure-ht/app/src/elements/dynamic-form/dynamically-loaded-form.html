@@ -54,7 +54,7 @@
 		</dynamic-form>
 	</template>
 	<script>
-		class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+		class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			static get is() {
 				return 'dynamically-loaded-form';
 			}
@@ -616,7 +616,7 @@
 							const words = text.toLowerCase().split(/\s+/);
 							const sorter = x => [x.stringValue && x.stringValue.toLowerCase().startsWith(words[0]) ? 0 : 1, x.stringValue]
 
-							return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
+							return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
 								id: code.id, stringValue: code.label[typeLng],
 								codes: [code].concat(code.links && code.links.map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) || [])
 							})), sorter));
