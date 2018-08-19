@@ -212,7 +212,8 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get properties() {
         return {
             api: {
-                type: Object
+                type: Object,
+                observer: '_apiChanged'
             },
             linkables: {
                 type: Array
@@ -274,9 +275,21 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
+    }
 
-        if(this.api){
-            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'en', "pers", null, 1000).then(results => this.set('hcpartyTypeList', results.rows));
+    _apiChanged() {
+        if (this.api) {
+            this.api.cacheRowsUsingPagination(
+                'CD-HCPARTy-pers',
+                (key,docId) =>
+                    this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'en', 'pers', key && JSON.stringify(key), docId, 100)
+                        .then(pl => ({
+                                rows:pl.rows,
+                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                done:!pl.nextKeyPair
+                            }))
+            ).then(rows => this.set('hcpartyTypeList', rows))
         }
     }
 
