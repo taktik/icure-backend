@@ -1,16 +1,11 @@
-map = function (doc) {
-    var emit_normalized_substrings = function (text, latin_map, acc) {
-        text.trim().split(/[ |/]+/).forEach(function (word) {
-            var r = word.toLowerCase().replace(/[^A-Za-z0-9]/g, function (a) {
-                return latin_map[a] || ""
-            });
-            if (r.length) {
-                acc[r] = 1;
-            }
+map = function(doc) {
+    var normalize_substrings = function(text,latin_map) {
+        return text.trim().split(/[ |/]+/).map(function(word) {
+            return word.toLowerCase().replace(/[^A-Za-z0-9]/g,function(a){return latin_map[a]||""});
         });
     };
 
-    if (doc.java_type === 'org.taktik.icure.entities.base.Code' && !doc.deleted) {
+    if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) {
         var latin_map={"á":"a","ă":"a","ắ":"a","ặ":"a","ằ":"a","ẳ":"a","ẵ":"a","ǎ":"a","â":"a","ấ":"a","ậ":"a","ầ":"a","ẩ":"a","ẫ":"a","ä":"a","ǟ":"a","ȧ":"a",
             "ǡ":"a","ạ":"a","ȁ":"a","à":"a","ả":"a","ȃ":"a","ā":"a","ą":"a","ᶏ":"a","ẚ":"a","å":"a","ǻ":"a","ḁ":"a","ⱥ":"a","ã":"a","ꜳ":"aa","æ":"ae",
             "ǽ":"ae","ǣ":"ae","ꜵ":"ao","ꜷ":"au","ꜹ":"av","ꜻ":"av","ꜽ":"ay","ḃ":"b","ḅ":"b","ɓ":"b","ḇ":"b","ᵬ":"b","ᶀ":"b","ƀ":"b","ƃ":"b","ɵ":"o",
@@ -38,32 +33,32 @@ map = function (doc) {
             "ỷ":"y","ỿ":"y","ȳ":"y","ẙ":"y","ɏ":"y","ỹ":"y","ź":"z","ž":"z","ẑ":"z","ʑ":"z","ⱬ":"z","ż":"z","ẓ":"z","ȥ":"z","ẕ":"z","ᵶ":"z","ᶎ":"z",
             "ʐ":"z","ƶ":"z","ɀ":"z","ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st","ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j",
             "ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"};
-
         doc.regions.forEach(function (r) {
-            var acc = {};
+            var wordsPerLanguage = {}
             Object.keys(doc.label).forEach(function (l) {
-                acc[l] = {};
-                if (doc.type && doc.type.length) emit_normalized_substrings(doc.type, latin_map, acc[l]);
-                if (doc.code && doc.code.length) emit_normalized_substrings(doc.code, latin_map, acc[l]);
-                if (doc.label[l]) {
-                    emit_normalized_substrings(doc.id + " " + doc.label[l], latin_map, acc[l]);
+                wordsPerLanguage[l] = []
+                if (doc.code && doc.code.length) {
+                    wordsPerLanguage[l] = wordsPerLanguage[l].concat(normalize_substrings(doc.code, latin_map))
                 }
-            });
+                if (doc.label[l]) {
+                    wordsPerLanguage[l] = wordsPerLanguage[l].concat(normalize_substrings(doc.label[l], latin_map))
+                }
+            })
             if (doc.searchTerms) {
                 Object.keys(doc.searchTerms).forEach(function (l) {
-                    if (acc[l] === undefined) {
-                        acc[l] = {};
-                    }
                     doc.searchTerms[l].forEach(function (t) {
-                        emit_normalized_substrings(t, latin_map, acc[l]);
-                    });
-                });
+                        wordsPerLanguage[l] = (wordsPerLanguage[l] || []).concat(normalize_substrings(t, latin_map))
+                    })
+                })
             }
-            Object.keys(acc).forEach(function (l) {
-                Object.keys(acc[l]).forEach(function (substring) {
-                    emit([r, l, substring], 1);
-                });
-            });
-        });
+            Object.keys(wordsPerLanguage).forEach(function (l) {
+                var terms = wordsPerLanguage[l]
+                terms.sort().forEach(function(t, idx) {
+                    if (idx === terms.length - 1 || !(terms[idx + 1].indexOf(t) === 0)) {
+                        emit([r, l, t], 1)
+                    }
+                })
+            })
+        })
     }
 };

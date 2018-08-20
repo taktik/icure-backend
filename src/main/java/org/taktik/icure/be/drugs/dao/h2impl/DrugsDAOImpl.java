@@ -115,11 +115,34 @@ public class DrugsDAOImpl implements DrugsDAO {
 	}
 
 	public File getDbDir() {
-		if (dbDir == null) {
-			String tempDir = propertyLogic.getSystemPropertyValue(PropertyTypes.System.ICURE_PATH_TEMP.getIdentifier());File drugsDir = new File(tempDir, "drugs");
-			if (drugsDir.exists() && drugsDir.isDirectory()) {
-				dbDir = drugsDir;
-			} else {
+		synchronized(this) {
+			if (dbDir == null) {
+				String tempDir = propertyLogic.getSystemPropertyValue(PropertyTypes.System.ICURE_PATH_TEMP.getIdentifier());
+				File drugsDir = new File(tempDir, "drugs");
+				File dbFile = new File(drugsDir, dbMainFile);
+
+				if (drugsDir.exists() && drugsDir.isDirectory() && dbFile.exists()) {
+					//Should Check validity
+					InputStream stream = this.getClass().getClassLoader().getResourceAsStream("be/drugs/drugs.zip");
+					ZipInputStream zis = new ZipInputStream(stream);
+					ZipEntry ze;
+					try {
+						while ((ze = zis.getNextEntry()) != null) {
+							if (dbMainFile.equals(ze.getName())) {
+								if (ze.getSize() == dbFile.length()) {
+									dbDir = drugsDir;
+									return dbDir;
+								}
+							}
+						}
+					} catch (Exception ignored) {
+					}
+				}
+
+				if (drugsDir.isFile()) {
+					drugsDir.delete();
+				}
+
 				drugsDir.mkdirs();
 				if (drugsDir.exists() && drugsDir.isDirectory()) {
 					InputStream stream = this.getClass().getClassLoader().getResourceAsStream("be/drugs/drugs.zip");
@@ -150,8 +173,8 @@ public class DrugsDAOImpl implements DrugsDAO {
 					}
 				}
 			}
+			return dbDir;
 		}
-		return dbDir;
 	}
 
 	public void setDbDir(File dbDir) {

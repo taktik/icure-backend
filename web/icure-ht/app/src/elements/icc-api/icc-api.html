@@ -20,7 +20,7 @@
     import {IccHelementXApi} from 'icc-api/icc-x-api/icc-helement-x-api'
     import {IccPatientXApi} from 'icc-api/icc-x-api/icc-patient-x-api'
 
-    class IccApi extends Polymer.mixinBehaviors([], Polymer.Element) {
+    class IccApi extends Polymer.Element {
         static get is() {
             return 'icc-api'
         }
@@ -345,7 +345,19 @@
             return hcp && hcp.lastName + " " + (hcp.firstName && hcp.firstName.length && hcp.firstName.substr(0, 1) + ".") || usr && usr.login || "N/A";
         }
 
+        cacheRowsUsingPagination(key, paginator) {
+            const cache = this.cache || ((this.cache = {}))
+            const promise = cache[key]
 
+            if (promise) { return promise }
+
+            const executePaginator = (latestResult, acc) =>
+                paginator(latestResult.nextKey,latestResult.docId).then((newResult) => {
+                    acc.push(...newResult.rows)
+                    return newResult.done ? acc : executePaginator(newResult, acc)
+                })
+            return (cache[key] = executePaginator({nextKey: null, nextDocId: null}, []))
+        }
     }
 
     customElements.define(IccApi.is, IccApi)

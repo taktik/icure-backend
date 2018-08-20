@@ -115,7 +115,7 @@
 				</vaadin-date-picker-light>
 				<iron-icon icon="icons:today" slot="suffix" on-tap="_openDatePicker"></iron-icon>
 			</paper-input-container>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
 		</template>
 
 	</template>
@@ -123,7 +123,7 @@
 
 import moment from '../../../bower_components/moment/src/moment';
 
-class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'dynamic-date-field';
 	}
@@ -227,6 +227,10 @@ class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	_openDatePicker() {
 		this.shadowRoot.querySelector(this.readOnly ? '#date-picker-ro' : '#date-picker').open();
 	}
+
+    _statusChanged(inf){
+        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
+    }
 
 }
 

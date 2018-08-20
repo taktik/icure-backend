@@ -1,0 +1,286 @@
+{
+	"sections": [
+		{
+			"formColumns": [
+				{
+					"formDataList": [
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 243,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 6,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Name",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.lastName"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 245,
+                          "multiline" : false,
+                          "left" : 408,
+                          "top" : 8,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "First Name",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.firstName"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 100,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 34,
+                          "key" : "DateTimeEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Date of Birth",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKDate",
+                        "name" : "partnerInfo.dateOfBirth"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 26,
+                          "labelPosition" : "Left",
+                          "width" : 100,
+                          "multiline" : false,
+                          "left" : 378,
+                          "top" : 34,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Ssin",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.ssin"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 497,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 61,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Partner Name",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.partnerName"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 498,
+                          "multiline" : false,
+                          "left" : 664,
+                          "top" : 127,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Language",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.language"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 502,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 127,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Nationality",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.nationality"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 498,
+                          "multiline" : false,
+                          "left" : 664,
+                          "top" : 92,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Education",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.education"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 22,
+                          "labelPosition" : "Left",
+                          "width" : 497,
+                          "multiline" : false,
+                          "left" : 90,
+                          "top" : 92,
+                          "key" : "StringEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Job",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.profession"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 26,
+                          "menuOptions" : [
+                            "counselor",
+                            "contact",
+                            "family",
+                            "friend",
+                            "primary_contact",
+                            "primary_contact_for",
+                            "tutor"
+                          ],
+                          "labelPosition" : "Left",
+                          "width" : 501,
+                          "multiline" : false,
+                          "left" : 661,
+                          "top" : 60,
+                          "key" : "PopupMenuEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Relation type",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "type"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 26,
+                          "menuOptions" : [
+                            "female",
+                            "male",
+                            "changed",
+                            "indeterminate"
+                          ],
+                          "labelPosition" : "Left",
+                          "width" : 100,
+                          "multiline" : false,
+                          "left" : 233,
+                          "top" : 34,
+                          "key" : "PopupMenuEditor"
+                        },
+                        "sortOrder" : 1465341783,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Gender",
+                        "irrelevant" : true,
+                        "subForm" : false,
+                        "type" : "TKString",
+                        "name" : "partnerInfo.gender"
+                      },
+                      {
+                        "editor" : {
+                          "readOnly" : false,
+                          "height" : 48,
+                          "compulsoryFormGuids" : [
+
+                          ],
+                          "labelPosition" : "Left",
+                          "width" : 1162,
+                          "multiline" : false,
+                          "left" : 5,
+                          "top" : 262,
+                          "key" : "SubFormEditor",
+                          "optionalFormGuids" : [
+                            "2d6620d1-7ac6-4627-973c-cf06f361c569"
+                          ]
+                        },
+                        "sortOrder" : 1616336695,
+                        "codeTypes" : [
+
+                        ],
+                        "label" : "Addresses",
+                        "type" : "TKSubConsult",
+                        "subForm" : true,
+                        "name" : "addresses"
+                      }
+                    ]
+				}
+			]
+		}
+	]
+}
+
+
