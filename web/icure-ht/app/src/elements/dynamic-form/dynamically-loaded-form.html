@@ -752,7 +752,7 @@
 				const action = detail.detail.plannedAction
 				const contactId = this.contact.id
 				const label = "planned action"
-				let init = ""
+				var valueDate = ""
 
                 if(action.isSurgical === true){
 
@@ -762,11 +762,16 @@
 
                 }
 
-                this.createService(label, null, null, contactId, null, init)
+                if(action.Deadline !== ""){
+                    valueDate = this.api.moment(action.Deadline).format('YYYYMMDD')
+				}
+
+                _.extend(this.createService(label, null, null, contactId), {content: {fr:{s: action.ProcedureInfo.label.fr}, nl:{s: action.ProcedureInfo.label.nl}}, codes: [{code: action.ProcedureId}], comment: action.Description, valueDate: valueDate, tags: [{type: "CD-LIFECYCLE", code: "planned", version: "1.0", _id : "CD-LIFECYCLE|"+action.Status+"|1.0", java_type: "org.taktik.icure.entities.base.Code"}]})
 
                 this.scheduleSave(this.currentContact);
 
             }
+
 
 		}
 

@@ -232,21 +232,21 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             plannedAction:{
                 type: Object,
-                value : {"Status" : "waiting", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}}
+                value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": ""}
             },
             comboStatus: {
                 type: Array,
                 value:[
                     {
-                        "id"       : "against_indicated",
+                        "id"       : "aborted",
                         "label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}
                     },
                     {
-                        "id"       : "death",
+                        "id"       : "aborted",
                         "label": {"fr": "Abandonné / Décès", "nl": "Verlaten / ", "en": "Abandoned / Death"}
                     },
                     {
-                        "id"       : "unsubscribed",
+                        "id"       : "aborted",
                         "label": {"fr": "Abandonné / Désabonné", "nl": "Verlaten / Afgemeld", "en": "Abandoned / Unsubscribed"}
                     },
                     {
@@ -254,35 +254,35 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         "label": {"fr": "Abandonné / Erreur", "nl": "Verlaten /", "en": "Abandoned / Error"}
                     },
                     {
-                        "id"       : "not_relevant",
+                        "id"       : "aborted",
                         "label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}
                     },
                     {
-                        "id"       : "patient_refusal",
+                        "id"       : "refused",
                         "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
                     },
                     {
-                        "id"       : "too_late",
+                        "id"       : "aborted",
                         "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
                     },
                     {
-                        "id"       : "abandoned",
+                        "id"       : "aborted",
                         "label": {"fr": "Abandonné par le patient", "nl": "Verlaten / erwachting", "en": "Abandoned by patient"}
                     },
                     {
-                        "id"       : "waiting",
+                        "id"       : "pending",
                         "label": {"fr": "En attente", "nl": "Verwachting", "en": "Waiting"}
                     },
                     {
-                        "id"       : "scheduled",
+                        "id"       : "planned",
                         "label": {"fr": "En attente planifié", "nl": "Gepland wachten", "en": "Scheduled waiting"}
                     },
                     {
-                        "id"       : "done",
+                        "id"       : "completed",
                         "label": {"fr": "Fait", "nl": "Geëxecuteerd", "en": "Done"}
                     },
                     {
-                        "id"       : "reminder_sent",
+                        "id"       : "proposed",
                         "label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}
                     }
                 ]
@@ -392,7 +392,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     planAction(){
         //console.log(this.plannedAction)
 
-        Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, key && JSON.stringify(key), null, 10)]).then(results => {
+        Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10)]).then(results => {
             this.set('plannedAction.ProcedureInfo', results[0].rows[0])
             this.dispatchEvent(new CustomEvent('plan-action', {detail: { plannedAction: this.plannedAction} }));
         });
@@ -476,7 +476,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return {
             filter: function (proceduresFilterValue) {
                 let count = 15;
-                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, key && JSON.stringify(key), null, count)]).then(results => {
+                return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, null, null, count)]).then(results => {
                     const procedureList = results[0];
                     const filtered = _.flatten(procedureList.rows.map(procedure => ({id: procedure.id , label : procedure.label, code : procedure.code, searchTerms : procedure.searchTerms}) ));
                     return { totalSize: filtered.length, rows: filtered};
@@ -521,7 +521,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.set("isStatusDone", false)
         }
 
-        if(status === "patient_refusal"){
+        if(status === "completed"){
             this.set("isStatusRefusal", true)
         }else{
             this.set("isStatusRefusal", false)
