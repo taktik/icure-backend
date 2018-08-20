@@ -36,6 +36,8 @@ public class CalendarItem extends StoredICureDocument {
 
     protected String patientId;
 
+    protected Boolean important;
+
     protected Boolean homeVisit;
 
     protected String phoneNumber;
@@ -109,6 +111,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setPatientId(String patientId) {
         this.patientId = patientId;
+    }
+
+    public Boolean getImportant() {
+        return important;
+    }
+
+    public void setImportant(Boolean important) {
+        this.important = important;
     }
 
     public Boolean getHomeVisit() {
