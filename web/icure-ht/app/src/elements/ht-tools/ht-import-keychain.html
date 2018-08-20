@@ -108,7 +108,7 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			fr.readAsArrayBuffer(this.selectedEhKeychain);
 		});
 
-		this.fire('file-selected', this.selectedEhKeychain);
+        this.dispatchEvent(new CustomEvent('file-selected', { detail: this.selectedEhKeychain, bubbles: true, composed: true }))
 	}
 
 	attached() {

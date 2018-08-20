@@ -213,7 +213,7 @@
     </template>
     <script>
 
-class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {
         return 'dynamic-link';
     }
@@ -221,7 +221,8 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
     static get properties() {
         return {
             api: {
-                type: Object
+                type: Object,
+                observer: '_apiChanged'
             },
             linkables: {
                 type: Array
@@ -345,9 +346,21 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 
     ready() {
         super.ready();
+    }
 
-        if(this.api){
-            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', "pers", null, 1000).then(results => this.set('hcpartyTypeList', _.sortBy(results.rows, ['label.fr'])));
+    _apiChanged() {
+        if (this.api) {
+            this.api.cacheRowsUsingPagination(
+                'CD-HCPARTy-pers',
+                (key,docId) =>
+                    this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'en', 'pers', key && JSON.stringify(key), docId, 100)
+                        .then(pl => ({
+                                rows:pl.rows,
+                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                done:!pl.nextKeyPair
+                            }))
+            ).then(rows => this.set('hcpartyTypeList', rows))
         }
     }
 
