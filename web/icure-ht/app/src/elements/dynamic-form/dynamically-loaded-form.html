@@ -752,7 +752,7 @@
 				const action = detail.detail.plannedAction
 				const contactId = this.contact.id
 				const label = "planned action"
-				let init = []
+				let init = ""
 
                 if(action.isSurgical === true){
 
@@ -763,6 +763,8 @@
                 }
 
                 this.createService(label, null, null, contactId, null, init)
+
+                this.scheduleSave(this.currentContact);
 
             }
 
