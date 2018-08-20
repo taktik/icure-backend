@@ -38,7 +38,7 @@ public class CalendarItemDto extends IcureDto {
 
     protected String agendaId;
 
-    protected Set<String> meetingTags;
+    protected Set<CalendarItemTagDto> meetingTags;
 
     public String getTitle() {
         return title;
@@ -160,11 +160,11 @@ public class CalendarItemDto extends IcureDto {
         this.agendaId = agendaId;
     }
 
-    public Set<String> getMeetingTags() {
+    public Set<CalendarItemTagDto> getMeetingTags() {
         return meetingTags;
     }
 
-    public void setMeetingTags(Set<String> meetingTags) {
+    public void setMeetingTags(Set<CalendarItemTagDto> meetingTags) {
         this.meetingTags = meetingTags;
     }
 }

@@ -63,7 +63,7 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String agendaId;
 
-    protected Set<String> meetingTags;
+    protected Set<CalendarItemTag> meetingTags;
 
     public String getTitle() {
         return title;
@@ -193,14 +193,13 @@ public class CalendarItem extends StoredICureDocument {
         this.details = details;
     }
 
-    public Set<String> getMeetingTags() {
+    public Set<CalendarItemTag> getMeetingTags() {
         return meetingTags;
     }
 
-    public void setMeetingTags(Set<String> meetingTags) {
+    public void setMeetingTags(Set<CalendarItemTag> meetingTags) {
         this.meetingTags = meetingTags;
     }
-
 //    @JsonSerialize(using = IdentifiableSerializer.class)
 //    @JsonDeserialize(using = CalendarItemTypeDeserializer.class)
 //    public CalendarItemType getType() {
