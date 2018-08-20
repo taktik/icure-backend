@@ -183,7 +183,7 @@
 									<template is="dom-if" if="[[_isCheckboxField(layoutItem)]]">
 										<dynamic-checkbox id="[[layoutItem.name]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[healthElements]]" last-modified="[[_lastModified(layoutItem)]]"
-										 value="[[_value(layoutItem,dataMap.*)]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-checkbox>
+										 value="[[_value(layoutItem,dataMap.*)]]" api="[[api]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-checkbox>
 									</template>
 									<template is="dom-if" if="[[_isNumberField(layoutItem)]]">
 										<dynamic-number-field id="[[layoutItem.name]]" api="[[api]]" label="[[layoutItem.label]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"

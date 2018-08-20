@@ -680,12 +680,14 @@
 				if (!this.currentContact) {
 					return null;
 				}
-				const svc = this.api.contact().service().newInstance(this.user, serviceId ? { id: serviceId, label: label } : { label: label }); (this.currentContact.services || (this.currentContact.services = [])).push(svc);
+				const svc = this.api.contact().service().newInstance(this.user, serviceId ? { id: serviceId, label: label } : { label: label });
+				(this.currentContact.services || (this.currentContact.services = [])).push(svc);
 
 				let sc = this.currentContact.subContacts.find(sc => sc.formId === formId);
 				if (!sc) {
 					this.currentContact.subContacts.push(sc = { formId: formId, planOfActionId: poaId, healthElementId: heId, services: [] });
 				}
+
 				const csc = this.currentContact.subContacts.find(csc => csc.services.indexOf(svc.id) >= 0);
 				if (csc) {
 					if (csc !== sc) {
@@ -747,15 +749,24 @@
             _planAction(detail){
                 console.log(detail.detail.plannedAction)
 
+				const action = detail.detail.plannedAction
+				const contactId = this.contact.id
+				const label = "planned action"
+				let init = []
 
-				//this.createService("plannedAction", null, null, "", null, "")
-                //initWrapper("planned", init)
+                if(action.isSurgical === true){
+
+                }
+
+                if(action.VaccineCommercialNameId !== ""){
+
+                }
+
+                this.createService(label, null, null, contactId, null, init)
 
             }
 
 		}
-
-
 
 		customElements.define(DynamicallyLoadedForm.is, DynamicallyLoadedForm);
 	</script>

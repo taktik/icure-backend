@@ -149,13 +149,13 @@
 
                 <vaadin-form-layout>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box  filtered-items="[[proceduresListItem]]" item-label-path="label.fr" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="detectVaccinProcedure" label="Procédure" value="{{plannedAction.Procedure}}"></vaadin-combo-box>
+                        <vaadin-combo-box  filtered-items="[[proceduresListItem]]" item-label-path="label.fr" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="detectVaccinProcedure" label="Procédure" value="{{plannedAction.ProcedureId}}"></vaadin-combo-box>
                     </vaadin-form-item>
                 </vaadin-form-layout>
                     <template is="dom-if" if="[[isVaccineProcedure]]">
                         <vaadin-form-layout>
                             <vaadin-form-item  colspan="2">
-                                <vaadin-combo-box filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Nom commercial" value="{{plannedAction.VaccineCommercialName}}"></vaadin-combo-box>
+                                <vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" label="Nom commercial" value="{{plannedAction.VaccineCommercialNameId}}"></vaadin-combo-box>
                             </vaadin-form-item>
                             <vaadin-form-item>
                                 <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
@@ -173,7 +173,7 @@
                         <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" value="{{plannedAction.HcpId}}"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.en" item-value-path="id" on-filter-changed="" label="Profession liée" value="{{plannedAction.JobLink}}"></vaadin-combo-box>
+                        <vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.fr" item-value-path="id" on-filter-changed="" label="Profession liée" value="{{plannedAction.JobLink}}"></vaadin-combo-box>
                     </vaadin-form-item>
                     <vaadin-form-item  colspan="2">
                         <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.fr" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus"></vaadin-combo-box>
@@ -231,7 +231,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             },
             plannedAction:{
                 type: Object,
-                value : {"Status" : "waiting", "HcpId" : "", "Procedure" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, "VaccineCommercialName" : "", "DoseNumber" : "", "BatchNumber" : ""}
+                value : {"Status" : "waiting", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}}
             },
             comboStatus: {
                 type: Array,
@@ -239,14 +239,6 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
                     {
                         "id"       : "against_indicated",
                         "label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}
-                    },
-                    {
-                        "id"       : "patient_refusal",
-                        "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
-                    },
-                    {
-                        "id"       : "too_late",
-                        "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
                     },
                     {
                         "id"       : "death",
@@ -263,6 +255,14 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
                     {
                         "id"       : "not_relevant",
                         "label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}
+                    },
+                    {
+                        "id"       : "patient_refusal",
+                        "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
+                    },
+                    {
+                        "id"       : "too_late",
+                        "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
                     },
                     {
                         "id"       : "abandoned",
@@ -283,10 +283,6 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
                     {
                         "id"       : "reminder_sent",
                         "label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}
-                    },
-                    {
-                        "id"       : "never_again",
-                        "label": {"fr": "Plus jamais cette procédure", "nl": "Nooit meer deze procedure", "en": "Never again this procedure"}
                     }
                 ]
             },
@@ -331,20 +327,27 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             isVaccineProcedure:{
                 type: Boolean,
                 value: false
+            },
+            drugsFilterValue:{
+                type: String
+            },
+            drugsListItem:{
+                type: Array,
+                value: []
             }
 
         };
     }
 
     static get observers() {
-        return ['_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)'];
+        return ['_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
     }
 
     ready() {
         super.ready();
 
         if(this.api){
-            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'en', "pers", null, 1000).then(results => this.set('hcpartyTypeList', results.rows));
+            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', "pers", null, 1000).then(results => this.set('hcpartyTypeList', _.sortBy(results.rows, ['label.fr'])));
         }
     }
 
@@ -374,7 +377,12 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
 
     planAction(){
         //console.log(this.plannedAction)
-        this.dispatchEvent(new CustomEvent('plan-action', {detail: { plannedAction: this.plannedAction} }));
+
+        Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, 10)]).then(results => {
+            this.set('plannedAction.ProcedureInfo', results[0].rows[0])
+            this.dispatchEvent(new CustomEvent('plan-action', {detail: { plannedAction: this.plannedAction} }));
+        });
+
     }
 
     _setStatus(e){
@@ -392,7 +400,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             this.set('hcpListItem', []);
             return;
         }
-        this._DataProvider() && this._DataProvider().filter(latestSearchValue).then(res => {
+        this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
             if (latestSearchValue !== this.latestSearchValue) {
                 console.log("Cancelling obsolete search");
                 return;
@@ -409,7 +417,7 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
             this.set('proceduresListItem', []);
             return;
         }
-        this._procedureDataProvider() && this._procedureDataProvider().filter(latestSearchValue).then(res => {
+        this._proceduresDataProvider() && this._proceduresDataProvider().filter(latestSearchValue).then(res => {
             if (latestSearchValue !== this.latestSearchValue) {
                 console.log("Cancelling obsolete search");
                 return;
@@ -418,7 +426,24 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
         });
     }
 
-    _DataProvider() {
+    _drugsFilterChanged(e){
+        let latestSearchValue = this.filterValue || e && e.detail.value;
+        this.latestSearchValue = latestSearchValue;
+        if (!latestSearchValue || latestSearchValue.length < 2) {
+            console.log("Cancelling empty search");
+            this.set('drugsListItem', []);
+            return;
+        }
+        this._DrugsDataProvider() && this._DrugsDataProvider().filter(latestSearchValue).then(res => {
+            if (latestSearchValue !== this.latestSearchValue) {
+                console.log("Cancelling obsolete search");
+                return;
+            }
+            this.set('drugsListItem', res.rows);
+        });
+    }
+
+    _hcpDataProvider() {
         return {
             filter: function (filterValue) {
                 const desc = 'desc';
@@ -433,14 +458,27 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Po
         };
     }
 
-    _procedureDataProvider(){
+    _proceduresDataProvider(){
         return {
             filter: function (proceduresFilterValue) {
-                const desc = 'desc';
                 let count = 15;
                 return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, null, count)]).then(results => {
                     const procedureList = results[0];
                     const filtered = _.flatten(procedureList.rows.map(procedure => ({id: procedure.id , label : procedure.label, code : procedure.code, searchTerms : procedure.searchTerms}) ));
+                    return { totalSize: filtered.length, rows: filtered};
+                });
+
+            }.bind(this)
+        };
+    }
+
+    _DrugsDataProvider(){
+        return {
+            filter: function (drugsFilterValue) {
+                let count = 15;
+                return Promise.all([this.api.bedrugs().getMedecinePackages(drugsFilterValue, this.language, null, 0, count)]).then(results => {
+                    const drugsList = results[0];
+                    const filtered = _.flatten(drugsList.map(drugs => ({name: drugs.name, id: drugs.id.id}) ));
                     return { totalSize: filtered.length, rows: filtered };
                 });
 
