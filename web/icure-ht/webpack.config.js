@@ -25,7 +25,7 @@ module.exports = {
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.html']
     },
-	devtool: 'source-map',
+	devtool: 'eval-source-map',
 	node: {
     	fs: 'empty'
 	},
