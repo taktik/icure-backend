@@ -126,6 +126,7 @@
 				--paper-spinner-layer-3-color: var(--app-secondary-color-dark);
 				--paper-spinner-layer-4-color: var(--app-primary-color-dark);
 			}
+
 		</style>
 
 		<ckmeans-grouping id="ckmeans-grouping"></ckmeans-grouping>
@@ -351,6 +352,13 @@
 					return null;
 				}
 				return this._isCheckboxField(layoutItem) ? '' + !!this._rawValue(layoutItem) : this._rawValue(layoutItem);
+			}
+
+			_status(layoutItem){
+                if (!this.dataProvider) {
+                    return null;
+                }
+
 			}
 
 			_rawValue(layoutItem) {

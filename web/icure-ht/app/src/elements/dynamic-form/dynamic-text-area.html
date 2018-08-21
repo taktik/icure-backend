@@ -71,10 +71,12 @@
 				background:none;
 				font-size: var(--form-font-size);
 			}
+
 		</style>
 
+		<iron-icon icon=""></iron-icon>
 		<paper-input-container always-float-label="true">
-			<label slot="label">[[label]]
+			<label slot="label" class="color-status">[[label]]
 				<template is="dom-if" if="[[wasModified]]">
 					<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 				</template>
