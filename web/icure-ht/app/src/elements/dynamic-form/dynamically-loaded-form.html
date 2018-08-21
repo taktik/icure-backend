@@ -74,6 +74,11 @@
 
 			}
 
+			paper-item {
+				font-size: 14px;
+				min-height: 30px;
+			}
+
 		</style>
 
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
@@ -229,7 +234,7 @@
 					},
                     plannedAction:{
                         type: Object,
-                        value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": "", VaccineInfo: {}}
+                        value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": ""}
                     },
                     comboStatus: {
                         type: Array,
@@ -343,6 +348,7 @@
             _openActionDialog(){
 			    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
 			    this.$['planActionForm'].open()
+
 			}
 
 			detached() {
@@ -936,7 +942,7 @@
 				return this.api && this.api.contact().contentHasData(c) || false;
 			}
 
-			localize(e, lng) {
+			_localize(e, lng) {
 				return this.api && this.api.contact().localize(e, lng) || "";
 			}
 
@@ -1091,17 +1097,29 @@
             }
 
             _statusChanged(detail){
-                console.log('dynamically-loaded-form')
 
-				const flatMapLabel = _.flatMap(this.layoutInfoPerLabel)
-				var label = flatMapLabel.find(label => label.name === detail.detail.label)
+			    const label = detail.detail.representedObject
+			    const services = this.api.contact().services(this.currentContact, label)
+				var biteArray = [0,0,0]
 
-				if(label){
-                    const indexOfLabel = flatMapLabel.indexOf(label)
-                    label.status = 0
-                    console.log(label)
-                    this.set('layoutInfoPerLabel[indexOfLabel]', label)
+				if(detail.detail.status === "stat_act"){
+				    biteArray[0] = 1
+				}else if(detail.detail.status === "stat_pas_rev"){
+				    biteArray[1] = 1
+				}else if(detail.detail.status === "stat_n_pres"){
+				    biteArray[2] = 1
 				}
+
+				const status = parseInt(biteArray[0]+""+biteArray[1]+""+biteArray[2], 2)
+
+				services.map(service => {
+				    service.status = status
+                    const indexOfService = this.currentContact.services.indexOf(service)
+					this.set('currentContact.services[indexOfService]', service)
+                })
+
+                this.scheduleSave(this.currentContact);
+
             }
 
             _apiChanged() {
@@ -1127,7 +1145,8 @@
 				const action = this.plannedAction
 				const contactId = this.contact.id
 				const label = "Actes"
-				var valueDate = ""
+                const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
+				const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
                 if(action.isSurgical === true){
 
@@ -1137,14 +1156,10 @@
 
                 }
 
-                if(action.Deadline !== ""){
-                    valueDate = this.api.moment(action.Deadline).format('YYYYMMDD')
-				}
-
                 let init = _.extend(
                     this.createService(label, null, null, contactId),
 						{
-                            responsible: action.HcpId,
+						    responsible: responsible,
 						    content: {
 						    	fr: {
                                         stringValue: action.ProcedureInfo.label.fr
@@ -1152,7 +1167,7 @@
 								nl: {
                                         stringValue: action.ProcedureInfo.label.nl
 									}
-								},
+							},
 							codes: [
 								{
 								    region:[
@@ -1164,7 +1179,7 @@
 									version : action.ProcedureInfo.version,
 									label: action.ProcedureInfo.label
 								}
-								],
+							],
 							comment: action.Description,
 							valueDate: valueDate,
 							tags: [
@@ -1173,12 +1188,13 @@
 									code: action.Status,
 									version: "1.0"
 							    }
-							    ]
+							]
 						})
 
-                this.scheduleSave(this.currentContact);
+                //this.scheduleSave(this.currentContact);
                 //console.log(this.currentContact)
             }
+
 
 
 

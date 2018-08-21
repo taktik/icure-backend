@@ -60,7 +60,6 @@
             }
 
 
-
         </style>
 
 
@@ -141,7 +140,6 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
 
-
     _show(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -171,6 +169,19 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
         console.log("set status: "+e.target.id)
 
         this.dispatchEvent(new CustomEvent('status-changed', { bubbles: true, composed: true, detail: { representedObject: this.representedObject, status: e.target.id} }));
+    }
+
+    _getCssColorStatus(){
+/*
+        const services = this.api.contact().services(this.currentContact, this.representedObject)
+        let status = ""
+
+        if(services[0] && services[0].status) {
+            status = services[0].status
+        }
+
+        return 'stat_act'
+*/
     }
 
 
