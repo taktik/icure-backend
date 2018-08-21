@@ -167,7 +167,7 @@
 
 	</template>
 	<script>
-class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 	static get is() {
 		return 'dynamic-popup-menu';
 	}
