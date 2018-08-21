@@ -212,7 +212,7 @@ public interface DrugsLogic {
 
     MpFullInfos getFullMpInfos(MppId medecinePackageID);
 
-    List<MpPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID);
+    List<MppPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID);
 
     List<MppPreview> getCheapAlternativesBasedOnInn(String innCluster, String lang);
 

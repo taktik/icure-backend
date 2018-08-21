@@ -241,13 +241,13 @@ public class DrugsLogicImpl implements DrugsLogic {
         }
     }
 
-    public List<MpPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID) {
+    public List<MppPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID) {
         try {
             drugsDAO.openDataStoreSession();
             try {
                 Atc atc = drugsDAO.getAtc(medecinePackageID);
 
-                return (List<MpPreview>) CollectionUtils.collect(drugsDAO.getMpsWithAtc(atc), MP_TO_MPPREVIEW);
+                return (List<MppPreview>) CollectionUtils.collect(drugsDAO.getMppsWithAtc(atc), MPP_TO_MPPPREVIEW);
             } catch (Exception ignored) {
             }
             return new ArrayList<>();

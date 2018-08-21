@@ -157,7 +157,9 @@ public interface DrugsDAO {
 
     public List<Mp> getMpsWithAtc(Atc atc);
 
-    public List<Mpp> getCheapMppsWithInn(String inn,String lang);
+	public List<Mpp> getMppsWithAtc(Atc atc);
+
+	public List<Mpp> getCheapMppsWithInn(String inn,String lang);
 
     public List<Mpp> getMppsWithInn(String inn,String lang);
 
