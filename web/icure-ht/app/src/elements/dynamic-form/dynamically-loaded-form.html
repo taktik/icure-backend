@@ -6,6 +6,7 @@
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="dynamic-form.html">
@@ -228,7 +229,7 @@
 					},
                     plannedAction:{
                         type: Object,
-                        value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": ""}
+                        value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": "", VaccineInfo: {}}
                     },
                     comboStatus: {
                         type: Array,
@@ -340,7 +341,8 @@
 			}
 
             _openActionDialog(){
-                this.$['planActionForm'].open()
+			    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
+			    this.$['planActionForm'].open()
 			}
 
 			detached() {
@@ -945,10 +947,11 @@
             planAction(){
                 //console.log(this.plannedAction)
 
-                Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10)]).then(results => {
-                    this.set('plannedAction.ProcedureInfo', results[0].rows[0])
-                    this._planAction()
-                });
+                Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10)]).then(
+					results => {
+						this.set('plannedAction.ProcedureInfo', results[0].rows[0])
+						this._planAction()
+				});
 
             }
 
@@ -1101,33 +1104,6 @@
 				}
             }
 
-            _planAction(detail){
-                console.log(this.plannedAction)
-
-				const action = this.plannedAction
-				const contactId = this.contact.id
-				const label = "planned action"
-				var valueDate = ""
-
-                if(action.isSurgical === true){
-
-                }
-
-                if(action.VaccineCommercialNameId !== ""){
-
-                }
-
-                if(action.Deadline !== ""){
-                    valueDate = this.api.moment(action.Deadline).format('YYYYMMDD')
-				}
-
-
-                let init = _.extend(this.createService(label, null, null, contactId), {content: {fr:{s: action.ProcedureInfo.label.fr}, nl:{s: action.ProcedureInfo.label.nl}}, codes: [{code: action.ProcedureId}], comment: action.Description, valueDate: valueDate, tags: [{type: "CD-LIFECYCLE", code: "planned", version: "1.0", _id : "CD-LIFECYCLE|"+action.Status+"|1.0", java_type: "org.taktik.icure.entities.base.Code"}]})
-
-               // this.scheduleSave(this.currentContact);
-
-            }
-
             _apiChanged() {
 
                 if (this.api) {
@@ -1144,6 +1120,67 @@
                     ).then(rows => this.set('hcpartyTypeList', _.sortBy(rows, ['label.fr'])))
                 }
             }
+
+            _planAction(detail){
+                console.log(this.plannedAction)
+
+				const action = this.plannedAction
+				const contactId = this.contact.id
+				const label = "Actes"
+				var valueDate = ""
+
+                if(action.isSurgical === true){
+
+                }
+
+                if(this.plannedAction.VaccineCommercialNameId !== ""){
+
+                }
+
+                if(action.Deadline !== ""){
+                    valueDate = this.api.moment(action.Deadline).format('YYYYMMDD')
+				}
+
+                let init = _.extend(
+                    this.createService(label, null, null, contactId),
+						{
+                            responsible: action.HcpId,
+						    content: {
+						    	fr: {
+                                        stringValue: action.ProcedureInfo.label.fr
+									},
+								nl: {
+                                        stringValue: action.ProcedureInfo.label.nl
+									}
+								},
+							codes: [
+								{
+								    region:[
+										"be",
+										this.language
+									],
+								    type: action.ProcedureInfo.type,
+									code: action.ProcedureId,
+									version : action.ProcedureInfo.version,
+									label: action.ProcedureInfo.label
+								}
+								],
+							comment: action.Description,
+							valueDate: valueDate,
+							tags: [
+							    {
+							        type: "CD-LIFECYCLE",
+									code: action.Status,
+									version: "1.0"
+							    }
+							    ]
+						})
+
+                this.scheduleSave(this.currentContact);
+                //console.log(this.currentContact)
+            }
+
+
 
 
 		}
