@@ -162,7 +162,7 @@
 			<template is="dom-if" if="[[dataSource]]">
 				<vaadin-combo-box filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[_label(label)]]" value="{{comboBoxValue}}"></vaadin-combo-box>
 			</template>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 		</template>
 
 	</template>
@@ -307,14 +307,6 @@ class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBeha
 	_label(label) {
 		return label || "\u00a0";
 	}
-
-    _statusChanged(inf){
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
-    }
-
-    _planAction(detail){
-        this.dispatchEvent(new CustomEvent('plan-action', detail ));
-    }
 }
 customElements.define(DynamicPopupMenu.is, DynamicPopupMenu);
 </script>

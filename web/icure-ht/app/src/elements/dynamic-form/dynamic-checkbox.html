@@ -140,7 +140,7 @@
 						</template>
 					</label>
 					<span class="label-span">[[label]]</span>
-					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
+					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 				</div>
 			</paper-checkbox>
 		</template>
@@ -228,14 +228,6 @@ class DynamicCheckbox extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.set('booleanValue', booleanValue);
 		}
 	}
-
-    _statusChanged(inf){
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
-    }
-    _planAction(detail){
-        this.dispatchEvent(new CustomEvent('plan-action', detail ));
-    }
-
 }
 
 customElements.define(DynamicCheckbox.is, DynamicCheckbox);

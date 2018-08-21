@@ -122,7 +122,7 @@
 				</template>
 			</span>
 		</tk-token-field
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 	</template>
 	<script>
 class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
@@ -241,14 +241,6 @@ class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 		let content = e[lng] || e.fr || e.en || e.nl;
 		return content && { id: id, stringValue: '' + content.stringValue };
-	}
-
-    _statusChanged(inf){
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
-    }
-
-    _planAction(detail){
-        this.dispatchEvent(new CustomEvent('plan-action', detail ));
 	}
 
 }

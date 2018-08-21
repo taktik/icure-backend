@@ -111,7 +111,7 @@
 					<input value="{{inputValue::input}}">
 				</iron-input>
 			</paper-input-container>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" api="[[api]]" represented-object="[[label]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" api="[[api]]" represented-object="[[label]]"></dynamic-link>
 		</template>
 
 	</template>
@@ -183,14 +183,6 @@ class DynamicNumberField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 		}
 	}
-
-    _statusChanged(inf){
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
-    }
-
-    _planAction(detail){
-        this.dispatchEvent(new CustomEvent('plan-action', detail ));
-    }
 
 }
 
