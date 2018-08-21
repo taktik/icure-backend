@@ -210,6 +210,10 @@
 				margin: 2px;
 			}
 
+			div.cheap {
+				color: #606060;
+			}
+
 			.regimen-line{
 				display: flex;
 				flex-flow: row nowrap;
@@ -339,44 +343,19 @@
                                 <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen">[[_cellContent(item, column)]]</div>
+                                <div class$="cell frozen [[item.cheap]]">[[_cellContent(item, column)]]</div>
                             </template>
                         </vaadin-grid-column>
-
                     </template>
 					<vaadin-grid-column>
 						<template class="header">
 							<div></div>
 						</template>
 						<template>
-							<div><img src$="[[drugPicture(item)]]"></div>
+							<div class$="cell frozen [[item.cheap]]"><img src$="[[drugPicture(item)]]"></div>
 						</template>
 					</vaadin-grid-column>
                 </vaadin-grid>
-				<!--<template id="dom-if-alt" is="dom-if" if="[[_isMedicinalProduct(medicationType)]]">-->
-				<vaadin-grid  id="entities-list-alt" active-item="{{selectedMedicationFromList2}}" on-tap="clickAlt">
-					<template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
-						<vaadin-grid-column width="[[_columnWidth(column)]]">
-							<template class="header">
-								<vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
-							</template>
-							<template>
-								<div class="cell frozen">[[_cellContent(item, column)]]</div>
-							</template>
-						</vaadin-grid-column>
-
-					<!--</template>-->
-					<vaadin-grid-column>
-						<template class="header">
-							<div></div>
-						</template>
-						<template>
-							<div><img src$="[[drugPicture(item)]]"></div>
-						</template>
-					</vaadin-grid-column>
-				</vaadin-grid>
-				</template>
-
             </div>
 			<div class="buttons">
 				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
@@ -670,63 +649,79 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		grid.size = 0;
 		grid.pageSize = 50;
 		grid.dataProvider = (params, callback) => {
-		    const columns = this._getColumns(this.medicationType)
-			const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key;
-			const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
+            const columns = this._getColumns(this.medicationType)
+            const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key
+            const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false
 
-			const pageSize = params.pageSize || grid.pageSize;
-			const startIndex = (params.page || 0) * pageSize;
-			const endIndex = ((params.page || 0) + 1) * pageSize;
+            const pageSize = params.pageSize || grid.pageSize
+            const startIndex = (params.page || 0) * pageSize
+            const endIndex = ((params.page || 0) + 1) * pageSize
 
-			const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":";
+            const thisParams = this.filterValue + "|" + sort + "|" + this.medicationType + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
 
-			let latestSearchValue = this.filterValue;
-			this.latestSearchValue = latestSearchValue;
-			if (!latestSearchValue || latestSearchValue.length < 2) {
-				console.log("Cancelling empty search");
-				grid.set("size", 0);
-				callback([]);
-				return;
-			}
+            let latestSearchValue = this.filterValue
+            this.latestSearchValue = latestSearchValue
+            if (!latestSearchValue || latestSearchValue.length < 2) {
+                console.log("Cancelling empty search")
+                this.setGridSize(grid, 0)
+                callback([])
+                return
+            }
 
-			grid.lastParams = thisParams;
-			console.log("Starting search for " + thisParams);
+            console.log("Starting search for " + thisParams)
 
-			const limit = endIndex || grid.pageSize;
-			const offset = params.index;
-            if(this.medicationType === 'substanceProduct'){
+            const limit = endIndex || grid.pageSize
+            const offset = params.index
+            if (this.medicationType === 'substanceProduct') {
                 this.api.bedrugs().getInnClusters(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
-                    return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
+                    return {totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)}
                 }).then(function (res) {
                     if (this.filterValue !== latestSearchValue) {
-                        console.log("Cancelling obsolete search");
-                        return;
+                        console.log("Cancelling obsolete search")
+                        return
                     }
                     if (grid.size !== res.totalSize) {
-                        grid.set("size", res.totalSize);
+                        this.setGridSize(grid, res.totalSize)
                     }
-                    callback(_.slice(res.rows, startIndex, endIndex));
-                }.bind(this));
+                    grid.latestResults = _.slice(res.rows, startIndex, endIndex)
+                    callback(grid.latestResults)
+                }.bind(this))
+            }
+            else {
+                const fillCache = (minSize) => Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100),
+                    this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100)])
+                    .then(([packs, packsIng]) => {
+                        grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
+                        const newItems = _.unionBy(packs, packsIng, 'id.id')
+                        return [(grid.drugsCache = _.sortBy(_.unionBy(grid.drugsCache || [], newItems, 'id.id'), 'name')), newItems.length]
+                    })
+					.then(([cache, newItemsLength]) => cache.length > minSize || !newItemsLength ? Promise.resolve(cache) : fillCache(minSize) )
+
+				this.loadCheapAlternativesIfNeeded(this.selectedMedicationFromList).then(alternatives => {
+				    const cheapAlternativeSearchSeedIndex = this.cheapAlternativeSearchSeed ?  grid.drugsCache.findIndex(mpp => mpp.id.id === this.cheapAlternativeSearchSeed.id.id) : -1
+                    const cacheEndIndex = cheapAlternativeSearchSeedIndex === -1 ? endIndex :
+						(cheapAlternativeSearchSeedIndex < endIndex ? endIndex - alternatives.length : endIndex)
+				    ;((grid.drugsCache && grid.drugsCache.length >= cacheEndIndex) ? Promise.resolve(grid.drugsCache) : fillCache(cacheEndIndex)).then(cache => {
+                        this.setGridSize(grid, cache.length + alternatives.length)
+
+                        if (cheapAlternativeSearchSeedIndex === -1 || endIndex <= cheapAlternativeSearchSeedIndex) {
+                            callback(cache.slice(startIndex, endIndex))
+                        } else if (cheapAlternativeSearchSeedIndex + alternatives.length < startIndex) {
+                            callback(cache.slice(startIndex - alternatives.length, endIndex - alternatives.length))
+                        } else {
+                            const fullVirtualDataSet = cache.map(it => it)
+                            fullVirtualDataSet.splice(cheapAlternativeSearchSeedIndex + 1, 0, ...alternatives)
+                            callback(fullVirtualDataSet.slice(startIndex, endIndex))
+                        }
+                    })
+                })
 			}
-			else {
-                Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100),
-					this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, 0,  100)])
-					.then(([packs, packsIng]) => {
-					    packs = _.unionBy(packs, packsIng, 'id.id')
-					return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)
-					};
-					}).then(function (res) {
-						if (this.filterValue !== latestSearchValue) {
-							console.log("Cancelling obsolete search");
-							return;
-						}
-						if (grid.size !== res.totalSize) {
-							grid.set("size", res.totalSize);
-						}
-						callback(_.slice(res.rows, startIndex, endIndex));
-					}.bind(this));
-			}
-		};
+        };
+    }
+
+    setGridSize(grid, size) {
+        console.log('setSize', size)
+		grid.set('size', size)
 	}
 
 	_cellContent(item, column) {
@@ -744,67 +739,30 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
 			this.select(this.latestSelected);
 		} else {
-			this.latestSelected = selected;
-			this.inDoubleClick = true;
-			setTimeout(() => {
-				delete this.inDoubleClick;
-			}, 500);
-		}
-		this.showAlternatives();
+            this.latestSelected = selected;
+            this.inDoubleClick = true;
+
+            //Trigger cheapAlternativeSearch
+            this.$['entities-list'].clearCache();
+
+            setTimeout(() => {
+                delete this.inDoubleClick;
+            }, 500);
+        }
 	}
 
-	showAlternatives()
-	{
-	    let grid = this.$['entities-list-alt'];
-
-        grid.lastParams = null; //Used to prevent double calls
-        grid.size = 0;
-        grid.pageSize = 50;
-        grid.dataProvider = (params, callback) => {
-            const columns = this._getColumns(this.medicationType)
-            const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key;
-            const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
-
-            const pageSize = params.pageSize || grid.pageSize;
-            const startIndex = (params.page || 0) * pageSize;
-            const endIndex = ((params.page || 0) + 1) * pageSize;
-
-            const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":";
-
-            let latestSearchValue = this.filterValue;
-            this.latestSearchValue = latestSearchValue;
-            if (!latestSearchValue || latestSearchValue.length < 2) {
-                console.log("Cancelling empty search");
-                grid.set("size", 0);
-                callback([]);
-                return;
+    loadCheapAlternativesIfNeeded(searchSeed) {
+        if (searchSeed) {
+            if (searchSeed.cheap) {
+                searchSeed = this.cheapAlternativeSearchSeed
             }
-
-            grid.lastParams = thisParams;
-            console.log("Starting search for " + thisParams);
-
-            const limit = endIndex || grid.pageSize;
-            const offset = params.index;
-            if(false){
-
-            }
-            else {
-                Promise.all([this.api.bedrugs().getCheapAlternativesBasedOnAtc(this.selectedMedicationFromList.id.id, 'fr')])
-                    .then(([packs]) => {
-                        return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)
-                        };
-                    }).then(function (res) {
-                    if (this.filterValue !== latestSearchValue) {
-                        console.log("Cancelling obsolete search");
-                        return;
-                    }
-                    if (grid.size !== res.totalSize) {
-                        grid.set("size", res.totalSize);
-                    }
-                    callback(_.slice(res.rows, startIndex, endIndex));
-                }.bind(this));
-            }
-        };
+            this.cheapAlternativeSearchSeed = searchSeed
+            return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
+                .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1,mpp2)=>(mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp=>_.extend(_.extend({}, mpp), {cheap : 'cheap', name: '\u2794 '+mpp.name})))
+        } else {
+            this.cheapAlternativeSearchSeed = null
+            return Promise.resolve([])
+		}
     }
 
 	refresh() {
@@ -818,7 +776,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			setTimeout(function () {
 				if (currentValue === this.filterValue) {
 					console.log("Triggering search for " + this.filterValue);
-					this.$['entities-list'].clearCache();
+                    this.cheapAlternativeSearchSeed = null;
+                    this.displayedAlternatives = []
+                    this.$['entities-list'].clearCache();
 				} else {
 					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
 				}

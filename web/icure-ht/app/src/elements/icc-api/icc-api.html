@@ -11,6 +11,7 @@
     import * as api from 'icc-api/icc-api/iccApi'
     import moment from 'moment/src/moment'
 
+    import {IccBedrugsXApi} from 'icc-api/icc-x-api/icc-bedrugs-x-api'
     import {IccCodeXApi} from 'icc-api/icc-x-api/icc-code-x-api'
     import {IccContactXApi} from 'icc-api/icc-x-api/icc-contact-x-api'
     import {IccCryptoXApi} from 'icc-api/icc-x-api/icc-crypto-x-api'
@@ -79,7 +80,6 @@
             this.beabicc = new api.iccBeabApi(this.host, this.headers)
             this.bechaptericc = new api.iccBechapterApi(this.host, this.headers)
             this.bedmgicc = new api.iccBedmgApi(this.host, this.headers)
-            this.bedrugsicc = new api.iccBedrugsApi(this.host, this.headers)
             this.beefacticc = new api.iccBeefactApi(this.host, this.headers)
             this.beehboxicc = new api.iccBeehboxApi(this.host, this.headers)
             this.beeidicc = new api.iccBeeidApi(this.host, this.headers)
@@ -106,6 +106,7 @@
             this.tarificationicc = new api.iccTarificationApi(this.host, this.headers)
             this.usericc = new api.iccUserApi(this.host, this.headers)
 
+            this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
