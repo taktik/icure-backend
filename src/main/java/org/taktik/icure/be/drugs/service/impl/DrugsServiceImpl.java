@@ -63,7 +63,7 @@ public class DrugsServiceImpl implements DrugsService {
         return drugsLogic.getExtendedMpInfos(medecinePackageID);
     }
 
-    public List<MpPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID) {
+    public List<MppPreview> getCheapAlternativesBasedOnAtc(MppId medecinePackageID) {
         return drugsLogic.getCheapAlternativesBasedOnAtc(medecinePackageID);
     }
 

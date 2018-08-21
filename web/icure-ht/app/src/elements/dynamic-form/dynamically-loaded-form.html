@@ -6,6 +6,7 @@
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="dynamic-form.html">
@@ -38,12 +39,47 @@
 				flex-grow: 2;
 				text-align: right;
 			}
+
+			.containerPlanAction{
+				height: 470px;
+				width: auto;
+				overflow: auto;
+			}
+
+			vaadin-combo-box {
+				width: calc(100% - 48px);
+				margin: 8px 0;
+			}
+
+			paper-input{
+				width: calc(100% - 48px);
+				margin: 8px 0;
+			}
+
+			#planActionForm{
+				height: 600px;
+				width: 800px;
+			}
+
+			#cpa_description{
+				height: 125px;
+				width: calc(100% - 48px);
+			}
+
+			.modal-button--save{
+				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+				background: var(--app-secondary-color);
+				color: var(--app-primary-color-dark);
+				font-weight: 700;
+
+			}
+
 		</style>
 
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
 		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]"
 		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-					  on-link-form="linkForm" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-plan-action="_planAction">
+					  on-link-form="linkForm" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-plan-action="_planAction" on-dynamically-event="_openActionDialog">
 			<div slot="titlebar" class="title-bar">
 				<template is="dom-repeat" items="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" as="he">
 					<template is="dom-if" if="[[he.descr]]">
@@ -52,6 +88,74 @@
 				</template>
 			</div>
 		</dynamic-form>
+
+		<paper-dialog id="planActionForm">
+			<h3>[[localize('plan_act','Plan an action',language)]]</h3>
+			<div class="containerPlanAction">
+				<vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]"></vaadin-date-picker>
+
+				<vaadin-form-layout>
+					<vaadin-form-item  colspan="2">
+						<vaadin-combo-box  filtered-items="[[proceduresListItem]]" item-label-path="label.[[language]]" item-value-path="code" id="procedures-list" on-filter-changed="_proceduresFilterChanged" on-value-changed="detectVaccinProcedure" label="Procédure" value="{{plannedAction.ProcedureId}}"></vaadin-combo-box>
+					</vaadin-form-item>
+				</vaadin-form-layout>
+				<template is="dom-if" if="[[isVaccineProcedure]]">
+					<vaadin-form-layout>
+						<vaadin-form-item  colspan="2">
+							<vaadin-combo-box filtered-items="[[drugsListItem]]" item-label-path="name" item-value-path="id" on-filter-changed="_drugsFilterChanged" label="Nom commercial" value="{{plannedAction.VaccineCommercialNameId}}"></vaadin-combo-box>
+						</vaadin-form-item>
+						<vaadin-form-item>
+							<paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
+						</vaadin-form-item>
+						<vaadin-form-item>
+							<paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}"></paper-input>
+						</vaadin-form-item>
+					</vaadin-form-layout>
+				</template>
+				<vaadin-form-layout>
+					<vaadin-form-item colspan="2">
+						<vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
+					</vaadin-form-item>
+					<vaadin-form-item  colspan="2">
+						<vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié" value="{{plannedAction.HcpId}}"></vaadin-combo-box>
+					</vaadin-form-item>
+					<vaadin-form-item  colspan="2">
+						<vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Profession liée" value="{{plannedAction.JobLink}}"></vaadin-combo-box>
+					</vaadin-form-item>
+					<vaadin-form-item  colspan="2">
+						<vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}" on-value-changed="analyzeStatus"></vaadin-combo-box>
+					</vaadin-form-item>
+				</vaadin-form-layout>
+
+				<template is="dom-if" if="[[isStatusRefusal]]">
+					<div>
+						<vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}"></vaadin-text-area>
+					</div>
+				</template>
+
+				<vaadin-form-layout>
+					<vaadin-form-item colspan="2">
+						<template is="dom-if" if="[[isStatusComplete]]">
+							<vaadin-checkbox on-checked-changed="_isSurgical"></vaadin-checkbox> Chirurgical
+						</template>
+					</vaadin-form-item>
+					<vaadin-form-item>
+						<vaadin-checkbox on-checked-changed="_isDeadLineCheck"></vaadin-checkbox> Echéance
+					</vaadin-form-item>
+
+					<vaadin-form-item>
+						<template is="dom-if" if="[[plannedAction.isDeadline]]">
+							<vaadin-checkbox on-checked-changed="_isSendMailCheck"></vaadin-checkbox> Courrier à envoyer
+						</template>
+					</vaadin-form-item>
+				</vaadin-form-layout>
+
+			</div>
+			<div class="buttons">
+				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
+			</div>
+		</paper-dialog>
 	</template>
 	<script>
 		class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
@@ -62,7 +166,8 @@
 			static get properties() {
 				return {
 					api: {
-						type: Object
+						type: Object,
+                        observer: '_apiChanged'
 					},
 					user: {
 						type: Object
@@ -121,16 +226,123 @@
 							return {};
 						}
 
-					}
+					},
+                    plannedAction:{
+                        type: Object,
+                        value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": "", VaccineInfo: {}}
+                    },
+                    comboStatus: {
+                        type: Array,
+                        value:[
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Décès", "nl": "Verlaten / ", "en": "Abandoned / Death"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Désabonné", "nl": "Verlaten / Afgemeld", "en": "Abandoned / Unsubscribed"}
+                            },
+                            {
+                                "id"       : "error",
+                                "label": {"fr": "Abandonné / Erreur", "nl": "Verlaten /", "en": "Abandoned / Error"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}
+                            },
+                            {
+                                "id"       : "refused",
+                                "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné par le patient", "nl": "Verlaten / erwachting", "en": "Abandoned by patient"}
+                            },
+                            {
+                                "id"       : "pending",
+                                "label": {"fr": "En attente", "nl": "Verwachting", "en": "Waiting"}
+                            },
+                            {
+                                "id"       : "planned",
+                                "label": {"fr": "En attente planifié", "nl": "Gepland wachten", "en": "Scheduled waiting"}
+                            },
+                            {
+                                "id"       : "completed",
+                                "label": {"fr": "Fait", "nl": "Geëxecuteerd", "en": "Done"}
+                            },
+                            {
+                                "id"       : "proposed",
+                                "label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}
+                            }
+                        ]
+                    },
+                    hcpListItem: {
+                        type: Array,
+                        value: []
+                    },
+                    filterValue: {
+                        type: String
+                    },
+                    proceduresFilterValue:{
+                        type: String
+                    },
+                    selectedItem: {
+                        type: Object,
+                        value: null
+                    },
+                    isDeadline: {
+                        type: Boolean,
+                        value: false
+                    },
+                    hcpartyTypeList: {
+                        type: Array,
+                        value: []
+                    },
+                    isStatusComplete : {
+                        type: Boolean,
+                        value: false
+                    },
+                    isStatusRefusal:{
+                        type: Boolean,
+                        value: false
+                    },
+                    proceduresListItem:{
+                        type: Array,
+                        value: []
+                    },
+                    isVaccineProcedure:{
+                        type: Boolean,
+                        value: false
+                    },
+                    drugsFilterValue:{
+                        type: String
+                    },
+                    drugsListItem:{
+                        type: Array,
+                        value: []
+                    }
 				};
 			}
 
 			static get observers() {
-				return ["_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)"];
+				return ["_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
 			}
 
 			constructor() {
 				super();
+			}
+
+            _openActionDialog(){
+			    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
+			    this.$['planActionForm'].open()
 			}
 
 			detached() {
@@ -633,12 +845,13 @@
 
 				const loadForms = function (templates, forms, root) {
 					const newFormTemplateIds = forms.map(f => f.formTemplateId).filter(id => id && !templates[id]);
-					return Promise.all(newFormTemplateIds.map(id => this.api.form().getFormTemplate(id))).then(fts => {
-						fts.forEach(ft => {
-							templates[ft.id] = ft;
-						});
-						forms.forEach(f => f.template = f.formTemplateId ? templates[f.formTemplateId] : { layout: null, name: "Dynamic" });
-					}).then(() => Promise.all(forms.map(f => this.api.form().getChildren(f.id, this.user.healthcarePartyId)))).then(children => {
+					return Promise.all([
+					    Promise.all(newFormTemplateIds.map(id => this.api.form().getFormTemplate(id))),
+						Promise.all(forms.map(f => this.api.form().getChildren(f.id, this.user.healthcarePartyId)))
+					]).then(res => {
+                        const [fts,children] = res
+                        fts.forEach(ft => { templates[ft.id] = ft });
+                        forms.forEach(f => f.template = f.formTemplateId ? templates[f.formTemplateId] : { layout: null, name: "Dynamic" })
 						children.forEach((cs, idx) => {
 							forms[idx].children = cs;
 							cs.forEach(c => forms[c.id] = cs);
@@ -646,7 +859,7 @@
 						return children.length ? loadForms(templates, _.flatten(children), root) : root;
 					});
 				}.bind(this);
-				this.api.form().getForm(formId).then(f => loadForms({}, [f], f)).then(form => this.set('form', form));
+				this.api.form().getForm(formId).then(f => loadForms(this.api.cachedTemplates || (this.api.cachedTemplate = {}), [f], f)).then(form => this.set('form', form));
 			}
 
 			deleteForm() {
@@ -680,12 +893,14 @@
 				if (!this.currentContact) {
 					return null;
 				}
-				const svc = this.api.contact().service().newInstance(this.user, serviceId ? { id: serviceId, label: label } : { label: label }); (this.currentContact.services || (this.currentContact.services = [])).push(svc);
+				const svc = this.api.contact().service().newInstance(this.user, serviceId ? { id: serviceId, label: label } : { label: label });
+				(this.currentContact.services || (this.currentContact.services = [])).push(svc);
 
 				let sc = this.currentContact.subContacts.find(sc => sc.formId === formId);
 				if (!sc) {
 					this.currentContact.subContacts.push(sc = { formId: formId, planOfActionId: poaId, healthElementId: heId, services: [] });
 				}
+
 				const csc = this.currentContact.subContacts.find(csc => csc.services.indexOf(svc.id) >= 0);
 				if (csc) {
 					if (csc !== sc) {
@@ -730,6 +945,152 @@
 				return this.api && svc && this.api.contact().localize(svc.content, lng) || {};
 			}
 
+            planAction(){
+                //console.log(this.plannedAction)
+
+                Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', this.plannedAction.ProcedureId, null, null, 10)]).then(
+					results => {
+						this.set('plannedAction.ProcedureInfo', results[0].rows[0])
+						this._planAction()
+				});
+
+            }
+
+            _hcpFilterChanged(e){
+
+                let latestSearchValue = this.filterValue || e && e.detail.value;
+                this.latestSearchValue = latestSearchValue;
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('hcpListItem', []);
+                    return;
+                }
+                this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    this.set('hcpListItem', res.rows);
+                });
+            }
+
+            _proceduresFilterChanged(e){
+                let latestSearchValue = this.filterValue || e && e.detail.value;
+                this.latestSearchValue = latestSearchValue;
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('proceduresListItem', []);
+                    return;
+                }
+                this._proceduresDataProvider() && this._proceduresDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    this.set('proceduresListItem', res.rows);
+                });
+            }
+
+            _drugsFilterChanged(e){
+                let latestSearchValue = this.filterValue || e && e.detail.value;
+                this.latestSearchValue = latestSearchValue;
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('drugsListItem', []);
+                    return;
+                }
+                this._drugsDataProvider() && this._drugsDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    this.set('drugsListItem', res.rows);
+                });
+            }
+
+            _hcpDataProvider() {
+                return {
+                    filter: function (filterValue) {
+                        const desc = 'desc';
+                        let count = 15;
+                        return Promise.all([this.api.hcparty().findByName(filterValue, null,  null, count, desc)]).then(results => {
+                            const hcpList = results[0];
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName}) ));
+                            return { totalSize: filtered.length, rows: filtered };
+                        });
+
+                    }.bind(this)
+                };
+            }
+
+            _proceduresDataProvider(){
+                return {
+                    filter: function (proceduresFilterValue) {
+                        let count = 15;
+                        return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS-PROCEDURES', 'fr', proceduresFilterValue, null, null, count)]).then(results => {
+                            const procedureList = results[0];
+                            const filtered = _.flatten(procedureList.rows.map(procedure => ({id: procedure.id , label : procedure.label, code : procedure.code, searchTerms : procedure.searchTerms}) ));
+                            return { totalSize: filtered.length, rows: filtered};
+                        });
+
+                    }.bind(this)
+                };
+            }
+
+            _drugsDataProvider(){
+                return {
+                    filter: function (drugsFilterValue) {
+                        let count = 15;
+                        return Promise.all([this.api.bedrugs().getMedecinePackages(drugsFilterValue, this.language, null, 0, count)]).then(results => {
+                            const drugsList = results[0];
+                            const filtered = _.flatten(drugsList.map(drugs => ({name: drugs.name, id: drugs.id.id}) ));
+                            return { totalSize: filtered.length, rows: filtered };
+                        });
+
+                    }.bind(this)
+                };
+            }
+
+            _isDeadLineCheck(e){
+                this.set('plannedAction.isDeadline', e.target.checked)
+            }
+
+            _isSendMailCheck(e){
+                this.set('plannedAction.isSendMail', e.target.checked)
+            }
+
+            _isSurgical(e){
+                this.set('plannedAction.isSurgical', e.target.checked)
+            }
+
+            analyzeStatus(e){
+                const status = e.detail.value
+
+                if(status === "completed"){
+                    this.set("isStatusComplete", true)
+                }else{
+                    this.set("isStatusComplete", false)
+                }
+
+                if(status === "refused"){
+                    this.set("isStatusRefusal", true)
+                }else{
+                    this.set("isStatusRefusal", false)
+                }
+            }
+
+            detectVaccinProcedure(e){
+                const code = e.detail.value
+                let codeExp = code.split(".");
+                let CISPType = codeExp[0].substr(1,3)
+
+                if(CISPType === "44"){
+                    this.set("isVaccineProcedure", true)
+                }else{
+                    this.set("isVaccineProcedure", false)
+                }
+            }
+
             _statusChanged(detail){
                 console.log('dynamically-loaded-form')
 
@@ -744,16 +1105,86 @@
 				}
             }
 
-            _planAction(detail){
-                console.log(detail.detail.plannedAction)
+            _apiChanged() {
 
-				//this.createService("plannedAction", null, null, "", null, "")
-
+                if (this.api) {
+                    this.api.cacheRowsUsingPagination(
+                        'CD-HCPARTy-pers',
+                        (key,docId) =>
+                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
+                                .then(pl => ({
+                                    rows:pl.rows,
+                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                    done:!pl.nextKeyPair
+                                }))
+                    ).then(rows => this.set('hcpartyTypeList', _.sortBy(rows, ['label.fr'])))
+                }
             }
 
+            _planAction(detail){
+                console.log(this.plannedAction)
+
+				const action = this.plannedAction
+				const contactId = this.contact.id
+				const label = "Actes"
+				var valueDate = ""
+
+                if(action.isSurgical === true){
+
+                }
+
+                if(this.plannedAction.VaccineCommercialNameId !== ""){
+
+                }
+
+                if(action.Deadline !== ""){
+                    valueDate = this.api.moment(action.Deadline).format('YYYYMMDD')
+				}
+
+                let init = _.extend(
+                    this.createService(label, null, null, contactId),
+						{
+                            responsible: action.HcpId,
+						    content: {
+						    	fr: {
+                                        stringValue: action.ProcedureInfo.label.fr
+									},
+								nl: {
+                                        stringValue: action.ProcedureInfo.label.nl
+									}
+								},
+							codes: [
+								{
+								    region:[
+										"be",
+										this.language
+									],
+								    type: action.ProcedureInfo.type,
+									code: action.ProcedureId,
+									version : action.ProcedureInfo.version,
+									label: action.ProcedureInfo.label
+								}
+								],
+							comment: action.Description,
+							valueDate: valueDate,
+							tags: [
+							    {
+							        type: "CD-LIFECYCLE",
+									code: action.Status,
+									version: "1.0"
+							    }
+							    ]
+						})
+
+                this.scheduleSave(this.currentContact);
+                //console.log(this.currentContact)
+            }
+
+
+
+
 		}
-
-
 
 		customElements.define(DynamicallyLoadedForm.is, DynamicallyLoadedForm);
 	</script>
