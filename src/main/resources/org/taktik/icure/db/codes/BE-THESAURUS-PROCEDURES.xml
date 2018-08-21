@@ -78739,8 +78739,13 @@
         <IBUI_Not_Exact></IBUI_Not_Exact>
         <NIC></NIC>
         <SNOMED></SNOMED>
+<<<<<<< HEAD
+        <Label_FR>programme Education / Autogestion du diabète</Label_FR>
+        <Label_NL>programma educatie / zelfzorg (diabetes type2)</Label_NL>
+=======
         <Label_FR>programme Education et Autogestion du diabète</Label_FR>
         <Label_NL>programma educatie en zelfzorg (diabetes type2)</Label_NL>
+>>>>>>> 4448c72cda829d3e747be03c413c1626fd2538c7
         <Syn_Fr></Syn_Fr>
         <Syn_Nl></Syn_Nl>
         <Treatment></Treatment>
