@@ -743,7 +743,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.inDoubleClick = true;
 
             //Trigger cheapAlternativeSearch
-            this.$['entities-list'].clearCache();
+            const grid = this.$['entities-list']
+            grid.clearCache();
 
             setTimeout(() => {
                 delete this.inDoubleClick;
@@ -776,9 +777,14 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			setTimeout(function () {
 				if (currentValue === this.filterValue) {
 					console.log("Triggering search for " + this.filterValue);
-                    this.cheapAlternativeSearchSeed = null;
-                    this.displayedAlternatives = []
-                    this.$['entities-list'].clearCache();
+
+					this.selectedMedicationFromList = null
+                    this.cheapAlternativeSearchSeed = null
+
+                    const grid = this.$['entities-list']
+                    grid.drugsCache = null;
+                    grid.drugsCacheUpperSearchIndex = 0;
+                    grid.clearCache();
 				} else {
 					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
 				}
