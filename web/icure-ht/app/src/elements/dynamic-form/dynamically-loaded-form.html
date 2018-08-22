@@ -97,7 +97,7 @@
 		<paper-dialog id="planActionForm">
 			<h3>[[localize('plan_act','Plan an action',language)]]</h3>
 			<div class="containerPlanAction">
-				<vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]"></vaadin-date-picker>
+				<vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
 
 				<vaadin-form-layout>
 					<vaadin-form-item  colspan="2">
@@ -143,9 +143,6 @@
 						<template is="dom-if" if="[[isStatusComplete]]">
 							<vaadin-checkbox on-checked-changed="_isSurgical"></vaadin-checkbox> Chirurgical
 						</template>
-					</vaadin-form-item>
-					<vaadin-form-item>
-						<vaadin-checkbox on-checked-changed="_isDeadLineCheck"></vaadin-checkbox> Echéance
 					</vaadin-form-item>
 
 					<vaadin-form-item>
@@ -234,7 +231,7 @@
 					},
                     plannedAction:{
                         type: Object,
-                        value : {"Status" : "pending", "Deadline": "", "HcpId" : "", "ProcedureId" : "", "ProfessionId" : "", "ReasonOfRef" : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, "VaccineCommercialNameId" : "", "DoseNumber" : "", "BatchNumber" : "", "ProcedureInfo": {}, "Description": "", "ProfessionInfo" : {}}
+                        value : {Status : "pending", Deadline: "", HcpId : "", ProcedureId : "", ProfessionId : "", ReasonOfRef : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, VaccineCommercialNameId : "", DoseNumber : "", BatchNumber : "", ProcedureInfo: {}, Description: "", ProfessionInfo : {}, VaccineInfo: {}}
                     },
                     comboStatus: {
                         type: Array,
@@ -1045,9 +1042,15 @@
                 };
             }
 
-            _isDeadLineCheck(e){
-                this.set('plannedAction.isDeadline', e.target.checked)
-            }
+
+            _checkIsDeadline(){
+			    if(this.plannedAction.Deadline !== ""){
+                    this.set('plannedAction.isDeadline', true)
+				}else{
+                    this.set('plannedAction.isDeadline', false)
+				}
+
+			}
 
             _isSendMailCheck(e){
                 this.set('plannedAction.isSendMail', e.target.checked)
@@ -1129,10 +1132,7 @@
             }
 
             planAction(){
-                //console.log(this.plannedAction)
-
 				const tabProfession = this.plannedAction.ProfessionId.split("|")
-
 
                 Promise.all(
                     [
@@ -1140,14 +1140,25 @@
 						this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', tabProfession[1], null, null, 10)
 					]).then(
 					([results, code]) => {
-                        this.set('plannedAction.ProcedureInfo', results.rows[0])
-						this.set('plannedAction.ProfessionInfo', code.rows[0])
-                        this._planAction()
+					    if(this.plannedAction.VaccineCommercialNameId !== ""){
+					        this.api.bedrugs().getMppInfos(this.plannedAction.VaccineCommercialNameId, this.language).then(
+					            mpp => {
+                                    this.set('plannedAction.VaccineInfo', mpp)
+                                    this.set('plannedAction.ProcedureInfo', results.rows[0])
+                                    this.set('plannedAction.ProfessionInfo', code.rows[0])
+                                    this._planAction()
+								}
+							)
+						}else{
+                            this.set('plannedAction.ProcedureInfo', results.rows[0])
+                            this.set('plannedAction.ProfessionInfo', code.rows[0])
+                            this._planAction()
+						}
                     });
 
             }
 
-            _planAction(detail){
+            _planAction(){
                 console.log(this.plannedAction)
 
 				const action = this.plannedAction
@@ -1156,54 +1167,63 @@
                 const responsible = action.HcpId !== "" ? action.HcpId : this.user.healthcarePartyId
 				const valueDate = action.Deadline !== "" ? this.api.moment(action.Deadline).format('YYYYMMDD') : ""
 
-                if(action.isSurgical === true){
-
+                let act = {
+                    responsible: responsible,
+                    content: {
+                        fr: {
+                            stringValue: action.ProcedureInfo.label.fr
+                        },
+                        nl: {
+                            stringValue: action.ProcedureInfo.label.nl
+                        }
+                    },
+                    codes: [
+                        {
+                            region:	action.ProcedureInfo.regions,
+                            type: 	action.ProcedureInfo.type,
+                            code: action.ProcedureId,
+                            version : action.ProcedureInfo.version,
+                            label: action.ProcedureInfo.label
+                        },
+                        {
+                            region: action.ProfessionInfo.regions,
+                            type: action.ProfessionInfo.type,
+                            version : action.ProfessionInfo.version,
+                            code: action.ProfessionInfo.code,
+                            label: action.ProfessionInfo.label
+                        }
+                    ],
+                    comment: action.Description,
+                    valueDate: valueDate,
+                    tags: [
+                        {
+                            type: "CD-LIFECYCLE",
+                            code: action.Status,
+                            version: "1.0"
+                        }
+                    ]
                 }
 
                 if(this.plannedAction.VaccineCommercialNameId !== ""){
 
-                }
 
-                let init = _.extend(
-                    this.createService(label, null, null, contactId),
-						{
-						    responsible: responsible,
-						    content: {
-						    	fr: {
-                                        stringValue: action.ProcedureInfo.label.fr
-									},
-								nl: {
-                                        stringValue: action.ProcedureInfo.label.nl
-									}
-							},
-							codes: [
-								{
-								    region:action.ProcedureInfo.regions,
-								    type: action.ProcedureInfo.type,
-									code: action.ProcedureId,
-									version : action.ProcedureInfo.version,
-									label: action.ProcedureInfo.label
-								},
-								{
-                                    region: action.ProfessionInfo.regions,
-                                    type: action.ProfessionInfo.type,
-                                    version : action.ProfessionInfo.version,
-                                    code: action.ProfessionInfo.code,
-                                    label: action.ProfessionInfo.label
-								}
-							],
-							comment: action.Description,
-							valueDate: valueDate,
-							tags: [
-							    {
-							        type: "CD-LIFECYCLE",
-									code: action.Status,
-									version: "1.0"
-							    }
-							]
-						})
 
-                this.scheduleSave(this.currentContact);
+                    let vaccine = {
+                        region: ["be", this.plannedAction.VaccineInfo.id.lang],
+						type: "CD-ITEM",
+						code: "vaccine",
+						version: "1.0",
+						label: {"fr": this.plannedAction.VaccineInfo.name}
+					}
+
+                    act.codes.push(vaccine)
+
+                    _.extend(this.createService(label, null, null, contactId), act)
+                }else{
+                    _.extend(this.createService(label, null, null, contactId), act)
+				}
+
+                //this.scheduleSave(this.currentContact);
                 //console.log(this.currentContact)
             }
 
