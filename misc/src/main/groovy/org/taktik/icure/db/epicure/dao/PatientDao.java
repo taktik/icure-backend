@@ -8,13 +8,13 @@ import java.util.List;
 public class PatientDao {
 
 
-    public PatientDao( ) {
+    public PatientDao() {
     }
 
     public List<PatientEpi> getPatientList(String sNom, String sPrenom) {
 
         RestTemplate restTemplate = new RestTemplate();
-        List<PatientEpi> lstPatientEpi = restTemplate.getForObject("http://localhost:8080/patient?nom="+sNom+"&prenom="+sPrenom, List.class);
+        List<PatientEpi> lstPatientEpi = restTemplate.getForObject("http://localhost:8080/patient?nom=" + sNom + "&prenom=" + sPrenom, List.class);
 
         return lstPatientEpi;
     }

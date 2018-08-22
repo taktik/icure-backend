@@ -2,10 +2,7 @@ package org.taktik.icure.db
 
 import org.apache.commons.io.IOUtils
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.ektorp.AttachmentInputStream
-import org.ektorp.CouchDbConnector
-import org.ektorp.CouchDbInstance
-import org.ektorp.ViewQuery
+import org.ektorp.*
 import org.ektorp.http.HttpClient
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
@@ -33,11 +30,11 @@ import java.util.concurrent.ExecutionException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class Importer {
+class StdImporter {
     protected Map<String, Map<String, EncryptedCryptedKey>> cachedHcDelegatePartyKeys = [:]
     protected Map<String, Map<String, EncryptedCryptedKey>> cachedHcOwnerPartyKeys = [:]
 
-    protected Map<String,String> cachedDocSFKs = [:] // in plaintext, could be patientId:skf
+    protected Map<String, String> cachedDocSFKs = [:] // in plaintext, could be patientId:skf
     protected Map<String, KeyPair> cachedKeyPairs = [:]
     protected Map<String, HealthcareParty> cachedDoctors = [:]
 
@@ -45,19 +42,21 @@ class Importer {
     protected String keyRoot
     protected def tarificationsPerCode = [:]
 
-    protected String customOwnerId
-
-    protected String DB_PROTOCOL = System.getProperty("dbprotocol")?:"http"
-    protected String DB_HOST = System.getProperty("dbhost")?:"127.0.0.1"
-    protected String DB_PORT = System.getProperty("dbport")?:5984
+    protected String DB_PROTOCOL = System.getProperty("dbprotocol") ?: "http"
+    protected String DB_HOST = System.getProperty("dbhost") ?: "127.0.0.1"
+    protected String DB_PORT = System.getProperty("dbport") ?: 5984
     protected String DEFAULT_KEY_DIR = "/Users/aduchate/Library/icure-cloud/keys"
-    protected String DB_NAME = System.getProperty("dbname")?:"icure"
+    protected String DB_NAME = System.getProperty("dbname") ?: "icure"
     protected CouchDbConnector couchdbBase
     protected CouchDbConnector couchdbPatient
     protected CouchDbConnector couchdbContact
     protected CouchDbConnector couchdbConfig
 
-    Importer() {
+    ArrayList<String> delegates
+
+    StdImporter() {
+        // KTH
+        keyRoot = "D://Appl//Icure//PKI"
         HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:" + DB_PORT)/*.username("admin").password("S3clud3sM@x1m@")*/.build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 
@@ -69,9 +68,9 @@ class Importer {
 
         Security.addProvider(new BouncyCastleProvider())
 
-        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
-            tarificationsPerCode[t.code] = t
-        }
+        // KTH  couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
+        // KTH     tarificationsPerCode[t.code] = t
+        // KTH }
     }
 
     void createAttachment(File file, Document d) {
@@ -109,10 +108,189 @@ class Importer {
         }
     }
 
+    void doRemoveALL() {
+        println("Removeall healthcareParty... ")
+        Collection<HealthcareParty> healthcarePartyExisting = new ArrayList<>();
+        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/HealthcareParty").viewName("by_name").startKey("idHcp_0").endKey("idHcp_Z"), HealthcareParty.class).each { HealthcareParty t ->
+            healthcarePartyExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbBase.executeBulk(healthcarePartyExisting);
+
+        println("Removeall user... ")
+        Collection<User> userExisting = new ArrayList<>();
+        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/User").viewName("by_username").startKey("idLogin_0").endKey("idLogin_Z"), User.class).each { User t ->
+            userExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbBase.executeBulk(userExisting);
+
+        println("Removeall classificationsTemplate... ")
+        Collection<ClassificationTemplate> classificationTemplatesExisting = new ArrayList<>();
+        couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/ClassificationTemplate").viewName("all"), ClassificationTemplate.class).each { ClassificationTemplate t ->
+            classificationTemplatesExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbBase.executeBulk(classificationTemplatesExisting);
+        println("Removeall Patient ... ")
+        Collection<Patient> patientExisting = new ArrayList<>();
+        couchdbPatient.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbPatient.path()).designDocId("_design/Patient").viewName("by_hcparty_name").startKey(ComplexKey.of("idHcp_0", "")).endKey(ComplexKey.of("idHcp_Z", "Z")), Patient.class).each { Patient t ->
+            patientExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbPatient.executeBulk(patientExisting);
+
+        println("Removeall HealthElement... ")
+        Collection<HealthElement> healthelementsExisting = new ArrayList<>();
+        couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path()).designDocId("_design/HealthElement").viewName("by_hcparty_patient").startKey(ComplexKey.of("idHcp_0", "")).endKey(ComplexKey.of("idHcp_Z", "Z")), HealthElement.class).each { HealthElement t ->
+            healthelementsExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbContact.executeBulk(healthelementsExisting);
+
+        println("Removeall Classification... ")
+        Collection<Classification> classificationExisting = new ArrayList<>();
+        couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path()).designDocId("_design/Classification").viewName("by_hcparty_patient").startKey(ComplexKey.of("idHcp_0", "")).endKey(ComplexKey.of("idHcp_Z", "Z")), Classification.class).each { Classification t ->
+            classificationExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbContact.executeBulk(classificationExisting);
+
+        println("Removeall contact... ")
+        Collection<Contact> contactyExisting = new ArrayList<>();
+        couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path()).designDocId("_design/Contact").viewName("by_hcparty").startKey("idHcp_0").endKey("idHcp_Z"), Contact.class).each { Contact t ->
+            contactyExisting.add(BulkDeleteDocument.of(t));
+        }
+        couchdbContact.executeBulk(contactyExisting);
+    }
+
+    void doImportUsersAndHcp(Collection<User> users, Collection<HealthcareParty> parties) {
+        def startImport = System.currentTimeMillis()
+
+        startImport = System.currentTimeMillis()
+
+        print("Importing doctors... ")
+        parties.each { dr ->
+            cachedDoctors[dr.id] = dr
+
+            if (users*.healthcarePartyId.contains(dr.id)) {
+                /**** Cryptography *****/
+                def keyPair = loadKeyPair(dr.id)
+                if (!keyPair) {
+                    keyPair = createKeyPair(dr.id)
+
+                    KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC")
+                    aesKeyGenerator.init(256)
+                    Key encryptKey = aesKeyGenerator.generateKey()
+
+                    def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
+
+                    dr.hcPartyKeys = [:]
+                    dr.hcPartyKeys[dr.id] = ([crypted, crypted] as String[])
+
+                    dr.setPublicKey(keyPair.public.encoded.encodeHex().toString())
+                }
+                cachedKeyPairs[dr.id] = keyPair
+            }
+        }
+
+        delegates = new ArrayList<String>(cachedKeyPairs.keySet())
+
+        users.each { user ->
+            if (user.login) {
+                user.autoDelegations[DelegationTag.all] = new HashSet<>(delegates.findAll {
+                    it != user.healthcarePartyId
+                })
+            }
+        }
+
+        couchdbBase.executeBulk(parties)
+        couchdbBase.executeBulk(users)
+
+        println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+
+    }
+
+    void doImportClassificationTemplates(Collection<ClassificationTemplate> classificationTemplates) {
+        def startImport = System.currentTimeMillis()
+
+        startImport = System.currentTimeMillis()
+
+        println("Delegates are : ${delegates.join(',')}")
+
+        String dbOwnerId = delegates[0]
+
+        println("Importing classificationsTemplate... ")
+        def arrClassifications = []
+        classificationTemplates.each { p ->
+            /**** Delegations ****/
+            delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
+            arrClassifications << [p]
+        }
+        couchdbBase.executeBulk(classificationTemplates);
+
+        println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
+    }
+
+    void doImportPatient(Collection<Patient> patients, Map<String, List<HealthElement>> healthElements, Map<String, List<Classification>> classifications, Map<String, List<Contact>> contacts) {
+        def startImport = System.currentTimeMillis()
+
+        startImport = System.currentTimeMillis()
+
+        println("Delegates are : ${delegates.join(',')}")
+
+        String dbOwnerId = delegates[0]
+        println("Importing patients... ")
+
+        def pats = []
+        patients.each { p ->
+            /**** Delegations ****/
+            delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
+
+            // ===============
+            def pHes = healthElements[p.id]
+            def pClassification = classifications[p.id]
+            def pCtcs = contacts[p.id]
+
+            healthElements.remove(p.id)
+            classifications.remove(p.id)
+            contacts.remove(p.id)
+
+            pHes?.each { HealthElement e -> delegates.each { delegateId -> e = this.appendObjectDelegations(e, p, dbOwnerId, delegateId, this.cachedDocSFKs[e.id], this.cachedDocSFKs[p.id]) as HealthElement } }
+            pClassification?.each { Classification e -> delegates.each { delegateId -> e = this.appendObjectDelegations(e, p, dbOwnerId, delegateId, this.cachedDocSFKs[e.id], this.cachedDocSFKs[p.id]) as Classification } }
+
+            pCtcs?.each { Contact c ->
+                delegates.each { delegateId -> c = this.appendObjectDelegations(c, p, dbOwnerId, delegateId, this.cachedDocSFKs[c.id], this.cachedDocSFKs[p.id]) as Contact }
+                c.services.each { s ->
+                    s.content.values().each { cnt ->
+                        if (cnt.binaryValue?.length) {
+                            cnt.binaryValue = new File(new String(cnt.binaryValue, 'UTF8')).bytes
+                        }
+                    }
+                }
+            }
+
+            pats << [p, pHes, pClassification, pCtcs]
+
+            if (pats.size() == 3) {
+                couchdbPatient.executeBulk(pats.collect { it[0] })
+                couchdbContact.executeBulk(pats.collect { it[1] }.flatten())
+                couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
+                couchdbContact.executeBulk(pats.collect { it[3] }.flatten())
+                print("Next .... ")
+                pats.clear()
+            }
+        }
+        // ===============
+        if (pats.size()) {
+            couchdbPatient.executeBulk(pats.collect { it[0] })
+            couchdbContact.executeBulk(pats.collect { it[1] }.flatten())
+            couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
+            couchdbContact.executeBulk(pats.collect { it[3] }.flatten())
+            print("Fin .... ")
+        }
+        println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.");
+    }
+
     @SuppressWarnings("GroovyUnusedDeclaration")
     void doImport(Collection<User> users, Collection<HealthcareParty> parties, Collection<Patient> patients, Map<String, List<Invoice>> invoices,
                   Map<String, List<Contact>> contacts, Map<String, List<HealthElement>> healthElements, Map<String, List<Form>> forms,
-                  Collection<Message> messages, Map<String, Collection<String>> messageDocs, Collection<Map> docs, Collection<AccessLog> accessLogs) {
+                  Collection<Message> messages, Map<String, Collection<String>> messageDocs, Collection<Map> docs, Collection<AccessLog> accessLogs,
+                  Collection<ClassificationTemplate> classificationTemplates, Map<String, List<Classification>> classifications) {
 
         def startImport = System.currentTimeMillis()
 
@@ -130,27 +308,29 @@ class Importer {
                 def keyPair = loadKeyPair(dr.id)
                 if (!keyPair) {
                     keyPair = createKeyPair(dr.id)
+
+                    KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC")
+                    aesKeyGenerator.init(256)
+                    Key encryptKey = aesKeyGenerator.generateKey()
+
+                    def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
+
+                    dr.hcPartyKeys = [:]
+                    dr.hcPartyKeys[dr.id] = ([crypted, crypted] as String[])
+
+                    dr.setPublicKey(keyPair.public.encoded.encodeHex().toString())
                 }
-                KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC")
-                aesKeyGenerator.init(256)
-                Key encryptKey = aesKeyGenerator.generateKey()
-
-                def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
-
-                dr.hcPartyKeys = [:]
-                dr.hcPartyKeys[dr.id] = ([crypted, crypted] as String[])
-
-                dr.setPublicKey(keyPair.public.encoded.encodeHex().toString())
-
                 cachedKeyPairs[dr.id] = keyPair
             }
         }
 
-        def delegates = new ArrayList<String>(cachedKeyPairs.keySet())
+        delegates = new ArrayList<String>(cachedKeyPairs.keySet())
 
         users.each { user ->
             if (user.login) {
-                user.autoDelegations[DelegationTag.all] = new HashSet<>(delegates.findAll { it != user.healthcarePartyId })
+                user.autoDelegations[DelegationTag.all] = new HashSet<>(delegates.findAll {
+                    it != user.healthcarePartyId
+                })
             }
         }
 
@@ -159,22 +339,21 @@ class Importer {
 
         println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
         startImport = System.currentTimeMillis()
-        println("Importing patients... ")
 
         println("Delegates are : ${delegates.join(',')}")
 
-        String dbOwnerId
-        if(customOwnerId != null) {
-            dbOwnerId = customOwnerId
-            this.cachedDoctors[dbOwnerId] = couchdbBase.get(HealthcareParty, dbOwnerId)
-            this.cachedKeyPairs[dbOwnerId] = loadKeyPair(dbOwnerId)
-            if (!this.cachedKeyPairs[dbOwnerId]  ) {
-                println("ERROR: key not found for customOwnerId")
-            }
-        } else {
-            dbOwnerId = delegates[0]
+        String dbOwnerId = delegates[0]
+
+        println("Importing classificationsTemplate... ")
+        def arrClassifications = []
+        classificationTemplates.each { p ->
+            /**** Delegations ****/
+            delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
+            arrClassifications << [p]
         }
-        println("OwnerId = ${dbOwnerId}")
+        couchdbBase.executeBulk(classificationTemplates);
+
+        println("Importing patients... ")
 
         def formsPerId = [:]
         forms.each { pid, fs ->
@@ -195,17 +374,20 @@ class Importer {
             /**** Delegations ****/
             delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
 
-            def pCtcs = contacts[p.id] ?: []
-            def pHes = healthElements[p.id] ?: []
-            def pForms = forms[p.id] ?: []
-            def pInvoices = invoices[p.id] ?: []
-            def ppMessages = pMessages[p.id] ?: []
+            // ===============
+            def pCtcs = contacts[p.id]
+            def pHes = healthElements[p.id]
+            def pForms = forms[p.id]
+            def pInvoices = invoices[p.id]
+            def ppMessages = pMessages[p.id]
+            def pClassification = classifications[p.id]
 
             contacts.remove(p.id)
             healthElements.remove(p.id)
             forms.remove(p.id)
             invoices.remove(p.id)
             pMessages.remove(p.id)
+            classifications.remove(p.id)
 
 
             pCtcs?.each { Contact c ->
@@ -232,19 +414,25 @@ class Importer {
             }
             ppMessages?.each { Message m -> delegates.each { delegateId -> m = this.appendObjectDelegations(m, p, dbOwnerId, delegateId, this.cachedDocSFKs[m.id], this.cachedDocSFKs[p.id]) as Message } }
 
-            pats << [p, pCtcs, pHes, pForms, pInvoices]
+            pClassification?.each { Classification e -> delegates.each { delegateId -> e = this.appendObjectDelegations(e, p, dbOwnerId, delegateId, this.cachedDocSFKs[e.id], this.cachedDocSFKs[p.id]) as Classification } }
 
-            if (pats.size() == 10) {
+            pats << [p, pCtcs, pHes, pForms, pInvoices, pClassification]
+
+            if (pats.size() == 3) {
                 couchdbPatient.executeBulk(pats.collect { it[0] })
-                couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
-                print(".")
+                // KTH couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+                couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
+                couchdbContact.executeBulk(pats.collect { it[5] }.flatten())
+                print("Next .... ")
                 pats.clear()
             }
         }
-
+        // ===============
         if (pats.size()) {
             couchdbPatient.executeBulk(pats.collect { it[0] })
-            couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+            // KTH couchdbContact.executeBulk(pats.collect { it[1] + it[2] + it[3] + it[4] }.flatten())
+            couchdbContact.executeBulk(pats.collect { it[2] }.flatten())
+            couchdbContact.executeBulk(pats.collect { it[5] }.flatten())
         }
 
         //Already start indexation
@@ -260,42 +448,49 @@ class Importer {
         startImport = System.currentTimeMillis()
         print("Importing messages... ")
 
-        messages.each { Message mm ->
-            if (!this.cachedDocSFKs[mm.id]) {
-                delegates.each { delegateId -> mm = this.appendObjectDelegations(mm, null, dbOwnerId, delegateId, this.cachedDocSFKs[mm.id], null) }
-            }
-            def mDocs = messageDocs[mm.id]
+        messages.each {
+            Message mm ->
+                if (!this.cachedDocSFKs[mm.id]) {
+                    delegates.each { delegateId -> mm = this.appendObjectDelegations(mm, null, dbOwnerId, delegateId, this.cachedDocSFKs[mm.id], null) }
+                }
+                def mDocs = messageDocs[mm.id]
 
-            mDocs?.each { Map dd ->
-                Document d = dd.doc
-                delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, mm, delegates[0], delegateId, this.cachedDocSFKs[d.id], this.cachedDocSFKs[mm.id]) as Document }
-            }
+                mDocs?.each { Map dd ->
+                    Document d = dd.doc
+                    delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, mm, delegates[0], delegateId, this.cachedDocSFKs[d.id], this.cachedDocSFKs[mm.id]) as Document }
+                }
         }
-        new ArrayList(messages).collate(100).each { couchdbContact.executeBulk(it) }
+        new ArrayList(messages).collate(100).each {
+            couchdbContact.executeBulk(it)
+        }
 
         println("\n completed in " + (System.currentTimeMillis() - startImport) / 1000 + " s.")
         startImport = System.currentTimeMillis()
         print("Importing documents... ")
 
-        docs.each { dd ->
-            Document d = dd.doc
-            if (!this.cachedDocSFKs[d.id]) {
-                delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, null, dbOwnerId, delegateId, this.cachedDocSFKs[d.id], null) }
-            }
+        docs.each {
+            dd ->
+                Document d = dd.doc
+                if (!this.cachedDocSFKs[d.id]) {
+                    delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, null, dbOwnerId, delegateId, this.cachedDocSFKs[d.id], null) }
+                }
         }
-        new ArrayList(docs).collate(1000).each { couchdbContact.executeBulk(it*.doc) }
+        new ArrayList(docs).collate(1000).each {
+            couchdbContact.executeBulk(it*.doc)
+        }
 
-        docs.each { dd ->
-            createAttachment(dd.file, dd.doc)
+        docs.each {
+            dd ->
+                createAttachment(dd.file, dd.doc)
         }
 
         println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
     }
 
-    /**
-     * @return the plain skd
-     * @throws EncryptionException
-     */
+/**
+ * @return the plain skd
+ * @throws EncryptionException
+ */
     static String decryptSkdInDelegate(Delegation delegation, byte[] exchangeAESKey) throws EncryptionException {
         return decryptSkdInDelegate(delegation.getKey(), exchangeAESKey)
     }
@@ -331,15 +526,15 @@ class Importer {
 
         return keyAES
     }
-    /**
-     * Decodes a hex string to a byte array. The hex string can contain either upper
-     * case or lower case letters.
-     *
-     * @param value string to be decoded
-     * @return decoded byte array
-     * @throws NumberFormatException If the string contains an odd number of characters
-     *                               or if the characters are not valid hexadecimal values.
-     */
+/**
+ * Decodes a hex string to a byte array. The hex string can contain either upper
+ * case or lower case letters.
+ *
+ * @param value string to be decoded
+ * @return decoded byte array
+ * @throws NumberFormatException If the string contains an odd number of characters
+ *                               or if the characters are not valid hexadecimal values.
+ */
     static byte[] decodeHex(final String value) {
         // if string length is odd then throw exception
         if (value.length() % 2 != 0) {
@@ -353,15 +548,15 @@ class Importer {
 
         return bytes
     }
-    /**
-     * Produces a Writable that writes the hex encoding of the byte[]. Calling
-     * toString() on this Writable returns the hex encoding as a String. The hex
-     * encoding includes two characters for each byte and all letters are lower case.
-     *
-     * @param data byte array to be encoded
-     * @return object which will write the hex encoding of the byte array
-     * @see Integer#toHexString(int)
-     */
+/**
+ * Produces a Writable that writes the hex encoding of the byte[]. Calling
+ * toString() on this Writable returns the hex encoding as a String. The hex
+ * encoding includes two characters for each byte and all letters are lower case.
+ *
+ * @param data byte array to be encoded
+ * @return object which will write the hex encoding of the byte array
+ * @see Integer#toHexString(int)
+ */
     static Writable encodeHex(final byte[] data) {
         return new Writable() {
             Writer writeTo(Writer out) throws IOException {
@@ -425,14 +620,14 @@ class Importer {
         pubFile.withWriter { w -> drKeyPair.public.encoded.encodeHex().writeTo(w) }
         return drKeyPair
     }
-    /**
-     * @param ownerId owner of the Patient delegation.
-     * @param delegateId to be delegated to.
-     * @param documentId will be encrypted with generatedKey and used as a checksum later on. Like encryptAES(patientId:generatedKey).
-     * @param key it's a generated Key. If you set null, it automatically gets generated.
-     * @param exchangeAESKey is an exchange AES key of owner and delegate party.
-     * @throws org.taktik.icure.exceptions.EncryptionException
-     */
+/**
+ * @param ownerId owner of the Patient delegation.
+ * @param delegateId to be delegated to.
+ * @param documentId will be encrypted with generatedKey and used as a checksum later on. Like encryptAES(patientId:generatedKey).
+ * @param key it's a generated Key. If you set null, it automatically gets generated.
+ * @param exchangeAESKey is an exchange AES key of owner and delegate party.
+ * @throws org.taktik.icure.exceptions.EncryptionException
+ */
     protected Delegation newDelegation(String ownerId, String delegateId, String documentId, String key, byte[] exchangeAESKey) throws EncryptionException {
         // generate generatedKey if null
         if (key == null) {
@@ -447,15 +642,16 @@ class Importer {
         String plainSkd = documentId + ":" + key
         return newDelegation(ownerId, delegateId, plainSkd, exchangeAESKey)
     }
-    /**
-     *
-     * @param ownerId        owner of the Patient delegation.
-     * @param delegateId     to be delegated to.
-     * @param plainSkd		 Plain version of concatenated documentId:key. SKD: secret key document, and key:  (docId + ":" + generatedKey) encrypted by exchangeAESKey
-     * @param exchangeAESKey is an exchange AES key of owner and delegate party.
-     * @throws EncryptionException
-     */
-    protected static Delegation newDelegation(String ownerId, String delegateId, String plainSkd, byte[] exchangeAESKey) throws EncryptionException {
+/**
+ *
+ * @param ownerId owner of the Patient delegation.
+ * @param delegateId to be delegated to.
+ * @param plainSkd Plain version of concatenated documentId:key. SKD: secret key document, and key:  (docId + ":" + generatedKey) encrypted by exchangeAESKey
+ * @param exchangeAESKey is an exchange AES key of owner and delegate party.
+ * @throws EncryptionException
+ */
+    protected
+    static Delegation newDelegation(String ownerId, String delegateId, String plainSkd, byte[] exchangeAESKey) throws EncryptionException {
         String skd
         try {
             skd = encodeHex(
@@ -480,8 +676,8 @@ class Importer {
         return newDelegation(ownerId, delegateId, documentId, key, getOwnerHcPartyKey(ownerId, delegateId, hcPartyKey))
     }
 
-    protected Set<String> getSecureKeys(Map<String, Set<Delegation>> delegations, String delegateId, PrivateKey delegatePrivateKey) throws EncryptionException, IOException {
-        Set<Delegation> myDelegations = delegations.get(delegateId)
+    protected Set<String> getSecureKeys(Map<String, List<Delegation>> delegations, String delegateId, PrivateKey delegatePrivateKey) throws EncryptionException, IOException {
+        List<Delegation> myDelegations = delegations.get(delegateId)
         Set<String> result = new HashSet<>()
         for (Delegation d : myDelegations) {
             byte[] exchangeAESKey = getDelegateHcPartyKey(delegateId, d.getOwner(), delegatePrivateKey)
@@ -538,8 +734,8 @@ class Importer {
         Map<String, EncryptedCryptedKey> keyMap = cachedHcOwnerPartyKeys.get(myId)
         if (keyMap == null || keyMap.get(delegateId) == null) {
             HealthcareParty ownerHcParty = this.cachedDoctors[myId]
-            cachedHcOwnerPartyKeys[myId] =  keyMap = [:]
-            ownerHcParty.hcPartyKeys.each { k,v ->
+            cachedHcOwnerPartyKeys[myId] = keyMap = [:]
+            ownerHcParty.hcPartyKeys.each { k, v ->
                 keyMap[k] = new EncryptedCryptedKey(v[0], null)
             }
         }
@@ -571,9 +767,11 @@ class Importer {
             ).toString()
 
             // update the owner (myself) in cache and server
-            HealthcareParty ownerHcParty =  this.cachedDoctors[myId]
+            HealthcareParty ownerHcParty = this.cachedDoctors[myId]
             ownerHcParty.hcPartyKeys[delegateId] = ([myCryptedKey, delegateCryptedKey] as String[])
             // 1. update the owner dr on the server
+            HealthcareParty kthHcRead = this.couchdbBase.get(HealthcareParty.class, ownerHcParty.id)
+            ownerHcParty.setRev(kthHcRead.getRev())
             this.couchdbBase.update(ownerHcParty)
             HealthcareParty updatedOwnerHcParty = this.couchdbBase.get(HealthcareParty.class, ownerHcParty.id)
             // 2. update the cache
@@ -583,10 +781,9 @@ class Importer {
             Map<String, EncryptedCryptedKey> existingKeyMapOfOwner = cachedHcOwnerPartyKeys[myId]
             if (existingKeyMapOfOwner == null) {
                 existingKeyMapOfOwner = [:]
-                cachedHcOwnerPartyKeys[myId] =  existingKeyMapOfOwner
+                cachedHcOwnerPartyKeys[myId] = existingKeyMapOfOwner
             }
             existingKeyMapOfOwner[delegateId] = new EncryptedCryptedKey(myCryptedKey, clearTextAESExchangeKey)
-
 
             // update the 'cachedHcDelegatePartyKeys'
             Map<String, EncryptedCryptedKey> existingKeyMapOfDelegate = cachedHcDelegatePartyKeys[delegateId]
@@ -594,27 +791,27 @@ class Importer {
                 existingKeyMapOfDelegate = [:]
                 cachedHcDelegatePartyKeys.put(delegateId, existingKeyMapOfDelegate)
             }
-            existingKeyMapOfDelegate[myId] =  new EncryptedCryptedKey(delegateCryptedKey, clearTextAESExchangeKey)
+            existingKeyMapOfDelegate[myId] = new EncryptedCryptedKey(delegateCryptedKey, clearTextAESExchangeKey)
 
             return clearTextAESExchangeKey
         } else {
             return k.getDecrypted(privateKey)
         }
     }
-    /**
-     *
-     * @param newDelegationCreatedObjectPostMethod this can be for example "patient/delegate/"
-     * @param modificationParentObjectPostMethod this can be for example "contact/modify"
-     * @throws EncryptionException
-     * @throws ExecutionException
-     * @throws IOException
-     * @throws BadPaddingException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws NoSuchProviderException
-     * @throws InvalidKeyException
-     */
+/**
+ *
+ * @param newDelegationCreatedObjectPostMethod this can be for example "patient/delegate/"
+ * @param modificationParentObjectPostMethod this can be for example "contact/modify"
+ * @throws EncryptionException
+ * @throws ExecutionException
+ * @throws IOException
+ * @throws BadPaddingException
+ * @throws NoSuchAlgorithmException
+ * @throws NoSuchPaddingException
+ * @throws IllegalBlockSizeException
+ * @throws NoSuchProviderException
+ * @throws InvalidKeyException
+ */
     def <T extends StoredICureDocument> T initObjectDelegations(T createdObject, StoredICureDocument parentObject, String ownerId) throws EncryptionException, ExecutionException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
         PrivateKey ownerPrivateKey = this.cachedKeyPairs[ownerId].private
 
@@ -622,8 +819,13 @@ class Importer {
         Delegation selfDelegation = newDelegation(ownerId, ownerId, createdObject.getId(), cachedDocSFKs[createdObject.id], ownerPrivateKey)
 
         // append the self delegation to createdObject
-        if (!createdObject.delegations) {createdObject.delegations =  [:]}
-        createdObject.delegations[ownerId] = new HashSet<Delegation>([selfDelegation])
+        if (!createdObject.delegations) {
+            createdObject.delegations = [:]
+        }
+        // kth createdObject.delegations[ownerId] = [selfDelegation]
+        LinkedHashSet<Delegation> myLinkedHashSet = new LinkedHashSet<>()
+        myLinkedHashSet.add(selfDelegation)
+        createdObject.delegations.put(ownerId, myLinkedHashSet)
 
         if (parentObject != null) {
             // Appending crypted Foreign Key
@@ -631,7 +833,15 @@ class Importer {
             createdObject.cryptedForeignKeys[ownerId] = new HashSet<>([delegationForCryptedForeignKey])
 
             // Appending Secret Foreign Key
-            Set<String> secureKeys = getSecureKeys(parentObject.getDelegations(), ownerId, ownerPrivateKey)
+            LinkedHashMap<String, LinkedHashSet<Delegation>> fromMap;
+            fromMap = parentObject.getDelegations()
+            LinkedHashSet<Delegation> fromSet = fromMap.get(ownerId)
+
+            Map<String, List<Delegation>> toMap = new HashMap()
+            toMap.put(ownerId, fromSet.asList())
+
+            // KTH Set<String> secureKeys = getSecureKeys(parentObject.getDelegations(), ownerId, ownerPrivateKey)
+            Set<String> secureKeys = getSecureKeys(toMap, ownerId, ownerPrivateKey)
             createdObject.setSecretForeignKeys(secureKeys)
         }
 
@@ -640,17 +850,19 @@ class Importer {
         //return this.db.get(T.class, createdObject.id)
         return createdObject
     }
-    /**
-     *
-     * @param newDelegationModifiedObjectPostMethod this can be for example "contact/delegate/"
-     * @param modificationModifiedObjectPostMethod this can be for example "contact/modify"
-     * @param newDelegationParentObjectPostMethod this can be for example "patient/delegate/"
-     * @throws EncryptionException
-     * @throws ExecutionException
-     * @throws IOException
-     */
+/**
+ *
+ * @param newDelegationModifiedObjectPostMethod this can be for example "contact/delegate/"
+ * @param modificationModifiedObjectPostMethod this can be for example "contact/modify"
+ * @param newDelegationParentObjectPostMethod this can be for example "patient/delegate/"
+ * @throws EncryptionException
+ * @throws ExecutionException
+ * @throws IOException
+ */
     def <T extends StoredICureDocument> T appendObjectDelegations(T modifiedObject, StoredICureDocument parentObject, String ownerId, String delegateId, String secretForeignKeyOfModifiedObject, String secretForeignKeyOfParent) throws EncryptionException, ExecutionException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
-        if (ownerId == delegateId) { return this.initObjectDelegations(modifiedObject, parentObject, ownerId)}
+        if (ownerId == delegateId) {
+            return this.initObjectDelegations(modifiedObject, parentObject, ownerId)
+        }
         PrivateKey ownerPrivateKey = this.cachedKeyPairs[ownerId].private
 
         if (parentObject != null && secretForeignKeyOfParent == null) {
@@ -671,14 +883,18 @@ class Importer {
         byte[] exchangeAESKeyOwnerDelegate = getOwnerHcPartyKey(ownerId, delegateId, ownerPrivateKey)
 
         // append the new delegation to modifiedObject
-        if (modifiedObject.delegations[delegateId] == null) {modifiedObject.delegations[delegateId] = new HashSet<>()}
-        modifiedObject.delegations[delegateId] << newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
-
+        if (modifiedObject.delegations[delegateId] == null) {
+            modifiedObject.delegations[delegateId] = []
+        }
+        // KTH modifiedObject.delegations[delegateId] << newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
+        Delegation addDelegation = newDelegation(ownerId, delegateId, modifiedObject.id + ":" + secretForeignKeyOfModifiedObject, exchangeAESKeyOwnerDelegate)
+        LinkedHashSet<Delegation> myLinkedHashSet = new LinkedHashSet<>()
+        myLinkedHashSet.add(addDelegation)
+        modifiedObject.getDelegations().put(delegateId, myLinkedHashSet)
 
         if (parentObject != null) {
             /* append the CryptedForeignKeys */
             modifiedObject.cryptedForeignKeys[delegateId] = new HashSet([newDelegation(ownerId, delegateId, modifiedObject.id, parentObject.id, ownerPrivateKey)])
-
 
             /* append the Secret Foreign Key */
             modifiedObject.secretForeignKeys << secretForeignKeyOfParent
@@ -689,17 +905,17 @@ class Importer {
 //        return this.db.get(T.class, modifiedObject.id)
         return modifiedObject
     }
-    /**
-     *
-     * @param delegateId , we are delegate HcParty here. (myId)
-     * @return secret generated keys located in patient delegation. Those which are delegated to delegate HcParty
-     */
+/**
+ *
+ * @param delegateId , we are delegate HcParty here. (myId)
+ * @return secret generated keys located in patient delegation. Those which are delegated to delegate HcParty
+ */
     def <T extends StoredICureDocument> List<String> getSecretKeys(T childObject, String ownerId, String delegateId) throws IOException, EncryptionException {
         // Fetching AES exchange key of owner and delagate from cache (or remote server)
 //        byte[] delegateOwnerAesExchangeKey = getDelegateHcPartyKey(delegateId, ownerId, RSAKeysUtils.loadMyKeyPair(delegateId).getPrivate());
         byte[] delegateOwnerAesExchangeKey = getDelegateHcPartyKey(delegateId, ownerId, this.cachedKeyPairs[delegateId].private)
 
-        List<String> results = new ArrayList<>()
+        List<String> results = new LinkedHashMap<String, T>()
         for (Delegation delegation : childObject.getDelegations().get(delegateId)) {
             String plainSkd = decryptSkdInDelegate(delegation.getKey(), delegateOwnerAesExchangeKey)
 
@@ -726,4 +942,5 @@ class Importer {
             return decrypted
         }
     }
+
 }

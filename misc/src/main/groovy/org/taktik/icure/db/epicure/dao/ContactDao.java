@@ -10,10 +10,10 @@ public class ContactDao {
     public ContactDao() {
     }
 
-    public List<ContactEpi> getContactList(String sFichecontact) {
+    public List<ContactEpi> getContactList(String sFichepat) {
 
         RestTemplate restTemplate = new RestTemplate();
-        List<ContactEpi> lstContact = restTemplate.getForObject("http://localhost:8080/contact?fichecontact="+sFichecontact, List.class);
+        List<ContactEpi> lstContact = restTemplate.getForObject("http://localhost:8080/contact?fichepat="+sFichepat, List.class);
 
         return lstContact;
     }
