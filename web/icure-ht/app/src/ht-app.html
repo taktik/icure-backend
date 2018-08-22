@@ -847,6 +847,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					if (!this.authenticated) {
 						this.authenticated = true
 
+						this.api.loadUsersAndHcParties()
 						if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
                             if (this.credentials.ehpassword) {
                                 const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)

@@ -848,12 +848,13 @@
 
 				const loadForms = function (templates, forms, root) {
 					const newFormTemplateIds = forms.map(f => f.formTemplateId).filter(id => id && !templates[id]);
-					return Promise.all(newFormTemplateIds.map(id => this.api.form().getFormTemplate(id))).then(fts => {
-						fts.forEach(ft => {
-							templates[ft.id] = ft;
-						});
-						forms.forEach(f => f.template = f.formTemplateId ? templates[f.formTemplateId] : { layout: null, name: "Dynamic" });
-					}).then(() => Promise.all(forms.map(f => this.api.form().getChildren(f.id, this.user.healthcarePartyId)))).then(children => {
+					return Promise.all([
+					    Promise.all(newFormTemplateIds.map(id => this.api.form().getFormTemplate(id))),
+						Promise.all(forms.map(f => this.api.form().getChildren(f.id, this.user.healthcarePartyId)))
+					]).then(res => {
+                        const [fts,children] = res
+                        fts.forEach(ft => { templates[ft.id] = ft });
+                        forms.forEach(f => f.template = f.formTemplateId ? templates[f.formTemplateId] : { layout: null, name: "Dynamic" })
 						children.forEach((cs, idx) => {
 							forms[idx].children = cs;
 							cs.forEach(c => forms[c.id] = cs);
@@ -861,7 +862,7 @@
 						return children.length ? loadForms(templates, _.flatten(children), root) : root;
 					});
 				}.bind(this);
-				this.api.form().getForm(formId).then(f => loadForms({}, [f], f)).then(form => this.set('form', form));
+				this.api.form().getForm(formId).then(f => loadForms(this.api.cachedTemplates || (this.api.cachedTemplate = {}), [f], f)).then(form => this.set('form', form));
 			}
 
 			deleteForm() {

@@ -653,6 +653,22 @@ public class DrugsDAOImpl implements DrugsDAO {
 		return new ArrayList<>(mps);
 	}
 
+	public List<Mpp> getMppsWithAtc(Atc atc) {
+		Session sess = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+		Set<Mpp> mpps = new HashSet<>();
+		if (atc != null && atc.getCode() != null)
+			for (Atc a : (List<Atc>) sess.createCriteria(Atc.class).add(Restrictions.eq("code", atc.getCode())).add(Restrictions.eq("current", true)).list()) {
+				if (a.getId().getLang().equals(atc.getId().getLang())) {
+					Mpp mpp = (Mpp) sess.get(Mpp.class, new MppId(a.getId().getMppId(), a.getId().getLang()));
+					if (mpp != null && mpp.getRrsstate() != null && (mpp.getRrsstate().equals("G") || mpp.getRrsstate().equals("C") || mpp.getRrsstate().equals("B"))) {
+						mpps.add(mpp);
+					}
+				}
+			}
+		return new ArrayList<>(mpps);
+	}
+
 	public List<Mpp> getCheapMppsWithInn(String inn, String lang) {
 		if (inn != null && lang != null) {
 			Session sess = getHibernateTemplate().getSessionFactory().getCurrentSession();

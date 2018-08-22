@@ -1,0 +1,3709 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ISCO-08>
+  <VERSION>1</VERSION>
+  <DATE>2008-01-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>SCL - International Standard Classification of Occupations 2008 (ISCO-08)</NAME>
+  <VALUE>
+    <CODE>1</CODE>
+    <DESCRIPTION L="de">Führungskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>11</CODE>
+    <DESCRIPTION L="de">Geschäftsführer, Vorstände, leitende Verwaltungsbedienstete und Angehörige gesetzgebender Körperschaften</DESCRIPTION>
+    <DESCRIPTION L="fr">Directeurs généraux, cadres supérieurs et membres de l'Exécutif et des corps législatifs</DESCRIPTION>
+    <DESCRIPTION L="nl">Directeurs van grote ondernemingen,  hogere kaderleden, leden van wetgevende en uitvoerende macht </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>111</CODE>
+    <DESCRIPTION L="de">Angehörige gesetzgebender Körperschaften und leitende Verwaltungsbedienstete</DESCRIPTION>
+    <DESCRIPTION L="fr">Membres de l'Exécutif et des corps législatifs et cadres supérieurs de l'administration publique</DESCRIPTION>
+    <DESCRIPTION L="nl">Leden van wetgevende en uitvoerende macht , hogere kaderleden van het openbaar bestuur </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1111</CODE>
+    <DESCRIPTION L="de">Angehörige gesetzgebender Körperschaften</DESCRIPTION>
+    <DESCRIPTION L="fr">Membres de l'Exécutif et des corps législatifs</DESCRIPTION>
+    <DESCRIPTION L="nl">Leden van wetgevende en uitvoerende macht  </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1112</CODE>
+    <DESCRIPTION L="de">Leitende Verwaltungsbedienstete</DESCRIPTION>
+    <DESCRIPTION L="fr">Cadres supérieurs de l'administration publique</DESCRIPTION>
+    <DESCRIPTION L="nl">Hogere kaderleden van het openbaar bestuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1113</CODE>
+    <DESCRIPTION L="de">Traditionelle Dorf- und Stammeshäuptlinge</DESCRIPTION>
+    <DESCRIPTION L="fr">Chefs traditionnels et chefs de village</DESCRIPTION>
+    <DESCRIPTION L="nl">Traditionele dorpshoofden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1114</CODE>
+    <DESCRIPTION L="de">Leitende Bedienstete von Interessenorganisationen</DESCRIPTION>
+    <DESCRIPTION L="fr">Dirigeants et cadres supérieurs d'organisations spécialisées</DESCRIPTION>
+    <DESCRIPTION L="nl">Beleidsvoerende medewerkers van belangenorganisaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>112</CODE>
+    <DESCRIPTION L="de">Geschäftsführer und Vorstände</DESCRIPTION>
+    <DESCRIPTION L="fr">Directeurs généraux d'entreprise</DESCRIPTION>
+    <DESCRIPTION L="nl">Directeurs van grote ondernemingen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1120</CODE>
+    <DESCRIPTION L="de">Geschäftsführer und Vorstände</DESCRIPTION>
+    <DESCRIPTION L="fr">Directeurs généraux d’entreprise</DESCRIPTION>
+    <DESCRIPTION L="nl">Directeurs van grote ondernemingen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>12</CODE>
+    <DESCRIPTION L="de">Führungskräfte im kaufmännischen Bereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers de services administratifs et commerciaux </DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op administratief en commercieel gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>121</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der betrieblichen Verwaltung und in unternehmensbezogenen Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers de services administratifs </DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van zakelijke dienstverlening  en op administratief gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1211</CODE>
+    <DESCRIPTION L="de">Führungskräfte im Bereich Finanzen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, services financiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op financieel gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1212</CODE>
+    <DESCRIPTION L="de">Führungskräfte im Personalwesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, ressources humaines </DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van  human resources</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1213</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Unternehmenspolitik und -planung</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, stratégie et planifications</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van beleid en planning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1219</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der betrieblichen Verwaltung und in unternehmensbezogenen Dienstleistungen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers des services administratifs non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van zakelijke dienstverlening  en op administratief gebied, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>122</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Vertrieb, Marketing und Entwicklung</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, ventes, commercialisation, publicité, relations publiques et recherche-développement</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van verkoop, marketing, reclame, public relations en  speur- en ontwikkelingswerk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1221</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Vertrieb und Marketing</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, ventes et commercialisation</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van verkoop en marketing</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1222</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Werbung und Öffentlichkeitsarbeit</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, publicité et relations publiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van reclame en public relations</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1223</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Forschung und Entwicklung</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, recherche-développement</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van speur- en ontwikkelingswerk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>13</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion und bei speziellen Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, production et services spécialisés</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van productie en gespecialiseerde diensten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>131</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion in Land- und Forstwirtschaft und Fischerei</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers,  agriculture, sylviculture, aquaculture et pêche</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van land-en bosbouw , visserij en aquacultuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1311</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion in Land- und Forstwirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers,  agriculture et sylviculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van  land- en bosbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1312</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion in Aquakultur und Fischerei</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, aquaculture et pêche</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van aquacultuur en visserij</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>132</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion bei der Herstellung von Waren, im Bergbau und im Bau sowie in der Logistik</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, industries manufacturières, industries extractives, bâtiment et distribution </DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in de industrie, de delfstoffenwinning, de bouwnijverheid en de logistiek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1321</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion bei der Herstellung von Waren</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, industrie manufacturière</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in de industrie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1322</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion im Bergbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, industrie extractive</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in de  delfstoffenwinning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1323</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Produktion im Bau</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, bâtiment</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in de bouwnijverheid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1324</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Beschaffung, Logistik und in verwandten Bereichen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, approvisionnement, distribution et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van logistiek en aanverwante diensten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>133</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen im Bereich Informations- und Kommunikationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van informatie- en communicatietechnologie (ICT)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1330</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen im Bereich Informations- und Kommunikationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van informatie- en communicatietechnologie (ICT)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>134</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von speziellen Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, services spécialisés</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van professionele diensten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1341</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen der Kinderbetreuung</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, garde d'enfants</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van kinderopvang</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1342</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen im Gesundheitswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, services de santé</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van menselijke gezondheidszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1343</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen der Altenbetreuung</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, services aux personnes âgées</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van ouderenzorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1344</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen der Sozialfürsorge</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, services sociaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van maatschappelijke dienstverlening</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1345</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen des Bildungswesens</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, éducation</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1346</CODE>
+    <DESCRIPTION L="de">Führungskräfte auf Filialebene in der Erbringung von Finanz- und Versicherungsdienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Directeurs et cadres de direction, succursales de banque, services financiers et assurances</DESCRIPTION>
+    <DESCRIPTION L="nl">Filiaalhouders op het gebied van financiële dienstverlening en verzekeringen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1349</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von speziellen Dienstleistungen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres managers, services spécialisés non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van professionele diensten, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>14</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Hotels und Restaurants, im Handel und in der Erbringung sonstiger Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers de l'hôtellerie, la restauration, le commerce de détail et de gros et autres services</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in het hotel en restaurantwezen, in de detail- en groothandel en op het gebied van andere diensten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>141</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Hotels und Restaurants</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, hôtellerie et restauration</DESCRIPTION>
+    <DESCRIPTION L="nl">Hotel- en restaurantmanagers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1411</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Hotels</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, hôtellerie</DESCRIPTION>
+    <DESCRIPTION L="nl">Hotelmanagers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1412</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Restaurants</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, restauration</DESCRIPTION>
+    <DESCRIPTION L="nl">Restaurantmanagers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>142</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Groß- und Einzelhandel</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, commerce de détail et de gros</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in de detail- en groothandel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1420</CODE>
+    <DESCRIPTION L="de">Führungskräfte in Groß- und Einzelhandel</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, commerce de détail et de gros</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers in de detail- en groothandel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>143</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung sonstiger Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres managers  </DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van andere diensten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1431</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen im Bereich Sport, Erholung und Kultur</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, centres sportifs, centres de loisirs et centres culturels</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van sport en recreatie en bij culturele centra</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>1439</CODE>
+    <DESCRIPTION L="de">Führungskräfte in der Erbringung von Dienstleistungen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Managers, services non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Managers op het gebied van diensten, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2</CODE>
+    <DESCRIPTION L="de">Akademische Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intellectuelles, scientifiques et artistiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Intellectuele, wetenschappelijke en artistieke beroepen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>21</CODE>
+    <DESCRIPTION L="de">Naturwissenschaftler, Mathematiker und Ingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des sciences techniques</DESCRIPTION>
+    <DESCRIPTION L="nl">Wetenschappers en ingenieurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>211</CODE>
+    <DESCRIPTION L="de">Physiker, Chemiker, Geologen und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Physiciens, chimistes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Natuur- en aardwetenschappers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2111</CODE>
+    <DESCRIPTION L="de">Physiker und Astronomen</DESCRIPTION>
+    <DESCRIPTION L="fr">Physiciens et astronomes</DESCRIPTION>
+    <DESCRIPTION L="nl">Natuurkundigen en  sterrenkundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2112</CODE>
+    <DESCRIPTION L="de">Meteorologen</DESCRIPTION>
+    <DESCRIPTION L="fr">Météorologues</DESCRIPTION>
+    <DESCRIPTION L="nl">Meteorologen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2113</CODE>
+    <DESCRIPTION L="de">Chemiker</DESCRIPTION>
+    <DESCRIPTION L="fr">Chimistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Scheikundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2114</CODE>
+    <DESCRIPTION L="de">Geologen und Geophysiker</DESCRIPTION>
+    <DESCRIPTION L="fr">Géologues et géophysiciens</DESCRIPTION>
+    <DESCRIPTION L="nl">Geologen en geofysici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>212</CODE>
+    <DESCRIPTION L="de">Mathematiker, Versicherungsmathematiker und Statistiker</DESCRIPTION>
+    <DESCRIPTION L="fr">Mathématiciens, actuaires et statisticiens</DESCRIPTION>
+    <DESCRIPTION L="nl">Wiskundigen, actuarissen en statistici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2120</CODE>
+    <DESCRIPTION L="de">Mathematiker, Versicherungsmathematiker und Statistiker</DESCRIPTION>
+    <DESCRIPTION L="fr">Mathématiciens, actuaires et statisticiens</DESCRIPTION>
+    <DESCRIPTION L="nl">Wiskundigen, actuarissen en statistici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>213</CODE>
+    <DESCRIPTION L="de">Biowissenschaftler</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des sciences de la vie</DESCRIPTION>
+    <DESCRIPTION L="nl">Biowetenschappers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2131</CODE>
+    <DESCRIPTION L="de">Biologen, Botaniker, Zoologen und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Biologistes, botanistes, zoologistes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Biologen, botanici, zoölogen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2132</CODE>
+    <DESCRIPTION L="de">Agrar-, Forst- und Fischereiwissenschaftler und -berater</DESCRIPTION>
+    <DESCRIPTION L="fr">Agronomes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Adviseurs op het gebied van landbouw, bosbouw en visserij</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2133</CODE>
+    <DESCRIPTION L="de">Umweltwissenschaftler</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la protection de l'environnement</DESCRIPTION>
+    <DESCRIPTION L="nl">Milieudeskundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>214</CODE>
+    <DESCRIPTION L="de">Ingenieurwissenschaftler (ohne Elektrotechnik, Elektronik und Telekommunikation)</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes, sciences techniques (sauf électrotechniques)</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs (met uitzondering van elektrotechnisch ingenieurs)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2141</CODE>
+    <DESCRIPTION L="de">Wirtschafts- und Produktionsingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes, sciences techniques de la production et de l'industrie</DESCRIPTION>
+    <DESCRIPTION L="nl">Industrieel ingenieurs en productie-ingenieurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2142</CODE>
+    <DESCRIPTION L="de">Bauingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs civils</DESCRIPTION>
+    <DESCRIPTION L="nl">Burgerlijk ingenieurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2143</CODE>
+    <DESCRIPTION L="de">Umweltschutzingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs écologistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Milieu-ingenieurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2144</CODE>
+    <DESCRIPTION L="de">Maschinenbauingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs mécaniciens</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs mechanica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2145</CODE>
+    <DESCRIPTION L="de">Chemieingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs chimistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs scheikunde</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2146</CODE>
+    <DESCRIPTION L="de">Bergbauingenieure, Metallurgen und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs des mines, ingénieurs métallurgistes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Mijningenieurs, metallurgen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2149</CODE>
+    <DESCRIPTION L="de">Ingenieure, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes, sciences techniques non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>215</CODE>
+    <DESCRIPTION L="de">Ingenieure in den Bereichen Elektrotechnik, Elektronik und Telekommunikationstechnik</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs de l'électrotechnique</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs op het gebied van de elektrotechnologie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2151</CODE>
+    <DESCRIPTION L="de">Ingenieure im Bereich Elektrotechnik</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs électriciens</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs elektriciteit</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2152</CODE>
+    <DESCRIPTION L="de">Ingenieure im Bereich Elektronik</DESCRIPTION>
+    <DESCRIPTION L="fr">Ingénieurs électroniciens</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs elektronica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2153</CODE>
+    <DESCRIPTION L="de">Ingenieure im Bereich Telekommunikationstechnik</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des télécommunications</DESCRIPTION>
+    <DESCRIPTION L="nl">Ingenieurs telecommunicatie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>216</CODE>
+    <DESCRIPTION L="de">Architekten, Raum-, Stadt- und Verkehrsplaner, Vermessungsingenieure und Designer</DESCRIPTION>
+    <DESCRIPTION L="fr">Architectes, urbanistes, géomètres et concepteurs </DESCRIPTION>
+    <DESCRIPTION L="nl">Architecten, planologen, landmeters en designers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2161</CODE>
+    <DESCRIPTION L="de">Architekten</DESCRIPTION>
+    <DESCRIPTION L="fr">Architectes, bâtiment</DESCRIPTION>
+    <DESCRIPTION L="nl">Bouwkundig architecten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2162</CODE>
+    <DESCRIPTION L="de">Landschaftsarchitekten</DESCRIPTION>
+    <DESCRIPTION L="fr">Architectes paysagistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Landschapsarchitecten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2163</CODE>
+    <DESCRIPTION L="de">Produkt- und Textildesigner</DESCRIPTION>
+    <DESCRIPTION L="fr">Concepteurs modélistes de produits et de vêtements</DESCRIPTION>
+    <DESCRIPTION L="nl">Product- en kledingdesigners</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2164</CODE>
+    <DESCRIPTION L="de">Raum-, Stadt- und Verkehrsplaner</DESCRIPTION>
+    <DESCRIPTION L="fr">Urbanistes et ingénieurs de la circulation routière</DESCRIPTION>
+    <DESCRIPTION L="nl">Stedenbouwkundigen en verkeersdeskundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2165</CODE>
+    <DESCRIPTION L="de">Kartografen und Vermessungsingenieure</DESCRIPTION>
+    <DESCRIPTION L="fr">Cartographes et géomètres</DESCRIPTION>
+    <DESCRIPTION L="nl">Cartografen en landmeters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2166</CODE>
+    <DESCRIPTION L="de">Grafik- und Multimediadesigner</DESCRIPTION>
+    <DESCRIPTION L="fr">Concepteurs graphiques, multimédia - graphistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Grafisch en multimedia designers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>22</CODE>
+    <DESCRIPTION L="de">Akademische und verwandte Gesundheitsberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la santé</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de gezondheidszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>221</CODE>
+    <DESCRIPTION L="de">Ärzte</DESCRIPTION>
+    <DESCRIPTION L="fr">Médecins</DESCRIPTION>
+    <DESCRIPTION L="nl">Artsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2211</CODE>
+    <DESCRIPTION L="de">Allgemeinärzte</DESCRIPTION>
+    <DESCRIPTION L="fr">Médecins généralistes </DESCRIPTION>
+    <DESCRIPTION L="nl">Huisartsen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2212</CODE>
+    <DESCRIPTION L="de">Fachärzte</DESCRIPTION>
+    <DESCRIPTION L="fr">Médecins spécialistes </DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de gespecialiseerde geneeskunde</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>222</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Krankenpflege- und Geburtshilfefachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Cadres infirmiers et sages-femmes</DESCRIPTION>
+    <DESCRIPTION L="nl">Verpleegkundig kaderpersoneel en  vroedvrouwen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2221</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Krankenpflegefachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Cadres infirmiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Verpleegkundig kaderpersoneel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2222</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Geburtshilfefachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Sages-femmes</DESCRIPTION>
+    <DESCRIPTION L="nl">Vroedvrouwen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>223</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in der traditionellen und komplementären Medizin</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des médecines traditionnelles et des médecines complémentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de traditionele en de alternatieve geneeskunde</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2230</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in der traditionellen und komplementären Medizin</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des médecines traditionnelles et des médecines complémentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de traditionele en de alternatieve geneeskunde</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>225</CODE>
+    <DESCRIPTION L="de">Tierärzte</DESCRIPTION>
+    <DESCRIPTION L="fr">Vétérinaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Dierenartsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2250</CODE>
+    <DESCRIPTION L="de">Tierärzte</DESCRIPTION>
+    <DESCRIPTION L="fr">Vétérinaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Dierenartsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>226</CODE>
+    <DESCRIPTION L="de">Sonstige akademische und verwandte Gesundheitsberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres spécialistes des professions de la santé</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere specialisten op het gebied van de gezondheidszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2261</CODE>
+    <DESCRIPTION L="de">Zahnärzte</DESCRIPTION>
+    <DESCRIPTION L="fr">Dentistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Tandartsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2262</CODE>
+    <DESCRIPTION L="de">Apotheker</DESCRIPTION>
+    <DESCRIPTION L="fr">Pharmaciens</DESCRIPTION>
+    <DESCRIPTION L="nl">Apothekers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2263</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in den Bereichen Umwelt- und Arbeitsmedizin sowie Hygiene</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la salubrité de l'environnement, de l'hygiène et de la santé au travail</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de milieu- en arbeidshygiëne</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2264</CODE>
+    <DESCRIPTION L="de">Physiotherapeuten</DESCRIPTION>
+    <DESCRIPTION L="fr">Kinésithérapeutes et physiothérapeutes </DESCRIPTION>
+    <DESCRIPTION L="nl">Kinesisten en fysiotherapeuten </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2265</CODE>
+    <DESCRIPTION L="de">Diätologen und Ernährungsberater</DESCRIPTION>
+    <DESCRIPTION L="fr">Diététiciens et spécialistes de la nutrition</DESCRIPTION>
+    <DESCRIPTION L="nl">Diëtisten en voedingsdeskundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2266</CODE>
+    <DESCRIPTION L="de">Audiologen und Sprachtherapeuten</DESCRIPTION>
+    <DESCRIPTION L="fr">Audiologistes et logopèdes</DESCRIPTION>
+    <DESCRIPTION L="nl">Audiologen en logopedisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2267</CODE>
+    <DESCRIPTION L="de">Optometristen und Orthoptisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Optométristes</DESCRIPTION>
+    <DESCRIPTION L="nl">Optometristen en orthoptisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2269</CODE>
+    <DESCRIPTION L="de">Akademische und verwandte Gesundheitsberufe, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la santé non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de gezondheidszorg, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>23</CODE>
+    <DESCRIPTION L="de">Lehrkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de l'enseignement</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderwijsdeskundigen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>231</CODE>
+    <DESCRIPTION L="de">Universitäts- und Hochschullehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Professeurs d'université et d'établissements d'enseignement supérieur</DESCRIPTION>
+    <DESCRIPTION L="nl">Professoren en andere docenten in het hoger onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2310</CODE>
+    <DESCRIPTION L="de">Universitäts- und Hochschullehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Professeurs d'université et d'établissements d'enseignement supérieur</DESCRIPTION>
+    <DESCRIPTION L="nl">Professoren en andere docenten in het hoger onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>232</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Bereich Berufsbildung</DESCRIPTION>
+    <DESCRIPTION L="fr">Professeurs de cours techniques et de pratique professionnelle (enseignement secondaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Leraren in beroepsgerichte vakken in het secundair onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2320</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Bereich Berufsbildung</DESCRIPTION>
+    <DESCRIPTION L="fr">Professeurs de cours techniques et de pratique professionnelle (enseignement secondaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Leraren in beroepsgerichte vakken in het secundair onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>233</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Sekundarbereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Professeurs de cours généraux (enseignement secondaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Leraren in algemene vakken in het secundair onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2330</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Sekundarbereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Professeurs de cours généraux (enseignement secondaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Leraren in algemene vakken in het secundair onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>234</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Primar- und Vorschulbereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Instituteurs, enseignement primaire et éducateurs de la petite enfance</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderwijzers  in het lager- en kleuteronderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2341</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Primarbereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Instituteurs, enseignement primaire </DESCRIPTION>
+    <DESCRIPTION L="nl">Onderwijzers  in het  lager onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2342</CODE>
+    <DESCRIPTION L="de">Lehrkräfte und Erzieher im Vorschulbereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Educateurs de la petite enfance</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderwijzers  in het kleuteronderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>235</CODE>
+    <DESCRIPTION L="de">Sonstige Lehrkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres spécialistes de l'enseignement</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere onderwijsdeskundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2351</CODE>
+    <DESCRIPTION L="de">Pädagogik- und Didaktikspezialisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des méthodes d'enseignement</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van onderwijsmethoden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2352</CODE>
+    <DESCRIPTION L="de">Lehrkräfte im Bereich Sonderpädagogik</DESCRIPTION>
+    <DESCRIPTION L="fr">Enseignants, enseignement spécialisée</DESCRIPTION>
+    <DESCRIPTION L="nl">Leraren in het buitengewoon onderwijs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2353</CODE>
+    <DESCRIPTION L="de">Sonstige Sprachlehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres professeurs de langues (hors système scolaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere taalleraren (buiten het schoolsysteem)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2354</CODE>
+    <DESCRIPTION L="de">Sonstige Musiklehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres professeurs de musique (hors système scolaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere muziekleraren (buiten het schoolsysteem)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2355</CODE>
+    <DESCRIPTION L="de">Sonstige Kunstlehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres professeurs de disciplines artistiques (hors système scolaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere kunstleraren (buiten het schoolsysteem)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2356</CODE>
+    <DESCRIPTION L="de">Ausbilder im Bereich Informationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Formateurs en technologies de l'information (hors système scolaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Leraren informatica (buiten het schoolsysteem)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2359</CODE>
+    <DESCRIPTION L="de">Lehrkräfte, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de l'enseignement, non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderwijsdeskundigen , niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>24</CODE>
+    <DESCRIPTION L="de">Betriebswirte und vergleichbare akademische Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes en gestion et administration d'entreprises</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van bedrijfsbeheer en administratie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>241</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte im Bereich Finanzen</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes en finances</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op financieel gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2411</CODE>
+    <DESCRIPTION L="de">Wirtschaftsprüfer, Steuerberater und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Cadres comptables </DESCRIPTION>
+    <DESCRIPTION L="nl">Accountants en boekhoudkundig kaderpersoneel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2412</CODE>
+    <DESCRIPTION L="de">Finanz- und Anlageberater</DESCRIPTION>
+    <DESCRIPTION L="fr">Conseillers en finances et investissements</DESCRIPTION>
+    <DESCRIPTION L="nl">Financieel en beleggingsadviseurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2413</CODE>
+    <DESCRIPTION L="de">Finanzanalysten</DESCRIPTION>
+    <DESCRIPTION L="fr">Analystes financiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Financieel analisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>242</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in der betrieblichen Verwaltung</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des fonctions administratives</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van organisatie en bestuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2421</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte im Bereich Management- und Organisationsanalyse</DESCRIPTION>
+    <DESCRIPTION L="fr">Analystes, gestion et organisation </DESCRIPTION>
+    <DESCRIPTION L="nl">Bedrijfs- en organisatieanalisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2422</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in der strategischen Planung in Politik und Wirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes, administration et politiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Beleidsadviseurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2423</CODE>
+    <DESCRIPTION L="de">Berufsberater und -analytiker und akademische und vergleichbare Personalfachleute</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes, ressources humaines et évolution de carrière</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van personeels- en loopbaanontwikkeling</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2424</CODE>
+    <DESCRIPTION L="de">Fachkräfte in Personalschulung und -entwicklung</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la formation du personnel</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van personeelsopleidingen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>243</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in Vertrieb, Marketing und Öffentlichkeitsarbeit</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des ventes, de la publicité, de la commercialisation et des relations publiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van de verkoop, reclame, marketing en public relations</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2431</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in Werbung und Marketing</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la publicité et de la commercialisation</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van reclame en marketing</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2432</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in der Öffentlichkeitsarbeit</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des relations publiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van public relations</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2433</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte im Bereich Vertrieb (Technik und Medizin, ohne Informations- und Kommunikationstechnologie)</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des ventes, secteurs médical et technique (à l'exception des TIC)</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkoopspecialisten in medische, farmaceutische en technische producten (met uitzondering van ICT)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2434</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte im Vertrieb von Informations- und Kommunikationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des ventes, technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkoopspecialisten informatie- en communicatietechnologie (ICT)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>25</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte in der Informations- und Kommunikationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Specialisten op het gebied van informatie- en communicatietechnologie (ICT)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>251</CODE>
+    <DESCRIPTION L="de">Entwickler und Analytiker von Software und Anwendungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Concepteurs et analystes de logiciels et d'applications</DESCRIPTION>
+    <DESCRIPTION L="nl">Software- en applicatieontwikkelaars en –analisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2511</CODE>
+    <DESCRIPTION L="de">Systemanalytiker</DESCRIPTION>
+    <DESCRIPTION L="fr">Analystes de systèmes</DESCRIPTION>
+    <DESCRIPTION L="nl">Systeemanalisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2512</CODE>
+    <DESCRIPTION L="de">Softwareentwickler</DESCRIPTION>
+    <DESCRIPTION L="fr">Concepteurs de logiciels</DESCRIPTION>
+    <DESCRIPTION L="nl">Softwareontwerpers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2513</CODE>
+    <DESCRIPTION L="de">Web- und Multimediaentwickler</DESCRIPTION>
+    <DESCRIPTION L="fr">Concepteurs de sites Internet et de multimédia</DESCRIPTION>
+    <DESCRIPTION L="nl">Web- en multimediaontwerpers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2514</CODE>
+    <DESCRIPTION L="de">Anwendungsprogrammierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Programmeurs d'applications</DESCRIPTION>
+    <DESCRIPTION L="nl">Applicatieprogrammeurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2519</CODE>
+    <DESCRIPTION L="de">Entwickler und Analytiker von Software und Anwendungen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Concepteurs et analystes de logiciels et d'applications non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Software- en applicatieontwikkelaars en –analisten, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>252</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte für Datenbanken und Netzwerke</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des bases de données et des réseaux d'ordinateurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Databank- en netwerkspecialisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2521</CODE>
+    <DESCRIPTION L="de">Datenbankentwickler und -administratoren</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des bases de données</DESCRIPTION>
+    <DESCRIPTION L="nl">Ontwerpers en beheerders van databanken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2522</CODE>
+    <DESCRIPTION L="de">Systemadministratoren</DESCRIPTION>
+    <DESCRIPTION L="fr">Administrateurs de systèmes</DESCRIPTION>
+    <DESCRIPTION L="nl">Systeembeheerders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2523</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte für Computernetzwerke</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des réseaux d'ordinateurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Netwerkspecialisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2529</CODE>
+    <DESCRIPTION L="de">Akademische und vergleichbare Fachkräfte für Datenbanken und Netzwerke, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des bases de données et des réseaux d'ordinateurs non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Databank- en netwerkspecialisten, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>26</CODE>
+    <DESCRIPTION L="de">Juristen, Sozialwissenschaftler und Kulturberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes de la justice, des sciences sociales et de la culture</DESCRIPTION>
+    <DESCRIPTION L="nl">Juristen, sociaal wetenschappers en scheppende en uitvoerende kunstenaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>261</CODE>
+    <DESCRIPTION L="de">Juristen</DESCRIPTION>
+    <DESCRIPTION L="fr">Juristes</DESCRIPTION>
+    <DESCRIPTION L="nl">Juristen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2611</CODE>
+    <DESCRIPTION L="de">Anwälte</DESCRIPTION>
+    <DESCRIPTION L="fr">Avocats</DESCRIPTION>
+    <DESCRIPTION L="nl">Advocaten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2612</CODE>
+    <DESCRIPTION L="de">Richter</DESCRIPTION>
+    <DESCRIPTION L="fr">Magistrats</DESCRIPTION>
+    <DESCRIPTION L="nl">Rechters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2619</CODE>
+    <DESCRIPTION L="de">Juristen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Juristes non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Juristen, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>262</CODE>
+    <DESCRIPTION L="de">Archiv-, Bibliotheks- und Museumswissenschaftler </DESCRIPTION>
+    <DESCRIPTION L="fr">Archivistes, bibliothécaires, documentalistes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Bibliothecarissen, archivarissen en conservatoren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2621</CODE>
+    <DESCRIPTION L="de">Archiv- und Museumswissenschaftler</DESCRIPTION>
+    <DESCRIPTION L="fr">Archivistes paléographes et conservateurs de musée</DESCRIPTION>
+    <DESCRIPTION L="nl">Archivarissen en conservatoren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2622</CODE>
+    <DESCRIPTION L="de">Bibliothekswissenschaftler und verwandte Informationswissenschaftler</DESCRIPTION>
+    <DESCRIPTION L="fr">Bibliothécaires, documentalistes et professions assimilées</DESCRIPTION>
+    <DESCRIPTION L="nl">Bibliothecarissen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>263</CODE>
+    <DESCRIPTION L="de">Sozialwissenschaftler, Geistliche und Seelsorger</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes des sciences sociales et du clergé</DESCRIPTION>
+    <DESCRIPTION L="nl">Sociaal wetenschappers, theologen en bedienaars van de eredienst</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2631</CODE>
+    <DESCRIPTION L="de">Volkswirtschaftler</DESCRIPTION>
+    <DESCRIPTION L="fr">Economistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Economen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2632</CODE>
+    <DESCRIPTION L="de">Soziologen, Anthropologen und verwandte Wissenschaftler</DESCRIPTION>
+    <DESCRIPTION L="fr">Sociologues, anthropologues et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Sociologen, antropologen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2633</CODE>
+    <DESCRIPTION L="de">Philosophen, Historiker und Politologen</DESCRIPTION>
+    <DESCRIPTION L="fr">Philosophes, historiens et spécialistes des sciences politiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Filosofen, historici en politicologen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2634</CODE>
+    <DESCRIPTION L="de">Psychologen</DESCRIPTION>
+    <DESCRIPTION L="fr">Psychologues</DESCRIPTION>
+    <DESCRIPTION L="nl">Psychologen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2635</CODE>
+    <DESCRIPTION L="de">Sozialarbeiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Spécialistes du travail social</DESCRIPTION>
+    <DESCRIPTION L="nl">Maatschappelijk werkers </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2636</CODE>
+    <DESCRIPTION L="de">Geistliche, Seelsorger</DESCRIPTION>
+    <DESCRIPTION L="fr">Ministres des cultes</DESCRIPTION>
+    <DESCRIPTION L="nl">Theologen en bedienaars van de eredienst</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>264</CODE>
+    <DESCRIPTION L="de">Autoren, Journalisten und Linguisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Auteurs, journalistes et linguistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Auteurs, journalisten en taalkundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2641</CODE>
+    <DESCRIPTION L="de">Autoren und verwandte schriftstellerische Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Auteurs et autres écrivains</DESCRIPTION>
+    <DESCRIPTION L="nl">Auteurs en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2642</CODE>
+    <DESCRIPTION L="de">Journalisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Journalistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Journalisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2643</CODE>
+    <DESCRIPTION L="de">Übersetzer, Dolmetscher und andere Linguisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Traducteurs, interprètes et linguistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Vertalers, tolken en andere taalkundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>265</CODE>
+    <DESCRIPTION L="de">Bildende und darstellende Künstler</DESCRIPTION>
+    <DESCRIPTION L="fr">Artistes créateurs et exécutants</DESCRIPTION>
+    <DESCRIPTION L="nl">Scheppende en uitvoerende kunstenaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2651</CODE>
+    <DESCRIPTION L="de">Bildende Künstler</DESCRIPTION>
+    <DESCRIPTION L="fr">Artistes plasticiens</DESCRIPTION>
+    <DESCRIPTION L="nl">Beeldend kunstenaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2652</CODE>
+    <DESCRIPTION L="de">Musiker, Sänger und Komponisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Compositeurs, musiciens et chanteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Musici, zangers en componisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2653</CODE>
+    <DESCRIPTION L="de">Tänzer und Choreografen</DESCRIPTION>
+    <DESCRIPTION L="fr">Danseurs et chorégraphes</DESCRIPTION>
+    <DESCRIPTION L="nl">Dansers en choreografen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2654</CODE>
+    <DESCRIPTION L="de">Regisseure und Produzenten im Film- und Bühnenbereich sowie in verwandten Bereichen</DESCRIPTION>
+    <DESCRIPTION L="fr">Metteurs en scène de cinéma, de théâtre et d'autres spectacles</DESCRIPTION>
+    <DESCRIPTION L="nl">Regisseurs en producenten voor film en theater en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2655</CODE>
+    <DESCRIPTION L="de">Schauspieler</DESCRIPTION>
+    <DESCRIPTION L="fr">Acteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Acteurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2656</CODE>
+    <DESCRIPTION L="de">Sprecher im Rundfunk, Fernsehen und sonstigen Medien</DESCRIPTION>
+    <DESCRIPTION L="fr">Annonceurs-présentateurs de radio, de télévision et autres médias</DESCRIPTION>
+    <DESCRIPTION L="nl">Omroepers voor radio, televisie en andere media</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2659</CODE>
+    <DESCRIPTION L="de">Bildende und darstellende Künstler, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Artistes créateurs et exécutants non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Scheppende en uitvoerende kunstenaars, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3</CODE>
+    <DESCRIPTION L="de">Techniker und gleichrangige nichttechnische Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici en verwante beroepen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>31</CODE>
+    <DESCRIPTION L="de">Ingenieurtechnische und vergleichbare Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires des sciences et techniques </DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van wetenschap en techniek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>311</CODE>
+    <DESCRIPTION L="de">Material- und ingenieurtechnische Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des sciences physiques et techniques</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van natuur- en technische wetenschappen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3111</CODE>
+    <DESCRIPTION L="de">Chemo- und Physikotechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des sciences chimiques et physiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op scheikundig en natuurkundig gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3112</CODE>
+    <DESCRIPTION L="de">Bautechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens du génie civil</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van civieltechnische werken </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3113</CODE>
+    <DESCRIPTION L="de">Elektrotechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens en électricité</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van elektriciteit</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3114</CODE>
+    <DESCRIPTION L="de">Techniker im Bereich Elektronik</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens en électronique</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van elektronica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3115</CODE>
+    <DESCRIPTION L="de">Maschinenbautechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens en construction mécanique</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van mechanica </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3116</CODE>
+    <DESCRIPTION L="de">Chemiebetriebs- und Verfahrenstechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens au niveau d'installations chimiques et de raffineries</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van chemische installaties en raffinaderijen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3117</CODE>
+    <DESCRIPTION L="de">Bergbau- und Hüttentechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des industries extractives, techniciens métallurgistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici in de delfstoffen- en metallurgiewinning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3118</CODE>
+    <DESCRIPTION L="de">Technische Zeichner</DESCRIPTION>
+    <DESCRIPTION L="fr">Dessinateurs industriels</DESCRIPTION>
+    <DESCRIPTION L="nl">Technisch tekenaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3119</CODE>
+    <DESCRIPTION L="de">Material- und ingenieurtechnische Fachkräfte, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des sciences physiques et techniques non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van natuur- en  technische wetenschappen, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>312</CODE>
+    <DESCRIPTION L="de">Produktionsleiter im Bergbau, bei der Herstellung von Waren und im Bau</DESCRIPTION>
+    <DESCRIPTION L="fr">Superviseurs, mines, industries manufacturières et bâtiment</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthoudend personeel in de mijnbouw, de industrie en de bouwnijverheid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3121</CODE>
+    <DESCRIPTION L="de">Produktionsleiter im Bergbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Superviseurs, mines</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthoudend personeel in de mijnbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3122</CODE>
+    <DESCRIPTION L="de">Produktionsleiter bei der Herstellung von Waren</DESCRIPTION>
+    <DESCRIPTION L="fr">Superviseurs, industries manufacturières</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthoudend personeel in de industrie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3123</CODE>
+    <DESCRIPTION L="de">Bauleiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Superviseurs, bâtiment</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthoudend personeel in de bouwnijverheid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>313</CODE>
+    <DESCRIPTION L="de">Techniker in der Prozesssteuerung</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens, gestion et contrôle de processus industriels</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici voor het beheer en de controle van industriële processen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3131</CODE>
+    <DESCRIPTION L="de">Steuerer von Energieerzeugungsanlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Vérificateurs des processus de production d'énergie</DESCRIPTION>
+    <DESCRIPTION L="nl">Procesoperatoren van elektriciteitscentrales</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3132</CODE>
+    <DESCRIPTION L="de">Steuerer von Verbrennungs- und Wasserbehandlungsanlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Vérificateurs des processus d'incinérateurs et d'installations de traitement de l'eau</DESCRIPTION>
+    <DESCRIPTION L="nl">Procesoperatoren van verbrandingsovens en waterzuiveringsinstallaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3133</CODE>
+    <DESCRIPTION L="de">Steuerer von chemischen Verfahrensanlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Vérificateurs des processus d'installations de traitement chimique</DESCRIPTION>
+    <DESCRIPTION L="nl">Procesoperatoren van chemische installaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3134</CODE>
+    <DESCRIPTION L="de">Steurer von Erdöl- und Erdgasraffinationsanlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Vérificateurs des processus d'installations de raffinage de pétrole et de gaz naturel</DESCRIPTION>
+    <DESCRIPTION L="nl">Procesoperatoren van aardolie- en aardgasraffinaderijen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3135</CODE>
+    <DESCRIPTION L="de">Steuerer von Verfahren in der Metallerzeugung</DESCRIPTION>
+    <DESCRIPTION L="fr">Vérificateurs des processus industriels, métallurgie</DESCRIPTION>
+    <DESCRIPTION L="nl">Procesoperatoren metaalproductie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3139</CODE>
+    <DESCRIPTION L="de">Techniker in der Prozesssteuerung, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens, gestion et contrôle de processus industriels non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici voor het beheer en de controle van industriële processen, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>314</CODE>
+    <DESCRIPTION L="de">Biotechniker und verwandte technische Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens et travailleurs assimilés des sciences de la vie</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van biowetenschappen, landbouw en bosbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3141</CODE>
+    <DESCRIPTION L="de">Biotechniker (ohne medizinische Fachberufe)</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des sciences de la vie (à l'exception de la médecine)</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van de biowetenschappen (met uitzondering van medische technici)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3142</CODE>
+    <DESCRIPTION L="de">Agrartechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens, agriculture et élevage</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van de landbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3143</CODE>
+    <DESCRIPTION L="de">Forsttechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens, sylviculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van de bosbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>315</CODE>
+    <DESCRIPTION L="de">Schiffsführer, Flugzeugführer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs et techniciens des moyens de transport maritime et aérien et contrôleurs de la circulation aérienne</DESCRIPTION>
+    <DESCRIPTION L="nl">Bestuurders en technici voor schepen en luchtvaartuigen en luchtverkeersleiders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3151</CODE>
+    <DESCRIPTION L="de">Technische Schiffsoffiziere</DESCRIPTION>
+    <DESCRIPTION L="fr">Officiers mécaniciens de navires</DESCRIPTION>
+    <DESCRIPTION L="nl">Scheepswerktuigkundigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3152</CODE>
+    <DESCRIPTION L="de">Schiffsführer, nautische Schiffsoffiziere und Schiffslotsen</DESCRIPTION>
+    <DESCRIPTION L="fr">Officiers de pont et pilotes</DESCRIPTION>
+    <DESCRIPTION L="nl">Dekofficieren en loodsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3153</CODE>
+    <DESCRIPTION L="de">Flugzeugführer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Pilotes d'avions et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Piloten en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3154</CODE>
+    <DESCRIPTION L="de">Flugverkehrslotsen</DESCRIPTION>
+    <DESCRIPTION L="fr">Contrôleurs de la circulation aérienne</DESCRIPTION>
+    <DESCRIPTION L="nl">Luchtverkeersleiders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3155</CODE>
+    <DESCRIPTION L="de">Flugsicherungstechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de la sécurité aérienne</DESCRIPTION>
+    <DESCRIPTION L="nl">Elektrotechnici  luchtvaartveiligheid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>32</CODE>
+    <DESCRIPTION L="de">Assistenzberufe im Gesundheitswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de la santé </DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van de gezondheidszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>321</CODE>
+    <DESCRIPTION L="de">Medizinische und pharmazeutische Fachberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de la médecine et de la pharmacie</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op medisch en farmaceutisch gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3211</CODE>
+    <DESCRIPTION L="de">Medizintechniker im Bereich bildgebende Verfahren und Therapiegeräte</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens en appareils électromédicaux et électrothérapeutiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici voor elektromedische en elektrotherapeutische apparatuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3212</CODE>
+    <DESCRIPTION L="de">Medizintechniker im Bereich Labor und Pathologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de laboratoire médical et pathologique</DESCRIPTION>
+    <DESCRIPTION L="nl">Laboratoriumtechnici (geneeskunde en pathologie) </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3213</CODE>
+    <DESCRIPTION L="de">Pharmazeutisch-technische Assistenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens et assistants pharmaciens et préparateurs en pharmacie</DESCRIPTION>
+    <DESCRIPTION L="nl">Farmaceutisch-technisch assistenten en apothekersassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3214</CODE>
+    <DESCRIPTION L="de">Medizinische und zahnmedizinische Prothetiktechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de prothèses médicales et dentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van prothesen en tandtechnici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>322</CODE>
+    <DESCRIPTION L="de">Nicht akademische Krankenpflege- und Geburtshilfefachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel infirmier et sages femmes (niveau intermédiaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Verpleegkundigen en assistent-vroedvrouwen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3221</CODE>
+    <DESCRIPTION L="de">Nicht akademische Krankenpflegefachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel infirmier (niveau intermédiaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Verpleegkundigen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3222</CODE>
+    <DESCRIPTION L="de">Nicht akademische Geburtshilfefachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Sages-femmes (niveau intermédiaire)</DESCRIPTION>
+    <DESCRIPTION L="nl">Assistent-vroedvrouwen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>323</CODE>
+    <DESCRIPTION L="de">Nicht akademische Fachkräfte in traditioneller und komplementärer Medizin</DESCRIPTION>
+    <DESCRIPTION L="fr">Praticiens des médecines traditionnelles et des médecines complémentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Beoefenaars van de traditionele en de alternatieve geneeskunde</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3230</CODE>
+    <DESCRIPTION L="de">Nicht akademische Fachkräfte in traditioneller und komplementärer Medizin</DESCRIPTION>
+    <DESCRIPTION L="fr">Praticiens des médecines traditionnelles et des médecines complémentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Beoefenaars van de traditionele en de alternatieve geneeskunde</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>324</CODE>
+    <DESCRIPTION L="de">Veterinärmedizinische Fachkräfte und Assistenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens et assistants vétérinaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Veterinaire assistenten en dierenartsassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3240</CODE>
+    <DESCRIPTION L="de">Veterinärmedizinische Fachkräfte und Assistenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens et assistants vétérinaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Veterinaire assistenten en dierenartsassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>325</CODE>
+    <DESCRIPTION L="de">Sonstige Assistenzberufe im Gesundheitswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres professions intermédiaires de la santé</DESCRIPTION>
+    <DESCRIPTION L="nl">Ander ondersteunend personeel op het gebied van de gezondheidszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3251</CODE>
+    <DESCRIPTION L="de">Zahnmedizinische Assistenten und Dentalhygieniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Assistants et thérapeutes en médecine dentaire</DESCRIPTION>
+    <DESCRIPTION L="nl">Tandartsassistenten en mondhygiënisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3252</CODE>
+    <DESCRIPTION L="de">Fachkräfte im Bereich medizinische Dokumentation und Information</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens en enregistrement médical et information sur la santé</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van medische registratie en gezondheidsinformatie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3253</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der öffentlichen Gesundheitsfürsorge</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de santé communautaire</DESCRIPTION>
+    <DESCRIPTION L="nl">Medewerkers op het gebied van gezondheidsvoorlichting</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3254</CODE>
+    <DESCRIPTION L="de">Augenoptiker</DESCRIPTION>
+    <DESCRIPTION L="fr">Opticiens</DESCRIPTION>
+    <DESCRIPTION L="nl">Opticiens</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3255</CODE>
+    <DESCRIPTION L="de">Physiotherapeutische Techniker und Assistenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens et assistants en physiothérapie</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici en assistenten op het gebied van fysiotherapie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3256</CODE>
+    <DESCRIPTION L="de">Medizinische Assistenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Assistants médicaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Medisch assistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3257</CODE>
+    <DESCRIPTION L="de">Nicht akademische Kontrolleure und Beauftragte in den Bereichen Umwelt- und Arbeitsmedizin sowie verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Inspecteurs de l'environnement, de la santé au travail, d'hygiène alimentaire et de la sécurité alimentaire et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Milieu-inspecteurs, inspecteurs arbeidshygiëne, inspecteurs voedselhygiëne en -veiligheid en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3258</CODE>
+    <DESCRIPTION L="de">Rettungsdienstpersonal</DESCRIPTION>
+    <DESCRIPTION L="fr">Ambulanciers</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambulancepersoneel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3259</CODE>
+    <DESCRIPTION L="de">Assistenzberufe im Gesundheitswesen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de la santé non classées ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op het gebied van de gezondheidszorg, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>33</CODE>
+    <DESCRIPTION L="de">Nicht akademische betriebswirtschaftliche und kaufmännische Fachkräfte und Verwaltungsfachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires, finance et administration</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op het gebied van bedrijfsbeheer en administratie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>331</CODE>
+    <DESCRIPTION L="de">Nicht akademische Fachkräfte im Bereich Finanzen und mathematische Verfahren</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de la finance et des mathématiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op financieel en wiskundig gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3311</CODE>
+    <DESCRIPTION L="de">Wertpapierhändler, -makler und Finanzmakler</DESCRIPTION>
+    <DESCRIPTION L="fr">Courtiers en valeurs et cambistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Effecten- en valutahandelaars en -makelaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3312</CODE>
+    <DESCRIPTION L="de">Kreditsachbearbeiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Responsables des prêts</DESCRIPTION>
+    <DESCRIPTION L="nl">Adviseurs kredieten en leningen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3313</CODE>
+    <DESCRIPTION L="de">Nicht akademische Fachkräfte im Rechnungswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de la comptabilité</DESCRIPTION>
+    <DESCRIPTION L="nl">Boekhouders </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3314</CODE>
+    <DESCRIPTION L="de">Nicht akademische statistische, mathematische und verwandte Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de la statistique , des mathématiques et assimilées</DESCRIPTION>
+    <DESCRIPTION L="nl">Assistenten op statistisch en wiskundig gebied en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3315</CODE>
+    <DESCRIPTION L="de">Schätzer und Schadensgutachter</DESCRIPTION>
+    <DESCRIPTION L="fr">Commissaires-priseurs et autres experts en évaluation</DESCRIPTION>
+    <DESCRIPTION L="nl">Taxateurs en schade-experts</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>332</CODE>
+    <DESCRIPTION L="de">Vertriebsagenten, Einkäufer und Handelsmakler</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de vente et d'achat, courtiers</DESCRIPTION>
+    <DESCRIPTION L="nl">In- en verkopers en commissionairs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3321</CODE>
+    <DESCRIPTION L="de">Versicherungsvertreter</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents d'assurances</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzekeringsagenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3322</CODE>
+    <DESCRIPTION L="de">Vertriebsagenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Représentants et techniciens commerciaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Handelsvertegenwoordigers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3323</CODE>
+    <DESCRIPTION L="de">Einkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Acheteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Inkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3324</CODE>
+    <DESCRIPTION L="de">Handelsmakler</DESCRIPTION>
+    <DESCRIPTION L="fr">Courtiers en marchandises</DESCRIPTION>
+    <DESCRIPTION L="nl">Commissionairs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>333</CODE>
+    <DESCRIPTION L="de">Fachkräfte für unternehmensbezogene Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de services commerciaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Zakelijke dienstverleners</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3331</CODE>
+    <DESCRIPTION L="de">Fachkräfte für Abrechnungs- und Speditionsdienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents concessionnaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Inklaringsagenten en expediteurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3332</CODE>
+    <DESCRIPTION L="de">Konferenz- und Veranstaltungsplaner</DESCRIPTION>
+    <DESCRIPTION L="fr">Organisateurs de conférences et d'événements</DESCRIPTION>
+    <DESCRIPTION L="nl">Organisatoren van conferenties en evenementen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3333</CODE>
+    <DESCRIPTION L="de">Arbeits- und Personalvermittler</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents d'emploi et de recrutement de main-d'œuvre</DESCRIPTION>
+    <DESCRIPTION L="nl">Arbeidsbemiddelaars en uitzendbureaumedewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3334</CODE>
+    <DESCRIPTION L="de">Immobilienmakler und -verwalter</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents immobiliers</DESCRIPTION>
+    <DESCRIPTION L="nl">Makelaars en beheerders van onroerend goed</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3339</CODE>
+    <DESCRIPTION L="de">Fachkräfte für unternehmensbezogene Dienstleistungen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de services commerciaux non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Zakelijke dienstverleners, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>334</CODE>
+    <DESCRIPTION L="de">Sekretariatsfachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Secrétaires d'administration et secrétaires spécialisés</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratieve secretaressen en gespecialiseerde secretaressen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3341</CODE>
+    <DESCRIPTION L="de">Sekretariatsleiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Superviseurs, travail de bureau</DESCRIPTION>
+    <DESCRIPTION L="nl">Bureauchefs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3342</CODE>
+    <DESCRIPTION L="de">Sekretariatsfachkräfte im juristischen Bereich</DESCRIPTION>
+    <DESCRIPTION L="fr">Secrétaires, services juridiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Juridisch secretaressen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3343</CODE>
+    <DESCRIPTION L="de">Sekretariatsfachkräfte in Verwaltung und Geschäftsleitung</DESCRIPTION>
+    <DESCRIPTION L="fr">Secrétaires d'administration et secrétaires exécutifs</DESCRIPTION>
+    <DESCRIPTION L="nl">Bureausecretaressen en directieassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3344</CODE>
+    <DESCRIPTION L="de">Sekretariatsfachkräfte im Gesundheitswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Secrétaires médicaux/ales</DESCRIPTION>
+    <DESCRIPTION L="nl">Medisch secretaressen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>335</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der öffentlichen Verwaltung</DESCRIPTION>
+    <DESCRIPTION L="fr">Fonctionnaires (douanes, impôts, prestations sociales, licences) et inspecteurs de police</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambtenaren douane, belastingen, sociale uitkeringen, vergunningen en politie-inspecteurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3351</CODE>
+    <DESCRIPTION L="de">Fachkräfte im Zolldienst und Grenzschutz</DESCRIPTION>
+    <DESCRIPTION L="fr">Inspecteurs des douanes et des frontières</DESCRIPTION>
+    <DESCRIPTION L="nl">Douane-inspecteurs en grensbewakers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3352</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der Steuerverwaltung</DESCRIPTION>
+    <DESCRIPTION L="fr">Fonctionnaire des impôts</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambtenaren: belastingen en accijnzen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3353</CODE>
+    <DESCRIPTION L="de">Fachkräfte in Sozialverwaltung und -versicherung</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents des services publics accordant des prestations sociales</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambtenaren: sociale uitkeringen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3354</CODE>
+    <DESCRIPTION L="de">Fachkräfte bei staatlichen Pass-, Lizenz- und Genehmigungsstellen</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents des services publics accordant des permis et des licences</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambtenaren: vergunningen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3355</CODE>
+    <DESCRIPTION L="de">Polizeikommissare und Kriminalbeamte</DESCRIPTION>
+    <DESCRIPTION L="fr">Inspecteurs et enquêteurs de police</DESCRIPTION>
+    <DESCRIPTION L="nl">Politie-inspecteurs en speurders </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3359</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der öffentlichen Verwaltung, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de l'application de la loi et assimilées non classées ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambtenaren die instaan voor de toepassing van de wet, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>34</CODE>
+    <DESCRIPTION L="de">Nicht akademische juristische, sozialpflegerische, kulturelle und verwandte Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires des services juridiques, des services sociaux et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op juridisch, maatschappelijk en cultureel gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>341</CODE>
+    <DESCRIPTION L="de">Nicht akademische juristische, sozialpflegerische und religiöse Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires des services juridiques, des services sociaux et des religions</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op juridisch, maatschappelijk en religieus gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3411</CODE>
+    <DESCRIPTION L="de">Nicht akademische Fachkräfte für Rechts- und verwandte Angelegenheiten</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions juridiques intermédiaires et assimilées</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op juridisch gebied en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3412</CODE>
+    <DESCRIPTION L="de">Nicht akademische sozialpflegerische Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires du travail social</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunend personeel op het gebied van maatschappelijk werk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3413</CODE>
+    <DESCRIPTION L="de">Ordensbrüder/-schwestern und Seelsorgehelfer</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires des religions</DESCRIPTION>
+    <DESCRIPTION L="nl">Ondersteunende functies op religieus gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>342</CODE>
+    <DESCRIPTION L="de">Fachkräfte im Bereich Sport und Fitness</DESCRIPTION>
+    <DESCRIPTION L="fr">Travailleurs du secteur des sports et des activités de remise en forme </DESCRIPTION>
+    <DESCRIPTION L="nl">Vakspecialisten op het gebied van sport en fitness</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3421</CODE>
+    <DESCRIPTION L="de">Athleten und Berufssportler</DESCRIPTION>
+    <DESCRIPTION L="fr">Athlètes et sportifs de compétition</DESCRIPTION>
+    <DESCRIPTION L="nl">Atleten en andere sporters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3422</CODE>
+    <DESCRIPTION L="de">Sportlehrer, Sporttrainer und Sportfunktionäre</DESCRIPTION>
+    <DESCRIPTION L="fr">Entraîneurs et instructeurs sportifs, arbitres et officiels de sport</DESCRIPTION>
+    <DESCRIPTION L="nl">Sporttrainers en -instructeurs, scheidsrechters en sportofficials </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3423</CODE>
+    <DESCRIPTION L="de">Trainer und Betreuer im Bereich Fitness und Erholung</DESCRIPTION>
+    <DESCRIPTION L="fr">Instructeurs et animateurs de programmes, loisirs et activités de remise en forme</DESCRIPTION>
+    <DESCRIPTION L="nl">Fitness- en recreatie-instructeurs </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>343</CODE>
+    <DESCRIPTION L="de">Fachkräfte in Gestaltung und Kultur sowie Küchenchefs</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions intermédiaires de la culture, de la création artistique et des activités culinaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Vakspecialisten op artistiek, cultureel en culinair gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3431</CODE>
+    <DESCRIPTION L="de">Fotografen</DESCRIPTION>
+    <DESCRIPTION L="fr">Photographes</DESCRIPTION>
+    <DESCRIPTION L="nl">Fotografen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3432</CODE>
+    <DESCRIPTION L="de">Raumgestalter und Dekorateure</DESCRIPTION>
+    <DESCRIPTION L="fr">Décorateurs et designers d'intérieurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Interieurdesigners en decorateurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3433</CODE>
+    <DESCRIPTION L="de">Fachkräfte in Kunstgalerien, Museen und Bibliotheken</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de galeries d'art, de musées et de bibliothèques</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici in galerieën, musea en bibliotheken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3434</CODE>
+    <DESCRIPTION L="de">Küchenchefs</DESCRIPTION>
+    <DESCRIPTION L="fr">Chefs cuisiniers </DESCRIPTION>
+    <DESCRIPTION L="nl">Chef-koks</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3435</CODE>
+    <DESCRIPTION L="de">Sonstige Fachkräfte in Gestaltung und Kultur</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres professions intermédiaires de la culture et de la création artistique</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere vakspecialisten op artistiek en cultureel gebied</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>35</CODE>
+    <DESCRIPTION L="de">Informations- und Kommunikationstechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van informatie en communicatietechnologie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>351</CODE>
+    <DESCRIPTION L="de">Techniker für den Betrieb von Informations- und Kommunikationstechnologie und für die Anwenderbetreuung</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens, opérations et soutien aux utilisateurs des technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van  informatie- en communicatietechnologie en gebruikersondersteuning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3511</CODE>
+    <DESCRIPTION L="de">Techniker für den Betrieb von Informations- und Kommunikationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des technologies de l'information et des communications, opérations</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van  informatie- en communicatietechnologie: operatoren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3512</CODE>
+    <DESCRIPTION L="de">Techniker für die Anwenderbetreuung in der Informations- und Kommunikationstechnologie</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des technologies de l'information et des communications, soutien aux utilisateurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Technici op het gebied van informatie- en communicatietechnologie: gebruikersondersteuning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3513</CODE>
+    <DESCRIPTION L="de">Techniker für Computernetzwerke und -systeme</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens, réseaux et systèmes d'ordinateurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Netwerk- en systeemtechnici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3514</CODE>
+    <DESCRIPTION L="de">Webmaster</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de l'Internet</DESCRIPTION>
+    <DESCRIPTION L="nl">Webtechnici </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>352</CODE>
+    <DESCRIPTION L="de">Telekommunikations- und Rundfunktechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens des télécommunications et de la radio diffusion</DESCRIPTION>
+    <DESCRIPTION L="nl">Telecommunicatie-, radio- en televisietechnici </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3521</CODE>
+    <DESCRIPTION L="de">Techniker für Rundfunk und audiovisuelle Medien</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de radio-télévision et d'enregistrement audio-visuel</DESCRIPTION>
+    <DESCRIPTION L="nl">Radio- en televisietechnici en audiovisueel technici </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3522</CODE>
+    <DESCRIPTION L="de">Telekommunikationstechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens de télécommunications</DESCRIPTION>
+    <DESCRIPTION L="nl">Telecommunicatietechnici </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4</CODE>
+    <DESCRIPTION L="de">Bürokräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de type administratif </DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>41</CODE>
+    <DESCRIPTION L="de">Allgemeine Büro- und Sekretariatskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de bureau</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief medewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>411</CODE>
+    <DESCRIPTION L="de">Allgemeine Bürokräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de bureau, fonctions générales</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief medewerkers, algemeen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4110</CODE>
+    <DESCRIPTION L="de">Allgemeine Bürokräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de bureau, fonctions générales</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief medewerkers, algemeen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>412</CODE>
+    <DESCRIPTION L="de">Sekretariatskräfte (allgemein)</DESCRIPTION>
+    <DESCRIPTION L="fr">Secrétaires (fonctions générales)</DESCRIPTION>
+    <DESCRIPTION L="nl">Secretariaatsmedewerkers, algemeen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4120</CODE>
+    <DESCRIPTION L="de">Sekretariatskräfte (allgemein)</DESCRIPTION>
+    <DESCRIPTION L="fr">Secrétaires (fonctions générales) </DESCRIPTION>
+    <DESCRIPTION L="nl">Secretariaatsmedewerkers, algemeen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>413</CODE>
+    <DESCRIPTION L="de">Schreibkräfte und Datenerfasser</DESCRIPTION>
+    <DESCRIPTION L="fr">Opérateurs sur clavier</DESCRIPTION>
+    <DESCRIPTION L="nl">Typisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4131</CODE>
+    <DESCRIPTION L="de">Schreibkräfte und Bediener von Textverarbeitungsanlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Dactylographes et opérateurs de traitement de texte</DESCRIPTION>
+    <DESCRIPTION L="nl">Typisten  voor het verwerken van tekst</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4132</CODE>
+    <DESCRIPTION L="de">Datenerfasser</DESCRIPTION>
+    <DESCRIPTION L="fr">Opérateurs sur clavier numérique</DESCRIPTION>
+    <DESCRIPTION L="nl">Typisten voor het verwerken van data</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>42</CODE>
+    <DESCRIPTION L="de">Bürokräfte mit Kundenkontakt</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de réception, guichetiers et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Klantenbedienend personeel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>421</CODE>
+    <DESCRIPTION L="de">Schalterbedienstete, Inkassobeauftragte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Guichetiers, encaisseurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Loketbedienden, incasseerders en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4211</CODE>
+    <DESCRIPTION L="de">Bank- und andere Schalterbedienstete</DESCRIPTION>
+    <DESCRIPTION L="fr">Guichetiers de banque et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Loketbedienden en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4212</CODE>
+    <DESCRIPTION L="de">Buchmacher, Croupiers und verwandte Berufe im Bereich Glücks- und Wettspiele</DESCRIPTION>
+    <DESCRIPTION L="fr">Croupiers et assimilés dans le secteur des jeux de hasard</DESCRIPTION>
+    <DESCRIPTION L="nl">Bookmakers, croupiers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4213</CODE>
+    <DESCRIPTION L="de">Pfandleiher und Geldverleiher</DESCRIPTION>
+    <DESCRIPTION L="fr">Prêteurs sur gages et bailleurs de fonds</DESCRIPTION>
+    <DESCRIPTION L="nl">Pandhuishouders en geldschieters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4214</CODE>
+    <DESCRIPTION L="de">Inkassobeauftragte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Encaisseurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Incasseerders en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>422</CODE>
+    <DESCRIPTION L="de">Berufe im Bereich Kundeninformation</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés chargés d'informer la clientèle</DESCRIPTION>
+    <DESCRIPTION L="nl">Klanteninformatieverstrekkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4221</CODE>
+    <DESCRIPTION L="de">Reiseverkehrsfachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Consultants et employés d'agence de voyages</DESCRIPTION>
+    <DESCRIPTION L="nl">Reisconsulenten en reisbureaumedewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4222</CODE>
+    <DESCRIPTION L="de">Kundeninformationsfachkräfte in Call Centers</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de centre d'appel, information</DESCRIPTION>
+    <DESCRIPTION L="nl">Callcentermedewerkers:  informatieverstrekking</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4223</CODE>
+    <DESCRIPTION L="de">Telefonisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Téléphonistes-standardistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Telefonisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4224</CODE>
+    <DESCRIPTION L="de">Hotelrezeptionisten</DESCRIPTION>
+    <DESCRIPTION L="fr">Réceptionnistes, hôtellerie</DESCRIPTION>
+    <DESCRIPTION L="nl">Hotelreceptionisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4225</CODE>
+    <DESCRIPTION L="de">Auskunftspersonal</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés, service d'information</DESCRIPTION>
+    <DESCRIPTION L="nl">Informatieverstrekkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4226</CODE>
+    <DESCRIPTION L="de">Empfangskräfte (allgemein)</DESCRIPTION>
+    <DESCRIPTION L="fr">Réceptionnistes (fonctions générales)</DESCRIPTION>
+    <DESCRIPTION L="nl">Receptionisten, algemeen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4227</CODE>
+    <DESCRIPTION L="de">Interviewer im Bereich Umfragen und Marktforschung</DESCRIPTION>
+    <DESCRIPTION L="fr">Intervieweurs, enquêtes et études de marché</DESCRIPTION>
+    <DESCRIPTION L="nl">Interviewers voor enquêtes en marktonderzoek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4229</CODE>
+    <DESCRIPTION L="de">Berufe im Bereich Kundeninformation, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés chargés d'informer la clientèle non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Klanteninformatieverstrekkers, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>43</CODE>
+    <DESCRIPTION L="de">Bürokräfte im Finanz- und Rechnungswesen, in der Statistik und in der Materialwirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés des services comptables, financiers, de paie et assimilés et magasiniers</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel in de boekhouding, financiën, loonadministratie en dergelijke en magazijniers </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>431</CODE>
+    <DESCRIPTION L="de">Bürokräfte im Finanz- und Rechnungswesen und in der Statistik</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés des services comptables, financiers et de paie</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel in de boekhouding, financiën, loonadministratie en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4311</CODE>
+    <DESCRIPTION L="de">Bürokräfte im Rechnungswesen und in der Buchhaltung</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides comptables et teneurs de livres</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel: boekhouding </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4312</CODE>
+    <DESCRIPTION L="de">Bürokräfte in der Statistik, im Finanz- und Versicherungswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de services statistiques, financiers et d'assurances</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel: statistiek, financiën en verzekeringen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4313</CODE>
+    <DESCRIPTION L="de">Bürokräfte in der Lohnbuchhaltung</DESCRIPTION>
+    <DESCRIPTION L="fr">Commis, service de paie</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel: loonadministratie </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>432</CODE>
+    <DESCRIPTION L="de">Bürokräfte im Bereich Materialwirtschaft und Transport und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés d'approvisionnement, d'ordonnancement et des transports</DESCRIPTION>
+    <DESCRIPTION L="nl">Magazijniers en logistiek medewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4321</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der Lagerwirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés du service des stocks</DESCRIPTION>
+    <DESCRIPTION L="nl">Magazijniers </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4322</CODE>
+    <DESCRIPTION L="de">Bürokräfte in der Material- und Fertigungsplanung und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés du service d'ordonnancement de la production</DESCRIPTION>
+    <DESCRIPTION L="nl">Logistiek medewerkers: productie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4323</CODE>
+    <DESCRIPTION L="de">Bürokräfte in der Transportwirtschaft und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés du service des transports</DESCRIPTION>
+    <DESCRIPTION L="nl">Logistiek medewerkers: vervoer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>44</CODE>
+    <DESCRIPTION L="de">Sonstige Bürokräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres employés de type administratif</DESCRIPTION>
+    <DESCRIPTION L="nl">Ander administratief personeel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>441</CODE>
+    <DESCRIPTION L="de">Sonstige Bürokräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres employés de type administratif</DESCRIPTION>
+    <DESCRIPTION L="nl">Ander administratief personeel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4411</CODE>
+    <DESCRIPTION L="de">Bibliotheksassistenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de bibliothèque</DESCRIPTION>
+    <DESCRIPTION L="nl">Bibliotheekmedewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4412</CODE>
+    <DESCRIPTION L="de">Postverteiler und -sortierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés de service du courrier</DESCRIPTION>
+    <DESCRIPTION L="nl">Postboden en postsorteerders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4413</CODE>
+    <DESCRIPTION L="de">Kodierer, Korrekturleser und verwandte Bürokräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Codeurs, correcteurs d'épreuves et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Codeurs, correctoren en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4414</CODE>
+    <DESCRIPTION L="de">Schreiber und verwandte Arbeitskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Ecrivains publics et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Openbare schrijvers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4415</CODE>
+    <DESCRIPTION L="de">Bürokräfte für Registratur und Dokumentation</DESCRIPTION>
+    <DESCRIPTION L="fr">Classeurs-archivistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Archief- en kopieermedewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4416</CODE>
+    <DESCRIPTION L="de">Bürokräfte im Personalwesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés, service du personnel</DESCRIPTION>
+    <DESCRIPTION L="nl">Medewerkers personeelsadministratie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4419</CODE>
+    <DESCRIPTION L="de">Bürokräfte und verwandte Berufe, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Employés administratifs non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Administratief personeel, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5</CODE>
+    <DESCRIPTION L="de">Dienstleistungsberufe und Verkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel des services directs aux particuliers, commerçants et vendeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Dienstverlenend personeel en verkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>51</CODE>
+    <DESCRIPTION L="de">Berufe im Bereich personenbezogener Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel des services directs aux particuliers</DESCRIPTION>
+    <DESCRIPTION L="nl">Medewerkers persoonlijke dienstverlening</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>511</CODE>
+    <DESCRIPTION L="de">Reisebegleiter, Schaffner und Reiseleiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents d'accompagnement, contrôleurs de transports publics et guides</DESCRIPTION>
+    <DESCRIPTION L="nl">Reisbegeleiders, conducteurs, reisleiders en gidsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5111</CODE>
+    <DESCRIPTION L="de">Reisebegleiter und Stewards</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents d'accueil et stewards </DESCRIPTION>
+    <DESCRIPTION L="nl">Reisbegeleiders en stewards</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5112</CODE>
+    <DESCRIPTION L="de">Schaffner</DESCRIPTION>
+    <DESCRIPTION L="fr">Contrôleurs et receveurs de transports publics</DESCRIPTION>
+    <DESCRIPTION L="nl">Conducteurs op het openbaar vervoer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5113</CODE>
+    <DESCRIPTION L="de">Reiseleiter/Fremdenführer</DESCRIPTION>
+    <DESCRIPTION L="fr">Guides</DESCRIPTION>
+    <DESCRIPTION L="nl">Reisleiders en gidsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>512</CODE>
+    <DESCRIPTION L="de">Köche</DESCRIPTION>
+    <DESCRIPTION L="fr">Cuisiniers</DESCRIPTION>
+    <DESCRIPTION L="nl">Koks</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5120</CODE>
+    <DESCRIPTION L="de">Köche</DESCRIPTION>
+    <DESCRIPTION L="fr">Cuisiniers</DESCRIPTION>
+    <DESCRIPTION L="nl">Koks</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>513</CODE>
+    <DESCRIPTION L="de">Kellner und Barkeeper</DESCRIPTION>
+    <DESCRIPTION L="fr">Serveurs et barmen</DESCRIPTION>
+    <DESCRIPTION L="nl">Kelners en barmannen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5131</CODE>
+    <DESCRIPTION L="de">Kellner</DESCRIPTION>
+    <DESCRIPTION L="fr">Serveurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Kelners</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5132</CODE>
+    <DESCRIPTION L="de">Barkeeper</DESCRIPTION>
+    <DESCRIPTION L="fr">Barmen</DESCRIPTION>
+    <DESCRIPTION L="nl">Barmannen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>514</CODE>
+    <DESCRIPTION L="de">Friseure, Kosmetiker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Coiffeurs, esthéticiens et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Kappers, schoonheidsspecialisten en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5141</CODE>
+    <DESCRIPTION L="de">Friseure</DESCRIPTION>
+    <DESCRIPTION L="fr">Coiffeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Kappers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5142</CODE>
+    <DESCRIPTION L="de">Kosmetiker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Esthéticiens et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Schoonheidsspecialisten en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>515</CODE>
+    <DESCRIPTION L="de">Hauswarte und Hauswirtschaftsleiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Intendants, gouvernantes et concierges</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthouders van huishoudelijk personeel en conciërges</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5151</CODE>
+    <DESCRIPTION L="de">Reinigungs- und Hauswirtschaftsleiter in Büros, Hotels und anderen Einrichtungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Intendants et superviseurs des services de nettoyage de bureaux, des hôtels et d'autres établissements</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthouders van huishoudelijk en schoonmaakpersoneel in kantoren, hotels en dergelijke accomodatie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5152</CODE>
+    <DESCRIPTION L="de">Hauswirtschafter in Privathaushalten</DESCRIPTION>
+    <DESCRIPTION L="fr">Gouvernantes et intendants à domicile</DESCRIPTION>
+    <DESCRIPTION L="nl">Huismeesters  in particuliere huishoudens</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5153</CODE>
+    <DESCRIPTION L="de">Hauswarte</DESCRIPTION>
+    <DESCRIPTION L="fr">Concierges</DESCRIPTION>
+    <DESCRIPTION L="nl">Conciërges</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>516</CODE>
+    <DESCRIPTION L="de">Sonstige Berufe im Bereich personenbezogener Dienstleistungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autre personnel des services directs aux particuliers</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere verleners van persoonlijke diensten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5161</CODE>
+    <DESCRIPTION L="de">Astrologen, Wahrsager und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Astrologues, diseurs de bonne aventure et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Astrologen, waarzeggers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5162</CODE>
+    <DESCRIPTION L="de">Gesellschafter und Zofen/Kammerdiener</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel de compagnie et valets de chambre</DESCRIPTION>
+    <DESCRIPTION L="nl">Gezelschapsdames en persoonlijk assistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5163</CODE>
+    <DESCRIPTION L="de">Bestatter und Einbalsamierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de pompes funèbres et embaumeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Begrafenisondernemers en balsemers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5164</CODE>
+    <DESCRIPTION L="de">Tierpfleger und -betreuer</DESCRIPTION>
+    <DESCRIPTION L="fr">Toiletteurs, gardiens et dresseurs d'animaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Dierenverzorgers, -trimmers en -africhters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5165</CODE>
+    <DESCRIPTION L="de">Fahrschullehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Moniteurs d'auto-école</DESCRIPTION>
+    <DESCRIPTION L="nl">Rijinstructeurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5169</CODE>
+    <DESCRIPTION L="de">Berufe im Bereich personenbezogener Dienstleistungen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel des services directs aux particuliers, non classé ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Verleners van persoonlijke diensten, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>52</CODE>
+    <DESCRIPTION L="de">Verkaufskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Commerçants et vendeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>521</CODE>
+    <DESCRIPTION L="de">Straßen- und Marktverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs sur les marchés et vendeurs ambulants de comestibles</DESCRIPTION>
+    <DESCRIPTION L="nl">Markthandelaars en straathandelaars (uitsluitend in voedingsmiddelen)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5211</CODE>
+    <DESCRIPTION L="de">Verkaufsstand- und Marktverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs à l'étal et sur les marchés</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkopers in kramen en op markten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5212</CODE>
+    <DESCRIPTION L="de">Straßenverkäufer von Lebensmitteln</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs ambulants de comestibles</DESCRIPTION>
+    <DESCRIPTION L="nl">Straathandelaars in voedingsmiddelen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>522</CODE>
+    <DESCRIPTION L="de">Verkaufskräfte in Handelsgeschäften</DESCRIPTION>
+    <DESCRIPTION L="fr">Commerçants et vendeurs, magasins</DESCRIPTION>
+    <DESCRIPTION L="nl">Winkeliers en verkopers in winkels </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5221</CODE>
+    <DESCRIPTION L="de">Leiter eines Einzelhandelsgeschäftes</DESCRIPTION>
+    <DESCRIPTION L="fr">Commerçants, magasins</DESCRIPTION>
+    <DESCRIPTION L="nl">Winkeliers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5222</CODE>
+    <DESCRIPTION L="de">Verkaufsaufsichtskräfte in Handelsgeschäften</DESCRIPTION>
+    <DESCRIPTION L="fr">Superviseurs, magasins</DESCRIPTION>
+    <DESCRIPTION L="nl">Toezichthoudend personeel in winkels</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5223</CODE>
+    <DESCRIPTION L="de">Verkäufer und Verkaufshilfskräfte in Handelsgeschäften</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs, magasin</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkopers en verkoopsassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>523</CODE>
+    <DESCRIPTION L="de">Kassierer und Kartenverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Caissiers et billettistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Kassiers en ticketverkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5230</CODE>
+    <DESCRIPTION L="de">Kassierer und Kartenverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Caissiers et billettistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Kassiers en ticketverkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>524</CODE>
+    <DESCRIPTION L="de">Sonstige Verkaufskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres vendeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere verkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5241</CODE>
+    <DESCRIPTION L="de">Mannequins/Dressmen und sonstige Modelle</DESCRIPTION>
+    <DESCRIPTION L="fr">Mannequins et autres modèles</DESCRIPTION>
+    <DESCRIPTION L="nl">Mannequins en modellen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5242</CODE>
+    <DESCRIPTION L="de">Produktvorführer</DESCRIPTION>
+    <DESCRIPTION L="fr">Démonstrateurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Demonstrateurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5243</CODE>
+    <DESCRIPTION L="de">Haustürverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs au porte à porte</DESCRIPTION>
+    <DESCRIPTION L="nl">Huis-aan-huisverkopers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5244</CODE>
+    <DESCRIPTION L="de">Telefonverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeur par téléphone, internet, centre d'appels et d'autres moyens de communication</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkopers via telefoon, internet, callcenter en dergelijke communicatiemedia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5245</CODE>
+    <DESCRIPTION L="de">Tankwarte</DESCRIPTION>
+    <DESCRIPTION L="fr">Pompistes</DESCRIPTION>
+    <DESCRIPTION L="nl">Pompbedienden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5246</CODE>
+    <DESCRIPTION L="de">Imbissverkäufer</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs dans des cafétérias, restauration rapide, snack-bars et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkopers in cafetaria’s, fastfoodrestaurants, snackbars en dergelijke eetgelegenheden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5249</CODE>
+    <DESCRIPTION L="de">Verkaufskräfte, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Verkopers, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>53</CODE>
+    <DESCRIPTION L="de">Betreuungsberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel soignant</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgend personeel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>531</CODE>
+    <DESCRIPTION L="de">Kinder- und Lernbetreuer</DESCRIPTION>
+    <DESCRIPTION L="fr">Gardes d'enfants et aides-enseignants</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgend personeel in kinderdagverblijven, créches en dergelijke, onthaalmoeders en onderwijsassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5311</CODE>
+    <DESCRIPTION L="de">Kinderbetreuer</DESCRIPTION>
+    <DESCRIPTION L="fr">Gardes d'enfants</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgend personeel in kinderdagverblijven, crèches en dergelijke en onthaalmoeders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5312</CODE>
+    <DESCRIPTION L="de">Lernbetreuer</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides-enseignants</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderwijsassistenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>532</CODE>
+    <DESCRIPTION L="de">Betreuungsberufe im Gesundheitswesen</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides-soignants</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgend personeel in de gezondheidszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5321</CODE>
+    <DESCRIPTION L="de">Pflegehelfer</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides-soignants en institution</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgenden  in ziekenhuizen, verpleeginstellingen en dergelijke instellingen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5322</CODE>
+    <DESCRIPTION L="de">Haus- und Familienpfleger</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides-soignants à domicile</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgenden thuiszorg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5329</CODE>
+    <DESCRIPTION L="de">Betreuungsberufe im Gesundheitswesen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel soignant et assimilé, non classé ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Verzorgend personeel in de gezondheidszorg, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>54</CODE>
+    <DESCRIPTION L="de">Schutzkräfte und Sicherheitsbedienstete</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel des services de protection et de sécurité</DESCRIPTION>
+    <DESCRIPTION L="nl">Personeel op het gebied van de openbare orde en de veiligheid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>541</CODE>
+    <DESCRIPTION L="de">Schutzkräfte und Sicherheitsbedienstete</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel des services de protection et de sécurité</DESCRIPTION>
+    <DESCRIPTION L="nl">Personeel op het gebied van de openbare orde en de veiligheid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5411</CODE>
+    <DESCRIPTION L="de">Feuerwehrleute</DESCRIPTION>
+    <DESCRIPTION L="fr">Pompiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Brandweerlui</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5412</CODE>
+    <DESCRIPTION L="de">Polizisten (ohne Polizeikommissare)</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de police</DESCRIPTION>
+    <DESCRIPTION L="nl">Politie-agenten </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5413</CODE>
+    <DESCRIPTION L="de">Gefängnisaufseher</DESCRIPTION>
+    <DESCRIPTION L="fr">Gardiens de prison</DESCRIPTION>
+    <DESCRIPTION L="nl">Cipiers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5414</CODE>
+    <DESCRIPTION L="de">Sicherheitswachpersonal</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents de sécurité</DESCRIPTION>
+    <DESCRIPTION L="nl">Veiligheidspersoneel</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>5419</CODE>
+    <DESCRIPTION L="de">Schutzkräfte und Sicherheitsbedienstete, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Personnel des services de protection et de sécurité, non classé ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Personeel op het gebied van de openbare orde en de veiligheid, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6</CODE>
+    <DESCRIPTION L="de">Fachkräfte in Land- und Forstwirtschaft und Fischerei</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés de l'agriculture, de la sylviculture et de la pêche</DESCRIPTION>
+    <DESCRIPTION L="nl">Geschoolde landbouwers, bosbouwers en vissers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>61</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der Landwirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés de l'agriculture commerciale</DESCRIPTION>
+    <DESCRIPTION L="nl">Voor de markt producerende geschoolde landbouwers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>611</CODE>
+    <DESCRIPTION L="de">Gärtner und Ackerbauern</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés, cultures commerciales </DESCRIPTION>
+    <DESCRIPTION L="nl">Tuinders en akkerbouwers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6111</CODE>
+    <DESCRIPTION L="de">Ackerbauern und Gemüseanbauer</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés, cultures de plein champ</DESCRIPTION>
+    <DESCRIPTION L="nl">Akkerbouwers en groentetelers (met uitzondering van kasgroenten)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6112</CODE>
+    <DESCRIPTION L="de">Baum- und Strauchfrüchteanbauer</DESCRIPTION>
+    <DESCRIPTION L="fr">Arboriculteurs et ouvriers qualifiés de l'arboriculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Fruittelers </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6113</CODE>
+    <DESCRIPTION L="de">Gärtner, Saat- und Pflanzenzüchter</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés de l'horticulture et des pépinières</DESCRIPTION>
+    <DESCRIPTION L="nl">Tuiniers en kwekers van bomen, struiken, bloemen, zaden, kasgroenten en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6114</CODE>
+    <DESCRIPTION L="de">Fachkräfte in der Mischkulturlandwirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés, cultures diversifiées</DESCRIPTION>
+    <DESCRIPTION L="nl">Telers van diverse gewassen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>612</CODE>
+    <DESCRIPTION L="de">Tierhalter</DESCRIPTION>
+    <DESCRIPTION L="fr">Eleveurs et ouvriers qualifiés de l'élevage commercial et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Veetelers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6121</CODE>
+    <DESCRIPTION L="de">Nutztierhalter (ohne Geflügel) und Milchproduzenten</DESCRIPTION>
+    <DESCRIPTION L="fr">Eleveurs et ouvriers qualifiés de l'élevage de bétail (y compris les éleveurs d'animaux de compagnie), sauf aviculteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Melkveehouders en andere veetelers (inclusief fokkers van huisdieren), met uitzondering van pluimveehouders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6122</CODE>
+    <DESCRIPTION L="de">Geflügelhalter</DESCRIPTION>
+    <DESCRIPTION L="fr">Aviculteurs et ouvriers qualifiés de l'aviculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Pluimveehouders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6123</CODE>
+    <DESCRIPTION L="de">Imker und Seidenraupenzüchter</DESCRIPTION>
+    <DESCRIPTION L="fr">Apiculteurs, sériciculteurs et ouvriers qualifiés de l'apiculture et de la sériciculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Imkers en telers van zijderupsen en andere insecten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6129</CODE>
+    <DESCRIPTION L="de">Tierhalter, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Eleveurs et ouvriers qualifiés de l'élevage commercial et assimilés, non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Veetelers, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>613</CODE>
+    <DESCRIPTION L="de">Landwirte mit Ackerbau und Tierhaltung (ohne ausgeprägten Schwerpunkt)</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés des cultures et de l'élevage à but commercial</DESCRIPTION>
+    <DESCRIPTION L="nl">Producenten met een gemengd bedrijf</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6130</CODE>
+    <DESCRIPTION L="de">Landwirte mit Ackerbau und Tierhaltung (ohne ausgeprägten Schwerpunkt)</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et ouvriers qualifiés des cultures et de l'élevage à but commercial</DESCRIPTION>
+    <DESCRIPTION L="nl">Producenten met een gemengd bedrijf</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>62</CODE>
+    <DESCRIPTION L="de">Fachkräfte in Forstwirtschaft, Fischerei und Jagd</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions commerciales qualifiées de la sylviculture, de la pêche et de la chasse</DESCRIPTION>
+    <DESCRIPTION L="nl">Voor de markt producerende geschoolde bosbouwers, vissers en jagers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>621</CODE>
+    <DESCRIPTION L="de">Forstarbeitskräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions de la sylviculture et assimilées</DESCRIPTION>
+    <DESCRIPTION L="nl">Bosbouwers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6210</CODE>
+    <DESCRIPTION L="de">Forstarbeitskräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Exploitants et ouvriers forestiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Bosbouwers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>622</CODE>
+    <DESCRIPTION L="de">Fischer, Jäger und Fallensteller</DESCRIPTION>
+    <DESCRIPTION L="fr">Pêcheurs, chasseurs et trappeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Vissers, jagers en vallenzetters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6221</CODE>
+    <DESCRIPTION L="de">Fachkräfte im Bereich Aquakultur</DESCRIPTION>
+    <DESCRIPTION L="fr">Aquaculteurs et ouvriers de l'aquaculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Viskwekers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6222</CODE>
+    <DESCRIPTION L="de">Binnen- und Küstenfischer</DESCRIPTION>
+    <DESCRIPTION L="fr">Pêcheurs de la pêche côtière et en eaux intérieures</DESCRIPTION>
+    <DESCRIPTION L="nl">Vissers op binnen- en kustwateren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6223</CODE>
+    <DESCRIPTION L="de">Hochseefischer</DESCRIPTION>
+    <DESCRIPTION L="fr">Pêcheurs de la pêche en haute mer</DESCRIPTION>
+    <DESCRIPTION L="nl">Vissers op volle zee</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6224</CODE>
+    <DESCRIPTION L="de">Jäger und Fallensteller</DESCRIPTION>
+    <DESCRIPTION L="fr">Chasseurs et trappeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Jagers en vallenzetters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>63</CODE>
+    <DESCRIPTION L="de">Landwirte, Fischer, Jäger und Sammler für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs, pêcheurs, chasseurs et cueilleurs de subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Landbouwers, veetelers, vissers, jagers en verzamelaars, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>631</CODE>
+    <DESCRIPTION L="de">Ackerbauern für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Landbouwers, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6310</CODE>
+    <DESCRIPTION L="de">Ackerbauern für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Landbouwers, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>632</CODE>
+    <DESCRIPTION L="de">Nutztierhalter für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Eleveurs de bétail, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Veetelers, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6320</CODE>
+    <DESCRIPTION L="de">Nutztierhalter für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Eleveurs de bétail, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Veetelers, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>633</CODE>
+    <DESCRIPTION L="de">Ackerbauern und Nutztierhalter (ohne ausgeprägten Schwerpunkt) für den Eigenbedarf </DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et éleveurs, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Producenten met een gemengd bedrijf, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6330</CODE>
+    <DESCRIPTION L="de">Ackerbauern und Nutztierhalter (ohne ausgeprägten Schwerpunkt) für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Agriculteurs et éleveurs, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Producenten met een gemengd bedrijf, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>634</CODE>
+    <DESCRIPTION L="de">Fischer, Jäger, Fallensteller und Sammler für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Pêcheurs, chasseurs, trappeurs et cueilleurs, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Vissers, jagers, vallenzetters en verzamelaars, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6340</CODE>
+    <DESCRIPTION L="de">Fischer, Jäger, Fallensteller und Sammler für den Eigenbedarf</DESCRIPTION>
+    <DESCRIPTION L="fr">Pêcheurs, chasseurs, trappeurs et cueilleurs, subsistance</DESCRIPTION>
+    <DESCRIPTION L="nl">Vissers, jagers, vallenzetters en verzamelaars, om te voorzien in eigen levensonderhoud</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7</CODE>
+    <DESCRIPTION L="de">Handwerks- und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de l'industrie et de l'artisanat</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>71</CODE>
+    <DESCRIPTION L="de">Bau- und Ausbaufachkräfte sowie verwandte Berufe, ausgenommen Elektriker</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés du bâtiment et assimilés, sauf électriciens</DESCRIPTION>
+    <DESCRIPTION L="nl">Bouwarbeiders, met uitzondering van elektriciens</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>711</CODE>
+    <DESCRIPTION L="de">Baukonstruktions- und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés du bâtiment (gros oeuvre) et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Bouwarbeiders ruwbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7111</CODE>
+    <DESCRIPTION L="de">Rohbaufacharbeiter im Hochbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Ouvriers polyvalents du bâtiment (y compris entrepreneurs de construction qui travaillent sur le chantier)</DESCRIPTION>
+    <DESCRIPTION L="nl">Polyvalente bouwvakkers (inclusief bouwaannemers die meewerken op de werf)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7112</CODE>
+    <DESCRIPTION L="de">Maurer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Maçons</DESCRIPTION>
+    <DESCRIPTION L="nl">Metselaars en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7113</CODE>
+    <DESCRIPTION L="de">Steinmetze, Steinspalter, -bearbeiter und Steinbildhauer</DESCRIPTION>
+    <DESCRIPTION L="fr">Fendeurs et tailleurs de pierre</DESCRIPTION>
+    <DESCRIPTION L="nl">Steenhouwers, -bewerkers en -kappers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7114</CODE>
+    <DESCRIPTION L="de">Betonierer, Betonoberflächenfertiger und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Constructeurs en béton armé, maçons ragréeurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Betonwerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7115</CODE>
+    <DESCRIPTION L="de">Zimmerleute und Bautischler</DESCRIPTION>
+    <DESCRIPTION L="fr">Charpentiers en bois et menuisiers du bâtiment</DESCRIPTION>
+    <DESCRIPTION L="nl">Timmerlui en schrijnwerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7119</CODE>
+    <DESCRIPTION L="de">Baukonstruktions- und verwandte Berufe, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés du bâtiment (gros oeuvre) et assimilés non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Bouwarbeiders ruwbouw, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>712</CODE>
+    <DESCRIPTION L="de">Ausbaufachkräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés du bâtiment (finitions) et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Bouwarbeiders afwerking</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7121</CODE>
+    <DESCRIPTION L="de">Dachdecker</DESCRIPTION>
+    <DESCRIPTION L="fr">Couvreurs et zingueurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Dakdekkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7122</CODE>
+    <DESCRIPTION L="de">Boden- und Fliesenleger</DESCRIPTION>
+    <DESCRIPTION L="fr">Poseurs de revêtements de sol et carreleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Vloerleggers en tegelzetters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7123</CODE>
+    <DESCRIPTION L="de">Stuckateure</DESCRIPTION>
+    <DESCRIPTION L="fr">Plâtriers</DESCRIPTION>
+    <DESCRIPTION L="nl">Stukadoors</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7124</CODE>
+    <DESCRIPTION L="de">Isolierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs en isolation thermique et acoustique</DESCRIPTION>
+    <DESCRIPTION L="nl">Isolatiewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7125</CODE>
+    <DESCRIPTION L="de">Glaser</DESCRIPTION>
+    <DESCRIPTION L="fr">Vitriers</DESCRIPTION>
+    <DESCRIPTION L="nl">Glaszetters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7126</CODE>
+    <DESCRIPTION L="de">Bauspengler und Sanitär- und Heizungsinstallateure</DESCRIPTION>
+    <DESCRIPTION L="fr">Plombiers et tuyauteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Loodgieters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7127</CODE>
+    <DESCRIPTION L="de">Klima- und Kälteanlagenbauer</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens-installateurs réfrigération et climatisation</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs van toestellen voor klimaatregeling en koeltechniek </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>713</CODE>
+    <DESCRIPTION L="de">Maler, Gebäudereiniger und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Ouvriers peintres, ravaleurs de façades et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Schilders, reinigers van bouwwerken en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7131</CODE>
+    <DESCRIPTION L="de">Maler und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Peintres en bâtiment et poseurs de papiers peints</DESCRIPTION>
+    <DESCRIPTION L="nl">Schilders en behangers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7132</CODE>
+    <DESCRIPTION L="de">Lackierer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Laqueurs, vernisseurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Verf- en lakspuiters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7133</CODE>
+    <DESCRIPTION L="de">Fassadenreiniger und Schornsteinfeger/Rauchfangkehrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Ravaleurs de façades et ramoneurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Reinigers van bouwwerken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>72</CODE>
+    <DESCRIPTION L="de">Metallarbeiter, Mechaniker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de la métallurgie, de la construction mécanique et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Metaalarbeiders, machinemonteurs en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>721</CODE>
+    <DESCRIPTION L="de">Blechkaltverformer, Baumetallverformer, Former (für Metallguss), Schweißer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Mouleurs de fonderie, soudeurs, tôliers-chaudronniers, monteurs de charpentes métalliques et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Plaat- en constructiewerkers, metaalgieters en lassers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7211</CODE>
+    <DESCRIPTION L="de">Former und Kernmacher (für Metallguss)</DESCRIPTION>
+    <DESCRIPTION L="fr">Mouleurs et noyauteurs de fonderie</DESCRIPTION>
+    <DESCRIPTION L="nl">Metaalgieters en kernmakers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7212</CODE>
+    <DESCRIPTION L="de">Schweißer und Brennschneider</DESCRIPTION>
+    <DESCRIPTION L="fr">Soudeurs et oxycoupeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Lassers en snijders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7213</CODE>
+    <DESCRIPTION L="de">Blechkaltverformer</DESCRIPTION>
+    <DESCRIPTION L="fr">Tôliers-chaudronniers</DESCRIPTION>
+    <DESCRIPTION L="nl">Plaatwerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7214</CODE>
+    <DESCRIPTION L="de">Baumetallverformer und Metallbauer</DESCRIPTION>
+    <DESCRIPTION L="fr">Charpentiers métalliers et monteurs de charpentes métalliques</DESCRIPTION>
+    <DESCRIPTION L="nl">Constructiewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7215</CODE>
+    <DESCRIPTION L="de">Verspannungsmonteure und Seilspleißer</DESCRIPTION>
+    <DESCRIPTION L="fr">Gréeurs et épisseurs de câbles</DESCRIPTION>
+    <DESCRIPTION L="nl">Riggers, kraanmonteurs en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>722</CODE>
+    <DESCRIPTION L="de">Grobschmiede, Werkzeugmechaniker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Forgerons, outilleurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Smeden, gereedschapsmakers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7221</CODE>
+    <DESCRIPTION L="de">Grobschmiede, Hammerschmiede und Schmiedepresser</DESCRIPTION>
+    <DESCRIPTION L="fr">Forgerons (sauf armuriers), estampeurs et conducteurs de presses à forger</DESCRIPTION>
+    <DESCRIPTION L="nl">Smeden (met uitzondering van wapensmeden), voorslagers en smeedperswerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7222</CODE>
+    <DESCRIPTION L="de">Werkzeugmechaniker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Outilleurs, serruriers et armuriers</DESCRIPTION>
+    <DESCRIPTION L="nl">Gereedschapsmakers, slotenmakers en wapensmeden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7223</CODE>
+    <DESCRIPTION L="de">Werkzeugmaschineneinrichter und -bediener</DESCRIPTION>
+    <DESCRIPTION L="fr">Régleurs et conducteurs de machines de traitement des métaux et de machines-outils</DESCRIPTION>
+    <DESCRIPTION L="nl">Instellers en bedieners van metaalbewerkingsmachines en -gereedschapswerktuigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7224</CODE>
+    <DESCRIPTION L="de">Metallpolierer, Rundschleifer und Werkzeugschärfer</DESCRIPTION>
+    <DESCRIPTION L="fr">Meuleurs, polisseurs et affûteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Metaalpolijsters, -slijpers en gereedschapslijpers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>723</CODE>
+    <DESCRIPTION L="de">Maschinenmechaniker und -schlosser</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens et réparateurs de véhicules à moteur, de moteurs d'avion, de machines agricoles et industrielles et de bicyclettes</DESCRIPTION>
+    <DESCRIPTION L="nl">Monteurs en reparateurs van motorvoertuigen, vliegtuigmotoren, industriële en landbouwmachines en fietsen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7231</CODE>
+    <DESCRIPTION L="de">Kraftfahrzeugmechaniker und -schlosser</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens et réparateurs de véhicules à moteur</DESCRIPTION>
+    <DESCRIPTION L="nl">Monteurs en reparateurs van motorvoertuigen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7232</CODE>
+    <DESCRIPTION L="de">Flugmotorenmechaniker und -schlosser</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens et réparateurs de moteurs d'avion</DESCRIPTION>
+    <DESCRIPTION L="nl">Monteurs en reparateurs van vliegtuigmotoren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7233</CODE>
+    <DESCRIPTION L="de">Landmaschinen- und Industriemaschinenmechaniker und -schlosser</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens et réparateurs de machines agricoles et industrielles</DESCRIPTION>
+    <DESCRIPTION L="nl">Monteurs en reparateurs van industriële en landbouwmachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7234</CODE>
+    <DESCRIPTION L="de">Fahrradmechaniker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Réparateurs de bicyclettes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Monteurs en reparateurs van fietsen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>73</CODE>
+    <DESCRIPTION L="de">Präzisionshandwerker, Drucker und kunsthandwerkliche Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de l'artisanat et de l'imprimerie</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden en drukkerijmedewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>731</CODE>
+    <DESCRIPTION L="de">Präzisionshandwerker und kunsthandwerkliche Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'artisanat</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7311</CODE>
+    <DESCRIPTION L="de">Präzisionsinstrumentenmacher und -instandsetzer</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens-réparateurs d'instruments de précision</DESCRIPTION>
+    <DESCRIPTION L="nl">Vervaardigers en reparateurs van precisie-instrumenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7312</CODE>
+    <DESCRIPTION L="de">Musikinstrumentenbauer und -stimmer</DESCRIPTION>
+    <DESCRIPTION L="fr">Facteurs, réparateurs et accordeurs d'instruments de musique</DESCRIPTION>
+    <DESCRIPTION L="nl">Vervaardigers, reparateurs en stemmers van muziekinstrumenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7313</CODE>
+    <DESCRIPTION L="de">Schmuckwarenhersteller und Edelmetallbearbeiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Joailliers et orfèvres</DESCRIPTION>
+    <DESCRIPTION L="nl">Juweliers en bewerkers van edele metalen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7314</CODE>
+    <DESCRIPTION L="de">Keramiker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Potiers et assimilés (produits céramiques et abrasifs)</DESCRIPTION>
+    <DESCRIPTION L="nl">Pottenbakkers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7315</CODE>
+    <DESCRIPTION L="de">Glasmacher, -schneider, -schleifer und -veredler</DESCRIPTION>
+    <DESCRIPTION L="fr">Souffleurs, mouleurs, tailleurs, meuleurs et polisseurs de verre</DESCRIPTION>
+    <DESCRIPTION L="nl">Glasblazers, -snijders, -slijpers en -polijsters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7316</CODE>
+    <DESCRIPTION L="de">Schildermaler, Dekormaler, Graveure und Ätzer</DESCRIPTION>
+    <DESCRIPTION L="fr">Peintres d'enseignes, peintres-décorateurs et graveurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Letterschilders, decoratieschilders, graveurs en etsers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7317</CODE>
+    <DESCRIPTION L="de">Kunsthandwerkliche Berufe für Holz, Korbwaren und verwandte Materialien</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'artisanat sur bois et sur des matériaux similaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden die werken met hout, vlechtwerk en dergelijke materialen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7318</CODE>
+    <DESCRIPTION L="de">Kunsthandwerkliche Berufe für Textilien, Leder und verwandte Materialien</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'artisanat sur textile, sur cuir et sur des matériaux similaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden die werken met textiel, leder en dergelijke materialen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7319</CODE>
+    <DESCRIPTION L="de">Kunsthandwerkliche Berufe, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'artisanat non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>732</CODE>
+    <DESCRIPTION L="de">Druckhandwerker</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'imprimerie</DESCRIPTION>
+    <DESCRIPTION L="nl">Drukkerijmedewerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7321</CODE>
+    <DESCRIPTION L="de">Techniker in der Druckvorstufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens d'activités de prépresse</DESCRIPTION>
+    <DESCRIPTION L="nl">Prepress technici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7322</CODE>
+    <DESCRIPTION L="de">Drucker</DESCRIPTION>
+    <DESCRIPTION L="fr">Imprimeurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Drukkers </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7323</CODE>
+    <DESCRIPTION L="de">Berufe in der Druckweiterverarbeitung und Buchbinder</DESCRIPTION>
+    <DESCRIPTION L="fr">Techniciens d'activités de postpresse et relieurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Postpress technici en boekbinders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>74</CODE>
+    <DESCRIPTION L="de">Elektriker- und Elektroniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'électricité et de l'électrotechnique</DESCRIPTION>
+    <DESCRIPTION L="nl">Elektriciens en elektronici</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>741</CODE>
+    <DESCRIPTION L="de">Elektroinstallateure und -mechaniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Installateurs et réparateurs, équipements et lignes électriques</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs en reparateurs van elektrische apparatuur en leidingen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7411</CODE>
+    <DESCRIPTION L="de">Bauelektriker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Electriciens du bâtiment et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Elektriciens (in gebouwen en dergelijke)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7412</CODE>
+    <DESCRIPTION L="de">Elektromechaniker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens et ajusteurs d'appareils électriques</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs van elektrische apparatuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7413</CODE>
+    <DESCRIPTION L="de">Elektroleitungsinstallateure und Wartungspersonal</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs et réparateurs de lignes électriques (travaux de génie civil)</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs en reparateurs van elektriciteitsleidingen (civieltechnische werken)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>742</CODE>
+    <DESCRIPTION L="de">Installateure und Mechaniker für Elektronik und Telekommunikationstechnik</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs et réparateurs, électronique et technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs en reparateurs op het gebied van elektronica en informatie- en communicatietechnologie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7421</CODE>
+    <DESCRIPTION L="de">Elektroniker und Elektronik-Servicetechniker</DESCRIPTION>
+    <DESCRIPTION L="fr">Mécaniciens et réparateurs en électronique</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs en onderhoudsmonteurs op het gebied van elektronica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7422</CODE>
+    <DESCRIPTION L="de">Installateure und Servicetechniker im Bereich Informations- und Kommunikationstechnik</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs et réparateurs, technologies de l'information et des communications</DESCRIPTION>
+    <DESCRIPTION L="nl">Installateurs en onderhoudsmonteurs op het gebied van informatie- en communicatietechnologie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>75</CODE>
+    <DESCRIPTION L="de">Berufe in der Nahrungsmittelverarbeitung, Holzverarbeitung und Bekleidungsherstellung und verwandte handwerkliche Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers de l'alimentation, du travail sur bois, de l'habillement (y compris l'ameublement) et autres métiers qualifiés de l'industrie et de l'artisanat</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden in de voedingsindustrie, de houtbewerking, de kledingindustrie (inclusief stoffering) en andere ambachtslieden </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>751</CODE>
+    <DESCRIPTION L="de">Berufe in der Nahrungsmittelverarbeitung und verwandte handwerkliche Fachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de l'alimentation et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden in de voedingsindustrie  </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7511</CODE>
+    <DESCRIPTION L="de">Fleischer, Fischhändler und -verarbeiter und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Bouchers, poissonniers et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Slagers, vishandelaren en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7512</CODE>
+    <DESCRIPTION L="de">Bäcker, Konditoren und Konfektmacher</DESCRIPTION>
+    <DESCRIPTION L="fr">Boulangers, pâtissiers et chocolatiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Bakkers, banketbakkers en chocolatiers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7513</CODE>
+    <DESCRIPTION L="de">Molkerei- und Käsereifachkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Fabricants des produits laitiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Bereiders van zuivelproducten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7514</CODE>
+    <DESCRIPTION L="de">Obst- und Gemüsekonservierer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Conserveurs de fruits, de légumes et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Bereiders van groente- en fruitconserven</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7515</CODE>
+    <DESCRIPTION L="de">Nahrungsmittel- und Getränkekoster und -klassierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Dégustateurs et classeurs de denrées alimentaires et de boissons</DESCRIPTION>
+    <DESCRIPTION L="nl">Proevers en sorteerders van voedingsmiddelen en dranken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7516</CODE>
+    <DESCRIPTION L="de">Tabakaufbereiter und Tabakwarenmacher</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de la préparation du tabac et de la fabrication des produits du tabac</DESCRIPTION>
+    <DESCRIPTION L="nl">Tabakbewerkers en vervaardigers van tabaksproducten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>752</CODE>
+    <DESCRIPTION L="de">Holzbearbeiter, Möbeltischler und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés du traitement du bois, ébénistes et régleurs et conducteurs de machines à bois</DESCRIPTION>
+    <DESCRIPTION L="nl">Houtbehandelaars, meubelmakers en instellers en bedieners van houtbewerkingsmachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7521</CODE>
+    <DESCRIPTION L="de">Holztrockner und -konservierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés du traitement du bois</DESCRIPTION>
+    <DESCRIPTION L="nl">Houtbehandelaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7522</CODE>
+    <DESCRIPTION L="de">Möbeltischler und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Ebénistes, menuisiers et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Meubelmakers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7523</CODE>
+    <DESCRIPTION L="de">Einrichter und Bediener von Holzbearbeitungsmaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Régleurs et conducteurs de machines à bois</DESCRIPTION>
+    <DESCRIPTION L="nl">Instellers en bedieners van houtbewerkingsmachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>753</CODE>
+    <DESCRIPTION L="de">Berufe der Bekleidungsherstellung und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de l'habillement et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Kleermakers, stoffeerders, schoenmakers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7531</CODE>
+    <DESCRIPTION L="de">Herren- und Damenschneider, Kürschner und Hutmacher</DESCRIPTION>
+    <DESCRIPTION L="fr">Tailleurs, couturiers, fourreurs, modistes et chapeliers</DESCRIPTION>
+    <DESCRIPTION L="nl">Kleermakers, bontwerkers en hoedenmakers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7532</CODE>
+    <DESCRIPTION L="de">Schnittmustermacher und Zuschneider</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de la coupe de vêtements et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Patroonmakers en snijders voor kleding en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7533</CODE>
+    <DESCRIPTION L="de">Näher, Sticker und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Couseurs, brodeurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Naaisters, borduursters en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7534</CODE>
+    <DESCRIPTION L="de">Polsterer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Tapissiers et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Stoffeerders en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7535</CODE>
+    <DESCRIPTION L="de">Pelzveredler, Gerber und Fellzurichter</DESCRIPTION>
+    <DESCRIPTION L="fr">Tanneurs, peaussiers et mégissiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Pelsbereiders en leerlooiers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7536</CODE>
+    <DESCRIPTION L="de">Schuhmacher und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Cordonniers et selliers</DESCRIPTION>
+    <DESCRIPTION L="nl">Schoenmakers en zadelmakers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>754</CODE>
+    <DESCRIPTION L="de">Sonstige Handwerks- und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres métiers qualifiés de l'industrie et de l'artisanat</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere ambachtslieden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7541</CODE>
+    <DESCRIPTION L="de">Taucher</DESCRIPTION>
+    <DESCRIPTION L="fr">Scaphandriers, plongeurs et travailleurs sous-marin</DESCRIPTION>
+    <DESCRIPTION L="nl">Duikers en onderwaterwerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7542</CODE>
+    <DESCRIPTION L="de">Sprengmeister und Sprengbeauftragte</DESCRIPTION>
+    <DESCRIPTION L="fr">Boutefeux</DESCRIPTION>
+    <DESCRIPTION L="nl">Schietmeesters en schiethouwers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7543</CODE>
+    <DESCRIPTION L="de">Produkttester und -klassierer (ohne Nahrungsmittel und Getränke)</DESCRIPTION>
+    <DESCRIPTION L="fr">Classeurs et essayeurs de produits (à l'exception des aliments et des boissons)</DESCRIPTION>
+    <DESCRIPTION L="nl">Sorteerders en testers (met uitzondering van voedingsmiddelen en dranken)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7544</CODE>
+    <DESCRIPTION L="de">Kammerjäger und andere Schädlingsbekämpfungsberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Fumigateurs et préposés au contrôle de la vermine et des mauvaises herbes</DESCRIPTION>
+    <DESCRIPTION L="nl">Ontsmetters en overige bestrijders van onkruid en ongedierte</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>7549</CODE>
+    <DESCRIPTION L="de">Handwerks- und verwandte Berufe, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Métiers qualifiés de l'industrie et de l'artisanat non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ambachtslieden, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen und Maschinen und Montageberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations et de machines, et ouvriers de l'assemblage</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines en installaties, assembleurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>81</CODE>
+    <DESCRIPTION L="de">Bediener stationärer Anlagen und Maschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines et d'installations fixes</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van vaste machines en installaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>811</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen für den Bergbau und die Mineralaufbereitung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations d'exploitation minière et d'extraction des minéraux</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van mijninstallaties en installaties voor de verwerking van delfstoffen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8111</CODE>
+    <DESCRIPTION L="de">Bergleute und Grubenarbeiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Mineurs et ouvriers de carrière</DESCRIPTION>
+    <DESCRIPTION L="nl">Mijnwerkers en arbeiders in steengroeven</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8112</CODE>
+    <DESCRIPTION L="de">Bediener von Mineral- und Gesteinsaufbereitungsanlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations de préparation des minerais et de la roche</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van installaties voor de verwerking van mineralen en gesteenten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8113</CODE>
+    <DESCRIPTION L="de">Tiefbohrer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Foreurs, sondeurs de puits et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Boorders van bronnen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8114</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung und Verarbeitung von Zement, Steinen und sonstigen Mineralien</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines à fabriquer du ciment, de la pierre et d'autres produits minéraux</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van cement, stenen en andere minerale producten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>812</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen in der Metallerzeugung, -umformung und -veredlung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations de transformation et de traitement superficiel des métaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van metaalbewerkings- en metaalverwerkingsinstallaties en van installaties voor de oppervlaktebehandeling van metalen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8121</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen in der Metallerzeugung und -umformung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations de transformation et de traitement des métaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van metaalbewerkings- en metaalverwerkingsinstallaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8122</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen zur Metallveredlung, Plattierung und Beschichtung von Metallen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations de traitement superficiel des métaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van installaties voor het bekleden of voor andere oppervlaktebehandelingen van metalen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>813</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen und Maschinen für chemische und fotografische Erzeugnisse</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations et de machines pour la fabrication des produits chimiques et photographiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines en installaties voor de vervaardiging van chemische en fotografische producten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8131</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen und Maschinen für chemische Erzeugnisse</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations et de machines pour la fabrication des produits chimiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines en installaties voor de vervaardiging van chemische producten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8132</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen für fotografische Erzeugnisse</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication des produits photographiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van fotografische producten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>814</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Gummi-, Kunststoff- und Papierwaren</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication de produits en caoutchouc, en matières plastiques et en papeterie</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van producten van rubber, kunststof of papier </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8141</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Gummiwaren</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication des produits en caoutchouc</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van producten van rubber</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8142</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Kunststoffwaren</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication de produits en matières plastiques</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van producten van kunststof</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8143</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Papierwaren</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines de papeterie</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van producten van papier</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>815</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Textil-, Pelz- und Lederwaren</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication de produits textiles et d'articles en fourrure et en cuir</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van producten van textiel, bont en leer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8151</CODE>
+    <DESCRIPTION L="de">Bediener von Spinnstoffaufbereitungs-, Spinn- und Spulmaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines à préparer les fibres, à filer et à bobiner</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor het bereiden van spinvezels, het spinnen en het opwinden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8152</CODE>
+    <DESCRIPTION L="de">Bediener von Web-, Strick- und Wirkmaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de métiers mécaniques à tisser et à tricoter</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van weefgetouwen en breimachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8153</CODE>
+    <DESCRIPTION L="de">Bediener von Nähmaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines à coudre</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van naaimachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8154</CODE>
+    <DESCRIPTION L="de">Bediener von Bleich- und Färbemaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines à blanchir, à teindre et à nettoyer les tissus</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieningspersoneel van machines voor het bleken, het verven en het reinigen van weefsels</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8155</CODE>
+    <DESCRIPTION L="de">Bediener von Pelz- und Lederzurichtungs- und -vorbereitungsmaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines à préparer les fourrures et le cuir</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor het bereiden van bont en leer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8156</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Schuhherstellung und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication des chaussures et d'autres articles en cuir</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van schoeisel en andere lederwaren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8157</CODE>
+    <DESCRIPTION L="de">Bediener von Wäschereimaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines de blanchisserie</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van wasserijmachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8159</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Textil-, Pelz- und Lederwaren, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication de produits textiles et d'articles en fourrure et en cuir, non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van producten van textiel, bont en leer, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>816</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Nahrungs- und Genussmitteln</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication de denrées alimentaires et de produits connexes</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van voedings- en genotmiddelen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8160</CODE>
+    <DESCRIPTION L="de">Bediener von Maschinen zur Herstellung von Nahrungs- und Genussmitteln</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines pour la fabrication de denrées alimentaires et de produits connexes</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van voedings- en genotmiddelen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>817</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen zur Holzaufbereitung und Papierherstellung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations pour la fabrication du papier et pour le travail du bois</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van installaties voor de houtbewerking en de vervaardiging van papier</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8171</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen zur Zellstoff- und Papierherstellung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations pour la fabrication du papier et de la pâte à papier</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van machines voor de vervaardiging van papierpulp en papier</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8172</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen zur Holzaufbereitung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations pour le travail du bois</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van installaties voor de houtbewerking</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>818</CODE>
+    <DESCRIPTION L="de">Bediener sonstiger stationärer Anlagen und Maschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres conducteurs de machines et d'installations fixes</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van andere vaste machines en installaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8181</CODE>
+    <DESCRIPTION L="de">Bediener von Anlagen zur Glas- und Keramikherstellung</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'installations de verrerie et de céramique</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van installaties voor de vervaardiging van glas en aardewerk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8182</CODE>
+    <DESCRIPTION L="de">Bediener von Dampfmaschinen und -kesseln</DESCRIPTION>
+    <DESCRIPTION L="fr">Chauffeurs de machines à vapeur et de chaudières</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van stoommachines en stoomketels</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8183</CODE>
+    <DESCRIPTION L="de">Bediener von Verpackungs-, Abfüll- und Etikettiermaschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines d'emballage, d'embouteillage et d'étiquetage</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van verpakkings-, bottel- en etiketteermachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8189</CODE>
+    <DESCRIPTION L="de">Bediener stationärer Anlagen und Maschinen, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de machines et d'installations fixes non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van vaste machines en installaties, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>82</CODE>
+    <DESCRIPTION L="de">Montageberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Ouvriers de l'assemblage</DESCRIPTION>
+    <DESCRIPTION L="nl">Assembleurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>821</CODE>
+    <DESCRIPTION L="de">Montageberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Ouvriers de l'assemblage</DESCRIPTION>
+    <DESCRIPTION L="nl">Assembleurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8211</CODE>
+    <DESCRIPTION L="de">Berufe der Montage von mechanischen Bauteilen</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs de parties mécaniques pour des moteurs, turbines, véhicules à moteur et avions</DESCRIPTION>
+    <DESCRIPTION L="nl">Assembleurs van mechanische onderdelen van motoren, turbines, motorvoertuigen en vliegtuigen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8212</CODE>
+    <DESCRIPTION L="de">Berufe der Montage von elektrischen und elektronischen Geräten</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs d'appareils électriques et électroniques</DESCRIPTION>
+    <DESCRIPTION L="nl">Assembleurs van elektrische en elektronische apparatuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8219</CODE>
+    <DESCRIPTION L="de">Montageberufe, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Monteurs et assembleurs non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Assembleurs, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>83</CODE>
+    <DESCRIPTION L="de">Fahrzeugführer und Bediener mobiler Anlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de véhicules et d'engins lourds de levage et de manœuvre</DESCRIPTION>
+    <DESCRIPTION L="nl">Bestuurders van voertuigen en bedieners van mobiele installaties</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>831</CODE>
+    <DESCRIPTION L="de">Lokomotivführer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de locomotives et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Treinmachinisten en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8311</CODE>
+    <DESCRIPTION L="de">Lokomotivführer</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de locomotives</DESCRIPTION>
+    <DESCRIPTION L="nl">Treinmachinisten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8312</CODE>
+    <DESCRIPTION L="de">Bediener von Sicherungs-, Signal- und Leittechnik im Schienennetzbetrieb</DESCRIPTION>
+    <DESCRIPTION L="fr">Serre-freins, aiguilleurs et agents de manœuvre</DESCRIPTION>
+    <DESCRIPTION L="nl">Remmers, sein- en wisselwachters</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>832</CODE>
+    <DESCRIPTION L="de">Kraftfahrzeugführer</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'automobiles, de camionnettes et de motocycles</DESCRIPTION>
+    <DESCRIPTION L="nl">Chauffeurs van auto's en bestelwagens en bestuurders van motorrijwielen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8321</CODE>
+    <DESCRIPTION L="de">Kraftradfahrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de motocycles</DESCRIPTION>
+    <DESCRIPTION L="nl">Bestuurders van motorrijwielen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8322</CODE>
+    <DESCRIPTION L="de">Personenkraftwagen-, Taxi-, Kleintransporter- und Kleinbusfahrer</DESCRIPTION>
+    <DESCRIPTION L="fr">Chauffeurs de taxi et conducteurs d'automobiles et de camionnettes</DESCRIPTION>
+    <DESCRIPTION L="nl">Chauffeurs van auto's, taxi's en bestelwagens</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>833</CODE>
+    <DESCRIPTION L="de">Fahrer schwerer Lastkraftwagen und Busse </DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de poids lourds et d'autobus</DESCRIPTION>
+    <DESCRIPTION L="nl">Vrachtwagen- en buschauffeurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8331</CODE>
+    <DESCRIPTION L="de">Busfahrer und Straßenbahnführer</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'autobus et de tramways</DESCRIPTION>
+    <DESCRIPTION L="nl">Buschauffeurs en trambestuurders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8332</CODE>
+    <DESCRIPTION L="de">Fahrer schwerer Lastkraftwagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de poids lourds et de camions</DESCRIPTION>
+    <DESCRIPTION L="nl">Vrachtwagenchauffeurs</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>834</CODE>
+    <DESCRIPTION L="de">Bediener mobiler Anlagen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de matériels et engins mobiles comme engins agricoles et forestiers, engins de terrassement, grues, chariots élévateurs et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van mobiele installaties zoals land- en bosbouwmachines, grondverzetmachines, kranen, heftrucks en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8341</CODE>
+    <DESCRIPTION L="de">Führer von mobilen land- und forstwirtschaftlichen Maschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'engins mobiles agricoles et forestiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van mobiele land- en bosbouwmachines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8342</CODE>
+    <DESCRIPTION L="de">Führer von Erdbewegungs- und verwandten Maschinen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs d'engins de terrassement et de matériels similaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Bedieners van grondverzetmachines en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8343</CODE>
+    <DESCRIPTION L="de">Kranführer, Aufzugmaschinisten und Bediener verwandter Hebeeinrichtungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de grues, d'engins de levage divers et de matériels similaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Kraandrijvers en bedieners van takels en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8344</CODE>
+    <DESCRIPTION L="de">Gabelstaplerfahrer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de chariots élévateurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Heftruckbestuurders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>835</CODE>
+    <DESCRIPTION L="de">Deckspersonal auf Schiffen und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Matelots de pont et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Dekpersoneel op schepen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>8350</CODE>
+    <DESCRIPTION L="de">Deckspersonal auf Schiffen und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Matelots de pont et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Dekpersoneel op schepen en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9</CODE>
+    <DESCRIPTION L="de">Hilfsarbeitskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions élémentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Elementaire beroepen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>91</CODE>
+    <DESCRIPTION L="de">Reinigungspersonal und Hilfskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides de ménage</DESCRIPTION>
+    <DESCRIPTION L="nl">Huishoudelijke hulpen en schoonmakers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>911</CODE>
+    <DESCRIPTION L="de">Reinigungspersonal und Hilfskräfte in Privathaushalten, Hotels und Büros</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides de ménage et agents d'entretien à domicile et dans les hôtels et bureaux</DESCRIPTION>
+    <DESCRIPTION L="nl">Huishoudelijke hulpen en schoonmakers in particuliere huishoudens, hotels en kantoren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9111</CODE>
+    <DESCRIPTION L="de">Reinigungspersonal und Hilfskräfte in Privathaushalten</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides de ménage à domicile</DESCRIPTION>
+    <DESCRIPTION L="nl">Huishoudelijke hulpen en schoonmakers in particuliere huishoudens</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9112</CODE>
+    <DESCRIPTION L="de">Reinigungspersonal und Hilfskräfte in Büros, Hotels und anderen Einrichtungen</DESCRIPTION>
+    <DESCRIPTION L="fr">Agents d'entretien dans les bureaux, les hôtels et autres établissements</DESCRIPTION>
+    <DESCRIPTION L="nl">Schoonmakers in hotels, kantoren en dergelijke accomodatie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>912</CODE>
+    <DESCRIPTION L="de">Reinigungspersonal für Fahrzeuge, Fenster, Wäsche und sonstige manuelle Reinigungsberufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Laveurs de véhicules et de vitres, laveurs de linge et autres nettoyeurs manuels pour le nettoyage de tapis, piscines, tours de refroidissement, graffitis et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Autowassers, ruitenwassers, wasserijpersoneel en andere handarbeiders voor het reinigen van tapijten, zwembaden, koeltorens, graffiti en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9121</CODE>
+    <DESCRIPTION L="de">Handwäscher und Handbügler</DESCRIPTION>
+    <DESCRIPTION L="fr">Laveurs et repasseurs de linge à la main</DESCRIPTION>
+    <DESCRIPTION L="nl">Personeel voor het wassen en strijken met de hand</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9122</CODE>
+    <DESCRIPTION L="de">Fahrzeugreiniger</DESCRIPTION>
+    <DESCRIPTION L="fr">Laveurs de véhicules</DESCRIPTION>
+    <DESCRIPTION L="nl">Autowassers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9123</CODE>
+    <DESCRIPTION L="de">Fensterputzer</DESCRIPTION>
+    <DESCRIPTION L="fr">Laveurs de vitres</DESCRIPTION>
+    <DESCRIPTION L="nl">Ruitenwassers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9129</CODE>
+    <DESCRIPTION L="de">Sonstiges Reinigungspersonal</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres nettoyeurs manuels pour le nettoyage de tapis, piscines, tours de refroidissement, graffiti et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere handarbeiders voor het reinigen van tapijten, zwembaden, koeltorens, graffiti en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>92</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in der Land- und Forstwirtschaft und Fischerei</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres de l'agriculture, de la pêche et de la sylviculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de land- en bosbouw en de visserij</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>921</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in der Land- und Forstwirtschaft und Fischerei</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres de l'agriculture, de la pêche et de la sylviculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de land- en bosbouw en de visserij</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9211</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Ackerbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres de l'agriculture</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de akkerbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9212</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in der Tierhaltung</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres de l'élevage</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de veeteelt</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9213</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in Ackerbau und Tierhaltung (ohne ausgeprägten Schwerpunkt)</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres de l'agriculture et de l'élevage</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders op gemengde bedrijven</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9214</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Gartenbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres, cultures maraîchères et horticulture</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de tuinbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9215</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in der Forstwirtschaft</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres forestiers</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de bosbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9216</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in der Fischerei und Aquakultur</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres pêcheurs et aquaculteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de visserij en de visteelt</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>93</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Bergbau, im Bau, bei der Herstellung von Waren und im Transportwesen </DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres des mines, du bâtiment et du génie civil, des industries manufacturières et des transports</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de mijnbouw, de bouwnijverheid, de civieltechnische werken, de industrie en het transport</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>931</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Bergbau und im Bau</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres des mines, du bâtiment et du génie civil  </DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de mijnbouw, de bouwnijverheid en civieltechnische werken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9311</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Bergbau und in der Gewinnung von Steinen und Erden</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres des mines et des carrières</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de mijnbouw en in steengroeven</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9312</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Tiefbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres du génie civil</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de weg- en waterbouw en andere civieltechnische werken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9313</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter im Hochbau</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres du bâtiment</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de burgerlijke en utiliteitsbouw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>932</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter bei der Herstellung von Waren</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres des industries manufacturières</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de industrie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9321</CODE>
+    <DESCRIPTION L="de">Verpacker</DESCRIPTION>
+    <DESCRIPTION L="fr">Emballeurs à la main et autres manœuvres des industries manufacturières</DESCRIPTION>
+    <DESCRIPTION L="nl">Inpakkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9329</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter bei der Herstellung von Waren, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres des industries manufacturières non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders in de industrie, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>933</CODE>
+    <DESCRIPTION L="de">Hilfsarbeiter in Transport und Lagerei</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres des transports et de l'entreposage</DESCRIPTION>
+    <DESCRIPTION L="nl">Ongeschoolde arbeiders op het gebied van transport en opslag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9331</CODE>
+    <DESCRIPTION L="de">Führer von Handwagen und pedalbetriebenen Fahrzeugen</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de véhicules à bras et à pédales</DESCRIPTION>
+    <DESCRIPTION L="nl">Bestuurders van (bak)fietsen en handkarren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9332</CODE>
+    <DESCRIPTION L="de">Führer von Fahrzeugen und Maschinen mit Zugtierantrieb</DESCRIPTION>
+    <DESCRIPTION L="fr">Conducteurs de véhicules et de machines à traction animale</DESCRIPTION>
+    <DESCRIPTION L="nl">Bestuurders van door dieren getrokken voertuigen en machines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9333</CODE>
+    <DESCRIPTION L="de">Frachtarbeiter und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Manutentionnaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Laders en lossers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9334</CODE>
+    <DESCRIPTION L="de">Regalbetreuer und -auffüller</DESCRIPTION>
+    <DESCRIPTION L="fr">Garnisseurs de rayons</DESCRIPTION>
+    <DESCRIPTION L="nl">Vakkenvullers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>94</CODE>
+    <DESCRIPTION L="de">Hilfskräfte in der Nahrungsmittelzubereitung</DESCRIPTION>
+    <DESCRIPTION L="fr">Collaborateurs en restauration rapide</DESCRIPTION>
+    <DESCRIPTION L="nl">Medewerkers sneldienstrestauratie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>941</CODE>
+    <DESCRIPTION L="de">Hilfskräfte in der Nahrungsmittelzubereitung</DESCRIPTION>
+    <DESCRIPTION L="fr">Collaborateurs en restauration rapide</DESCRIPTION>
+    <DESCRIPTION L="nl">Medewerkers sneldienstrestauratie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9411</CODE>
+    <DESCRIPTION L="de">Zubereiter von Fast Food und anderen Imbissen</DESCRIPTION>
+    <DESCRIPTION L="fr">Cuisiniers en restauration rapide (sandwiches, hamburgers, pizzas et assimilés)</DESCRIPTION>
+    <DESCRIPTION L="nl">Bereiders van fastfood (broodjes, hamburgers, pizza's en dergelijke)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9412</CODE>
+    <DESCRIPTION L="de">Küchenhilfen</DESCRIPTION>
+    <DESCRIPTION L="fr">Aides de cuisine</DESCRIPTION>
+    <DESCRIPTION L="nl">Keukenhulpen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>95</CODE>
+    <DESCRIPTION L="de">Straßenhändler und auf der Straße arbeitende Dienstleistungskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs ambulants et autres travailleurs des petits métiers des rues et assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Straatverkopers en op straat uitgeoefende dienstverlenende beroepen </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>951</CODE>
+    <DESCRIPTION L="de">Auf der Straße arbeitende Dienstleistungskräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Travailleurs des petits métiers des rues comme cireurs, coursiers, distributeurs de dépliants et assimilés </DESCRIPTION>
+    <DESCRIPTION L="nl">Op straat uitgeoefende dienstverlenende beroepen zoals schoenpoetsers, loopjongens, verspreiders van flyers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9510</CODE>
+    <DESCRIPTION L="de">Auf der Straße arbeitende Dienstleistungskräfte und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Travailleurs des petits métiers des rues comme des cireurs, coursiers, distributeurs de dépliants et assimilés </DESCRIPTION>
+    <DESCRIPTION L="nl">Op straat uitgeoefende dienstverlenende beroepen zoals schoenpoetsers, loopjongens, verspreiders van flyers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>952</CODE>
+    <DESCRIPTION L="de">Straßenverkäufer (ohne Lebensmittel)</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs ambulants (à l'exception de l'alimentation)</DESCRIPTION>
+    <DESCRIPTION L="nl">Straathandelaars (met uitzondering van voedingsmiddelen)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9520</CODE>
+    <DESCRIPTION L="de">Straßenverkäufer (ohne Lebensmittel)</DESCRIPTION>
+    <DESCRIPTION L="fr">Vendeurs ambulants (à l'exception de l'alimentation)</DESCRIPTION>
+    <DESCRIPTION L="nl">Straathandelaars (met uitzondering van voedingsmiddelen)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>96</CODE>
+    <DESCRIPTION L="de">Abfallentsorgungsarbeiter und sonstige Hilfsarbeitskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Eboueurs et autres travailleurs non qualifiés</DESCRIPTION>
+    <DESCRIPTION L="nl">Vuilnisophalers en -verwerkers en andere elementaire beroepen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>961</CODE>
+    <DESCRIPTION L="de">Abfallentsorgungsarbeiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Eboueurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Vuilnisophalers en -verwerkers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9611</CODE>
+    <DESCRIPTION L="de">Arbeiter in der Abfall- und Wertstoffsammlung</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres, enlèvement des ordures et matériel recyclable</DESCRIPTION>
+    <DESCRIPTION L="nl">Vuilnisophalers en ophalers van afval bestemd voor recyclage</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9612</CODE>
+    <DESCRIPTION L="de">Arbeiter in der Abfallsortierung</DESCRIPTION>
+    <DESCRIPTION L="fr">Trieurs de déchets</DESCRIPTION>
+    <DESCRIPTION L="nl">Afvalsorteerders</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9613</CODE>
+    <DESCRIPTION L="de">Straßenkehrer und verwandte Berufe</DESCRIPTION>
+    <DESCRIPTION L="fr">Balayeurs et manœuvres assimilés</DESCRIPTION>
+    <DESCRIPTION L="nl">Straatvegers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>962</CODE>
+    <DESCRIPTION L="de">Sonstige Hilfsarbeitskräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres professions élémentaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere elementaire beroepen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9621</CODE>
+    <DESCRIPTION L="de">Boten, Paketauslieferer und Gepäckträger</DESCRIPTION>
+    <DESCRIPTION L="fr">Messagers, porteurs de bagages et livreurs de colis</DESCRIPTION>
+    <DESCRIPTION L="nl">Boden, kruiers, krantenbezorgers en dergelijke</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9622</CODE>
+    <DESCRIPTION L="de">Gelegenheitsarbeiter</DESCRIPTION>
+    <DESCRIPTION L="fr">Manœuvres polyvalents</DESCRIPTION>
+    <DESCRIPTION L="nl">Manusjes-van-alles</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9623</CODE>
+    <DESCRIPTION L="de">Zählerableser, Automatenbefüller und -kassierer</DESCRIPTION>
+    <DESCRIPTION L="fr">Encaisseurs de distributeurs automatiques à prépaiement et releveurs de compteurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Meteropnemers en geldophalers verkoops- en parkeerautomaten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9624</CODE>
+    <DESCRIPTION L="de">Wasserträger und Brennholzsammler</DESCRIPTION>
+    <DESCRIPTION L="fr">Porteurs d'eau et ramasseurs de bois de feu</DESCRIPTION>
+    <DESCRIPTION L="nl">Waterdragers en brandhoutverzamelaars</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>9629</CODE>
+    <DESCRIPTION L="de">Hilfsarbeitskräfte, anderweitig nicht genannt</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions élémentaires non classés ailleurs</DESCRIPTION>
+    <DESCRIPTION L="nl">Elementaire beroepen, niet elders geclassificeerd</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>0</CODE>
+    <DESCRIPTION L="de">Angehörige der regulären Streitkräfte</DESCRIPTION>
+    <DESCRIPTION L="fr">Professions militaires</DESCRIPTION>
+    <DESCRIPTION L="nl">Beroepen bij de strijdkrachten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>01</CODE>
+    <DESCRIPTION L="de">Offiziere in regulären Streitkräften</DESCRIPTION>
+    <DESCRIPTION L="fr">Officiers des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Officieren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>011</CODE>
+    <DESCRIPTION L="de">Offiziere in regulären Streitkräften</DESCRIPTION>
+    <DESCRIPTION L="fr">Officiers des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Officieren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>0110</CODE>
+    <DESCRIPTION L="de">Offiziere in regulären Streitkräften</DESCRIPTION>
+    <DESCRIPTION L="fr">Officiers des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Officieren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>02</CODE>
+    <DESCRIPTION L="de">Unteroffiziere in regulären Streitkräften </DESCRIPTION>
+    <DESCRIPTION L="fr">Sous-officiers des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderofficieren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>021</CODE>
+    <DESCRIPTION L="de">Unteroffiziere in regulären Streitkräften </DESCRIPTION>
+    <DESCRIPTION L="fr">Sous-officiers des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderofficieren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>0210</CODE>
+    <DESCRIPTION L="de">Unteroffiziere in regulären Streitkräften</DESCRIPTION>
+    <DESCRIPTION L="fr">Sous-officiers des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Onderofficieren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>03</CODE>
+    <DESCRIPTION L="de">Angehörige der regulären Streitkräfte in sonstigen Rängen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres membres des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere rangen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>031</CODE>
+    <DESCRIPTION L="de">Angehörige der regulären Streitkräfte in sonstigen Rängen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres membres des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere rangen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>0310</CODE>
+    <DESCRIPTION L="de">Angehörige der regulären Streitkräfte in sonstigen Rängen</DESCRIPTION>
+    <DESCRIPTION L="fr">Autres membres des forces armées</DESCRIPTION>
+    <DESCRIPTION L="nl">Andere rangen</DESCRIPTION>
+  </VALUE>
+</ISCO-08>
