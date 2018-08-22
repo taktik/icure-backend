@@ -80,6 +80,14 @@ class ProcedureImporter extends Importer{
                     if (it[k].text().length()) links << "SNOMED|${it[k].text().replaceAll(/ ?\|.+/,'')}|1".toString()
                 }
 
+                for (String k in ['CD-VACCINEINDICATION']) {
+                    if (it[k].text().length()) it[k].text().split(',').each { links << "CD-VACCINEINDICATION|${it}|1".toString() }
+                }
+
+                for (String k in ['CD-HCPARTY']) {
+                    if (it[k].text().length()) it[k].text().split(',').each { links << "CD-HCPARTY|${it}|1".toString() }
+                }
+
                 for (String k in ['NIHII_Nurse_WK_HB_SEM_DOM','NIHII_Nurse_WK_CZ_SEM_MM','NIHII_Nurse_WE_HB_WE_DOM']) {
                     if (it[k].text().length()) links << "INAMI-RIZIV|${it[k].text().replaceAll(/ ?\|.+/,'')}|1".toString()
                 }
