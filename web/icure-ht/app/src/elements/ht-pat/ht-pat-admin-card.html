@@ -967,7 +967,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                         if(careProvider.Invite === true){
                             this.$['ht-invite-hcp-link'].open()
-                            this.invitedHcpLink = window.location.origin+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                            this.invitedHcpLink = window.location.origin+window.location.pathname+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
                         }
                     })
                 })
