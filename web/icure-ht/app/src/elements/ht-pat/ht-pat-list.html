@@ -57,20 +57,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .horizontal paper-input {
-                    height: 90px;
                     @apply --padding-right-left-16
                 }
 
                 .horizontal paper-input-container {
-                    height: 90px;
-                    padding-bottom : 22px;
-                    @apply --padding-right-left-16
+                    @apply --padding-right-left-16;
+                    padding:0;
+                }
+
+                .horizontal paper-menu-button{
+                    padding:0;
                 }
 
                 .horizontal vaadin-date-picker {
-                    height: 90px;
-                    padding-bottom: 0px;
-                    @apply --padding-right-left-16
+                    @apply --padding-right-left-16;
+                    padding-top: 4px;
                 }
 
                 vaadin-grid.material {
@@ -151,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .show-all-patients {
-                    left: calc(20% + 16px);
+                    left: calc(20% + 32px);
                     position: absolute;
                     bottom: 20px;
                 }
@@ -265,10 +266,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .second-filter-panel {
-                    /*width:30%;*/
                     height: 100%;
                     background: var(--app-background-color);
-                    /*position:fixed;*/
                     top: 64px;
                     left: 20%;
                     @apply --shadow-elevation-2dp;
@@ -277,8 +276,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     grid-row: 1 / 1;
 
                     z-index: 2;
-                    padding: 5px;
-
+                    @apply --padding-right-left-32;
                 }
 
                 .display-left-menu {
@@ -322,8 +320,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .deleteFilterIcon {
-                    float: right;
-                    color: var(--app-secondary-color);
+                    color: var(--app-text-color-disabled);
+                }
+                .deleteFilterIcon:hover {
+                    color: var(--app-text-color);
+                    transition: all 0.24s ease-in-out;
+                }
+                .deleteFilterIcon iron-icon{
+                    height:14px;
+                    width: 14px;
                 }
 
                 paper-item.iron-selected {
@@ -370,7 +375,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 1000px;
                 }
 
-                #inputGender{
+                #inputGender {
                     border:none;
                     width: calc(100% - 24px);
                     outline: 0;
@@ -378,15 +383,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-size: var(--form-font-size);
                 }
 
-                #duplicate-list{
+                #duplicate-list {
                     max-height: 200px;
+                }
+                .filter-panel-title {
+                    display:block;
+                    @apply --paper-font-body2;
+                    @apply --padding-32;
+                    padding-top: 8px;
+                    padding-bottom: 8px;
+                    margin: 0;
+                }
+
+                .modal-title{
+                    background: var(--app-background-color-dark);
+                    margin-top: 0;
+                    margin-bottom: 0;
+                    padding: 16px 24px;
+                }
+                .modal-button{
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    color: var(--app-text-color);
+                    font-weight: 400;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    padding: 10px 1.2em;
+                }
+
+                .modal-button--save{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-secondary-color);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+                }
+                paper-dialog > div {
+                    margin-top:0;
                 }
             </style>
         </custom-style>
 
         <div class="container">
             <div class="first-filter-panel">
-                <h4>Filtres sauvegardés</h4>
+                <h4 class="filter-panel-title">Filtres sauvegardés</h4>
                 <div class="submenus-container">
                     <paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]"
                                    focused on-selected-values-changed="selectFilter" multi>
@@ -595,8 +634,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
@@ -604,12 +643,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-dialog id="saveFilterDialog">
             <h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
             <div>
-                <vaadin-text-field class="filterNameInput" label="Filter name"
-                                   value="{{filterName}}"></vaadin-text-field>
+                <paper-input class="filterNameInput" label="Filter name" value="{{filterName}}"></paper-input>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmFilter">[[localize('cre','Create',language)]]
                 </paper-button>
             </div>
         </paper-dialog>
