@@ -20,13 +20,16 @@ package org.taktik.icure.entities.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /** Created by aduchate on 05/07/13, 20:48 */
 

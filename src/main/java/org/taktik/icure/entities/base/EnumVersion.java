@@ -18,7 +18,6 @@
 
 package org.taktik.icure.entities.base;
 
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 

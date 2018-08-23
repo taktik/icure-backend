@@ -18,20 +18,20 @@
 
 package org.taktik.icure.entities.embed;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Joiner;
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.jetbrains.annotations.Nullable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Joiner;
-import org.apache.commons.lang.StringUtils;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Medication implements Serializable {
 	public static final String REIMBURSED = "REIMBURSED";
 

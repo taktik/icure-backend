@@ -17,10 +17,12 @@
  */
 
 package org.taktik.icure.entities.embed;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DatabaseSynchronization implements Serializable {
 	protected String source;
 	protected String target;

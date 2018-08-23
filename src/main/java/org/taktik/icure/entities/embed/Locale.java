@@ -18,8 +18,12 @@
 
 package org.taktik.icure.entities.embed;
 
-/** Created by aduchate on 06/07/13, 09:59 */;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+/** Created by aduchate on 06/07/13, 09:59 */
+;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Locale {
   static String SPANISH = "es";
   static String ENGLISH = "en";

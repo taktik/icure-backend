@@ -580,7 +580,8 @@
 			}
 
 			_popupDataSource(d, options) {
-				return d && (d.codeTypes && d.codeTypes.length || d.editor.dataSource) ? { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d.editor.dataSource || d.codeTypes && { source: "codes", types: d.codeTypes }, text) || Promise.resolve([]), get: id => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(d, null, id) || Promise.resolve(null) } : null;
+			    const ds = d.editor.dataSource || d.codeTypes && { source: "codes", types: d.codeTypes }
+				return d && (d.codeTypes && d.codeTypes.length || d.editor.dataSource) ? { filter: text => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(ds, text) || Promise.resolve([]), get: id => this.dataProvider && this.dataProvider.filter && this.dataProvider.filter(ds, null, id) || Promise.resolve(null) } : null;
 			}
 
 		}

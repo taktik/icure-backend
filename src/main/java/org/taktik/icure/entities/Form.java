@@ -19,9 +19,8 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import org.taktik.icure.entities.base.StoredICureDocument;
 
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.List;
  */
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Form extends StoredICureDocument {
 	protected String descr;
 

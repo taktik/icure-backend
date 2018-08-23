@@ -112,6 +112,16 @@ public class DocumentLogicImpl extends GenericLogicImpl<Document, DocumentDAO> i
 	}
 
 	@Override
+	public List<Document> getDocuments(List<String> documentIds) {
+		return documentDAO.getList(documentIds);
+	}
+
+	@Override
+	public List<Document> updateDocuments(List<Document> documents) {
+		return documentDAO.save(documents);
+	}
+
+	@Override
 	protected DocumentDAO getGenericDAO() {
 		return documentDAO;
 	}

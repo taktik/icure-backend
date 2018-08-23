@@ -18,16 +18,17 @@
 
 package org.taktik.icure.entities.embed;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Created by aduchate on 29/03/13, 18:37
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Delegation implements Serializable {
     //This is in no way the owner of a piece of date (patient, contact). It is the owner of the delegation.
     String owner; // owner id

@@ -102,6 +102,11 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	}
 
 	@Override
+	public List<HealthElement> getHealthElements(List<String> healthElementIds) {
+		return healthElementDAO.getList(healthElementIds);
+	}
+
+	@Override
 	public List<HealthElement> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
 		return healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys);
 	}

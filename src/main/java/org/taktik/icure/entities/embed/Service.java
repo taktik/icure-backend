@@ -18,29 +18,27 @@
 
 package org.taktik.icure.entities.embed;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Services are created in the course a contact. Information like temperature, blood pressure and so on.
  */
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Service implements ICureDocument, Serializable, Comparable<Service> {
 	@NotNull
 	protected String id; //Two version of the same service in two separate contacts have the same id
