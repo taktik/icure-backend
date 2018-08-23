@@ -232,6 +232,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
+            .ehbox-notification-panel {
+                position: fixed;
+                top: 50%;
+                right: 0;
+                z-index: 1000;
+                color: white;
+                font-size: 13px;
+                background: rgba(167, 255, 154, 0.55);
+                height: 48px;
+                padding: 0 8px 0 12px;
+                border-radius: 3px 0 0 3px;
+                width: 0;
+                opacity: 0;
+            }
+
             .notification-panel {
                 position: fixed;
                 top: 50%;
@@ -319,6 +334,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+
             @media (max-width: 768px) {
                 paper-button {
                     margin-right: 10px;
@@ -374,7 +390,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         </style>
 
-		<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+		<!--<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>-->
+		<icc-api id="api" host="/rest/v1" fhc-host="http://localhost:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
@@ -555,10 +572,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<h4>[[invitedHcpLink]]</h4>
 		</paper-dialog>
 
+        <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
+            <h3>[[ehboxWebWorkerMessage]]</h3>
+        </paper-item>
+
 	</template>
 
 	<script>
         import moment from 'moment/src/moment'
+        import Worker from 'worker-loader!./workers/ehboxWebworker.js';
 
         class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	        static get is() { return 'ht-app'}
@@ -653,6 +675,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 },
                 connectionTime: {
                     type: Number
+                },
+                ehboxWebWorkerMessage:{
+				    type: String,
+                    value: ""
+                },
+                EhboxCheckingActive:{
+				    type: Boolean,
+                    value: false
+                },
+                worker:{
+				    type: Worker
                 }
 			}}
 
@@ -721,6 +754,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					}
                 }, period)
 			}
+
+			_inboxMessageCheck(period = 10000){
+                if(this.EhboxCheckingActive === false) {
+                  this.set('EhboxCheckingActive', true)
+                    clearInterval(period)
+                    setInterval(() => {
+                        if (this.api.tokenId) {
+                            this.checkEhboxMessage()
+                        }
+                    }, period)
+                  }
+            }
 
 			_routePageChanged(page) {
 				if (page === 'logout') {
@@ -889,6 +934,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						}
 					}
                     this._timeCheck()
+                    //this._inboxMessageCheck()
 				}).catch(function (e) {
 					this.authenticated = false
 					sessionStorage.removeItem('auth')
@@ -952,6 +998,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					})
 				})
 			}
+
+            checkEhboxMessage() {
+
+                this.$.ehboxInboxMessage.classList.remove('notification')
+
+                this.worker = new Worker()
+
+                this.worker.postMessage({action: "loadEhboxMessage", tokenId: this.api.tokenId, keystoreId: this.api.keystoreId, user: this.user})
+
+                this.worker.onmessage = function(e){
+                    //this.set('ehboxWebWorkerMessage',e.data)
+                    //this.$.ehboxInboxMessage.classList.add('notification')
+                    console.log("Le worker à repondu " + e.data.message)
+
+                }
+
+            }
 		}
 
         customElements.define(HtApp.is, HtApp);
