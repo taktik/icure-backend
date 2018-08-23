@@ -632,7 +632,7 @@
 					getDateValue: (label, original) => {
 						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
 						const c = s && s.svc && !s.svc.endOfLife && this.localizedContent(s.svc, this.language);
-						return c && c.instantValue;
+						return c && (c.fuzzyDateValue || c.instantValue);
 					},
 					getBooleanValue: (label, original) => {
 						const s = !original ? self.getServicesLineForContact(label)[0] : self.getServiceInContact(label);
@@ -691,8 +691,8 @@
 						}
 						self.promoteOrCreateService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), svc => {
 							let c = self.getOrCreateContent(svc, this.language);
-							if (c && c.instantValue !== value) {
-								c.instantValue = value;
+							if (c && c.fuzzyDateValue !== value) {
+                                c.fuzzyDateValue = value;
 								this.scheduleSave(this.currentContact);
 							}
 							return svc;

@@ -51,7 +51,10 @@ public class Content implements Serializable {
     @JsonDeserialize(using = InstantDeserializer.class)
     Instant instantValue;
 
-    @JsonProperty("x")
+	@JsonProperty("dt")
+	Long fuzzyDateValue;
+
+	@JsonProperty("x")
     byte[] binaryValue;
 
     @JsonProperty("d")
