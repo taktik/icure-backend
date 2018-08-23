@@ -55,10 +55,9 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-				use: 'ts-loader',
-				options: { allowTsInNodeModules: true }
+                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
             },
-	        {
+            {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
 		        use: [
 			        'file-loader',
