@@ -138,7 +138,7 @@ public class Content implements Serializable {
         this.instantValue = instantValue;
     }
 
-	public Long getFuzzyDateValue() {
+	public  @Nullable Long getFuzzyDateValue() {
 		return fuzzyDateValue;
 	}
 
