@@ -138,7 +138,15 @@ public class Content implements Serializable {
         this.instantValue = instantValue;
     }
 
-    public byte[] getBinaryValue() {
+	public Long getFuzzyDateValue() {
+		return fuzzyDateValue;
+	}
+
+	public void setFuzzyDateValue(Long fuzzyDateValue) {
+		this.fuzzyDateValue = fuzzyDateValue;
+	}
+
+	public byte[] getBinaryValue() {
         return binaryValue;
     }
 
