@@ -28,9 +28,10 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TimeTable extends StoredICureDocument {
 
-
     @NotNull()
     protected String name;
+
+    protected String agendaId;
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
@@ -39,6 +40,22 @@ public class TimeTable extends StoredICureDocument {
     protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
     protected List<TimeTableItem> items;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAgendaId() {
+        return agendaId;
+    }
+
+    public void setAgendaId(String agendaId) {
+        this.agendaId = agendaId;
+    }
 
     public Long getStartTime() {
         return startTime;
@@ -56,15 +73,9 @@ public class TimeTable extends StoredICureDocument {
         this.endTime = endTime;
     }
 
-    public String getName() {
-        return name;
+    public List<TimeTableItem> getItems() {
+        return items;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<TimeTableItem> getItems() { return items; }
 
     public void setItems(List<TimeTableItem> items) {
         this.items = items;

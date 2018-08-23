@@ -31,7 +31,6 @@ import org.taktik.icure.entities.TimeTableItem;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.TimeTableLogic;
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
-import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
@@ -113,10 +112,10 @@ public class TimeTableFacade implements OpenApiFacade {
             timeTableHour.setStartHour(Long.parseLong("0900"));
             //Create a timeTableItem
             TimeTableItem timeTableItem = new TimeTableItem();
-            timeTableItem.setActivityType("consult");
+            timeTableItem.setCalendarItemTypeId("consult");
             timeTableItem.setDays(new ArrayList<>());
             timeTableItem.getDays().add("monday");
-            timeTableItem.setRecurrenceType("none");
+            timeTableItem.setRecurrenceTypes(new ArrayList<>());
             timeTableItem.setHours(new ArrayList<>());
             timeTableItem.getHours().add(timeTableHour);
             //Create the timeTable
@@ -165,20 +164,20 @@ public class TimeTableFacade implements OpenApiFacade {
 
 
     @ApiOperation(
-            value = "Get TimeTables by Period and HcPartyId",
+            value = "Get TimeTables by Period and UserId",
             response = TimeTableDto.class,
             responseContainer = "Array",
             httpMethod = "POST",
             notes = ""
     )
     @POST
-    @Path("/byPeriodAndHcPartyId")
-    public Response getTimeTableByPeriodAnHcPartyId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("hcPartyId") String hcPartyId) {
-        if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
+    @Path("/byPeriodAndAgendaId")
+    public Response getTimeTableByPeriodAnAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
+        if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndHcPartyId(startDate, endDate, hcPartyId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndAgendaId(startDate, endDate, agendaId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {
@@ -190,20 +189,20 @@ public class TimeTableFacade implements OpenApiFacade {
 
 
     @ApiOperation(
-            value = "Get TimeTables by HcPartyId",
+            value = "Get TimeTables by UserId",
             response = TimeTableDto.class,
             responseContainer = "Array",
             httpMethod = "POST",
             notes = ""
     )
     @POST
-    @Path("/byHcPartyId")
-    public Response getTimeTableByHcPartyId( @QueryParam("hcPartyId") String hcPartyId) {
-        if (hcPartyId == null || hcPartyId.isEmpty()) {
+    @Path("/byAgendaId")
+    public Response getTimeTableByAgendaId(@QueryParam("agendaId") String agendaId) {
+        if (agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByHcPartyId(hcPartyId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTableByAgendaId(agendaId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {

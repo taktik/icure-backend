@@ -24,8 +24,10 @@ import java.util.List;
 public class TimeTableItemDto {
     private List<String> days;
     private List<TimeTableHourDto> hours;
-    private String recurrenceType;
-    private String activityType;
+    private List<String> recurrenceTypes;
+    private String calendarItemTypeId;
+    private boolean homeVisit;
+    private String placeId;
 
     public List<String> getDays() {
         return days;
@@ -43,19 +45,35 @@ public class TimeTableItemDto {
         this.hours = hours;
     }
 
-    public String getRecurrenceType() {
-        return recurrenceType;
+    public List<String> getRecurrenceTypes() {
+        return recurrenceTypes;
     }
 
-    public void setRecurrenceType(String recurrenceType) {
-        this.recurrenceType = recurrenceType;
+    public void setRecurrenceTypes(List<String> recurrenceTypes) {
+        this.recurrenceTypes = recurrenceTypes;
     }
 
-    public String getActivityType() {
-        return activityType;
+    public String getCalendarItemTypeId() {
+        return calendarItemTypeId;
     }
 
-    public void setActivityType(String activityType) {
-        this.activityType = activityType;
+    public void setCalendarItemTypeId(String calendarItemTypeId) {
+        this.calendarItemTypeId = calendarItemTypeId;
+    }
+
+    public boolean isHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 }

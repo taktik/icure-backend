@@ -25,12 +25,12 @@ import java.util.List;
 
 public interface TimeTableDAO extends GenericDAO<TimeTable> {
 
-    List<TimeTable> listTimeTableByHcPartyId( String hcPartyId);
+    List<TimeTable> listTimeTableByAgendaId(String agendaId);
 
-    List<TimeTable> listTimeTableByStartDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId);
+    List<TimeTable> listTimeTableByStartDateAndAgendaId(Long startDate, Long endDate, String agendaId);
 
-    List<TimeTable> listTimeTableByEndDateAndHcPartyId(Long startDate, Long endDate, String hcPartyId);
+    List<TimeTable> listTimeTableByEndDateAndAgendaId(Long startDate, Long endDate, String agendaId);
 
-    List<TimeTable> listTimeTableByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId);
+    List<TimeTable> listTimeTableByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
 
 }

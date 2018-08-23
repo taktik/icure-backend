@@ -19,8 +19,6 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
 import java.util.List;
@@ -31,9 +29,13 @@ public class TimeTableItem {
     private List<String> days;
     @NotNull()
     private List<TimeTableHour> hours;
-
-    private String recurrenceType;
-    private String activityType;
+    @NotNull()
+    private List<String> recurrenceTypes;
+    @NotNull()
+    private String calendarItemTypeId;
+    @NotNull()
+    private boolean homeVisit;
+    private String placeId;
 
     public List<String> getDays() {
         return days;
@@ -51,19 +53,35 @@ public class TimeTableItem {
         this.hours = hours;
     }
 
-    public String getRecurrenceType() {
-        return recurrenceType;
+    public List<String> getRecurrenceTypes() {
+        return recurrenceTypes;
     }
 
-    public void setRecurrenceType(String recurrenceType) {
-        this.recurrenceType = recurrenceType;
+    public void setRecurrenceTypes(List<String> recurrenceTypes) {
+        this.recurrenceTypes = recurrenceTypes;
     }
 
-    public String getActivityType() {
-        return activityType;
+    public String getCalendarItemTypeId() {
+        return calendarItemTypeId;
     }
 
-    public void setActivityType(String activityType) {
-        this.activityType = activityType;
+    public void setCalendarItemTypeId(String calendarItemTypeId) {
+        this.calendarItemTypeId = calendarItemTypeId;
+    }
+
+    public boolean isHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 }

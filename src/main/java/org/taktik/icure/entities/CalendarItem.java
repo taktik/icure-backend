@@ -19,15 +19,12 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.utils.InstantDeserializer;
-import org.taktik.icure.utils.InstantSerializer;
+import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 
-import java.time.Instant;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CalendarItem extends StoredICureDocument {
@@ -35,9 +32,21 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull
     protected String title;
 
-    protected String type;
+    private String calendarItemTypeId;
 
-    protected String responsible;
+    protected String patientId;
+
+    protected Boolean important;
+
+    protected Boolean homeVisit;
+
+    protected String phoneNumber;
+
+    protected String placeId;
+
+    protected Address address;
+
+    protected String addressText;
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long startTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
@@ -45,9 +54,16 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
-    protected String patient;
+    protected Long duration;
 
-    protected String note;
+    protected Boolean allDay;
+
+    protected String details;
+
+    @NotNull
+    protected String agendaId;
+
+    protected Set<CalendarItemTag> meetingTags;
 
     public String getTitle() {
         return title;
@@ -57,12 +73,12 @@ public class CalendarItem extends StoredICureDocument {
         this.title = title;
     }
 
-    public String getType() {
-        return type;
+    public String getCalendarItemTypeId() {
+        return calendarItemTypeId;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCalendarItemTypeId(String calendarItemTypeId) {
+        this.calendarItemTypeId = calendarItemTypeId;
     }
 
     public String getResponsible() {
@@ -89,19 +105,108 @@ public class CalendarItem extends StoredICureDocument {
         this.endTime = endTime;
     }
 
-    public String getPatient() {
-        return patient;
+    public String getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(String patient) {
-        this.patient = patient;
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
-    public String getNote() {
-        return note;
+    public Boolean getImportant() {
+        return important;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setImportant(Boolean important) {
+        this.important = important;
     }
+
+    public Boolean getHomeVisit() {
+        return homeVisit;
+    }
+
+    public void setHomeVisit(Boolean homeVisit) {
+        this.homeVisit = homeVisit;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public String getAddressText() {
+        return addressText;
+    }
+
+    public void setAddressText(String addressText) {
+        this.addressText = addressText;
+    }
+
+    public String getAgendaId() {
+        return agendaId;
+    }
+
+    public void setAgendaId(String agendaId) {
+        this.agendaId = agendaId;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    public Boolean getAllDay() {
+        return allDay;
+    }
+
+    public void setAllDay(Boolean allDay) {
+        this.allDay = allDay;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public Set<CalendarItemTag> getMeetingTags() {
+        return meetingTags;
+    }
+
+    public void setMeetingTags(Set<CalendarItemTag> meetingTags) {
+        this.meetingTags = meetingTags;
+    }
+//    @JsonSerialize(using = IdentifiableSerializer.class)
+//    @JsonDeserialize(using = CalendarItemTypeDeserializer.class)
+//    public CalendarItemType getType() {
+//        return type;
+//    }
+//
+//    public void setType(CalendarItemType type) {
+//        this.type = type;
+//    }
 }
