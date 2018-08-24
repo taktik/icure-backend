@@ -6,6 +6,8 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Content
+import org.taktik.icure.entities.embed.DocumentStatus
+import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.Measure
 import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.entities.embed.Medicinalproduct
@@ -16,6 +18,8 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
+
+import org.taktik.commons.uti.UTI
 
 
 import org.taktik.icure.entities.*
@@ -32,12 +36,14 @@ class PricareImporter extends Importer {
     def medidrugsql
     def measMapping = [:]
     def measValueTypeMapping = [:]
+    String medinoteDataPath = ""
 
     static void main(String... args) {
         loadCodeMappings()
         def imp = new PricareImporter()
         imp.customOwnerId = "562e8e1f-fee3-4164-ae8e-1ffee3716480"
         imp.keyRoot = "c:\\topaz\\keys"
+        imp.medinoteDataPath = "C:\\testenvir\\server\\modelbird_670_20170713\\MedinoteData\\"
         imp.openMedinoteDatabase()
         imp.openAdminDatabase()
         imp.openMedinoteDrugsDatabase()
@@ -242,24 +248,6 @@ class PricareImporter extends Importer {
                 // subcontacts
 
 
-
-                /*
-                // forms
-
-                def formid = idg.newGUID().toString()
-
-                //def form = new Form()
-                def form = new Form(
-                        id: formid,
-                        created: medinote_date_to_topaz_fuzzydate(it.entryDate),
-                        author: users_by_medinoteId[it.authorId],
-                        responsible: hcparties_by_medinoteId[it.respid],
-                        descr: "Consultation",
-
-
-                )
-                */
-
             }
 
             // healthElements
@@ -370,10 +358,45 @@ class PricareImporter extends Importer {
 
 
             ///////// services
+            def service_index
+
+            /// comment
+            // FIXME: implemented as clinical because there is no general comment item
+
+
+            service_index = 0
+            mdnsql.eachRow("select * from tblcomment") {
+                // FIXME: handle encryption (it.encryption == 1)
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def service = new Service(
+                            id: id,
+                            author: users_by_medinoteId[it.authorId],
+                            responsible: hcparties_by_medinoteId[it.respid],
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            label: "Commentaire",
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            tags: [
+                                    new Code("CD-ITEM", "clinical", "1")
+                            ],
+                            content: [
+                                    fr: new Content(
+                                            stringValue: it.Desc
+                                    )
+                            ],
+                    )
+                    add_service_to_contact(service, contact)
+                    println("Adding comment (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
 
             // motifs (full)
 
-            def service_index = 0
+            service_index = 0
             mdnsql.eachRow("select * from tblmotive") {
                 def id = idg.newGUID().toString()
                 def contact = contacts_by_medinoteId[it.contactId]
@@ -389,7 +412,7 @@ class PricareImporter extends Importer {
                             valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
                             codes: medinote_medicalCodeId_to_topaz_codes(it.MedicalCodeId),
                             tags: [
-                                    new Code("CD-ITEM", "transactionreason", "1")
+                                    new Code("CD-ITEM", "complaint", "1")
                             ],
                             content: [
                                     fr: new Content(
@@ -398,7 +421,6 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
-                    //contact.services.add(service)
                     println("Adding motive (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -430,7 +452,6 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
-                    //contact.services.add(service)
                     println("Adding anamneses (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -470,7 +491,6 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
-                    //contact.services.add(service)
                     println("Adding measure ${measName} (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -606,7 +626,6 @@ class PricareImporter extends Importer {
                     def medication = new Medication()
                     def (cnk, drugname, drugunit) = medinote_DrugID_to_CNK(it.drugid)
                     def quantity = it.NumUnit
-                    //def unit = medinote_DrugUnit_to_string(it.UnitTypeId)
                     medication.with{
                         medicinalProduct = new Medicinalproduct().with {
                             intendedcds = [
@@ -704,6 +723,7 @@ class PricareImporter extends Importer {
                             valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),  // date d'echeance
                             codes: medinote_medicalCodeId_to_topaz_codes(it.medicalCodeId),
                             tags: [
+                                    new Code("CD-ITEM", "acts", "1"),
                                     new Code("CD-LIFECYCLE", lifecycle, "1.0")
                             ],
                             content: [
@@ -713,7 +733,6 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
-                    //contact.services.add(service)
                     println("Adding procedure ${it.desc} (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -726,6 +745,53 @@ class PricareImporter extends Importer {
             // messageDocs
 
             // docs
+
+            service_index = 0
+            mdnsql.eachRow("select * from tblrequest") {
+                def id = idg.newGUID().toString()
+                def docid = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def doc = new Document(
+                            id: docid,
+                            //attachment: medinote_file_to_bytes(it.path), // use File instead to save memory
+                            documentType: medinote_doctype_to_topaz_documentType(it.Type),
+                            documentStatus: DocumentStatus.finalized,
+                            mainUti:  UTI.public_rtf, // is this working ?
+                            name: it.desc,
+                    )
+                    def file = new File(medinoteDataPath + "DocOut\\" + it.path.toString())
+                    if(!file.exists()) {
+                        println("Error: document file not found: ${file.toString()}")
+                    }
+                    def docmap = [
+                        doc: doc,
+                        file: file
+                    ]
+                    docs.add(docmap)
+                    def service = new Service(
+                            id: id,
+                            author: users_by_medinoteId[it.authorId],
+                            responsible: hcparties_by_medinoteId[it.respid],
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            label: "Rapport sortant",
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            tags: [
+                                    new Code("CD-ITEM", "clinical", "1")
+                            ],
+                            content: [
+                                    fr: new Content(
+                                            documentId: docid
+                                    )
+                            ],
+                    )
+                    add_service_to_contact(service, contact)
+                    println("Adding request document (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
 
             // accessLogs
 
@@ -864,5 +930,61 @@ class PricareImporter extends Importer {
                 serviceId: service.id
         )
         defsubcon.services.add( servlink )
+    }
+
+    static DocumentType medinote_doctype_to_topaz_documentType(doctype) {
+        def medinote_doctype = [
+                "undefined",
+                "opinionrequest",
+                "tuningrequest",
+                "protocol",
+                "procedurerequest",
+                "labresult",
+                "request",
+                "image",
+                "tech",
+                "admission",
+                "alert",
+                "clinicalsummary",
+                "contact",
+                "death",
+                "discharge",
+                "dischargereport",
+                "epidemiology",
+                "labrequest",
+                "note",
+                "nursingsummary",
+                "pharmaceuticalprescription",
+                "productdelivery",
+                "quickdischargereport",
+                "psychiatricsummary",
+                "referral",
+                "result",
+                "vaccination",
+                "recordsummary",
+                "transfer",
+                "sumehr",
+                "report",
+                "reportnursing",
+                "reportphysiotherapy",
+                "reportintermediarynursing",
+                "reportintermediaryphysiotherapy",
+                "prescriptionnursing",
+                "prescriptionphysiotherapy",
+                "smf",
+                "pmf",
+                "eforms",
+        ]
+        DocumentType ret
+        switch (medinote_doctype[doctype]) {
+            case "undefined":
+                ret = DocumentType.request
+                break
+            // TODO: finish mapping
+            default:
+                ret = DocumentType.request
+                break
+        }
+        return ret
     }
 }
