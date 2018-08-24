@@ -852,9 +852,9 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		        const partnerships = this.patient.partnerships
 
                 partnerships.map(partner => {
-                    const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
-                    const index = partnerships.indexOf(partner)
-                    (partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
+                    const mark = partnerships.find(fp => fp.partnerId === partner.partnerId);
+                    const index = partnerships.indexOf(partner);
+                    (partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses;
 
                     if(!mark || !partner.partnerId){
                         //patient not present
