@@ -654,6 +654,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="sharePatientDialog">
             <h4>Avec quel prestataire souhaitez-vous partager ces patients ?</h4>
+            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}" on-keydown="_hcpFilterChanged"></paper-input>
             <div>
                 <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
                     <vaadin-grid-column width="100px">
@@ -849,12 +850,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type : String,
                         value : null,
                         observer : '_searchDuplicate'
+                    },
+                    hcpFilterValue: {
+                        type: String
                     }
                 }
             }
 
             static get observers() {
-                return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)']
+                return ['_filterValueChanged(filterValue)', '_showInactivePatientsChanged(showInactive)', '_hcpFilterChanged(hcpFilterValue)']
             }
 
             constructor() {
@@ -973,6 +977,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _hcpFilterChanged(e){
+                let latestSearchValue = this.hcpFilterValue || e && e.detail.value;
+                this.latestSearchValue = latestSearchValue;
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search");
+                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])));
+                    return;
+                }
+                this._hcpDataProvider() && this._hcpDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search");
+                        return;
+                    }
+                    this.set('hcp', res.rows);
+                });
+            }
+
+            _hcpDataProvider() {
+                return {
+                    filter: function (hcpFilterValue) {
+                        const desc = 'desc';
+                        let count = 15;
+                        return Promise.all([this.api.hcparty().findByName(hcpFilterValue, null,  null, count, desc)]).then(results => {
+                            const hcpList = results[0];
+                            const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({id: hcp.id , lastName: hcp.lastName, firstName: hcp.firstName, speciality: hcp.speciality, email: hcp.email}) ));
+                            return { totalSize: filtered.length, rows: filtered };
+                        });
+
+                    }.bind(this)
+                };
+            }
+
 
             formatDateOfBirth(dateOfBirth) {
                 return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
@@ -996,6 +1032,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }.bind(this), 500) //Wait for the user to stop typing
                 }.bind(this), 100)
             }
+
+
 
             pimpPatient(p) {
                 p.email = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
@@ -1159,7 +1197,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                 }
 
-                this.refresh()
+                this.refresh(e)
             }
 
             _sharePatient(e) {
@@ -1210,7 +1248,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _openSharePatientDialog() {
                 this.$['sharePatientDialog'].open()
-                this.set('hcp', _.values(this.api.hcParties))
+                this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
             }
 
             _deselectAllSharePatient() {

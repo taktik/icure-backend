@@ -1128,7 +1128,7 @@
                                     nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
                                     done:!pl.nextKeyPair
                                 }))
-                    ).then(rows => this.set('hcpartyTypeList', _.sortBy(rows, ['label.fr'])))
+                    ).then(rows => this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc'])))
                 }
             }
 
