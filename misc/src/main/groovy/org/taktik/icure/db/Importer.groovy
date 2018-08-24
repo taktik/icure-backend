@@ -1,5 +1,6 @@
 package org.taktik.icure.db
 
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.ektorp.AttachmentInputStream
@@ -75,36 +76,59 @@ class Importer {
     }
 
     void createAttachment(File file, Document d) {
-        def types = UTI.get(d.mainUti)?.mimeTypes
-        def attId = d.attachmentId.split(/\|/)[0]
+        if (file != null) {
+            def types = UTI.get(d.mainUti)?.mimeTypes
+            if (file.isFile()) {
+                file.withInputStream { is ->
+                    def attId = d.attachmentId ? d.attachmentId?.split(/\|/)[0] : DigestUtils.sha256Hex(file.bytes)
+                    couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, is, types?.size() ? types[0] : "application/octet-stream"))
 
-        if (file.isFile()) {
-            file.withInputStream { is ->
-                d.rev = couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, is, types?.size() ? types[0] : "application/octet-stream"))
-                d = couchdbContact.get(Document.class, d.id)
-                d.attachmentId = attId
-                couchdbContact.update(d)
-            }
-        } else if (file.isDirectory()) {
-            def cbb = new CircularByteBuffer(128000)
+                    d = couchdbContact.get(Document.class, d.id)
+                    d.attachmentId = attId
 
-            Thread.start {
-                def zo = new ZipOutputStream(cbb.outputStream)
+                    couchdbContact.update(d)
+                }
+            } else if (file.isDirectory()) {
+                def cbb = new CircularByteBuffer(128000)
 
-                file.eachFileRecurse { f ->
-                    def name = f.absolutePath.substring(file.absolutePath.length() - file.name.length())
-                    zo.putNextEntry(new ZipEntry(f.isDirectory() ? (name + "/") : name))
-                    if (f.isFile()) {
-                        f.withInputStream { IOUtils.copy(it, zo) }
-                        zo.closeEntry()
+                Thread.start {
+                    def zo = new ZipOutputStream(cbb.outputStream)
+
+                    file.eachFileRecurse { f ->
+                        def name = f.absolutePath.substring(file.absolutePath.length() - file.name.length())
+                        zo.putNextEntry(new ZipEntry(f.isDirectory() ? (name + "/") : name))
+                        if (f.isFile()) {
+                            f.withInputStream { IOUtils.copy(it, zo) }
+                            zo.closeEntry()
+                        }
                     }
+
+                    zo.close()
                 }
 
-                zo.close()
+                def attId = d.attachmentId ? d.attachmentId?.split(/\|/)[0] : "zipfile"
+                couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, cbb.inputStream, types?.size() ? types[0] : "application/octet-stream"))
+
+                d = couchdbContact.get(Document.class, d.id)
+                d.attachmentId = attId
+
+                couchdbContact.update(d)
+            }
+        } else if (d.attachment != null) {
+            def attId = DigestUtils.sha256Hex(d.attachment)
+
+            UTI uti = UTI.get(d.mainUti);
+            String mimeType = "application/xml"
+            if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size() > 0) {
+                mimeType = uti.mimeTypes[0]
             }
 
-            d.rev = couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, cbb.inputStream, types?.size() ? types[0] : "application/octet-stream"))
+            AttachmentInputStream a = new AttachmentInputStream(attId, new ByteArrayInputStream(d.attachment), mimeType)
+
+            couchdbContact.createAttachment(d.id, d.rev, a)
+            d = couchdbContact.get(Document.class, d.id)
             d.attachmentId = attId
+
             couchdbContact.update(d)
         }
     }

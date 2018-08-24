@@ -1,0 +1,94 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+/*<link rel="import" href="./api/fhcAddressbookcontrollerApi.ts">
+<link rel="import" href="./api/fhcBasicerrorcontrollerApi.ts">
+<link rel="import" href="./api/fhcConsentcontrollerApi.ts">
+<link rel="import" href="./api/fhcDmgcontrollerApi.ts">
+<link rel="import" href="./api/fhcEattestcontrollerApi.ts">
+<link rel="import" href="./api/fhcEhboxcontrollerApi.ts">
+<link rel="import" href="./api/fhcGeninscontrollerApi.ts">
+<link rel="import" href="./api/fhcHubcontrollerApi.ts">
+<link rel="import" href="./api/fhcRecipecontrollerApi.ts">
+<link rel="import" href="./api/fhcStscontrollerApi.ts">
+<link rel="import" href="./api/fhcTarificationcontrollerApi.ts">
+<link rel="import" href="./api/fhcTherlinkcontrollerApi.ts">
+*/
+
+<dom-module id="fhc-api-v2">
+    <template>
+        <style>
+        </style>
+        </template>
+</dom-module>
+
+<script>
+    import * as api from './fhcApi';
+
+    class FhcApiV2 extends Polymer.mixinBehaviors([], Polymer.Element) {
+        static get is() {
+            return 'fhc-api-v2';
+        }
+
+        static get properties() {
+            return {
+                headers: {
+                    type: Object,
+                    value: { "Content-Type": "application/json" },
+                    notify: true
+                },
+                host: {
+                    type: String
+                }
+            };
+        }static get observers() {
+            return ["refresh(headers, headers.*, host)"];
+        }
+
+        constructor() {
+            super();
+        }
+
+        ready() {
+            super.ready();
+
+            if (this.host != null && this.headers != null) this.refresh();
+        }
+
+        refresh() {
+                this.addressbookcontrollerfhc = new api.fhcAddressbookcontrollerApi(this.host, this.headers);
+                this.basicerrorcontrollerfhc = new api.fhcBasicerrorcontrollerApi(this.host, this.headers);
+                this.consentcontrollerfhc = new api.fhcConsentcontrollerApi(this.host, this.headers);
+                this.dmgcontrollerfhc = new api.fhcDmgcontrollerApi(this.host, this.headers);
+                this.eattestcontrollerfhc = new api.fhcEattestcontrollerApi(this.host, this.headers);
+                this.ehboxcontrollerfhc = new api.fhcEhboxcontrollerApi(this.host, this.headers);
+                this.geninscontrollerfhc = new api.fhcGeninscontrollerApi(this.host, this.headers);
+                this.hubcontrollerfhc = new api.fhcHubcontrollerApi(this.host, this.headers);
+                this.recipecontrollerfhc = new api.fhcRecipecontrollerApi(this.host, this.headers);
+                this.stscontrollerfhc = new api.fhcStscontrollerApi(this.host, this.headers);
+                this.tarificationcontrollerfhc = new api.fhcTarificationcontrollerApi(this.host, this.headers);
+                this.therlinkcontrollerfhc = new api.fhcTherlinkcontrollerApi(this.host, this.headers);
+
+                this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
+            }
+
+            addressbookcontroller() { return this.addressbookcontrollerfhc}
+            basicerrorcontroller() { return this.basicerrorcontrollerfhc}
+            consentcontroller() { return this.consentcontrollerfhc}
+            dmgcontroller() { return this.dmgcontrollerfhc}
+            eattestcontroller() { return this.eattestcontrollerfhc}
+            ehboxcontroller() { return this.ehboxcontrollerfhc}
+            geninscontroller() { return this.geninscontrollerfhc}
+            hubcontroller() { return this.hubcontrollerfhc}
+            recipecontroller() { return this.recipecontrollerfhc}
+            stscontroller() { return this.stscontrollerfhc}
+            tarificationcontroller() { return this.tarificationcontrollerfhc}
+            therlinkcontroller() { return this.therlinkcontrollerfhc}
+            
+        }
+    customElements.define(FhcApiV2.is, FhcApiV2);
+</script>
+
+@end
+
+
