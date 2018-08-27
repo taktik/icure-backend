@@ -725,7 +725,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_cellContent(item, column) {
-		return column.key.indexOf("price") !== -1 ? accounting.formatMoney(_.get(item, column.key) / 100, "€", 2, " ", ",") : _.get(item, column.key);
+		return column.key.indexOf("price") !== -1 ? accounting.formatMoney(_.get(item, column.key) / 100, "€", 2, " ", ",") :
+			(column.key.indexOf("name") !== -1 && _.get(item, "cheap") && _.get(item, "cheap") === 'cheap' ?  '\u2794 ' +  _.get(item, column.key):
+			_.get(item, column.key));
 	}
 
 	_columnWidth(column) {
@@ -759,7 +761,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
             this.cheapAlternativeSearchSeed = searchSeed
             return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
-                .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1,mpp2)=>(mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp=>_.extend(_.extend({}, mpp), {cheap : 'cheap', name: '\u2794 '+mpp.name})))
+                .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1,mpp2)=>(mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp=>_.extend(_.extend({}, mpp), {cheap : 'cheap'})))
         } else {
             this.cheapAlternativeSearchSeed = null
             return Promise.resolve([])

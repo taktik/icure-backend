@@ -1,32 +1,25 @@
 package org.taktik.icure.db
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.ektorp.ComplexKey
 import org.ektorp.CouchDbConnector
 import org.ektorp.CouchDbInstance
 import org.ektorp.ViewQuery
-import org.ektorp.http.HttpClient
-import org.ektorp.http.StdHttpClient
-import org.ektorp.impl.StdCouchDbInstance
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.HealthElement
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.User
+import org.taktik.icure.security.CryptoUtils
 
-import java.security.Security
+import javax.crypto.KeyGenerator
+import java.security.Key
 import java.util.Map.Entry
 
 /* a timestamp based attack on anonimity */
-class DetectCorrespondances {
-    CouchDbConnector couchdbPatient
-    CouchDbConnector couchdbContact
 
-    DetectCorrespondances() {
-        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("https://couch.icure.cloud").username("gs-825e6d76-8303-4db7-a197-1d7539361e3e").password("****").build()
-        CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-        // if the second parameter is true, the database will be created if it doesn't exists
-        couchdbPatient = dbInstance.createConnector('icure-gs-825e6d76-8303-4db7-a197-1d7539361e3e-patient', false);
-        couchdbContact = dbInstance.createConnector('icure-gs-825e6d76-8303-4db7-a197-1d7539361e3e-healthdata', false);
-
-        Security.addProvider(new BouncyCastleProvider())
-    }
+class DetectCorrespondances extends Importer {
 
     def scan() {
         def al = [:]
@@ -41,33 +34,98 @@ class DetectCorrespondances {
             if (it.modified) al[Math.floor(it.modified / 10000) as Long] = it.id
         }*/
 
-        Map<String,Map<String,Integer>> corr = [:]
+        Map<String, Map<String, Integer>> corr = [:]
 
-        couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbPatient.path()).designDocId("_design/Contact").viewName("all"), Contact.class).each {
+        def contacts = couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path()).designDocId("_design/Contact").viewName("all"), Contact.class).findAll {
+            it.secretForeignKeys?.size()
+        }
+
+        contacts.each {
+            def sfk = it.secretForeignKeys[0]
+
             def l = Math.floor(it.created / 10000) as Long
 
-            String patId = al[l] ?: al[l-1]  ?: al[l-2] ?: al[l-3]
-            if (patId && it.secretForeignKeys.size()) {
-                def co = (corr[patId] ?: new HashMap<>())
-                def sfk = it.secretForeignKeys[0]
+            String patId = al[l] ?: al[l - 1] ?: al[l - 2] ?: al[l - 3]
+            if (patId) {
+                def co = (corr[sfk] ?: new HashMap<>())
 
-                if (co.containsKey(sfk)) {
-                   co[sfk] = co[sfk] + 1
+                if (co.containsKey(patId)) {
+                    co[patId] = co[patId] + 1
                 } else {
-                    co[sfk] = 1
+                    co[patId] = 1
                 }
 
-                corr[patId] = co
+                corr[sfk] = co
             }
         }
 
-        corr.each {k,v ->
-            def a = new ArrayList<>(v.entrySet()).sort {Entry a, Entry b -> b.value <=> a.value}.collect {Entry e -> "${e.key}:${e.value}"}
-            println("${k} -> ${a.join(',')}")
+        contacts.each {
+            def sfk = it.secretForeignKeys[0]
+            if (!corr[sfk]) {
+                println("${sfk}: No match with content: ${it.services.collect { it.label + ':' + it.content.values().collect { it.stringValue }.findAll { it }.join(' ') }.join(';').replaceAll(/\s/,' ')}")
+            }
         }
+
+        def users = couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/User").viewName("all"), User.class)
+        def ids = new HashSet<>(users.collect { it -> it.healthcarePartyId })
+        def parties = couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/HealthcareParty").viewName("all"), HealthcareParty.class).findAll { ids.contains(it.id) }
+
+        parties.each { hcp ->
+            def keyPair = createKeyPair(hcp.id)
+
+            KeyGenerator aesKeyGenerator = KeyGenerator.getInstance("AES", "BC")
+            aesKeyGenerator.init(256)
+            Key encryptKey = aesKeyGenerator.generateKey()
+
+            def crypted = CryptoUtils.encrypt(encryptKey.encoded, keyPair.public).encodeHex()
+
+            hcp.hcPartyKeys = [:]
+            hcp.hcPartyKeys[hcp.id] = ([crypted, crypted] as String[])
+
+            hcp.setPublicKey(keyPair.public.encoded.encodeHex().toString())
+
+            cachedKeyPairs[hcp.id] = keyPair
+
+            this.cachedDoctors[hcp.id] = hcp
+        }
+
+        corr.each { k, v ->
+            def a = new ArrayList<>(v.entrySet()).sort { Entry a, Entry b -> b.value <=> a.value }.collect { Entry e -> [pat: e.key, score: e.value] }
+
+            if (a.size() > 1 && (a[0].score * 1.0) / (a[1].score * 1.0) < 3) {
+                def it = contacts.find { it.secretForeignKeys[0] == k }
+                println("${k}: No clear match with ${a[0].pat} (${a[0].score}/${a[1].score}) content: ${it.services.collect { it.label + ':' + it.content.values().collect { it.stringValue }.findAll { it }.join(' ') }.join(';').replaceAll(/\s/,' ')}")
+            } else {
+                def pat = couchdbPatient.get(Patient.class, a[0].pat as String)
+                def ctcs = couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path())
+                        .designDocId("_design/Contact").viewName("by_hcparty_patientfk").startKey(ComplexKey.of(users[0].healthcarePartyId, k)).endKey(ComplexKey.of(users[0].healthcarePartyId, k)), Contact.class)
+                def hes = couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path())
+                        .designDocId("_design/HealthElement").viewName("by_hcparty_patient").startKey(ComplexKey.of(users[0].healthcarePartyId, k)).endKey(ComplexKey.of(users[0].healthcarePartyId, k)), HealthElement.class)
+
+                users.each { delegate -> this.appendObjectDelegations(pat, null, users[0].healthcarePartyId, delegate.healthcarePartyId, k, null) }
+                ctcs.each {  c ->
+                    users.each { delegate -> this.appendObjectDelegations(c, pat, users[0].healthcarePartyId, delegate.healthcarePartyId, null, k) }
+                }
+                hes.each {  c ->
+                    users.each { delegate -> this.appendObjectDelegations(c, pat, users[0].healthcarePartyId, delegate.healthcarePartyId, null, k) }
+                }
+
+                couchdbPatient.update(pat)
+                couchdbContact.executeBulk(ctcs)
+                couchdbContact.executeBulk(hes)
+            }
+
+        }
+
+
     }
 
     static public void main(args) {
-        new DetectCorrespondances().scan()
+        def detector = new DetectCorrespondances()
+
+        detector.keyRoot = "/tmp/keys"
+        new File(detector.keyRoot).mkdirs()
+
+        detector.scan()
     }
 }
