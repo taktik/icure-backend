@@ -239,7 +239,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 z-index: 1000;
                 color: white;
                 font-size: 13px;
-                background: rgba(167, 255, 154, 0.55);
+                background: rgb(14, 255, 107);
                 height: 48px;
                 padding: 0 8px 0 12px;
                 border-radius: 3px 0 0 3px;
@@ -264,6 +264,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .notification {
                 animation: notificationAnim 7.5s ease-in;
+            }
+
+            .notificationEhbox{
+                animation: notificationEhboxAnim 7.5s ease-in;
             }
 
             .log-info {
@@ -326,6 +330,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 88% {
                     width: 144px;
+                    opacity: 1;
+                }
+                100% {
+                    width: 0;
+                    opacity: 0;
+                }
+            }
+
+            @keyframes notificationEhboxAnim {
+                0% {
+                    width: 0;
+                    opacity: 0;
+                }
+                10% {
+                    width: 160px;
+                    opacity: 1;
+                }
+                12% {
+                    width: 280px;
+                    opacity: 1;
+                }
+                88% {
+                    width: 280px;
                     opacity: 1;
                 }
                 100% {
@@ -573,7 +600,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</paper-dialog>
 
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
-            <h3>[[ehboxWebWorkerMessage]]</h3>
+            <iron-icon icon="communication:email"></iron-icon> [[ehboxWebWorkerMessage]]
         </paper-item>
 
 	</template>
@@ -755,11 +782,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
 			}
 
-			_inboxMessageCheck(period = 10000){
+			_inboxMessageCheck(period = 1000){
                 if(this.EhboxCheckingActive === false) {
                   this.set('EhboxCheckingActive', true)
                     clearInterval(period)
-                    setInterval(() => {
+                    setTimeout(() => {
                         if (this.api.tokenId) {
                             this.checkEhboxMessage()
                         }
@@ -771,6 +798,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				if (page === 'logout') {
 					sessionStorage.removeItem('auth')
 					this.authenticated = false
+                    this.worker.terminate()
 					this.set('view', 'auth');
 				} else {
 					console.log("page is -> "+page)
@@ -934,7 +962,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						}
 					}
                     this._timeCheck()
-                    //this._inboxMessageCheck()
+                    this._inboxMessageCheck()
 				}).catch(function (e) {
 					this.authenticated = false
 					sessionStorage.removeItem('auth')
@@ -1001,19 +1029,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             checkEhboxMessage() {
 
-                this.$.ehboxInboxMessage.classList.remove('notification')
+			    const thisApi = this;
+
+                this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
                 this.worker = new Worker()
 
-                this.worker.postMessage({action: "loadEhboxMessage", tokenId: this.api.tokenId, keystoreId: this.api.keystoreId, user: this.user})
+                this.worker.postMessage({action: "loadEhboxMessage", fhcHost: this.api.fhc().host, fhcHeaders: JSON.stringify(this.api.fhc().headers), iccHost: this.api.fhc().host, iccHeaders: JSON.stringify(this.api.fhc().headers), tokenId: this.api.tokenId, keystoreId: this.api.keystoreId, user: this.user, ehpassword: this.credentials.ehpassword, boxId: "INBOX"})
 
                 this.worker.onmessage = function(e){
-                    //this.set('ehboxWebWorkerMessage',e.data)
-                    //this.$.ehboxInboxMessage.classList.add('notification')
+                    thisApi.set('ehboxWebWorkerMessage',e.data.message)
+                    thisApi.$.ehboxInboxMessage.classList.add('notificationEhbox')
                     console.log("Le worker à repondu " + e.data.message)
-
                 }
-
             }
 		}
 
