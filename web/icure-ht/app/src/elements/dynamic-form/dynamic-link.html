@@ -3,7 +3,7 @@
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+
 
 
 <dom-module id="dynamic-link">
@@ -59,39 +59,6 @@
                 color: var(--paper-grey-400);
             }
 
-            #planActionForm{
-                height: 600px;
-                width: 800px;
-            }
-
-            #cpa_description{
-                height: 125px;
-                width: calc(100% - 48px);
-            }
-
-            .modal-button--save{
-                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                background: var(--app-secondary-color);
-                color: var(--app-primary-color-dark);
-                font-weight: 700;
-
-            }
-
-            .containerPlanAction{
-                height: 470px;
-                width: auto;
-                overflow: auto;
-            }
-
-            vaadin-combo-box {
-                width: calc(100% - 48px);
-                margin: 8px 0;
-            }
-
-            paper-input{
-                width: calc(100% - 48px);
-                margin: 8px 0;
-            }
 
         </style>
 
@@ -141,66 +108,6 @@
                 </paper-listbox>
             </paper-menu-button>
         </template>
-
-        <paper-dialog id="planActionForm">
-            <h3>[[localize('plan_act','Plan an action',language)]]</h3>
-            <div class="containerPlanAction">
-                <vaadin-date-picker label="Date d'échéance" value="{{plannedAction.Deadline}}" i18n="[[i18n]]"></vaadin-date-picker>
-
-                <vaadin-form-layout>
-                    <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box  filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Procédure" value="{{plannedAction.Procedure}}"></vaadin-combo-box>
-                    </vaadin-form-item>
-                    <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" selected-item="{{selectedHcpItem}}" label="Prestataire lié"></vaadin-combo-box>
-                    </vaadin-form-item>
-                    <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[hcpartyTypeList]]" item-label-path="label.en" item-value-path="id" on-filter-changed="" label="Profession liée" value="{{plannedAction.JobLink}}"></vaadin-combo-box>
-                    </vaadin-form-item>
-                    <vaadin-form-item  colspan="2">
-                        <vaadin-combo-box filtered-items="[[comboStatus]]" item-label-path="name" item-value-path="id" on-filter-changed="" label="Statut" value="{{plannedAction.Status}}"></vaadin-combo-box>
-                    </vaadin-form-item>
-                </vaadin-form-layout>
-
-                <vaadin-checkbox on-checked-changed="_isVaccine"></vaadin-checkbox> Vaccin
-                <template is="dom-if" if="[[plannedAction.isVaccine]]">
-                    <vaadin-form-layout>
-                        <vaadin-form-item  colspan="2">
-                            <vaadin-combo-box filtered-items="" item-label-path="name" item-value-path="id" on-filter-changed="" label="Nom commercial" value="{{plannedAction.VaccineCommercialName}}"></vaadin-combo-box>
-                        </vaadin-form-item>
-                        <vaadin-form-item>
-                            <paper-input label="N° de la dose" value="{{plannedAction.DoseNumber}}"></paper-input>
-                        </vaadin-form-item>
-                        <vaadin-form-item>
-                            <paper-input label="N° de lot" value="{{plannedAction.BatchNumber}}"></paper-input>
-                        </vaadin-form-item>
-                    </vaadin-form-layout>
-                </template>
-
-                <vaadin-form-layout>
-                    <vaadin-form-item>
-                        <vaadin-checkbox on-checked-changed="_isDeadLineCheck"></vaadin-checkbox> Echéance
-                    </vaadin-form-item>
-                    <vaadin-form-item>
-                        <template is="dom-if" if="[[plannedAction.isDeadline]]">
-                            <vaadin-checkbox on-checked-changed="_isSendMailCheck"></vaadin-checkbox> Courrier à envoyer
-                        </template>
-                    </vaadin-form-item>
-                </vaadin-form-layout>
-
-                <vaadin-checkbox on-checked-changed="_isRefusalAction"></vaadin-checkbox> Refus
-                <template is="dom-if" if="[[plannedAction.isRefusalAction]]">
-                    <vaadin-text-area id="cpa_description" label="Motif de refus" value="{{plannedAction.ReasonOfRef}}"></vaadin-text-area>
-                </template>
-                <vaadin-text-area id="cpa_description" label="Description" value="{{plannedAction.Description}}"></vaadin-text-area>
-
-            </div>
-            <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>
-            </div>
-        </paper-dialog>
-
     </template>
     <script>
 
@@ -212,86 +119,26 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get properties() {
         return {
             api: {
-                type: Object,
-                observer: '_apiChanged'
+                type: Object
             },
             linkables: {
                 type: Array
             },
             representedObject: {
                 type: Object
-            },
-            plannedAction:{
-                type: Object,
-                value : {"Status" : "En attente", "Hcp" : {}, "Procedure" : "", "JobLink" : "", "ReasonOfRef" : "", isSendMail : false, isRefusalAction : false, isDeadline: false, isVaccine: false, "VaccineCommercialName" : "", "DoseNumber" : "", "BatchNumber" : ""}
-            },
-            comboStatus: {
-                type: Array,
-                value: [
-                    "Abandonné / Contre-indiqué",
-                    "Abandonné / Refus patient",
-                    "Abandonné / Trop tard",
-                    "Abandonné / Décès",
-                    "Abandonné / Désabonné",
-                    "Abandonné / Erreur",
-                    "Abandonné / Non pertient",
-                    "Abandonné par le patient",
-                    "En attente",
-                    "En attente planifié",
-                    "Fait",
-                    "Rappel envoyé",
-                    "Plus jamais cette procédure"
-                ]
-            },
-            hcpListItem: {
-                type: Array,
-                value: []
-            },
-            filterValue: {
-                type: String
-            },
-            dataProvider: {
-                type: Object,
-                value: null
-            },
-            selectedItem: {
-                type: Object,
-                value: null
-            },
-            isDeadline: {
-                type: Boolean,
-                value: false
-            },
-            hcpartyTypeList: {
-                type: Array,
-                value: []
             }
+
         };
     }
 
     static get observers() {
-        return ['_hcpFilterChanged(filterValue)'];
+        return [];
     }
 
     ready() {
         super.ready();
     }
 
-    _apiChanged() {
-        if (this.api) {
-            this.api.cacheRowsUsingPagination(
-                'CD-HCPARTy-pers',
-                (key,docId) =>
-                    this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'en', 'pers', key && JSON.stringify(key), docId, 100)
-                        .then(pl => ({
-                                rows:pl.rows,
-                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                                done:!pl.nextKeyPair
-                            }))
-            ).then(rows => this.set('hcpartyTypeList', rows))
-        }
-    }
 
     _show(e) {
         e.preventDefault();
@@ -314,68 +161,29 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     showPlanActionForm(e){
-        this.$['planActionForm'].open()
-    }
 
-    planAction(){
-        //console.log(this.plannedAction)
-        this.dispatchEvent(new CustomEvent('plan-action', {detail: { plannedAction: this.plannedAction} }));
+        this.dispatchEvent(new CustomEvent('dynamically-event', { bubbles: true, composed: true, detail: { representedObject: this.representedObject} }));
     }
 
     _setStatus(e){
         console.log("set status: "+e.target.id)
 
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: { status: e.target.id} }));
+        this.dispatchEvent(new CustomEvent('status-changed', { bubbles: true, composed: true, detail: { representedObject: this.representedObject, status: e.target.id} }));
     }
 
-    _hcpFilterChanged(e){
+    _getCssColorStatus(){
+/*
+        const services = this.api.contact().services(this.currentContact, this.representedObject)
+        let status = ""
 
-        let latestSearchValue = this.filterValue || e && e.detail.value;
-        this.latestSearchValue = latestSearchValue;
-        if (!latestSearchValue || latestSearchValue.length < 2) {
-            console.log("Cancelling empty search");
-            this.set('hcpListItem', []);
-            return;
+        if(services[0] && services[0].status) {
+            status = services[0].status
         }
-        this._DataProvider() && this._DataProvider().filter(latestSearchValue).then(res => {
-            if (latestSearchValue !== this.latestSearchValue) {
-                console.log("Cancelling obsolete search");
-                return;
-            }
-            this.set('hcpListItem', res.rows);
-        });
+
+        return 'stat_act'
+*/
     }
 
-    _DataProvider() {
-        return {
-            filter: function (filterValue) {
-                const desc = 'desc';
-                let count = 15;
-                return Promise.all([this.api.hcparty().findByName(filterValue, null,  null, count, desc)]).then(results => {
-                    const hcpList = results[0];
-                    const filtered = _.flatten(hcpList.rows.filter(hcp => hcp.lastName && hcp.lastName !== "" || hcp.firstName && hcp.firstName !== "").map(hcp => ({id: hcp.id , name : hcp.lastName + ' ' +hcp.firstName}) ));
-                    return { totalSize: filtered.length, rows: filtered };
-                });
-
-            }.bind(this)
-        };
-    }
-
-    _isDeadLineCheck(e){
-        this.set('plannedAction.isDeadline', e.target.checked)
-    }
-
-    _isSendMailCheck(e){
-        this.set('plannedAction.isSendMail', e.target.checked)
-    }
-
-    _isRefusalAction(e){
-        this.set('plannedAction.isRefusalAction', e.target.checked)
-    }
-
-    _isVaccine(e){
-        this.set('plannedAction.isVaccine', e.target.checked)
-    }
 
 
 }

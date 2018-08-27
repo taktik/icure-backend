@@ -276,6 +276,7 @@ configurations.all {
 		force group: 'net.sf.jsignature.io-tools', name: 'easystream', version: '1.2.12'
 	}
 
+	exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
 	exclude group: 'com.sun.security', module: 'pkcs11'
 	exclude group: 'javax.servlet', module: 'servlet-api'
 	exclude group: 'org.mortbay.jetty', module: 'jetty'

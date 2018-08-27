@@ -55,7 +55,7 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: 'ts-loader',
+                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
             },
 	        {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
@@ -97,8 +97,9 @@ module.exports = {
 		port: 9000,
 		proxy: {
 			'/rest/v1': {
-				target: 'https://service.icure.cloud'/*'http://127.0.0.1:16043'*/,
-				changeOrigin: true
+                //target: 'https://backend.icure.cloud',
+                target: 'http://127.0.0.1:16043',
+                changeOrigin: true
 			}
 		}
 	},

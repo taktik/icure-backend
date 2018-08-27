@@ -71,10 +71,12 @@
 				background:none;
 				font-size: var(--form-font-size);
 			}
+
 		</style>
 
+		<iron-icon icon=""></iron-icon>
 		<paper-input-container always-float-label="true">
-			<label slot="label">[[label]]
+			<label slot="label" class="color-status">[[label]]
 				<template is="dom-if" if="[[wasModified]]">
 					<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
 				</template>
@@ -84,7 +86,7 @@
 			</label>
 			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]"></iron-autogrow-textarea>
 		</paper-input-container>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 	</template>
 	<script>
 class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
@@ -144,14 +146,6 @@ class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_valueChanged(value) {
 		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
 	}
-
-    _statusChanged(inf){
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
-    }
-    _planAction(detail){
-        this.dispatchEvent(new CustomEvent('plan-action', detail ));
-    }
-
 }
 
 customElements.define(DynamicTextArea.is, DynamicTextArea);

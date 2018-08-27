@@ -35,7 +35,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<style>
 			:host {
 				height: 100%;
-				padding-top:32px;
 			}
 
 			.container {
@@ -44,20 +43,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
             paper-tabs {
-                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+                background: var(--app-secondary-color);
+                --paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+                --paper-tabs: {
+                    color: var(--app-text-color);
+                };
             }
 
             paper-tab {
-                --paper-tab-ink: var(--app-secondary-color);
+                --paper-tab-ink: var(--app-text-color);
             }
 
             paper-tab.iron-selected {
                 font-weight: bold;
             }
 
-            paper-tab.iron-selected > iron-icon {
-                color: var(--app-secondary-color);
+            paper-tab.iron-selected iron-icon{
+                opacity: 1;
             }
+
+            paper-tab iron-icon{
+                opacity: 0.5;
+                color: var(--app-text-color);
+            }
+
+
 
 			paper-material.card {
 				background-color: #fff;
@@ -91,23 +101,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
             iron-pages {
-                padding: 10px;
+                padding: 32px 0 0;
                 width: 100%;
                 height: calc(100% - 140px);
+                box-sizing: border-box;
             }
 
             page>dynamic-form{
                 width: 100%;
             }
 
-            .adm-tab:focus>iron-icon{
-                color: var(--app-secondary-color);
-            }
 
-            .adm-tab:before{
-                color: var(--app-secondary-color);
-                width: 80%;
-            }
 
 
             :host #institution-list {
@@ -128,9 +132,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             vaadin-grid.material {
-
+                box-shadow: var(--app-shadow-elevation-1);
+                border: 0;
                 font-family: Roboto, sans-serif;
                 --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+                margin: 0 32px 32px;
+
+               
+                   
 
                 --vaadin-grid-cell: {
                     padding: 8px;
@@ -204,10 +213,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: scale(0.8) rotate(180deg);
             }
 
+            paper-dialog paper-input{
+                padding: 0;
+            }
+
+            paper-dialog > div {
+                margin-top: 0;
+            }
+
+            paper-dialog vaadin-grid.material{
+                margin:24px 0 0;
+            }
+
             .buttons{
                 position: absolute;
                 bottom: 0;
-                right: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 8px 24px;
+                flex-flow: row wrap;
+                justify-content: space-between;
+            }
+
+            .buttons paper-checkbox{
+                align-self: center;
             }
 
             #dialogAddInstitution{
@@ -244,16 +273,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .administrative-panel {
                 background: var(--app-background-color);
-                top: 64px;
-                left: 20%;
-                @apply --shadow-elevation-2dp;
                 margin: 0;
                 grid-column: 2 / 4;
                 grid-row: 1 / 1;
-                z-index: 2;
-                padding: 5px;
-
             }
+
+             .modal-button--extra {
+                padding-left: 0;
+                padding-right: 0;
+                margin: 0;
+             }
 
             .add-btn-stay-container{
                 display:table;
@@ -277,8 +306,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             #add-person-to-care-team{
-                height: 600px;
-                width: 800px;
+                min-height: 554px;
+                max-height: 50%;
+                min-width: 800px;
+                max-width: 60%;
             }
 
             #add-new-person-to-care-team{
@@ -286,45 +317,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 500px;
             }
 
-            #internal-care-team-list{
-                height: 250px;
+            #internal-care-team-list, #external-care-team-list{
+                max-height: 50%;
+                height: auto;
             }
 
-            #external-care-team-list{
-                height: 250px;
+            #showHcpInfo {
+                min-height: 520px;
+                max-height: 50%;
+                min-width: 500px;
+                max-width: 60%;
             }
 
-            #showHcpInfo{
-                height: 600px;
-                width: 700px;
+            .hcpInfo{
+                max-height: calc(520px - 56px);
+                overflow: auto;  
+                padding: 0;             
             }
 
             .iconHcpInfo{
                 height: 18px;
             }
 
-            .titleHcpInfo{
-                height: 25px;
-                width: auto;
-                color: var(--app-secondary-color);
-                background-color: var(--app-primary-color-dark);
-                padding: 2px;
-                margin-top: 5px;
+            .indent{
+                margin-bottom: 12px;
             }
 
+            .indent paper-input{
+                margin: 0 24px;
+            }
+
+            .titleHcpInfo{
+                height: 48px;
+                width: calc(100% - 48px);
+                color: var(--app-text-color);
+                background-color: var(--app-background-color-dark);
+                padding: 0 24px;
+                font-weight: bold;
+                display:flex;
+                flex-flow: row wrap;
+                justify-content: flex-start;
+                align-items: center;
+            }
+            
+
             .titleHcpInfo_Icon{
-                height: 30px;
-                width: 30px;
-                float: left;
+                height: 24px;
+                width: 24px;
+                opacity: 0.5;
             }
 
             .titleHcpInfo_Txt{
-                float: left;
-                padding: 2px;
-            }
-
-            .indent{
-                margin-left: 2%;
+                padding-left: 8px;
             }
 
             .label{
@@ -357,10 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 10px 1.2em;
             }
 
-            .hcpInfo{
-                height: 85%;
-                overflow: auto;
-            }
+            
 
             iron-icon.smaller {
                 padding-right: 8px;
@@ -368,12 +409,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 16px;
             }
 
+            .subtitle{
+                display:block;
+				@apply --paper-font-body2;
+				@apply --padding-32;
+                padding-top: 0;
+				padding-bottom: 8px;
+                margin: 0;
+            }
+
+            .modal-title{
+                background: var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
         </style>
         <div class="administrative-panel">
             <paper-tabs selected="{{tabs}}">
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('adm_form','Administrative form',language)]]</paper-tab>
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('adm_ctc_per','Contact persons',language)]]</paper-tab>
-                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:users"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
+                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
             </paper-tabs>
 
             <iron-pages selected="[[tabs]]" class="">
@@ -385,14 +441,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </page>
                 <page>
                     <div>
-                        <h4>[[localize('icp','Internal care provider',language)]]</h4>
+                        <h4 class="subtitle">[[localize('icp','Internal care provider',language)]]</h4>
                         <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="120px">
                                 <template class="header">
                                     <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.firstName]]</div>
+                                    <div class="cell frozen">[[item.lastName]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="120px">
@@ -400,7 +456,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.lastName]]</div>
+                                    <div class="cell frozen">[[item.firstName]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="80px">
@@ -422,14 +478,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </vaadin-grid>
                     </div>
                     <div>
-                        <h4>[[localize('ecp','External care provider',language)]]</h4>
+                        <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
                         <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="120px">
                                 <template class="header">
                                     <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.firstName]]</div>
+                                    <div class="cell frozen">[[item.lastName]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="120px">
@@ -437,7 +493,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.lastName]]</div>
+                                    <div class="cell frozen">[[item.firstName]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="80px">
@@ -465,10 +521,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </iron-pages>
         </div>
 
-        <paper-dialog id="add-person-to-care-team">
-            <div>
-                <h3>[[localize('add_per_to_car_tea','Add person',language)]]</h3>
-            </div>
+        <paper-dialog id="add-person-to-care-team">    
+            <h2 class="modal-title">[[localize('add_per_to_car_tea','Add person',language)]]</h2>
             <div>
                 <vaadin-grid id="hcp-list" class="material" overflow="bottom" items=[[currentHcp]] active-item="{{selectedHcp}}">
                     <vaadin-grid-column width="100px">
@@ -513,17 +567,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button" on-tap="showAddNewPersonToCareTeamForm">[[localize('new_per','New person',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirmSharing">[[localize('save','Save',language)]]</paper-button>
+                    <paper-button class="modal-button modal-button--extra" on-tap="showAddNewPersonToCareTeamForm"><iron-icon icon="icons:add"></iron-icon>[[localize('new_per','New person',language)]]</paper-button>
+                <div>
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="confirmSharing">[[localize('save','Save',language)]]</paper-button>
+                </div>
             </div>
         </paper-dialog>
 
         <paper-dialog id="add-new-person-to-care-team">
-            <div>
-                <h3>[[localize('add_new_per_to_car_tea','Add new person to the care team',language)]]</h3>
-
-            </div>
+            <h2 class="modal-title">[[localize('add_new_per_to_car_tea','Add new person to the care team',language)]]</h2>
             <div>
                 <paper-input id="" label="[[localize('las_nam','Last name',language)]]" value="{{newHcpCareTeam.LastName}}"></paper-input>
                 <paper-input id="" label="[[localize('fir_nam','First name',language)]]" value="{{newHcpCareTeam.FirstName}}"></paper-input>
@@ -531,11 +584,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-input id="" label="[[localize('inami','Nihii',language)]]" value="{{newHcpCareTeam.Nihii}}"></paper-input>
                 <paper-input id="" label="[[localize('niss','Niss',language)]]" value="{{newHcpCareTeam.Niss}}"></paper-input>
                 <paper-input id="" label="[[localize('speciality','Speciality',language)]]" value="{{newHcpCareTeam.Speciality}}"></paper-input>
-                <paper-checkbox value="{{newHcpCareTeam.Invite}}" on-change="chckInvite">Invite care provider</paper-checkbox>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="addNewExternalPersonToCareTeam">[[localize('save','Save',language)]]</paper-button>
+                <paper-checkbox value="{{newHcpCareTeam.Invite}}" on-change="chckInvite">Invite care provider</paper-checkbox>
+
+                <div>
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="addNewExternalPersonToCareTeam">[[localize('save','Save',language)]]</paper-button>
+                </div>
             </div>
         </paper-dialog>
 
@@ -545,7 +601,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div>
                    <div class="titleHcpInfo">
                        <div class="titleHcpInfo_Icon">
-                            <iron-icon icon="vaadin:info-circle-o"></iron-icon>
+                            <iron-icon icon="icons:perm-contact-calendar"></iron-icon>
                        </div>
                        <div class="titleHcpInfo_Txt">
                            [[localize('gen_info','General informations',language)]]
@@ -563,7 +619,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div>
                             <div class="titleHcpInfo">
                                 <div class="titleHcpInfo_Icon">
-                                    <iron-icon class="iconHcpInfo" icon="vaadin:home-o"></iron-icon>
+                                    <iron-icon class="iconHcpInfo" icon="icons:home"></iron-icon>
                                 </div>
                                 <div class="titleHcpInfo_Txt">
                                     [[localize('addresses','Addresses',language)]]
@@ -576,16 +632,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         <paper-input id="" label="[[localize('number','Number',language)]]" value="[[adr.number]]" readonly></paper-input>
                                         <paper-input id="" label="[[localize('postalCode','Postal code',language)]]" value="[[adr.postalCode]]" readonly></paper-input>
                                         <paper-input id="" label="[[localize('city','City',language)]]" value="[[adr.city]]" readonly></paper-input>
-
-                                        <template is="dom-repeat" items="[[adr.telecoms]]" as="telecom">
-                                            <div class="titleHcpInfo">
-                                                <div class="titleHcpInfo_Icon">
-                                                    <iron-icon class="iconHcpInfo" icon="vaadin:clipboard-user"></iron-icon>
-                                                </div>
-                                                <div class="titleHcpInfo_Txt">
-                                                    [[localize('telecom','Telecom',language)]]
-                                                </div>
+                                        <div class="titleHcpInfo">
+                                            <div class="titleHcpInfo_Icon">
+                                                <iron-icon class="iconHcpInfo" icon="communication:phone"></iron-icon>
                                             </div>
+                                            <div class="titleHcpInfo_Txt">
+                                                [[localize('telecom','Telecom',language)]]
+                                            </div>
+                                        </div>
+                                        <template is="dom-repeat" items="[[adr.telecoms]]" as="telecom">
                                             <paper-input id="" label="[[localize('tel_type','Telecom type',language)]]" value="[[telecom.telecomType]]" readonly></paper-input>
                                             <paper-input id="" label="[[localize('tel_num','Telecom number',language)]]" value="[[telecom.telecomNumber]]" readonly></paper-input>
                                         </template>
@@ -614,7 +669,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                 </template>
             </div>
-            <div class="buttons">
+            <div class="buttons" style="flex-flow: row-reverse wrap; padding: 8px 0;">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
@@ -799,7 +854,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 partnerships.map(partner => {
                     const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
                     const index = partnerships.indexOf(partner)
-                    partner.partnerInfo.addresses = partner.addresses
+                    ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
 
                     if(!mark || !partner.partnerId){
                         //patient not present
@@ -967,7 +1022,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                         if(careProvider.Invite === true){
                             this.$['ht-invite-hcp-link'].open()
-                            this.invitedHcpLink = window.location.origin+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                            this.invitedHcpLink = window.location.origin+window.location.pathname+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
                         }
                     })
                 })

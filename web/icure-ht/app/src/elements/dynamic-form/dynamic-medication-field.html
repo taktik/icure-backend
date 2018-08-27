@@ -202,6 +202,18 @@
                 display: none;
             }
 
+			.no-column{
+				display: none;
+			}
+
+			.column{
+				margin: 2px;
+			}
+
+			div.cheap {
+				color: #606060;
+			}
+
 			.regimen-line{
 				display: flex;
 				flex-flow: row nowrap;
@@ -285,7 +297,7 @@
 		<label hidden$="[[!label]]" aria-hidden="true">
 			<span>[[label]]</span>
 		</label>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" on-status-changed="_statusChanged" on-plan-action="_planAction"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 
 		<template is="dom-if" if="[[wasModified]]">
 			<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
@@ -315,14 +327,15 @@
 					[[localize('medication-compound','Compound prescription',language)]]
 				</paper-tab>
 			</paper-tabs>
-            <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+			<template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
 				<paper-input-container always-float-label="true">
 					<label slot="label">Compound Prescription</label>
 						<iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}" ></iron-autogrow-textarea>
 				</paper-input-container>
             </template>
             <div class$="grid-container [[_noGridClass(medicationType)]]">
-                <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+				<paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+
                 <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                         <vaadin-grid-column width="[[_columnWidth(column)]]">
@@ -330,15 +343,25 @@
                                 <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen">[[_cellContent(item, column)]]</div>
+                                <div class$="cell frozen [[item.cheap]]">[[_cellContent(item, column)]]</div>
                             </template>
                         </vaadin-grid-column>
                     </template>
+					<vaadin-grid-column>
+						<template class="header">
+							<div></div>
+						</template>
+						<template>
+							<div class$="cell frozen [[item.cheap]]"><img src$="[[drugPicture(item)]]"></div>
+						</template>
+					</vaadin-grid-column>
                 </vaadin-grid>
             </div>
 			<div class="buttons">
 				<paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+				<!--<paper-button class="modal-button modal-button--save" on-tap="getAlternatives">[[localize('get-alt','Alternatives',language)]]</paper-button>-->
+
 			</div>
 		</paper-dialog>
 
@@ -515,6 +538,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 value: null,
                 observer: "_selectedMedicationFromListChanged"
             },
+            selectedMedicationFromListAlt: {
+                type: Object,
+                value: null,
+                observer: "_selectedMedicationFromListAltChanged"
+            },
             selectedMedicationContentWithId: {
                 type: Object,
                 value: null
@@ -558,6 +586,32 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return this._isCompoundPrescription(medicationType) ? 'no-grid' : ''
     }
 
+    _noColumnClass(medicationType) {
+        return this._isMedicinalProduct(medicationType) ? 'no-column' : ''
+    }
+
+    drugPicture(med) {
+        if (!med.rrsstate) {
+            return require('../../../images/Drug.None.gif')
+        }
+        if(med.rrsstate === 'R'){
+            return require('../../../images/Drug.NotReduced.gif')
+		}else if(med.rrsstate === 'B')
+		{
+            return require('../../../images/Drug.NoAlternative.gif')
+		}
+        else if(med.rrsstate === 'G')
+        {
+            return require('../../../images/Drug.Cheap.gif')
+        }
+        else
+		{
+            return require('../../../images/Drug.None.gif')
+        }
+
+        //return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+    }
+
     setMedicationType(e){
     	this.set('medicationType', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')))
 		this.filterValue = ''
@@ -582,76 +636,98 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
         return medicationType === 'compoundPrescription';
     }
 
+    _isMedicinalProduct(medicationType){
+        return medicationType === 'medicinalProduct';
+    }
+
 	ready() {
 		super.ready();
 
-		var grid = this.$['entities-list'];
+		let grid = this.$['entities-list'];
 
-		grid.lastParams = null; //Used to prevent double calls
+        grid.lastParams = null; //Used to prevent double calls
 		grid.size = 0;
 		grid.pageSize = 50;
 		grid.dataProvider = (params, callback) => {
-		    const columns = this._getColumns(this.medicationType)
-			const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key;
-			const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false;
+            const columns = this._getColumns(this.medicationType)
+            const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key
+            const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false
 
-			const pageSize = params.pageSize || grid.pageSize;
-			const startIndex = (params.page || 0) * pageSize;
-			const endIndex = ((params.page || 0) + 1) * pageSize;
+            const pageSize = params.pageSize || grid.pageSize
+            const startIndex = (params.page || 0) * pageSize
+            const endIndex = ((params.page || 0) + 1) * pageSize
 
-			const thisParams = this.filterValue + "|" + sort + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":";
+            const thisParams = this.filterValue + "|" + sort + "|" + this.medicationType + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
 
-			let latestSearchValue = this.filterValue;
-			this.latestSearchValue = latestSearchValue;
-			if (!latestSearchValue || latestSearchValue.length < 2) {
-				console.log("Cancelling empty search");
-				grid.set("size", 0);
-				callback([]);
-				return;
-			}
+            let latestSearchValue = this.filterValue
+            this.latestSearchValue = latestSearchValue
+            if (!latestSearchValue || latestSearchValue.length < 2) {
+                console.log("Cancelling empty search")
+                this.setGridSize(grid, 0)
+                callback([])
+                return
+            }
 
-			grid.lastParams = thisParams;
-			console.log("Starting search for " + thisParams);
+            console.log("Starting search for " + thisParams)
 
-			const limit = endIndex || grid.pageSize;
-			const offset = params.index;
-            if(this.medicationType === 'substanceProduct'){
+            const limit = endIndex || grid.pageSize
+            const offset = params.index
+            if (this.medicationType === 'substanceProduct') {
                 this.api.bedrugs().getInnClusters(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
-                    return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit) };
+                    return {totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)}
                 }).then(function (res) {
                     if (this.filterValue !== latestSearchValue) {
-                        console.log("Cancelling obsolete search");
-                        return;
+                        console.log("Cancelling obsolete search")
+                        return
                     }
                     if (grid.size !== res.totalSize) {
-                        grid.set("size", res.totalSize);
+                        this.setGridSize(grid, res.totalSize)
                     }
-                    callback(_.slice(res.rows, startIndex, endIndex));
-                }.bind(this));
+                    grid.latestResults = _.slice(res.rows, startIndex, endIndex)
+                    callback(grid.latestResults)
+                }.bind(this))
+            }
+            else {
+                const fillCache = (minSize) => Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100),
+                    this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100)])
+                    .then(([packs, packsIng]) => {
+                        grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
+                        const newItems = _.unionBy(packs, packsIng, 'id.id')
+                        return [(grid.drugsCache = _.sortBy(_.unionBy(grid.drugsCache || [], newItems, 'id.id'), 'name')), newItems.length]
+                    })
+					.then(([cache, newItemsLength]) => cache.length > minSize || !newItemsLength ? Promise.resolve(cache) : fillCache(minSize) )
+
+				this.loadCheapAlternativesIfNeeded(this.selectedMedicationFromList).then(alternatives => {
+				    const cheapAlternativeSearchSeedIndex = this.cheapAlternativeSearchSeed ?  grid.drugsCache.findIndex(mpp => mpp.id.id === this.cheapAlternativeSearchSeed.id.id) : -1
+                    const cacheEndIndex = cheapAlternativeSearchSeedIndex === -1 ? endIndex :
+						(cheapAlternativeSearchSeedIndex < endIndex ? endIndex - alternatives.length : endIndex)
+				    ;((grid.drugsCache && grid.drugsCache.length >= cacheEndIndex) ? Promise.resolve(grid.drugsCache) : fillCache(cacheEndIndex)).then(cache => {
+                        this.setGridSize(grid, cache.length + alternatives.length)
+
+                        if (cheapAlternativeSearchSeedIndex === -1 || endIndex <= cheapAlternativeSearchSeedIndex) {
+                            callback(cache.slice(startIndex, endIndex))
+                        } else if (cheapAlternativeSearchSeedIndex + alternatives.length < startIndex) {
+                            callback(cache.slice(startIndex - alternatives.length, endIndex - alternatives.length))
+                        } else {
+                            const fullVirtualDataSet = cache.map(it => it)
+                            fullVirtualDataSet.splice(cheapAlternativeSearchSeedIndex + 1, 0, ...alternatives)
+                            callback(fullVirtualDataSet.slice(startIndex, endIndex))
+                        }
+                    })
+                })
 			}
-			else {
-                Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, 0, 100),
-					this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, 0,  100)])
-					.then(([packs, packsIng]) => {
-					    packs = _.unionBy(packs, packsIng, 'id.id')
-					return { totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)
-					};
-					}).then(function (res) {
-						if (this.filterValue !== latestSearchValue) {
-							console.log("Cancelling obsolete search");
-							return;
-						}
-						if (grid.size !== res.totalSize) {
-							grid.set("size", res.totalSize);
-						}
-						callback(_.slice(res.rows, startIndex, endIndex));
-					}.bind(this));
-			}
-		};
+        };
+    }
+
+    setGridSize(grid, size) {
+        console.log('setSize', size)
+		grid.set('size', size)
 	}
 
 	_cellContent(item, column) {
-		return column.key.indexOf("price") !== -1 ? accounting.formatMoney(_.get(item, column.key) / 100, "€", 2, " ", ",") : _.get(item, column.key);
+		return column.key.indexOf("price") !== -1 ? accounting.formatMoney(_.get(item, column.key) / 100, "€", 2, " ", ",") :
+			(column.key.indexOf("name") !== -1 && _.get(item, "cheap") && _.get(item, "cheap") === 'cheap' ?  '\u2794 ' +  _.get(item, column.key):
+			_.get(item, column.key));
 	}
 
 	_columnWidth(column) {
@@ -665,13 +741,32 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
 			this.select(this.latestSelected);
 		} else {
-			this.latestSelected = selected;
-			this.inDoubleClick = true;
-			setTimeout(() => {
-				delete this.inDoubleClick;
-			}, 500);
-		}
+            this.latestSelected = selected;
+            this.inDoubleClick = true;
+
+            //Trigger cheapAlternativeSearch
+            const grid = this.$['entities-list']
+            grid.clearCache();
+
+            setTimeout(() => {
+                delete this.inDoubleClick;
+            }, 500);
+        }
 	}
+
+    loadCheapAlternativesIfNeeded(searchSeed) {
+        if (searchSeed) {
+            if (searchSeed.cheap) {
+                searchSeed = this.cheapAlternativeSearchSeed
+            }
+            this.cheapAlternativeSearchSeed = searchSeed
+            return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
+                .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1,mpp2)=>(mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp=>_.extend(_.extend({}, mpp), {cheap : 'cheap'})))
+        } else {
+            this.cheapAlternativeSearchSeed = null
+            return Promise.resolve([])
+		}
+    }
 
 	refresh() {
 		//Give the gui the time to update the field
@@ -684,7 +779,14 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			setTimeout(function () {
 				if (currentValue === this.filterValue) {
 					console.log("Triggering search for " + this.filterValue);
-					this.$['entities-list'].clearCache();
+
+					this.selectedMedicationFromList = null
+                    this.cheapAlternativeSearchSeed = null
+
+                    const grid = this.$['entities-list']
+                    grid.drugsCache = null;
+                    grid.drugsCacheUpperSearchIndex = 0;
+                    grid.clearCache();
 				} else {
 					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
 				}
@@ -899,14 +1001,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
         this.set("flagTableFrequency",true)
     }
-
-    _statusChanged(inf){
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: {id: this.id, label: this.label, status: inf.detail.status}}));
-    }
-    _planAction(detail){
-        this.dispatchEvent(new CustomEvent('plan-action', detail ));
-    }
-
 }
 
 customElements.define(DynamicMedicationField.is, DynamicMedicationField);

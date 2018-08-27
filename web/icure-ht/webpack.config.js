@@ -25,7 +25,7 @@ module.exports = {
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.html']
     },
-	devtool: 'source-map',
+	devtool: 'eval-source-map',
 	node: {
     	fs: 'empty'
 	},
@@ -55,9 +55,9 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: 'ts-loader',
+                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
             },
-	        {
+            {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
 		        use: [
 			        'file-loader',
@@ -97,7 +97,6 @@ module.exports = {
 		port: 9000,
 		proxy: {
 			'/rest/v1': {
-
 				//target: 'https://backend.icure.cloud',
 				target: 'http://127.0.0.1:16043',
 				changeOrigin: true
