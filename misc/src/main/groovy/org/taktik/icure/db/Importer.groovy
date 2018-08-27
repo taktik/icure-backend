@@ -48,6 +48,8 @@ class Importer {
 
     protected String customOwnerId
 
+    protected String DB_USER = System.getProperty("dbuser")?:null
+    protected String DB_PASSWORD = System.getProperty("dpassword")?:null
 	protected String DB_PROTOCOL = System.getProperty("dbprotocol")?:"http"
 	protected String DB_HOST = System.getProperty("dbhost")?:"127.0.0.1"
     protected String DB_PORT = System.getProperty("dbport")?:5984
@@ -59,7 +61,7 @@ class Importer {
     protected CouchDbConnector couchdbConfig
 
     Importer() {
-        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:" + DB_PORT)/*.username("admin").password("S3clud3sM@x1m@")*/.build()
+        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("${DB_PROTOCOL}://${DB_HOST}:" + DB_PORT).username(DB_USER).password(DB_PASSWORD).build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 
         // if the second parameter is true, the database will be created if it doesn't exists
