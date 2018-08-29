@@ -33,6 +33,7 @@ public class Telecom implements Serializable, Comparable<Telecom> {
 
     protected TelecomType telecomType;
     protected String telecomNumber;
+    protected String telecomDescription;
 
 	public Telecom() {
 	}
@@ -40,6 +41,12 @@ public class Telecom implements Serializable, Comparable<Telecom> {
 	public Telecom(TelecomType telecomType, String telecomNumber) {
 		this.telecomType = telecomType;
 		this.telecomNumber = telecomNumber;
+	}
+
+	public Telecom(TelecomType telecomType, String telecomNumber, String telecomDescription) {
+		this.telecomType = telecomType;
+		this.telecomNumber = telecomNumber;
+		this.telecomDescription = telecomDescription;
 	}
 
 	public @Nullable TelecomType getTelecomType() {
@@ -57,6 +64,14 @@ public class Telecom implements Serializable, Comparable<Telecom> {
     public void setTelecomNumber(String telecomNumber) {
         this.telecomNumber = telecomNumber;
     }
+
+	public @Nullable String getTelecomDescription() {
+		return telecomDescription;
+	}
+
+	public void setTelecomDescription(String telecomDescription) {
+		this.telecomDescription = telecomDescription;
+	}
 
 	@Override
 	public int compareTo(Telecom other) {
