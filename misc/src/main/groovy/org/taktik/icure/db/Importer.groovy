@@ -1,5 +1,6 @@
 package org.taktik.icure.db
 
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.ektorp.AttachmentInputStream
@@ -45,6 +46,10 @@ class Importer {
     protected String keyRoot
     protected def tarificationsPerCode = [:]
 
+    protected String customOwnerId
+
+    protected String DB_USER = System.getProperty("dbuser")?:null
+    protected String DB_PASSWORD = System.getProperty("dpassword")?:null
 	protected String DB_PROTOCOL = System.getProperty("dbprotocol")?:"http"
 	protected String DB_HOST = System.getProperty("dbhost")?:"127.0.0.1"
     protected String DB_PORT = System.getProperty("dbport")?:5984
@@ -56,7 +61,7 @@ class Importer {
     protected CouchDbConnector couchdbConfig
 
     Importer() {
-        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:" + DB_PORT)/*.username("admin").password("S3clud3sM@x1m@")*/.build()
+        HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("${DB_PROTOCOL}://${DB_HOST}:" + DB_PORT).username(DB_USER).password(DB_PASSWORD).build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 
         // if the second parameter is true, the database will be created if it doesn't exists
@@ -73,36 +78,59 @@ class Importer {
     }
 
     void createAttachment(File file, Document d) {
-        def types = UTI.get(d.mainUti)?.mimeTypes
-        def attId = d.attachmentId.split(/\|/)[0]
+        if (file != null) {
+            def types = UTI.get(d.mainUti)?.mimeTypes
+            if (file.isFile()) {
+                file.withInputStream { is ->
+                    def attId = d.attachmentId ? d.attachmentId?.split(/\|/)[0] : DigestUtils.sha256Hex(file.bytes)
+                    couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, is, types?.size() ? types[0] : "application/octet-stream"))
 
-        if (file.isFile()) {
-            file.withInputStream { is ->
-                d.rev = couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, is, types?.size() ? types[0] : "application/octet-stream"))
-                d = couchdbContact.get(Document.class, d.id)
-                d.attachmentId = attId
-                couchdbContact.update(d)
-            }
-        } else if (file.isDirectory()) {
-            def cbb = new CircularByteBuffer(128000)
+                    d = couchdbContact.get(Document.class, d.id)
+                    d.attachmentId = attId
 
-            Thread.start {
-                def zo = new ZipOutputStream(cbb.outputStream)
+                    couchdbContact.update(d)
+                }
+            } else if (file.isDirectory()) {
+                def cbb = new CircularByteBuffer(128000)
 
-                file.eachFileRecurse { f ->
-                    def name = f.absolutePath.substring(file.absolutePath.length() - file.name.length())
-                    zo.putNextEntry(new ZipEntry(f.isDirectory() ? (name + "/") : name))
-                    if (f.isFile()) {
-                        f.withInputStream { IOUtils.copy(it, zo) }
-                        zo.closeEntry()
+                Thread.start {
+                    def zo = new ZipOutputStream(cbb.outputStream)
+
+                    file.eachFileRecurse { f ->
+                        def name = f.absolutePath.substring(file.absolutePath.length() - file.name.length())
+                        zo.putNextEntry(new ZipEntry(f.isDirectory() ? (name + "/") : name))
+                        if (f.isFile()) {
+                            f.withInputStream { IOUtils.copy(it, zo) }
+                            zo.closeEntry()
+                        }
                     }
+
+                    zo.close()
                 }
 
-                zo.close()
+                def attId = d.attachmentId ? d.attachmentId?.split(/\|/)[0] : "zipfile"
+                couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, cbb.inputStream, types?.size() ? types[0] : "application/octet-stream"))
+
+                d = couchdbContact.get(Document.class, d.id)
+                d.attachmentId = attId
+
+                couchdbContact.update(d)
+            }
+        } else if (d.attachment != null) {
+            def attId = DigestUtils.sha256Hex(d.attachment)
+
+            UTI uti = UTI.get(d.mainUti);
+            String mimeType = "application/xml"
+            if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size() > 0) {
+                mimeType = uti.mimeTypes[0]
             }
 
-            d.rev = couchdbContact.createAttachment(d.id, d.rev, new AttachmentInputStream(attId, cbb.inputStream, types?.size() ? types[0] : "application/octet-stream"))
+            AttachmentInputStream a = new AttachmentInputStream(attId, new ByteArrayInputStream(d.attachment), mimeType)
+
+            couchdbContact.createAttachment(d.id, d.rev, a)
+            d = couchdbContact.get(Document.class, d.id)
             d.attachmentId = attId
+
             couchdbContact.update(d)
         }
     }
@@ -161,7 +189,18 @@ class Importer {
 
         println("Delegates are : ${delegates.join(',')}")
 
-        String dbOwnerId = delegates[0]
+        String dbOwnerId
+        if(customOwnerId != null) {
+            dbOwnerId = customOwnerId
+            this.cachedDoctors[dbOwnerId] = couchdbBase.get(HealthcareParty, dbOwnerId)
+            this.cachedKeyPairs[dbOwnerId] = loadKeyPair(dbOwnerId)
+            if (!this.cachedKeyPairs[dbOwnerId]  ) {
+                println("ERROR: key not found for customOwnerId")
+            }
+        } else {
+            dbOwnerId = delegates[0]
+        }
+        println("OwnerId = ${dbOwnerId}")
 
         def formsPerId = [:]
         forms.each { pid, fs ->
@@ -182,11 +221,11 @@ class Importer {
             /**** Delegations ****/
             delegates.each { delegateId -> p = this.appendObjectDelegations(p, null, dbOwnerId, delegateId, this.cachedDocSFKs[p.id], null) }
 
-            def pCtcs = contacts[p.id]
-            def pHes = healthElements[p.id]
-            def pForms = forms[p.id]
-            def pInvoices = invoices[p.id]
-            def ppMessages = pMessages[p.id]
+            def pCtcs = contacts[p.id] ?: []
+            def pHes = healthElements[p.id] ?: []
+            def pForms = forms[p.id] ?: []
+            def pInvoices = invoices[p.id] ?: []
+            def ppMessages = pMessages[p.id] ?: []
 
             contacts.remove(p.id)
             healthElements.remove(p.id)
@@ -468,7 +507,7 @@ class Importer {
     }
 
     protected Set<String> getSecureKeys(Map<String, Set<Delegation>> delegations, String delegateId, PrivateKey delegatePrivateKey) throws EncryptionException, IOException {
-        List<Delegation> myDelegations = delegations.get(delegateId)
+        Set<Delegation> myDelegations = delegations.get(delegateId)
         Set<String> result = new HashSet<>()
         for (Delegation d : myDelegations) {
             byte[] exchangeAESKey = getDelegateHcPartyKey(delegateId, d.getOwner(), delegatePrivateKey)

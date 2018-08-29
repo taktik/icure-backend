@@ -25,11 +25,11 @@
               "codeTypes" : [
 
               ],
-              "label" : "Contact persons",
+              "label" : "Partnerships",
               "irrelevant" : true,
               "subForm" : true,
               "type" : "TKSubConsult",
-              "name" : "contactPersonContainer"
+              "name" : "partnerships"
             }
           ]
         }

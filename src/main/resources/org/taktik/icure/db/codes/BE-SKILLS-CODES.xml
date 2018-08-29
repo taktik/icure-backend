@@ -1,0 +1,1073 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Inami skills codes</NAME>
+    <VALUE>
+        <CODE>000</CODE>
+        <DESCRIPTION L='fr'>porteur du diplôme de médecin, inscrit après le 31/ 12/ 2004</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>009</CODE>
+        <DESCRIPTION L='fr'>porteur du diplôme de médecin, inscrit entre le 01/ 01/ 1995 et le 31/ 12/ 2004</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>001</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste sur base des droits acquis</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>002</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste sur base des droits acquis, porteur de l’attestation ECG</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>003</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>004</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste, porteur de l’attestation ECG</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>005</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste en formation</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>006</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste en formation, porteur de l’attestation ECG</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>007</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>008</CODE>
+        <DESCRIPTION L='fr'>médecin généraliste, porteur de l’attestation ECG et porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>010</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en anesthésie-réanimation</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>014</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en chirurgie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>017</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en neurochirurgie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>018</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en gériatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>021</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en chirurgie plastique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>034</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en gynécologie-obstétrique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>037</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en ophtalmologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>041</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en oto-rhino-laryngologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>045</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en urologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>048</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en chirurgie orthopédique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>052</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en stomatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>055</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en dermato-vénéréologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>058</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en médecine interne</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>062</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en pneumologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>065</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en gastro-entérologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>066</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en oncologie médicale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>069</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en pédiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>073</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en cardiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>077</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en neurologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>078</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en psychiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>079</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en rhumatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>080</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en médecine aigüe</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>083</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en médecine physique et revalidation</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>086</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>087</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en anatomie pathologique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>090</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>093</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en radiodiagnostic</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>096</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>097</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en formation en médecine nucléaire</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>131</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en anesthésie-réanimation et cardiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>137</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en anesthésie-réanimation et biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>140</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>146</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et gynécologie-obstétrique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>149</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>151</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et chirurgie orthopédique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>152</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et stomatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>153</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>154</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et chirurgie orthopédique, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>157</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et pneumologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>162</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et neuropsychiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>166</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie et médecine physique, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>170</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurochirurgie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>174</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurochirurgie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>179</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurochirurgie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>180</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gériatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>182</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gériatrie et médecine nucléaire</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>184</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gériatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>192</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurochirurgie et neuropsychiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>195</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurochirurgie et neuropsychiatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>210</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie plastique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>219</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie plastique, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>222</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie plastique et stomatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>340</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gynécologie obstétrique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>341</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gynécologie obstétrique et anatomie pathologique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>369</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gynécologie obstétrique et radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>370</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en ophtalmologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>371</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en ophtalmologie et médecine générale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>374</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en ophtalmologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>378</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en ophtalmologie et ORL</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>379</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en ophtalmologie et biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>410</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en oto-rhino-laryngologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>414</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en oto-rhino-laryngologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>422</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en oto-rhino-laryngologie et stomatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>450</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en urologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>454</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en urologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>455</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en urologie et dermato-vénéréologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>459</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en urologie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>480</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie orthopédique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>489</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie orthopédique, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>494</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie orthopédique, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>495</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie orthopédique et médecine physique et réadaptation, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>496</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en chirurgie orthopédique en médecine physique et réadaptation</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>520</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en stomatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>521</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en stomatologie et médecine générale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>550</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en dermato-vénéréologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>566</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en dermato-vénéréologie et médecine physique et réadaptation</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>567</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en dermato-vénéréologie et biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>569</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en dermato-vénéréologie et radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>573</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne, gériatrie et endocrino-diabétologie (jusqu’au 30 juin 2012 inclus)</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>580</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>581</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne porteur du titre professionnel particulier en gériatrie (jusqu’au 30 juin 2012 inclus)</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>582</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et médecine nucléaire in vitro</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>583</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne, porteur du titre professionnel particulier en endocrino-diabétologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>584</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>585</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et rhumatologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>586</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne, porteur du titre professionnel particulier en gériatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés (jusqu’au 30 juin 2012 inclus)</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>587</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et pneumologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>588</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et gastro-entérologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>589</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>591</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et cardiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>592</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et neuropsychiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>593</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et rhumatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>594</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et biologie clinique et médecine nucléaire in vitro</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>595</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et cardiologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>597</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>598</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne, porteur du titre professionnel particulier en hématologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>620</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pneumologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>624</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pneumologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>628</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pneumologie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>629</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pneumologie et pédiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>631</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pneumologie et cardiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>638</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pneumologie et radiodiagnostic</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>650</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gastro-entérologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>651</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gastro-entérologie et médecine générale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>659</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en gastro-entérologie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>660</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en oncologie médicale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>689</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie et neuropsychiatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>690</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>691</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie, porteur du titre professionnel particulier en neurologie pédiatrique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>694</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>695</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie et médecine physique et réadaptation, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>696</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie, porteur du titre professionnel particulier en neurologie pédiatrique et porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle des handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>697</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie et biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>698</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie, porteur du titre professionnel particulier en hématologie et oncologie pédiatriques</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>699</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en pédiatrie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>730</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>731</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie et médecine générale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>734</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>735</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie et rhumatologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>736</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie et médecine physique et physiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>738</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie, porteur du titre professionnel particulier en médecine d’urgence et porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>739</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en cardiologie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>760</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neuropsychiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>764</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neuropsychiatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>770</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>774</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>779</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en neurologie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>780</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en psychiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>784</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en psychiatrie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>790</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en rhumatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>793</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en rhumatologie et médecine nucléaire, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>794</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en rhumatologie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>795</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en rhumatologie et physiothérapie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>796</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en rhumatologie et physiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>799</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en rhumatologie, porteur du titre professionnel particulier en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>800</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine aigüe</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>830</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique et revalidation</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>831</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique (physiothérapie) et médecine générale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>834</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique et revalidation, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>835</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique (physiothérapie) et radiothérapie, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>836</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique (physiothérapie) et radiodiagnostic, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>838</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique (physiothérapie) et radiodiagnostic</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>839</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine physique (physiothérapie) et radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>860</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en biologie clinique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>861</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en biologie clinique et médecine générale</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>862</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en biologie clinique et médecine nucléaire in vitro</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>866</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en biologie clinique et anatomie pathologique et médecine nucléaire in vitro</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>867</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en biologie clinique et anatomie pathologique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>870</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en anatomie pathologique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>900</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine d’urgence</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>930</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en radiodiagnostic</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>939</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en radiodiagnostic et radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>960</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>965</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en radiothérapie, médecine nucléaire, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>970</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>972</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et chirurgie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>978</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et gynécologie obstétrique</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>983</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine interne et en médecine nucléaire, porteur du titre professionnel particulier en endocrino-diabétologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>985</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et médecine interne</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>987</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et gastro-entérologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>988</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et pédiatrie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>989</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et cardiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>991</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et rhumatologie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>992</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et physiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>994</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et radiodiagnostic</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>995</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>996</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire et médecine interne, porteur du titre professionnel particulier en réadaptation fonctionnelle et professionnelle pour handicapés</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>997</CODE>
+        <DESCRIPTION L='fr'>médecin spécialiste en médecine nucléaire, radiodiagnostic et radiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'></DESCRIPTION>
+        <DESCRIPTION L='en'></DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

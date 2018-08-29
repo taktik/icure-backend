@@ -65,6 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<style include="shared-styles">
 			:host {
 				display: block;
+				z-index:3;
 			}
 
 			:host *:focus{
@@ -82,7 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display:flex;
 				flex-flow: column nowrap;
 				align-items: center;
-				z-index:3;
 				height: 100%;
 				width: 100%;
 			}
@@ -425,7 +425,7 @@ import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import styx from '../../../scripts/styx';
 
-class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'ht-msg-menu';
 	}

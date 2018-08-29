@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -67,7 +68,7 @@ public class CodeFacade implements OpenApiFacade {
 			value = "Finding codes by code, type and version with pagination.",
 			response = CodePaginatedList.class,
 			httpMethod = "GET",
-			notes = "Returns a list of codes matched with given input."
+			notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported"
 	)
 	@GET
 	@Path("/byLabel")
@@ -76,33 +77,32 @@ public class CodeFacade implements OpenApiFacade {
 			@ApiParam(value = "types", required = false) @QueryParam("types") String types,
 			@ApiParam(value = "language", required = false) @QueryParam("language") String language,
 			@ApiParam(value = "label", required = false) @QueryParam("label") String label,
+			@ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
+					"components to form the Complex Key's startKey") @QueryParam("startKey") String startKey,
 			@ApiParam(value = "A code document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
 			@ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit) {
 
 		Response response;
 
+		List<String> startKeyElements = startKey == null ? null : new Gson().fromJson(startKey, List.class);
+		@SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null, limit);
+
 		PaginatedList<Code> codesList;
 		if (types != null) {
 			List<String> typesList = Arrays.asList(types.split(","));
 
-			List<Code> codes = typesList.stream()
-					.flatMap(type -> codeLogic.findCodesByLabel(region, language, type, label, new PaginationOffset<>(
-							Arrays.asList(region,language,type,label),
-							startDocumentId,
-							null,
-							limit == null ? null : Integer.valueOf(limit)
-					)).getRows().stream())
-					.collect(Collectors.toList());
-			int pageSize = Math.min(limit, codes.size());
-			codesList = new PaginatedList<>(pageSize, codes.size(), codes.subList(0, pageSize), null);
-			codesList.setRows(codesList.getRows().stream().filter(c -> typesList.contains(c.getType())).distinct().collect(Collectors.toList()));
+			if (typesList.size()>1) {
+				List<Code> codes = typesList.stream()
+						.flatMap(type -> codeLogic.findCodesByLabel(region, language, type, label, paginationOffset).getRows().stream())
+						.collect(Collectors.toList());
+				int pageSize = Math.min(limit, codes.size());
+				codesList = new PaginatedList<>(pageSize, codes.size(), codes.subList(0, pageSize), null);
+				codesList.setRows(codesList.getRows().stream().filter(c -> typesList.contains(c.getType())).distinct().collect(Collectors.toList()));
+			} else {
+				codesList = codeLogic.findCodesByLabel(region, language, typesList.get(0), label, paginationOffset);
+			}
 		} else {
-			codesList = codeLogic.findCodesByLabel(region, language, label, new PaginationOffset<>(
-					Arrays.asList(region,language,label),
-					startDocumentId,
-					null,
-					limit == null ? null : Integer.valueOf(limit)
-			));
+			codesList = codeLogic.findCodesByLabel(region, language, label, paginationOffset);
 		}
 
 		if (codesList.getRows() == null) {

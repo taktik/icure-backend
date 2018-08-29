@@ -850,6 +850,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					if (!this.authenticated) {
 						this.authenticated = true
 
+						this.api.loadUsersAndHcParties()
 						if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
                             if (this.credentials.ehpassword) {
                                 const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
@@ -949,7 +950,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         "status" 				: "ACTIVE",
                         "type"                  : "database"
                     }).then(usr => {
-                        this.invitedHcpLink = window.location.origin+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        this.invitedHcpLink = window.location.origin+window.location.pathname+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
                         this.$['ht-invite-hcp-link'].open()
 					})
 				})

@@ -25,6 +25,7 @@ public class ContentDto implements Serializable {
     Double numberValue;
     Boolean booleanValue;
     Long instantValue;
+	Long fuzzyDateValue;
     String documentId;
     MeasureDto measureValue;
     MedicationDto medicationValue;
@@ -65,7 +66,15 @@ public class ContentDto implements Serializable {
         this.instantValue = instantValue;
     }
 
-    public byte[] getBinaryValue() {
+	public Long getFuzzyDateValue() {
+		return fuzzyDateValue;
+	}
+
+	public void setFuzzyDateValue(Long fuzzyDateValue) {
+		this.fuzzyDateValue = fuzzyDateValue;
+	}
+
+	public byte[] getBinaryValue() {
         return binaryValue;
     }
 

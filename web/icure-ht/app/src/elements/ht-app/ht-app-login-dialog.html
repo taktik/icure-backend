@@ -75,7 +75,7 @@
 	<script>
 
 //noinspection JSUnusedGlobalSymbols
-class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return "ht-app-login-dialog";
 	}
@@ -98,13 +98,13 @@ class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	}
 
 	login() {
-		this.fire("login", { credentials: this.credentials });
+        this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
 	}
 
 	checkForEnter(e) {
 		// check if 'enter' was pressed
 		if (e.keyCode === 13) {
-			this.fire("login", { credentials: this.credentials });
+            this.dispatchEvent(new CustomEvent('login', { detail: { credentials: this.credentials }, bubbles: true, composed: true }))
 		}
 	}
 

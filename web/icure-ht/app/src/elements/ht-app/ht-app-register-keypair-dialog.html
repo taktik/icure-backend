@@ -33,7 +33,7 @@
 
 	</template>
 	<script>
-class HtAppRegisterKeypairDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class HtAppRegisterKeypairDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'ht-app-register-keypair-dialog';
 	}
@@ -80,7 +80,7 @@ class HtAppRegisterKeypairDialog extends Polymer.TkLocalizerMixin(Polymer.mixinB
 
 	selectFile() {
 		console.log('File selected');
-		this.fire('file-selected', this.selectedRsaFile);
+        this.dispatchEvent(new CustomEvent('file-selected', { detail: this.selectedRsaFile, bubbles: true, composed: true }))
 	}
 
 	_qrCodeDetected(e, code) {

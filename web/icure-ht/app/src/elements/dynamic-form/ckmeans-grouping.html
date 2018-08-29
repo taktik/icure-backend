@@ -7,7 +7,7 @@
 
 import ss from '../../../scripts/simple-statistics';
 
-class CkmeansGrouping extends Polymer.mixinBehaviors([], Polymer.Element) {
+class CkmeansGrouping extends Polymer.Element {
 	static get is() {
 		return 'ckmeans-grouping';
 	}
@@ -26,6 +26,9 @@ class CkmeansGrouping extends Polymer.mixinBehaviors([], Polymer.Element) {
 	}
 
 	cluster(data) {
+	    if (!data.length) {
+            return { centroids: [], clusters: [] };
+		}
 		var K = Math.max(Math.round(data.length / 5), 1);
 		const history = [];
 		var isntStable = true;

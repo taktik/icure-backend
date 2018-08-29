@@ -118,14 +118,14 @@ public class DrugsFacade implements OpenApiFacade {
 
     @ApiOperation(
             value = "get Cheap MPP alternatives for a provided MPP",
-            response = MpPreview.class,
+            response = MppPreview.class,
             responseContainer = "Array",
             httpMethod = "GET",
             notes = ""
     )
     @Path("/atc/{medecinePackageId}/{lang}/cheapmpps")
     @GET
-    public List<MpPreview> getCheapAlternativesBasedOnAtc(@PathParam("medecinePackageId") String medecinePackageId,  @PathParam("lang") String lang) {
+    public List<MppPreview> getCheapAlternativesBasedOnAtc(@PathParam("medecinePackageId") String medecinePackageId,  @PathParam("lang") String lang) {
         return drugsLogic.getCheapAlternativesBasedOnAtc(new MppId(medecinePackageId, lang));
     }
 

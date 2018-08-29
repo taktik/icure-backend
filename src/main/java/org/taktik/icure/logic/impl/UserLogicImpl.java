@@ -156,7 +156,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	private void fillDefaultProperties(User user) {
 		user.getProperties().add(
 				new Property(new PropertyType(TypedValuesType.JSON, "org.taktik.icure.datafilters"),
-						new TypedValue(TypedValuesType.JSON, "[{\"label\":{\"en\":\"Lab results\"},\"tags\":[{\"CD-ITEM\":\"labresult\"}]}]")));
+						new TypedValue(TypedValuesType.JSON, "{\"label\":{\"en\":\"Lab results\"},\"tags\":[{\"CD-ITEM\":\"labresult\"}]}")));
 
 		user.getProperties().add(
 				new Property(new PropertyType(TypedValuesType.JSON, "org.taktik.icure.preferred.forms"),

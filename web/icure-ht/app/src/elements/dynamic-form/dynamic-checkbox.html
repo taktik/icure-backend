@@ -140,14 +140,14 @@
 						</template>
 					</label>
 					<span class="label-span">[[label]]</span>
-					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 				</div>
 			</paper-checkbox>
 		</template>
 
 	</template>
 	<script>
-class DynamicCheckbox extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class DynamicCheckbox extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'dynamic-checkbox';
 	}
@@ -228,7 +228,6 @@ class DynamicCheckbox extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([]
 			this.set('booleanValue', booleanValue);
 		}
 	}
-
 }
 
 customElements.define(DynamicCheckbox.is, DynamicCheckbox);

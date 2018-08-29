@@ -51,7 +51,10 @@ public class Content implements Serializable {
     @JsonDeserialize(using = InstantDeserializer.class)
     Instant instantValue;
 
-    @JsonProperty("x")
+	@JsonProperty("dt")
+	Long fuzzyDateValue;
+
+	@JsonProperty("x")
     byte[] binaryValue;
 
     @JsonProperty("d")
@@ -135,7 +138,15 @@ public class Content implements Serializable {
         this.instantValue = instantValue;
     }
 
-    public byte[] getBinaryValue() {
+	public  @Nullable Long getFuzzyDateValue() {
+		return fuzzyDateValue;
+	}
+
+	public void setFuzzyDateValue(Long fuzzyDateValue) {
+		this.fuzzyDateValue = fuzzyDateValue;
+	}
+
+	public byte[] getBinaryValue() {
         return binaryValue;
     }
 

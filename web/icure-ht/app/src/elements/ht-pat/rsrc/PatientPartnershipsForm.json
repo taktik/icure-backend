@@ -23,7 +23,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_lastName"
+                        "name" : "partnerInfo.lastName"
                       },
                       {
                         "editor" : {
@@ -44,7 +44,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_firstName"
+                        "name" : "partnerInfo.firstName"
                       },
                       {
                         "editor" : {
@@ -65,7 +65,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKDate",
-                        "name" : "PC_dateOfBirth"
+                        "name" : "partnerInfo.dateOfBirth"
                       },
                       {
                         "editor" : {
@@ -86,7 +86,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_ssin"
+                        "name" : "partnerInfo.ssin"
                       },
                       {
                         "editor" : {
@@ -107,7 +107,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_partnerName"
+                        "name" : "partnerInfo.partnerName"
                       },
                       {
                         "editor" : {
@@ -128,7 +128,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_language"
+                        "name" : "partnerInfo.language"
                       },
                       {
                         "editor" : {
@@ -149,7 +149,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_nationality"
+                        "name" : "partnerInfo.nationality"
                       },
                       {
                         "editor" : {
@@ -170,7 +170,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_education"
+                        "name" : "partnerInfo.education"
                       },
                       {
                         "editor" : {
@@ -191,23 +191,20 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_job"
+                        "name" : "partnerInfo.profession"
                       },
                       {
                         "editor" : {
                           "readOnly" : false,
                           "height" : 26,
                           "menuOptions" : [
-                            "Grandfather",
-                            "GranMother",
-                            "Father",
-                            "Mother",
-                            "Child",
-                            "Uncle",
-                            "Stepchild",
-                            "Neighbour",
-                            "Friend",
-                            "Other"
+                            "counselor",
+                            "contact",
+                            "family",
+                            "friend",
+                            "primary_contact",
+                            "primary_contact_for",
+                            "tutor"
                           ],
                           "labelPosition" : "Left",
                           "width" : 501,
@@ -220,11 +217,11 @@
                         "codeTypes" : [
 
                         ],
-                        "label" : "Links",
+                        "label" : "Relation type",
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_links"
+                        "name" : "type"
                       },
                       {
                         "editor" : {
@@ -251,7 +248,7 @@
                         "irrelevant" : true,
                         "subForm" : false,
                         "type" : "TKString",
-                        "name" : "PC_gender"
+                        "name" : "partnerInfo.gender"
                       },
                       {
                         "editor" : {

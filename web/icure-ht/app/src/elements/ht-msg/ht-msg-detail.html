@@ -353,10 +353,12 @@
 		<div class="details-panel" on-dragover="_onDrag">
 			<div class="contact-card-container">
 				<template is="dom-repeat" items="[[messages]]" as="msg">
-				From : [[msg.fromAddress]]
-				To : [[msg.toAddresses]]
-				Subject: [[msg.subject]]
-					Body: <template is="dom-repeat" items="[[msg.body]]" as="text">[[text]]</template>
+				<div>From : [[msg.fromAddress]]</div>
+				<div>To : [[msg.toAddresses]]</div>
+				<div>Subject: [[msg.subject]]</div>
+				<div>Body: 
+					<template is="dom-repeat" items="[[msg.body]]" as="text">[[text]]</template>
+				</div>
 				</template>
 			</div>
 		</div>
@@ -370,7 +372,7 @@ import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
 
-class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'ht-msg-detail';
 	}

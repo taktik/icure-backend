@@ -15,9 +15,9 @@
 									 on-error="handleError" with-credentials></iron-ajax>
 				<iron-ajax id="getTherapeuticLinksUsingGET" method="GET" headers="[[headers]]" url="/hub/therlink/{hcpNihii}/{patientSsin}" handle-as="json"
 									 on-error="handleError" with-credentials></iron-ajax>
-				<iron-ajax id="getTransactionSetUsingGET" method="GET" headers="[[headers]]" url="/hub/ts/{ssin}/{sv}/{sl}/{value}" handle-as="json"
+				<iron-ajax id="getTransactionSetUsingGET" method="GET" headers="[[headers]]" url="/hub/ts/{ssin}/{sv}/{sl}/{value}" handle-as="document"
 									 on-error="handleError" with-credentials></iron-ajax>
-				<iron-ajax id="getTransactionUsingGET" method="GET" headers="[[headers]]" url="/hub/t/{ssin}/{sv}/{sl}/{value}" handle-as="json"
+				<iron-ajax id="getTransactionUsingGET" method="GET" headers="[[headers]]" url="/hub/t/{ssin}/{sv}/{sl}" handle-as="document"
 									 on-error="handleError" with-credentials></iron-ajax>
 				<iron-ajax id="getTransactionsListUsingGET" method="GET" headers="[[headers]]" url="/hub/list/{patientSsin}" handle-as="json"
 									 on-error="handleError" with-credentials></iron-ajax>
@@ -48,23 +48,23 @@
 					}
 				},
 				behaviors: [],
-				getHcpConsentUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip) {
+				getHcpConsentUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip) {
 					var xhr = this.$.getHcpConsentUsingGET
 					
-					xhr.url = this.host+"/hub/hcpconsent/{hcpNihii}".replace("{hcpNihii}", hcpNihii) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
+					xhr.url = this.host+"/hub/hcpconsent/{hcpNihii}".replace("{hcpNihii}", hcpNihii) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
 				},
-				getPatientConsentUsingGET1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin) {
+				getPatientConsentUsingGET1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, patientSsin) {
 					var xhr = this.$.getPatientConsentUsingGET1
 					
-					xhr.url = this.host+"/hub/consent/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
+					xhr.url = this.host+"/hub/consent/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
 				},
-				getPatientUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin) {
+				getPatientUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, patientSsin) {
 					var xhr = this.$.getPatientUsingGET
 					
 					xhr.url = this.host+"/hub/patient/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
@@ -72,34 +72,34 @@
 						return req.response
 					})
 				},
-				getTherapeuticLinksUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, therLinkType, from, to) {
+				getTherapeuticLinksUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, patientSsin, therLinkType, from, to) {
 					var xhr = this.$.getTherapeuticLinksUsingGET
 					
-					xhr.url = this.host+"/hub/therlink/{hcpNihii}/{patientSsin}".replace("{hcpNihii}", hcpNihii).replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (therLinkType ? "&therLinkType=" + therLinkType : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
+					xhr.url = this.host+"/hub/therlink/{hcpNihii}/{patientSsin}".replace("{hcpNihii}", hcpNihii).replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (therLinkType ? "&therLinkType=" + therLinkType : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
 				},
-				getTransactionSetUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, ssin, sv, sl, value) {
+				getTransactionSetUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, ssin, sv, sl, value) {
 					var xhr = this.$.getTransactionSetUsingGET
 					
-					xhr.url = this.host+"/hub/ts/{ssin}/{sv}/{sl}/{value}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl).replace("{value}", value) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
+					xhr.url = this.host+"/hub/ts/{ssin}/{sv}/{sl}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (value ? "&id=" + value : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
 				},
-				getTransactionUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, ssin, sv, sl, value) {
+				getTransactionUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, ssin, sv, sl, value) {
 					var xhr = this.$.getTransactionUsingGET
 					
-					xhr.url = this.host+"/hub/t/{ssin}/{sv}/{sl}/{value}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl).replace("{value}", value) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "")
+					xhr.url = this.host+"/hub/t/{ssin}/{sv}/{sl}".replace("{ssin}", ssin).replace("{sv}", sv).replace("{sl}", sl) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (value ? "&id=" + value : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
 				},
-				getTransactionsListUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, from, to, authorNihii, authorSsin, isGlobal) {
+				getTransactionsListUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, patientSsin, from, to, authorNihii, authorSsin, isGlobal) {
 					var xhr = this.$.getTransactionsListUsingGET
-					
-					xhr.url = this.host+"/hub/list/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "") + (authorNihii ? "&authorNihii=" + authorNihii : "") + (authorSsin ? "&authorSsin=" + authorSsin : "") + (isGlobal ? "&isGlobal=" + isGlobal : "")
+
+					xhr.url = this.host+"/hub/list/{patientSsin}".replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (from ? "&from=" + from : "") + (to ? "&to=" + to : "") + (authorNihii ? "&authorNihii=" + authorNihii : "") + (authorSsin ? "&authorSsin=" + authorSsin : "") + (isGlobal ? "&isGlobal=" + isGlobal : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
@@ -136,17 +136,16 @@
 						return req.response
 					})
 				},
-				registerTherapeuticLinkUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber) {
+				registerTherapeuticLinkUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpLastName, hcpFirstName, hcpSsin, hcpZip, patientSsin, patientEidCardNumber) {
 					var xhr = this.$.registerTherapeuticLinkUsingPOST
 					
-					xhr.url = this.host+"/hub/therlink/{hcpNihii}/{patientSsin}".replace("{hcpNihii}", hcpNihii).replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (patientEidCardNumber ? "&patientEidCardNumber=" + patientEidCardNumber : "")
+					xhr.url = this.host+"/hub/therlink/{hcpNihii}/{patientSsin}".replace("{hcpNihii}", hcpNihii).replace("{patientSsin}", patientSsin) + "?ts=" + new Date().getTime()  + (endpoint ? "&endpoint=" + endpoint : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (tokenId ? "&tokenId=" + tokenId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (hcpZip ? "&hcpZip=" + hcpZip : "") + (patientEidCardNumber ? "&patientEidCardNumber=" + patientEidCardNumber : "")
 					return xhr.generateRequest().completes.then(function (req) {
 						return req.response
 					})
 				},
 				handleError: function (e) {
-					if (e.detail.request.status === 401) this.fire('auth-failed')
-					else this.fire('api-error', e)
+                    if (e.detail.request.status === 401) this.dispatchEvent(new CustomEvent('auth-failed', { bubbles: true, composed: true })); else this.dispatchEvent(new CustomEvent('api-error', { detail: e, bubbles: true, composed: true }))
 				}
 			});
 		})();

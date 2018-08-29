@@ -102,12 +102,12 @@
 					<input value="{{inputValue::input}}">
 				</iron-input>
 			</paper-input-container>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
         </template>
 
 	</template>
 	<script>
-class DynamicMeasureField extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([], Polymer.Element)) {
+class DynamicMeasureField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
 		return 'dynamic-measure-field';
 	}

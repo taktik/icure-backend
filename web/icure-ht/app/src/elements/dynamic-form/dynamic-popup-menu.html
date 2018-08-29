@@ -160,14 +160,14 @@
 			</paper-input-container>
 			</template>
 			<template is="dom-if" if="[[dataSource]]">
-				<vaadin-combo-box filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[_label(label)]]" value="{{value}}"></vaadin-combo-box>
+				<vaadin-combo-box filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[_label(label)]]" value="{{comboBoxValue}}"></vaadin-combo-box>
 			</template>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
 		</template>
 
 	</template>
 	<script>
-class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element) {
+class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 	static get is() {
 		return 'dynamic-popup-menu';
 	}
@@ -194,7 +194,11 @@ class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBeha
 				notify: true,
 				observer: '_valueChanged'
 			},
-			selected: {
+            comboBoxValue: {
+                type: String,
+                observer: '_comboBoxValueChanged'
+            },
+            selected: {
 				type: Number,
 				observer: '_selectedChanged'
 			},
@@ -264,22 +268,40 @@ class DynamicPopupMenu extends Polymer.mixinBehaviors([Polymer.IronResizableBeha
 		this.shadowRoot.querySelector('#paper-menu-button').open();
 	}
 
-	_valueChanged(value) {
-		value && this.dataSource && (!this.items || !this.items.find(i => i.id === value)) && this.dataSource.get(this.value).then(res => {
-			if (res) {
-			    if (!this.items.map(x => x.id).includes(res.id)) {
-                    this.set('items', [res].concat(this.items || []))
-                }
-				this.set('value', null);
-                this.set('value', value);
-			}
-		});
+    _comboBoxValueChanged(value) {
+	    if (value !== this.value && (value || this.value)) {
+	        this.set('value', value)
+		}
+    }
+
+    _valueChanged(value) {
+		if (value && this.dataSource) {
+            if (!this.items || !this.items.find(i => i.id === value)) {
+                this.dataSource.get(this.value).then(res => {
+                    res = res || {name:value, id:value}
+					if (!this.items.map(x => x.id).includes(res.id)) {
+						this.set('items', [res].concat(this.items || []))
+					}
+					this.set('comboBoxValue', value)
+                }).catch(()=>{
+                    const res = {name:value, id:value}
+                    if (!this.items.map(x => x.id).includes(res.id)) {
+                        this.set('items', [res].concat(this.items || []))
+                    }
+                    this.set('comboBoxValue', value)
+                })
+            } else {
+                this.set('comboBoxValue', value)
+            }
+        } else {
+            this.set('comboBoxValue', null)
+        }
 		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
 	}
 
 	_filterChanged(e) {
 		const text = e.detail.value;
-		this.dataSource && this.dataSource.filter(text).then(items => this.value ? this.dataSource.get(this.value).then(res => res ? [res].concat(items) : items) : items).then(items => this.set('items', items));
+		this.dataSource && this.dataSource.filter(text).then(items => this.value ? this.dataSource.get(this.value).then(res => res && !items.some(it=>it.id === res.id) ? [res].concat(items) : items) : items).then(items => this.set('items', items));
 	}
 
 	_label(label) {
