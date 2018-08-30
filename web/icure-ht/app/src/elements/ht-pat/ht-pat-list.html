@@ -382,9 +382,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background:none;
                     font-size: var(--form-font-size);
                 }
+                #fusionPatSelect{
+                    border:none;
+                    width: calc(100% - 24px);
+                    outline: 0;
+                    background:none;
+                    font-size: var(--form-font-size);
+                }
+                #fusionDialog {
+                    height: 200px;
+                    width: 700px;
+                }
 
-                #duplicate-list {
+                #duplicate-list{
                     max-height: 200px;
+                }
+                #sharePatientDelegationDialog{
+                    width : 920px;
+                }
+                .delegationCheckBox {
+                    width: 220px;
                 }
                 .filter-panel-title {
                     display:block;
@@ -475,10 +492,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
                         <template>
-                            <template is="dom-if" if="[[!shareOption]]">
+                            <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                                 <div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
                             </template>
-                            <template is="dom-if" if="[[shareOption]]">
+                            <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                                 <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientToShare(item, patientToShare.*)]]"
                                                  on-checked-changed="_checkSharePatient"></vaadin-checkbox>
                             </template>
@@ -538,7 +555,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </vaadin-grid-column>
                 </vaadin-grid>
                 <div class="add-btn-container">
-                    <template is="dom-if" if="[[!shareOption]]">
+                    <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
                         </paper-button>
 
@@ -546,12 +563,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
                                 patients',language)]]
                             </paper-button>
+                            <paper-button class="add-btn" on-tap="_exportPatient">[[localize('export_pat','Export
+                                patients',language)]]
+                            </paper-button>
+                            <paper-button class="add-btn" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
+                                patients',language)]]
+                            </paper-button>
                         </template>
-
                         <paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
                         </paper-button>
                     </template>
-                    <template is="dom-if" if="[[shareOption]]">
+                    <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button class="add-btn" on-tap="_cancelSharing">[[localize('canc','Cancel',language)]]
                         </paper-button>
                     </template>
@@ -568,8 +590,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-input label="First name" value="{{firstName}}"></paper-input>
                 <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
                 <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
-
-                <!--agrandir et garnir l'input-->
                 <paper-input-container>
                     <label slot="label">[[localize("gender","Gender",language)]]
                     </label>
@@ -704,7 +724,73 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
+                    patients',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="sharePatientDelegationDialog">
+            <h4>[[localize("titleSharPatDelDia","Quels sont les droits d'accès à partager ?",language)]]</h4>
+            <div>
+                <vaadin-grid items="[[hcpSelectedForSharing]]">
+                    <vaadin-grid-column  width="150px">
+                        <template class="header">
+                            Prestataires
+                        </template>
+                        <template>
+                            [[getNamesWithHcpId(item.id)]]
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column  width="700px">
+                        <template class="header">
+                            Droits d'accès
+                        </template>
+                        <template>
+                            <div>
+                                <template is="dom-repeat" items="[[delegation]]" as="delegationTag">
+                                    <template is="dom-if" if="{{_showAllDelegation(delegationTag,item.id,hcpSelectedForSharing.*)}}">
+                                        <vaadin-checkbox class="delegationCheckBox" id="[[item.id]][[delegationTag]]" checked="{{checkingDelegation(delegationTag,item.delegation,hcpSelectedForSharing.*)}}" on-checked-changed="_checkDelegation">[[localize(delegationTag,delegationTag,language)]]</vaadin-checkbox>
+                                        <template is="dom-if" if="{{_neededBr(delegationTag)}}">
+                                            <br>
+                                        </template>
+                                    </template>
+                                </template>
+                            </div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button dialog-confirm autofocus on-tap="confirmSharing">[[localize('share_pat','Share
+                    patients',language)]]
+                </paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="fusionDialog">
+            <div>
+                <label slot="label">[[localize('fir_pat_fus','Selectionner le patient qui restera',language)]]
+                </label>
+                <paper-input-container>
+                    <iron-input slot="input">
+                        <input id="fusionPatSelect" value="{{getNamePat(idFusionPat,idFusionPat.*)}}" readonly on-tap="_openPopupMenu"></input>
+                    </iron-input>
+                    <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+                        <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+                        <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{fusionSelected}}">
+                            <template is="dom-repeat" items="{{patientToShare}}">
+                                <paper-item>{{item.names}}</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-menu-button>
+                </paper-input-container>
+
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion
                     patients',language)]]
                 </paper-button>
             </div>
@@ -851,6 +937,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value : null,
                         observer : '_searchDuplicate'
                     },
+                    delegation : {
+                        type : Array,
+                        value : [
+                            "all",
+                            "administrativeData",
+                            "generalInformation",
+                            "financialInformation",
+                            "medicalInformation",
+                            "sensitiveInformation",
+                            "confidentialInformation",
+                            "cdItemRisk",
+                            "cdItemFamilyRisk",
+                            "cdItemHealthcareelement",
+                            "cdItemHealthcareapproach",
+                            "cdItemAllergy",
+                            "cdItemDiagnosis",
+                            "cdItemLab",
+                            "cdItemResult",
+                            "cdItemParameter",
+                            "cdItemMedication",
+                            "cdItemTreatment",
+                            "cdItemVaccine"
+                        ]
+                    },
+                    exportOption :{
+                        type : Boolean,
+                        value : false
+                    },
+                    fusionOption :{
+                        type : Boolean,
+                        value : false
+                    },
+                    idFusionPat : {
+                        type : String,
+                        notify: true
+                    },
+                    fusionSelected : {
+                        type: Number,
+                        observer: '_fusionSelectedChanged'
+                    },
                     hcpFilterValue: {
                         type: String
                     }
@@ -894,6 +1020,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         console.log("Cancelling empty search")
                         this.btnSharePatient = false
                         this.shareOption = false
+                        this.exportOption = false
+                        this.fusionOption = false
                         grid.set("size", 0)
                         callback([])
                         return
@@ -1043,6 +1171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
+                if(this.shareOption || this.exportOption || this.fusionOption) return;
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
@@ -1203,6 +1332,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _sharePatient(e) {
                 e.stopPropagation()
                 this.set('shareOption', true)
+                this.set('exportOption', false)
+                this.set('fusionOption', false)
+
+            }
+
+            _exportPatient(e) {
+                e.stopPropagation()
+                this.set('exportOption', true)
+                this.set('shareOption', false)
+                this.set('fusionOption', false)
+            }
+
+            _fusionPatient(e){
+                e.stopPropagation()
+                this.set('fusionOption', true)
+                this.set('shareOption', false)
+                this.set('exportOption', false)
             }
 
             _checkSharePatient(e) {
@@ -1212,7 +1358,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (targetId !== "") {
                     const mark = this.patientToShare.find(m => m.id === targetId)
                     if (!mark) {
-                        this.push('patientToShare',{id:targetId, check:true})
+                        this.api.patient().getPatient(targetId).then(result =>{
+                            this.push('patientToShare',{id:targetId, check:true, names : result.firstName+" "+result.lastName})
+                        })
                     } else {
                         mark.check = !mark.check
                         this.notifyPath('patientToShare.*')
@@ -1247,8 +1395,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _openSharePatientDialog() {
-                this.$['sharePatientDialog'].open()
-                this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                if(this.shareOption) {
+                    this.$['sharePatientDialog'].open()
+                    this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
+                }
+                if(this.exportOption){
+                    //export here
+                    this.patientToShare.forEach(patient =>{
+                        this.api.patient().getPatient(patient.id).then(patientDto =>{
+                            this.api.crypto()
+                                .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                                .then(secretForeignKeys => {
+                                    this.api.bekmehr().generateSmfExport(patientDto.id, "fr", {
+                                        secretForeignKeys: secretForeignKeys,
+                                        comment: null
+                                    }).then(output => {
+                                        console.log(output)
+                                    }).catch( error=> console.log(error))
+                                })
+                        })
+                    })
+                }
+                if(this.fusionOption){
+                    this.set("patientToShare",this.patientToShare.filter(element => element.check===true))
+                    if(this.patientToShare.length>1)
+                        this.$['fusionDialog'].open()
+                }
             }
 
             _deselectAllSharePatient() {
@@ -1262,14 +1434,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _cancelSharing(){
                 this._deselectAllSharePatient()
                 this.set('shareOption', false)
-
+                this.set('exportOption', false)
+                this.set('fusionOption', false)
             }
 
             _checkHcp(e){
                 if (e.target.id !== "") {
                     const mark = this.hcpSelectedForSharing.find(m => m.id === e.target.id)
                     if (!mark) {
-                        this.push('hcpSelectedForSharing',{id:e.target.id, check:true})
+                        this.push('hcpSelectedForSharing',{
+                            id:e.target.id,
+                            check:true,
+                            delegation : ["all"]
+                        })
                     } else {
                         mark.check = !mark.check
                         this.notifyPath('hcpSelectedForSharing.*')
@@ -1287,7 +1464,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
-            confirmSharing() {
+            confirmSharingNextStep(){
+
                 let pPromise = Promise.resolve([])
                 const hcpId = this.user.healthcarePartyId
                 this.patientToShare.filter(pat => pat.check && pat.id).forEach(pat => {
@@ -1296,7 +1474,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             .then(pat => _.concat(pats, pat))
                     )
                 })
+
+                this.$['sharePatientDialog'].close();
+
+                //erase uncheck user
+                const tab = _.differenceBy(this.hcpSelectedForSharing,[{'check' : false}], 'check')
+                this.set("hcpSelectedForSharing",tab)
+
+                //loading existing delegation of shared users
+                this.hcpSelectedForSharing.forEach( (userShared,index)  => {
+                    let delegationTag = [];
+                    const keys = Object.keys(this.user.autoDelegations)
+                    keys.forEach(key => {
+                        if(this.user.autoDelegations[key].find(x => x===userShared.id))
+                            delegationTag.push(key)
+                    })
+                    if(delegationTag.length!==0)
+                        this.set("hcpSelectedForSharing."+index+".delegation",delegationTag);
+                })
+
+                this.$['sharePatientDelegationDialog'].open();
+
                 return pPromise
+            }
+
+            confirmSharing() {
+                this.updateDelegation();
+                this.$['sharePatientDelegationDialog'].close();
             }
 
             _openPopupMenu() {
@@ -1395,6 +1599,141 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set("listResultPatients", [])
                     this.set("displayResult", false)
                 }
+            }
+
+            getNamesWithHcpId(id){
+                const element = this.hcp.find( x => x.id===id)
+                return element.lastName+" "+element.firstName
+            }
+
+            _checkDelegation(event){
+
+                const index = this.hcpSelectedForSharing.indexOf(event.model.__data.item)
+                const tag = event.target.id.substr(event.model.__data.item.id.length)
+                const value = event.detail.value
+
+                //idem of checkingDelegation
+
+                if(this.hcpSelectedForSharing[index].delegation.find(x => x==='all')){
+                    this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter(x=> true))
+                    this.hcpSelectedForSharing[index].delegation.shift()
+                }
+                if(value===true){//check
+                    if(tag==="all"){
+                        this.set("hcpSelectedForSharing."+index+".delegation",[])
+                    }
+                    this.push("hcpSelectedForSharing."+index+".delegation",tag)
+                    
+                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length==12){
+                        this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
+                    }
+
+                    if(this.hcpSelectedForSharing[index].delegation.find(x => x==="medicalInformation")){
+                        this.set("hcpSelectedForSharing."+index+".delegation",this.hcpSelectedForSharing[index].delegation.filter(x => !x.includes("cdItem")))
+                    }
+
+                    if(this.hcpSelectedForSharing[index].delegation.filter(element=> !(element.includes("cdItem")||element==="all")).length===6){
+                        this.set("hcpSelectedForSharing."+index+".delegation",["all"])
+                    }
+                }
+                else{//uncheck
+                    if(tag==="all"){
+                        this.set("hcpSelectedForSharing."+index+".delegation",this.delegation.filter( (element,index,array) => (index<=4 && element!=="all")))
+                    }
+                    else{
+                        this.set("hcpSelectedForSharing."+index+".delegation",
+                            this.hcpSelectedForSharing[index].delegation.filter(x => x!==tag))
+                    }
+                }
+            }
+
+            checkingDelegation(tagInput,delegations){
+                if(!delegations)return ;
+                return delegations.find( x => x===tagInput );
+            }
+
+            updateDelegation(){
+                let userDelegation = this.user.autoDelegations
+
+                this.hcpSelectedForSharing.forEach( userShared =>{
+                    //delete old delegations for this user
+                    Object.keys(userDelegation).forEach(key => {
+                        userDelegation[key]= userDelegation[key].filter( x => x!==userShared.id)
+                        if(userDelegation[key].length===0) delete userDelegation[key]
+                    })
+
+                    userShared.delegation.forEach( delegationTag => {
+                        //add news delegations for this user
+                        if(userDelegation.hasOwnProperty(delegationTag)){
+                            userDelegation[delegationTag].push(userShared.id)
+                        }
+                        else{
+                            userDelegation[delegationTag]=[userShared.id]
+                        }
+                    })}
+                )
+                this.set("user.autoDelegations",userDelegation)
+
+                this.api.user().modifyUser(this.user).then(user =>{
+                    this.dispatchEvent(new CustomEvent('user-saved', {
+                        detail: user,
+                        bubbles: true,
+                        composed: true
+                    }))
+                }).catch( e => {
+                    console.log(e)
+                }).finally(e => {
+                    this.api.user().getUser(this.user.id).then(x => {
+                        this.set("user",x)
+                    })
+                })
+            }
+
+            _neededBr(tag){
+                return tag==="all";
+            }
+
+            _showAllDelegation(tag,id){
+
+                if(tag==="all") return true;
+                const index = this.hcpSelectedForSharing.findIndex( x => x.id===id)
+                if(index===-1) return false;
+
+                let value = !this.hcpSelectedForSharing[index].delegation.find(x =>x==="all")
+                if(tag.includes("cdItem") && this.hcpSelectedForSharing[index].delegation.find(x =>x==="medicalInformation"))
+                    value = false;
+                return value
+            }
+
+            _optionsChecked(){
+                return this.shareOption || this.exportOption || this.fusionOption
+            }
+
+            _fusionSelectedChanged(selected) {
+                if (this.readOnly) {
+                    return;
+                }
+                this.set('idFusionPat', this.patientToShare[selected].id || null);
+            }
+
+            getNamePat(id){
+                const pat = this.patientToShare.find(patient => patient.id===id)
+                return pat.names;
+            }
+
+            confirmFusion(){
+                let listIds = "";
+                this.patientToShare.forEach(patient => {
+                    if(patient.id!==this.idFusionPat)
+                        listIds +=patient.id+",";
+                })
+                listIds = listIds.substring(0, listIds.length-1)
+                //console.log(listIds)
+                if(this.idFusionPat)
+                    this.api.patient().mergeInto(this.idFusionPat,listIds).then(response => {
+                        console.log(response)
+                        this.set('selectedPatient', response)
+                    })
             }
         }
 

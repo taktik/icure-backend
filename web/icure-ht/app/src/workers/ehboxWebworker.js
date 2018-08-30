@@ -1,11 +1,9 @@
 import * as fhcApi from '../elements/fhc-api/fhcApi'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
-import * as iccXApi from 'icc-api/icc-x-api/index'
+import * as iccXApi from 'icc-api/dist/icc-x-api/index'
 
 onmessage = function(e){
-
-    if(e.data.action == "loadEhboxMessage"){
-
+    if(e.data.action === "loadEhboxMessage"){
         const iccHost           = e.data.iccHost
         const iccHeaders        = JSON.parse(e.data.iccHeaders)
 
@@ -28,8 +26,11 @@ onmessage = function(e){
         const iccHcpartyApi     = new iccApi.iccHcpartyApi(iccHost, iccHeaders)
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
         const iccCryptoXApi     = new iccXApi.IccCryptoXApi(iccHost, iccHeaders, iccHcpartyApi)
-        const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
 
+        //Avoid the hit to the local storage to load the key pair
+        iccCryptoXApi.cacheKeyPair(e.data.keyPair, user.healthcarePartyId)
+
+        const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
 
         var nbOfEhboxMessage = 0
 
