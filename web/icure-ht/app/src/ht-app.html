@@ -798,7 +798,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				if (page === 'logout') {
 					sessionStorage.removeItem('auth')
 					this.authenticated = false
-                    this.worker.terminate()
 					this.set('view', 'auth');
 				} else {
 					console.log("page is -> "+page)
