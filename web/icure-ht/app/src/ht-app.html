@@ -1035,7 +1035,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.worker = new Worker()
 
-                this.worker.postMessage({action: "loadEhboxMessage", fhcHost: this.api.fhc().host, fhcHeaders: JSON.stringify(this.api.fhc().headers), iccHost: this.api.fhc().host, iccHeaders: JSON.stringify(this.api.fhc().headers), tokenId: this.api.tokenId, keystoreId: this.api.keystoreId, user: this.user, ehpassword: this.credentials.ehpassword, boxId: "INBOX"})
+                this.worker.postMessage({
+                    action: "loadEhboxMessage",
+                    hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+                    fhcHost: this.api.fhc().host,
+                    fhcHeaders: JSON.stringify(this.api.fhc().headers),
+                    iccHost: this.api.host,
+                    iccHeaders: JSON.stringify(this.api.headers),
+                    tokenId: this.api.tokenId,
+                    keystoreId: this.api.keystoreId,
+                    user: this.user,
+                    ehpassword: this.credentials.ehpassword,
+                    boxId: "INBOX"
+                })
 
                 this.worker.onmessage = function(e){
                     thisApi.set('ehboxWebWorkerMessage',e.data.message)
