@@ -57,6 +57,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="elements/ht-tools/ht-export-key.html">
 <link rel="import" href="elements/ht-tools/ht-import-keychain.html">
+<link rel="import" href="elements/ht-tools/ht-access-log.html">
 <link rel="import" href="elements/ht-tools/ht-my-profile.html">
 <link rel="import" href="elements/ht-app/ht-app-login-dialog.html">
 <link rel="import" href="elements/ht-app/ht-app-first-login-dialog.html">
@@ -389,6 +390,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
         <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
         <ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
+        <ht-access-log id="ht-access-log" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-access-log>
         <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
                        on-user-saved="_userSaved"></ht-my-profile>
 
@@ -513,7 +515,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
 									<paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_logList">[[localize('acc_log','Access Log',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
 							<div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
@@ -952,6 +955,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					})
 				})
 			}
+
+            _logList(){
+                this.$['ht-access-log'].open()
+            }
 		}
 
         customElements.define(HtApp.is, HtApp);
