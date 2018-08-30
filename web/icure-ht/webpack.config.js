@@ -69,6 +69,13 @@ module.exports = {
 			        },
 		        ],
 	        },
+            {
+                test: /\.worker\.js$/,
+                use: {
+                	loader: 'worker-loader',
+                    options: { fallback: false }
+                }
+            }
         ]
     },
 	mode: 'development',
