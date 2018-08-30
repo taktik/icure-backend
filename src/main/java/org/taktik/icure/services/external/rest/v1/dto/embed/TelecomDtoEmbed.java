@@ -27,6 +27,7 @@ public class TelecomDtoEmbed implements Serializable {
 	
     protected TelecomType telecomType;
     protected String telecomNumber;
+    protected String telecomDescription;
 
 	public TelecomDtoEmbed() {
 	}
@@ -35,6 +36,12 @@ public class TelecomDtoEmbed implements Serializable {
 		this.telecomType = telecomType;
 		this.telecomNumber = telecomNumber;
 	}
+
+    public TelecomDtoEmbed(TelecomType telecomType, String telecomNumber, String telecomDescription) {
+        this.telecomType = telecomType;
+        this.telecomNumber = telecomNumber;
+        this.telecomDescription = telecomDescription;
+    }
 
 	public TelecomType getTelecomType() {
         return telecomType;
@@ -51,4 +58,9 @@ public class TelecomDtoEmbed implements Serializable {
     public void setTelecomNumber(String telecomNumber) {
         this.telecomNumber = telecomNumber;
     }
+
+    public String getTelecomDescription() { return telecomDescription; }
+
+    public void setTelecomDescription(String telecomDescription) { this.telecomDescription = telecomDescription; }
+
 }
