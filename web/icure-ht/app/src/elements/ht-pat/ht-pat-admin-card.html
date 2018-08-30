@@ -546,7 +546,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <vaadin-grid-sorter path="beginDate">[[localize('sta_dat','Start date',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[formatDate(item.beginDate)]]</div>
+                                    <div class="cell frozen">[[getStartDate(item)]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
@@ -554,7 +554,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <vaadin-grid-sorter path="endDate">[[localize('end_dat','End date',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[formatDate(item.endDate)]]</div>
+                                    <div class="cell frozen">[[getEndDate(item)]]</div>
                                 </template>
                             </vaadin-grid-column>
                         </vaadin-grid>
@@ -1136,6 +1136,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             firstName: dmgConsultResp.hcParty.firstname,
                             lastName: dmgConsultResp.hcParty.familyname,
                             name: dmgConsultResp.hcParty.name,
+                            isDmg: true,
                             referral: true,
                             referralPeriods: [{
                                 startDate: dmgConsultResp.from,
@@ -1161,7 +1162,32 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     formatDate(date){
-        return this.api.moment(date).format('DD/MM/YYYY')
+        if(date){
+            return this.api.moment(date).format('DD/MM/YYYY')
+        }
+        else {
+            return ''
+        }
+    }
+
+    getStartDate(item){
+        if(item.referralPeriods && item.referralPeriods[0]){
+            return this.formatDate(item.referralPeriods[0].startDate)
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    getEndDate(item){
+        if(item.referralPeriods && item.referralPeriods[0]){
+            return this.formatDate(item.referralPeriods[0].endDate)
+        }
+        else
+        {
+            return null;
+        }
     }
 
     showInfoSelectedHcp(e){
@@ -1176,8 +1202,17 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             pphcTarget.referralPeriods.map(rp => rp)
         }
 
-        this.selectedCareProvider.pphc = pphcTarget
-        this.set('selectedPerson', this.selectedCareProvider)
+        if(this.selectedCareProvider.isDmg)
+        {
+
+            this.selectedCareProvider.pphc = _.cloneDeep(this.selectedCareProvider);
+            this.set('selectedPerson', this.selectedCareProvider)
+        }
+        else
+        {
+            this.selectedCareProvider.pphc = pphcTarget
+            this.set('selectedPerson', this.selectedCareProvider)
+        }
 
     }
 
