@@ -1116,7 +1116,7 @@
 
                 if (this.api) {
                     this.api.cacheRowsUsingPagination(
-                        'CD-HCPARTy-pers',
+                        'CD-HCPARTY-pers',
                         (key,docId) =>
                             this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
                                 .then(pl => ({

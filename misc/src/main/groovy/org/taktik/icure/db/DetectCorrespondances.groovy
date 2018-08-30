@@ -7,6 +7,7 @@ import org.ektorp.CouchDbInstance
 import org.ektorp.ViewQuery
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -87,34 +88,74 @@ class DetectCorrespondances extends Importer {
             cachedKeyPairs[hcp.id] = keyPair
 
             this.cachedDoctors[hcp.id] = hcp
+
+            couchdbBase.update(hcp)
         }
 
-        corr.each { k, v ->
-            def a = new ArrayList<>(v.entrySet()).sort { Entry a, Entry b -> b.value <=> a.value }.collect { Entry e -> [pat: e.key, score: e.value] }
+
+        def corr2 = [:]
+
+        def fixer = { k, v ->
+            def a = new ArrayList<>(v.entrySet()).sort { Entry x, Entry y -> y.value <=> x.value }.collect { Entry e -> [pat: e.key, score: e.value] }
 
             if (a.size() > 1 && (a[0].score * 1.0) / (a[1].score * 1.0) < 3) {
                 def it = contacts.find { it.secretForeignKeys[0] == k }
-                println("${k}: No clear match with ${a[0].pat} (${a[0].score}/${a[1].score}) content: ${it.services.collect { it.label + ':' + it.content.values().collect { it.stringValue }.findAll { it }.join(' ') }.join(';').replaceAll(/\s/,' ')}")
+                println("${k}: No clear match with ${a[0].pat} (${a[0].score} >< ${a[1].score}) content: ${it.services.collect { it.label + ':' + it.content.values().collect { it.stringValue }.findAll { it }.join(' ') }.join(';').replaceAll(/\s/,' ')}")
             } else {
                 def pat = couchdbPatient.get(Patient.class, a[0].pat as String)
                 def ctcs = couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path())
                         .designDocId("_design/Contact").viewName("by_hcparty_patientfk").startKey(ComplexKey.of(users[0].healthcarePartyId, k)).endKey(ComplexKey.of(users[0].healthcarePartyId, k)), Contact.class)
                 def hes = couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path())
                         .designDocId("_design/HealthElement").viewName("by_hcparty_patient").startKey(ComplexKey.of(users[0].healthcarePartyId, k)).endKey(ComplexKey.of(users[0].healthcarePartyId, k)), HealthElement.class)
+                def forms = couchdbContact.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbContact.path())
+                        .designDocId("_design/Form").viewName("by_hcparty_patientfk").startKey(ComplexKey.of(users[0].healthcarePartyId, k)).endKey(ComplexKey.of(users[0].healthcarePartyId, k)), HealthElement.class)
+
+                def formIds = new HashSet(forms.collect {it.id})
 
                 users.each { delegate -> this.appendObjectDelegations(pat, null, users[0].healthcarePartyId, delegate.healthcarePartyId, k, null) }
                 ctcs.each {  c ->
+                    c.subContacts.each { sc ->
+                        if (sc.formId && !formIds.contains(sc.formId)) {
+                            def form = couchdbContact.get(Form.class, sc.formId)
+                            if (form.secretForeignKeys?.size() >0) {
+                                if (!corr[form.secretForeignKeys[0]] && !corr2[form.secretForeignKeys[0]]) {
+                                    def vv = (corr2[form.secretForeignKeys[0]] = [:])
+                                    vv[a[0].pat] = 1
+                                } else {
+                                    def vv = corr[form.secretForeignKeys[0]] ?: corr2[form.secretForeignKeys[0]]
+                                    def aa = new ArrayList<>(vv.entrySet()).sort { Entry x, Entry y -> y.value <=> x.value }.collect { Entry e -> [pat: e.key, score: e.value] }
+                                    if (aa.size() > 1 && (aa[0].score * 1.0) / (aa[1].score * 1.0) < 3) {
+                                        if (aa[0].pat!=a[0].pat) {
+                                            println("Mismatch for ${a[0].pat}")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     users.each { delegate -> this.appendObjectDelegations(c, pat, users[0].healthcarePartyId, delegate.healthcarePartyId, null, k) }
                 }
                 hes.each {  c ->
+                    users.each { delegate -> this.appendObjectDelegations(c, pat, users[0].healthcarePartyId, delegate.healthcarePartyId, null, k) }
+                }
+                forms.each {  c ->
                     users.each { delegate -> this.appendObjectDelegations(c, pat, users[0].healthcarePartyId, delegate.healthcarePartyId, null, k) }
                 }
 
                 couchdbPatient.update(pat)
                 couchdbContact.executeBulk(ctcs)
                 couchdbContact.executeBulk(hes)
+                couchdbContact.executeBulk(forms)
             }
+        }
 
+
+        corr.each(fixer)
+        while (corr2.size()>0) {
+            corr = corr2
+            corr2 = [:]
+            corr.each(fixer)
         }
 
 
