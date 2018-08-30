@@ -149,10 +149,8 @@ public class AgendaFacade implements OpenApiFacade {
     public Response getReadableAgendasForUser(@QueryParam("userId") String userId) {
         Response response;
         List<Agenda> agendas = agendaLogic.getReadableAgendaForUser(userId);
-        if (agendas != null && agendas.size() > 0) {
+        if (agendas != null) {
             response = Response.ok().entity(agendas.stream().map(c -> mapper.map(c, AgendaDto.class)).collect(Collectors.toList())).build();
-        } else if(agendas != null){
-            response = Response.noContent().build();
         } else {
             response = ResponseUtils.internalServerError("Readable agendas fetching failed");
         }
