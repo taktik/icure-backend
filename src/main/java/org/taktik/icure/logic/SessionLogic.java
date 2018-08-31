@@ -64,6 +64,8 @@ public interface SessionLogic {
 
 		User getUser();
 
+		String getUserId();
+
 		String getLocale();
 
 		void setLocale(String locale);

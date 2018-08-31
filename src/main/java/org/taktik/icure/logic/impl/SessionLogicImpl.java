@@ -345,11 +345,16 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 		@Override
 		public User getUser() {
-			String userId = (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
+			String userId = getUserId();
 			if (userId != null && !userId.equals("bootstrap")) {
 				return userLogic.getUserOnFallbackDb(userId);
 			}
 			return null;
+		}
+
+		@Override
+		public String getUserId() {
+			return (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
 		}
 
 		@Override
