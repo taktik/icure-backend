@@ -253,11 +253,8 @@
     "telecom" : "Telecom",
     "the_ni_of_the_pat_is_not_val_or_mis": "The niss of the patient is not valid or missing ",
     "time_lft" : "Auto-logout in ",
-<<<<<<< HEAD
     "tl":"Therapeutic link",
-=======
     "titleSharPatDelDia" : "Quels sont les droits d'accès à partager ?",
->>>>>>> 86545efa0e5ec918c108d0739fdba2e690980aa6
     "tl_req":"Request therapeutic link",
     "tl_type":"TL Type",
     "to_do": "To Do",
@@ -524,11 +521,8 @@
     "temp" : "Temporalité",
     "the_ni_of_the_pat_is_not_val_or_mis": "Le niss du patient n'est pas valide ou manquant ",
     "time_lft" : "Déconnex. dans ",
-<<<<<<< HEAD
     "tl":"Liens thérapeutiques",
-=======
     "titleSharPatDelDia" : "Quels sont les droits d'accès à partager ?",
->>>>>>> 86545efa0e5ec918c108d0739fdba2e690980aa6
     "tl_req":"Liens thérapeutiques",
     "tl_type":"Type LT",
     "to_do": "Actions planifiées",
@@ -787,11 +781,8 @@
     "tel_num": "Telecom number",
     "telecom" : "Telecom",
     "time_lft" : "Time left: ",
-<<<<<<< HEAD
     "tl":"Therapeutische relaties",
-=======
     "titleSharPatDelDia" : "Quels sont les droits d'accès à partager ?",
->>>>>>> 86545efa0e5ec918c108d0739fdba2e690980aa6
     "tl_req":"Therapeutische relaties",
     "tl_type":"Type TR",
     "to_do": "To Do",
