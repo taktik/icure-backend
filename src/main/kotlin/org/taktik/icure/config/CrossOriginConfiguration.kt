@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
+import org.springframework.boot.web.servlet.FilterRegistrationBean
+
+
 
 @Configuration
 class CrossOriginConfiguration {
@@ -15,7 +18,6 @@ class CrossOriginConfiguration {
         config.allowCredentials = true
         config.addAllowedOrigin("*")
         config.addAllowedHeader("*")
-        config.addAllowedMethod("OPTIONS")
         config.addAllowedMethod("HEAD")
         config.addAllowedMethod("GET")
         config.addAllowedMethod("PUT")
@@ -24,5 +26,12 @@ class CrossOriginConfiguration {
         config.addAllowedMethod("PATCH")
         source.registerCorsConfiguration("/**", config)
         return CorsFilter(source)
+    }
+
+    @Bean
+    fun registerCorsFilter(filter: CorsFilter): FilterRegistrationBean {
+        val reg = FilterRegistrationBean(filter)
+        reg.order = 4
+        return reg
     }
 }
