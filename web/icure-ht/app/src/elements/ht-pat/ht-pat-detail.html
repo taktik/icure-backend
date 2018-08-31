@@ -916,6 +916,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow-y: scroll;
 				height: 90%;
 			}
+
+			paper-tooltip{
+				--paper-tooltip-delay-in:100;
+			}
 		</style>
 
 		<div class="container">
@@ -937,9 +941,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="patient-birthdate">°[[patient.dateOfBirth]]</div>
 								<div class="statusContainer">
 									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
+									<paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
 									<paper-fab id="consentStatus" mini icon="icons:thumb-up" on-tap="_openConsentDialog"></paper-fab>
+									<paper-tooltip for="consentStatus">[[localize('consent','insurance',language)]]</paper-tooltip>
 									<paper-fab id="tlStatus" mini icon="vaadin:specialist" on-tap="_openTherLinkDialog"></paper-fab>
+									<paper-tooltip for="tlStatus">[[localize('tl','insurance',language)]]</paper-tooltip>
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
+									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
 								</div>
 							</div>
 						</paper-item>
@@ -2077,17 +2085,17 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						if(patientConsent){
                     	this.api.fhc().Consentcontroller().revokePatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         	hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-							patientConsent, this.eidCardNumber, this.isiCardNumber)
+							patientConsent, this.eidCardNumber, this.isiCardNumber).then(consentResp => {
+                                this.showPatientConsentState()
+                                return consentResp
+                            }
+                        )
                         }
                         else {
 				        	return Promise.resolve(null)
 						}
                     }
-                ).then(consentResp => {
-                    this.showPatientConsentState()
-                    return consentResp
-                }
-			)
+                )
 			)
         }else{
             return Promise.resolve(null)
