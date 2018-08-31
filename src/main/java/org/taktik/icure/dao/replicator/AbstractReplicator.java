@@ -58,15 +58,18 @@ public abstract class AbstractReplicator<T extends StoredDocument> implements Fi
     @Override
     public CompletableFuture<Boolean> startReplication(Group replicatedGroup, SslContextFactory sslContextFactory) {
         // should check if a replication hasn't been started or if group has been updated
-        GroupDBUrl groupDb = new GroupDBUrl(couchDbUrl);
+	    GroupDBUrl groupDb = new GroupDBUrl(couchDbUrl);
         ReplicatorJobStatus jobStatus = tryToGetJob(replicatedGroup);
         if (jobStatus == null) {
-            return CompletableFuture.completedFuture(true); //It is a success because someone else is taking care of this replication... We do not need to mark it as pending
+	        log.info("Someone else is busy with "+replicatedGroup.getId());
+	        return CompletableFuture.completedFuture(true); //It is a success because someone else is taking care of this replication... We do not need to mark it as pending
         }
         synchronized (this) {
 	        if (httpClient==null) {
+		        log.info("Init http client from "+replicatedGroup.getId());
 		        httpClient = new HttpClient(sslContextFactory);
 		        try {
+			        httpClient.setMaxConnectionsPerDestination(65535);
 			        httpClient.start();
 		        } catch (Exception e) {
 			        log.error("Cannot start HTTP client");
@@ -82,8 +85,10 @@ public abstract class AbstractReplicator<T extends StoredDocument> implements Fi
 	        }
         }
 	    CouchDbInstance groupDbInstance = new CouchDbInstance(httpClient, URI.create(groupDb.getInstanceUrl(replicatedGroup)), groupDb.getDbName(replicatedGroup), replicatedGroup.getId(), replicatedGroup.getPassword());
+	    log.info("Create instance for "+replicatedGroup.getId());
 	    return groupDbInstance.exists().thenApply((Boolean result) -> {
-	    	if (result) {
+		    log.info("Db exists for "+replicatedGroup.getId());
+		    if (result) {
 	    		prepareReplication(replicatedGroup);
 			    result = replicateExistingData(replicatedGroup); //This is sort of blocking
 			    if (result) {

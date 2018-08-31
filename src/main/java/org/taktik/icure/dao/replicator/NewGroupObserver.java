@@ -139,7 +139,9 @@ public class NewGroupObserver {
 		synchronized (this) {
 			if (httpClient == null) {
 				httpClient = new HttpClient(this.sslContextFactory);
+
 				try {
+					httpClient.setMaxConnectionsPerDestination(65535);
 					httpClient.start();
 				} catch (Exception e) {
 					log.error("Cannot start HTTP client");
@@ -175,6 +177,7 @@ public class NewGroupObserver {
 		log.info("Starting replications for "+group.getId());
 
 		allDaos.forEach(d->d.initStandardDesignDocument(group.getId()));
+		log.info("Standard docs initialised for "+group.getId());
 
 		CompletableFuture<FilteredReplicator> f = CompletableFuture.completedFuture(null);
 		for (FilteredReplicator r : replicators) {

@@ -4,54 +4,83 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.http.client.utils.URIBuilder
 import org.eclipse.jetty.client.HttpClient
+import org.eclipse.jetty.client.api.Response
 import org.eclipse.jetty.client.api.Result
 import org.eclipse.jetty.client.util.BufferingResponseListener
+import org.eclipse.jetty.http.HttpField
 import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.util.Callback
+import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.AsyncDeserializerImpl
 import org.taktik.couchdb.parser.PartialJsonParser
+import org.taktik.icure.dao.replicator.AbstractReplicator
 import java.net.URI
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 
 /**
  * @author aduchate on 17/02/2017.
  */
-class CouchDbInstance(val httpClient : HttpClient, val baseUrl : URI, val dbName : String, val user : String? = null, val password : String? = null) {
+class CouchDbInstance(val httpClient: HttpClient,
+                      val baseUrl: URI,
+                      val dbName: String,
+                      val user: String? = null,
+                      val password: String? = null) {
+    private val log = LoggerFactory.getLogger(CouchDbInstance::class.java)
 
-    fun exists() : CompletableFuture<Boolean> {
-		val future = CompletableFuture<Boolean>()
+    fun exists(): CompletableFuture<Boolean> {
+        val future = CompletableFuture<Boolean>()
 
         val uri = URIBuilder("${baseUrl.normalize()}/$dbName").build()
 
-		httpClient.newRequest(uri).apply { user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((u + ":" + p).toByteArray())) } } }
-			.send(object : BufferingResponseListener() {
-				override fun onComplete(it: Result?) {
-					if(it == null || it.isFailed) {
-						future.completeExceptionally(it!!.failure)
-					} else {
-						val content = content
-						future.complete(content.isNotEmpty() && ObjectMapper().readValue(content, ObjectNode::class.java)?.get("db_name") != null)
-					}
-				}
-			})
-		return future
+        try {
+            val request = httpClient.newRequest(uri).timeout(5, TimeUnit.SECONDS)
+                .apply { user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((u + ":" + p).toByteArray())) } } }
+
+            request.send(object : BufferingResponseListener() {
+               override fun onComplete(it: Result?) {
+                    try {
+                        if (it == null || it.isFailed) {
+                            future.completeExceptionally(it!!.failure)
+                        } else {
+                            val content = content
+                            future.complete(content.isNotEmpty() && ObjectMapper().readValue(content, ObjectNode::class.java)?.get("db_name") != null)
+                        }
+                    } catch (e: Exception) {
+                        future.completeExceptionally(e)
+                    }
+                }
+
+                override fun onFailure(response: Response?, failure: Throwable?) {
+                    log.info("Failure for ${uri}")
+
+                    future.completeExceptionally(failure)
+                }
+            })
+        } catch (e: Exception) {
+            future.completeExceptionally(e)
+        }
+        return future
     }
 
-    fun changes(since: String?, changeDetected: (Change) -> Unit, heartBeat:() -> Unit) {
+    fun changes(since: String?, changeDetected: (Change) -> Unit, heartBeat: () -> Unit) {
         val parser = PartialJsonParser(AsyncDeserializerImpl(Change::class.java, changeDetected))
 
         val uri = URIBuilder("${baseUrl.normalize()}/$dbName/_changes")
-                .setParameter("feed", "continuous")
-                .setParameter("heartbeat", "10000")
-                .setParameter("include_docs", "true")
-                .apply { since?.let { setParameter("since", since) } }
-                .build()
-        httpClient.newRequest(uri).apply { user?.let {u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic "+Base64.getEncoder().encodeToString((u+":"+p).toByteArray())) }}}
-                .onResponseContent { response, byteBuffer ->
-                    parser.parse(byteBuffer)
-                    heartBeat()
-                } .send {}
+            .setParameter("feed", "continuous")
+            .setParameter("heartbeat", "10000")
+            .setParameter("include_docs", "true")
+            .apply { since?.let { setParameter("since", since) } }
+            .build()
+        httpClient.newRequest(uri)
+            .apply { user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((u + ":" + p).toByteArray())) } } }
+            .onResponseContent { response, byteBuffer ->
+                parser.parse(byteBuffer)
+                heartBeat()
+            }.send {}
 
     }
 }
