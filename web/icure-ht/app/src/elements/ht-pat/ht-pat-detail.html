@@ -2085,17 +2085,17 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						if(patientConsent){
                     	this.api.fhc().Consentcontroller().revokePatientConsentUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         	hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-							patientConsent, this.eidCardNumber, this.isiCardNumber)
+							patientConsent, this.eidCardNumber, this.isiCardNumber).then(consentResp => {
+                                this.showPatientConsentState()
+                                return consentResp
+                            }
+                        )
                         }
                         else {
 				        	return Promise.resolve(null)
 						}
                     }
-                ).then(consentResp => {
-                    this.showPatientConsentState()
-                    return consentResp
-                }
-			)
+                )
 			)
         }else{
             return Promise.resolve(null)
