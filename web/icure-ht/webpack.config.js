@@ -55,19 +55,16 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
+                use: [{loader: 'ts-loader', options: { /*allowTsInNodeModules: true*/ }}]
             },
             {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
-		        use: [
-			        'file-loader',
-			        {
-				        loader: 'image-webpack-loader',
-				        options: {
-					        bypassOnDebug: true,
-				        },
-			        },
-		        ],
+                use: [{
+                    loader: "url-loader",
+                    options: {
+                        limit: 10000,
+                    },
+                }],
 	        },
             {
                 test: /\.worker\.js$/,
