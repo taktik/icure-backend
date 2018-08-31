@@ -2,7 +2,7 @@ import * as fhcApi from '../elements/fhc-api/fhcApi'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
 
-onmessage = function(e){
+onmessage = e => {
     if(e.data.action === "loadEhboxMessage"){
         const iccHost           = e.data.iccHost
         const iccHeaders        = JSON.parse(e.data.iccHeaders)
@@ -27,50 +27,56 @@ onmessage = function(e){
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
         const iccCryptoXApi     = new iccXApi.IccCryptoXApi(iccHost, iccHeaders, iccHcpartyApi)
 
+
         //Avoid the hit to the local storage to load the key pair
         iccCryptoXApi.cacheKeyPair(e.data.keyPair, user.healthcarePartyId)
 
         const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
+        const iccMessageXApi    = new iccXApi.IccMessagheXApi(iccHost, iccHeaders, iccCryptoXApi)
 
         var nbOfEhboxMessage = 0
 
         ehboxApi.loadMessagesUsingGET(keystoreId, tokenId, ehpassword, boxId, 100).then(messages => {
             messages.map(message => {
                   ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id).then(fullMessage => {
-                      console.log(fullMessage)
                       msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1000).then(existingMess => {
+                            if(existingMess.rows.length > 0){
+                                console.log("Message found")
+                            }else{
+                                console.log('Message not found')
+                                nbOfEhboxMessage ++
 
-                        if(existingMess.rows.length > 0){
-                            console.log("Message found")
-                        }else{
-                            console.log('Message not found')
-                            nbOfEhboxMessage ++
+                                let newMessage = {
+                                    fromAddress:            fullMessage.sender.lastName+' '+fullMessage.sender.firstName,
+                                    subject:                fullMessage.document.title,
+                                    metas:                  fullMessage.customMetas,
+                                    toAddresses:            [boxId],
+                                    fromHealthcarePartyId:  "",
+                                    transportGuid: boxId+":"+fullMessage.id
+                                }
 
-                            let newMessage = {
-                                fromAddress:            fullMessage.sender.lastName+' '+fullMessage.sender.firstName,
-                                subject:                fullMessage.document.title,
-                                metas:                  fullMessage.customMetas,
-                                toAddresses:            ["INBOX"],
-                                fromHealthcarePartyId:  ""
+                                iccMessageXApi.newInstance(user, newMessage).then(messageInstance => {
+                                    msgApi.createMessage(messageInstance).then(createdMessage => {
+                                        console.log(createdMessage)
+                                        fullMessage.annex.map(a => {
+                                            docxApi.newInstance(user, createdMessage, {
+                                                documentType: 'result',
+                                                mainUti: docxApi.uti(a.mimeType),
+                                                name: a.title
+                                            }).then(d => {
+                                                console.log(d)
+                                                docApi.createDocument(d).then(createdDocument => {
+                                                    console.log(createdDocument)
+                                                    postMessage({message: "You have " + nbOfEhboxMessage + " new messages into your ehbox"})
+                                                })
+                                            })
+                                        })
+                                    })
+                                })
                             }
-
-                            msgApi.createMessage(newMessage).then(createdMessage => {
-                              fullMessage.annex.map(a => {
-                                  docxApi.newInstance(user, createdMessage, {documentType: 'result', mainUti: docxApi.uti(a.mimeType), name: a.title}).then(d => {
-                                      console.log(d)
-                                      docApi.createDocument(d).then(createdDocument => {
-                                         console.log(createdDocument)
-                                      })
-                                  })
-                              })
-                            })
-                        }
-
-                        postMessage({message: "You have "+nbOfEhboxMessage+" new messages into your ehbox"})
-
                       })
                   })
-                })
+             })
         })
     }
 };
