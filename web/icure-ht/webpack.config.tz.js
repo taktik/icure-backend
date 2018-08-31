@@ -25,7 +25,7 @@ module.exports = {
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.html']
     },
-	devtool: 'inline-source-map',
+    devtool: 'eval-source-map',
 	node: {
     	fs: 'empty'
 	},
@@ -55,7 +55,7 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
+                use: [{loader: 'ts-loader', options: { /*allowTsInNodeModules: true*/ }}]
             },
 	        {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
@@ -69,6 +69,13 @@ module.exports = {
 			        },
 		        ],
 	        },
+            {
+                test: /\.worker\.js$/,
+                use: {
+                    loader: 'worker-loader',
+                    options: { fallback: false }
+                }
+            }
         ]
     },
 	mode: 'development',
