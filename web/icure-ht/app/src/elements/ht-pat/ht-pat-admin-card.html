@@ -870,12 +870,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.initCurrentCareTeam();
 
             if (this.patient.partnerships && this.patient.partnerships.length) {
-                Promise.all(this.patient.partnerships.map(ps => {
-                    return this.api.patient().getPatient(ps.partnerId).then(pps => {
-                        const index = this.patient.partnerships.indexOf(ps)
+                (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
+                    ppss.map(pps => {
+                        const index = this.patient.partnerships.findIndex(ps => ps.partnerId === pps.id)
                         this.set('patient.partnerships.' + index + '.partnerInfo', pps)
                     })
-                })).then(() => {
+                ).finally(() => {
                     this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id);
                     this.set('patientMap', _.cloneDeep(this.patient));
 
@@ -922,14 +922,14 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         partner.partnerInfo.id = partner.id
                         partner.partnerId = partner.id
 
-                        this.api.patient().newInstance(this.user, partner.partnerInfo).then(np => {
-                            this.api.patient().createPatient(np).then(np => {
+                        this.api.patient().newInstance(this.user, partner.partnerInfo).then(p => this.api.register(p,'patient')).then(np => {
+                            this.api.patient().createPatient(np).then(p => this.api.register(p,'patient')).then(np => {
                                 this.set('patient.partnerships.' + index + '.partnerInfo', np)
                             })
                         })
                     } else {
                         //patient present
-                        this.api.patient().modifyPatient(partner.partnerInfo).then(partner => {
+                        this.api.patient().modifyPatient(partner.partnerInfo).then(p => this.api.register(p,'patient')).then(partner => {
                             this.set('patient.partnerships.' + index + '.partnerInfo', partner)
                         })
 
@@ -937,7 +937,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
             }
 
-            this.api.patient().modifyPatient(patient).then(p => {
+            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => {
                 this.patient && (this.patient.rev = p.rev)
             }).catch(e =>
                 this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
@@ -1082,7 +1082,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     newPhcp.sendFormats = {}
                     phcp.push(newPhcp)
 
-                    this.api.patient().modifyPatient(patient).then(patient => {
+                    this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
                         this.set('patient.patientHealthCareParties', phcp)
                         this.$['add-new-person-to-care-team'].close()
                         this.initCurrentCareTeam()
