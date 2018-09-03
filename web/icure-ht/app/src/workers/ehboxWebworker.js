@@ -23,6 +23,7 @@ onmessage = e => {
         const msgApi            = new iccApi.iccMessageApi(iccHost, iccHeaders)
         const beResultApi       = new iccApi.iccBeresultimportApi(iccHost, iccHeaders)
 
+
         const iccHcpartyApi     = new iccApi.iccHcpartyApi(iccHost, iccHeaders)
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
         const iccCryptoXApi     = new iccXApi.IccCryptoXApi(iccHost, iccHeaders, iccHcpartyApi)
@@ -38,8 +39,9 @@ onmessage = e => {
 
         ehboxApi.loadMessagesUsingGET(keystoreId, tokenId, ehpassword, boxId, 100).then(messages => {
             messages.map(message => {
-                  ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id).then(fullMessage => {
+                  ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id) .then(fullMessage => {
                       msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1000).then(existingMess => {
+                          console.log(fullMessage)
                             if(existingMess.rows.length > 0){
                                 console.log("Message found")
                             }else{
@@ -52,28 +54,38 @@ onmessage = e => {
                                     metas:                  fullMessage.customMetas,
                                     toAddresses:            [boxId],
                                     fromHealthcarePartyId:  "",
-                                    transportGuid: boxId+":"+fullMessage.id
+                                    transportGuid:          boxId+":"+fullMessage.id
+
                                 }
 
                                 iccMessageXApi.newInstance(user, newMessage).then(messageInstance => {
                                     msgApi.createMessage(messageInstance).then(createdMessage => {
-                                        console.log(createdMessage)
                                         fullMessage.annex.map(a => {
                                             docxApi.newInstance(user, createdMessage, {
                                                 documentType: 'result',
                                                 mainUti: docxApi.uti(a.mimeType),
                                                 name: a.title
                                             }).then(d => {
-                                                console.log(d)
                                                 docApi.createDocument(d).then(createdDocument => {
-                                                    console.log(createdDocument)
+
+                                                    let contentDecode = self.atob(a.content)
+
+                                                    let byteContent = [];
+                                                    let buffer = new Buffer(contentDecode, 'utf16le');
+
+                                                    for (let i = 0; i < buffer.length; i++) {
+                                                        byteContent.push(buffer[i]);
+                                                    }
+
+                                                    docApi.setAttachment(createdDocument.id, null, byteContent).then(docWithAttachment => {})
+
                                                     postMessage({message: "You have " + nbOfEhboxMessage + " new messages into your ehbox"})
                                                 })
                                             })
                                         })
                                     })
                                 })
-                            }
+                           }
                       })
                   })
              })
