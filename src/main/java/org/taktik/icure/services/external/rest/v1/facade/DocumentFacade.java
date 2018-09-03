@@ -237,7 +237,7 @@ public class DocumentFacade implements OpenApiFacade{
 				bb.putLong(uuid.getLeastSignificantBits());
 				try {
 					payload = CryptoUtils.encryptAES(payload, bb.array());
-					break;
+					break; //should always work (no real check on key validity for encryption)
 				} catch (Exception ignored) {
 				}
 			}
