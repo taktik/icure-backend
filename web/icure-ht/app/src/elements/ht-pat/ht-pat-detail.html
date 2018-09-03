@@ -2499,8 +2499,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const contact = year.contacts.find(c => c.id === ctcId);
 
         const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
-        ctcDetailPanel && ctcDetailPanel.shouldSave() && this.saveCurrentContact().then(() => {
 
+		(ctcDetailPanel && ctcDetailPanel.shouldSave() && this.saveCurrentContact() || Promise.resolve(this.currentContact)).then(() => {
             if (contact) {
                 if (!contact.rev && (!contact.services || contact.services.length === 0)) {
                     const idx = this.contactYears[0].contacts.indexOf(this.currentContact);

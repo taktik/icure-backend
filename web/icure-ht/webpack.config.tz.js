@@ -59,15 +59,12 @@ module.exports = {
             },
 	        {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
-		        use: [
-			        'file-loader',
-			        {
-				        loader: 'image-webpack-loader',
+                use: [{
+                    loader: "url-loader",
 				        options: {
-					        bypassOnDebug: true,
+                        limit: 10000,
 				        },
-			        },
-		        ],
+                }],
 	        },
             {
                 test: /\.worker\.js$/,
