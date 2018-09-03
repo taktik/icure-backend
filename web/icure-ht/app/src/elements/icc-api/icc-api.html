@@ -57,6 +57,12 @@
                     value: function () {
                         return {}
                     }
+                },
+                registry: {
+                    type: Object,
+                    value: function () {
+                        return {}
+                    }
                 }
             }
         }
@@ -360,7 +366,28 @@
                 acc[hcp.id] = hcp
                 return acc
             }, {})))
+        }
 
+        unregisterAll(domain) {
+            this.registry[domain] = {listeners:[], entities:{}}
+        }
+
+        register(entity, domain) {
+            if (!entity) { return entity }
+
+            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}})
+            let current = reg.entities[entity.id]
+            if (current) {
+                _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
+                _.assign(current, entity)
+
+                reg.listeners.forEach(l=>{
+                    if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
+                })
+            } else {
+                current = (reg.entities[entity.id] = entity)
+            }
+            return current
         }
     }
 

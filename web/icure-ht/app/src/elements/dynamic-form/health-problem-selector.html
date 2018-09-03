@@ -403,6 +403,7 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	open() {
 	    this.set('filterValue','')
+		this.set('selectedItem','')
 		this.$.dialog.open();
 	    this.$.dialog.scrollTop = 0;
 	}

@@ -1212,7 +1212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')),
                     ssin : this.ssin,
                     gender : this.valueGender,
-                }).then(p => this.api.patient().createPatient(p)).then(p => this.set('selectedPatient', p))
+                }).then(p => this.api.patient().createPatient(p)).then(p => this.api.register(p,'patient')).then(p => this.set('selectedPatient', p))
             }
 
             confirmFilter() {

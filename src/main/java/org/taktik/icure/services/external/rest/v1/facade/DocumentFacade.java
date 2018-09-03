@@ -136,7 +136,7 @@ public class DocumentFacade implements OpenApiFacade{
 	@GET
 	@Path("/{documentId}/attachment/{attachmentId}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response getAttachment(@PathParam("documentId") String documentId, @PathParam("attachmentId") String attachmentId, @QueryParam("sfks") String sfks) {
+	public Response getAttachment(@PathParam("documentId") String documentId, @PathParam("attachmentId") String attachmentId, @QueryParam("enckeys") String enckeys) {
 		Response response;
 
 		if (documentId == null) {
@@ -152,8 +152,8 @@ public class DocumentFacade implements OpenApiFacade{
 		} else {
 			byte[] attachment = document.getAttachment();
 			if (attachment != null) {
-				if (sfks != null && sfks.length()>0) {
-					for (String sfk : sfks.split(",")) {
+				if (enckeys != null && enckeys.length()>0) {
+					for (String sfk : enckeys.split(",")) {
 						ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
 						UUID uuid = UUID.fromString(sfk);
 						bb.putLong(uuid.getMostSignificantBits());
@@ -219,7 +219,7 @@ public class DocumentFacade implements OpenApiFacade{
 	@PUT
 	@Path("/{documentId}/attachment")
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
-	public Response setAttachment(@PathParam("documentId") String documentId, byte[] payload) {
+	public Response setAttachment(@PathParam("documentId") String documentId, @QueryParam("enckeys") String enckeys, byte[] payload) {
 		Response response;
 
 		if (documentId == null) {
@@ -227,6 +227,20 @@ public class DocumentFacade implements OpenApiFacade{
 		}
 		if (payload == null) {
 			return ResponseUtils.badRequest("Cannot add null attachment");
+		}
+
+		if (enckeys != null && enckeys.length()>0) {
+			for (String sfk : enckeys.split(",")) {
+				ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+				UUID uuid = UUID.fromString(sfk);
+				bb.putLong(uuid.getMostSignificantBits());
+				bb.putLong(uuid.getLeastSignificantBits());
+				try {
+					payload = CryptoUtils.encryptAES(payload, bb.array());
+					break; //should always work (no real check on key validity for encryption)
+				} catch (Exception ignored) {
+				}
+			}
 		}
 
 		Document document = documentLogic.get(documentId);
@@ -245,8 +259,8 @@ public class DocumentFacade implements OpenApiFacade{
 	@PUT
 	@Path("/{documentId}/attachment/multipart")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response setAttachmentMulti(@PathParam("documentId") String documentId, @FormDataParam("attachment") byte[] payload) {
-		return setAttachment(documentId, payload);
+	public Response setAttachmentMulti(@PathParam("documentId") String documentId, @QueryParam("enckeys") String enckeys, @FormDataParam("attachment") byte[] payload) {
+		return setAttachment(documentId, enckeys, payload);
 	}
 
 	@ApiOperation(response = DocumentDto.class, value = "Gets a document")

@@ -95,8 +95,9 @@
 					})
 				},
 				handleError: function (e) {
-                    if (e.detail.request.status === 401) this.dispatchEvent(new CustomEvent('auth-failed', { bubbles: true, composed: true })) else this.dispatchEvent(new CustomEvent('api-error', { detail: e, bubbles: true, composed: true }))
-				}
+                    if (e.detail.request.status === 401) this.dispatchEvent(new CustomEvent('auth-failed', { bubbles: true, composed: true })); else this.dispatchEvent(new CustomEvent('api-error', { detail: e, bubbles: true, composed: true }))
+				},
+
 			});
 		})();
 	</script>

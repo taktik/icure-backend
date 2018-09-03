@@ -417,8 +417,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         </style>
 
-        <!--<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>-->
-        <icc-api id="api" host="/rest/v1" fhc-host="http://localhost:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+		<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
@@ -828,7 +827,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (page === 'logout') {
                     sessionStorage.removeItem('auth')
                     this.authenticated = false
-                    this.worker.terminate()
+                    this.worker && this.worker.terminate()
                     this.set('view', 'auth')
                 } else {
                     console.log("page is -> " + page)
