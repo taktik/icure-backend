@@ -1,6 +1,7 @@
 import * as fhcApi from '../elements/fhc-api/fhcApi'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
+import moment from 'moment/src/moment'
 
 onmessage = e => {
     if(e.data.action === "loadEhboxMessage"){
@@ -41,11 +42,22 @@ onmessage = e => {
             messages.map(message => {
                   ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id) .then(fullMessage => {
                       msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1000).then(existingMess => {
-                          console.log(fullMessage)
+                          //console.log(fullMessage)
                             if(existingMess.rows.length > 0){
                                 console.log("Message found")
+
+                                const existingMessage = existingMess.rows[0]
+
+                                if(existingMessage.received !== null && existingMessage.received < (Date.now() - (24 * 3600000))){
+
+                                    //ehboxApi.moveMessagesUsingPOST()
+
+                                }
+
                             }else{
                                 console.log('Message not found')
+                                let receivedDate = new Date().getTime();
+
                                 nbOfEhboxMessage ++
 
                                 let newMessage = {
@@ -54,18 +66,21 @@ onmessage = e => {
                                     metas:                  fullMessage.customMetas,
                                     toAddresses:            [boxId],
                                     fromHealthcarePartyId:  "",
-                                    transportGuid:          boxId+":"+fullMessage.id
+                                    transportGuid:          boxId+":"+fullMessage.id,
+                                    received:               receivedDate
 
                                 }
 
                                 iccMessageXApi.newInstance(user, newMessage).then(messageInstance => {
                                     msgApi.createMessage(messageInstance).then(createdMessage => {
+                                        console.log(createdMessage)
                                         fullMessage.annex.map(a => {
                                             docxApi.newInstance(user, createdMessage, {
                                                 documentType: 'result',
                                                 mainUti: docxApi.uti(a.mimeType),
                                                 name: a.title
                                             }).then(d => {
+                                                console.log(d)
                                                 docApi.createDocument(d).then(createdDocument => {
 
                                                     let contentDecode = self.atob(a.content)
@@ -79,6 +94,7 @@ onmessage = e => {
 
                                                     docApi.setAttachment(createdDocument.id, null, byteContent).then(docWithAttachment => {})
 
+                                                    console.log(createdDocument)
                                                     postMessage({message: "You have " + nbOfEhboxMessage + " new messages into your ehbox"})
                                                 })
                                             })
