@@ -538,11 +538,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 value: null,
                 observer: "_selectedMedicationFromListChanged"
             },
-            selectedMedicationFromListAlt: {
-                type: Object,
-                value: null,
-                observer: "_selectedMedicationFromListAltChanged"
-            },
             selectedMedicationContentWithId: {
                 type: Object,
                 value: null
@@ -691,8 +686,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 const fillCache = (minSize) => Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100),
                     this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100)])
                     .then(([packs, packsIng]) => {
-                        grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
-                        const newItems = _.unionBy(packs, packsIng, 'id.id')
+
+                        const newItems = _.unionBy(packs, packsIng, 'id.id') //what to do when there are no newitems ?
+						if(newItems.length > 0){
+						    grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
+                        }
                         return [(grid.drugsCache = _.sortBy(_.unionBy(grid.drugsCache || [], newItems, 'id.id'), 'name')), newItems.length]
                     })
 					.then(([cache, newItemsLength]) => cache.length > minSize || !newItemsLength ? Promise.resolve(cache) : fillCache(minSize) )
