@@ -79,6 +79,10 @@
 				min-height: 30px;
 			}
 
+			.ICPC-2-fallback { color: var(--paper-blue-grey-500) !important;}
+			.ICPC-2-fallback-back { background: var(--paper-blue-grey-500) !important; color: white !important; }
+			.ICPC-2-fallback span{ background: var(--paper-blue-grey-500) !important; }
+
 		</style>
 
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
@@ -392,12 +396,12 @@
 			 	    const newHe = this.healthElements.find(he => he.id === id)
                     newHe && this.push('highlightedHes', newHe)
                 } else {
-			 	    this.splice('highlightedHes',this.highlightedHes.indexOf(hHe,1))
+			 	    this.splice('highlightedHes',this.highlightedHes.indexOf(hHe),1)
 				}
 			}
 
             _heColourStyle(he) {
-				return this.highlightedHes.includes(he) ? "he-pill-highlighted "+he.colour+"-back" : he.colour
+				return this.highlightedHes.includes(he) ? "he-pill-highlighted "+(he.colour || "ICPC-2-fallback")+"-back" : (he.colour || "ICPC-2-fallback")
 			}
 
 			_selectedHes() {
@@ -465,7 +469,11 @@
 				this.saveTimeout = setTimeout(this.saveAction, 10000);
 			}
 
-			flushSave() {
+            shouldSave() {
+			    return !!this.saveTimeout
+            }
+
+            flushSave() {
 				if (this.saveTimeout) {
 					clearTimeout(this.saveTimeout);
 					this.saveAction();
