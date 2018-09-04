@@ -65,6 +65,8 @@ public class CalendarItem extends StoredICureDocument {
 
     protected Set<CalendarItemTag> meetingTags;
 
+    protected FlowItem flowItem;
+
     public String getTitle() {
         return title;
     }
@@ -201,4 +203,11 @@ public class CalendarItem extends StoredICureDocument {
         this.meetingTags = meetingTags;
     }
 
+    public FlowItem getFlowItem() {
+        return flowItem;
+    }
+
+    public void setFlowItem(FlowItem flowItem) {
+        this.flowItem = flowItem;
+    }
 }
