@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.taktik.icure.entities.base.LinkQualification;
 import org.taktik.icure.services.external.rest.v1.dto.embed.CodeFlag;
 
 
@@ -40,7 +41,10 @@ public class CodeDto extends StoredDto {
 	protected java.util.Map<String, String> label; //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 	protected java.util.Map<String, Set<String>> searchTerms; //Extra search terms
 
-	protected List<String> links; //Links towards related codes
+	@Deprecated
+	protected List<String> links; //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+
+	protected Map<LinkQualification, List<String>> qualifiedLinks; //Links towards related codes
 	protected List<CodeFlag> flags; //flags (like female only) for the code
 
 	protected String data;
@@ -137,6 +141,14 @@ public class CodeDto extends StoredDto {
 
 	public void setRegions(Set<String> regions) {
 		this.regions = regions;
+	}
+
+	public Map<LinkQualification, List<String>> getQualifiedLinks() {
+		return qualifiedLinks;
+	}
+
+	public void setQualifiedLinks(Map<LinkQualification, List<String>> qualifiedLinks) {
+		this.qualifiedLinks = qualifiedLinks;
 	}
 
 	public List<String> getLinks() {

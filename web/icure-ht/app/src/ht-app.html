@@ -233,6 +233,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
+            .ehbox-notification-panel {
+                position: fixed;
+                top: 50%;
+                right: 0;
+                z-index: 1000;
+                color: white;
+                font-size: 13px;
+                background: rgb(14, 255, 107);
+                height: 48px;
+                padding: 0 8px 0 12px;
+                border-radius: 3px 0 0 3px;
+                width: 0;
+                opacity: 0;
+            }
+
             .notification-panel {
                 position: fixed;
                 top: 50%;
@@ -250,6 +265,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .notification {
                 animation: notificationAnim 7.5s ease-in;
+            }
+
+            .notificationEhbox {
+                animation: notificationEhboxAnim 7.5s ease-in;
             }
 
             .log-info {
@@ -312,6 +331,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 88% {
                     width: 144px;
+                    opacity: 1;
+                }
+                100% {
+                    width: 0;
+                    opacity: 0;
+                }
+            }
+
+            @keyframes notificationEhboxAnim {
+                0% {
+                    width: 0;
+                    opacity: 0;
+                }
+                10% {
+                    width: 160px;
+                    opacity: 1;
+                }
+                12% {
+                    width: 280px;
+                    opacity: 1;
+                }
+                88% {
+                    width: 280px;
                     opacity: 1;
                 }
                 100% {
@@ -507,196 +549,233 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									c0.1,0,0.2,0,0.4,0c2.2,0,4.2-0.9,5.6-2.4C35.7,42.2,36.3,40.4,36.2,38.4z"/>
 								</g>
 							</svg>
-							<paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
-								<paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
-								<paper-listbox class="extra-menu" slot="dropdown-content"  stop-keyboard-event-propagation>
-									<div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
+                            <paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+                                <paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+                                <paper-listbox class="extra-menu" slot="dropdown-content" stop-keyboard-event-propagation>
+                                    <div class="dropdown-content"></div><!-- workaround to fix that the fist element of the list was always focus -->
 
-									<paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect tablet',language)]]</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
-									<paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_openExportKey">[[localize('tra_pri_key_/_con_tab','Transfer private key / Connect
+                                        tablet',language)]]
+                                    </paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_importKeychain">[[localize('imp_my_ehe_key','Import my eHealth keychain',language)]]</paper-item>
+                                    <paper-item class="extra-menu-item" on-tap="_inviteHCP">[[localize('inviteHCP','Invite a colleague ',language)]]</paper-item>
                                     <paper-item class="extra-menu-item" on-tap="_logList">[[localize('acc_log','Access Log',language)]]</paper-item>
-                                    <paper-item class="extra-menu-item" on-tap="_myProfile"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-item>
-								</paper-listbox>
-							</paper-menu-button>
-							<div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
-						</div>
-					</app-toolbar>
+                                    <paper-item class="extra-menu-item" on-tap="_myProfile">
+                                        <iron-icon icon="icons:account-circle"></iron-icon>
+                                        [[localize('my_pro','My profile',language)]]
+                                    </paper-item>
+                                </paper-listbox>
+                            </paper-menu-button>
+                            <div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
+                        </div>
+                    </app-toolbar>
 
-				</app-header>
-				<iron-pages
-						selected="[[view]]"
-						attr-for-selected="name"
-						fallback-selection="view404"
-						role="main">
-					<ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"><splash-screen></splash-screen></ht-main>
-					<ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}" on-user-saved="_userSaved"><splash-screen></splash-screen></ht-pat>
-					<ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-hcp>
-					<ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"><splash-screen></splash-screen></ht-msg>
-					<ht-view404 name="view404"></ht-view404>
-				</iron-pages>
-			</app-header-layout>
-		</app-drawer-layout>
+                </app-header>
+                <iron-pages
+                        selected="[[view]]"
+                        attr-for-selected="name"
+                        fallback-selection="view404"
+                        role="main">
+                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
+                        <splash-screen></splash-screen>
+                    </ht-main>
+                    <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
+                            on-user-saved="_userSaved">
+                        <splash-screen></splash-screen>
+                    </ht-pat>
+                    <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                        <splash-screen></splash-screen>
+                    </ht-hcp>
+                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                        <splash-screen></splash-screen>
+                    </ht-msg>
+                    <ht-view404 name="view404"></ht-view404>
+                </iron-pages>
+            </app-header-layout>
+        </app-drawer-layout>
 
-		<paper-dialog id="ht-invite-hcp">
-			<h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
-			<div id="" class="formNewHcp">
-				<paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
-				<paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
-				<paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>
-				<paper-input class="inviteHcpInput" label="[[localize('inami','NIHII',language)]]" value="{{nihii}}"></paper-input>
-				<paper-input class="inviteHcpInput" label="[[localize('ssin','SSIN',language)]]" value="{{ssin}}"></paper-input>
-			</div>
+        <paper-dialog id="ht-invite-hcp">
+            <h3>[[localize('inviteHCP','Invite a colleague ',language)]]</h3>
+            <div id="" class="formNewHcp">
+                <paper-input class="inviteHcpInput" label="[[localize('las_nam','Last name',language)]]" value="{{lastName}}"></paper-input>
+                <paper-input class="inviteHcpInput" label="[[localize('fir_nam','First name',language)]]" value="{{firstName}}"></paper-input>
+                <paper-input class="inviteHcpInput" label="[[localize('ema','Email',language)]]" value="{{email}}"></paper-input>
+                <paper-input class="inviteHcpInput" label="[[localize('inami','NIHII',language)]]" value="{{nihii}}"></paper-input>
+                <paper-input class="inviteHcpInput" label="[[localize('ssin','SSIN',language)]]" value="{{ssin}}"></paper-input>
+            </div>
 
-			<div class="buttons">
-				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirmUserInvitation">[[localize('invite','Invite',language)]]</paper-button>
-			</div>
-		</paper-dialog>
-		<paper-dialog id="ht-invite-hcp-link">
-			<h3>Lien de première connexion</h3>
-			<h4>[[invitedHcpLink]]</h4>
-		</paper-dialog>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation">[[localize('invite','Invite',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+        <paper-dialog id="ht-invite-hcp-link">
+            <h3>Lien de première connexion</h3>
+            <h4>[[invitedHcpLink]]</h4>
+        </paper-dialog>
 
-	</template>
+        <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
+            <iron-icon icon="communication:email"></iron-icon>
+            [[ehboxWebWorkerMessage]]
+        </paper-item>
 
-	<script>
+    </template>
+
+    <script>
         import moment from 'moment/src/moment'
+        import Worker from 'worker-loader!./workers/ehboxWebworker.js'
 
         class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
-	        static get is() { return 'ht-app'}
+            static get is() {
+                return 'ht-app'
+            }
 
-	        static get properties() {
-		        return {
-				api: {
-					type: Object,
-					value: null
-				},
-				user: {
-					type: Object,
-					value: null
-				},
-                language: {
-				    type: String,
-				  	value: 'fr'
-                },
-				i18n: {
-					Type: Object,
-					value() {
-						moment.locale('fr')
-						const res = {
-							monthNames: moment.months(),
-							weekdays: moment.weekdays(),
-							weekdaysShort: moment.weekdaysShort(),
-							firstDayOfWeek: moment.localeData().firstDayOfWeek(),
-							week: 'Semaine',
-							calendar: 'Calendrier',
-							clear: 'Clear',
-							today: 'Aujourd\'hui',
-							cancel: 'Annuler',
-							formatDate(d) {
-								//return moment(d).format(moment.localeData().longDateFormat('L'))
-								return moment(d).format('DD/MM/YYYY')
-							},
-							parseDate(s) {
-								return moment(s, 'DD/MM/YYYY').toDate()
-							},
-							formatTitle(monthName, fullYear) {
-								return monthName + ' ' + fullYear
-							}
-						}
-						return res
-					}
-				},
-				view: {
-					type: String,
-					reflectToAttribute: true,
-					observer: '_viewChanged'
-				},
-				headers: {
-					type: Object,
-					value: {"Content-Type": "application/json"}
-				},
-				credentials: {
-					type: Object,
-					value: {logout: false}
-				},
-				lazyPages: {
-					type: Object,
-					value: {
-						main() {
-							import(/* webpackChunkName: "ht-main" */ './ht-main.html')
-						},
-						pat() {
-							import(/* webpackChunkName: "ht-pat" */ './ht-pat.html')
-						},
-						hcp() {
-							import(/* webpackChunkName: "ht-hcp" */ './ht-hcp.html')
-						},
-						msg() {
-							import(/* webpackChunkName: "ht-msg" */ './ht-msg.html')
-						},
-						view404() {
-							import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
-						}
-					}
-				},
-				resources: {
-					value() {
-						return require('./elements/language/language.json')
-					}
-				},
-				invitedHcpLink:{
-				    type : String,
-					value : ""
-				},
-                disconnectionTimer: {
-                    type: Number,
-                    value: 60
-                },
-                connectionTime: {
-                    type: Number
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        value: null
+                    },
+                    user: {
+                        type: Object,
+                        value: null
+                    },
+                    language: {
+                        type: String,
+                        value: 'fr'
+                    },
+                    i18n: {
+                        Type: Object,
+                        value() {
+                            moment.locale('fr')
+                            const res = {
+                                monthNames: moment.months(),
+                                weekdays: moment.weekdays(),
+                                weekdaysShort: moment.weekdaysShort(),
+                                firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                                week: 'Semaine',
+                                calendar: 'Calendrier',
+                                clear: 'Clear',
+                                today: 'Aujourd\'hui',
+                                cancel: 'Annuler',
+                                formatDate(d) {
+                                    //return moment(d).format(moment.localeData().longDateFormat('L'))
+                                    return moment(d).format('DD/MM/YYYY')
+                                },
+                                parseDate(s) {
+                                    return moment(s, 'DD/MM/YYYY').toDate()
+                                },
+                                formatTitle(monthName, fullYear) {
+                                    return monthName + ' ' + fullYear
+                                }
+                            }
+                            return res
+                        }
+                    },
+                    view: {
+                        type: String,
+                        reflectToAttribute: true,
+                        observer: '_viewChanged'
+                    },
+                    headers: {
+                        type: Object,
+                        value: {"Content-Type": "application/json"}
+                    },
+                    credentials: {
+                        type: Object,
+                        value: {logout: false}
+                    },
+                    lazyPages: {
+                        type: Object,
+                        value: {
+                            main() {
+                                import(/* webpackChunkName: "ht-main" */ './ht-main.html')
+                            },
+                            pat() {
+                                import(/* webpackChunkName: "ht-pat" */ './ht-pat.html')
+                            },
+                            hcp() {
+                                import(/* webpackChunkName: "ht-hcp" */ './ht-hcp.html')
+                            },
+                            msg() {
+                                import(/* webpackChunkName: "ht-msg" */ './ht-msg.html')
+                            },
+                            view404() {
+                                import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
+                            }
+                        }
+                    },
+                    resources: {
+                        value() {
+                            return require('./elements/language/language.json')
+                        }
+                    },
+                    invitedHcpLink: {
+                        type: String,
+                        value: ""
+                    },
+                    disconnectionTimer: {
+                        type: Number,
+                        value: 60
+                    },
+                    connectionTime: {
+                        type: Number
+                    },
+                    ehboxWebWorkerMessage: {
+                        type: String,
+                        value: ""
+                    },
+                    EhboxCheckingActive: {
+                        type: Boolean,
+                        value: false
+                    },
+                    worker: {
+                        type: Worker
+                    }
                 }
-			}}
+            }
 
-	        static get observers() {
-		        return [
-				'_routePageChanged(routeData.page)'
-			]}
+            static get observers() {
+                return [
+                    '_routePageChanged(routeData.page)'
+                ]
+            }
 
-	        constructor() {
-		        super()
-	        }
+            constructor() {
+                super()
+            }
 
-			ready() {
-	        	super.ready()
-                if(!this.route.__queryParams.token && !this.route.__queryParams.userId){
-                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/,'/#')
-                    let fullHref = newHref.endsWith('/') ? newHref : newHref +'/'
-                    if (fullHref !== window.location.href) { window.location.href = fullHref }
+            ready() {
+                super.ready()
+                if (!this.route.__queryParams.token && !this.route.__queryParams.userId) {
+                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/, '/#')
+                    let fullHref = newHref.endsWith('/') ? newHref : newHref + '/'
+                    if (fullHref !== window.location.href) {
+                        window.location.href = fullHref
+                    }
                 }
                 window.app = this
                 this.set('api', this.$.api)
 
-                document.onmousemove = this.resetTimer.bind(this);
-                document.onkeypress = this.resetTimer.bind(this);
+                document.onmousemove = this.resetTimer.bind(this)
+                document.onkeypress = this.resetTimer.bind(this)
 
                 this._startCheckInactiveTimer()
             }
 
             resetTimer() {
-                this.set('connectionTime',+new Date())
+                this.set('connectionTime', +new Date())
             }
 
             _userSaved(e) {
-	        	this.set('user',e.detail)
-			}
+                this.set('user', e.detail)
+            }
 
 
-            _startCheckInactiveTimer(){
+            _startCheckInactiveTimer() {
                 clearInterval(this.interval)
                 this.interval = setInterval(() => {
-                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime)/1000/60)
+                    const newTimer = Math.floor(60 - (+new Date() - this.connectionTime) / 1000 / 60)
                     if (newTimer > 0) {
                         this.set('disconnectionTimer', newTimer)
                     } else {
@@ -708,9 +787,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _timeCheck(period = 300000) {
-               setTimeout(() => {
-	                if (this.api.tokenId) {
-	                    this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
+                setTimeout(() => {
+                    if (this.api.tokenId) {
+                        this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
                                 this._getToken().then(() => {
                                     this._timeCheck()
@@ -721,143 +800,162 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         }).catch(() => this._timeCheck(10000))
                     } else {
                         this._timeCheck()
-					}
+                    }
                 }, period)
-			}
+            }
 
-			_routePageChanged(page) {
-				if (page === 'logout') {
-					sessionStorage.removeItem('auth')
-					this.authenticated = false
-					this.set('view', 'auth');
-				} else {
-					console.log("page is -> "+page)
-					if (!this.authenticated && (!page || !page.startsWith('auth'))) {
-						if (sessionStorage.getItem('auth')||(this.route.__queryParams.token && this.route.__queryParams.userId)) {
-							this.loginAndRedirect(page)
-						} else {
-							this.set('routeData.page', 'auth/'+ (!page ? 'main' : page.startsWith('logout') ? 'main' : page));
-						}
-					} else {
-						this.set('view', page ? page.replace(/\/$/,'') : 'main')
-					}
-					this._startCheckInactiveTimer('refresh')
-				}
-			}
+            _inboxMessageCheck(period = 1000) {
+                if (this.EhboxCheckingActive === false) {
+                    setTimeout(() => {
+                        if (this.api.tokenId) {
+                            this.set('EhboxCheckingActive', true)
+                            this.checkEhboxMessage()
+                        } else {
+                            this._inboxMessageCheck()
+                        }
+                    }, period)
+                }
+            }
 
-			_triggerMenu() {
-				let menu = this.$.mobileMenu
-				let overlay = this.$.overlayMenu
+            _routePageChanged(page) {
+                if (page === 'logout') {
+                    sessionStorage.removeItem('auth')
+                    this.authenticated = false
+                    this.worker && this.worker.terminate()
+                    this.set('view', 'auth')
+                } else {
+                    console.log("page is -> " + page)
+                    if (!this.authenticated && (!page || !page.startsWith('auth'))) {
+                        if (sessionStorage.getItem('auth') || (this.route.__queryParams.token && this.route.__queryParams.userId)) {
+                            this.loginAndRedirect(page)
+                        } else {
+                            this.set('routeData.page', 'auth/' + (!page ? 'main' : page.startsWith('logout') ? 'main' : page))
+                        }
+                    } else {
+                        this.set('view', page ? page.replace(/\/$/, '') : 'main')
+                    }
+                    this._startCheckInactiveTimer('refresh')
+                }
+            }
 
-				overlay.classList.toggle('open')
-				menu.classList.toggle('open')
+            _triggerMenu() {
+                let menu = this.$.mobileMenu
+                let overlay = this.$.overlayMenu
+
+                overlay.classList.toggle('open')
+                menu.classList.toggle('open')
 
 
-			}
+            }
 
-			_viewChanged(view) {
+            _viewChanged(view) {
                 if (view.startsWith('auth')) {
                     this.$.loginDialog.opened = true
                     return
                 }
-                if(this.lazyPages[view]){
-                    this.lazyPages[view]();
+                if (this.lazyPages[view]) {
+                    this.lazyPages[view]()
                 } else {
                     this._showPage404()
                 }
 
-			}
+            }
 
-			_showPage404() {
-				this.view = 'view404';
-			}
+            _showPage404() {
+                this.view = 'view404'
+            }
 
             doRoute(e) {
-				this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name'))+"/")
-				this._triggerMenu()
-			}
+                this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')) + "/")
+                this._triggerMenu()
+            }
 
-			_openExportKey() {
-				this.$['export-key'].open()
-			}
+            _openExportKey() {
+                this.$['export-key'].open()
+            }
 
-			_importKeychain() {
-				this.$['ht-import-keychain'].open()
-			}
+            _importKeychain() {
+                this.$['ht-import-keychain'].open()
+            }
 
-            _inviteHCP(){
-	            this.$['ht-invite-hcp'].open()
-			}
+            _inviteHCP() {
+                this.$['ht-invite-hcp'].open()
+            }
 
-			_myProfile() {
-				this.$['ht-my-profile'].open()
-			}
+            _myProfile() {
+                this.$['ht-my-profile'].open()
+            }
 
             _getToken() {
-               return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-			    	this.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
-			    		this.$.eHealthStatus.classList.remove('pending')
-						this.$.eHealthStatus.classList.remove('disconnected')
-						this.$.eHealthStatus.classList.add('connected')
+                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    this.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+                        this.$.eHealthStatus.classList.remove('pending')
+                        this.$.eHealthStatus.classList.remove('disconnected')
+                        this.$.eHealthStatus.classList.add('connected')
 
-                    	this.set('api.tokenId', res.tokenId)
-                    	this.set('api.token', res.token)
+                        this.set('api.tokenId', res.tokenId)
+                        this.set('api.token', res.token)
 
-					  	return res.tokenId
-                	}).catch(()=>{
-						this.$.eHealthStatus.classList.remove('pending')
-						this.$.eHealthStatus.classList.remove('connected')
-						this.$.eHealthStatus.classList.add('disconnected')
-					})
-				)
-			}
+                        return res.tokenId
+                    }).catch(() => {
+                        this.$.eHealthStatus.classList.remove('pending')
+                        this.$.eHealthStatus.classList.remove('connected')
+                        this.$.eHealthStatus.classList.add('disconnected')
+                    })
+                )
+            }
 
-			loginAndRedirect(page) {
-				const sAuth = JSON.parse(sessionStorage.getItem('auth'))
+            loginAndRedirect(page) {
+                const sAuth = JSON.parse(sessionStorage.getItem('auth'))
                 if (!this.credentials || (!this.credentials.password && sAuth && sAuth.password) || (!this.credentials.appToken && sAuth && sAuth.appToken)) {
-					this.set('credentials',sAuth)
-				}
+                    this.set('credentials', sAuth)
+                }
 
-                if(this.route.__queryParams.token && this.route.__queryParams.userId) {
+                if (this.route.__queryParams.token && this.route.__queryParams.userId) {
                     this.set('headers', _.assign(_.assign({}, this.headers),
-                        {Authorization:'Basic ' + btoa(this.route.__queryParams.userId + ':' + this.route.__queryParams.token)}))
-                } else if ((this.credentials.userId && this.credentials.appToken)) { this.set('headers', _.assign(_.assign({}, this.headers),
-				  {Authorization:'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)})) }
-				else if ((this.credentials.username && this.credentials.password)) { this.set('headers', _.assign(_.assign({}, this.headers),
-				  {Authorization:'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa?'|'+this.credentials.twofa:''))})) }
+                        {Authorization: 'Basic ' + btoa(this.route.__queryParams.userId + ':' + this.route.__queryParams.token)}))
+                } else if ((this.credentials.userId && this.credentials.appToken)) {
+                    this.set('headers', _.assign(_.assign({}, this.headers),
+                        {Authorization: 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken)}))
+                }
+                else if ((this.credentials.username && this.credentials.password)) {
+                    this.set('headers', _.assign(_.assign({}, this.headers),
+                        {Authorization: 'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password + (this.credentials.twofa ? '|' + this.credentials.twofa : ''))}))
+                }
 
-				//Be careful not to use this.api here as it might not have been defined yet
-				this.$.api.user().getCurrentUser().then(u => {
-				    this.set('user', u)
+                //Be careful not to use this.api here as it might not have been defined yet
+                //TODD debounce here
+                this.$.api.user().getCurrentUser().then(u => {
+                    this.set('user', u)
                     this.set('connectionTime', +new Date())
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-						const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
-						language && this.set('language', language)
-					})
+                        const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
+                        language && this.set('language', language)
+                    })
 
-					this.$.loginDialog.opened = false
+                    this.$.loginDialog.opened = false
 
-					this.set('credentials.twofa',null)
-					this.set('credentials.userId',u.id)
-					this.set('credentials.appToken',u.applicationTokens && u.applicationTokens.ICC)
+                    this.set('credentials.twofa', null)
+                    this.set('credentials.userId', u.id)
+                    this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
 
-					if ((this.credentials.userId && this.credentials.appToken)) {
-						this.set('credentials.password',null)
-						this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
-					}
-					sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                    if ((this.credentials.userId && this.credentials.appToken)) {
+                        this.set('credentials.password', null)
+                        this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
+                    }
+                    sessionStorage.setItem('auth', JSON.stringify(this.credentials))
 
-					if (!this.authenticated) {
-						this.authenticated = true
+                    if (!this.authenticated) {
+                        this.authenticated = true
 
-						this.api.loadUsersAndHcParties()
-						if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
+                        this.api.loadUsersAndHcParties()
+                        if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
                             if (this.credentials.ehpassword) {
                                 const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
                                 if (ehKeychain) {
                                     this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
                                         this.$.api.keystoreId = res.uuid
-                                        this._getToken();
+                                        this._getToken()
                                     })
                                 } else {
                                     this.$.noehealth.classList.add("notification")
@@ -871,97 +969,127 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 this.$.eHealthStatus.classList.remove('connected')
                                 this.$.eHealthStatus.classList.add('disconnected')
                             }
-							const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-							if (!this.routeData || destPage !== this.routeData.page) {
-								this.set('routeData.page', destPage);
-							} else {
-								this._routePageChanged(destPage)
-							}
-						} else {
+                            const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                            if (!this.routeData || destPage !== this.routeData.page) {
+                                this.set('routeData.page', destPage)
+                            } else {
+                                this._routePageChanged(destPage)
+                            }
+                        } else {
                             this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
 
-                                if(hcp.publicKey){
+                                if (hcp.publicKey) {
                                     this.registerKeyPairDialogMessage = ""
                                     this.$.registerKeyPairDialog.opened = true
-                                }else{
+                                } else {
                                     this.$.firstConnectionDialog.opened = true
                                 }
 
 
                             })
-						}
-					}
+                        }
+                    }
                     this._timeCheck()
-				}).catch(function (e) {
-					this.authenticated = false
-					sessionStorage.removeItem('auth')
-					this.set("credentials.error", "Wrong user or password")
-				}.bind(this))
-			}
+                    this._inboxMessageCheck()
+                }).catch(function (e) {
+                    this.authenticated = false
+                    sessionStorage.removeItem('auth')
+                    this.set("credentials.error", "Wrong user or password")
+                }.bind(this))
+            }
 
-			login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
-				this.set('credentials',loginObject && loginObject.credentials)
-				this.loginAndRedirect(loginObject && loginObject.page)
-			}
+            login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
+                this.set('credentials', loginObject && loginObject.credentials)
+                this.loginAndRedirect(loginObject && loginObject.page)
+            }
 
-			importPrivateKey(e, selectedRsaFile) {
-				selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(this.user.healthcarePartyId, selectedRsaFile).then(function() {
-					if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
-						this.$.registerKeyPairDialog.opened = false
-						this.set("registerKeyPairDialogMessage","")
-						this.set('routeData.page', 'main/');
-					} else {
-						this.set("registerKeyPairDialogMessage","Invalid key file")
-						this.$.registerKeyPairDialog.reset()
-					}
-				}.bind(this)).catch(e => console.log(e))
-			}
+            importPrivateKey(e, selectedRsaFile) {
+                selectedRsaFile && selectedRsaFile.name && this.api.crypto().loadKeyPairsInBrowserLocalStorage(this.user.healthcarePartyId, selectedRsaFile).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                        this.$.registerKeyPairDialog.opened = false
+                        this.set("registerKeyPairDialogMessage", "")
+                        this.set('routeData.page', 'main/')
+                    } else {
+                        this.set("registerKeyPairDialogMessage", "Invalid key file")
+                        this.$.registerKeyPairDialog.reset()
+                    }
+                }.bind(this)).catch(e => console.log(e))
+            }
 
-			importScannedPrivateKey(e, jwkKey) {
-				this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(this.user.healthcarePartyId, jwkKey).then(function() {
-					if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
-						this.$.registerKeyPairDialog.opened = false
-						this.set("registerKeyPairDialogMessage","")
-						this.set('routeData.page', 'main/');
-					} else {
-						this.set("registerKeyPairDialogMessage","Invalid key file")
-						this.$.registerKeyPairDialog.reset()
-					}
-				}.bind(this)).catch(e => console.log(e))
-			}
+            importScannedPrivateKey(e, jwkKey) {
+                this.api.crypto().loadKeyPairsAsJwkInBrowserLocalStorage(this.user.healthcarePartyId, jwkKey).then(function () {
+                    if (this.$.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)) {
+                        this.$.registerKeyPairDialog.opened = false
+                        this.set("registerKeyPairDialogMessage", "")
+                        this.set('routeData.page', 'main/')
+                    } else {
+                        this.set("registerKeyPairDialogMessage", "Invalid key file")
+                        this.$.registerKeyPairDialog.reset()
+                    }
+                }.bind(this)).catch(e => console.log(e))
+            }
 
-			togglePanel(e) {
-			}
+            togglePanel(e) {
+            }
 
-            confirmUserInvitation(){
+            confirmUserInvitation() {
 
                 this.api.hcparty().createHealthcareParty({
-                    "name" 			: this.lastName+" "+this.firstName,
-                    "lastName" 		: this.lastName,
-                    "firstName" 	: this.firstName,
-                    "nihii" 		: this.nihii,
-                    "ssin"			: this.ssin
+                    "name": this.lastName + " " + this.firstName,
+                    "lastName": this.lastName,
+                    "firstName": this.firstName,
+                    "nihii": this.nihii,
+                    "ssin": this.ssin
                 }).then(hcp => {
                     this.api.user().createUser({
-                        "healthcarePartyId" 	: hcp.id,
-                        "name" 					: this.lastName+" "+this.firstName,
-                        "email" 				: this.email,
-                        "applicationTokens" 	: {"tmpFirstLogin" : this.api.crypto().randomUuid()},
-                        "status" 				: "ACTIVE",
-                        "type"                  : "database"
+                        "healthcarePartyId": hcp.id,
+                        "name": this.lastName + " " + this.firstName,
+                        "email": this.email,
+                        "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
+                        "status": "ACTIVE",
+                        "type": "database"
                     }).then(usr => {
-                        this.invitedHcpLink = window.location.origin+window.location.pathname+'/?userId='+usr.id+'&token='+usr.applicationTokens.tmpFirstLogin
+                        this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
                         this.$['ht-invite-hcp-link'].open()
-					})
-				})
-			}
+                    })
+                })
+            }
 
-            _logList(){
+            checkEhboxMessage() {
+                const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
+                this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
+
+                this.worker = new Worker()
+
+                this.worker.postMessage({
+                    action: "loadEhboxMessage",
+                    hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+                    fhcHost: this.api.fhc().host,
+                    fhcHeaders: JSON.stringify(this.api.fhc().headers),
+                    iccHost: this.api.host,
+                    iccHeaders: JSON.stringify(this.api.headers),
+                    tokenId: this.api.tokenId,
+                    keystoreId: this.api.keystoreId,
+                    user: this.user,
+                    ehpassword: this.credentials.ehpassword,
+                    boxId: "INBOX",
+                    keyPair: keyPair
+                })
+
+                this.worker.onmessage = e => {
+                    this.set('ehboxWebWorkerMessage', e.data.message)
+                    this.$.ehboxInboxMessage.classList.add('notificationEhbox')
+                    console.log("Le worker à repondu " + e.data.message)
+                }
+
+            }
+
+            _logList() {
                 this.$['ht-access-log'].open()
             }
-		}
+        }
 
-        customElements.define(HtApp.is, HtApp);
+        customElements.define(HtApp.is, HtApp)
 
-	</script>
+    </script>
 </dom-module>

@@ -11,6 +11,7 @@
 <link rel="import" href="fhc-recipecontroller-api.html">
 <link rel="import" href="fhc-stscontroller-api.html">
 <link rel="import" href="fhc-therlinkcontroller-api.html">
+<link rel="import" href="fhc-dmgcontroller-api.html">
 
 
 
@@ -29,6 +30,7 @@
         <fhc-recipecontroller-api id="fhc-recipecontroller-api" host="[[host]]" headers="[[headers]]"></fhc-recipecontroller-api>
         <fhc-stscontroller-api id="fhc-stscontroller-api" host="[[host]]" headers="[[headers]]"></fhc-stscontroller-api>
         <fhc-therlinkcontroller-api id="fhc-therlinkcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-therlinkcontroller-api>
+        <fhc-dmgcontroller-api id="fhc-dmgcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-dmgcontroller-api>
     </template>
 </dom-module>
 
@@ -92,8 +94,10 @@
 	Therlinkcontroller() {
         return this.$['fhc-therlinkcontroller-api'];
     }
-  
-    
+
+    DMGcontroller() {
+        return this.$['fhc-dmgcontroller-api'];
+    }
 }
 
 customElements.define(FhcApi.is, FhcApi);
