@@ -192,19 +192,19 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.api.document().getDocument(docId).then(doc => {
 			this.set('document', doc);
 			if (doc.delegations && Object.keys(doc.delegations).length) {
-				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
+				this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations).then(function (decryptedAndImportedAesHcPartyKeys) {
 					var collatedAesKeys = {};
 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
-					return this.api.crypto().decryptDelegationsSFKs(doc.delegations[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(sfks => {
+					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id).then(enckeys => {
                         if(this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
-                            this.api.document().getAttachment(doc.id, doc.attachmentId, sfks).then(att => {
+                            this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
                                 console.log(typeof att);
                                 this.set('documentAttachment', att);
                                 const xml = XML.parseXml(att)
                                 if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);}else{this.set("type","Non Valid Type")}
 							});
                         }else {
-                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, sfks);
+                            const url = doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys);
                             console.log('url is', url);
                             this.set('dataUrl', url);
                         }

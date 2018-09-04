@@ -374,6 +374,7 @@
 
         register(entity, domain) {
             if (!entity) { return entity }
+
             const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}})
             let current = reg.entities[entity.id]
             if (current) {

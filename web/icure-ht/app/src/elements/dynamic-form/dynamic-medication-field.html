@@ -538,11 +538,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 value: null,
                 observer: "_selectedMedicationFromListChanged"
             },
-            selectedMedicationFromListAlt: {
-                type: Object,
-                value: null,
-                observer: "_selectedMedicationFromListAltChanged"
-            },
             selectedMedicationContentWithId: {
                 type: Object,
                 value: null
@@ -688,14 +683,20 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 }.bind(this))
             }
             else {
-                const fillCache = (minSize) => Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100),
+                const fillCache = (minSize) => grid.drugsCache && grid.drugsCache.allItemsLoaded ? Promise.resolve(grid.drugsCache) : Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100),
                     this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100)])
                     .then(([packs, packsIng]) => {
-                        grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
-                        const newItems = _.unionBy(packs, packsIng, 'id.id')
+
+                        const newItems = _.unionBy(packs, packsIng, 'id.id') //what to do when there are no newitems ?
+						if(newItems.length > 0){
+						    grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
+                        }
                         return [(grid.drugsCache = _.sortBy(_.unionBy(grid.drugsCache || [], newItems, 'id.id'), 'name')), newItems.length]
                     })
-					.then(([cache, newItemsLength]) => cache.length > minSize || !newItemsLength ? Promise.resolve(cache) : fillCache(minSize) )
+					.then(([cache, newItemsLength]) => {
+					    cache.allItemsLoaded = !newItemsLength
+					    return cache.length > minSize || !newItemsLength ? Promise.resolve(cache) : fillCache(minSize)
+					})
 
 				this.loadCheapAlternativesIfNeeded(this.selectedMedicationFromList).then(alternatives => {
 				    const cheapAlternativeSearchSeedIndex = this.cheapAlternativeSearchSeed ?  grid.drugsCache.findIndex(mpp => mpp.id.id === this.cheapAlternativeSearchSeed.id.id) : -1
@@ -745,8 +746,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.inDoubleClick = true;
 
             //Trigger cheapAlternativeSearch
-            const grid = this.$['entities-list']
-            grid.clearCache();
+			if (this.selectedMedicationFromList && !this.selectedMedicationFromList.cheap) {
+                const grid = this.$['entities-list']
+                grid.clearCache();
+			}
 
             setTimeout(() => {
                 delete this.inDoubleClick;
