@@ -615,7 +615,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		return showAddFormsContainer ? 'icons:close' : 'icons:add';
 	}
 
-	flushSave() {
+    shouldSave() {
+        const dynamicallyLoadedForm = this.shadowRoot.querySelector('#dynamicallyLoadedForm');
+        return dynamicallyLoadedForm && dynamicallyLoadedForm.shouldSave();
+    }
+
+    flushSave() {
 		const dynamicallyLoadedForm = this.shadowRoot.querySelector('#dynamicallyLoadedForm');
 		dynamicallyLoadedForm && dynamicallyLoadedForm.flushSave();
 	}
@@ -955,7 +960,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
 	saveCurrentContact() {
-		return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c => (this.currentContact.rev = c.rev) && c);
+		return (this.currentContact.rev ? this.api.contact().modifyContactWithUser(this.user, this.currentContact) : this.api.contact().createContactWithUser(this.user, this.currentContact)).then(c=>this.api.register(c,'contact')).then(c => (this.currentContact.rev = c.rev) && c);
 	}
 
 	_addedFormSelected(e, formTemplate) {

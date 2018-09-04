@@ -19,10 +19,12 @@
 package org.taktik.icure.dao.impl;
 
 import com.fasterxml.uuid.Generators;
+import org.ektorp.DocumentNotFoundException;
 import org.ektorp.support.Filter;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.UserDAO;
@@ -38,20 +40,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository("userDAO")
-@Filter( name = "db_replication_filter", function = "function(doc) { return (doc.java_type == 'org.taktik.icure.entities.User' || doc.java_type == 'org.taktik.icure.entities.HealthcareParty') }")
+@Filter(name = "db_replication_filter", function = "function(doc) { return (doc.java_type == 'org.taktik.icure.entities.User' || doc.java_type == 'org.taktik.icure.entities.HealthcareParty') }")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc )}")
 public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
-    @Autowired
-    public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
-        super(User.class, couchdb, idGenerator, cacheManager);
-        initStandardDesignDocument();
-    }
+	@Autowired
+	public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+		super(User.class, couchdb, idGenerator, cacheManager);
+		initStandardDesignDocument();
+	}
 
-    @Override
-    @View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond,doc)  }}")
+	@Override
+	@View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond,doc)  }}")
 	public List<User> getExpiredUsers(Instant fromExpirationInstant, Instant toExpirationInstant) {
-        List<User> users = queryView("by_exp_date", fromExpirationInstant.toString(), toExpirationInstant.toString());
+		List<User> users = queryView("by_exp_date", fromExpirationInstant.toString(), toExpirationInstant.toString());
 		List<User> result = new ArrayList<>();
 		for (User user : users) {
 			if (user.getExpirationDate() != null) {
@@ -63,17 +65,17 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 		return result;
 	}
 
-    @Override
-    @View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login,doc)}}")
-    public List<User> findByUsername(String searchString) {
-	    return queryView("by_username", searchString);
-    }
+	@Override
+	@View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login,doc)}}")
+	public List<User> findByUsername(String searchString) {
+		return queryView("by_username", searchString);
+	}
 
-    @Override
-    @View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email,doc)}}")
-    public List<User> findByEmail(String searchString) {
-	    return queryView("by_email", searchString);
-    }
+	@Override
+	@View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email,doc)}}")
+	public List<User> findByEmail(String searchString) {
+		return queryView("by_email", searchString);
+	}
 
 	/**
 	 * startKey in pagination is the email of the patient.
@@ -86,28 +88,72 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 				pagination.getStartKey() != null ? pagination.getStartKey().toString() : "\u0000",
 				"\ufff0",
 				pagination,
-                true
+				true
 		);
 	}
 
 	@Override
 	public User getOnFallback(String userId) {
-		return ((CouchDbICureConnector) db).getFallbackConnector().get(User.class,userId);
+		Cache.ValueWrapper valueWrapper = cache.get(userId);
+		if (valueWrapper == null) {
+			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
+			cache.put(userId, user);
+			if (user == null) {
+				throw new DocumentNotFoundException(userId);
+			}
+			return user;
+		}
+		if (valueWrapper.get() == null) {
+			throw new DocumentNotFoundException(userId);
+		}
+		return (User) valueWrapper.get();
 	}
 
 	@Override
 	public User findOnFallback(String userId) {
-		return ((CouchDbICureConnector) db).getFallbackConnector().find(User.class,userId);
+		Cache.ValueWrapper valueWrapper = cache.get(userId);
+		if (valueWrapper == null) {
+			User res = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
+			cache.put(userId, res);
+			return res;
+		}
+		return (User) valueWrapper.get();
 	}
 
 	@Override
 	public User getUserOnUserDb(String userId, String groupId) {
-		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).get(User.class,userId);
+		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
+
+		String fullId = userDb.getUuid() + ":" + userId;
+		Cache.ValueWrapper value = cache.get(fullId);
+
+		if (value == null) {
+			User user = userDb.find(User.class, userId);
+			cache.put(fullId, user);
+			if (user == null) {
+				throw new DocumentNotFoundException(userId);
+			}
+			return user;
+		}
+		if (value.get() == null) {
+			throw new DocumentNotFoundException(userId);
+		}
+		return (User) value.get();
 	}
 
 	@Override
 	public User findUserOnUserDb(String userId, String groupId) {
-		return ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId).find(User.class,userId);
+		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
+
+		String fullId = userDb.getUuid() + ":" + userId;
+		Cache.ValueWrapper value = cache.get(fullId);
+
+		if (value == null) {
+			User user = userDb.find(User.class, userId);
+			cache.put(fullId, user);
+			return user;
+		}
+		return (User) value.get();
 	}
 
 	@Override
@@ -119,11 +165,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	public void evictFromCache(String groupId, List<String> userIds) {
 		userIds.forEach(u -> {
 			super.evictFromCache(u);
-			super.evictFromCache(groupId,u);
+			super.evictFromCache(groupId, u);
 		});
 
 		super.evictFromCache(ALL_ENTITIES_CACHE_KEY);
-		super.evictFromCache(groupId,ALL_ENTITIES_CACHE_KEY);
+		super.evictFromCache(groupId, ALL_ENTITIES_CACHE_KEY);
 	}
 
 	@Override
