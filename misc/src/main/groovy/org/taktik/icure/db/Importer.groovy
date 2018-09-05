@@ -305,9 +305,8 @@ class Importer {
 
         docs.each { dd ->
             Document d = dd.doc
-            Contact con = dd.contact
             if (!this.cachedDocSFKs[d.id]) {
-                delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, con, dbOwnerId, delegateId, this.cachedDocSFKs[d.id], null) }
+                delegates.each { delegateId -> dd.doc = d = this.appendObjectDelegations(d, null, dbOwnerId, delegateId, this.cachedDocSFKs[d.id], null) }
             }
         }
         new ArrayList(docs).collate(1000).each { couchdbContact.executeBulk(it*.doc) }
