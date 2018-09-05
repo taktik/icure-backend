@@ -19,31 +19,27 @@
 
 package org.taktik.icure.be.config
 
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.converter.json.GsonFactoryBean
 import org.taktik.icure.be.ehealth.logic.crypto.impl.CryptoEteeImpl
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileExport
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileImport
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g.SoftwareMedicalFileLogicImpl
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701.SumehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701.SumehrLogicImpl
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthElementLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
-import org.taktik.icure.logic.impl.filter.Filters
-import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1MapperFactory
 
 @Configuration
 class EhealthMycarenetConfig {
     @Bean fun sumehrLogic() = SumehrLogicImpl()
     @Bean fun sumehrExport() = SumehrExport()
-    @Bean fun softwareMedicalFileLogic() = SoftwareMedicalFileLogicImpl()
+    @Bean fun softwareMedicalFileLogic(softwareMedicalFileExport: SoftwareMedicalFileExport, softwareMedicalFileImport: SoftwareMedicalFileImport)
+        = SoftwareMedicalFileLogicImpl(softwareMedicalFileExport, softwareMedicalFileImport)
     @Bean fun softwareMedicalFileExport() = SoftwareMedicalFileExport()
     @Bean
     fun softwareMedicalFileImport(patientLogic: PatientLogic,
