@@ -24,23 +24,17 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
-import org.ektorp.spring.HttpClientFactoryBean
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.stereotype.Component
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.GroupDAO
 import org.taktik.icure.dao.UserDAO
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdUserDependentCouchDbICureConnector
-import org.taktik.icure.dao.replicator.AbstractReplicator
 import org.taktik.icure.dao.replicator.FilteredReplicator
 import org.taktik.icure.dao.replicator.NewGroupObserver
 import org.taktik.icure.dao.replicator.UserReplicator
-import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.properties.CouchDbProperties
 
 @Configuration
