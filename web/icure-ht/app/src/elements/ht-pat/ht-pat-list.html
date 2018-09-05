@@ -1382,7 +1382,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 if (item) {
                     const mark = this.patientSelected.find(m => m.id === item.id)
-                    console.log(mark)
                     return mark && mark.check
                 } else {
                     return false
@@ -1731,9 +1730,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _isPatientsSelected(){
-                console.log(this.patientSelected.filter( x => x.check==true))
                 return this.patientSelected.filter( x => x.check==true).length;
-
             }
         }
 

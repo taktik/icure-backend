@@ -377,6 +377,8 @@
 				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
 			</template>
 			<div class="regimen-line">
+				<paper-input id="generalQuantity" label="Quantity" value="1" type="number" class="regimen--quantity" min="0"></paper-input>
+				<paper-input id="generalUnit" label="Units" value="[[bufferUnit]]" class="regimen--units"></paper-input>
 				<paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="1">
 					<div slot="suffix">X</div>
 				</paper-input>
@@ -985,18 +987,20 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _setFrequencyList(){
         let bufferTable = []
-        const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
 
+        console.log(this.$.generalQuantity)
 		for(let cpt=0;cpt<this.$.numberByFrequency.value;cpt++) {
             bufferTable.push({
                 weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
                 date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
                 administratedQuantity: {
-                    quantity: 1,
-                    unit: reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                    quantity: this.$.generalQuantity.value,
+                    unit: this.$.generalUnit.value
                 }
             })
         }
+
+
 
         this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
         this.set("flagTableFrequency",true)
