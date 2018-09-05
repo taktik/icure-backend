@@ -22,6 +22,7 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 
 @SwaggerDefinition(
+		schemes =  { SwaggerDefinition.Scheme.HTTPS, SwaggerDefinition.Scheme.HTTP },
 		tags = {
 				@Tag(name = "accesslog", description = "Access logs base API"),
 				@Tag(name = "code", description = "Codes CRUD and advanced API"),

@@ -25,13 +25,17 @@ import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.fasterxml.uuid.Generators;
+import org.taktik.icure.be.ehealth.logic.crypto.Crypto;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.logic.ICureSessionLogic;
+import org.taktik.icure.security.CryptoUtils;
 import org.taktik.icure.utils.FuzzyValues;
 
 public enum AutoFix {
 	FUZZYNOW((b,v,sl)-> FuzzyValues.getCurrentFuzzyDateTime()),
 	NOW((b,v,sl)-> Instant.now().toEpochMilli()),
+	UUID((b,v,sl)-> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate()),
 	CURRENTUSERID((b,v,sl)-> sl.getCurrentUserId()),
 	CURRENTHCPID((b,v,sl)-> sl.getCurrentHealthcarePartyId()),
 	NOFIX((b,v,sl)->v),
