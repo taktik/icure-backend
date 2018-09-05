@@ -920,6 +920,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			paper-tooltip{
 				--paper-tooltip-delay-in:100;
 			}
+
+			.history{
+				height: 48px;
+				width: calc(100% - 48px);
+				color: var(--app-text-color);
+				background-color: var(--app-background-color-dark);
+				padding: 0 24px;
+				font-weight: 700;
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: flex-start;
+				align-items: center;
+			}
+
+			.history-icon {
+				height: 24px;
+				width: 24px;
+				opacity: .5;
+			}
+
+			.history-txt {
+				padding-left: 8px;
+			}
 		</style>
 
 		<div class="container">
@@ -1179,12 +1202,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<health-problem-selector id="add-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_addedHealthElementSelected" entity-type="[[localize('hp','Health Problem',language)]]" entity="{{heEntity}}" ok-label="[[localize('cre','Create',language)]]">
 			<div class="extraDialogFields" slot="suffix">
+
 			</div>
 		</health-problem-selector>
 
-		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="[[localize('hp','Health Problem',language)]]" entity="{{heEntity}}" ok-label="[[localize('modify','Modify',language)]]">
+		<health-problem-selector id="edit-healthelement-dialog" api="[[api]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" on-open-health-problem="_composeHistory" data-provider="[[_healthElementsSelectorDataProvider()]]" on-entity-selected="_editedHealthElementSelected" entity-type="[[localize('hp','Health Problem',language)]]" entity="{{heEntity}}" ok-label="[[localize('modify','Modify',language)]]">
 			<div class="extraDialogFields" slot="suffix">
-					<div class="history">[[localize('his','history',language)]]</div>
+					<div class="history">
+						<div class="history-icon">
+							<iron-icon icon="history"></iron-icon>
+						</div>
+						<div class="history-txt">
+							[[localize('his','History',language)]]
+						</div>
+					</div>
+					<template is="dom-repeat" items="[[historyElement]]" as="hhe">
+						<h4>{{hhe.modified}} {{hhe.descr}}</h4>
+						<div>
+							[[localize('st_da','Start Date',language)]]: {{hhe.openingDate}} -
+							[[localize('en_da','End Date',language)]]: {{hhe.closingDate}}
+						</div>
+						<div>
+							[[localize('nat','Nature',language)]]: {{hhe.nature}};
+							[[localize('cert','Certainty',language)]]: {{hhe.certainty}};
+							[[localize('sev','Severity',language)]]: {{hhe.severity}};
+							[[localize('temp','Temporality',language)]]: {{hhe.temporality}};
+						</div>
+					</template>
 			</div>
 		</health-problem-selector>
 
@@ -1559,6 +1603,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             hiddenSubContactsId: {
 			    type: Object,
 				value: {}
+			},
+            historyElement:{
+			    type: Object
 			}
 		};
 	}
@@ -3006,6 +3053,38 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			)
 
+	}
+
+    _composeHistory(e){
+		const heId = e.detail.entity.healthElementId
+
+		let hhe = this.healthElements.filter(eh => eh.healthElementId === heId)
+
+
+		hhe.map(e => {
+
+			e.modified = this.api.moment(e.modified).format('DD/MM/YYYY')
+			e.openingDate = this.api.moment(e.openingDate).format('DD/MM/YYYY')
+			e.closingDate ? e.closingDate = this.api.moment(e.closingDate).format('DD/MM/YYYY') : e.closingDate = ""
+
+			let temporality = 	e.tags.find(tmp => tmp.type === 'CD-TEMPORALITY')
+            let severity = 		e.tags.find(sev => sev.type === 'CD-SEVERITY')
+            let certainty = 	e.tags.find(cert => cert.type === 'CD-CERTAINTY')
+            let nature = 		e.tags.find(nat => nat.type === 'CD-ITEM')
+
+			e.nature 		= nature && nature.code ? nature.code : ""
+			e.certainty		= certainty && certainty.code ? certainty.code : ""
+			e.temporality	= temporality && temporality.code ? temporality.code : ""
+			e.severity		= severity && severity.code ? severity.code : ""
+
+		})
+
+
+		console.log(hhe)
+		this.set('historyElement', hhe)
+
+
+	    //this.healthElements.find()
 	}
 }
 
