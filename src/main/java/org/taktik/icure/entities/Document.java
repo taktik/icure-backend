@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.DocumentLocation;
 import org.taktik.icure.entities.embed.DocumentStatus;
 import org.taktik.icure.entities.embed.DocumentType;
 
@@ -39,6 +40,7 @@ public class Document extends StoredICureDocument implements Serializable {
     @JsonIgnore
     private boolean attachmentDirty;
 
+    protected DocumentLocation documentLocation;
     protected DocumentType documentType;
 	protected DocumentStatus documentStatus;
 
@@ -152,4 +154,13 @@ public class Document extends StoredICureDocument implements Serializable {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public DocumentLocation getDocumentLocation() {
+        return documentLocation;
+    }
+
+    public void setDocumentLocation(DocumentLocation documentLocation) {
+        this.documentLocation = documentLocation;
+    }
+
 }

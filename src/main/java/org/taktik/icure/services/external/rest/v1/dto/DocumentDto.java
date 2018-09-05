@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentLocation;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentStatus;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
@@ -28,6 +29,7 @@ import java.util.*;
 public class DocumentDto extends IcureDto {
 
 	protected String attachmentId;
+	protected DocumentLocation documentLocation;
 	protected DocumentType documentType;
 	protected DocumentStatus documentStatus;
 	protected String mainUti;
