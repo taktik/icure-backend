@@ -406,6 +406,8 @@ class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.set('selectedItem','')
 		this.$.dialog.open();
 	    this.$.dialog.scrollTop = 0;
+
+        this.dispatchEvent(new CustomEvent('open-health-problem', { bubbles: true, composed: true, detail: {entity: this.entity}}));
 	}
 
 	_closingDateChanged(date) {
