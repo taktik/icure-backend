@@ -377,8 +377,8 @@
 				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
 			</template>
 			<div class="regimen-line">
-				<paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" min="0"></paper-input>
-				<paper-input id="unit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
+				<paper-input id="generalQuantity" label="Quantity" value="{{bufferQuantity}}" type="number" class="regimen--quantity" min="0"></paper-input>
+				<paper-input id="generalUnit" label="Units" value="[[bufferUnit]]" class="regimen--units"></paper-input>
 				<paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="{{bufferNumberByFrequency}}">
 					<div slot="suffix">X</div>
 				</paper-input>
@@ -1038,7 +1038,6 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
      _setFrequencyList(){
         let bufferTable = []
-        const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
 
 		for(let cpt=0;cpt<this.$.numberByFrequency.value;cpt++) {
             bufferTable.push({

@@ -340,29 +340,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: #5a6d75;
                 }
 
-                #sharePatientOption {
+                #selectPatientOption {
                     height: 34px;
-                    padding: 10px;
+                    padding: 14px;
                     background: #edf4fd;
                     -webkit-transition: background .15s;
                     transition: background .15s;
-                    position: absolute;
                     z-index: 2;
-                    display: none;
-                    width: 78%;
+                    display : flex;
 
                 }
 
-                #sharePatientOption_back {
+                #selectPatientOption_back {
                     min-width: 80px;
                     cursor: pointer;
                 }
 
-                #sharePatientOption_text {
+                #selectPatientOption_text {
                     margin: auto;
                 }
 
-                #sharePatientOption_option {
+                #selectPatientOption_option {
                     cursor: pointer;
                 }
 
@@ -470,21 +468,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <div class="second-filter-panel">
 
-                <div id="sharePatientOption">
-                    <div id="sharePatientOption_back" on-tap="_deselectAllSharePatient">
-                        <iron-icon icon="vaadin:arrow-left"></iron-icon>
-                        <span>Back</span>
+                <template is="dom-if" if="{{_isPatientsSelected(nbPatientSelected.*)}}">
+                    <div id="selectPatientOption">
+                        <div id="selectPatientOption_back" on-tap="_deselectAllSelectedPatients">
+                            <iron-icon icon="vaadin:arrow-left"></iron-icon>
+                            <span>Back</span>
+                        </div>
+                        <div id="selectPatientOption_text">
+                            [[nbPatientSelected]] patient(s) selected
+                        </div>
+                        <div id="selectPatientOption_option">
+                            <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
+                        </div>
                     </div>
-                    <div id="sharePatientOption_text">
-                        [[nbSharePatientSelected]] patient(s) selected
-                    </div>
-                    <div id="sharePatientOption_option">
-                        <iron-icon icon="icons:check" on-tap="_openSharePatientDialog"></iron-icon>
-                    </div>
-                </div>
+                </template>
+                <template is="dom-if" if="{{!_isPatientsSelected(nbPatientSelected.*)}}">
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
+                                 on-keydown="refresh"></paper-input>
+                </template>
 
-                <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
-                             on-keydown="refresh"></paper-input>
+
+
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="click">
                     <vaadin-grid-column width="32px">
@@ -496,7 +500,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="cell frozen patient-photo"><img src$="[[picture(item)]]"></div>
                             </template>
                             <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                                <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientToShare(item, patientToShare.*)]]"
+                                <vaadin-checkbox id="[[item.id]]" patient="[[item]]" checked="[[_patientSelected(item, patientSelected.*)]]"
                                                  on-checked-changed="_checkSharePatient"></vaadin-checkbox>
                             </template>
                         </template>
@@ -559,7 +563,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
                         </paper-button>
 
-                        <template is="dom-if" if="[[btnSharePatient]]">
+                        <template is="dom-if" if="[[btnSelectionPatient]]">
                             <paper-button class="add-btn" on-tap="_sharePatient">[[localize('share_pat','Share
                                 patients',language)]]
                             </paper-button>
@@ -574,7 +578,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <paper-button class="add-btn" on-tap="_cancelSharing">[[localize('canc','Cancel',language)]]
+                        <paper-button class="add-btn" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
                         </paper-button>
                     </template>
                 </div>
@@ -780,7 +784,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
                         <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
                         <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{fusionSelected}}">
-                            <template is="dom-repeat" items="{{patientToShare}}">
+                            <template is="dom-repeat" items="{{patientSelected}}">
                                 <paper-item>{{item.names}}</paper-item>
                             </template>
                         </paper-listbox>
@@ -841,12 +845,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value: false
                     },
-                    btnSharePatient: {
+                    btnSelectionPatient: {
                         type: Boolean,
                         value: false,
                         notify: true
                     },
-                    nbSharePatientSelected:{
+                    nbPatientSelected:{
                         type: Number,
                         value: 0
                     },
@@ -883,7 +887,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         notify: true,
                         value: () => []
                     },
-                    patientToShare: {
+                    patientSelected: {
                         type: Array,
                         notify: true,
                         value: () => []
@@ -1018,7 +1022,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     if (!latestSearchValue || latestSearchValue.length < 2) {
                         console.log("Cancelling empty search")
-                        this.btnSharePatient = false
+                        this.btnSelectionPatient = false
                         this.shareOption = false
                         this.exportOption = false
                         this.fusionOption = false
@@ -1088,7 +1092,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
 
                         if (keptPatients.length > 0) {
-                            this.btnSharePatient = true
+                            this.btnSelectionPatient = true
                         }
 
                         if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
@@ -1353,48 +1357,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _checkSharePatient(e) {
                 const targetId = e.target.id
-                var nbPatient = 0
 
                 if (targetId !== "") {
-                    const mark = this.patientToShare.find(m => m.id === targetId)
+                    const mark = this.patientSelected.find(m => m.id === targetId)
                     if (!mark) {
                         this.api.patient().getPatient(targetId).then(result =>{
-                            this.push('patientToShare',{id:targetId, check:true, names : result.firstName+" "+result.lastName})
+                            this.push('patientSelected',{id:targetId, check:true, names : result.firstName+" "+result.lastName})
+                            this.set('nbPatientSelected',this.patientSelected.filter(patient => patient.check).length)
                         })
                     } else {
                         mark.check = !mark.check
-                        this.notifyPath('patientToShare.*')
+                        this.notifyPath('patientSelected.*')
+                        this.set('nbPatientSelected',this.patientSelected.filter(patient => patient.check).length)
                     }
 
-                    this.patientToShare.map(pt => {
-                        if(pt.check === true){
-                            nbPatient ++
-                        }
-                    })
-
-                    this.set('nbSharePatientSelected', nbPatient)
-                }
 
 
 
-                if (this.nbSharePatientSelected !== 0) {
-                    this.$['sharePatientOption'].style.display = "flex"
-                } else {
-                    this.$['sharePatientOption'].style.display = "none"
                 }
 
             }
 
-            _patientToShare(item) {
+            _patientSelected(item) {
+
                 if (item) {
-                    const mark = this.patientToShare.find(m => m.id === item.id)
+                    const mark = this.patientSelected.find(m => m.id === item.id)
                     return mark && mark.check
                 } else {
                     return false
                 }
             }
 
-            _openSharePatientDialog() {
+            _openPatientActionDialog() {
                 if(this.shareOption) {
                     this.$['sharePatientDialog'].open()
                     this.set('hcp', _.values(_.orderBy(this.api.hcParties, ['lastName'], ['asc'])))
@@ -1402,7 +1396,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(this.exportOption){
                     //export here
                     let p = Promise.resolve([])
-                    this.patientToShare.forEach(patient =>{
+                    this.patientSelected.forEach(patient =>{
                         p = p.then(acc =>
                             this.api.patient().getPatient(patient.id)
                                 .then(patientDto =>{
@@ -1420,22 +1414,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     })
                 }
                 if(this.fusionOption){
-                    this.set("patientToShare",this.patientToShare.filter(element => element.check===true))
-                    if(this.patientToShare.length>1)
+                    this.set("patientSelected",this.patientSelected.filter(element => element.check===true))
+                    if(this.patientSelected.length>1)
                         this.$['fusionDialog'].open()
                 }
             }
 
-            _deselectAllSharePatient() {
-                this.set('patientToShare', [])
-                this.notifyPath('patientToShare.*')
+            _deselectAllSelectedPatients() {
+                this.set('patientSelected', [])
+                this.notifyPath('patientSelected.*')
 
-                this.$['sharePatientOption'].style.display = "none"
-                this.set('nbSharePatientSelected', 0)
+                this.set('nbPatientSelected', 0)
             }
 
-            _cancelSharing(){
-                this._deselectAllSharePatient()
+            _cancelSelecting(){
+                this._deselectAllSelectedPatients()
                 this.set('shareOption', false)
                 this.set('exportOption', false)
                 this.set('fusionOption', false)
@@ -1471,7 +1464,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 let pPromise = Promise.resolve([])
                 const hcpId = this.user.healthcarePartyId
-                this.patientToShare.filter(pat => pat.check && pat.id).forEach(pat => {
+                this.patientSelected.filter(pat => pat.check && pat.id).forEach(pat => {
                     pPromise = pPromise.then(pats =>
                         this.api.patient().share(pat.id, hcpId, this.hcpSelectedForSharing.filter(hcp => hcp.check && hcp.id).map(hcp => hcp.id))
                             .then(pat => _.concat(pats, pat))
@@ -1716,17 +1709,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (this.readOnly) {
                     return;
                 }
-                this.set('idFusionPat', this.patientToShare[selected].id || null);
+                this.set('idFusionPat', this.patientSelected[selected].id || null);
             }
 
             getNamePat(id){
-                const pat = this.patientToShare.find(patient => patient.id===id)
+                const pat = this.patientSelected.find(patient => patient.id===id)
                 return pat.names;
             }
 
             confirmFusion(){
                 let listIds = "";
-                this.patientToShare.forEach(patient => {
+                this.patientSelected.forEach(patient => {
                     if(patient.id!==this.idFusionPat)
                         listIds +=patient.id+",";
                 })
@@ -1737,6 +1730,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         console.log(response)
                         this.set('selectedPatient', response)
                     })
+            }
+
+            _isPatientsSelected(){
+                return this.patientSelected.filter( x => x.check==true).length;
             }
         }
 
