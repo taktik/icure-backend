@@ -100,8 +100,8 @@ module.exports = {
 			},
             '/ws': {
                 //target: 'https://backend.icure.cloud',
-                target: 'http://127.0.0.1:16043',
-                changeOrigin: true
+                target: 'ws://127.0.0.1:16043',
+                ws: true
             }
 		}
 	},

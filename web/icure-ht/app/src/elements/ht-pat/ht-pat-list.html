@@ -1408,7 +1408,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             comment: null
                                         }).then(output => {
                                             //creation of the xml file
-                                            var file = new Blob([output] ,{type: "application/xml"})
+                                            var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
 
                                             //creation the downloading link
                                             var a = document.createElement("a");
