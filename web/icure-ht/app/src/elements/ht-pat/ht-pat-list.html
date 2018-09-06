@@ -1395,19 +1395,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 if(this.exportOption){
                     //export here
+                    let p = Promise.resolve([])
                     this.patientSelected.forEach(patient =>{
-                        this.api.patient().getPatient(patient.id).then(patientDto =>{
-                            this.api.crypto()
-                                .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
-                                .then(secretForeignKeys => {
-                                    this.api.bekmehr().generateSmfExport(patientDto.id, "fr", {
-                                        secretForeignKeys: secretForeignKeys,
-                                        comment: null
-                                    }).then(output => {
-                                        console.log(output)
-                                    }).catch( error=> console.log(error))
+                        p = p.then(acc =>
+                            this.api.patient().getPatient(patient.id)
+                                .then(patientDto =>{
+                                    this.api.crypto()
+                                        .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                                        .then(secretForeignKeys => {
+                                        this.api.bekmehr().generateSmfExport(patientDto.id, "fr", {
+                                            secretForeignKeys: secretForeignKeys,
+                                            comment: null
+                                        }).then(output => {
+                                            console.log(output)
+                                        }).catch( error=> console.log(error))
                                 })
-                        })
+                        }))
                     })
                 }
                 if(this.fusionOption){

@@ -290,7 +290,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			ids.add(idKmehr(itemIndex))
 			ids.add(localIdKmehrElement(itemIndex, config))
 			cds.add(cdItem("insurancystatus"))
-			if (insurability?.insuranceId != null) {
+			if (insurability?.insuranceId?.isBlank() == false) {
 				try {
 					insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
 						if (it.code != null && it.code.length >= 3) {
