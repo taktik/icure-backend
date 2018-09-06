@@ -1126,6 +1126,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             ).then(() => this.set('currentExternalCareTeam', externalTeam))
 
             //DMG owner
+            this.set('currentDMGOwner', dmgOwner)
             if (this.patient.ssin && this.api.tokenId) {
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>

@@ -32,9 +32,8 @@ import java.io.OutputStream
 /**
  * @author Bernard Paulus on 24/05/17.
  */
-class SoftwareMedicalFileLogicImpl : SoftwareMedicalFileLogic {
-    var softwareMedicalFileExport : SoftwareMedicalFileExport? = null
-    var softwareMedicalFileImport : SoftwareMedicalFileImport? = null
+class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
+                                   val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
 
     override fun importSmfFile(inputStream: InputStream,
                                author: User,
