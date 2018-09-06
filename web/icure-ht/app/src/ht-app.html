@@ -418,32 +418,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
 
 		<icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+        <!-- <icc-api id="api" host="/rest/v1" fhc-host="http://localhost:8090" headers="[[headers]]" credentials="[[credentials]]"></icc-api>-->
 
-        <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
-            <iron-icon icon="icons:warning"></iron-icon>
-        </paper-item>
+         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
+             <iron-icon icon="icons:warning"></iron-icon>
+         </paper-item>
 
-        <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
-                             on-login="login"></ht-app-login-dialog>
-        <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
-                                   route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
-        <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
-                                        message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
-                                        on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
-        <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
-        <ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
-        <ht-access-log id="ht-access-log" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-access-log>
-        <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
-                       on-user-saved="_userSaved"></ht-my-profile>
-
-
-        <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
-        <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
-        <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
+         <ht-app-login-dialog id="loginDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]"
+                              on-login="login"></ht-app-login-dialog>
+         <ht-app-first-login-dialog id="firstConnectionDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" credentials="[[credentials]]" api="[[api]]"
+                                    route="{{route}}" user="[[user]]"></ht-app-first-login-dialog>
+         <ht-app-register-keypair-dialog id="registerKeyPairDialog" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                                         message="[[registerKeyPairDialogMessage]]" on-file-selected="importPrivateKey"
+                                         on-key-scanned="importScannedPrivateKey"></ht-app-register-keypair-dialog>
+         <ht-export-key id="export-key" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-export-key>
+         <ht-import-keychain id="ht-import-keychain" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-import-keychain>
+         <ht-access-log id="ht-access-log" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"></ht-access-log>
+         <ht-my-profile id="ht-my-profile" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" api="[[api]]" user="[[user]]"
+                        on-user-saved="_userSaved"></ht-my-profile>
 
 
-        <app-drawer-layout fullbleed>
-            <!-- Main content -->
+         <app-location route="{{route}}" query-param="{{queryParams}}" use-hash-as-path="true"></app-location>
+         <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+         <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
+
+
+         <app-drawer-layout fullbleed>
+             <!-- Main content -->
             <app-header-layout fullbleed>
                 <app-header slot="header" fixed condenses effects="waterfall">
                     <app-toolbar id="mainToolbar" class="" sticky>
@@ -731,6 +732,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     worker: {
                         type: Worker
+                    },
+                    timeOutId: {
+                        type: String
                     }
                 }
             }
@@ -805,15 +809,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _inboxMessageCheck(period = 1000) {
+                clearTimeout(this.timeOutId)
                 if (this.EhboxCheckingActive === false) {
-                    setTimeout(() => {
+                    this.timeOutId = setTimeout(() => {
                         if (this.api.tokenId) {
                             this.set('EhboxCheckingActive', true)
+                            console.log("EhboxCheckingActive "+this.EhboxCheckingActive)
                             this.checkEhboxMessage()
-                        } else {
+                        }else {
                             this._inboxMessageCheck()
                         }
-                    }, period)
+
+                   }, period)
                 }
             }
 
@@ -1062,18 +1069,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.worker = new Worker()
 
                 this.worker.postMessage({
-                    action: "loadEhboxMessage",
-                    hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
-                    fhcHost: this.api.fhc().host,
-                    fhcHeaders: JSON.stringify(this.api.fhc().headers),
-                    iccHost: this.api.host,
-                    iccHeaders: JSON.stringify(this.api.headers),
-                    tokenId: this.api.tokenId,
-                    keystoreId: this.api.keystoreId,
-                    user: this.user,
-                    ehpassword: this.credentials.ehpassword,
-                    boxId: "INBOX",
-                    keyPair: keyPair
+                    action:             "loadEhboxMessage",
+                    hcpartyBaseApi:     this.api.crypto().hcpartyBaseApi,
+                    fhcHost:            this.api.fhc().host,
+                    fhcHeaders:         JSON.stringify(this.api.fhc().headers),
+                    iccHost:            this.api.host,
+                    iccHeaders:         JSON.stringify(this.api.headers),
+                    tokenId:            this.api.tokenId,
+                    keystoreId:         this.api.keystoreId,
+                    user:               this.user,
+                    ehpassword:         this.credentials.ehpassword,
+                    boxId:              "INBOX",
+                    keyPair:            keyPair
                 })
 
                 this.worker.onmessage = e => {
