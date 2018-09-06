@@ -114,12 +114,12 @@
             <div class="flex">
                 <paper-item class="label">[[localize('nat','Nature',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_nature(entity, entity.tags, entity.tags.*)]]" on-selected-changed="_natureChanged">
-                    <paper-radio-button name="healthcareelement">[[localize('pro','Problem',language)]]</paper-radio-button>
-                    <paper-radio-button name="allergy">[[localize('alle','Allergy',language)]]</paper-radio-button>    
-                    <paper-radio-button name="familyrisk">[[localize('fami_risk','Family Risk',language)]]</paper-radio-button>
+                    <paper-radio-button name="healthcareelement">[[localize('healthcareelement','Problem',language)]]</paper-radio-button>
+                    <paper-radio-button name="allergy">[[localize('allergy','Allergy',language)]]</paper-radio-button>
+                    <paper-radio-button name="familyrisk">[[localize('familyrisk','Family Risk',language)]]</paper-radio-button>
                     <paper-radio-button name="risk">[[localize('risk','Risk',language)]]</paper-radio-button>
-					<paper-radio-button name="socialrisk">[[localize('soc_ris','Social risk',language)]]</paper-radio-button>
-					<paper-radio-button name="adr">[[localize('adv_dru_rea','Adverse drug reaction',language)]]</paper-radio-button>
+					<paper-radio-button name="socialrisk">[[localize('socialrisk','Social risk',language)]]</paper-radio-button>
+					<paper-radio-button name="adr">[[localize('adr','Adverse drug reaction',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
             <div class="flex">
@@ -134,29 +134,29 @@
             <div class="flex">
                 <paper-item class="label">[[localize('cert','Certainty',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_certainty(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_certaintyChanged">
-                    <paper-radio-button name="probable">[[localize('proba','Probable',language)]]</paper-radio-button>
-                    <paper-radio-button name="proven">[[localize('prov','Proven',language)]]</paper-radio-button>
-                    <paper-radio-button name="unprobable">[[localize('unp','improbable',language)]]</paper-radio-button>
-                    <paper-radio-button name="excluded">[[localize('exc','Excluded',language)]]</paper-radio-button>
+                    <paper-radio-button name="probable">[[localize('probable','Probable',language)]]</paper-radio-button>
+                    <paper-radio-button name="proven">[[localize('proven','Proven',language)]]</paper-radio-button>
+                    <paper-radio-button name="unprobable">[[localize('unprobable','improbable',language)]]</paper-radio-button>
+                    <paper-radio-button name="excluded">[[localize('excluded','Excluded',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
             <div class="flex">
                 <paper-item class="label">[[localize('sev','Severity',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_severity(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_severityChanged">
-                    <paper-radio-button name="normal">[[localize('no-pro','No problem',language)]]</paper-radio-button>
-                    <paper-radio-button name="verylow">[[localize('light','Light',language)]]</paper-radio-button>
-                    <paper-radio-button name="low">[[localize('moder','Moderate',language)]]</paper-radio-button>
-                    <paper-radio-button name="high">[[localize('severe','Severe',language)]]</paper-radio-button>
-                    <paper-radio-button name="veryhigh">[[localize('tot','Total',language)]]</paper-radio-button>
+                    <paper-radio-button name="normal">[[localize('normal','No problem',language)]]</paper-radio-button>
+                    <paper-radio-button name="verylow">[[localize('verylow','Light',language)]]</paper-radio-button>
+                    <paper-radio-button name="low">[[localize('low','Moderate',language)]]</paper-radio-button>
+                    <paper-radio-button name="high">[[localize('high','Severe',language)]]</paper-radio-button>
+                    <paper-radio-button name="veryhigh">[[localize('veryhigh','Total',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
             <div class="flex">
                 <paper-item class="label">[[localize('temp','Temporality',language)]]<iron-icon icon="icons:chevron-right"></iron-icon></paper-item>
                 <paper-radio-group selected="[[_temporality(entity, entity.tags, entity.tags.*, entity.status, entity.closingDate)]]" on-selected-changed="_temporalityChanged">
-                    <paper-radio-button name="chronic">[[localize('chro','Chronic',language)]]</paper-radio-button>
-                    <paper-radio-button name="subbacute">[[localize('sub-acu','Sub-acute',language)]]</paper-radio-button>
-                    <paper-radio-button name="acute">[[localize('acu','Acute',language)]]</paper-radio-button>
-                    <paper-radio-button name="remission">[[localize('rem','Remission',language)]]</paper-radio-button>
+                    <paper-radio-button name="chronic">[[localize('chronic','Chronic',language)]]</paper-radio-button>
+                    <paper-radio-button name="subbacute">[[localize('subbacute','Sub-acute',language)]]</paper-radio-button>
+                    <paper-radio-button name="acute">[[localize('acute','Acute',language)]]</paper-radio-button>
+                    <paper-radio-button name="remission">[[localize('remission','Remission',language)]]</paper-radio-button>
                 </paper-radio-group>
             </div>
 
