@@ -1403,7 +1403,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     this.api.crypto()
                                         .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
-                                        this.api.bekmehr().generateSmfExport(patientDto.id, "fr", {
+                                        this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
                                             secretForeignKeys: secretForeignKeys,
                                             comment: null
                                         }).then(output => {
@@ -1620,11 +1620,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     this.push("hcpSelectedForSharing."+index+".delegation",tag)
                     
-                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length==12){
+                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length === 12){
                         this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
                     }
 
-                    if(this.hcpSelectedForSharing[index].delegation.find(x => x==="medicalInformation")){
+                    if(this.hcpSelectedForSharing[index].delegation.find(x => x === "medicalInformation")){
                         this.set("hcpSelectedForSharing."+index+".delegation",this.hcpSelectedForSharing[index].delegation.filter(x => !x.includes("cdItem")))
                     }
 

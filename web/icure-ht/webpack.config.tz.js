@@ -65,14 +65,7 @@ module.exports = {
                         limit: 10000,
 				        },
                 }],
-	        },
-            {
-                test: /\.worker\.js$/,
-                use: {
-                    loader: 'worker-loader',
-                    options: { fallback: false }
-                }
-            }
+	        }
         ]
     },
 	mode: 'development',
@@ -104,7 +97,12 @@ module.exports = {
                 //target: 'https://backend.icure.cloud',
                 target: 'http://127.0.0.1:16043',
                 changeOrigin: true
-			}
+			},
+            '/ws': {
+                //target: 'https://backend.icure.cloud',
+                target: 'http://127.0.0.1:16043',
+                changeOrigin: true
+            }
 		}
 	},
 };
