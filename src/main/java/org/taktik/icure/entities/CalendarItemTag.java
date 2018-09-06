@@ -16,6 +16,8 @@ public class CalendarItemTag implements Serializable {
 
     private String userId;
 
+    private String userName;
+
     public String getCode() {
         return code;
     }
@@ -38,5 +40,13 @@ public class CalendarItemTag implements Serializable {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
