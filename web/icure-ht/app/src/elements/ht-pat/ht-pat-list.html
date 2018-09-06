@@ -1407,7 +1407,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             secretForeignKeys: secretForeignKeys,
                                             comment: null
                                         }).then(output => {
-                                            console.log(output)
+                                            //creation of the xml file
+                                            var file = new Blob([output] ,{type: "application/xml"})
+
+                                            //creation the downloading link
+                                            var a = document.createElement("a");
+                                            document.body.appendChild(a);
+                                            a.style = "display: none";
+
+                                            //download the new file
+                                            var url = window.URL.createObjectURL(file);
+                                            a.href = url;
+                                            a.download = patient.names.replace(" ","_")+"_"+(moment().format("x"))+".xml";
+                                            a.click();
+                                            window.URL.revokeObjectURL(url);
+
+                                            document.body.removeChild(a);
                                         }).catch( error=> console.log(error))
                                 })
                         }))
