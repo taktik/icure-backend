@@ -1215,6 +1215,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     worker: {
                         type: Worker
+                    },
+                    timeOutId: {
+                        type: String
                     }
                 }
             }
@@ -1289,10 +1292,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _inboxMessageCheck(period = 1000) {
+                clearTimeout(this.timeOutId)
                 if (this.EhboxCheckingActive === false) {
-                    setTimeout(() => {
+                    this.timeOutId = setTimeout(() => {
                         if (this.api.tokenId) {
                             this.set('EhboxCheckingActive', true)
+                            console.log("EhboxCheckingActive "+this.EhboxCheckingActive)
                             this.checkEhboxMessage()
                         } else {
                             this._inboxMessageCheck()

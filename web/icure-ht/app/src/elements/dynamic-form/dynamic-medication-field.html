@@ -229,10 +229,10 @@
 				padding: 2px;
 			}
 
-			.regimen--frequency,{
+			.regimen--frequency {
 				flex-grow: 3;
 				margin:auto;
-				padding:0 8px 0 0;
+				padding:0 8px 0 8px;
 			}
 			.regimen--tod{
 				flex-grow: 3;
@@ -249,7 +249,7 @@
 			.regimen--units {
 				flex-grow: 3;
 				margin:auto;
-				padding:0 0 0 8px;
+				padding:0 8px 0 8px;
 			}
 			vaadin-grid {
 				--vaadin-grid-body-row-hover-cell: {
@@ -377,11 +377,14 @@
 				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
 			</template>
 			<div class="regimen-line">
-				<paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="1">
+				<paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" min="0"></paper-input>
+				<paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
+
+				<paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="{{bufferNumberByFrequency}}">
 					<div slot="suffix">X</div>
 				</paper-input>
 				<paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
-					<paper-listbox slot="dropdown-content"  selected="0">
+					<paper-listbox slot="dropdown-content" selected="{{bufferGeneralFrequency}}">
 						<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
 						<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
 						<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
@@ -426,8 +429,8 @@
 								</paper-dropdown-menu>
 							</template>
 						</template>
-						<paper-input id="quantity" label="Quantity" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
-						<paper-input id="quantity" label="Units" value="{{rg.administratedQuantity.unit}}" class="regimen--units" on-change="_valueChanged"></paper-input>
+						<paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
+						<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units" on-change="_valueChanged"></paper-input>
 						<paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
 					</div>
 				</template>
@@ -567,6 +570,26 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			bufferUnit : {
                 type: String,
 				value : null
+			},
+			bufferQuantity : {
+                type: Number,
+				value: 0
+			},
+            bufferNumberByFrequency:{
+                type: Number,
+				value: 1
+			},
+            bufferFrequency: {
+                type: String,
+                value: "daily"
+            },
+            bufferGeneralFrequency: {
+                type: Number,
+                value: 1
+			},
+			customFrequencyTable: {
+                type: Boolean,
+				value: false
 			}
         }
     }
@@ -809,6 +832,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	close() {
+        if(!this.customFrequencyTable) {
+            this._setFrequencyList()
+        }
+
+        this.set('customFrequencyTable', false)
         this.set('selectedMedicationContentWithId', null)
         this.set('flagTableFrequency',false)
 	}
@@ -891,9 +919,27 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const item = this.value.find(s => s.id === id);
 		if (item) {
 			this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item));
-            this.set('flagTableFrequency',true)
-			this.set('bufferUnit',this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit)
+			const isCustom = this.hasCustomFrequencyTable(this.selectedMedicationContentWithId.medicationValue.regimen);
+            this.set('customFrequencyTable', isCustom);
+            this.set('flagTableFrequency', isCustom);//,this.selectedMedicationContentWithId.medicationValue.regimen.length > 1);
+			this.set('bufferUnit',this.selectedMedicationContentWithId.medicationValue.regimen[0] ? this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
+            this.set('bufferQuantity',this.selectedMedicationContentWithId.medicationValue.regimen[0] ? this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
+			this.set('bufferNumberByFrequency', this.selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? this.selectedMedicationContentWithId.medicationValue.regimen.length : 1)
+			this.set('bufferGeneralFrequency', this.selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(this.selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
 			this.$['medication-detail'].open();
+		}
+	}
+
+	hasCustomFrequencyTable(regimen){
+		if(regimen.length <= 1)
+		{
+		    return false;
+		}else
+		{
+		    let reg1 = regimen[0];
+		    let allEqual = false;
+		    const difReg = regimen.find(reg => !_.isEqual(reg1, reg));
+		    return difReg ? true : false;
 		}
 	}
 
@@ -916,6 +962,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
                 }])
                 this.set("bufferUnit",mppInfos.gal.name)
+                this.set("bufferQuantity",1)
+
             })
         } else {
             if (med.inncluster) {
@@ -934,6 +982,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
             }])
             this.set("bufferUnit",this.localize('generic_unit','unit',language))
+            this.set("bufferQuantity",1)
         }
         if (this.selectedMedicationContentWithId.isNew) {
             this.push('value',this.newMedication)
@@ -948,7 +997,9 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	clearPosologyRegimen(event, target) {
         const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
-		this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1);
+        if(this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
+            this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1);
+        }
 	}
 
 	_localize(s) {
@@ -986,21 +1037,21 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this._valueChanged();
 	}
 
-    _setFrequencyList(){
+     _setFrequencyList(){
         let bufferTable = []
-        const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
 
 		for(let cpt=0;cpt<this.$.numberByFrequency.value;cpt++) {
             bufferTable.push({
                 weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
                 date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
                 administratedQuantity: {
-                    quantity: 1,
-                    unit: reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                    quantity : this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                    unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
                 }
             })
         }
 
+		this.set("customFrequencyTable", true);
         this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
         this.set("flagTableFrequency",true)
     }

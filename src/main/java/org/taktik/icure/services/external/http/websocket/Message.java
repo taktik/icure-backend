@@ -24,12 +24,22 @@ import java.util.List;
 public class Message<K extends List<? extends Serializable>> {
 	String command;
 	String uuid;
+	String type;
 	K body;
 
-	public Message(String command, String uuid, K body) {
+	public Message(String command, String type, String uuid, K body) {
 		this.command = command;
+		this.type = type;
 		this.uuid = uuid;
 		this.body = body;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getCommand() {
