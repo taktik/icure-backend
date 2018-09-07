@@ -1193,7 +1193,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">[[localize('new_con','New Contact',language)]]</paper-button></div>
 					</template>
 				</div>
-				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]"
+				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[_concat(activeHealthElements,inactiveHealthElements)]]"
 												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
 												on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
