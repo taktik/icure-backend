@@ -69,6 +69,7 @@ onmessage = e => {
                     return iccMessageXApi.newInstance(user, newMessage)
                         .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
+                            console.log(createdMessage)
                             Promise.all([fullMessage.document && fullMessage.document.content].concat(fullMessage.annex || []).map(a => a &&
                                 docxApi.newInstance(user, createdMessage, {
                                     documentLocation:   (fullMessage.document && a === fullMessage.document.content) ? 'body' : 'annex',
@@ -78,6 +79,7 @@ onmessage = e => {
                                 })
                                     .then(d => docApi.createDocument(d))
                                     .then(createdDocument => {
+                                        console.log(a)
                                         let contentDecode = self.atob(a.content)
                                         var byteContent = [];
                                         let buffer = new Buffer(contentDecode, 'utf8');
@@ -85,6 +87,7 @@ onmessage = e => {
                                         for (let i = 0; i < buffer.length; i++) {
                                             byteContent.push(buffer[i]);
                                         }
+                                        console.log(createdDocument)
                                         return [createdDocument, byteContent]
                                     })
                                     .then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
@@ -102,7 +105,7 @@ onmessage = e => {
             })
             return p
         }).then(toBeDeletedIds =>
-            Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, messageShouldBeDeleted, boxId, "BININBOX")))
+            Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BININBOX")))
         )
     }
 };
