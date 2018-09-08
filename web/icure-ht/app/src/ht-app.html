@@ -954,44 +954,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (!this.authenticated) {
                         this.authenticated = true
 
-                        this.api.loadUsersAndHcParties()
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-                            if (this.credentials.ehpassword) {
-                                const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
-                                if (ehKeychain) {
-                                    this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
-                                        this.$.api.keystoreId = res.uuid
-                                        this._getToken()
-                                    })
-                                } else {
-                                    this.$.noehealth.classList.add("notification")
+                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.$.api.crypto().checkPrivateKeyValidity(hcp)).then(ok => {
+                                if (ok) {
+                                    this.api.loadUsersAndHcParties()
+                                    if (this.credentials.ehpassword) {
+                                        const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+                                        if (ehKeychain) {
+                                            this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                                                this.$.api.keystoreId = res.uuid
+                                                this._getToken()
+                                            })
+                                        } else {
+                                            this.$.noehealth.classList.add("notification")
 
-                                    this.$.eHealthStatus.classList.remove('pending')
-                                    this.$.eHealthStatus.classList.remove('connected')
-                                    this.$.eHealthStatus.classList.add('disconnected')
+                                            this.$.eHealthStatus.classList.remove('pending')
+                                            this.$.eHealthStatus.classList.remove('connected')
+                                            this.$.eHealthStatus.classList.add('disconnected')
+                                        }
+                                    } else {
+                                        this.$.eHealthStatus.classList.remove('pending')
+                                        this.$.eHealthStatus.classList.remove('connected')
+                                        this.$.eHealthStatus.classList.add('disconnected')
+                                    }
+                                    const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                    if (!this.routeData || destPage !== this.routeData.page) {
+                                        this.set('routeData.page', destPage)
+                                    } else {
+                                        this._routePageChanged(destPage)
+                                    }
+                                } else {
+                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                    this.$.registerKeyPairDialog.opened = true
                                 }
-                            } else {
-                                this.$.eHealthStatus.classList.remove('pending')
-                                this.$.eHealthStatus.classList.remove('connected')
-                                this.$.eHealthStatus.classList.add('disconnected')
-                            }
-                            const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                            if (!this.routeData || destPage !== this.routeData.page) {
-                                this.set('routeData.page', destPage)
-                            } else {
-                                this._routePageChanged(destPage)
-                            }
+                            })
                         } else {
                             this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-
                                 if (hcp.publicKey) {
                                     this.registerKeyPairDialogMessage = ""
                                     this.$.registerKeyPairDialog.opened = true
                                 } else {
                                     this.$.firstConnectionDialog.opened = true
                                 }
-
-
                             })
                         }
                     }
