@@ -977,7 +977,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
 					</paper-listbox>
 					<div class="submenus-container">
-							<collapse-button>
+							<collapse-button id="cb_ahelb">
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleSelectAll" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('act_hea_pro','Active Health Problems',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
@@ -987,14 +987,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<paper-item class="menu-item  list-info"><div class="one-line-menu">[[localize('no_act_hea_ele','No active health elements',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="activeHesDomRepeat" is="dom-repeat" items="[[activeHealthElements]]" as="he">
-										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[activeHealthElements.length]]">
 									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_hea_ele','Add health element',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
-							<collapse-button>
+							<collapse-button id="cb_ihelb">
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleSelectAll" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('med_ant','Medical antecedents',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -1004,14 +1004,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med_ant','No medical antecedent',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 									<template id="inactiveHesDomRepeat" is="dom-repeat" items="[[inactiveHealthElements]]" as="he">
-										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[inactiveHealthElements.length]]">
 									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med_ant','Add medical antecedent',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
-							<collapse-button>
+							<collapse-button id="cb_frhelb">
 								<paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('fam_ris','Family risks',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -1021,14 +1021,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_fam_ris','No family risks',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[familyrisks]]" as="risk">
-										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(risk)]]" he="[[risk]]" selected="[[_isItemInArray(risk,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(risk)]]" he="[[risk]]" selected="[[_isItemInArray(risk,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[familyrisks.length]]">
 										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add family risk',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Family risk" data-tags="CD-ITEM|familyrisk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
-							<collapse-button>
+							<collapse-button id="cb_rhelb">
 								<paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('ris','Risks',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -1038,14 +1038,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_ris','No risks',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[risks]]" as="risk">
-										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(risk)]]" he="[[risk]]" selected="[[_isItemInArray(risk,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(risk)]]" he="[[risk]]" selected="[[_isItemInArray(risk,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[risks.length]]">
 									<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_ris','Add risk',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Risks" data-tags="CD-ITEM|risk|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
-							<collapse-button>
+							<collapse-button id="cb_alhelb">
 								<paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('aller','Allergies',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -1055,7 +1055,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_all','No allergies',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[allergies]]" as="allergy">
-										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(allergy)]]" he="[[allergy]]" selected="[[_isItemInArray(allergy,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(allergy)]]" he="[[allergy]]" selected="[[_isItemInArray(allergy,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[allergies.length]]">
 										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_all','Add allergy',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Allergies" data-tags="CD-ITEM|allergy|1.0"></paper-icon-button></paper-item>
@@ -1093,7 +1093,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_arc_hea_ele','No archived health elements',language)]]</div></paper-item>
 									</template>
 									<template id="archivedHesDomRepeat" is="dom-repeat" items="[[archivedHealthElements]]" as="he">
-										<ht-pat-he-tree-detail i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 								</paper-listbox>
 							</collapse-button>
@@ -1193,7 +1193,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="new-ctc-btn-container"><paper-button class="add-btn" on-tap="newContact">[[localize('new_con','New Contact',language)]]</paper-button></div>
 					</template>
 				</div>
-				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]"
+				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
 												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
 												on-select-current-contact="_selectCurrentContact" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
 			</template>
@@ -2343,7 +2343,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                 ctcs.sort((a,b) => (a.created||0)-(b.created||0))
 				const descrPattern = this.user.properties.find(p => p.type.identifier === 'org.taktik.icure.preferred.contactDescription') || "{Motifs de contact}";
-				const sorter = x => [-x.valueDate || -x.openingDate, -x.closingDate];
+				const sorter = x => [
+				    ((x.codes||[]).find(c =>  c.type === 'ICPC' || c.type === 'ICPC2') || {}).code || "\uff0f",
+					-(x.valueDate || x.openingDate || 0),
+					-(x.closingDate || 0)
+				];
 				const idServicesInHes = _.compact(hes.map(he => he.idService));
 
 				this.api.contact().filterServices(ctcs, s => s.tags.find(c => c.type === 'CD-ITEM' && ['healtcarehelement', 'healthissue', 'familyrisk', 'risk', 'allergy'].includes(c.code)) && !idServicesInHes.includes(s.id)).then(hesAsServices => {
@@ -2383,18 +2387,25 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                         this.set('healthElements', combinedHesWithHistory);
 
-                        this.set('activeHealthElements', _.sortBy(combinedHes.filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))), 'descr'));
-						this.set('inactiveHealthElements', _.sortBy(combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))), 'descr'));
-						this.set('archivedHealthElements', _.sortBy(combinedHes.filter(it => (it.status & 2) === 2), 'descr'));
-						this.set('allergies', _.sortBy(combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')), 'descr'));
-						this.set('risks', _.sortBy(combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'risk')), 'descr'));
-						this.set('familyrisks', _.sortBy(combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')), 'descr'));
+                        this.set('activeHealthElements', combinedHes.filter(it => !it.closingDate && (it.status & 1) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))));
+						this.set('inactiveHealthElements', combinedHes.filter(it => (it.closingDate || (it.status & 1) === 1) && (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'healthissue' || c.code === 'healthcareelement'))));
+						this.set('archivedHealthElements', combinedHes.filter(it => (it.status & 2) === 2));
+						this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')));
+						this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'risk')));
+						this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')));
 
-						this.set('selectedHealthcareElements', (this.selectedHealthcareElements || []).filter(he => this.activeHealthElements.concat(this.inactiveHealthElements).concat(this.archivedHealthElements).concat(this.allergies).concat(this.risks).concat(this.familyrisks).includes(he)))
+                        this.activeHealthElements.length && (this.root.querySelector('#cb_ahelb').opened = true)
+                        this.inactiveHealthElements.length && (this.root.querySelector('#cb_ihelb').opened = true)
+                        this.allergies.length && (this.root.querySelector('#cb_alhelb').opened = true)
+                        this.risks.length && (this.root.querySelector('#cb_rhelb').opened = true)
+
+
+                        this.set('selectedHealthcareElements', (this.selectedHealthcareElements || []).filter(he => this.activeHealthElements.concat(this.inactiveHealthElements).concat(this.archivedHealthElements).concat(this.allergies).concat(this.risks).concat(this.familyrisks).includes(he)))
 					});
 
 					const unclosedContact = ctcs.find(c => !c.closingDate);
 					const allContacts = unclosedContact ? ctcs.concat([unclosedContact]) : ctcs;
+
 					const templateKeys = descrPattern.match(/\{.+?\}/g).map(s => s.substring(1, s.length - 1)).reduce((acc, s) => {
 						acc[s] = true;return acc;
 					}, {});
@@ -2409,7 +2420,23 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					})
                     ;(unclosedContact && Promise.resolve(unclosedContact) || this.api.contact().newInstance(this.user, patient, { descr: 'Contact du jour', userDescr: 'Contact du jour' })).then(newCtc => {
 						const thisYear = moment().year();
-						this.set('contacts', ctcs);
+
+						this.set('contacts', Object.values(ctcs.reduce((acc,it) => {
+						    const prev = acc[it.groupId || it.id]
+							if (prev) {
+						        const target = (it.created || it.modified) > (prev.created || prev.modified) ? it : prev
+                                const source = (it.created || it.modified) > (prev.created || prev.modified) ? prev : it
+
+								acc[it.groupId || it.id] = target
+
+								target.subContacts = (target.subContacts || []).concat(source.subContacts)
+                                target.services = (target.services || []).concat(source.services)
+							} else {
+                                acc[it.groupId || it.id] = it
+							}
+							return acc
+						},{})));
+
 						this.set('currentContact', newCtc);
 						const formIds = {}
 						this.hiddenSubContactsId = _.reduce(ctcs, (acc, ctc) => {
@@ -2423,7 +2450,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             })
                             return acc
 						}, {})
-						this.set('contactYears', _.sortBy(_.values(_.reduce(ctcs, (acc, ctc) => {
+						this.set('contactYears', _.sortBy(_.values(_.reduce(this.contacts, (acc, ctc) => {
 							if (ctc.subContacts && ctc.subContacts.filter(sc=>!this.hiddenSubContactsId[sc.id]).length ||
                                 ctc.services.some(s => !ctc.subContacts.some(sc=>sc.services.some(scs=>scs.idService === s.id)) && _.values(s.content).find(this.contentHasData.bind(this)))) {
 								let year = parseInt((ctc.openingDate || 2000).toString().substr(0, 4));
@@ -2936,16 +2963,18 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_healthElementsSelectorDataProvider() {
 		return {
 			filter: function (filterValue, limit, offset, sortKey, descending) {
-				const regExp = filterValue && new RegExp(filterValue, "i");
-                const words = filterValue && filterValue.toLowerCase().split(/\s+/);
-				const sorter = x => [x[sortKey] && x[sortKey].toLowerCase().startsWith(words[0]) ? 0 : 1, x[sortKey]]
+			    const noDiacFilterValue = filterValue && filterValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+
+				const regExp = noDiacFilterValue && new RegExp(noDiacFilterValue.replace(/\s+/,'.*'), "i");
+                const words = noDiacFilterValue && noDiacFilterValue.toLowerCase().split(/\s+/);
+				const sorter = x => [x.descr && x.descr.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) || x.name && x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(words[0]) ? 0 : 1, x.descr, x.name]
 
                 return Promise.all([this.api.code().findPaginatedCodesByLabel('be', 'BE-THESAURUS', 'fr', words[0], null, null, 1000), this.api.entitytemplate().findEntityTemplates(this.user.id, 'org.taktik.icure.entities.HealthElementTemplate', null, true)]).then(results => {
 					const codes = results[0];
 					const entityTemplates = results[1];
-					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).find(it => it.descr && it.descr.match(regExp) || it.name && it.name.match(regExp)))
+					const filtered = _.flatten(entityTemplates.map(et => et.entity)).filter(he => [he].concat(he.plansOfAction || []).some(it => it.descr && it.descr.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp) || it.name && it.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").match(regExp)))
 						.map(it => ({ descr: it.descr || it.name, healthElement: it, plansOfAction: it.plansOfAction || [], plansOfActionDescr: (it.plansOfAction && it.plansOfAction.map(poa => poa.descr || poa.name) || []).join(',') }))
-						.concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
+						.concat(codes.rows.filter(c=> words.every(w => this.api.localize(c.label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({ descr: this.api.localize(code.label), codes: [code.id].concat(code.links), plansOfAction: [], plansOfActionDescr: 'N/A' })));
 					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sorter)) : _.sortBy(filtered, sorter)).slice(offset, limit) };
 				});
 			}.bind(this)
@@ -3037,8 +3066,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this._updateFilterPanels();
 	}
 
-	_concat(a, b) {
-		return (a || []).concat(b || []);
+	_concat(a, b, c, d, e) {
+		return (a || []).concat(b || []).concat(c || []).concat(d || []).concat(e || []);
 	}
 
 	checkingStatus(){

@@ -86,7 +86,7 @@
 		</style>
 
 		<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
-		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]"
+		 data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 		 title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
 					  on-link-form="linkForm" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-plan-action="_planAction" on-dynamically-event="_openActionDialog">
 			<div slot="titlebar" class="title-bar">
@@ -836,10 +836,10 @@
 					filter: (data, text) => {
 						return data.source === "codes" && data.types.length && text && text.length > 1 ? Promise.all(data.types.map(ct => {
 							const typeLng = this.api.code().languageForType(ct.type, this.language);
-							const words = text.toLowerCase().split(/\s+/);
-							const sorter = x => [x.stringValue && x.stringValue.toLowerCase().startsWith(words[0]) ? 0 : 1, x.stringValue]
+							const words = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(/\s+/);
+							const sorter = x => [x.stringValue && x.stringValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").startsWith(words[0]) ? 0 : 1, x.stringValue]
 
-							return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
+							return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(w))).map(code => ({
 								id: code.id, stringValue: code.label[typeLng],
 								codes: [code].concat(code.links && code.links.map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) || [])
 							})), sorter));
