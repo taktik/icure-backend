@@ -32,6 +32,7 @@ dist-tz/
 *.iml
 .idea
 package-lock.json
+.gradletasknamecache
 .gradle/4.5.1/fileChanges/last-build.bin
 .gradle/4.5.1/fileHashes/fileHashes.bin
 .gradle/4.5.1/fileHashes/fileHashes.lock
