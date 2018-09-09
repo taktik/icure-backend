@@ -1,0 +1,551 @@
+/**
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+import '../dynamic-form/ckmeans-grouping.js';
+
+import moment from 'moment/src/moment';
+import _ from 'lodash/lodash';
+import filterExParser from '../../../scripts/filterExParser';
+
+class HtMsgList extends Polymer.TkLocalizerMixin(Polymer.Element) {
+  static get template() {
+    return Polymer.html`
+        <custom-style>
+            <style include="shared-styles">
+                :host {
+                    display: block;
+                    z-index:2;
+                }
+
+                :host *:focus {
+                    outline: 0 !important;
+                }
+
+                .new-msg-btn {
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        width: 80%;
+                        margin: 0 auto;
+                        height: 48px;
+                    };
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                }
+
+                .boxes-list {
+                    margin: 20px auto;
+                    padding: 0;
+                    min-width: 80%;
+                }
+
+                .col-right {
+                    box-sizing: border-box;
+                    grid-column: 2 / span 1;
+                    grid-row: 1 / span 1;
+                    background:var(--app-background-color);
+                    float:left;
+                    @apply --shadow-elevation-2dp;
+                    padding:20px;
+                    display:flex;
+                    flex-flow: column nowrap;
+                    align-items: flex-start;
+                    height: 100%;
+                    width: 100%;
+                }
+
+                .card-title-container{
+                    padding: 8px 0;
+                    height: 34px;
+                }
+
+                .card-title{
+                    margin: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    -webkit-font-smoothing: antialiased;
+                    font-family: 'Roboto',Helvetica,Arial,sans-serif;
+                    font-size: 14px;
+                    letter-spacing: .15px;
+                    color: var(--app-text-color);
+                    font-weight: 500;
+                    letter-spacing: 0;
+                    line-height: 16px;
+                    -webkit-box-ordinal-group: 0;
+                    -webkit-order: 0;
+                    order: 0;
+                }
+
+                .card-title iron-icon{
+                    width:16px;
+                    width: 16px;
+                    color: var(--app-text-color-disabled);
+                }
+
+                .has-unread {
+                    font-weight: bold;
+                }
+
+                paper-item {
+                    outline: 0;
+                    cursor: pointer;
+                    --paper-item: {
+                        margin: 0;
+                    };
+                    --paper-item-selected: {
+                        background: rgba(0, 0, 0, 0);
+                        color: var(--app-secondary-color);
+                    };
+                    --paper-item-focused: {
+                        background: rgba(0, 0, 0, 0);
+                        color: var(--app-secondary-color);
+                    };
+                    --paper-item-focused-before: {
+                        background: rgba(0, 0, 0, 0);
+                    }
+                }
+
+                paper-listbox:focus {
+                    outline: 0;
+                }
+
+                .sublist {
+                    padding-left: 20px;
+                    outline: 0;
+
+                }
+
+                .sublist paper-item {
+                    --paper-item-min-height: 28px;
+                }
+
+                vaadin-grid {
+                    height: calc(100% - 16px - 32px);
+                    width: 100%;
+                    box-shadow: var(--app-shadow-elevation-1);
+                    border: none;
+                    box-sizing: border-box;
+                }
+
+                vaadin-grid.material {
+                    outline: 0 !important;
+                    font-family: Roboto, sans-serif;
+                    background: rgba(0, 0, 0, 0);
+                    border: none;
+                    --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                    --vaadin-grid-cell: {
+                        padding: 8px;
+                    };
+
+                    --vaadin-grid-header-cell: {
+                        height: 48px;
+                        padding: 11.2px;
+                        color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                        font-size: 12px;
+                        background: rgba(0, 0, 0, 0);
+                        border-top: 0;
+                    };
+
+                    --vaadin-grid-body-cell: {
+                        height: 48px;
+                        color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                        font-size: 13px;
+                    };
+
+                    --vaadin-grid-body-row-hover-cell: {
+                        background-color: var(--paper-grey-200);
+                    };
+
+                    --vaadin-grid-body-row-selected-cell: {
+                        background-color: var(--paper-grey-100);
+                    };
+
+                    --vaadin-grid-focused-cell: {
+                        box-shadow: none;
+                        font-weight: bold;
+                    };
+
+                }
+
+                vaadin-grid.material .cell {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    padding-right: 56px;
+                }
+
+                vaadin-grid.material .cell.last {
+                    padding-right: 24px;
+                    text-al;
+                }
+
+                vaadin-grid.material .cell.numeric {
+                    text-align: right;
+                }
+
+                vaadin-grid.material paper-checkbox {
+                    --primary-color: var(--paper-indigo-500);
+                    margin: 0 24px;
+                }
+
+                vaadin-grid.material vaadin-grid-sorter {
+                    --vaadin-grid-sorter-arrow: {
+                        display: none !important;
+                    };
+                }
+
+                vaadin-grid.material vaadin-grid-sorter .cell {
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                vaadin-grid.material vaadin-grid-sorter iron-icon {
+                    transform: scale(0.8);
+                }
+
+                vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                    color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+                }
+
+                vaadin-grid.material vaadin-grid-sorter[direction] {
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                }
+
+                vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                    transform: scale(0.8) rotate(180deg);
+                }
+
+                vaadin-grid.material::slotted(div) {
+                    outline: 0 !important;
+                    background: red;
+                }
+
+                paper-checkbox {
+                    --paper-checkbox-unchecked-color: var(--app-text-color);
+                    --paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
+                    --paper-checkbox-checkmark-color: var(--app-secondary-color);
+                    --paper-checkbox-checked-color: var(--app-primary-color);
+                }
+
+            </style>
+        </custom-style>
+        <template is="dom-if" if="[[selectList]]">
+            <div class="second-panel col-right">
+                <div class="card-title-container">
+                    <h1 class="card-title new-notif"><iron-icon icon="icons:arrow-forward"></iron-icon>[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
+                </div>
+                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click">
+                    <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
+                        <vaadin-grid-column width="100px">
+                            <template class="header">
+                                <vaadin-grid-sorter path="fromAddress">[[localize('sen_to','Send To',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[getToAddresses(item)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </template> -->
+                    <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
+                        <vaadin-grid-column width="30%">
+                            <template class="header">
+                                <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
+                                </vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[item.fromAddress]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </template>
+                    <vaadin-grid-column width="30%">
+                        <template class="header">
+                            <div>[[localize('dat','Date',language)]]</div>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[_timeFormat(item.received)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="40%">
+                        <template class="header">
+                            <vaadin-grid-sorter class="cell frozen" path="subject">
+                                [[localize('sub','Subject',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.subject]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+        </template>
+`;
+  }
+
+  static get is() {
+      return 'ht-msg-list';
+  }
+
+  static get properties() {
+      return {
+          api: {
+              type: Object
+          },
+          user: {
+              type: Object
+          },
+          selectedMessages: {
+              type: Object,
+              notify: true
+          },
+          activeItem: {
+              type: Object
+          },
+          messages: {
+              type: Array,
+              value: function () {
+                  return [];
+              }
+          },
+          selectList: {
+              type: Object
+          },
+          i18n: {
+              Type: Object,
+              value: function () {
+                  moment.locale('fr');
+                  const res = {
+                      monthNames: moment.months(),
+                      weekdays: moment.weekdays(),
+                      weekdaysShort: moment.weekdaysShort(),
+                      firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                      week: 'Semaine',
+                      calendar: 'Calendrier',
+                      clear: 'Clear',
+                      today: 'Aujourd\'hui',
+                      cancel: 'Annuler',
+                      formatDate: function (d) {
+                          //return moment(d).format(moment.localeData().longDateFormat('L'))
+                          return moment(d).format('DD/MM/YYYY');
+                      },
+                      parseDate: function (s) {
+                          return moment(s, 'DD/MM/YYYY').toDate();
+                      },
+                      formatTitle: function (monthName, fullYear) {
+                          return monthName + ' ' + fullYear;
+                      }
+                  };
+                  return res;
+              }
+          }
+      };
+  }
+
+  constructor() {
+      super();
+  }
+
+  static get observers() {
+      return ['_refresh(selectList,selectList.*)'];
+  }
+
+  ready() {
+      super.ready();
+  }
+
+
+  getInbox() {
+      this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+          return this.sortByDates(messages.rows);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  getUnreadEmail() {
+      this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+          const msg = messages.rows.reduce((acc, m) => {
+              if (!(m.status && 1 << 1 == 0)) {//status unread
+                  acc.push(m)
+              }
+              return acc
+          }, [])
+          return this.sortByDates(msg);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  getSentMessages() {
+      this.api.message().findMessagesByToAddress('SENTBOX', null, null, 1000).then(messages => {
+          return this.sortByDates(messages.rows);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  getSubmitMessages(){
+      this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+          const msg = messages.rows.reduce((acc, m) => {
+              if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
+                  acc.push(m)
+              }
+              return acc
+          }, [])
+          return this.sortByDates(msg);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  getLabResult(){
+      this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
+          const msg = messages.rows.reduce((acc, m) => {
+              if (!(m.status && 1 << 0 == 0)) {//status labResult
+                  acc.push(m)
+              }
+              return acc
+          }, [])
+          return this.sortByDates(msg);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  getReport(){
+      this.findMessagesByTransportGUID('REPORT:OUT:*').then(messages => this.set('messages', messages || []));
+
+  }
+
+  getEInv(){
+      console.log(this.messages)
+      this.api.message().findMessagesByTransportGuid('EFACT:OUT:*', null, null, 1000).then(messages => {
+          console.log(messages.rows)
+          return this.sortByDates(messages.rows);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  getReportIn(){
+      this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getEInvIn(){
+      this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getEheIn(){
+      this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getProtIn(){
+      this.findMessagesByTransportGUID('BININBOX:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getEheOut(){
+      this.findMessagesByTransportGUID('CHAP4OUT:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getProtOut(){
+      this.findMessagesByTransportGUID('BINSENTBOX:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getEFactBatch(){
+      this.findMessagesByTransportGUID('EFACT:BATCH:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getGMD(){
+      this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
+  }
+
+  getEhealthMessages(){
+      this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
+          const msg = messages.rows.reduce((acc, m) => {
+              if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
+                  acc.push(m)
+              }
+              return acc
+          }, [])
+          return this.sortByDates(msg);
+      }).then(messages => this.set('messages', messages || []));
+  }
+
+  findMessagesByTransportGUID(guid){
+      return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
+          return this.sortByDates(messages.rows);
+      })
+  }
+
+  _refresh() {
+      if (this.selectList && this.selectList.selection) {
+          switch (this.selectList.selection.item) {
+              case 'inbox' :
+                  this.getInbox();
+                  break;
+              case 'unread' :
+                  this.getUnreadEmail();
+                  break;
+              case 'sentbox' :
+                  this.getSentMessages();
+                  break;
+              case 'submit' :
+                  this.getSubmitMessages();
+                  break;
+              case 'labResult' :
+                  this.getLabResult();
+                  break;
+              case 'reportOut' :
+                  this.getReport();
+                  break;
+              case 'e_invOut' :
+                  this.getEInv();
+                  break;
+              case 'ehealthMessages' :
+                  this.getEhealthMessages();
+                  break;
+              case 'e_invIn' :
+                  this.getEInvIn();
+                  break;
+              case 'reportIn' :
+                  this.getReportIn();
+                  break;
+              case 'eheIn' :
+                  this.getEheIn();
+                  break;
+              case 'protIn' :
+                  this.getProtIn();
+                  break;
+              case 'eheOut' :
+                  this.getEheOut();
+                  break;
+              case 'protOut' :
+                  this.getProtOut();
+                  break;
+              case 'EFactBatch' :
+                  this.getEFactBatch();
+                  break;
+              case 'GMD' :
+                  this.getGMD();
+                  break;
+          }
+      }
+  }
+
+  sortByDates(messages){
+      return messages.sort(function (a, b) {
+          return b.received - a.received ;
+      });
+  }
+
+  getToAddresses(item){
+      return item.toAddresses.reduce((acc, i) =>{return acc + ", " + i}, "" )
+  }
+
+  click(e) {
+      const selected = this.activeItem;
+      this.set('selectedMessages', selected);
+      this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
+  }
+
+  _timeFormat(date) {
+      return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+  }
+}
+
+customElements.define(HtMsgList.is, HtMsgList);

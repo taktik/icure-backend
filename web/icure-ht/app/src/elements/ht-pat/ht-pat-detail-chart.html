@@ -1,7 +1,7 @@
 
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
-<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+<script type="module" src="../dynamic-form/ckmeans-grouping.js"></script>
 
 <link rel="import" href="dynamic-form.html">
 
@@ -119,7 +119,8 @@
         <vaadin-chart>
         </vaadin-chart>
     </template>
-    <script>
+    <script type="module">
+import '../dynamic-form/ckmeans-grouping.js';
 
 class HtPatDetailChart extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {

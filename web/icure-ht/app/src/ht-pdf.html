@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<link rel="import" href="elements/pdf-element/pdf-element.html">
+<script type="module" src="./elements/pdf-element/pdf-element.js"></script>
 
 <dom-module id="ht-pdf">
 
@@ -36,22 +36,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	</template>
 
-	<script>class HtPdf extends Polymer.Element {
-	static get is() {
-		return 'ht-pdf';
-	}
+	<script type="module">
+import './elements/pdf-element/pdf-element.js';
+class HtPdf extends Polymer.Element {
+    static get is() {
+        return 'ht-pdf';
+    }
 
-	static get properties() {
-		return {};
-	}
+    static get properties() {
+        return {};
+    }
 
-	constructor() {
-		super();
-	}
+    constructor() {
+        super();
+    }
 
-	ready() {
-		super.ready();
-	}
+    ready() {
+        super.ready();
+    }
 
 }
 
