@@ -1776,6 +1776,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return desc;
 	}
 
+	getHubEndPoint(){
+	    return this.hubEndPoint;
+	}
+
     _getHubHcpConsent(){
         //getHcpConsentUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip)
 		if (this.patient.ssin && this.api.tokenId) {
