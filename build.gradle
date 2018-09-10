@@ -220,7 +220,7 @@ dependencies {
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
-/*
+
 task installWebResourcesDependencies(type: Exec) {
 	group 'build'
 	description 'Package web resources'
@@ -261,7 +261,7 @@ task copyTzWebResources(type: Copy) {
 }
 
 copyHtWebResources.dependsOn(packageHtWebResources)
-copyTzWebResources.dependsOn(packageTzWebResources)*/
+copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
 
 //bootRepackage.dependsOn(copyHtWebResources)
