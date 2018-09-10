@@ -9,9 +9,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 import '../dynamic-form/dynamic-form.js';
 
-class HtHcpAdminCard extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtHcpAdminCard extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="iron-flex iron-flex-alignment"></style>
 		<style>
 			:host {

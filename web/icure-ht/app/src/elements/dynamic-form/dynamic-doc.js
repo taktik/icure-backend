@@ -1,8 +1,9 @@
 import '../pdf-element/pdf-element.js';
 import XML from 'parse-xml/dist/parse-xml';
-class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicDoc extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			paper-spinner.center  {
 				position: absolute;

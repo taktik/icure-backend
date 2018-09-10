@@ -1,6 +1,7 @@
 import '../../icpc-styles.js';
 import './dynamic-form.js';
-class DynamicallyLoadedForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicallyLoadedForm extends TkLocalizerMixin(PolymerElement) {
     static get is() {
 				return 'dynamically-loaded-form';
     }

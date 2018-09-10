@@ -13,9 +13,10 @@ import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import filterExParser from '../../../scripts/filterExParser';
 
-class HtMsgList extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtMsgList extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
         <custom-style>
             <style include="shared-styles">
                 :host {

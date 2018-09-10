@@ -1,6 +1,7 @@
-class DynamicTextField extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicTextField extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				position: relative;

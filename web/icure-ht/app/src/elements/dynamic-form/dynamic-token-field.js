@@ -1,7 +1,8 @@
 import './dynamic-link.js';
-class DynamicTokenField extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicTokenField extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 
 

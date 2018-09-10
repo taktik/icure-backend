@@ -12,9 +12,10 @@ import '../filter-panel/filter-panel.js';
 import '../collapse-button/collapse-button.js';
 import './ht-hcp-admin-card.js';
 import '../icons/icure-icons.js';
-class HtHcpDetail extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtHcpDetail extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="iron-flex iron-flex-alignment"></style>
 		<style>
 			:host {

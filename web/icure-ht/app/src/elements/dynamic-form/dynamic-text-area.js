@@ -1,6 +1,7 @@
-class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicTextArea extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				position: relative;

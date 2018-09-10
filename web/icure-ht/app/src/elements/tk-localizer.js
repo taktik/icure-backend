@@ -1,4 +1,4 @@
-Polymer.TkLocalizerMixin = superClass => class extends superClass {
+TkLocalizerMixin = superClass => class extends superClass {
     constructor() {
         super();
     }

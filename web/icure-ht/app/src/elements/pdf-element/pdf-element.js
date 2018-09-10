@@ -1,7 +1,7 @@
 (function(window, undefined) {
   var Reader = function(el) {
     this.element = el;
-    this.reader = Polymer.dom(el.root).querySelector('.pdf-viewer');
+    this.reader = el.root.querySelector('.pdf-viewer');
     this.viewportOut = this.reader.querySelector('.pdf-viewport-out');
     this.toolbar = this.reader.querySelector('.pdf-toolbar');
     this.toolbarHeight = 0;
@@ -320,7 +320,7 @@
     a.parentNode.removeChild(a);
   };
 
-  window.Polymer.Reader = Reader;
+  window.Reader = Reader;
 })(window);
 /**
 Polymer element which renders PDF documents. It uses [PDF.js](https://mozilla.github.io/pdf.js/) library behind.
@@ -355,9 +355,10 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
   from HTML and may be out of place here. Review them and
   then delete this comment!
 */
-class PdfElement extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class PdfElement extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				display: block;
@@ -843,7 +844,7 @@ class PdfElement extends Polymer.Element {
   attributeChanged(name, type) {}
 
   _initializeReader() {
-      this.instance = new Polymer.Reader(this);
+      this.instance = new Reader(this);
       if (this.src != null) this.fileName = this.src.split('/').pop();
       this.currentPage = 1;
 	}

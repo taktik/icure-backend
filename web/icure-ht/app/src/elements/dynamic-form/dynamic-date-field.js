@@ -1,8 +1,9 @@
-import moment from '../../../bower_components/moment/src/moment';
+import 'moment';
 
-class DynamicDateField extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicDateField extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				flex-grow: var(--dynamic-field-width, 25);

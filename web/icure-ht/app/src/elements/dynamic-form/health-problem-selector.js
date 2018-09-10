@@ -2,9 +2,10 @@ import '../../vaadin-icure-theme.js';
 
 import _ from 'lodash/lodash';
 
-class HealthProblemSelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HealthProblemSelector extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			paper-dialog {
 				width: 1024px;

@@ -1,7 +1,11 @@
 import '../qrcode-manager/qrcode-printer.js';
-class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+import {PolymerElement, html} from '@polymer/polymer';
+import {mixinBehaviors} from '@polymer/polymer/lib/legacy/class'
+import {IronResizableBehavior} from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
+
+class HtMyProfile extends TkLocalizerMixin(mixinBehaviors([IronResizableBehavior], PolymerElement)) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			paper-dialog {
 				width: 60%;
@@ -201,4 +205,4 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 	}
 }
 
-customElements.define(HtExportKey.is, HtExportKey);
+customElements.define(HtMyProfile.is, HtMyProfile);

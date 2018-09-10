@@ -1,6 +1,6 @@
 import '../fhc-api/fhc-api.js';
-import * as api from 'icc-api/icc-api/iccApi'
-import moment from 'moment/src/moment'
+import * as api from 'icc-api/dist/icc-api/iccApi'
+import 'moment'
 
 import {IccBedrugsXApi} from 'icc-api/dist/icc-x-api/icc-bedrugs-x-api'
 import {IccBekmehrXApi} from 'icc-api/dist/icc-x-api/icc-bekmehr-x-api'
@@ -13,9 +13,10 @@ import {IccHcpartyXApi} from 'icc-api/dist/icc-x-api/icc-hcparty-x-api'
 import {IccHelementXApi} from 'icc-api/dist/icc-x-api/icc-helement-x-api'
 import {IccPatientXApi} from 'icc-api/dist/icc-x-api/icc-patient-x-api'
 
-class IccApi extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class IccApi extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
         <fhc-api id="fhc-api" host="[[fhcHost]]"></fhc-api>
 `;
   }

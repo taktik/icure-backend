@@ -122,7 +122,8 @@
     <script type="module">
 import '../dynamic-form/ckmeans-grouping.js';
 
-class HtPatDetailChart extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtPatDetailChart extends TkLocalizerMixin(PolymerElement) {
     static get is() {
         return 'ht-pat-detail-chart';
     }

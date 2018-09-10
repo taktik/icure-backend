@@ -1,6 +1,7 @@
-class FhcBasicerrorcontrollerApi extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class FhcBasicerrorcontrollerApi extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
     		<style>
 	    	</style>
 

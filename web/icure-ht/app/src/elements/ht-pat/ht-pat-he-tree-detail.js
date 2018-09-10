@@ -3,9 +3,10 @@ import '../collapse-button/collapse-button.js';
 
 import styx from '../../../scripts/styx';
 
-class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtPatHeTreeDetail extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
         <style include="icpc-styles">
             paper-item.list-info {
                 font-weight: lighter;

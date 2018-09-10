@@ -1,6 +1,7 @@
-class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicLink extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
         <style include="icpc-styles">
             paper-menu-button {
                 padding: 0;

@@ -624,11 +624,12 @@ import './shared-styles.js';
 
 import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
-import * as models from 'icc-api/icc-api/model/models';
+import * as models from 'icc-api/dist/icc-api/model/models';
 
-class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtMain extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="iron-flex iron-flex-alignment"></style>
 		<style include="shared-styles">
 			:host {

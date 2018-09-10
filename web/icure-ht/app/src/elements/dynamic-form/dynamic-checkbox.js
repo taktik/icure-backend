@@ -1,6 +1,7 @@
-class DynamicCheckbox extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicCheckbox extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				flex-grow: var(--dynamic-field-width, 25);

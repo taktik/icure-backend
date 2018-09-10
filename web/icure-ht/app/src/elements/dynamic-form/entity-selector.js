@@ -1,8 +1,9 @@
 import _ from 'lodash/lodash';
 
-class EntitySelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class EntitySelector extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			paper-dialog {
 				width: 80%;

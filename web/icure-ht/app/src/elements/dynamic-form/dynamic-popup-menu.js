@@ -16,9 +16,14 @@ $_documentContainer.innerHTML = `<dom-module id="material-text-field-custom" the
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
-class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+
+import {PolymerElement, html} from '@polymer/polymer';
+import {mixinBehaviors} from '@polymer/polymer/lib/legacy/class'
+import {IronResizableBehavior} from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
+
+class DynamicPopupMenu extends TkLocalizerMixin(mixinBehaviors([IronResizableBehavior], PolymerElement)) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				flex-grow: var(--dynamic-field-width, 50);

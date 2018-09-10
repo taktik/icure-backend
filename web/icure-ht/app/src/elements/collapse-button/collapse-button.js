@@ -1,7 +1,8 @@
-Polymer.IronMenuBehavior;
-class CollapseButton extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+
+class CollapseButton extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
     <style is="custom-style">
       /* You could do your own style def here */
       .sublist {

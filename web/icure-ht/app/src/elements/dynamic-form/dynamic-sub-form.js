@@ -1,7 +1,8 @@
 import './dynamic-form.js';
-class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicSubForm extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			:host {
 				flex-grow: 9999;
@@ -202,7 +203,7 @@ class DynamicSubForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
       } else if (firstPathElement.match(/[0-9]+/)) {
           if (pathParts.length > 1) {
               const idx = parseInt(firstPathElement);
-              const item = Polymer.dom(this.root).querySelector('#sf-' + idx);
+              const item = this.root.querySelector('#sf-' + idx);
               item.notify(pathParts.slice(1).join('.'));
           } else {
               this.notifyPath('subContexts.' + firstPathElement);

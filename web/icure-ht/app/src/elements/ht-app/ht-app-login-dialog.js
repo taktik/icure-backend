@@ -1,7 +1,8 @@
 //noinspection JSUnusedGlobalSymbols
-class HtAppLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtAppLoginDialog extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			paper-dialog{
 				border-radius:2px;

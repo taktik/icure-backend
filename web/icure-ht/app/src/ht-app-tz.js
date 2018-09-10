@@ -1,4 +1,4 @@
-<!--
+/*
 @license
 Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
@@ -6,69 +6,34 @@ The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
 The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
+*/
+import './app-theme-tz.js';
 
-<link rel="import" href="../bower_components/polymer/polymer.html">
+import './shared-styles.js';
+import './vaadin-icure-theme.js';
+import './elements/tk-localizer.js';
+import './elements/splash-screen/splash-screen-tz.js';
+import './elements/ht-tools/ht-export-key.js';
+import './elements/ht-tools/ht-import-keychain.js';
+import './elements/ht-tools/ht-access-log.js';
+import './elements/ht-tools/ht-my-profile.js';
+import './elements/ht-app/ht-app-login-dialog.js';
+import './elements/ht-app/ht-app-first-login-dialog.js';
+import './elements/ht-app/ht-app-register-keypair-dialog.js';
+import './elements/menu-bar/menu-bar.js';
+import './ht-main.js';
+import './ht-pat.js';
+import './ht-hcp.js';
+import './ht-msg.js';
+import './ht-view404.js';
+import './elements/icc-api/icc-api.js';
+import moment from 'moment/src/moment'
+import Worker from 'worker-loader!./workers/ehboxWebworker.js'
 
-<script type="module" src="./app-theme-tz.js"></script>
-<script type="module" src="./shared-styles.js"></script>
-<script type="module" src="./vaadin-icure-theme.js"></script>
-
-
-<link rel="import" href="../bower_components/iron-meta/iron-meta.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
-<link rel="import" href="../bower_components/iron-iconset/iron-iconset.html">
-
-<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../bower_components/iron-icons/social-icons.html">
-<link rel="import" href="../bower_components/iron-icons/device-icons.html">
-<link rel="import" href="../bower_components/iron-icons/av-icons.html">
-<link rel="import" href="../bower_components/iron-icons/hardware-icons.html">
-<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
-
-<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
-
-<script type="module" src="./elements/tk-localizer.js"></script>
-
-<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../bower_components/app-route/app-location.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
-<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../bower_components/paper-styles/color.html">
-<link rel="import" href="../bower_components/paper-styles/shadow.html">
-<link rel="import" href="../bower_components/vaadin-icons/vaadin-icons.html">
-<script type="module" src="./elements/splash-screen/splash-screen-tz.js"></script>
-
-<script type="module" src="./elements/ht-tools/ht-export-key.js"></script>
-<script type="module" src="./elements/ht-tools/ht-import-keychain.js"></script>
-<script type="module" src="./elements/ht-tools/ht-access-log.js"></script>
-<script type="module" src="./elements/ht-tools/ht-my-profile.js"></script>
-<script type="module" src="./elements/ht-app/ht-app-login-dialog.js"></script>
-<script type="module" src="./elements/ht-app/ht-app-first-login-dialog.js"></script>
-<script type="module" src="./elements/ht-app/ht-app-register-keypair-dialog.js"></script>
-<script type="module" src="./elements/menu-bar/menu-bar.js"></script>
-
-<script type="module" src="./elements/icc-api/icc-api.js"></script>
-
-<dom-module id="ht-app-tz">
-
-    <template>
+import {PolymerElement, html} from '@polymer/polymer';
+class HtAppTz extends TkLocalizerMixin(PolymerElement) {
+  static get template() {
+    return html`
         <style include="shared-styles">
             :host {
                 display: block;
@@ -1102,28 +1067,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="communication:email"></iron-icon>
             [[ehboxWebWorkerMessage]]
         </paper-item>
+`;
+  }
 
-    </template>
-
-    <script type="module">
-import './app-theme-tz.js';
-import './shared-styles.js';
-import './vaadin-icure-theme.js';
-import './elements/tk-localizer.js';
-import './elements/splash-screen/splash-screen-tz.js';
-import './elements/ht-tools/ht-export-key.js';
-import './elements/ht-tools/ht-import-keychain.js';
-import './elements/ht-tools/ht-access-log.js';
-import './elements/ht-tools/ht-my-profile.js';
-import './elements/ht-app/ht-app-login-dialog.js';
-import './elements/ht-app/ht-app-first-login-dialog.js';
-import './elements/ht-app/ht-app-register-keypair-dialog.js';
-import './elements/menu-bar/menu-bar.js';
-import './elements/icc-api/icc-api.js';
-import moment from 'moment/src/moment'
-import Worker from 'worker-loader!./workers/ehboxWebworker.js'
-
-class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {
         return 'ht-app-tz'
     }
@@ -1591,5 +1537,3 @@ class HtAppTz extends Polymer.TkLocalizerMixin(Polymer.Element) {
 }
 
 customElements.define(HtAppTz.is, HtAppTz)
-</script>
-</dom-module>

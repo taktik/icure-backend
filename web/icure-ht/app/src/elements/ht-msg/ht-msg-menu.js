@@ -19,9 +19,10 @@ import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import styx from '../../../scripts/styx';
 
-class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtMsgMenu extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="iron-flex iron-flex-alignment"></style>
 		<!--suppress CssUnusedSymbol -->
 		<style include="shared-styles">

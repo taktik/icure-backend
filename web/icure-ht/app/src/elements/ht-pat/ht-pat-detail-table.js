@@ -1,9 +1,10 @@
 import '../dynamic-form/ckmeans-grouping.js';
 import '../dynamic-form/dynamic-form.js';
 
-class HtPatDetailTable extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtPatDetailTable extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
         <style>
             .form-title-bar-btn {
                 height: 20px;

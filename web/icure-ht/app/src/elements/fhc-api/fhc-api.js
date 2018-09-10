@@ -9,9 +9,10 @@ import './fhc-recipecontroller-api.js';
 import './fhc-stscontroller-api.js';
 import './fhc-therlinkcontroller-api.js';
 import './fhc-dmgcontroller-api.js';
-class FhcApi extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class FhcApi extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
         <style>
         </style>
 

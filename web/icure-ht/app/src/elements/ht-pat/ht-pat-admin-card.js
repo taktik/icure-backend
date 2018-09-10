@@ -9,9 +9,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 import '../dynamic-form/dynamic-form.js';
 
-class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtPatAdminCard extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="iron-flex iron-flex-alignment"></style>
 		<style>
 			:host {

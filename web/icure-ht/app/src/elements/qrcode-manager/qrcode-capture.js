@@ -1,8 +1,9 @@
 const jsQR = require('../../../scripts/jsQR.js');
 
-class QrcodeCapture extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class QrcodeCapture extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			#canvas  {
 				transform: rotateY(180deg);

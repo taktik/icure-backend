@@ -1,9 +1,10 @@
 import accounting from '../../../scripts/accounting';
 import styx from '../../../scripts/styx';
 
-class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicMedicationField extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 
 			:host {

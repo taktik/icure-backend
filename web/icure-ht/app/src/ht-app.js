@@ -30,9 +30,10 @@ import './elements/icc-api/icc-api.js';
 import moment from 'moment/src/moment'
 import Worker from 'worker-loader!./workers/ehboxWebworker.js'
 
-class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtApp extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
         <style include="shared-styles">
             :host {
                 display: block;
@@ -401,10 +402,10 @@ class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
          <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
 
 
-         <app-drawer-layout fullbleed="">
+         <app-drawer-layout fullbleed>
              <!-- Main content -->
             <app-header-layout fullbleed="">
-                <app-header slot="header" fixed="" condenses="" effects="waterfall">
+                <app-header slot="header" fixe condenses effects="waterfall">
                     <app-toolbar id="mainToolbar" class="" sticky="">
                         <!-- Mobile Menu -->
                         <paper-icon-button class="mobile-menu-btn" icon="menu" on-tap="_triggerMenu"></paper-icon-button>

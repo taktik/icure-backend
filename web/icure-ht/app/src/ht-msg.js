@@ -12,9 +12,10 @@ import './elements/ht-msg/ht-msg-detail.js';
 import './elements/ht-msg/ht-msg-menu.js';
 import './elements/ht-msg/ht-msg-list.js';
 import './shared-styles.js';
-class HtMsg extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtMsg extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
         <style include="shared-styles">
             :host {
                 display: block;

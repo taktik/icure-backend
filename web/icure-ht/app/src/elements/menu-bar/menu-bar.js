@@ -1,6 +1,10 @@
-class MenuBar extends Polymer.mixinBehaviors([Polymer.IronMenubarBehavior], Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+import {mixinBehaviors} from '@polymer/polymer/lib/legacy/class'
+import {IronMenubarBehavior} from '@polymer/iron-menu-behavior/iron-menubar-behavior'
+
+class MenuBar extends mixinBehaviors([IronMenubarBehavior], PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			.content ::slotted(iron-selector) {
 				color: white;

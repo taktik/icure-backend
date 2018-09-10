@@ -12,6 +12,7 @@ import './elements/icc-api/icc-api.js';
 import './elements/ht-pat/ht-pat-list.js';
 import './elements/ht-pat/ht-pat-detail.js';
 import './shared-styles.js';
+
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -8518,9 +8519,10 @@ module.exports = zScore;
 },{}]},{},[1])(1);
 });
 //# sourceMappingURL=simple-statistics.js.map
-class HtPat extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtPat extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="shared-styles">
 			:host {
 				display: block;

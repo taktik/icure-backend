@@ -1,8 +1,9 @@
 import ss from '../../../scripts/simple-statistics';
 
-class CkmeansGrouping extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class CkmeansGrouping extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 		</style>
 `;

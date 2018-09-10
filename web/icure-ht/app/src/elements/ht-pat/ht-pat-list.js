@@ -14,9 +14,10 @@ import _ from 'lodash/lodash'
 import filterExParser from '../../../scripts/filterExParser'
 import {FilterExPrinter} from '../icc-x-api/filterExPrinter'
 
-class HtPatList extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtPatList extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
         <custom-style>
             <style is="custom-style">
                 :host {

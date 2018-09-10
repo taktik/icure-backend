@@ -1,7 +1,8 @@
 import '../qrcode-manager/qrcode-capture.js';
-class HtAppRegisterKeypairDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtAppRegisterKeypairDialog extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 		</style>
 

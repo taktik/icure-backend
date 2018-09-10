@@ -3,14 +3,12 @@ import '../dynamic-form/dynamically-loaded-form.js';
 import '../dynamic-form/dynamic-doc.js';
 import '../dynamic-form/entity-selector.js';
 
-import jsPDF from 'jspdf/dist/jspdf.min';
-import _ from 'lodash/lodash';
-import JsBarcode from 'JsBarcode';
-import moment from 'moment/src/moment';
+import 'lodash';
 
-class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class HtMsgDetail extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style>
 			.notification-panel {
 				position: fixed;

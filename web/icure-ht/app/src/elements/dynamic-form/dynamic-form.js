@@ -10,7 +10,8 @@ import './dynamic-checkbox.js';
 import './dynamic-medication-field.js';
 import '../../icpc-styles.js';
 import './ckmeans-grouping.js';
-class DynamicForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
+import {PolymerElement, html} from '@polymer/polymer';
+class DynamicForm extends TkLocalizerMixin(PolymerElement) {
     static get is() {
 				return 'dynamic-form';
     }
@@ -85,7 +86,7 @@ class DynamicForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 				let pathParts = path.split('.');
 				const firstPathElement = pathParts[0];
-				const item = Polymer.dom(this.root).querySelector('#sf_' + firstPathElement);
+				const item = this.root.querySelector('#sf_' + firstPathElement);
 
 				const layoutItem = _.flatten(_.flatten(this.template.sections.map(s => s.formColumns.map(c => c.formDataList)))).find(fdl => fdl.name === firstPathElement);
 
@@ -341,13 +342,13 @@ class DynamicForm extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _deleteSubForm(e, detail) {
 				e.stopPropagation();
-				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target);
+				const layoutItem = this.root.querySelector('#layoutitems-repeat').itemForElement(e.target);
 				this.dataProvider.deleteSubForm && this.dataProvider.deleteSubForm(layoutItem.name, detail.id);
     }
 
     _addSubForm(e, detail) {
 				e.stopPropagation();
-				const layoutItem = Polymer.dom(this.root).querySelector('#layoutitems-repeat').itemForElement(e.target);
+				const layoutItem = this.root.querySelector('#layoutitems-repeat').itemForElement(e.target);
 				this.dataProvider.addSubForm && this.dataProvider.addSubForm(layoutItem.name, detail.guid);
     }
 

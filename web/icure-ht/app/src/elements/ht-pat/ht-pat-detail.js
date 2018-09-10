@@ -21,11 +21,12 @@ import '../dynamic-form/health-problem-selector.js';
 import moment from 'moment/src/moment';
 import _ from 'lodash/lodash';
 import styx from '../../../scripts/styx';
-import { AccessLogDto } from "icc-api/icc-api/model/AccessLogDto";
+import { AccessLogDto } from "icc-api/dist/icc-api/model/AccessLogDto";
+import {PolymerElement, html} from '@polymer/polymer';
 
-class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
+class HtPatDetail extends TkLocalizerMixin(PolymerElement) {
   static get template() {
-    return Polymer.html`
+    return html`
 		<style include="iron-flex iron-flex-alignment"></style>
 		<!--suppress CssUnusedSymbol -->
 		<style include="icpc-styles">
@@ -2235,7 +2236,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
   openToast() {
-      Polymer.dom(this.root).querySelector('#selectionToast').show();
+      this.root.querySelector('#selectionToast').show();
 	}
 
   toggleFiltersPanel() {
@@ -2443,7 +2444,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                   this.$.insuranceStatus.classList.remove('insuranceOk');
 
                   this.$.insuranceStatus.classList.add(genInsOk ? medicalHouse ? 'medicalHouse' : 'insuranceOk' : 'noInsurance');
-                  Polymer.updateStyles(this.$.insuranceStatus);
+                  this.updateStyles(this.$.insuranceStatus);
 
                   if (genInsOk) {
                       //set gen ins info on patient
@@ -2483,7 +2484,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                   tlOk = true;
               }
               this.$.tlStatus.classList.add(tlOk ? 'tlOk' : 'noTl');
-              Polymer.updateStyles(this.$.tlStatus)
+              this.updateStyles(this.$.tlStatus)
           }
       )
 	}
@@ -2498,7 +2499,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                   consentOk = !patientConsent.error;
               }
               this.$.consentStatus.classList.add(consentOk ? 'consentOk' : 'noConsent');
-              Polymer.updateStyles(this.$.consentStatus)
+              this.updateStyles(this.$.consentStatus)
           }
       )
 	}
@@ -2514,7 +2515,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
               hcpHubCons = true;
           }
           this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
-          Polymer.updateStyles(this.$.hubStatus)
+          this.updateStyles(this.$.hubStatus)
       }
       )
   }
@@ -3002,9 +3003,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
   _updateFilterPanels() {
       setTimeout(() => {
-          const cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel");
+          const cfp = this.root.querySelector("#contactFilterPanel");
           cfp && cfp.refreshIcons();
-          const hpd = Polymer.dom(this.root).querySelector("ht-pat-detail-ctc-detail-panel");
+          const hpd = this.root.querySelector("ht-pat-detail-ctc-detail-panel");
           hpd && hpd.refreshIcons();
       }, 10);
 	}

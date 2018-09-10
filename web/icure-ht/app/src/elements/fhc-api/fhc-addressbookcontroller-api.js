@@ -1,6 +1,7 @@
-class FhcAddressbookcontrollerApi extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer';
+class FhcAddressbookcontrollerApi extends PolymerElement {
   static get template() {
-    return Polymer.html`
+    return html`
     		<style>
 	    	</style>
 
