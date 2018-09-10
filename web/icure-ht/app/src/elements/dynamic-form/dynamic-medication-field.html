@@ -377,8 +377,9 @@
 				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
 			</template>
 			<div class="regimen-line">
-				<paper-input id="generalQuantity" label="Quantity" value="{{bufferQuantity}}" type="number" class="regimen--quantity" min="0"></paper-input>
-				<paper-input id="generalUnit" label="Units" value="[[bufferUnit]]" class="regimen--units"></paper-input>
+				<paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" min="0"></paper-input>
+				<paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
+
 				<paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="{{bufferNumberByFrequency}}">
 					<div slot="suffix">X</div>
 				</paper-input>

@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic;
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic;
 import org.taktik.icure.entities.HealthcareParty;
@@ -39,7 +40,8 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFi
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto;
 
 
-@Path("/be_kmehr")
+@Component
+@Path("/ws/be_kmehr")
 public class KmehrWsFacade {
 	private MapperFacade mapper;
 	private SessionLogic sessionLogic;

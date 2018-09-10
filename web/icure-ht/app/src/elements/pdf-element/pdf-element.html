@@ -522,11 +522,16 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
 		super();
 	}
 
-	attached() {
-		this.src = this.getAttribute("src");
-		this._initializeReader();
-		if (this.src) this.instance.loadPDF();
-		this._setFitWidth();
+	ready() {
+        super.ready()
+    }
+
+    connectedCallback() {
+        super.connectedCallback()
+        this.src = this.getAttribute("src");
+        this._initializeReader();
+        if (this.src) this.instance.loadPDF();
+        this._setFitWidth()
 	}
 
 	loadPDF() {

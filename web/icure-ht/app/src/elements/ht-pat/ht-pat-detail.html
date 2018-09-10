@@ -1219,14 +1219,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<template is="dom-repeat" items="[[historyElement]]" as="hhe">
 						<h4>{{hhe.modified}} {{hhe.descr}}</h4>
 						<div>
-							[[localize('st_da','Start Date',language)]]: {{hhe.openingDate}} -
-							[[localize('en_da','End Date',language)]]: {{hhe.closingDate}}
+							<b>[[localize('st_da','Start Date',language)]]:</b> {{hhe.openingDate}}
+							<template is="dom-if" if="[[_checkClosingDate(hhe.closingDate)]]">
+								<b>[[localize('en_da','End Date',language)]]:</b> {{hhe.closingDate}}
+							</template>
+
 						</div>
 						<div>
-							[[localize('nat','Nature',language)]]: {{hhe.nature}};
-							[[localize('cert','Certainty',language)]]: {{hhe.certainty}};
-							[[localize('sev','Severity',language)]]: {{hhe.severity}};
-							[[localize('temp','Temporality',language)]]: {{hhe.temporality}};
+							<template is="dom-if" if="[[_checkIfPresent(hhe.nature)]]">
+								<b>[[localize('nat','Nature',language)]]:</b> {{_getDataTrad(hhe.nature)}};
+							</template>
+
+							<template is="dom-if" if="[[_checkIfPresent(hhe.certainty)]]">
+								<b>[[localize('cert','Certainty',language)]]:</b> {{_getDataTrad(hhe.certainty)}};
+							</template>
+
+							<template is="dom-if" if="[[_checkIfPresent(hhe.severity)]]">
+								<b>[[localize('sev','Severity',language)]]:</b> {{_getDataTrad(hhe.severity)}};
+							</template>
+
+							<template is="dom-if" if="[[_checkIfPresent(hhe.temporality)]]">
+								<b>[[localize('temp','Temporality',language)]]:</b> {{_getDataTrad(hhe.temporality)}};
+							</template>
 						</div>
 					</template>
 			</div>
@@ -3062,7 +3076,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _composeHistory(e){
 		const heId = e.detail.entity.healthElementId
 
-		let hhe = this.healthElements.filter(eh => eh.healthElementId === heId)
+		let hhe = _.sortBy(this.healthElements.filter(eh => eh.healthElementId === heId), ['modified'])
 
 
 		hhe.map(e => {
@@ -3083,12 +3097,19 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		})
 
-
-		console.log(hhe)
 		this.set('historyElement', hhe)
+	}
 
+    _checkClosingDate(date){
+	    return date !== "" ? true : false
+	}
 
-	    //this.healthElements.find()
+    _checkIfPresent(data){
+        return data !== "" && data !== 'null' && data !== null ? true : false
+	}
+
+	_getDataTrad(data){
+        return this.localize(data, data, this.language)
 	}
 }
 
