@@ -5,6 +5,7 @@ public class RightDto {
     private String userId;
     private boolean read;
     private boolean write;
+    private boolean administration;
 
     public String getUserId() {
         return userId;
@@ -28,5 +29,13 @@ public class RightDto {
 
     public void setWrite(boolean write) {
         this.write = write;
+    }
+
+    public boolean isAdministration() {
+        return administration;
+    }
+
+    public void setAdministration(boolean administration) {
+        this.administration = administration;
     }
 }
