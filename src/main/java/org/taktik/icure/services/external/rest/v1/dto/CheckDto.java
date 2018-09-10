@@ -8,6 +8,15 @@ public class CheckDto implements Serializable {
     private String app;
     private String version;
 
+    @Override
+    public String toString() {
+        return "CheckDto{" +
+                "ok=" + ok +
+                ", app='" + app + '\'' +
+                ", version='" + version + '\'' +
+                '}';
+    }
+
     public Boolean getOk() {
         return ok;
     }

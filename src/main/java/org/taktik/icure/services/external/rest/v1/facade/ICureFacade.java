@@ -70,14 +70,32 @@ public class ICureFacade implements OpenApiFacade{
 	private SessionLogic sessionLogic;
 	private MapperFacade mapper;
 
+
+	@ApiOperation(
+			value = "Get Application info",
+			response = CheckDto.class
+	)
 	@Path("/check")
 	@GET
-    @Produces({"text/plain"})
 	public Response check() {
 		CheckDto response = new CheckDto();
 		response.setApp("icure-backend");
 		response.setVersion(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier()));
-		return Response.ok().entity(response).build();
+		return Response.ok(response).build();
+	}
+
+	@ApiOperation(
+			value = "Get Application info",
+			response = String.class
+	)
+	@Path("/c")
+	@GET
+	@Produces({"text/plain"})
+	public Response checkS() {
+		CheckDto response = new CheckDto();
+		response.setApp("icure-backend");
+		response.setVersion(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier()));
+		return Response.ok(response.toString()).build();
 	}
 
 
