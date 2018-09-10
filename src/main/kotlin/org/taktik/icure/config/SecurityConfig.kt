@@ -100,9 +100,11 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 				.antMatchers("/rest/*/swagger.json").permitAll()
 				.antMatchers("/rest/*/icure/v").permitAll()
 				.antMatchers("/rest/*/icure/p").permitAll()
+				.antMatchers("/rest/*/icure/check").permitAll()
 				.antMatchers("/rest/*/icure/ok").permitAll()
 				.antMatchers("/rest/*/icure/pok").permitAll()
 				.antMatchers("/rest/**").hasRole("USER")
+
 
 				.antMatchers("/api/login.html").permitAll()
 				.antMatchers("/api/css/**").permitAll()
