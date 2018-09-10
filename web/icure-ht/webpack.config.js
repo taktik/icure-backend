@@ -8,7 +8,7 @@ var path = require('path');
 console.log(path.resolve(__dirname))
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname, 'app/src/ht-app.html'),
+    entry: path.resolve(__dirname, 'app/src/ht-app.js'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
 	    filename: '[name].bundle.js',
