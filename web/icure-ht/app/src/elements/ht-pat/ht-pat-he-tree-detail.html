@@ -247,7 +247,7 @@
                     <template is="dom-if" if="[[he.colour]]">
                         <label class$="colour-code [[he.colour]]"><span></span></label>
                     </template>
-                    [[getIcpc(he)]] [[he.descr]]
+                    [[getIcpc(he)]] <i>[[_shortDateFormat(he.openingDate, he.valueDate)]]</i>: [[he.descr]]
                 </div>
                 <div>
                     <div class="he-edit-btn-container">
@@ -381,6 +381,10 @@ class HtPatHeTreeDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     getIcpc(he) {
         const icpc = he.codes && he.codes.find(t=>t.type==='ICPC' || t.type==='ICPC2')
         return icpc && ((icpc.code || icpc.id.split('|')[1]) + ' - ')
+    }
+
+    _shortDateFormat(date, altDate) {
+        return (date || altDate) && "'"+this.api.moment((date || altDate)).format('YY') || '';
     }
 
     select(e) {

@@ -192,6 +192,7 @@
     "healthcareelement": "Problem",
     "probable" : "Probable",
     "proven" : "Proven",
+    "proc":"Procedure",
     "prot":"Protocol",
     "qua" : "Quantity",
     "rec": "Recipient",
