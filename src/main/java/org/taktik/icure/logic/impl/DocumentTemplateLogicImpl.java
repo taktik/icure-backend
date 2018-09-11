@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.DocumentTemplateDAO;
 import org.taktik.icure.entities.DocumentTemplate;
+import org.taktik.icure.entities.embed.DocumentType;
 import org.taktik.icure.logic.DocumentTemplateLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 
@@ -70,6 +71,16 @@ public class DocumentTemplateLogicImpl extends GenericLogicImpl<DocumentTemplate
 	@Override
 	public List<DocumentTemplate> getDocumentTemplatesBySpecialty(String specialityCode) {
 		return documentTemplateDAO.findBySpecialtyGuid(specialityCode, null);
+	}
+
+	@Override
+	public List<DocumentTemplate> getDocumentTemplatesByDocumentType(String documentTypeCode) {
+		return documentTemplateDAO.findByTypeUserGuid(documentTypeCode, null, null);
+	}
+
+	@Override
+	public List<DocumentTemplate> getDocumentTemplatesByDocumentTypeAndUser(String documentTypeCode,String userId) {
+		return documentTemplateDAO.findByTypeUserGuid(documentTypeCode, userId, null);
 	}
 
 	@Override

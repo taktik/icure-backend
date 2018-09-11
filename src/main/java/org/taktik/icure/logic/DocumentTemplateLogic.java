@@ -20,13 +20,17 @@ package org.taktik.icure.logic;
 
 import org.taktik.icure.dto.gui.layout.FormLayout;
 import org.taktik.icure.entities.DocumentTemplate;
+import org.taktik.icure.entities.embed.DocumentType;
 
 import java.util.List;
 
 public interface DocumentTemplateLogic extends EntityPersister<DocumentTemplate, String> {
 	List<DocumentTemplate> getDocumentTemplatesBySpecialty(String specialityCode);
+	List<DocumentTemplate> getDocumentTemplatesByDocumentType(String documentTypeCode);
+	List<DocumentTemplate> getDocumentTemplatesByDocumentTypeAndUser(String documentTypeCode,String userId);
 	List<DocumentTemplate> getDocumentTemplatesByUser(String id);
 	DocumentTemplate modifyDocumentTemplate(DocumentTemplate documentTemplate);
 	DocumentTemplate createDocumentTemplate(DocumentTemplate entity);
 	DocumentTemplate getDocumentTemplateById(String documentTemplateId);
+
 }
