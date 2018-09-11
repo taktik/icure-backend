@@ -1,4 +1,4 @@
-import * as fhcApi from '../elements/fhc-api/fhc-api-v2'
+import * as fhcApi from '../elements/fhc-api/fhc-api'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
 import moment from 'moment/src/moment'

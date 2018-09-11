@@ -1,98 +1,97 @@
-import './fhc-addressbookcontroller-api.js';
-import './fhc-basicerrorcontroller-api.js';
-import './fhc-consentcontroller-api.js';
-import './fhc-eattestcontroller-api.js';
-import './fhc-ehboxcontroller-api.js';
-import './fhc-geninscontroller-api.js';
-import './fhc-hubcontroller-api.js';
-import './fhc-recipecontroller-api.js';
-import './fhc-stscontroller-api.js';
-import './fhc-therlinkcontroller-api.js';
-import './fhc-dmgcontroller-api.js';
+import * as api from './fhcApi'
 import {PolymerElement, html} from '@polymer/polymer';
+
 class FhcApi extends PolymerElement {
-  static get template() {
-    return html`
-        <style>
-        </style>
+    static get template() {
+        return html``;
+    }
 
-        <fhc-addressbookcontroller-api id="fhc-addressbookcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-addressbookcontroller-api>
-        <fhc-basicerrorcontroller-api id="fhc-basicerrorcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-basicerrorcontroller-api>
-        <fhc-consentcontroller-api id="fhc-consentcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-consentcontroller-api>
-        <fhc-eattestcontroller-api id="fhc-eattestcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-eattestcontroller-api>
-        <fhc-ehboxcontroller-api id="fhc-ehboxcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-ehboxcontroller-api>
-        <fhc-geninscontroller-api id="fhc-geninscontroller-api" host="[[host]]" headers="[[headers]]"></fhc-geninscontroller-api>
-        <fhc-hubcontroller-api id="fhc-hubcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-hubcontroller-api>
-        <fhc-recipecontroller-api id="fhc-recipecontroller-api" host="[[host]]" headers="[[headers]]"></fhc-recipecontroller-api>
-        <fhc-stscontroller-api id="fhc-stscontroller-api" host="[[host]]" headers="[[headers]]"></fhc-stscontroller-api>
-        <fhc-therlinkcontroller-api id="fhc-therlinkcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-therlinkcontroller-api>
-        <fhc-dmgcontroller-api id="fhc-dmgcontroller-api" host="[[host]]" headers="[[headers]]"></fhc-dmgcontroller-api>
-`;
-  }
+    static get is() {
+        return 'fhc-api'
+    }
 
-  static get is() {
-      return "fhc-api";
-  }
+    static get properties() {
+        return {
+            headers: {
+                type: Object,
+                value: {"Content-Type": "application/json"},
+                notify: true
+            },
+            host: {
+                type: String
+            },
+        }
+    }
 
-  static get properties() {
-      return {
-          headers: {
-              type: Object,
-              value: { "Content-Type": "application/json" }
-          },
-          host: {
-              type: String
-          }
-      };
-  }
+    static get observers() {
+        return ["refresh(headers, headers.*, host)"]
+    }
 
-  constructor() {
-      super();
-  }
+    constructor() {
+        super()
+    }
 
-  Addressbookcontroller() {
-      return this.$['fhc-addressbookcontroller-api'];
-  }
+    ready() {
+        super.ready()
+        if (this.host != null && this.headers != null) this.refresh()
+    }
 
-  Basicerrorcontroller() {
-      return this.$['fhc-basicerrorcontroller-api'];
-  }
+    refresh() {
+        this.fhcAddressbookcontrollerApi = new api.fhcAddressbookcontrollerApi(this.host, this.headers)
+        this.fhcBasicerrorcontrollerApi = new api.fhcBasicerrorcontrollerApi(this.host, this.headers)
+        this.fhcConsentcontrollerApi = new api.fhcConsentcontrollerApi(this.host, this.headers)
+        this.fhcDmgcontrollerApi = new api.fhcDmgcontrollerApi(this.host, this.headers)
+        this.fhcEattestcontrollerApi = new api.fhcEattestcontrollerApi(this.host, this.headers)
+        this.fhcEhboxcontrollerApi = new api.fhcEhboxcontrollerApi(this.host, this.headers)
+        this.fhcGeninscontrollerApi = new api.fhcGeninscontrollerApi(this.host, this.headers)
+        this.fhcHubcontrollerApi = new api.fhcHubcontrollerApi(this.host, this.headers)
+        this.fhcRecipecontrollerApi = new api.fhcRecipecontrollerApi(this.host, this.headers)
+        this.fhcStscontrollerApi = new api.fhcStscontrollerApi(this.host, this.headers)
 
-  Consentcontroller() {
-      return this.$['fhc-consentcontroller-api'];
-  }
+        this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
+    }
 
-  Eattestcontroller() {
-      return this.$['fhc-eattestcontroller-api'];
-  }
+    fhcAddressbookcontrollerApi() {
+        return this.fhcAddressbookcontrollerApi
+    }
 
-  Ehboxcontroller() {
-      return this.$['fhc-ehboxcontroller-api'];
-  }
+    fhcBasicerrorcontrollerApi() {
+        return this.fhcBasicerrorcontrollerApi
+    }
 
-  Geninscontroller() {
-      return this.$['fhc-geninscontroller-api'];
-  }
+    fhcConsentcontrollerApi() {
+        return this.fhcConsentcontrollerApi
+    }
 
-  Hubcontroller() {
-      return this.$['fhc-hubcontroller-api'];
-  }
+    fhcDmgcontrollerApi() {
+        return this.fhcDmgcontrollerApi
+    }
 
-  Recipecontroller() {
-      return this.$['fhc-recipecontroller-api'];
-  }
+    fhcEattestcontrollerApi() {
+        return this.fhcEattestcontrollerApi
+    }
 
-  Stscontroller() {
-      return this.$['fhc-stscontroller-api'];
-  }
+    fhcEhboxcontrollerApi() {
+        return this.fhcEhboxcontrollerApi
+    }
 
-  Therlinkcontroller() {
-      return this.$['fhc-therlinkcontroller-api'];
-  }
+    fhcGeninscontrollerApi() {
+        return this.fhcGeninscontrollerApi
+    }
 
-  DMGcontroller() {
-      return this.$['fhc-dmgcontroller-api'];
-  }
+    fhcHubcontrollerApi() {
+        return this.fhcHubcontrollerApi
+    }
+
+    fhcRecipecontrollerApi() {
+        return this.fhcRecipecontrollerApi
+    }
+
+    fhcStscontrollerApi() {
+        return this.fhcStscontrollerApi
+    }
 }
 
-customElements.define(FhcApi.is, FhcApi);
+customElements.define(FhcApi.is, FhcApi)
+
+

@@ -8,7 +8,7 @@ import '../dynamic-form/entity-selector.js';
 import jsPDF from 'jspdf/dist/jspdf.min';
 import 'lodash';
 import JsBarcode from 'jsbarcode';
-import 'moment';
+import moment from 'moment';
 
 import {PolymerElement, html} from '@polymer/polymer';
 class HtPatDetailCtcDetailPanel extends TkLocalizerMixin(PolymerElement) {
