@@ -78,6 +78,13 @@
 					<paper-input label="Login" value="{{user.login}}"></paper-input>
 					<paper-input label="Email" value="{{user.email}}"></paper-input>
 					<paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
+					<paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+						<paper-listbox slot="dropdown-content" selected="{{user.preferredHub}}">
+							<paper-item id="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+							<paper-item id="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+							<paper-item id="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+						</paper-listbox>
+					</paper-dropdown-menu>
 				</vaadin-form-layout>
 			</div>
 			<div class="right-col">
