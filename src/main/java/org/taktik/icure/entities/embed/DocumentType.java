@@ -58,5 +58,16 @@ public enum DocumentType {
     sumehr,
     telemonitoring,
     treatmentsuspension,
-    vaccination
+    vaccination;
+
+
+    public static DocumentType fromName(String name){
+        DocumentType[] tmpList = DocumentType.values();
+        for(DocumentType tmpElem : tmpList){
+            if(tmpElem.name().equals(name)){
+                return tmpElem;
+            }
+        }
+        return null;
+    }
 }

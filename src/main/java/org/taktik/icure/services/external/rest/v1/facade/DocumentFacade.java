@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
+import org.taktik.icure.entities.embed.DocumentType;
 import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.DocumentLogic;
@@ -326,6 +327,38 @@ public class DocumentFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("Getting Documents failed. Please try again or read the server log.").build();
 		}
 	}
+
+	@ApiOperation(
+			value = "List documents found By type, By Healthcare Party and secret foreign keys.",
+			response = DocumentDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys must be delimited by coma"
+	)
+	@GET
+	@Path("/byTypeHcPartySecretForeignKeys")
+	public Response findByTypeHCPartyMessageSecretFKeys(@QueryParam("documentTypeCode") String documentTypeCode,
+													@QueryParam("hcPartyId") String hcPartyId,
+													@QueryParam("secretFKeys") String secretFKeys) {
+		DocumentType tmp = DocumentType.fromName(documentTypeCode);
+		if (tmp == null || hcPartyId == null || secretFKeys == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		Set<String> secretMessageKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+		List<Document> documentList = documentLogic.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, new ArrayList<>(secretMessageKeys));
+
+		boolean succeed = (documentList != null);
+		if (succeed) {
+			// mapping to Dto
+			List<DocumentDto> documentDtoList = documentList.stream().map(document -> mapper.map(document, DocumentDto.class)).collect(Collectors.toList());
+			return Response.ok().entity(documentDtoList).build();
+		} else {
+			return Response.status(500).type("text/plain").entity("Getting Documents failed. Please try again or read the server log.").build();
+		}
+	}
+
+
 
 	@ApiOperation(
 		value = "List documents with no delegation",

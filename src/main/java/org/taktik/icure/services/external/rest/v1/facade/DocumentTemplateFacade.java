@@ -135,7 +135,7 @@ public class DocumentTemplateFacade implements OpenApiFacade {
     public Response findDocumentTemplatesByDocumentType(@PathParam("documentTypeCode") String documentTypeCode) {
         Response response;
 
-        DocumentType documentType = DocumentType.valueOf(documentTypeCode);
+        DocumentType documentType = DocumentType.fromName(documentTypeCode);
         if (documentTypeCode == null) {
             response = ResponseUtils.badRequest("Cannot retrieve document templates: provided DocumentType Code is null");
         } else if (documentType == null) {
@@ -158,7 +158,7 @@ public class DocumentTemplateFacade implements OpenApiFacade {
     public Response findDocumentTemplatesByDocumentTypeForCurrentUser(@PathParam("documentTypeCode") String documentTypeCode) {
         Response response;
 
-        DocumentType documentType = DocumentType.valueOf(documentTypeCode);
+        DocumentType documentType = DocumentType.fromName(documentTypeCode);
         if (documentTypeCode == null) {
             response = ResponseUtils.badRequest("Cannot retrieve document templates: provided DocumentType Code is null");
         } else if (documentType == null) {
