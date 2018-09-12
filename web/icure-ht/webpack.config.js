@@ -55,27 +55,17 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
+                use: [{loader: 'ts-loader', options: { /*allowTsInNodeModules: true*/ }}]
             },
             {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
-		        use: [
-			        'file-loader',
-			        {
-				        loader: 'image-webpack-loader',
-				        options: {
-					        bypassOnDebug: true,
-				        },
-			        },
-		        ],
-	        },
-            {
-                test: /\.worker\.js$/,
-                use: {
-                	loader: 'worker-loader',
-                    options: { fallback: false }
-                }
-            }
+                use: [{
+                    loader: "url-loader",
+                    options: {
+                        limit: 10000,
+                    },
+                }],
+	        }
         ]
     },
 	mode: 'development',
@@ -107,7 +97,12 @@ module.exports = {
 				//target: 'https://backend.icure.cloud',
 				target: 'http://127.0.0.1:16043',
 				changeOrigin: true
-			}
+			},
+            '/ws': {
+                //target: 'https://backend.icure.cloud',
+                target: 'ws://127.0.0.1:16043',
+                ws: true
+            }
 		}
 	},
 };
