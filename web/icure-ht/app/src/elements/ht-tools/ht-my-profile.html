@@ -82,7 +82,6 @@
 						<paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
 							<paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
 							<paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-							<paper-item name="cozo">[[localize('cozo','Cozo',language)]]</paper-item>
 							<paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
 						</paper-listbox>
 					</paper-dropdown-menu>
@@ -181,7 +180,6 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 
 	showEHPreferrences(user)
 	{
-        //const propHub = user.properties.find(p => p.type.identifier === 'org.taktik.icure.user.preferredHub');
         const propHub = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.preferredhub') ||
             (this.user.properties[this.user.properties.length] = {
                 type: {identifier: 'org.taktik.icure.user.preferredhub'},
@@ -193,11 +191,6 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
                 type: {identifier: 'org.taktik.icure.user.eHealthEnv'},
                 typedValue: {type: 'STRING', stringValue: 'prd'}
             });
-
-
-		//const propEnv = user.properties.find(p => p.type.identifier === 'org.taktik.icure.user.eHealthEnv');
-        //const prefForms = this.user.properties.find(p => p.type.identifier === 'org.taktik.icure.preferred.forms');
-
         this.set('userPreferredHub', propHub.typedValue.stringValue);
         this.set('userEHealthEnv', propEnv.typedValue.stringValue);
 	}
@@ -224,8 +217,6 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
             });
         }
     }
-
-
 
 	qrCode(login, secret) {
 		return login && secret ? `otpauth://totp/${login}:iCure-cloud?secret=${secret}&issuer=icure-cloud` : '';
