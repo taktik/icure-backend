@@ -1335,7 +1335,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<paper-dialog id="hubDialog">
 			<h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
 			<!--<paper-input id="hcpHubConsent" label="[[localize('hub_hcp_cons','Hcp Hub consent',language)]]" value="{{_getHubHcpConsentDesc(hcpHubConsent)}}"></paper-input>-->
-			<template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent)]]">
+			<template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent) || !hubSupportsConsent]]">
 				<paper-input id="patientHubConsent" label="[[localize('pat_hub_cons','Pat Hub consent',language)]]" value="{{_getHubPatientConsentDesc(patientHubConsent)}}"></paper-input>
 				<paper-input id="patientHubTherLink" label="[[localize('hub_tl','Hub therapeutic link',language)]]" value="{{patientHubTherLink}}"></paper-input>
 
@@ -1465,6 +1465,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             hubEndPoint:{
                 type: String,
                 value:'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx'
+            },
+            hubSupportsConsent:{
+			    type: Boolean,
+                value: false
             },
             hcpHubConsent:{
                 type: Object
@@ -1766,7 +1770,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _patientHasHubConsent(cs){
-	    if(cs.author.hcparties[0]){
+	    if(cs.author.hcparties[0] || !this.hubSupportsConsent){
 	       return true;
 		}
 		else{
@@ -2488,6 +2492,38 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			});
 
 			//eHealth stuff
+            //TODO: set hub and env preferrences
+            const propHub = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.preferredhub') ||
+                (this.user.properties[this.user.properties.length] = {
+                    type: {identifier: 'org.taktik.icure.user.preferredhub'},
+                    typedValue: {type: 'STRING', stringValue: 'rsw'}
+                });
+
+            const propEnv = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eHealthEnv') ||
+                (this.user.properties[this.user.properties.length] = {
+                    type: {identifier: 'org.taktik.icure.user.eHealthEnv'},
+                    typedValue: {type: 'STRING', stringValue: 'prd'}
+                });
+            
+            switch (propHub.typedValue.stringValue) {
+                case 'rsb':
+                    this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx':'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
+                    this.hubSupportsConsent = true;
+                    break;
+                case 'rsw':
+                    this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx':'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
+                    this.hubSupportsConsent = true;
+                    break;
+                case 'cozo':
+                    this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? '':'';
+                    this.hubSupportsConsent = true;
+                    break;
+                case 'vitalink':
+                    this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://vitalink-acpt.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService':'https://vitalink.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService';
+                    this.hubSupportsConsent = false;
+                    break;
+            }
+
 			if (patient.ssin && this.api.tokenId) {
 				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
 					const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
@@ -2563,7 +2599,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.hubStatus.classList.remove('accessOk');
 
         var hcpHubCons = false;
-
+        if(!this.hubSupportsConsent){
+            this.$.hubStatus.classList.add('accessOk');
+        }
+        else {
         this._getHubHcpConsent().then(consentResp => {
             if(consentResp.author.hcparties[0]) {
                 hcpHubCons = true;
@@ -2572,6 +2611,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             Polymer.updateStyles(this.$.hubStatus)
         }
         )
+        }
     }
 
 	unselectAdminFile() {
