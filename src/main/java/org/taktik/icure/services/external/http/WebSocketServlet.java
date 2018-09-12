@@ -23,22 +23,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.annotation.WebServlet;
 import javax.ws.rs.Path;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.stereotype.Component;
 import org.taktik.icure.logic.SessionLogic;
-import org.taktik.icure.logic.SessionLogic.SessionContext;
 import org.taktik.icure.services.external.http.websocket.Operation;
 import org.taktik.icure.services.external.http.websocket.WebSocket;
 import org.taktik.icure.services.external.http.websocket.WebSocketOperation;
 import org.taktik.icure.services.external.rest.v1.wsfacade.KmehrWsFacade;
 
+@Component
 public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSocketServlet {
 	public static final int MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
 	private KmehrWsFacade kmehrWsFacade;
@@ -60,7 +59,8 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
 
 		Map<String,WebSocketInvocation> methods = new HashMap<>();
 		scanBeanMethods(this.kmehrWsFacade, methods);
-		factory.setCreator((req, resp) -> new WebSocket(sessionLogic.getCurrentSessionContext(), prefix, gsonMapper, sessionLogic, wsExecutor, methods));
+		factory.setCreator((req, resp) ->
+				new WebSocket(sessionLogic.getCurrentSessionContext(), prefix, gsonMapper, sessionLogic, wsExecutor, methods));
 	}
 
 	private void scanBeanMethods(Object bean, Map<String, WebSocketInvocation> methods) {

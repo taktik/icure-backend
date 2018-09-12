@@ -26,6 +26,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXmlGregorianCalendar
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -36,6 +37,7 @@ import org.taktik.icure.entities.embed.Insurability
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
@@ -149,9 +151,24 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		val startIndex = folder.transactions.size
 
 		var kmehrIndex = 0;
-		contacts.forEach { contact ->
+		contacts.forEach { encContact ->
+			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
+
+			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
+				val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
+				ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
+
+				decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) }?.let {
+					it.apply { this.services = HashSet(encContact.services.map { this.services.find { o -> o.id == it.id} ?: it })}
+				} ?: encContact
+			} else {
+				encContact
+			}
+
 			folder.transactions.addAll(contact.subContacts.mapIndexed { i, subContact ->
 				TransactionType().apply {
+					var services: List<Service> = ArrayList(contact.services ?: setOf()).filter { s -> subContact.services.map { it.serviceId }.contains(s.id) }
+
 					val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when {
 						subContact.status == null -> Triple("contactreport", "parameter", false)
 						(subContact.status!! and 1) > 0 -> Triple("labresult", "lab", false)
@@ -174,14 +191,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					contact.openingDate?.let { headingsAndItemsAndTexts.add(makeEncounterDateTime(headingsAndItemsAndTexts.size + 1, it)) }
 					contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
 					contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
-					var services: List<Service> = ArrayList(contact.services ?: setOf()).filter { s -> subContact.services.map { it.serviceId }.contains(s.id) }
-
-					val toBeDecryptedServices = services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
-
-					if (decryptor != null && toBeDecryptedServices.isNotEmpty()) {
-						val decryptedServices = decryptor.decrypt(toBeDecryptedServices.map { mapper!!.map(contactLogic!!.pimpServiceWithContactInformation(it, contact), ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
-						services = services.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
-					}
 
 					services.forEach { svc ->
 						val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
@@ -290,7 +299,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			ids.add(idKmehr(itemIndex))
 			ids.add(localIdKmehrElement(itemIndex, config))
 			cds.add(cdItem("insurancystatus"))
-			if (insurability?.insuranceId != null) {
+			if (insurability?.insuranceId?.isBlank() == false) {
 				try {
 					insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
 						if (it.code != null && it.code.length >= 3) {

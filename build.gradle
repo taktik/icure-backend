@@ -236,7 +236,7 @@ task packageHtWebResources(type: Exec) {
 	description 'Package web resources'
 
 	workingDir "$projectDir/web/icure-ht"
-	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js","--mode","production","--devtool","none"
 }
 
 task packageTzWebResources(type: Exec) {
@@ -244,7 +244,7 @@ task packageTzWebResources(type: Exec) {
 	description 'Package web resources'
 
 	workingDir "$projectDir/web/icure-ht"
-	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js","--mode","production","--devtool","none"
 }
 
 packageHtWebResources.dependsOn(installWebResourcesDependencies)

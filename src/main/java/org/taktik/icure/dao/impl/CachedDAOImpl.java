@@ -56,9 +56,11 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
         // Get cached values
         for (String id : ids) {
-            T value = getFromCache(id);
+            Cache.ValueWrapper value = cache.get(getFullId(id));
             if (value != null) {
-                result.add(value);
+                if (value.get() != null) {
+                    result.add((T) value.get());
+                }
             } else {
                 missingKeys.add(id);
             }
@@ -66,7 +68,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
         // Get missing values from storage
         if (!missingKeys.isEmpty()) {
-            List<T> entities = super.getList(ids).stream().filter(Objects::nonNull).collect(Collectors.toList());
+            List<T> entities = super.getList(missingKeys).stream().filter(Objects::nonNull).collect(Collectors.toList());
             for (T e : entities) {
                 cache.put(getFullId(keyManager.getKey(e)), e);
             }
@@ -77,14 +79,13 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
     @Override
     public T get(String id, Option... options) {
-        T value = getFromCache(id);
+        Cache.ValueWrapper value = cache.get(getFullId(id));
         if (value == null) {
-            value = super.get(id, options);
-            if (value != null) {
-                cache.put(getFullId(id), value);
-            }
+            T res = super.get(id, options);
+            cache.put(getFullId(id), res);
+            return res;
         }
-        return value;
+        return (T) value.get();
     }
 
 	public T getFromCache(String id) {

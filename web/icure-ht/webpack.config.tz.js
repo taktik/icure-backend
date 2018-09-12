@@ -25,7 +25,7 @@ module.exports = {
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.html']
     },
-	devtool: 'inline-source-map',
+    devtool: 'eval-source-map',
 	node: {
     	fs: 'empty'
 	},
@@ -55,27 +55,17 @@ module.exports = {
             },
             {
                 test: /\.ts$/,
-                use: [{loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
+                use: [{loader: 'ts-loader', options: { /*allowTsInNodeModules: true*/ }}]
             },
 	        {
 		        test: /\.(gif|png|jpe?g|svg)$/i,
-		        use: [
-			        'file-loader',
-			        {
-				        loader: 'image-webpack-loader',
+                use: [{
+                    loader: "url-loader",
 				        options: {
-					        bypassOnDebug: true,
+                        limit: 10000,
 				        },
-			        },
-		        ],
-	        },
-            {
-                test: /\.worker\.js$/,
-                use: {
-                    loader: 'worker-loader',
-                    options: { fallback: false }
-                }
-            }
+                }],
+	        }
         ]
     },
 	mode: 'development',
@@ -107,7 +97,12 @@ module.exports = {
                 //target: 'https://backend.icure.cloud',
                 target: 'http://127.0.0.1:16043',
                 changeOrigin: true
-			}
+			},
+            '/ws': {
+                //target: 'https://backend.icure.cloud',
+                target: 'ws://127.0.0.1:16043',
+                ws: true
+            }
 		}
 	},
 };
