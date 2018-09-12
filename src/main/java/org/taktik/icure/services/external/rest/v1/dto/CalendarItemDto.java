@@ -40,6 +40,8 @@ public class CalendarItemDto extends IcureDto {
 
     protected Set<CalendarItemTagDto> meetingTags;
 
+    protected FlowItemDto flowItem;
+
     public String getTitle() {
         return title;
     }
@@ -166,5 +168,13 @@ public class CalendarItemDto extends IcureDto {
 
     public void setMeetingTags(Set<CalendarItemTagDto> meetingTags) {
         this.meetingTags = meetingTags;
+    }
+
+    public FlowItemDto getFlowItem() {
+        return flowItem;
+    }
+
+    public void setFlowItem(FlowItemDto flowItem) {
+        this.flowItem = flowItem;
     }
 }

@@ -55,7 +55,7 @@ class DocumentTemplateDAOImpl extends CachedDAOImpl<DocumentTemplate> implements
 	}
 
 	@Override
-	@View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
+	@View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
 	public List<DocumentTemplate> findByUserGuid(String userId, String guid) {
 		ComplexKey from = ComplexKey.of(userId, "");
 		ComplexKey to = ComplexKey.of(userId, "\ufff0");
@@ -87,6 +87,30 @@ class DocumentTemplateDAOImpl extends CachedDAOImpl<DocumentTemplate> implements
 		return documentTemplates;
 	}
 
+	@Override
+	@View(name = "by_document_type_code_and_user_id_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.documentType ) emit([doc.documentType,doc.owner,doc.guid], null )}")
+	public List<DocumentTemplate> findByTypeUserGuid(String documentTypeCode, String userId, String guid) {
+
+		List<DocumentTemplate> documentTemplates;
+		if (userId != null && guid !=null) {
+			ComplexKey key = ComplexKey.of(documentTypeCode,userId, guid);
+			documentTemplates = queryView("by_document_type_code_and_user_id_and_guid", key);
+		} else if (userId != null) {
+			ComplexKey from = ComplexKey.of(documentTypeCode, userId, "");
+			ComplexKey to = ComplexKey.of(documentTypeCode, userId, "\ufff0");
+			documentTemplates = queryView("by_document_type_code_and_user_id_and_guid", from, to);
+
+		} else{
+			ComplexKey from = ComplexKey.of(documentTypeCode, "","");
+			ComplexKey to = ComplexKey.of(documentTypeCode, "\ufff0","\ufff0");
+			documentTemplates = queryView("by_document_type_code_and_user_id_and_guid", from, to);
+		}
+
+		// invoke postLoad()
+		documentTemplates.forEach(this::postLoad);
+
+		return documentTemplates;
+	}
 
 	public void evictFromCache(DocumentTemplate entity) {
 		evictFromCache(entity);
