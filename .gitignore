@@ -15,7 +15,6 @@ out/
 # Package Files #
 *.war
 *.ear
-*.zip
 *.tar.gz
 *.rar
 
@@ -31,7 +30,6 @@ dist-tz/
 #IntelliJ files
 *.iml
 .idea
-package-lock.json
 .gradle
 .gradle/4.5.1/fileHashes/fileHashes.bin
 .gradle/4.5.1/fileHashes/fileHashes.lock
