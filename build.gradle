@@ -35,13 +35,13 @@ configure(allprojects) {
 group = 'org.taktik.icure'
 version = '1.0.17'
 sourceCompatibility = 1.8
+
 compileKotlin {
 	kotlinOptions {
 		freeCompilerArgs = ["-Xjsr305=strict"]
 		jvmTarget = "1.8"
 	}
 }
-
 
 compileJava {
 	options.fork = true
@@ -119,7 +119,11 @@ dependencies {
 		exclude group: 'org.taktik.commons', module: 'commons-utils'
 	}
 
-	//Hibernate
+    //Reflection
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
+
+
+    //Hibernate
 	compile group:'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
 	compile group:'com.h2database', name: 'h2', version: '1.4.187'
 
@@ -232,7 +236,7 @@ task packageHtWebResources(type: Exec) {
 	description 'Package web resources'
 
 	workingDir "$projectDir/web/icure-ht"
-	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js","--mode","production","--devtool","none"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js"
 }
 
 task packageTzWebResources(type: Exec) {
@@ -240,7 +244,7 @@ task packageTzWebResources(type: Exec) {
 	description 'Package web resources'
 
 	workingDir "$projectDir/web/icure-ht"
-	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js","--mode","production","--devtool","none"
+	commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js"
 }
 
 packageHtWebResources.dependsOn(installWebResourcesDependencies)
@@ -260,8 +264,8 @@ copyHtWebResources.dependsOn(packageHtWebResources)
 copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
 
-bootRepackage.dependsOn(copyHtWebResources)
-bootRepackage.dependsOn(copyTzWebResources)
+//bootRepackage.dependsOn(copyHtWebResources)
+//bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {
@@ -288,3 +292,4 @@ configurations.all {
 springBoot {
 	mainClass = "org.taktik.icure.ICureBackendApplicationKt"
 }
+
