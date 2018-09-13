@@ -40,19 +40,75 @@
 
 		</style>
 
-		<paper-dialog id="dialog" opened="{{opened}}">
-			<form is="form" id="keys-form">
+		<paper-dialog id="dialog" opened="{{opened}}" style="overflow: auto">
+			<form is="form" id="keys-form" >
 				<div class="layout vertical center">
+
+					<h3>[[localize('ehe_key','eHealth keychain',language)]]</h3>
+
+					<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]" style="height: 250px">
+						<vaadin-grid-column flex-grow="15">
+							<template class="header">
+								<div>Name</div>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.keystore]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="4">
+							<template class="header">
+								<div>Only for decryption</div>
+							</template>
+							<template>
+								<paper-checkbox checked="[[item.onlyDecrypt]]" disabled></paper-checkbox>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="1">
+							<template>
+								<div class="cell frozen">
+									<paper-button class="remove-msgAnnexe-btn" on-tap="_removeKeystore" keystore$='[[item.keystore]]'>X</paper-button>
+								</div>
+							</template>
+						</vaadin-grid-column>
+					</vaadin-grid>
+
 					<h3>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h3>
 					<h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
-					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected"></paper-input>
-					<div>{{message}}</div>
-				</div>
-			</form>
 
+					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected" multiple="true"></paper-input>
+
+					<vaadin-grid id="EhKeychainList" items="[[selectedEhKeychains]]" style="height: 250px">
+						<vaadin-grid-column flex-grow="15">
+							<template class="header">
+								<div>Name</div>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.keystore.name]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="4">
+							<template class="header">
+								<div>Only for decryption</div>
+							</template>
+							<template>
+								<paper-checkbox checked="{{item.onlyDecrypt}}"></paper-checkbox>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="1">
+							<template>
+								<div class="cell frozen">
+									<paper-button class="remove-msgAnnexe-btn" on-tap="_removeKeystoreFromList" indexed$='[[index]]' >X</paper-button>
+								</div>
+							</template>
+						</vaadin-grid-column>
+					</vaadin-grid>
+
+				</div>
+				<div>{{message}}</div>
+			</form>
 				<div class="buttons">
-					<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
+					<paper-button dialog-dismiss on-tap="close" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save" >[[localize('sel','Select',language)]]</paper-button>
 				</div>
 		</paper-dialog>
 	</template>
@@ -75,6 +131,14 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			opened: {
 				type: Boolean,
 				value: false
+			},
+			selectedEhKeychains:{
+				type:[],
+				value:[]
+			},
+			CurrentEhKeychains:{
+				type:Array,
+				value:[]
 			}
 		};
 	}
@@ -93,22 +157,34 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	}
 
 	ehKeychainSelected() {
-		this.selectedEhKeychain = this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement ? this.$.ehKeychainFileInput.inputElement.inputElement.files[0] : null;
+
+		if( this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement){
+			Object.values(this.$.ehKeychainFileInput.inputElement.inputElement.files).forEach( (item,index,array) => {
+				this.push('selectedEhKeychains', {keystore: item, onlyDecrypt: ((array.length - 1) == index?false:true)})
+			})
+		}
+
+		//Clear control
+		this.$.ehKeychainFileInput.value = '';
 	}
 
 	confirm() {
-		const fr = new FileReader();
 		return new Promise((resolve, reject) => {
-			fr.onerror = reject;
-			fr.onabort = reject;
-			fr.onload = function (e) {
-				const keychain = e.target.result;
-				this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId, keychain);
-			}.bind(this);
-			fr.readAsArrayBuffer(this.selectedEhKeychain);
+			this.selectedEhKeychains.forEach(k => {
+				const fr = new FileReader();
+				fr.onerror = reject;
+				fr.onabort = reject;
+				fr.onload = function (e) {
+					const keychain = e.target.result;
+					this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId + (k.onlyDecrypt?"." + k.keystore.name:""), keychain);
+				}.bind(this);
+				fr.readAsArrayBuffer(k.keystore);
+			})
+
+			this.ClearVaadinGrid('#EhKeychainList',this.selectedEhKeychains)
 		});
 
-        this.dispatchEvent(new CustomEvent('file-selected', { detail: this.selectedEhKeychain, bubbles: true, composed: true }))
+        this.dispatchEvent(new CustomEvent('file-selected', { detail: this.selectedEhKeychains, bubbles: true, composed: true }))
 	}
 
 	attached() {
@@ -126,10 +202,67 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 	open() {
 		this.$.dialog.open();
+		this.set("CurrentEhKeychains",this.getCurrentEhKeychains());
+
 	}
 
 	close() {
 		this.$.dialog.close();
+		this.ClearVaadinGrid('#EhKeychainList',this.selectedEhKeychains)
+	}
+
+	ClearVaadinGrid(vaadinGridId,vaadinGridArraysource){
+		vaadinGridArraysource.splice(0, vaadinGridArraysource.length);
+		let EhKeychainList = this.shadowRoot.querySelector(vaadinGridId)
+		EhKeychainList.clearCache();
+	}
+
+	_removeKeystore(e){
+
+		let keystore = e.target.getAttribute('keystore');
+
+		let keys = Object.keys(localStorage);
+		const prefix = "org.taktik.icure.ehealth.keychain.";
+		const healthcarePartyId = this.user.healthcarePartyId;
+
+		keys.forEach(k => {
+			if(k = prefix + healthcarePartyId + "." + keystore){
+				localStorage.removeItem(k);
+			}
+		})
+
+		this.set("CurrentEhKeychains",this.getCurrentEhKeychains());
+		let EhKeychainList = this.shadowRoot.querySelector('#EhKeychainList')
+		EhKeychainList.clearCache();
+	}
+
+	_removeKeystoreFromList(e){
+
+		let index = e.target.getAttribute('indexed');
+		this.selectedEhKeychains.splice(index,1);
+
+		let EhKeychainList = this.shadowRoot.querySelector('#EhKeychainList')
+		EhKeychainList.clearCache();
+	}
+
+	getCurrentEhKeychains(){
+
+		let EhKeychains = [];
+		let keys = Object.keys(localStorage);
+		const prefix = "org.taktik.icure.ehealth.keychain.";
+		const healthcarePartyId = this.user.healthcarePartyId;
+
+		keys.forEach(k => {
+			if(k == prefix + healthcarePartyId){
+				EhKeychains.push({keystore:"Current",onlyDecrypt:false})
+			}else if(k.includes(prefix + healthcarePartyId + ".")){
+				EhKeychains.push({keystore:k.replace(prefix,"").replace(healthcarePartyId + ".",""),onlyDecrypt:true})
+			}
+		})
+
+		console.log(EhKeychains)
+
+		return EhKeychains;
 	}
 }
 customElements.define(HtImportKeychain.is, HtImportKeychain);
