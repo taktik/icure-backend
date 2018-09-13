@@ -25,12 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -101,7 +103,7 @@ public class DrugsDAOImpl implements DrugsDAO {
 
 	protected Map<String, Analyzer> analyzers;
 
-	private String dbMainFile = "drugs.h2.db";
+	private String dbMainFile = "drugs.mv.db";
 	private File dbDir;
 	private PropertyLogic propertyLogic;
 
@@ -143,7 +145,10 @@ public class DrugsDAOImpl implements DrugsDAO {
 					drugsDir.delete();
 				}
 
-				drugsDir.mkdirs();
+				boolean mkdirs = drugsDir.mkdirs();
+				if (!mkdirs) {
+					Optional.ofNullable(drugsDir.listFiles()).ifPresent(files->Arrays.asList(files).forEach(File::delete));
+				}
 				if (drugsDir.exists() && drugsDir.isDirectory()) {
 					InputStream stream = this.getClass().getClassLoader().getResourceAsStream("be/drugs/drugs.zip");
 					ZipInputStream zis = new ZipInputStream(stream);
