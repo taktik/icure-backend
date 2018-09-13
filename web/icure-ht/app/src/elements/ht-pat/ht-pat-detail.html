@@ -1691,27 +1691,27 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _hcpIdent(tl){
-	    return tl.therapeuticLink.hcParty.nihii || ''
+	    return tl && tl.therapeuticLink && tl.therapeuticLink.hcParty && tl.therapeuticLink.hcParty.nihii ? tl.therapeuticLink.hcParty.nihii : ''
     }
 
     _patIdent(tl){
-        return tl.therapeuticLink.patient.inss || ''
+        return tl && tl.therapeuticLink && tl.therapeuticLink.patient && tl.therapeuticLink.patient.inss ? tl.therapeuticLink.patient.inss : ''
     }
 
     _startDate(tl){
-        return tl.therapeuticLink.startDate || ''
+        return tl && tl.therapeuticLink && tl.therapeuticLink.startDate ? tl.therapeuticLink.startDate : ''
     }
 
     _endDate(tl){
-        return tl.therapeuticLink.endDate || ''
+        return tl && tl.therapeuticLink && tl.therapeuticLink.endDate ? tl.therapeuticLink.endDate : ''
     }
 
     _tlStatus(tl){
-        return tl.therapeuticLink.status || ''
+        return tl && tl.therapeuticLink && tl.therapeuticLink.status ? tl.therapeuticLink.status : ''
     }
 
     _tlType(tl){
-        return tl.therapeuticLink.type || ''
+        return tl && tl.therapeuticLink && tl.therapeuticLink.type ? tl.therapeuticLink.type : ''
     }
 
     _transactionId(tr){
