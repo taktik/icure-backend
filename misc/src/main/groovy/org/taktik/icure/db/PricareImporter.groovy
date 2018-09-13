@@ -3,6 +3,7 @@ package org.taktik.icure.db
 import groovy.json.JsonSlurper
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
+import org.ektorp.ViewQuery
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
@@ -10,6 +11,7 @@ import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.DocumentStatus
 import org.taktik.icure.entities.embed.DocumentType
+import org.taktik.icure.entities.embed.Insurability
 import org.taktik.icure.entities.embed.Measure
 import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.entities.embed.Medicinalproduct
@@ -29,7 +31,6 @@ import java.time.Instant
 class PricareImporter extends Importer {
 
 
-    def db
     Sql mdnsql
     Sql admsql
     def medidrugsql
@@ -54,16 +55,18 @@ class PricareImporter extends Importer {
         imp.openMedinoteDrugsDatabase()
         imp.medinote_DrugID_to_CNK()
         imp.loadMeasMappings()
+
+        // start import!
         imp.scan(args)
     }
 
     void openMedinoteDatabase() {
-        db = [url:'jdbc:sqlserver://localhost\\pricaresql;databaseName=modelbird_670_20170713_medinote', user:'MedinoteUser', password:'xyz123', driver:'com.microsoft.sqlserver.jdbc.SQLServerDriver']
+        def db = [url:'jdbc:sqlserver://localhost\\pricaresql;databaseName=modelbird_670_20170713_medinote', user:'MedinoteUser', password:'xyz123', driver:'com.microsoft.sqlserver.jdbc.SQLServerDriver']
         mdnsql = Sql.newInstance(db.url, db.user, db.password, db.driver)
     }
 
     void openAdminDatabase() {
-        db = [url:'jdbc:sqlserver://localhost\\pricaresql;databaseName=modelbird_670_20170713_admin', user:'Admin2008', password:'Admin2008', driver:'com.microsoft.sqlserver.jdbc.SQLServerDriver']
+        def db = [url:'jdbc:sqlserver://localhost\\pricaresql;databaseName=modelbird_670_20170713_admin', user:'Admin2008', password:'Admin2008', driver:'com.microsoft.sqlserver.jdbc.SQLServerDriver']
         admsql = Sql.newInstance(db.url, db.user, db.password, db.driver)
     }
 
@@ -90,7 +93,7 @@ class PricareImporter extends Importer {
         List<Map> docs = []
         List<AccessLog> accessLogs = []
 
-        def patientMap = [:]
+        Map<String, String> patientMap = [:] // topaz_patientId_by_medinote_patientId
         def contacts_by_medinoteId = [:]
         def service_by_medinoteId = [:]
         def form_by_medinoteId = [:]
@@ -221,11 +224,25 @@ class PricareImporter extends Importer {
 
             // patient insurance
 
-            admsql.eachRow("select top 3 * from tblPatForfait") {
+            admsql.eachRow("select top 300000 * from tblPatForfait") {
 
                 def topazpatid = patientMap[it.id]
                 if(topazpatid != null) {
-
+                    def topazpat = patients[topazpatid]
+                    String ct12 = it.ct12
+                    topazpat.insurabilities.add(
+                            new Insurability(
+                                    parameters: [
+                                       tc1: ct12.substring(0,3),
+                                       tc2: ct12.substring(3,6),
+                                       preferentialstatus: "false", // TODO: what is it and where is it stored ?
+                                       paymentapproval: "false", // TODO: what is it and where is it stored ?
+                                    ],
+                                    identificationNumber: it.AFF,
+                                    insuranceId: get_InsuranceId_by_code(it.MUT)
+                            )
+                    )
+                    println("add insurability to patient tzid=${topazpatid}, mdpatid=${it.id}")
                 }
             }
 
@@ -250,7 +267,7 @@ class PricareImporter extends Importer {
                     openingDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
                     closingDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
                     encounterType: new Code("TOPAZ-ENCOUNTER", enctype, "1"),
-                    descr: "TEST",
+                    descr: enctype,
                     subContacts: [ ]
                 )
                 contacts_by_medinoteId[it.id] = con
@@ -351,7 +368,7 @@ class PricareImporter extends Importer {
                             author: get_userId_by_medinoteId(it.authorId),
                             responsible: get_hcpartyId_by_medinoteId(it.respid),
                             healthElementId: id,
-                            descr: "TEST " + it.name.toString(),
+                            descr: it.name.toString(),
                             relevant: it.significance == 2,
                             status: status,
                             openingDate: medinote_fuzzydate_to_topaz_fuzzydate(it.begindate),
@@ -612,12 +629,9 @@ class PricareImporter extends Importer {
 
                     contact.subContacts.add( new SubContact(
                             formId: ittform.id,
-                            // TODO: add healthElementId if linked in medinote
                             services: ittservices.collect({ new ServiceLink(serviceId: it.id) })
                     ))
                     contact.services.addAll( ittservices )
-                    //TODO: find how to link he to form like ITT
-                    //service_by_medinoteId[it.id] =
 
                     println("Adding itt (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
@@ -821,10 +835,9 @@ class PricareImporter extends Importer {
                             ],
                             //tags: [ new Code("TOPAZ-ITEM", "patientevent", "1") ], // TODO: not sure if needed
                     )
-                    // TODO: link PlanOfAction to He
-                    // search for all he linked to this event and use it as He parent for PlanOfAction. If count != 1, link to santé generale
 
                     // patientevents are not durable, they are only in one contact
+                    // add the PlanOfAction to He
                     def linkrows = mdnsql.rows("select * from tblsubcontactservice inner join tblsubcontact on tblsubcontactservice.subconid = tblsubcontact.id where dataid = ${it.id}")
                     def linkcount = linkrows.size()
                     String heid
@@ -869,9 +882,25 @@ class PricareImporter extends Importer {
                             ],
                             //tags: [ new Code("TOPAZ-ITEM", "carepath", "1") ], // TODO: not sure if needed
                     )
-                    healthElement_by_medinoteId[it.heid].plansOfAction.add( plan )
-                    println("Adding hestep as PlanOfAction (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
+                    // add the PlanOfAction to He
+                    def linkrows = mdnsql.rows("select * from tblsubcontactservice inner join tblsubcontact on tblsubcontactservice.subconid = tblsubcontact.id where dataid = ${it.id}")
+                    def linkcount = linkrows.size()
+                    String heid
+                    HealthElement he
+                    if(linkcount == 1 ) {
+                        heid = linkrows.first().getAt("heid")
+                        he = healthElement_by_medinoteId[heid]
+                    } else {
+                        he = get_or_create_general_health_management_he(it.patid, it.authorId)
+                    }
+
+                    if(he != null) {
+                        he.plansOfAction.add ( plan )
+                        println("Adding hestep as PlanOfAction (tzhe: ${he.id}, mdhe=${he.id} tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+                    } else {
+                        println("Error: Can't migrate hestep, He not found")
+                    }
                 }
             }
 
@@ -965,8 +994,6 @@ class PricareImporter extends Importer {
                             services: ittservices.collect({ new ServiceLink(serviceId: it.id) })
                     ))
                     contact.services.addAll( ittservices )
-                    //TODO: find how to link he to form like ITT
-                    //service_by_medinoteId[it.id] =
 
                     println("Adding kine prescription (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
@@ -1036,8 +1063,6 @@ class PricareImporter extends Importer {
                             services: ittservices.collect({ new ServiceLink(serviceId: it.id) })
                     ))
                     contact.services.addAll( ittservices )
-                    //TODO: find how to link he to form like ITT
-                    //service_by_medinoteId[it.id] =
 
                     println("Adding nurse prescription (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
@@ -1559,5 +1584,15 @@ class PricareImporter extends Importer {
                 break
         }
         return ret
+    }
+
+    String get_InsuranceId_by_code(String insCode) {
+        String insu
+        def query = couchdbBase.queryView(new ViewQuery(includeDocs: false).dbPath(couchdbBase.path()).designDocId("_design/Insurance").viewName("all_by_code").key(insCode), String.class)
+        query.any { String id ->
+            insu = id
+            true
+        }
+        return insu
     }
 }
