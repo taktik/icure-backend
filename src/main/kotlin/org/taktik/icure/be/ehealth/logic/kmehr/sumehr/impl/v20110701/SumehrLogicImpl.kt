@@ -39,9 +39,7 @@ import org.xml.sax.SAXException
 import java.util.*
 import javax.ws.rs.core.Context
 
-class SumehrLogicImpl : SumehrLogic {
-    private var contactLogic: ContactLogic? = null
-    private var sumehrExport: SumehrExport? = null
+class SumehrLogicImpl(val contactLogic: ContactLogic, val sumehrExport: SumehrExport) : SumehrLogic {
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
@@ -101,13 +99,4 @@ class SumehrLogicImpl : SumehrLogic {
         return sumehrExport!!.getHealthElements(hcPartyId, sfks)
     }
 
-    @Context
-    fun setContactLogic(contactLogic: ContactLogic) {
-        this.contactLogic = contactLogic
-    }
-
-    @Context
-    fun setSumehrExport(sumehrExport: SumehrExport) {
-        this.sumehrExport = sumehrExport
-    }
 }

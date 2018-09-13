@@ -36,7 +36,7 @@ import org.taktik.icure.logic.PatientLogic
 
 @Configuration
 class EhealthMycarenetConfig {
-    @Bean fun sumehrLogic() = SumehrLogicImpl()
+    @Bean fun sumehrLogic(contactLogic: ContactLogic, sumehrExport: SumehrExport) = SumehrLogicImpl(contactLogic, sumehrExport)
     @Bean fun sumehrExport() = SumehrExport()
     @Bean fun softwareMedicalFileLogic(softwareMedicalFileExport: SoftwareMedicalFileExport, softwareMedicalFileImport: SoftwareMedicalFileImport)
         = SoftwareMedicalFileLogicImpl(softwareMedicalFileExport, softwareMedicalFileImport)
