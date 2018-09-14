@@ -35,6 +35,7 @@
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
+<link rel="import" href="dialogs/ht-pat-invoicing-dialog.html">
 <link rel="import" href="ht-pat-detail-table.html">
 <link rel="import" href="ht-pat-detail-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
@@ -298,7 +299,7 @@
 				--paper-fab-speed-dial-action-label-background: transparent;
 				--paper-fab-iron-icon: {
 					transform: scale(0.8);
-					
+
 				};
 				--paper-fab: {
 					background: var(--app-primary-color-dark);
@@ -419,6 +420,12 @@
 							[[localize('proc','Procedure',language)]]
 						</paper-button>
 					</div>
+					<div id="invoicingBtnCtnr">
+						<paper-button id="invoicingBtn" class="invoicing-btn action-btn" on-tap="_invoicing">
+							<iron-icon icon="vaadin:invoice" ></iron-icon>
+							[[localize('inv','Invoice',language)]]
+						</paper-button>
+					</div>
 				</template>
 			</div>
 			<paper-tooltip for="prescribeBtnCtnr" position="top">
@@ -481,7 +488,7 @@
 		</paper-dialog>
 
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" current-contact="[[currentContact]]"></ht-pat-action-plan-dialog>
-
+		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -679,6 +686,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 	_planAction() {
 	    this.$.planActionForm.open()
+	}
+
+	_invoicing(){
+	    this.$.invoicingForm.open()
 	}
 
 	addForm(templateGuid) {
