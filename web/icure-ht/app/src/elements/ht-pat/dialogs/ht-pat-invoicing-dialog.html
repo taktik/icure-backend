@@ -945,6 +945,7 @@
                                     item.patientFee = r.patientFees[cind]
                                     item.fee = r.fees[cind]
                                     item.financialContract = r.financialContracts[cind]
+                                    item.valid = true
 
                                     this.set('invoice.nomenclatures[itemInd]', item)
                                     this.$['nmclGrid'].clearCache()
