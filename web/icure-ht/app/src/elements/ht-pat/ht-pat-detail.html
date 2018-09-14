@@ -960,8 +960,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<paper-fab class="btn-close" mini icon="close" on-tap="close"></paper-fab>
 							<div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
 							<div class="patient-info">
-								<div class="patient-name">[[patient.firstName]] [[patient.lastName]]</div>
-								<div class="patient-birthdate">°[[patient.dateOfBirth]]</div>
+								<div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
+								<div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]]</div>
 								<div class="statusContainer">
 									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
 									<paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
@@ -2485,8 +2485,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 			//eHealth stuff
 			if (patient.ssin && this.api.tokenId) {
-				this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
-					const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
+                    const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
 					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
 
 					this.$.insuranceStatus.classList.remove('medicalHouse');
@@ -3135,6 +3135,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_getDataTrad(data){
         return this.localize(data, data, this.language)
+	}
+
+    getGender(gender){
+	    if(gender==="male")return "M.";
+	    if(gender==="female")return "Mme";
+	    else return "";
 	}
 }
 
