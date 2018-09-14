@@ -62,18 +62,18 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val sumehrExport: SumehrEx
     }
 
 	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>) =
-		sumehrExport!!.getMd5(hcPartyId, patient, patientSecretForeignKeys)
+		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys)
 
-	override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport!!.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
+	override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
-	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport!!.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, decryptor)
+	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
     @Throws(IOException::class)
     override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) {
         val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
 
         val sos = BufferedOutputStream(FileOutputStream(temp))
-        sumehrExport!!.createSumehr(sos, pat, sfks, sender, recipient, language, comment, decryptor)
+        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, decryptor)
         sos.close()
 
         try {
@@ -88,15 +88,15 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val sumehrExport: SumehrEx
     }
 
     override fun getAllServices(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-        return sumehrExport!!.getAllServices(hcPartyId, sfks, decryptor)
+        return sumehrExport.getAllServices(hcPartyId, sfks, decryptor)
     }
 
 	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-		return sumehrExport!!.getAllServicesPlusPlus(hcPartyId, sfks, decryptor)
+		return sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, decryptor)
 	}
 
     override fun getHealthElements(hcPartyId: String, sfks: List<String>): List<HealthElement> {
-        return sumehrExport!!.getHealthElements(hcPartyId, sfks)
+        return sumehrExport.getHealthElements(hcPartyId, sfks)
     }
 
 }
