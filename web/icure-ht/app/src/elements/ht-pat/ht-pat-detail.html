@@ -2551,7 +2551,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, { paymentapproval: 'true' }) : delete pi.parameters.paymentapproval;
 							if (patient === this.patient) {
 								this.set('patient.insurabilities.0', pi);
-								this.api.patient().modifyPatient(this.patient);
+								this.api.patient().modifyPatient(this.patient).then(p => this.api.register(p,'patient'));
 							}
 						});
 					}

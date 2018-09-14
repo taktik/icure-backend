@@ -372,8 +372,6 @@
 			}
 
 			_shouldDisplay(layoutItem, readOnly, compact) {
-			    console.log("doit etre affiche ")
-				console.log(layoutItem)
 				return !readOnly && !compact || this._isSubForm(layoutItem) || this._isMedicationField(layoutItem) && this.dataProvider.getValueContainers(layoutItem.name).length || this._rawValue(layoutItem);
 			}
 
@@ -399,7 +397,6 @@
 			}
 
 			_templateChanged(change) {
-			    console.log("erreur ici selon la console")
 				if (!this.template || !this.template.sections) {
 					return;
 				}
@@ -407,7 +404,6 @@
 					acc[val.name] = val;
 					return acc;
 				}, {});
-
 			}
 
 			_valueChanged(event) {
@@ -571,7 +567,6 @@
 			}
 
 			loadDataMap() {
-			    console.log("appelle")
 				console.log("Form ready");
 			}
 
