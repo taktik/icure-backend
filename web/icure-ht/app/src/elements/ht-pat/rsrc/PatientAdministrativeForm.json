@@ -138,16 +138,16 @@
 								"multiline" : false,
 								"left" : 664,
 								"top" : 143,
-								"key" : "PopupMenuEditor"
+								"key" : "TokenFieldEditor"
 							},
 							"sortOrder" : 1463236407,
 							"codeTypes" : [
 								{"type":"ISO-639-1"}
 							],
-							"label" : "Language",
+							"label" : "Languages",
 							"subForm" : false,
-							"type" : "TKString",
-							"name" : "languages.0"
+							"type" : "TKStringTable",
+							"name" : "languages"
 						},
 						{
 							"editor" : {
@@ -240,12 +240,21 @@
 							"editor" : {
 								"readOnly" : false,
 								"height" : 22,
+								"menuOptions" : [
+									"enseignement fondamental",
+									"secondaire cycle inférieur",
+									"secondaire cycle supérieur",
+									"universitaire",
+									"supérieur de type long",
+									"supérieur de type court",
+									"promotion sociale"
+								],
 								"labelPosition" : "Left",
 								"width" : 498,
 								"multiline" : false,
 								"left" : 664,
-								"top" : 88,
-								"key" : "StringEditor"
+								"top" : 62,
+								"key" : "PopupMenuEditor"
 							},
 							"sortOrder" : 926365495,
 							"codeTypes" : [
