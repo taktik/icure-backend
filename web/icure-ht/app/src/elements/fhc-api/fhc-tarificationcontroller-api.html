@@ -1,0 +1,84 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="fhc-tarificationcontroller-api">
+    <template>
+        <style>
+        </style>
+
+        <iron-ajax id="getConsultTarificationUsingPOST" method="POST"  headers="[[headers]]" url="/tarif/{ssin}" handle-as="json"
+                   on-error="handleError" with-credentials></iron-ajax>
+    </template>
+</dom-module>
+
+<script>
+    (function () {
+        Polymer({
+            is: 'fhc-tarificationcontroller-api',
+            properties: {
+                headers: {
+                    type: Object,
+                    value: {"Content-Type": "application/json"}
+                },
+                host: {
+                    type: String
+                }
+            },
+            behaviors: [],
+            consultTarificationUsingPOST: function(ssin, tokenId, keystoreId, passPhrase, hcpFirstName, hcpLastName, hcpNihii, hcpSsin, codes, date, gmdNihii, justification){
+
+                var xhr = this.$.getConsultTarificationUsingPOST;
+
+                xhr.url = this.host + "/tarif/{ssin}".replace("{ssin}", ssin+"") + "?ts=" + new Date().getTime()  + (tokenId ? "&tokenId=" + tokenId : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (date ? "&date=" + date : "") + (gmdNihii ? "&gmdNihii=" + gmdNihii : "") + (justification ? "&justification=" + justification : "");
+
+                return xhr.generateRequest().completes.then(function (req) {
+                    return req.response
+                })
+            },
+            handleError: function (e) {
+                if (e.detail.request.status === 401) this.dispatchEvent(new CustomEvent('auth-failed', { bubbles: true, composed: true })); else this.dispatchEvent(new CustomEvent('api-error', { detail: e, bubbles: true, composed: true }))
+            }
+        });
+    })();
+</script>
+
+<!--
+
+<script>class FhcTarificationControllerApi extends Polymer.Element {
+    static get is() {
+        return "fhc-tarificationcontroller-api";
+    }
+
+    static get properties() {
+        return {
+            headers: {
+                type: Object,
+                value: { "Content-Type": "application/json" }
+            },
+            host: {
+                type: String
+            }
+        };
+    }
+
+    consultTarificationUsingPOST(ssin, tokenId, keystoreId, passPhrase, hcpFirstName, hcpLastName, hcpNihii, hcpSsin, codes, date, gmdNihii, justification){
+
+        var xhr = this.$.getConsultTarificationUsingPOST;
+
+        xhr.url = this.host + "/tarif/{ssin}".replace("{ssin}", ssin+"") + "?ts=" + new Date().getTime()  + (tokenId ? "&tokenId=" + tokenId : "") + (keystoreId ? "&keystoreId=" + keystoreId : "") + (passPhrase ? "&passPhrase=" + passPhrase : "") + (hcpFirstName ? "&hcpFirstName=" + hcpFirstName : "") + (hcpLastName ? "&hcpLastName=" + hcpLastName : "") + (hcpNihii ? "&hcpNihii=" + hcpNihii : "") + (hcpSsin ? "&hcpSsin=" + hcpSsin : "") + (date ? "&date=" + date : "") + (gmdNihii ? "&gmdNihii=" + gmdNihii : "") + (justification ? "&justification=" + justification : "");
+
+        return xhr.generateRequest().completes.then(function (req) {
+            return req.response
+        })
+    }
+
+    handleError(e) {
+        if (e.detail.request.status === 401) this.dispatchEvent(new CustomEvent('auth-failed', { bubbles: true, composed: true })); else this.dispatchEvent(new CustomEvent('api-error', { detail: e, bubbles: true, composed: true }))
+    }
+
+}
+
+customElements.define(FhcTarificationControllerApi.is, FhcTarificationControllerApi);
+</script>
+-->
