@@ -20,8 +20,6 @@ import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 
 import org.taktik.commons.uti.UTI
-
-
 import org.taktik.icure.entities.*
 
 import java.sql.DriverManager
@@ -36,12 +34,16 @@ class PricareImporter extends Importer {
     def medidrugsql
     def measMapping = [:]
     def measValueTypeMapping = [:]
+    HealthcareParty customOwnerHcp
+    User customOwnerUser
     String medinoteDataPath = ""
 
     static void main(String... args) {
         loadCodeMappings()
         def imp = new PricareImporter()
         imp.customOwnerId = "562e8e1f-fee3-4164-ae8e-1ffee3716480"
+        imp.customOwnerHcp = imp.couchdbBase.get(HealthcareParty, imp.customOwnerId)
+        imp.customOwnerUser = imp.couchdbBase.get(User, "5d1afb3a-c7ef-41cb-9afb-3ac7efb1cb3d")
         imp.keyRoot = "c:\\topaz\\keys"
         imp.medinoteDataPath = "C:\\testenvir\\server\\modelbird_670_20170713\\MedinoteData\\"
         imp.openMedinoteDatabase()
@@ -67,6 +69,8 @@ class PricareImporter extends Importer {
         medidrugsql = medidrugsql_con.createStatement()
     }
 
+    def users_by_medinoteId = [:]
+    def hcparties_by_medinoteId = [:]
 
     void scan(String... args) {
         def passwordEncoder = new ShaAndVerificationCodePasswordEncoder(256)
@@ -85,9 +89,8 @@ class PricareImporter extends Importer {
 
         def patientMap = [:]
         def contacts_by_medinoteId = [:]
-        def users_by_medinoteId = [:]
-        def hcparties_by_medinoteId = [:]
-        String debug_he_topazId_by_medinoteId = [:] // debug: service need to be linked to he to be shown currently
+        def healthElement_by_medinoteId = [:]
+        def service_by_medinoteId = [:]
 
         try {
 
@@ -125,10 +128,16 @@ class PricareImporter extends Importer {
 
             // patients
 
-            mdnsql.eachRow("select top 3 * from tblPat") {
+            mdnsql.eachRow("select top 1 * from tblPat") {
                 def id = idg.newGUID().toString()
                 patientMap[it.id] = id
-                def tagged_lname = it.Lname + " MDN " + (new Date()).format("yyyy-MM-dd HH:mm:ss") // DEBUG: added date to see last created patient
+                def tagged_lname
+                if(it.Lname == "STERNA") {
+                    // rename to workaround bug in frontend patient list
+                    tagged_lname = "XOXO" + " MDN " + (new Date()).format("yyyy-MM-dd HH:mm:ss") // DEBUG: added date to see last created patient
+                } else {
+                    tagged_lname = it.Lname + " MDN " + (new Date()).format("yyyy-MM-dd HH:mm:ss") // DEBUG: added date to see last created patient
+                }
                 println("Import Patient mediid=${it.id}, name=${tagged_lname}, ${it.Fname}, tzid=${id}")
                 patients[id] = new Patient(
                         id: id,
@@ -136,8 +145,8 @@ class PricareImporter extends Importer {
                         modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
                         lastName: tagged_lname,
                         firstName: it.Fname,
-                        author: users_by_medinoteId[it.authorId],
-                        responsible: hcparties_by_medinoteId[it.respid],
+                        author: get_userId_by_medinoteId(it.authorId),
+                        responsible: get_hcpartyId_by_medinoteId(it.respid),
                         active: !it.inactive,
                         ssin: it.natnum,
                         gender: it.gender == 1 ? "female" : "male", // TODO: verify matching
@@ -233,8 +242,8 @@ class PricareImporter extends Importer {
                     id: id,
                     created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                     modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
-                    author: users_by_medinoteId[it.authorId],
-                    responsible: hcparties_by_medinoteId[it.respid],
+                    author: get_userId_by_medinoteId(it.authorId),
+                    responsible: get_hcpartyId_by_medinoteId(it.respid),
                     openingDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
                     closingDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
                     encounterType: new Code("TOPAZ-ENCOUNTER", enctype, "1"),
@@ -243,7 +252,7 @@ class PricareImporter extends Importer {
                 )
                 contacts_by_medinoteId[it.id] = con
                 contacts[pid].add(con)
-                println("Adding contact (medi=${it.id}, tz=${id}, medipatid=${it.patid}, tzpatid=${pid})")
+                println("Adding contact (medi=${it.id}, tz=${id}, medipatid=${it.patid}, tzpatid=${pid}) date:${it.valueDate}")
 
                 // subcontacts
 
@@ -285,7 +294,8 @@ class PricareImporter extends Importer {
                     println("found He contact ${topaz_contact_id}")
                 }
                 if ( pid != null) {
-                    println("adding HE: medinoteid = ${it.id} ; topazid = ${topaz_heid}")
+                    def he
+                    println("adding HE: medinoteid = ${it.id} ; topazid = ${topaz_heid}, desc=${it.name}")
                     if (healthElements[pid] == null) {
                         healthElements[pid] = []
                     }
@@ -308,7 +318,7 @@ class PricareImporter extends Importer {
                        1: "acute", // nonrecurring
                        2: "chronic", // recurring
                     ]
-                    def itemtype
+                    def itemtype = "healthcareelement"
                     // FIXME: add more CD-ITEM codes or replace the existing one ? (currently only one code)
                     if( it.risk) {
                         itemtype = "risk"
@@ -333,10 +343,10 @@ class PricareImporter extends Importer {
                             break
                     }
 
-                    healthElements[pid].add( new HealthElement(
+                    he = new HealthElement(
                             id: topaz_heid,
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             healthElementId: id,
                             descr: "TEST " + it.name.toString(),
                             relevant: it.significance == 2,
@@ -352,7 +362,9 @@ class PricareImporter extends Importer {
                                     new Code("CD-CERTAINTY", certaintyMap[it.certainty], "1"),
                             ],
                             codes: medinote_medicalCodeId_to_topaz_codes(it.MedicalCodeId),
-                    ))
+                    )
+                    healthElements[pid].add( he )
+                    healthElement_by_medinoteId[it.id] = he
                 }
             }
 
@@ -372,8 +384,8 @@ class PricareImporter extends Importer {
                 if(contact != null) {
                     def service = new Service(
                             id: id,
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             index: service_index++,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -389,6 +401,7 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
                     println("Adding comment (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -403,8 +416,8 @@ class PricareImporter extends Importer {
                 if(contact != null) {
                     def service = new Service(
                             id: id,
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             index: service_index++,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -421,6 +434,7 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
                     println("Adding motive (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -434,12 +448,13 @@ class PricareImporter extends Importer {
                 if(contact != null) {
                     def service = new Service(
                             id: id,
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             index: service_index++,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
-                            label: it.desc,
+                            label: "Anamnèse",
+                            comment: it.desc,
                             valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
                             codes: medinote_medicalCodeId_to_topaz_codes(it.MedicalCodeId),
                             tags: [
@@ -452,6 +467,7 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
                     println("Adding anamneses (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -477,8 +493,8 @@ class PricareImporter extends Importer {
                     }
                     def service = new Service(
                             id: id,
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             index: service_index++,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -491,6 +507,7 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
                     println("Adding measure ${measName} (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
@@ -560,8 +577,8 @@ class PricareImporter extends Importer {
                         ittservices.add( new Service(
                                 id: idg.newGUID().toString(),
                                 contactId: contact.id,
-                                author: users_by_medinoteId[it.authorId],
-                                responsible: hcparties_by_medinoteId[it.respid],
+                                author: get_userId_by_medinoteId(it.authorId),
+                                responsible: get_hcpartyId_by_medinoteId(it.respid),
                                 index: service_index++,
                                 created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                                 modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -570,7 +587,7 @@ class PricareImporter extends Importer {
                                 codes: codes,
                                 tags: [],
                                 content: [
-                                        fr: val
+                                        fr: val as Content
                                 ],
                         ))
                     })
@@ -582,8 +599,8 @@ class PricareImporter extends Importer {
                             contactId: contact.id,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             descr: "Certificat d'interruption d'activité",
                     )
                     forms[pid] = forms[pid] ? forms[pid] : []
@@ -591,9 +608,12 @@ class PricareImporter extends Importer {
 
                     contact.subContacts.add( new SubContact(
                             formId: ittform.id,
+                            // TODO: add healthElementId if linked in medinote
                             services: ittservices.collect({ new ServiceLink(serviceId: it.id) })
                     ))
                     contact.services.addAll( ittservices )
+                    //TODO: find how to link he to form like ITT
+                    //service_by_medinoteId[it.id] =
 
                     println("Adding itt (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
@@ -619,8 +639,8 @@ class PricareImporter extends Importer {
                         contactId: contact.id,
                         created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                         modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
-                        author: users_by_medinoteId[it.authorId],
-                        responsible: hcparties_by_medinoteId[it.respid],
+                        author: get_userId_by_medinoteId(it.authorId),
+                        responsible: get_hcpartyId_by_medinoteId(it.respid),
                     )
 
                     def medication = new Medication()
@@ -647,7 +667,7 @@ class PricareImporter extends Importer {
                     }
                     def service = new Service(
                             id: id,
-                            author: users_by_medinoteId[it.authorId],
+                            author: get_userId_by_medinoteId(it.authorId),
                             responsible: hcparties_by_medinoteId[it.respid],
                             index: contact.services.size(),
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -661,19 +681,23 @@ class PricareImporter extends Importer {
                             ],
 
                     )
-                    contact.subContacts.add(
-                            new SubContact(
-                                    formId: ordoform.id,
-                                    services: [
-                                            new ServiceLink(service.id)
-                                    ]
-                            )
+                    def subcon = new SubContact(
+                            formId: ordoform.id,
+                            services: [
+                                    new ServiceLink(service.id)
+                            ]
                     )
+                    def linkedheid = getLinkedHeId(it.id, it.contactId)
+                    if(linkedheid != null) {
+                        subcon.setHealthElementId(linkedheid)
+                    }
 
                     forms[pid] = forms[pid] ? forms[pid] : []
                     forms[pid].add( ordoform )
 
+                    contact.subContacts.add( subcon )
                     contact.services.add( service )
+                    service_by_medinoteId[it.id] = service
 
                     println("Adding medication (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
@@ -714,8 +738,8 @@ class PricareImporter extends Importer {
                     def service = new Service(
                             id: id,
                             label: "Actes",
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             index: service_index++,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -733,7 +757,240 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
                     println("Adding procedure ${it.desc} (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+            // patient will
+
+
+            mdnsql.eachRow("select * from tblpatientwill") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def service = new Service(
+                            id: id,
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            comment: it.desc,
+                            label: "Volonté patient",
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            codes: [medinote_patientwill_type_to_topaz(it.patientWillId)],
+                            tags: [
+                                    new Code("CD-ITEM", "patientwill", "1")
+                            ],
+                            content: [
+                                    fr: medinote_patientwill_value_to_topaz(it.patientWillValue)
+                            ],
+                    )
+                    add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
+                    println("Adding patientWill (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+            // patient will
+
+            mdnsql.eachRow("select * from tblpatientevent") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def service = new Service(
+                            id: id,
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            comment: it.desc,
+                            label: "Evenement patient",
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            codes: [],
+                            tags: [
+                                    new Code("TOPAZ-ITEM", "patientevent", "1")
+                            ],
+                            content: [
+                                    fr: medinote_patientevent_value_to_topaz(it.type)
+                            ],
+                    )
+                    add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
+                    println("Adding patientEvent (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+            // Prescription Kiné
+
+            mdnsql.eachRow("select * from tblkineprescription") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                def pid = patientMap[it.PatId]
+                def ittservices = []
+                if(contact != null) {
+
+                    def mapserv = [
+                            "Prescription de kinésithérapie": new Content(booleanValue: it.opinionRequest),
+                            "Le patient ne peut se déplacer ": new Content(booleanValue: it.PatientCannotLeaveHome == 1),
+                            "Demande d'avis consultatif kiné": new Content(booleanValue: it.opinionRequest == 1),
+                            "Demande d'avis": new Content(stringValue: ""), // TODO: no medinote counterpart seems to exists
+                            "Mobilisation": new Content(booleanValue: it.fMobilisation == 1),
+                            "Massage": new Content(booleanValue: it.fMasg == 1),
+                            "Genre de séances": new Content(stringValue: ""), // TODO: no medinote counterpart seems to exists
+                            "Thermotherapie": new Content(booleanValue: it.fThermotherapy == 1),
+                            "Electrotherapie": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Ultra son": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Ondes courtes": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Tapotage et gymnastique respiratoire": new Content(booleanValue: false), // TODO: Taping or Gymnasstique médicale ?
+                            "Rééducation": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Localisation": new Content(stringValue: it.localisation),
+                            "Fango": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Drainage lymphatique": new Content(booleanValue: it.fDrain),
+                            "Infra-rouge": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Gymnastique": new Content(booleanValue: it.fGym),
+                            "Manipulations": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Ionisations": new Content(booleanValue: false), // TODO: no medinote counterpart seems to exists
+                            "Nombre de séances": new Content(numberValue: it.numSession),
+                            "Fréquence": new Content(measureValue: new Measure(value: it.freqValue)),
+                            "Code d'intervention": new Content(stringValue: it.surgicalInterventionCode),
+                            "Diagnostic": new Content(stringValue: it.diagnostic),
+                            "Imagerie kiné": new Content(booleanValue: it.imageryAvailable),
+                            "Autre avis kiné": new Content(stringValue: it.importantMedicalInfo), // TODO: not sure this match
+                            "Biologie kiné": new Content(booleanValue: it.biologyAvailable),
+                            "Avis spécialisé kiné": new Content(booleanValue: it.specialisedOpinionAvailable), // TODO: not sure this match
+                            "Evolution pendant tt": new Content(booleanValue: it.feedbackRequiredDuring),
+                            "Evolution fin tt": new Content(booleanValue: it.feedbackRequiredAtTheEnd),
+                            "Communication par courrier": new Content(booleanValue: it.contactMailPreference),
+                            "Communication par téléphone": new Content(booleanValue: it.contactPhonePreference),
+                            "Communication autre": new Content(booleanValue: it.contactOtherPreference),
+                            // TODO: missing telephone number and mail, and a few other field in medinote with no counterpart in topaz
+                    ]
+
+                    service_index = 0
+                    mapserv.forEach({ key, val ->
+                        def codes = []
+                        if(val instanceof Collection) {
+                            (val, codes) = val
+                        }
+                        ittservices.add( new Service(
+                                id: idg.newGUID().toString(),
+                                contactId: contact.id,
+                                author: get_userId_by_medinoteId(it.authorId),
+                                responsible: get_hcpartyId_by_medinoteId(it.respid),
+                                index: service_index++,
+                                created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                                modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                                label: key,
+                                valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                                codes: codes,
+                                tags: [],
+                                content: [
+                                        fr: val as Content
+                                ],
+                        ))
+                    })
+
+
+                    def ittform = new Form(
+                            id: id,
+                            formTemplateId: "e11e4089-1154-455f-9e40-891154d55fd7", // kine prescription form template
+                            contactId: contact.id,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
+                            descr: "Prescription de kiné",
+                    )
+                    forms[pid] = forms[pid] ? forms[pid] : []
+                    forms[pid].add( ittform )
+
+                    contact.subContacts.add( new SubContact(
+                            formId: ittform.id,
+                            // TODO: add healthElementId if linked in medinote
+                            services: ittservices.collect({ new ServiceLink(serviceId: it.id) })
+                    ))
+                    contact.services.addAll( ittservices )
+                    //TODO: find how to link he to form like ITT
+                    //service_by_medinoteId[it.id] =
+
+                    println("Adding kine prescription (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+
+            // Prescription Infi
+
+            mdnsql.eachRow("select * from tblnurseprescription") {
+                def id = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                def pid = patientMap[it.PatId]
+                def ittservices = []
+                if(contact != null) {
+
+                    def mapserv = [
+                            "Autres soins/techniques spécifiques": new Content(stringValue: it.otherCare),
+                            "Informations médicales importantes": new Content(stringValue: it.importantMedicalInfo),
+                            "Evolution pendant tt": new Content(booleanValue: it.feedbackRequiredDuring),
+                            "Communication par courrier": new Content(booleanValue: it.contactMailPreference),
+                            "Communication par téléphone": new Content(booleanValue: it.contactPhonePreference),
+                            "Evolution fin tt": new Content(booleanValue: it.feedbackRequiredAtTheEnd),
+                            "Communication autre": new Content(stringValue: it.contactOtherDetails),
+                    ]
+
+                    service_index = 0
+                    mapserv.forEach({ key, val ->
+                        def codes = []
+                        if(val instanceof Collection) {
+                            (val, codes) = val
+                        }
+                        ittservices.add( new Service(
+                                id: idg.newGUID().toString(),
+                                contactId: contact.id,
+                                author: get_userId_by_medinoteId(it.authorId),
+                                responsible: get_hcpartyId_by_medinoteId(it.respid),
+                                index: service_index++,
+                                created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                                modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                                label: key,
+                                valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                                codes: codes,
+                                tags: [],
+                                content: [
+                                        fr: val as Content
+                                ],
+                        ))
+                    })
+
+
+                    def ittform = new Form(
+                            id: id,
+                            formTemplateId: "4ab77e62-049d-4d61-b77e-62049d1d61e7", // nurse prescription form template
+                            contactId: contact.id,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
+                            descr: "Soins infirmiers",
+                    )
+                    forms[pid] = forms[pid] ? forms[pid] : []
+                    forms[pid].add( ittform )
+
+                    contact.subContacts.add( new SubContact(
+                            formId: ittform.id,
+                            // TODO: add healthElementId if linked in medinote
+                            services: ittservices.collect({ new ServiceLink(serviceId: it.id) })
+                    ))
+                    contact.services.addAll( ittservices )
+                    //TODO: find how to link he to form like ITT
+                    //service_by_medinoteId[it.id] =
+
+                    println("Adding nurse prescription (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
 
                 }
             }
@@ -746,6 +1003,9 @@ class PricareImporter extends Importer {
 
             // docs
 
+            // requests (DocOut)
+            // NOTE: disable for the moment to avoid cluttering the DB
+            /*
             service_index = 0
             mdnsql.eachRow("select * from tblrequest") {
                 def id = idg.newGUID().toString()
@@ -757,7 +1017,7 @@ class PricareImporter extends Importer {
                             //attachment: medinote_file_to_bytes(it.path), // use File instead to save memory
                             documentType: medinote_doctype_to_topaz_documentType(it.Type),
                             documentStatus: DocumentStatus.finalized,
-                            mainUti:  UTI.public_rtf, // is this working ?
+                            mainUti:  UTI.public_rtf,
                             name: it.desc,
                     )
                     def file = new File(medinoteDataPath + "DocOut\\" + it.path.toString())
@@ -771,8 +1031,8 @@ class PricareImporter extends Importer {
                     docs.add(docmap)
                     def service = new Service(
                             id: id,
-                            author: users_by_medinoteId[it.authorId],
-                            responsible: hcparties_by_medinoteId[it.respid],
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
                             index: service_index++,
                             created: medinote_date_to_topaz_fuzzydate(it.entryDate),
                             modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
@@ -788,7 +1048,113 @@ class PricareImporter extends Importer {
                             ],
                     )
                     add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
                     println("Adding request document (tz-conid=${contact.id}, medi=${it.id}, tz=${id})")
+
+                }
+            }
+            */
+
+            // other docs (DocIn)
+
+            service_index = 0
+            mdnsql.eachRow("select * from tblstructureddoc") {
+                def id = idg.newGUID().toString()
+                def docid = idg.newGUID().toString()
+                def contact = contacts_by_medinoteId[it.contactId]
+                if(contact != null) {
+                    def doc = new Document(
+                            id: docid,
+                            documentType: medinote_doctype_to_topaz_documentType(it.DocumentType),
+                            documentStatus: DocumentStatus.finalized,
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            //mainUti:  UTI.,
+                            name: it.description,
+                    )
+                    def file
+                    if(it.path != null && it.path != "") {
+                        file = new File(medinoteDataPath + "DocIn\\" + it.path.toString())
+                        doc.mainUti = UTI.utisForExtension( it.path.toString().split(/\./).last()).first()
+                        if(!file.exists()) {
+                            println("Error: document file not found: ${file.toString()}")
+                        }
+                    } else {
+                        if(it.content != null && it.content != "") {
+                            doc.attachment = it.content as byte[]
+                            doc.mainUti = UTI.public_text
+                        } else {
+                            println("Error: document file or content not found: ${it.id}: ${it.path.toString()}")
+                        }
+                    }
+                    def docmap = [
+                            doc: doc,
+                            file: file,
+                            contact: contact,
+                    ]
+                    docs.add(docmap)
+                    def service = new Service(
+                            id: id,
+                            author: get_userId_by_medinoteId(it.authorId),
+                            responsible: get_hcpartyId_by_medinoteId(it.respid),
+                            index: service_index++,
+                            created: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            modified: medinote_date_to_topaz_fuzzydate(it.entryDate),
+                            label: "Document structuré",
+                            valueDate: medinote_date_to_topaz_fuzzydate(it.valueDate),
+                            tags: [
+                                    new Code("CD-ITEM", "clinical", "1")
+                            ],
+                            comment: it.description,
+                            content: [
+                                    fr: new Content(
+                                            documentId: docid
+                                    )
+                            ],
+                    )
+                    add_service_to_contact(service, contact)
+                    service_by_medinoteId[it.id] = service
+                    println("Adding structured document (tz-conid=${contact.id}, medi=${it.id}, servtz=${id}, doctz=${docid})")
+
+                }
+            }
+
+            /// subContacts
+            println("----- sous contacts")
+
+            mdnsql.eachRow("select * from tblsubcontact") {
+                def id = idg.newGUID().toString()
+                def pid = patientMap[it.PatId]
+
+                def contact = contacts_by_medinoteId[it.conId]
+                def topaz_contact_id
+                if (pid != null && contact != null && healthElement_by_medinoteId[it.heid] != null) {
+                    topaz_contact_id = contact.id
+                    println("found pricare-subcontact ${it.conid} for pricare-he ${it.heid} in contact ${topaz_contact_id}")
+                    def tzhe = healthElement_by_medinoteId[it.heid]
+                    def servicelinks = []
+                    def pricare_heid = it.heid
+                    mdnsql.eachRow("select * from tblsubcontactservice where subconid = ${it.id} and contactid = ${it.conId}") {
+
+                        def service = service_by_medinoteId[it.dataid]
+                        if(service != null) {
+                            println("linking he mdid=${pricare_heid} to service mdid=${it.dataid} (hetz=${tzhe} serv tz=${service.id}) ")
+                            servicelinks.add(
+                                    new ServiceLink(
+                                            serviceId: service.id
+                                    )
+                            )
+                        } else {
+                            println("service not found: ${it.dataid}, id=${it.id}")
+                        }
+
+                    }
+                    contact.subContacts.add( new SubContact(
+                            healthElementId: tzhe.id,
+                            services: servicelinks,
+                    ))
 
                 }
             }
@@ -802,6 +1168,11 @@ class PricareImporter extends Importer {
             mdnsql.close()
         }
         doImport(users.values(), hcParties.values(), patients.values(), invoices, contacts, healthElements, forms, messages, messageDocs, docs, accessLogs)
+    }
+
+    static Content medinote_patientevent_value_to_topaz(int i) {
+        // TODO: mapping
+        return new Content(stringValue:  i.toString())
     }
 
     static protected Map<String, String> EncounterTypeMap
@@ -823,11 +1194,23 @@ class PricareImporter extends Importer {
         }
     }
 
+    def getLinkedHeId(serviceid, contactid) {
+        def heid
+        mdnsql.eachRow("select * from tblsubcontactservice where serviceid = ${serviceid} and contactid = ${contactid} ") {
+            heid = it.dataid
+        }
+        return heid
+    }
+
 
     static List<Code> medinote_medicalCodeId_to_topaz_codes(String medinoteCode) {
         def parts = medinoteCode.split(";")
         List<Code> retcodes
         retcodes = parts.collect {
+            if(it.startsWith("ibui1005.")) {
+                String ibui = it.substring("ibui1005.".size())
+                return new Code("BE-THESAURUS", ibui, "3.1.1")
+            }
             if(it.startsWith("locas.")) {
                 // FIXME: what about the label ?
                 String locas = it.substring("locas.".size())
@@ -835,11 +1218,11 @@ class PricareImporter extends Importer {
             }
             if(it.startsWith("icpc2.")) {
                 String icpc = it.substring("icpc2.".size())
-                return new Code("CD-ICPC2", icpc, "1")
+                return new Code("ICPC", icpc, "2")
             }
             if(it.startsWith("icd10.")) {
                 String icd = it.substring("icd10.".size())
-                return new Code("CD-ICD10", icd, "1") // FIXME: guessed CD type
+                return new Code("ICD", icd, "10")
             }
         }.findAll({ it != null })
         return retcodes
@@ -868,6 +1251,31 @@ class PricareImporter extends Importer {
         ]
 
         return retcodes
+    }
+
+    static Content medinote_patientwill_value_to_topaz(int patientWillValue) {
+        def kmehrvalue = [
+                "undefined",
+                "authorize",
+                "refuse",
+        ][patientWillValue]
+        return new Content(stringValue: kmehrvalue)
+    }
+
+    static Code medinote_patientwill_type_to_topaz(int patientWillId) {
+        def kmehrtype = [
+                "ntbr",
+                "bloodtransfusionrefusal",
+                "intubationrefusal",
+                "euthanasiarequest",
+                "vaccinationrefusal",
+                "organdonationconsent",
+                "datareuseforclinicalresearchconsent",
+                "datareuseforclinicaltrialsconsent",
+                "clinicaltrialparticipationconsent",
+        ][patientWillId]
+
+        return new Code("CD-PATIENTWILL", kmehrtype, "1.3")
     }
 
     static long medinote_fuzzydate_to_topaz_fuzzydate(String date) {
@@ -900,6 +1308,7 @@ class PricareImporter extends Importer {
     }
 
     String medinote_DrugUnit_to_string(id) {
+        // TODO: verify this code
         if(id == 0) {
             return ""
         } else {
@@ -930,6 +1339,26 @@ class PricareImporter extends Importer {
                 serviceId: service.id
         )
         defsubcon.services.add( servlink )
+    }
+
+    String get_userId_by_medinoteId(medinoteId) {
+        // this method is only used for debugging to return a default user when users are not migred
+        def obj = users_by_medinoteId[medinoteId]
+        if(obj == null) {
+            return customOwnerUser.id
+        } else {
+            return obj.id
+        }
+    }
+
+    String get_hcpartyId_by_medinoteId(medinoteId) {
+        // this method is only used for debugging to return a default hcp when hcp are not migred
+        def obj = hcparties_by_medinoteId[medinoteId]
+        if(obj == null) {
+            return customOwnerHcp.id
+        } else {
+            return obj.id
+        }
     }
 
     static DocumentType medinote_doctype_to_topaz_documentType(doctype) {
