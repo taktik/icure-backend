@@ -939,14 +939,15 @@
                                 r.codes.forEach(c => {
                                     const cind = r.codes.indexOf(c)
 
-                                    let item = nmclListItem.find(item => item.code === c)
-                                    let itemInd = nmclListItem.indexOfLabel(item)
+                                    let item = this.invoice.nomenclatures.find(item => item.code === c)
+                                    let itemInd = this.invoice.nomenclatures.indexOf(item)
                                     item.reimbursement = r.reimbursements[cind]
                                     item.patientFee = r.patientFees[cind]
                                     item.fee = r.fees[cind]
                                     item.financialContract = r.financialContracts[cind]
 
-                                    //this.
+                                    this.set('invoice.nomenclatures[itemInd]', item)
+                                    this.$['nmclGrid'].clearCache()
 
                                 })
 
