@@ -4,6 +4,8 @@
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -27,6 +29,10 @@
 			paper-input{
 				--paper-input-container-focus-color: var(--app-primary-color);
 				font-size:var(--form-font-size);
+			}
+
+			.error {
+				color: #e53935;
 			}
 
 			.buttons{
@@ -71,7 +77,18 @@
 					<paper-input colspan="2" label="Group ID" value="{{user.groupId}}"></paper-input>
 					<paper-input label="Login" value="{{user.login}}"></paper-input>
 					<paper-input label="Email" value="{{user.email}}"></paper-input>
-					<paper-input label="Time with no activities (minute)" type="number" min="0" value=""></paper-input>
+					<paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
+					<paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+						<paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+							<paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+							<paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+							<paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+						</paper-listbox>
+					</paper-dropdown-menu>
+					<paper-radio-group selected="{{userEHealthEnv}}">
+						<paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+						<paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+					</paper-radio-group>
 				</vaadin-form-layout>
 			</div>
 			<div class="right-col">
@@ -81,9 +98,15 @@
 						<paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
 						<paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
 					</paper-radio-group>
-					<paper-input label="Password" value="{{user.password}}"></paper-input>
-						<paper-input label="Confirmation" value="{{user.confirmation}}"></paper-input>
-						<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
+					<paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
+					<paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
+					<template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]">
+						<div class="error">Passwords do not match</div>
+					</template>
+					<template is="dom-if" if="[[_tooShort(userPassword)]]">
+						<div class="error">Passwords must be at least 8 characters</div>
+					</template>
+					<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
 				</vaadin-form-layout>
 				<div id="printable">
 					<qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
@@ -91,7 +114,7 @@
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('save','Save',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" autofocus on-tap="confirm">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
@@ -126,8 +149,24 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 			verbose: {
 				type: Boolean,
 				value: true
-			}
-		};
+            },
+            userPassword: {
+                type: String,
+                value: null
+            },
+            userConfirmation: {
+                type: String,
+                value: null
+            },
+            userPreferredHub: {
+                type: String,
+                value: null
+            },
+            userEHealthEnv: {
+                type: String,
+                value: null
+            }
+        };
 	}
 
 	static get observers() {
@@ -139,18 +178,45 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 		this.addEventListener('iron-resize', () => this.onWidthChange());
 	}
 
-	_userChanged(user) {
-		if (this.user && this.api) {
-			this.api.hcparty().getHealthcareParty(user.healthcarePartyId).then(hcp => {
-				if (!hcp.languages || !hcp.languages.length) {
-					hcp.languages = ['en'];
-				}
-				this.set('hcp', hcp);
-			});
-		}
+	showEHPreferrences(user)
+	{
+        const propHub = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.preferredhub') ||
+            (this.user.properties[this.user.properties.length] = {
+                type: {identifier: 'org.taktik.icure.user.preferredhub'},
+                typedValue: {type: 'STRING', stringValue: 'rsw'}
+            });
+
+        const propEnv = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eHealthEnv') ||
+            (this.user.properties[this.user.properties.length] = {
+                type: {identifier: 'org.taktik.icure.user.eHealthEnv'},
+                typedValue: {type: 'STRING', stringValue: 'prd'}
+            });
+        this.set('userPreferredHub', propHub.typedValue.stringValue);
+        this.set('userEHealthEnv', propEnv.typedValue.stringValue);
 	}
 
-	apiReady() {}
+	_userChanged(user) {
+
+	}
+
+	_mismatch(a, b) {
+	    return a && a !== b
+	}
+
+    _tooShort(a) {
+        return a && a.length < 8
+    }
+
+    apiReady() {
+        if (this.user && this.api && this.opened) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                if (!hcp.languages || !hcp.languages.length) {
+                    hcp.languages = ['en'];
+                }
+                this.set('hcp', hcp);
+            });
+        }
+    }
 
 	qrCode(login, secret) {
 		return login && secret ? `otpauth://totp/${login}:iCure-cloud?secret=${secret}&issuer=icure-cloud` : '';
@@ -172,6 +238,7 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 
 	open() {
 		this.$.dialog.open();
+        this.showEHPreferrences(this.user);
 	}
 
 	close() {
@@ -179,8 +246,16 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 	}
 
 	confirm() {
-		this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {detail:user, bubbles: true, composed: true})))
-		this.api.hcparty().modifyHealthcareParty(this.hcp);
+	    if ((!this.userPassword || this.userPassword.length > 7) && this.userPassword === this.userConfirmation) {
+	        this.user.passwordHash = this.userPassword || this.user.passwordHash
+            let propHub = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.preferredhub')
+			propHub.typedValue.stringValue = this.userPreferredHub;
+            let propEnv = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eHealthEnv')
+            propEnv.typedValue.stringValue = this.userEHealthEnv;
+            this.api.user().modifyUser(this.user).then(
+                user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
+			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
+        }
 	}
 }
 

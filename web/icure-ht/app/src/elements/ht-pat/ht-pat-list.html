@@ -1370,10 +1370,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.notifyPath('patientSelected.*')
                         this.set('nbPatientSelected',this.patientSelected.filter(patient => patient.check).length)
                     }
-
-
-
-
                 }
 
             }
@@ -1403,12 +1399,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     this.api.crypto()
                                         .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
-                                        this.api.bekmehr().generateSmfExport(patientDto.id, "fr", {
+                                        this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
                                             secretForeignKeys: secretForeignKeys,
                                             comment: null
                                         }).then(output => {
                                             //creation of the xml file
-                                            var file = new Blob([output] ,{type: "application/xml"})
+                                            var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
 
                                             //creation the downloading link
                                             var a = document.createElement("a");
@@ -1635,11 +1631,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     this.push("hcpSelectedForSharing."+index+".delegation",tag)
                     
-                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length==12){
+                    if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length === 12){
                         this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
                     }
 
-                    if(this.hcpSelectedForSharing[index].delegation.find(x => x==="medicalInformation")){
+                    if(this.hcpSelectedForSharing[index].delegation.find(x => x === "medicalInformation")){
                         this.set("hcpSelectedForSharing."+index+".delegation",this.hcpSelectedForSharing[index].delegation.filter(x => !x.includes("cdItem")))
                     }
 

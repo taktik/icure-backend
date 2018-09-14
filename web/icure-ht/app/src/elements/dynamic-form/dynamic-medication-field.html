@@ -765,7 +765,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
 			this.select(this.latestSelected);
 		} else {
-            this.latestSelected = selected;
+		    if(selected) this.latestSelected = selected;
             this.inDoubleClick = true;
 
             //Trigger cheapAlternativeSearch
@@ -785,6 +785,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (searchSeed.cheap) {
                 searchSeed = this.cheapAlternativeSearchSeed
             }
+            if(!searchSeed.id){
+                this.cheapAlternativeSearchSeed = null
+                return Promise.resolve([])
+			}
             this.cheapAlternativeSearchSeed = searchSeed
             return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
                 .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1,mpp2)=>(mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp=>_.extend(_.extend({}, mpp), {cheap : 'cheap'})))

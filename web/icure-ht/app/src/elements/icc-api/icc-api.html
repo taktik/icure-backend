@@ -8,18 +8,19 @@
 </dom-module>
 
 <script>
-    import * as api from 'icc-api/icc-api/iccApi'
+    import * as api from 'icc-api/dist/icc-api/iccApi'
     import moment from 'moment/src/moment'
 
-    import {IccBedrugsXApi} from 'icc-api/icc-x-api/icc-bedrugs-x-api'
-    import {IccCodeXApi} from 'icc-api/icc-x-api/icc-code-x-api'
-    import {IccContactXApi} from 'icc-api/icc-x-api/icc-contact-x-api'
-    import {IccCryptoXApi} from 'icc-api/icc-x-api/icc-crypto-x-api'
-    import {IccDocumentXApi} from 'icc-api/icc-x-api/icc-document-x-api'
-    import {IccFormXApi} from 'icc-api/icc-x-api/icc-form-x-api'
-    import {IccHcpartyXApi} from 'icc-api/icc-x-api/icc-hcparty-x-api'
-    import {IccHelementXApi} from 'icc-api/icc-x-api/icc-helement-x-api'
-    import {IccPatientXApi} from 'icc-api/icc-x-api/icc-patient-x-api'
+    import {IccBedrugsXApi} from 'icc-api/dist/icc-x-api/icc-bedrugs-x-api'
+    import {IccBekmehrXApi} from 'icc-api/dist/icc-x-api/icc-bekmehr-x-api'
+    import {IccCodeXApi} from 'icc-api/dist/icc-x-api/icc-code-x-api'
+    import {IccContactXApi} from 'icc-api/dist/icc-x-api/icc-contact-x-api'
+    import {IccCryptoXApi} from 'icc-api/dist/icc-x-api/icc-crypto-x-api'
+    import {IccDocumentXApi} from 'icc-api/dist/icc-x-api/icc-document-x-api'
+    import {IccFormXApi} from 'icc-api/dist/icc-x-api/icc-form-x-api'
+    import {IccHcpartyXApi} from 'icc-api/dist/icc-x-api/icc-hcparty-x-api'
+    import {IccHelementXApi} from 'icc-api/dist/icc-x-api/icc-helement-x-api'
+    import {IccPatientXApi} from 'icc-api/dist/icc-x-api/icc-patient-x-api'
 
     class IccApi extends Polymer.Element {
         static get is() {
@@ -92,7 +93,6 @@
             this.beetarificc = new api.iccBeetarifApi(this.host, this.headers)
             this.begeninsicc = new api.iccBegeninsApi(this.host, this.headers)
             this.behubsicc = new api.iccBehubsApi(this.host, this.headers)
-            this.bekmehricc = new api.iccBekmehrApi(this.host, this.headers)
             this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers)
             this.beprimotoicc = new api.iccBeprimotoApi(this.host, this.headers)
             this.berecipeicc = new api.iccBerecipeApi(this.host, this.headers)
@@ -123,6 +123,8 @@
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
+
+            this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
         }
