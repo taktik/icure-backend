@@ -33,7 +33,7 @@ public interface ReplicationDAO extends GenericDAO<Replication> {
 
 	List<ReplicationTask> getActiveReplications();
 
-	void startReplication(DatabaseSynchronization databaseSynchronization);
+	void startReplication(DatabaseSynchronization databaseSynchronization, boolean continuous);
 
 	void cancelReplication(DatabaseSynchronization databaseSynchronization);
 }

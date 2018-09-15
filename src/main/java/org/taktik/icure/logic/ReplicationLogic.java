@@ -42,4 +42,6 @@ public interface ReplicationLogic extends EntityPersister<Replication, String> {
 	Replication createBaseTemplateReplication(String protocol, String replicationHost, String port, String language, String specialtyCode) throws Exception;
 
 	void createUserGroupReplications(List<Group> allGroups);
+
+	void startDatabaseSynchronisations(Replication replication, boolean continuous);
 }
