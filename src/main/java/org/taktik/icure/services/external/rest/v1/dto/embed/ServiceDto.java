@@ -27,13 +27,15 @@ import java.util.*;
 
 public class ServiceDto implements Serializable {
 	protected String id; //Two version of the same service in two separate contacts have the same id
-	protected String contactId; //Only used when the Service is emitted outside of its contact
-	protected Map<String,List<DelegationDto>> cryptedForeignKeys = new HashMap<>(); //Only used when the Service is emitted outside of its contact
-	private Map<String, List<DelegationDto>> delegations = new HashMap<>(); //Only used when the Service is emitted outside of its contact
-
+	private String contactId; //Only used when the Service is emitted outside of its contact
+	private Set<String> secretForeignKeys; //Only used when the Service is emitted outside of its contact
 	private Set<String> subContactIds; //Only used when the Service is emitted outside of its contact
 	private Set<String> plansOfActionIds; //Only used when the Service is emitted outside of its contact
 	private Set<String> healthElementsIds; //Only used when the Service is emitted outside of its contact
+	private Map<String,List<DelegationDto>> cryptedForeignKeys; //Only used when the Service is emitted outside of its contact
+	private Map<String, List<DelegationDto>> delegations; //Only used when the Service is emitted outside of its contact
+	private Map<String, List<DelegationDto>> encryptionKeys; //Only used when the Service is emitted outside of its contact
+
 
 	protected String label;
 	protected String dataClassName;
@@ -78,6 +80,22 @@ public class ServiceDto implements Serializable {
 
 	public void setContactId(String contactId) {
 		this.contactId = contactId;
+	}
+
+	public Set<String> getSecretForeignKeys() {
+		return secretForeignKeys;
+	}
+
+	public void setSecretForeignKeys(Set<String> secretForeignKeys) {
+		this.secretForeignKeys = secretForeignKeys;
+	}
+
+	public Map<String, List<DelegationDto>> getEncryptionKeys() {
+		return encryptionKeys;
+	}
+
+	public void setEncryptionKeys(Map<String, List<DelegationDto>> encryptionKeys) {
+		this.encryptionKeys = encryptionKeys;
 	}
 
 	public Map<String, List<DelegationDto>> getCryptedForeignKeys() {

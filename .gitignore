@@ -15,7 +15,6 @@ out/
 # Package Files #
 *.war
 *.ear
-*.zip
 *.tar.gz
 *.rar
 
@@ -42,3 +41,4 @@ package-lock.json
 .gradle/buildOutputCleanup/outputFiles.bin
 .gradle/vcsWorkingDirs/gc.properties
 test.json
+.gradletasknamecache

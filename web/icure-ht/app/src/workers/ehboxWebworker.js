@@ -1,7 +1,7 @@
-import * as fhcApi from '../elements/fhc-api/fhcApi'
+import * as fhcApi from 'fhc-api/dist/fhcApi'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
-import moment from 'moment/src/moment'
+import 'moment'
 
 onmessage = e => {
     if(e.data.action === "loadEhboxMessage"){
