@@ -5,6 +5,7 @@ import org.ektorp.CouchDbInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.GroupDAO;
+import org.taktik.icure.dao.replicator.NewGroupObserver;
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.Replication;
 import org.taktik.icure.entities.base.Security;
@@ -68,26 +69,29 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 			throw new IllegalAccessException("No registered user");
 		}
 
-		Group result = groupDAO.save(group);
+		User dbUser = new User(group.getId(), group.getPassword());
+		couchdbInstance.createConnector("_users", false).create("org.couchdb.user:" + group.getId(), dbUser);
 
-		if (result.getRev() != null) {
-			couchdbInstance.createConnector("_users", false).create("org.couchdb.user:" + group.getId(), new User(group.getId(), group.getPassword()));
+		Security security = new Security(group.getId());
 
-			Security security = new Security(group.getId());
-			List<String> paths= Arrays.asList(
-					"icure-" + group.getId() + "-base",
-					"icure-" + group.getId() + "-patient",
-					"icure-" + group.getId() + "-healthdata"
-			);
+		List<String> paths = Arrays.asList(
+				"icure-" + group.getId() + "-base",
+				"icure-" + group.getId() + "-patient",
+				"icure-" + group.getId() + "-healthdata"
+		);
 
-			paths.forEach(c -> couchdbInstance.createConnector(c, true).create("_security", security));
+		paths.forEach(c -> {
+			CouchDbConnector connector = couchdbInstance.createConnector(c, true);
+			connector.create("_security", security);
+		});
 
-			if (initialReplication != null) {
-				initialReplication.setDatabaseSynchronizations(initialReplication.getDatabaseSynchronizations().stream().filter(ds -> paths.stream().anyMatch( p -> ds.getTarget().startsWith( couchDbProperties.getUrl().replaceAll("/+$","") + "/" + p))).collect(Collectors.toList()));
-				replicationLogic.startDatabaseSynchronisations(initialReplication, false);
-			}
+		if (initialReplication != null) {
+			initialReplication.setDatabaseSynchronizations(initialReplication.getDatabaseSynchronizations().stream().filter(ds -> paths.stream().anyMatch(p -> ds.getTarget().startsWith(couchDbProperties.getUrl().replaceAll("/+$", "") + "/" + p))).collect(Collectors.toList()));
+			replicationLogic.startDatabaseSynchronisations(initialReplication, false);
 		}
-		return result;
+
+		Group result = groupDAO.save(group);
+		return result.getRev() != null ? result : null;
 	}
 
 

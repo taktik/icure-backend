@@ -20,7 +20,6 @@ import org.taktik.icure.entities.base.StoredDocument;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -109,7 +108,12 @@ public class NewGroupObserver {
 		CouchDbInstance dbInstance = new CouchDbInstance(httpClient, URI.create(couchDbUrl), couchDbPrefix + "-config", couchDbUsername, couchDbPassword);
 		dbInstance.changes("now",
 			(Change change) -> {
-				observe(change);
+				getLastHeartBeat().set(System.currentTimeMillis());
+
+				if (change.getDoc() != null && Group.class.getCanonicalName().equals(change.getDoc().get("java_type"))) {
+					Group group = groupDAO.get((String) change.getDoc().get("_id"));
+					prepareDesignDocumentsAndStartReplications(group);
+				}
 				return Unit.INSTANCE;
 			},
 			() -> {
@@ -155,17 +159,6 @@ public class NewGroupObserver {
 					throw new RuntimeException();
 				}
 			}
-		}
-	}
-
-	private void observe(Change change) {
-		getLastHeartBeat().set(System.currentTimeMillis());
-		if (change.getDoc() == null) {
-			return;
-		}
-		if (Group.class.getCanonicalName().equals(change.getDoc().get("java_type"))) {
-			Group group = groupDAO.get((String) change.getDoc().get("_id"));
-			prepareDesignDocumentsAndStartReplications(group);
 		}
 	}
 

@@ -69,7 +69,7 @@ class SecurityConfig {
 			usernamePasswordAuthenticationFilter : UsernamePasswordAuthenticationFilter,
 			exceptionTranslationFilter : ExceptionTranslationFilter,
 			remotingExceptionTranslationFilter : ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, applicationTokensAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
-	@Bean fun daoAuthenticationProvider(userDetailsService : UserDetailsService, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider().apply {
+	@Bean fun daoAuthenticationProvider(userDetailsService : UserDetailsService, passwordEncoder: ShaAndVerificationCodePasswordEncoder) = CustomAuthenticationProvider().apply {
 		setPasswordEncoder(passwordEncoder)
 		setUserDetailsService(userDetailsService)
 	}

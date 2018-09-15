@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.Replication;
 import org.taktik.icure.entities.User;
@@ -15,13 +17,15 @@ import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 @Component
-@Path("/icure")
-@Api(tags = { "icure" })
+@Path("/group")
+@Api(tags = { "group" })
 @Consumes({"application/json"})
 @Produces({"application/json"})
 public class GroupFacade implements OpenApiFacade {
@@ -45,9 +49,11 @@ public class GroupFacade implements OpenApiFacade {
 			notes = "Create a new gorup with associated dbs"
 	)
 	@POST
-	public Response createGroup(GroupDto groupDto, ReplicationDto initialReplication) {
+	@Path("/{id}")
+	public Response createGroup(@PathParam("id") String id, @QueryParam("name") String name, @QueryParam("password") String password, @RequestBody ReplicationDto initialReplication) {
 		try {
-			return Response.ok(groupLogic.createGroup(mapper.map(groupDto, Group.class), mapper.map(initialReplication, Replication.class))).build();
+			Group newGroup = new Group(id, name, password);
+			return Response.ok(groupLogic.createGroup(newGroup, mapper.map(initialReplication, Replication.class))).build();
 		} catch (IllegalAccessException e) {
 			return Response.status(403).type("text/plain").entity("Unauthorized access.").build();
 		}
