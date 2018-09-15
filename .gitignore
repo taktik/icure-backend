@@ -41,3 +41,4 @@ package-lock.json
 .gradle/buildOutputCleanup/outputFiles.bin
 .gradle/vcsWorkingDirs/gc.properties
 test.json
+.gradletasknamecache
