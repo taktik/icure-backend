@@ -415,7 +415,7 @@
 					return;
 				}
 				const layoutItem = this.layoutItemPerName[event.target.id];
-				if (layoutItem) {
+				if (this.dataProvider) {
 					this._isDateField(layoutItem) ? this.dataProvider.setDateValue(layoutItem.name, change.value) : this._isMeasureField(layoutItem) ? this.dataProvider.setMeasureValue(layoutItem.name, typeof change.value === "object" ? change.value : { value: change.value }) : this._isCheckboxField(layoutItem) ? this.dataProvider.setBooleanValue(layoutItem.name, change.value && change.value !== 'false') : this._isNumberField(layoutItem) ? this.dataProvider.setNumberValue(layoutItem.name, change.value) : this.dataProvider.setStringValue(layoutItem.name, change.value);
 				}
 			}
