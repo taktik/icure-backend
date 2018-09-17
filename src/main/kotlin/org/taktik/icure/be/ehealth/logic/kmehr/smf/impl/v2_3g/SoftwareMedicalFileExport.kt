@@ -37,6 +37,7 @@ import org.taktik.icure.entities.embed.Insurability
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
@@ -64,7 +65,6 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.InsuranceType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
@@ -77,7 +77,8 @@ import java.io.OutputStreamWriter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.ArrayList
+import java.util.HashSet
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeConstants
@@ -94,6 +95,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		sender: HealthcareParty,
 		language: String,
 		decryptor: AsyncDecrypt?,
+		progressor: AsyncProgress?,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 			date = makeXGC(Instant.now().toEpochMilli())!!,
 			time = makeXGC(Instant.now().toEpochMilli())!!,
@@ -111,7 +113,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		})
 
 		// TODO split marshalling
-		message.folders.add(makePatientFolder(1, patient, sfks, sender, config, language, decryptor));
+		message.folders.add(makePatientFolder(1, patient, sfks, sender, config, language, decryptor, progressor));
 
 		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
@@ -123,7 +125,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 	private fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
-								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?): FolderType {
+								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
@@ -150,8 +152,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		val contacts = contactLogic!!.findByHCPartyPatient(healthcareParty.id, sfks.toList())
 		val startIndex = folder.transactions.size
 
-		var kmehrIndex = 0;
-		contacts.forEach { encContact ->
+		contacts.forEachIndexed { index, encContact ->
+			progressor?.progress((1.0 * index) / contacts.size)
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
