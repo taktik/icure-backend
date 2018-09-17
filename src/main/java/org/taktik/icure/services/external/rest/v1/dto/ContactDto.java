@@ -141,4 +141,5 @@ public class ContactDto extends IcureDto {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
 }
