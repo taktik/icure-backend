@@ -58,7 +58,8 @@ public enum DocumentType {
     sumehr,
     telemonitoring,
     treatmentsuspension,
-    vaccination;
+    vaccination,
+    template;
 
 
     public static DocumentType fromName(String name){
