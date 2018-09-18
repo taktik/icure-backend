@@ -1654,11 +1654,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_timeFormat(date) {
-		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
+		return date ? this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
 	}
 
 	_dateFormat(date) {
-		return this.api.moment(date).format('DD/MM/YYYY');
+		returndate ? this.api.moment(date).format('DD/MM/YYYY') : '';
 	}
 
 	_contactClasses(contact) {
