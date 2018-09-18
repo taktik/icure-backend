@@ -8,6 +8,8 @@
     "build-tz": "webpack --optimize-minimize --config webpack.config.tz.js",
     "serve": "node --max_old_space_size=4096 $NODE_DEBUG_OPTION node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --progress --port 9000 --open --config webpack.config.js",
     "serve-tz": "node --max_old_space_size=4096 $NODE_DEBUG_OPTION node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --progress --port 9001 --open --config webpack.config.tz.js",
+    "serve-win": "node --max_old_space_size=4096 node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --progress --port 9000 --open --config webpack.config.js",
+    "serve-tz-win": "node --max_old_space_size=4096 node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --progress --port 9001 --open --config webpack.config.tz.js",
     "webpack-defaults": "webpack-defaults",
     "defaults": "webpack-defaults"
   },
