@@ -1775,7 +1775,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _patientHasHubConsent(cs){
-	    if(cs.author.hcparties[0] || !this.hubSupportsConsent){
+	    if((cs && cs.author && cs.author.hcparties && cs.author.hcparties[0]) || !this.hubSupportsConsent){
 	       return true;
 		}
 		else{
@@ -1786,16 +1786,22 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _getHubHcpConsentDesc(cs){
 	    var desc = '';
 	    //hub
-		if(cs.author.hcparties[0]){
+		if(cs && cs.author && cs.author && cs.author.hcparties && cs.author.hcparties[0]){
 		    desc += cs.author.hcparties[0].name + ' ';
 		}
-		//hcp
-        desc += '[' + cs.hcparty.ids.find(id => id.s === 'ID-HCPARTY').value + '] ';
-        desc += cs.hcparty.ids.find(id => id.s === 'INSS').value;
-		//sign
-        desc += ' ' + this.api.moment( cs.signdate).format('DD/MM/YYYY');
-		//revoke
-        desc += ' ' + this.api.moment( cs.revokedate).format('DD/MM/YYYY');
+		if(cs && cs.hcparty && cs.hcparty.ids) {
+            //hcp
+            desc += '[' + cs.hcparty.ids.find(id => id.s === 'ID-HCPARTY').value + '] ';
+            desc += cs.hcparty.ids.find(id => id.s === 'INSS').value;
+        }
+        if(cs && cs.signdate) {
+            //sign
+            desc += ' ' + this.api.moment(cs.signdate).format('DD/MM/YYYY');
+        }
+        if(cs && cs.revokedate) {
+            //revoke
+            desc += ' ' + this.api.moment(cs.revokedate).format('DD/MM/YYYY');
+        }
 		return desc;
 	}
 
@@ -1829,16 +1835,18 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    // author - sign date - type
 		// author - fname lname niss nihii
 
-		if(cs.cds.find(cd => cd.s === 'CD_CONSENTTYPE')){
+		if(cs && cs.cds && cs.cds.find(cd => cd.s === 'CD_CONSENTTYPE')){
 			desc += cs.cds.find(cd => cd.s === 'CD_CONSENTTYPE').value + " : " ;
         }
 
-		if(cs.author.hcparties[0]) {
+		if(cs && cs.author && cs.author.hcparties && cs.author.hcparties[0]) {
             const hcp = cs.author.hcparties[0]
 			desc += hcp.familyname + ' ' + hcp.firstname;
             desc += ' [' + hcp.ids.find(id => id.s === 'ID-HCPARTY').value + ']';
         }
-        desc += ' ' + this.api.moment( cs.signdate).format('DD/MM/YYYY');
+        if(cs && cs.signdate) {
+            desc += ' ' + this.api.moment(cs.signdate).format('DD/MM/YYYY');
+        }
 	    return desc;
 	}
 
