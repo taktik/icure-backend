@@ -25,26 +25,26 @@ import java.util.List;
 
 public class KeywordDto extends StoredDto {
 
-    protected String shortcut;
+    protected String value;
 
-    protected List<KeywordSubwordDto> values;
+    protected List<KeywordSubwordDto> subWords;
 
     protected String userId;
 
-    public String getShortcut() {
-        return shortcut;
+    public String getValue() {
+        return value;
     }
 
-    public void setShortcut(String shortcut) {
-        this.shortcut = shortcut;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public List<KeywordSubwordDto> getValues() {
-        return values;
+    public List<KeywordSubwordDto> getSubWords() {
+        return subWords;
     }
 
-    public void setValues(List<KeywordSubwordDto> values) {
-        this.values = values;
+    public void setSubWords(List<KeywordSubwordDto> subWords) {
+        this.subWords = subWords;
     }
 
     public String getUserId() {

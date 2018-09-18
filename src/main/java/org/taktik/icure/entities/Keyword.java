@@ -29,28 +29,28 @@ import java.util.List;
 public class Keyword extends StoredICureDocument {
 
     @NotNull
-    protected String shortcut;
+    protected String value;
 
     @NotNull
-    protected List<KeywordSubword> values;
+    protected List<KeywordSubword> subWords;
 
     @NotNull
     protected String userId;
 
-    public String getShortcut() {
-        return shortcut;
+    public String getValue() {
+        return value;
     }
 
-    public void setShortcut(String shortcut) {
-        this.shortcut = shortcut;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public List<KeywordSubword> getValues() {
-        return values;
+    public List<KeywordSubword> getSubWords() {
+        return subWords;
     }
 
-    public void setValues(List<KeywordSubword> values) {
-        this.values = values;
+    public void setSubWords(List<KeywordSubword> subWords) {
+        this.subWords = subWords;
     }
 
     public String getUserId() {
