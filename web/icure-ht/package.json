@@ -81,6 +81,7 @@
     "icc-api": "^1.0.17",
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.10",
+    "node-forge": "^0.7.6",
     "npm": "^6.4.1",
     "polymer-password-strength": "^1.0.0",
     "uti": "^3.1.2",
