@@ -30,6 +30,7 @@ import org.taktik.icure.entities.embed.DocumentType;
 import org.taktik.icure.logic.DocumentTemplateLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.services.external.rest.v1.dto.DocumentTemplateDto;
+import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto;
 import org.taktik.icure.utils.FormUtils;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -314,4 +315,28 @@ public class DocumentTemplateFacade implements OpenApiFacade {
         return response;
     }
 
+    @ApiOperation(response = DocumentTemplateDto.class, value = "Creates a document's attachment")
+    @PUT
+    @Path("/{documentTemplateId}/attachmentJson")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setAttachmentJson(@PathParam("documentTemplateId") String documentTemplateId, ByteArrayDto payload) {
+        Response response;
+
+        if (documentTemplateId == null) {
+            return ResponseUtils.badRequest("Cannot add attachment: provided documentTemplate ID is null");
+        }
+        if (payload == null) {
+            return ResponseUtils.badRequest("Cannot add null attachment");
+        }
+
+        DocumentTemplate documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId);
+        if (documentTemplate != null) {
+            documentTemplate.setAttachment(payload.getData());
+            response = ResponseUtils.ok(mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto.class));
+        } else {
+            response = ResponseUtils.internalServerError("Document modification failed");
+        }
+
+        return response;
+    }
 }
