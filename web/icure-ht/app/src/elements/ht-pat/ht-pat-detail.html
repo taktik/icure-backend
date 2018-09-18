@@ -1814,7 +1814,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getHcpConsentUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                this.api.fhc().Hubcontroller().getHcpConsentUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
                     hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip)
         ).then(consentResp => {
                 if (consentResp) {
@@ -1855,8 +1856,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                     this.patient.ssin)
         ).then(consentResp => {
                 if (consentResp) {
@@ -1882,8 +1884,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                   hcp.lastName, hcp.firstName,  hcp.nihii, hcp.ssin, this.hcpZip,
                     this.patient.ssin, null, null, null)
         ).then(tlResp => {
                 if (tlResp) {
@@ -1903,8 +1906,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         //registerTherapeuticLinkUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber)
         if (this.patient.ssin && this.api.tokenId) {
             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.ssin, hcp.firstName, hcp.lastName, hcp.nihii,
                     this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber)
             ).then(therLinkResp => {
                     if(therLinkResp.therapeuticLink) {
@@ -1932,8 +1936,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getTransactionsListUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                this.api.fhc().Hubcontroller().getTransactionsListUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                     this.patient.ssin, null, null, null, null, null)
         ).then(tranResp => {
                 if (tranResp) {
@@ -2016,9 +2021,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (this.patient.ssin && this.api.tokenId) {
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                        this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                            hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
-                            this.patient.ssin, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sv, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sl,
+                        this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId,
+							this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                            this.patient.ssin, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sv,
+							this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sl,
                             this.selectedTransaction.ids.find(id => id.s === 'LOCAL').value)
                     ).then(tranResp => {
                             if (tranResp) {
@@ -2053,9 +2060,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                 .then(hcp =>
-                    this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                        hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
-                        this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
+                    this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId,
+						this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                        this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv,
+						this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
                         this.selectedTransaction.ids.find(id => id.s==='LOCAL').value)
                 ).then(tranResp => {
                         if (tranResp) {
