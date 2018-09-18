@@ -563,6 +563,22 @@
                 transform: scale(0.8) rotate(180deg);
             }
 
+            .clearBtn{
+                height: 16px;
+                width: 16px;
+            }
+
+            .nmclFavoriteCode{
+                background-color: var(--app-secondary-color-dark);
+                margin: 0 5px 0 0;
+                color: var(--app-text-color-light);
+                height: 20px;
+                font-size: 12px;
+                min-width: initial;
+                text-transform: none;
+                padding-left: 8px;
+            }
+
 
         </style>
 
@@ -622,7 +638,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <vaadin-grid id="nmclGrid" items="[[invoice.nomenclatures]]" class="material" active-item="{{activeNmclItem}}" on-tap="_nmclDetail">
+                                <vaadin-grid id="nmclGrid" items="[[invoice.nomenclatures]]" class="material" active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <template is="dom-if" if="[[item.valid]]">
@@ -694,17 +710,18 @@
                                     [[localize('fav','Favorite',language)]]
                                 </div>
                             </div>
-                            <template is="dom-repeat" items="[[favoriteTarificationCode]]">
-                                <paper-button on-tap="_addFavoriteNmclToInvoice">
+                            <template is="dom-repeat" items="[[favoriteCode]]">
+                                <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
                                     [[item.code]]
+                                    <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]" on-tap="_deleteFavoriteCode"></iron-icon>
                                 </paper-button>
                             </template>
                         </div>
                     </div>
                     <div class="invoice-nomenclature-code-option">
                         <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr" item-value-path="id" on-filter-changed="_nmclSearch" label="Nomenclature" value=""></vaadin-combo-box>
-                        <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmclToInvoice"></paper-icon-button>
-                        <paper-icon-button icon="icons:save" on-tap="_addNmclToFavorite"></paper-icon-button>
+                        <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
+                        <paper-icon-button icon="icons:save" on-tap="_addFavoriteCode"></paper-icon-button>
                         <template is="dom-if" if="[[npi]]">
                             <paper-icon-button icon="icons:thumb-up" on-tap="_verifyTarification"></paper-icon-button>
                         </template>
@@ -957,7 +974,7 @@
                         type: Boolean,
                         value: false
                     },
-                    favoriteTarificationCode:{
+                    favoriteCode:{
                         type: Object
                     },
                     isTarificationError:{
@@ -992,7 +1009,10 @@
 
             open() {
                 this.$.invoiceDialog.open();
+                this.getFavoritesCodes();
+            }
 
+            getFavoritesCodes(){
                 const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
 
                 if(preferedCode && preferedCode.typedValue){
@@ -1005,7 +1025,7 @@
                     }
 
                     this.api.tarification().getTarifications(new models.ListOfIdsDto({ ids: code.cs.map(c => c)})).then(t => {
-                        this.set("favoriteTarificationCode", t)
+                        this.set("favoriteCode", t)
                     })
                 }
             }
@@ -1054,10 +1074,17 @@
 
             }
 
-            _addNmclToInvoice(){
+            _addNmcl(e){
 
-                if(this.$['nmcl-search'].selectedItem){
-                    const nmcl = this.$['nmcl-search'].selectedItem
+                if(this.$['nmcl-search'].selectedItem || e.target.dataset.item){
+                    let nmcl
+
+                    if(e.target.dataset.item){
+                        nmcl = JSON.parse(e.target.dataset.item)
+                    }else{
+                        nmcl = this.$['nmcl-search'].selectedItem
+                    }
+
                     const newNmcl = {
                         code:                       nmcl.code,
                         id:                         nmcl.id,
@@ -1087,7 +1114,7 @@
 
             }
 
-            _addNmclToFavorite(){
+            _addFavoriteCode(){
                 if(this.$['nmcl-search'].selectedItem) {
 
                     const newCode = this.$['nmcl-search'].selectedItem
@@ -1099,18 +1126,60 @@
                         if (preferedCode.typedValue.type === "STRING") {
                             code = JSON.parse(preferedCode.typedValue.stringValue)
                             code.cs.push(newCode.id)
-                            //codeString = JSON.stringify(code)
-
+                            preferedCode.typedValue.stringValue = JSON.stringify(code)
 
                         } else {
                             code = preferedCode.typedValue.stringValue
                             code.cs.push(newCode.id)
+                            preferedCode.typedValue.stringValue = code
                         }
 
-                        console.log(code)
+                        this.set('user.properties', this.user.properties.map(x => x))
+
+                        console.log(this.user)
+
+                        this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
+                            detail: user,
+                            bubbles: true,
+                            composed: true
+                        })))
+
+                        this.getFavoritesCodes()
 
                     }
                 }
+            }
+
+            _deleteFavoriteCode(e){
+                const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
+
+                if (preferedCode && preferedCode.typedValue) {
+                    let code
+                    if (preferedCode.typedValue.type === "STRING") {
+                        code = JSON.parse(preferedCode.typedValue.stringValue)
+                        const index = code.cs.indexOf(e.target.dataset.item)
+                        delete(code.cs[index])
+                        code.cs.splice(index, 1)
+                        preferedCode.typedValue.stringValue = JSON.stringify(code)
+                    } else {
+                        code = preferedCode.typedValue.stringValue
+                        const index = code.cs.indexOf(e.target.dataset.item)
+                        delete(code.cs[index])
+                        code.cs.splice(index, 1)
+                        preferedCode.typedValue.stringValue = code
+                    }
+
+                    this.set('user.properties', this.user.properties.map(x => x))
+
+                    this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
+                        detail: user,
+                        bubbles: true,
+                        composed: true
+                    })))
+
+                    this.getFavoritesCodes()
+                }
+
             }
 
             _verifyTarification(){
@@ -1168,14 +1237,7 @@
                 return language === "fr" ? item.msgFr : item.msgNl
             }
 
-            _addFavoriteNmclToInvoice(){
-
-
-
-            }
-
-            _nmclDetail(e){
-
+            _showDetail(){
                 if(this.activeNmclItem){
                     const selected = this.activeNmclItem
                     console.log('selected ' + selected)
@@ -1183,7 +1245,6 @@
                 }else{
                     this.set('isDetailNmcl', false)
                 }
-
             }
 
             _checkIfPrescriberNeeded(e){
