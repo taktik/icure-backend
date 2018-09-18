@@ -97,14 +97,14 @@
             }
 
             .invoice-nomenclature-code{
-                height: 285px;
+                height: 320px;
                 overflow-y: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 margin-top: 10px;
             }
 
             .invoice-detail{
-                height: 285px;
+                height: 255px;
                 width: auto;
                 overflow-y: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
@@ -209,25 +209,22 @@
             }
 
             .invoice-nomenclature-code-container{
-                display: flex;
                 height: 225px
             }
 
             .nmcl-descr{
-                width: 80%;
                 overflow-y: auto;
                 height: 225px
             }
 
             .nmcl-favorite{
-                width: 20%;
-                border-left: 1px solid var(--app-background-color-dark);
-                height: 225px
-                overflow-y: auto;
+                display: flex;
+                height: 25px;
+                padding: 5px;
             }
 
             .invoice-nomenclature-code-option{
-                height: 40px;
+                height: 58px;
                 display: flex;
             }
 
@@ -661,7 +658,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="550px">
+                                    <vaadin-grid-column width="750px">
                                         <template class="header">
                                             <div class="cell frozen">Desc</div>
                                         </template>
@@ -701,22 +698,25 @@
                                             <div class="cell numeric">[[item.patientFee.amount]]</div>
                                         </template>
                                     </vaadin-grid-column>
+                                    <vaadin-grid-column width="20px">
+                                        <template>
+                                            <div class="cell frozen">
+                                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]" on-tap="_deleteNmclCode"></iron-icon>
+                                            </div>
+                                        </template>
+                                    </vaadin-grid-column>
                                 </vaadin-grid>
                             </div>
                         </div>
-                        <div class="nmcl-favorite">
-                            <div class="title">
-                                <div class="title-txt">
-                                    [[localize('fav','Favorite',language)]]
-                                </div>
-                            </div>
-                            <template is="dom-repeat" items="[[favoriteCode]]">
-                                <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
-                                    [[item.code]]
-                                    <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]" on-tap="_deleteFavoriteCode"></iron-icon>
-                                </paper-button>
-                            </template>
-                        </div>
+                    </div>
+                    <div class="nmcl-favorite">
+                        Favoris:
+                        <template is="dom-repeat" items="[[favoriteCode]]">
+                            <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
+                                [[item.code]]
+                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]" on-tap="_deleteFavoriteCode"></iron-icon>
+                            </paper-button>
+                        </template>
                     </div>
                     <div class="invoice-nomenclature-code-option">
                         <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr" item-value-path="id" on-filter-changed="_nmclSearch" label="Nomenclature" value=""></vaadin-combo-box>
@@ -1085,31 +1085,36 @@
                         nmcl = this.$['nmcl-search'].selectedItem
                     }
 
-                    const newNmcl = {
-                        code:                       nmcl.code,
-                        id:                         nmcl.id,
-                        descr:                      nmcl.label[this.language],
-                        label:                      nmcl.label,
-                        reimbursement:              {"amount" : 0.00, "currencyUnit": "EUR"},
-                        fee:                        {"amount" : 0.00, "currencyUnit": "EUR"},
-                        patientFee:                 {"amount" : 0.00, "currencyUnit": "EUR"},
-                        extra:                      {"amount" : 0.00, "currencyUnit": "EUR"},
-                        vat:                        "",
-                        valid:                      false,
-                        financialContract:          "",
-                        prescriberType:             "0",
-                        prescriberNihii:            "",
-                        askDate:                    ""
+                    let tabNmcl = this.invoice.nomenclatures
+                    const find = tabNmcl.find(n => n.code === nmcl.code)
+
+                    if(!find){
+                        const newNmcl = {
+                            code:                       nmcl.code,
+                            id:                         nmcl.id,
+                            descr:                      nmcl.label[this.language],
+                            label:                      nmcl.label,
+                            reimbursement:              {"amount" : 0.00, "currencyUnit": "EUR"},
+                            fee:                        {"amount" : 0.00, "currencyUnit": "EUR"},
+                            patientFee:                 {"amount" : 0.00, "currencyUnit": "EUR"},
+                            extra:                      {"amount" : 0.00, "currencyUnit": "EUR"},
+                            vat:                        "",
+                            valid:                      false,
+                            financialContract:          "",
+                            prescriberType:             "0",
+                            prescriberNihii:            "",
+                            askDate:                    ""
+                        }
+
+                        tabNmcl.push(newNmcl)
+                        this.set("invoice.nomenclatures", tabNmcl)
+                        this.$['nmclGrid'].clearCache()
+
+                        this.invoice.nomenclatures.length > 0 ? this.set('npi', true) : this.set('npi', false)
+
+                        console.log(this.invoice.nomenclatures)
                     }
 
-                    let tabNmcl = this.invoice.nomenclatures
-                    tabNmcl.push(newNmcl)
-                    this.set("invoice.nomenclatures", tabNmcl)
-                    this.$['nmclGrid'].clearCache()
-
-                    this.invoice.nomenclatures.length > 0 ? this.set('npi', true) : this.set('npi', false)
-
-                    console.log(this.invoice.nomenclatures)
                 }
 
             }
@@ -1255,6 +1260,24 @@
                     this.set("isPrescriberNeeded", true)
                 }
 
+            }
+
+            _deleteNmclCode(e){
+                e.stopPropagation()
+                if(e.target.dataset.item){
+                    let tabNmcl = this.invoice.nomenclatures
+
+                    const item = tabNmcl.find(n => n.id === e.target.dataset.item)
+                    const iindex = tabNmcl.indexOf(item)
+
+                    delete(tabNmcl[iindex])
+                    tabNmcl.splice(iindex, 1)
+
+                    this.set("invoice.nomenclatures", this.invoice.nomenclatures.map(x => x))
+
+                    console.log(this.invoice.nomenclatures)
+                    this.$['nmclGrid'].clearCache()
+                }
             }
 
         }
