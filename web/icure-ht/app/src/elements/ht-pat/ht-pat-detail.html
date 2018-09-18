@@ -1370,6 +1370,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
 				<paper-button on-tap="_showTransaction">get transaction</paper-button>
+                <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
 			</template>
 			<template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
 				<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
@@ -1742,9 +1743,13 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     _transactionDate(tr){
-        var d = new Date(0);
-        d.setUTCMilliseconds(tr.date);
-        return d.toDateString();
+	    if(tr.date) {
+            var d = new Date(0);
+            d.setUTCMilliseconds(tr.date);
+            return d.toDateString();
+        } else {
+            return "";
+        }
     }
 
     _transactionAuthor(tr){
@@ -2193,6 +2198,41 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		{
 		    return Promise.resolve(null)
 		}
+    }
+
+    _generateSumehr(){
+        if (this.patient) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+            this.api.patient().getPatient(this.patient.id)
+                .then(patientDto =>{
+                    this.api.crypto()
+                        .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                        .then(secretForeignKeys => {
+                            this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                secretForeignKeys: secretForeignKeys,
+                                recipient: hcp,
+                                comment: "mycomment"
+                            }).then(output => {
+                                //creation of the xml file
+                                var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
+
+                                //creation the downloading link
+                                var a = document.createElement("a");
+                                document.body.appendChild(a);
+                                a.style = "display: none";
+
+                                //download the new file
+                                var url = window.URL.createObjectURL(file);
+                                a.href = url;
+                                a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"_sumehr.xml";
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+
+                                document.body.removeChild(a);
+                            }).catch( error=> console.log(error))
+                        })
+                }))
+        }
     }
 
 	clearEvent(el) {
