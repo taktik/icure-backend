@@ -129,6 +129,23 @@
                 height: 55px;
             }
 
+            .flex-container-nmcl{
+                display: flex;
+                flex-flow: row nowrap;
+                align-items: flex-end;
+                height: 55px;
+            }
+
+            .flex-container-nmcl-row{
+                flex-grow: 1;
+                padding: 4px;
+            }
+
+            .flex-container-descr-nmcl-row{
+                flex-grow: 8;
+                padding: 4px;
+            }
+
             #invoice-type{
                 flex-grow: 1;
                 margin: auto;
@@ -469,6 +486,84 @@
                 height: 8px;
             }
 
+            vaadin-grid.material {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 8px;
+                };
+
+                --vaadin-grid-header-cell: {
+                    height: 64px;
+                    color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                    font-size: 12px;
+                };
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                };
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                };
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                };
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                };
+            }
+
+            vaadin-grid.material .cell {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 56px;
+            }
+
+            vaadin-grid.material .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.material .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid.material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.material vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -513,7 +608,7 @@
                                <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox> Lifting limitation period
                            </div>
                            <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Care provider type" value="{{invoice.header.careProviderType}}"></vaadin-combo-box>
-                           <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Third party justification" value="{{invoice.header.thirdPartyJustification}}" on-value-changed=""></vaadin-combo-box>
+                           <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="Third party justification" value="[[invoice.header.thirdPartyJustification]]" on-value-changed=""></vaadin-combo-box>
                            <paper-input id="invoice-dmg" label="Nihii of DMG owner" value="{{invoice.header.dmgOwner}}"></paper-input>
                         </div>
                     </template>
@@ -527,7 +622,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <vaadin-grid id="nmclGrid" items="[[invoice.nomenclatures]]" class="material">
+                                <vaadin-grid id="nmclGrid" items="[[invoice.nomenclatures]]" class="material" active-item="{{activeNmclItem}}" on-tap="_nmclDetail">
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <template is="dom-if" if="[[item.valid]]">
@@ -550,7 +645,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="650px">
+                                    <vaadin-grid-column width="550px">
                                         <template class="header">
                                             <div class="cell frozen">Desc</div>
                                         </template>
@@ -576,6 +671,14 @@
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
+                                            <div class="cell numeric">Extra</div>
+                                        </template>
+                                        <template>
+                                            <div class="cell numeric">[[item.extra.amount]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="50px">
+                                        <template class="header">
                                             <div class="cell numeric">Pat fees</div>
                                         </template>
                                         <template>
@@ -590,10 +693,12 @@
                                 <div class="title-txt">
                                     [[localize('fav','Favorite',language)]]
                                 </div>
-                                <template is="dom-repeat" items="[[favoriteTarificationCode]]">
-                                    <div>[[item.code]]</div>
-                                </template>
                             </div>
+                            <template is="dom-repeat" items="[[favoriteTarificationCode]]">
+                                <paper-button on-tap="_addFavoriteNmclToInvoice">
+                                    [[item.code]]
+                                </paper-button>
+                            </template>
                         </div>
                     </div>
                     <div class="invoice-nomenclature-code-option">
@@ -615,6 +720,29 @@
                         <template is="dom-repeat" items="[[tarificationError]]">
                             <div>[[item.code]]: [[_getErrorMsg(item, language)]] ([[item.value]])</div>
                         </template>
+                    </template>
+                    <template is="dom-if" if="[[isDetailNmcl]]">
+                        <div class="flex-container-nmcl">
+                            <paper-input class="flex-container-nmcl-row" label="Code" value="[[activeNmclItem.code]]"></paper-input>
+                            <paper-input class="flex-container-descr-nmcl-row" label="Description" value="[[activeNmclItem.descr]]"></paper-input>
+                        </div>
+                        <div class="flex-container-nmcl">
+                            <paper-input class="flex-container-nmcl-row" label="Fee" value="[[activeNmclItem.fee.amount]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Reimbursement" value="[[activeNmclItem.reimbursement.amount]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Extra" value="[[activeNmclItem.extra.amount]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Patient fee" value="[[activeNmclItem.fee.amount]]"></paper-input>
+                        </div>
+                        <div class="flex-container-nmcl">
+                            <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row" label="Prescriber" filtered-items="[[prescriberType]]" item-label-path="label.[[language]]" item-value-path="id" value="[[activeNmclItem.prescriberType]]" on-value-changed="_checkIfPrescriberNeeded"></vaadin-combo-box>
+                            <template is="dom-if" if="[[isPrescriberNeeded]]">
+                                <paper-input class="flex-container-nmcl-row" label="Prescriber nihii" value="[[activeNmclItem.prescriberNihii]]"></paper-input>
+                            </template>
+                        </div>
+                        <div class="flex-container-nmcl">
+                            <paper-input class="flex-container-nmcl-row" label="Validation" value="[[activeNmclItem.valid]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Financial contrat" value="[[activeNmclItem.financialContract]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Justification" value="[[activeNmclItem.justification]]"></paper-input>
+                        </div>
                     </template>
 
                 </div>
@@ -716,6 +844,41 @@
                             }
                         ]
                     },
+                    prescriberType:{
+                        type: Array,
+                        value: () => [
+                            {
+                                "id" : "0",
+                                "label" : {"fr" : "Pas de prescripteur", "nl" : "No prescriber", "en" : "No prescriber"},
+                                "prescriber" : false
+                            },
+                            {
+                                "id" : "1",
+                                "label" : {"fr" : "La prestation peut être attribuée à un prescripteur", "nl" : "The benefit can be attributed to a prescriber", "en" : "The benefit can be attributed to a prescriber physician"},
+                                "prescriber" : true
+                            },
+                            {
+                                "id" : "3",
+                                "label" : {"fr" : "Les prestations sont effectuées pour ses propres patients", "nl" : "The services are performed for his own patients", "en" : "The services are performed for his own patients"},
+                                "prescriber" : false
+                            },
+                            {
+                                "id" : "4",
+                                "label" : {"fr" : "Il s'agit de prestations ajoutées", "nl" : "These are added benefits", "en" : "These are added benefits"},
+                                "prescriber" : true
+                            },
+                            {
+                                "id" : "5",
+                                "label" : {"fr" : "La prestation peut être attribuée à un prescripteur et elle a été substituée", "nl" : "The benefit can be attributed to a prescriber and has been substituted", "en" : "The benefit can be attributed to a prescriber and has been substituted"},
+                                "prescriber" : true
+                            },
+                            {
+                                "id" : "6",
+                                "label" : {"fr" : "La prestation est prescrite par différents prescripteurs et elle a été substituée", "nl" : "The benefit is prescribed by different prescribers and has been substituted", "en" : "The benefit is prescribed by different prescribers and has been substituted"},
+                                "prescriber" : true
+                            }
+                        ]
+                    },
                     thirdPartyJustification: {
                         type: Array,
                         value: () => [
@@ -801,8 +964,19 @@
                         type: Boolean,
                         value: false
                     },
+                    isDetailNmcl:{
+                        type: Boolean,
+                        value: false
+                    },
                     tarificationError:{
                         type: Array
+                    },
+                    activeNmclItem:{
+                        type: Object
+                    },
+                    isPrescriberNeeded:{
+                        type: Boolean,
+                        value: false
                     }
                 };
 
@@ -830,13 +1004,9 @@
                         code = preferedCode.typedValue.stringValue
                     }
 
-                    this.api.tarification().getTarification(new models.ListOfIdsDto({ ids: code.cs.map(c=>c)})).then(t => {
-                        console.log(t)
+                    this.api.tarification().getTarifications(new models.ListOfIdsDto({ ids: code.cs.map(c => c)})).then(t => {
                         this.set("favoriteTarificationCode", t)
                     })
-
-
-
                 }
             }
 
@@ -893,12 +1063,16 @@
                         id:                         nmcl.id,
                         descr:                      nmcl.label[this.language],
                         label:                      nmcl.label,
-                        reimbursement:              "",
-                        fee:                        "",
-                        patientFee:                 "",
+                        reimbursement:              {"amount" : 0.00, "currencyUnit": "EUR"},
+                        fee:                        {"amount" : 0.00, "currencyUnit": "EUR"},
+                        patientFee:                 {"amount" : 0.00, "currencyUnit": "EUR"},
+                        extra:                      {"amount" : 0.00, "currencyUnit": "EUR"},
                         vat:                        "",
                         valid:                      false,
-                        financialContract:          ""
+                        financialContract:          "",
+                        prescriberType:             "0",
+                        prescriberNihii:            "",
+                        askDate:                    ""
                     }
 
                     let tabNmcl = this.invoice.nomenclatures
@@ -914,7 +1088,29 @@
             }
 
             _addNmclToFavorite(){
+                if(this.$['nmcl-search'].selectedItem) {
 
+                    const newCode = this.$['nmcl-search'].selectedItem
+                    const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
+
+                    if (preferedCode && preferedCode.typedValue) {
+                        let code
+
+                        if (preferedCode.typedValue.type === "STRING") {
+                            code = JSON.parse(preferedCode.typedValue.stringValue)
+                            code.cs.push(newCode.id)
+                            //codeString = JSON.stringify(code)
+
+
+                        } else {
+                            code = preferedCode.typedValue.stringValue
+                            code.cs.push(newCode.id)
+                        }
+
+                        console.log(code)
+
+                    }
+                }
             }
 
             _verifyTarification(){
@@ -942,13 +1138,18 @@
 
                                     let item = this.invoice.nomenclatures.find(item => item.code === c)
                                     let itemInd = this.invoice.nomenclatures.indexOf(item)
-                                    item.reimbursement = r.reimbursements[cind]
-                                    item.patientFee = r.patientFees[cind]
-                                    item.fee = r.fees[cind]
-                                    item.financialContract = r.financialContracts[cind]
-                                    item.valid = true
 
+                                    item.reimbursement.amount      = r.reimbursements[cind].amount
+                                    item.patientFee.amount         = r.patientFees[cind].amount
+                                    item.fee.amount                = r.fees[cind].amount
+                                    item.financialContract         = r.financialContracts[cind]
+                                    item.valid                     = true
+                                    item.askDate                   = moment().format("YYYY-MM-DD")
+                                    item.justification             = r.justification
+
+                                    console.log(item)
                                     this.set('invoice.nomenclatures[itemInd]', item)
+                                    this.set("invoice.header.thirdPartyJustification", r.justification)
                                     this.$['nmclGrid'].clearCache()
 
                                 })
@@ -965,6 +1166,34 @@
 
             _getErrorMsg(item, language){
                 return language === "fr" ? item.msgFr : item.msgNl
+            }
+
+            _addFavoriteNmclToInvoice(){
+
+
+
+            }
+
+            _nmclDetail(e){
+
+                if(this.activeNmclItem){
+                    const selected = this.activeNmclItem
+                    console.log('selected ' + selected)
+                    this.set('isDetailNmcl', true)
+                }else{
+                    this.set('isDetailNmcl', false)
+                }
+
+            }
+
+            _checkIfPrescriberNeeded(e){
+
+                if(e.detail.value === "0" || e.detail.value === "3"){
+                    this.set("isPrescriberNeeded",false)
+                }else{
+                    this.set("isPrescriberNeeded", true)
+                }
+
             }
 
         }
