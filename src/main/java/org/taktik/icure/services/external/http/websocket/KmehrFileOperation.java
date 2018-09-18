@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.http.websocket;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -20,12 +20,18 @@ package org.taktik.icure.services.external.http.websocket;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.gson.Gson;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-public abstract class BinaryOperation implements Operation {
+public abstract class BinaryOperation implements Operation, AsyncProgress {
+	private static Log log = LogFactory.getLog(BinaryOperation.class);
+
 	protected Gson gsonMapper;
 	protected WebSocket webSocket;
 
@@ -42,6 +48,19 @@ public abstract class BinaryOperation implements Operation {
 		Map<String,String> ed = new HashMap<>();
 		ed.put("message",e.getMessage());
 		ed.put("localizedMessage",e.getLocalizedMessage());
-		webSocket.getRemote().sendString(gsonMapper.toJson(ed));
+
+		log.info("Error in socket " + e.getMessage() + ":" +e.getLocalizedMessage() + " ", e);
+
+		if (webSocket.getRemote() != null) { webSocket.getRemote().sendString(gsonMapper.toJson(ed)); }
 	}
+
+	@Override
+	public void progress(Double progress) throws IOException {
+		HashMap<String, Double> wrapper = new HashMap<>();
+		wrapper.put("progress",progress);
+		Message message = new Message<>("progress", "Map", UUID.randomUUID().toString(), Arrays.asList(wrapper));
+
+		webSocket.getRemote().sendString(gsonMapper.toJson(message));
+	}
+
 }
