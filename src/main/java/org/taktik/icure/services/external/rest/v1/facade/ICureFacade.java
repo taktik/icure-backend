@@ -21,6 +21,10 @@ package org.taktik.icure.services.external.rest.v1.facade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.entities.embed.DatabaseSynchronization;
@@ -56,6 +60,10 @@ import java.util.stream.Collectors;
 @Consumes({"application/json"})
 @Produces({"application/json"})
 public class ICureFacade implements OpenApiFacade{
+
+
+	private static Logger logger = LoggerFactory.getLogger(ICureFacade.class);
+
 	private PropertyLogic propertyLogic;
 	private ReplicationLogic replicationLogic;
 	private ICureLogicImpl iCureLogic;
@@ -68,6 +76,26 @@ public class ICureFacade implements OpenApiFacade{
 	private FormLogic formLogic;
 	private SessionLogic sessionLogic;
 	private MapperFacade mapper;
+	private ApplicationContext context;
+
+	@ApiOperation(
+			value = "Shutdown Icure Application"
+	)
+	@POST
+	@Path("/shutdown")
+	public Response  shutdownApplication(){
+		logger.info("Recieved shutdown command");
+		new Thread(() -> {
+			try {
+				logger.info("Shutting down");
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			((ConfigurableApplicationContext) context).close();
+		}).start();
+		return Response.ok("true").build();
+	}
 
 	@ApiOperation(
 			value = "Get version",
@@ -260,6 +288,12 @@ public class ICureFacade implements OpenApiFacade{
 	}
 
 	@Context
+	public void setContext(ApplicationContext context) {
+		this.context = context;
+	}
+
+	@Context
+
 	public void setMapper(MapperFacade mapper) {
 		this.mapper = mapper;
 	}
