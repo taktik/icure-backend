@@ -56,5 +56,6 @@ public enum DocumentType {
     telemonitoring,
     treatmentsuspension,
     vaccination,
-    template
+    template_admin,
+    template,
 }
