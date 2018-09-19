@@ -137,58 +137,58 @@
             }
 
             .flex-container-nmcl-row{
-                flex-grow: 1;
+                flex: 1;
                 padding: 4px;
             }
 
             .flex-container-descr-nmcl-row{
-                flex-grow: 8;
+                flex: 8;
                 padding: 4px;
             }
 
             #invoice-type{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
             #invoice-number{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
             }
 
             #invoice-date{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
             #invoice-period{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
             #invoice-careProviderType{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
             #invoice-thirdPartyJustification{
-                flex-grow: 1;
+                flex: 3;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
             #invoice-dmg{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
             #invoice-creditNote{
-                flex-grow: 1;
+                flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
@@ -237,7 +237,7 @@
             }
 
             #nmcl-search{
-                flex-grow: 1;
+                flex: 1;
             }
 
             .invoice-item{
@@ -517,6 +517,7 @@
                     font-weight: bold;
                 };
             }
+            
 
             vaadin-grid.material .cell {
                 overflow: hidden;
@@ -574,6 +575,13 @@
                 min-width: initial;
                 text-transform: none;
                 padding-left: 8px;
+            }
+
+            .tarificationError{
+                padding: 5px;
+                width: auto;
+                height: 20px;
+                color: var(--app-error-color);
             }
 
 
@@ -673,6 +681,7 @@
                                         <template>
                                             <div class="cell numeric">[[item.fee.amount]]</div>
                                         </template>
+                                        <template class="footer">[[totalInvoice.fee.amount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
@@ -681,6 +690,7 @@
                                         <template>
                                             <div class="cell numeric">[[item.reimbursement.amount]]</div>
                                         </template>
+                                        <template class="footer">[[totalInvoice.reimbursement.amount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
@@ -689,6 +699,7 @@
                                         <template>
                                             <div class="cell numeric">[[item.extra.amount]]</div>
                                         </template>
+                                        <template class="footer">[[totalInvoice.extra.amount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
@@ -697,6 +708,7 @@
                                         <template>
                                             <div class="cell numeric">[[item.patientFee.amount]]</div>
                                         </template>
+                                        <template class="footer">[[totalInvoice.patientFee.amount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="20px">
                                         <template>
@@ -735,19 +747,19 @@
                     </div>
                     <template is="dom-if" if="[[isTarificationError]]">
                         <template is="dom-repeat" items="[[tarificationError]]">
-                            <div>[[item.code]]: [[_getErrorMsg(item, language)]] ([[item.value]])</div>
+                            <div class="tarificationError">[[item.code]]: [[_getErrorMsg(item, language)]] ([[item.value]])</div>
                         </template>
                     </template>
                     <template is="dom-if" if="[[isDetailNmcl]]">
                         <div class="flex-container-nmcl">
-                            <paper-input class="flex-container-nmcl-row" label="Code" value="[[activeNmclItem.code]]"></paper-input>
-                            <paper-input class="flex-container-descr-nmcl-row" label="Description" value="[[activeNmclItem.descr]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Code" value="[[activeNmclItem.code]]" readonly></paper-input>
+                            <paper-input class="flex-container-descr-nmcl-row" label="Description" value="[[activeNmclItem.descr]]" readonly></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
                             <paper-input class="flex-container-nmcl-row" label="Fee" value="[[activeNmclItem.fee.amount]]"></paper-input>
                             <paper-input class="flex-container-nmcl-row" label="Reimbursement" value="[[activeNmclItem.reimbursement.amount]]"></paper-input>
                             <paper-input class="flex-container-nmcl-row" label="Extra" value="[[activeNmclItem.extra.amount]]"></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="Patient fee" value="[[activeNmclItem.fee.amount]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Patient fee" value="[[activeNmclItem.patientFee.amount]]"></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row" label="Prescriber" filtered-items="[[prescriberType]]" item-label-path="label.[[language]]" item-value-path="id" value="[[activeNmclItem.prescriberType]]" on-value-changed="_checkIfPrescriberNeeded"></vaadin-combo-box>
@@ -756,9 +768,9 @@
                             </template>
                         </div>
                         <div class="flex-container-nmcl">
-                            <paper-input class="flex-container-nmcl-row" label="Validation" value="[[activeNmclItem.valid]]"></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="Financial contrat" value="[[activeNmclItem.financialContract]]"></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="Justification" value="[[activeNmclItem.justification]]"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Validation" value="[[activeNmclItem.valid]]" readonly></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Financial contrat" value="[[activeNmclItem.financialContract]]" readonly></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="Justification" value="[[activeNmclItem.justification]]" readonly></paper-input>
                         </div>
                     </template>
 
@@ -994,6 +1006,15 @@
                     isPrescriberNeeded:{
                         type: Boolean,
                         value: false
+                    },
+                    totalInvoice:{
+                        type: Object,
+                        value : () => ({
+                            reimbursement:        {"amount" : 0.00, "currencyUnit": "EUR"},
+                            fee:                  {"amount" : 0.00, "currencyUnit": "EUR"},
+                            patientFee:           {"amount" : 0.00, "currencyUnit": "EUR"},
+                            extra:                {"amount" : 0.00, "currencyUnit": "EUR"}
+                        })
                     }
                 };
 
@@ -1074,7 +1095,14 @@
 
             }
 
+            _getDescription(label){
+                return label[this.language]
+            }
+
             _addNmcl(e){
+
+                this.set("isTarificationError", false)
+                this.set('isDetailNmcl', false)
 
                 if(this.$['nmcl-search'].selectedItem || e.target.dataset.item){
                     let nmcl
@@ -1114,6 +1142,8 @@
 
                         console.log(this.invoice.nomenclatures)
                     }
+
+                    this.calculateTotalOfInvoice()
 
                 }
 
@@ -1223,10 +1253,12 @@
 
                                     console.log(item)
                                     this.set('invoice.nomenclatures[itemInd]', item)
-                                    this.set("invoice.header.thirdPartyJustification", r.justification)
+                                    //this.set("invoice.header.thirdPartyJustification", r.justification)
                                     this.$['nmclGrid'].clearCache()
 
                                 })
+
+                                this.calculateTotalOfInvoice()
 
                             }
 
@@ -1236,6 +1268,28 @@
                 }else{
                     //Todo manage mandatory fields
                 }
+            }
+
+            calculateTotalOfInvoice(){
+                let fee = 0
+                let patientFee = 0
+                let reimbursement = 0
+                let extra = 0
+
+                this.invoice.nomenclatures.map(n => {
+                    fee += n.fee.amount
+                    patientFee += n.patientFee.amount
+                    reimbursement += n.reimbursement.amount
+                    extra += n.extra.amount
+                })
+
+                this.set('totalInvoice.fee.amount', fee)
+                this.set('totalInvoice.patientFee.amount', patientFee)
+                this.set('totalInvoice.reimbursement.amount', reimbursement)
+                this.set('totalInvoice.extra.amount', extra)
+
+                console.log(this.totalInvoice)
+
             }
 
             _getErrorMsg(item, language){
@@ -1277,8 +1331,12 @@
 
                     console.log(this.invoice.nomenclatures)
                     this.$['nmclGrid'].clearCache()
+
+                    this.calculateTotalOfInvoice()
                 }
             }
+
+
 
         }
 
