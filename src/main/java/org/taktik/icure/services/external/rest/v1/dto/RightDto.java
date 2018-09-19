@@ -1,6 +1,8 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
-public class RightDto {
+import java.io.Serializable;
+
+public class RightDto implements Serializable{
 
     private String userId;
     private boolean read;
