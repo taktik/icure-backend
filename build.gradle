@@ -35,13 +35,13 @@ configure(allprojects) {
 group = 'org.taktik.icure'
 version = '1.0.17'
 sourceCompatibility = 1.8
-
 compileKotlin {
 	kotlinOptions {
 		freeCompilerArgs = ["-Xjsr305=strict"]
 		jvmTarget = "1.8"
 	}
 }
+
 
 compileJava {
 	options.fork = true
@@ -119,11 +119,7 @@ dependencies {
 		exclude group: 'org.taktik.commons', module: 'commons-utils'
 	}
 
-    //Reflection
-    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
-
-
-    //Hibernate
+	//Hibernate
 	compile group:'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
 	compile group:'com.h2database', name: 'h2', version: '1.4.187'
 
@@ -220,7 +216,7 @@ dependencies {
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
-/*
+
 task installWebResourcesDependencies(type: Exec) {
 	group 'build'
 	description 'Package web resources'
@@ -261,11 +257,11 @@ task copyTzWebResources(type: Copy) {
 }
 
 copyHtWebResources.dependsOn(packageHtWebResources)
-copyTzWebResources.dependsOn(packageTzWebResources)*/
+copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
 
-//bootRepackage.dependsOn(copyHtWebResources)
-//bootRepackage.dependsOn(copyTzWebResources)
+bootRepackage.dependsOn(copyHtWebResources)
+bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {
@@ -293,3 +289,12 @@ springBoot {
 	mainClass = "org.taktik.icure.ICureBackendApplicationKt"
 }
 
+/*
+ * Exclude Frontend Generation in order to compile only backend
+ * Usage : -P skipFrontend=0
+ */
+installWebResourcesDependencies.onlyIf { !project.hasProperty('skipFrontend') }
+packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+copyTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
