@@ -17,6 +17,7 @@ onmessage = e => {
         const user              = e.data.user
         const ehpassword        = e.data.ehpassword
         const boxId             = e.data.boxId
+		const alternateKeystores= e.data.alternateKeystores
 
         const ehboxApi          = new fhcApi.fhcEhboxcontrollerApi(fhcHost, fhcHeaders)
 
@@ -98,7 +99,7 @@ onmessage = e => {
                 }
             })
 
-        ehboxApi.loadMessagesUsingGET(keystoreId, tokenId, ehpassword, boxId, 100).then(messages => {
+        ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores).then(messages => {
             let p = Promise.resolve([])
             messages.forEach(m => {
                 p = p.then(acc => treatMessage(m).then(id => id ? acc.concat([id]) : acc))
