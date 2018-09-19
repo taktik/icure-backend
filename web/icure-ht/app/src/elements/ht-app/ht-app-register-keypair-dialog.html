@@ -114,7 +114,7 @@ class HtAppRegisterKeypairDialog extends Polymer.TkLocalizerMixin(Polymer.Elemen
 				[jwk.d, jwk.dp, jwk.dq, jwk.p, jwk.q, jwk.qi] = String.fromCharCode.apply(null, pako.inflate(this.api.crypto().utils.hex2ua(combinedCode))).split(' ');
 			}
 			this.set('rsaKey', jwk);
-			this.fire('key-scanned', jwk);
+			this.dispatchEvent(new CustomEvent('key-scanned', { detail: jwk, bubbles: true, composed: true }))
 		}
 	}
 

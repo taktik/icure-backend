@@ -24,11 +24,14 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.web.WebApplicationInitializer
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.migration.DbMigration
@@ -47,25 +50,35 @@ import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.logic.CodeLogic
 import org.taktik.icure.logic.PropertyLogic
 import org.taktik.icure.logic.ReplicationLogic
+import org.taktik.icure.services.external.http.WebSocketServlet
+import javax.servlet.ServletContext
+import javax.servlet.ServletRegistration
 
 @SpringBootApplication
 @EnableWebSecurity
 @PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
-
     private val log = LoggerFactory.getLogger(this.javaClass)
+
+
+    @Bean
+    fun initializer(webSocketServlet: WebSocketServlet) = ServletContextInitializer {
+        val servlet = it.addServlet("webSocketServlet", webSocketServlet)
+        servlet.setLoadOnStartup(1);
+        servlet.addMapping("/ws/*");
+    }
 
     @Bean
     fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
         //Check that core types have corresponding codes
-        taskExecutor.execute({
+        taskExecutor.execute {
             listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
-                    Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
-                    PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach({ codeLogic.importCodesFromEnum(it) })
-        })
+                   Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
+                   PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach({ codeLogic.importCodesFromEnum(it) })
+        }
 
         //Execute migrations sequentially
-        taskExecutor.execute({
+        taskExecutor.execute {
             migrations.forEach { dbMigration ->
                 try {
                     if (!dbMigration.hasBeenApplied()) {
@@ -75,7 +88,7 @@ class ICureBackendApplication {
                     log.error("Could not perform dbMigration " + dbMigration.javaClass.getName(), e)
                 }
             }
-        })
+        }
 
 
         //Schedule background tasks (plugins) + replication + index refresh

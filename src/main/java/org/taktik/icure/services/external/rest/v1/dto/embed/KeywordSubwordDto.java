@@ -16,26 +16,30 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao;
+package org.taktik.icure.services.external.rest.v1.dto.embed;
 
-import org.ektorp.Attachment;
-import org.ektorp.support.View;
-import org.taktik.icure.entities.Document;
-
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
-public interface DocumentDAO extends GenericDAO<Document> {
+public class KeywordSubwordDto implements Serializable {
 
-	List<Document> listConflicts();
+    protected String value;
 
-	List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
+    protected List<KeywordSubwordDto> subWords;
 
-	List<Document> findDocumentsWithNoDelegations(int limit);
+    public String getValue() {
+        return value;
+    }
 
-	List<Document> findDocumentsByDocumentTypeHCPartySecretMessageKeys(String documentTypeCode, String hcPartyId, ArrayList<String> secretForeignKeys);
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-	InputStream readAttachment(String documentId, String attachmentId);
+    public List<KeywordSubwordDto> getSubWords() {
+        return subWords;
+    }
 
+    public void setSubWords(List<KeywordSubwordDto> subWords) {
+        this.subWords = subWords;
+    }
 }

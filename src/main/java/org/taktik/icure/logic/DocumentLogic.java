@@ -41,6 +41,7 @@ public interface DocumentLogic extends EntityPersister<Document, String> {
 
 	void modifyDocument(Document document);
 
+	List<Document> findDocumentsByDocumentTypeHCPartySecretMessageKeys(String documentTypeCode,String hcPartyId, ArrayList<String> secretForeignKeys);
 	List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
 
 	List<Document> findWithoutDelegation(int limit);

@@ -16,26 +16,22 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao;
+package org.taktik.icure.logic;
 
-import org.ektorp.Attachment;
-import org.ektorp.support.View;
-import org.taktik.icure.entities.Document;
+import org.taktik.icure.entities.Keyword;
+import org.taktik.icure.entities.embed.Delegation;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public interface DocumentDAO extends GenericDAO<Document> {
+public interface KeywordLogic extends EntityPersister<Keyword, String> {
 
-	List<Document> listConflicts();
+	Keyword createKeyword(Keyword keyword);
 
-	List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
+	Keyword getKeyword(String keywordId);
 
-	List<Document> findDocumentsWithNoDelegations(int limit);
+	Set<String> deleteKeywords(Set<String> ids);
 
-	List<Document> findDocumentsByDocumentTypeHCPartySecretMessageKeys(String documentTypeCode, String hcPartyId, ArrayList<String> secretForeignKeys);
-
-	InputStream readAttachment(String documentId, String attachmentId);
+	Keyword modifyKeyword(Keyword keyword);
 
 }

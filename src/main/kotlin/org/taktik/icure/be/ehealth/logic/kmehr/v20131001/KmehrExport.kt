@@ -22,6 +22,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.v20131001
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.apache.tika.Tika
+import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
@@ -121,19 +122,19 @@ import javax.xml.datatype.XMLGregorianCalendar
 import kotlin.collections.HashMap
 
 open class KmehrExport {
-    var patientLogic: PatientLogic? = null
-    var codeLogic: CodeLogic? = null
-    var drugsLogic: DrugsLogic? = null
-    var healthElementLogic: HealthElementLogic? = null
-    var healthcarePartyLogic: HealthcarePartyLogic? = null
-    var contactLogic: ContactLogic? = null
-    var documentLogic: DocumentLogic? = null
-    var mainLogic: MainLogic? = null
-    var sessionLogic: SessionLogic? = null
-    var filters: Filters? = null
-    var mapper: MapperFacade? = null
-	var userLogic: UserLogic?= null
-	var insuranceLogic: InsuranceLogic?= null
+    @Autowired var patientLogic: PatientLogic? = null
+    @Autowired var codeLogic: CodeLogic? = null
+    @Autowired var drugsLogic: DrugsLogic? = null
+    @Autowired var healthElementLogic: HealthElementLogic? = null
+    @Autowired var healthcarePartyLogic: HealthcarePartyLogic? = null
+    @Autowired var contactLogic: ContactLogic? = null
+    @Autowired var documentLogic: DocumentLogic? = null
+    @Autowired var mainLogic: MainLogic? = null
+    @Autowired var sessionLogic: SessionLogic? = null
+    @Autowired var filters: Filters? = null
+    @Autowired var mapper: MapperFacade? = null
+    @Autowired var userLogic: UserLogic?= null
+    @Autowired var insuranceLogic: InsuranceLogic?= null
 
 	val tika = Tika()
 	val unitCodes = HashMap<String,Code>()

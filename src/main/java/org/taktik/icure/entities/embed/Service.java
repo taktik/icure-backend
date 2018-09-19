@@ -40,7 +40,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Service implements ICureDocument, Serializable, Comparable<Service> {
-	@NotNull
+	@NotNull(autoFix = AutoFix.UUID)
 	protected String id; //Two version of the same service in two separate contacts have the same id
 	@JsonIgnore
 	private String contactId; //Only used when the Service is emitted outside of its contact
@@ -69,8 +69,10 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	protected String encryptedContent; //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
 	protected Map<String, String> textIndexes = new HashMap<>(); //Same structure as content but used for full text indexation
 
+	@NotNull(autoFix = AutoFix.FUZZYNOW)
 	protected Long valueDate;   // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
+	@NotNull(autoFix = AutoFix.FUZZYNOW)
 	protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 	protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 

@@ -18,24 +18,9 @@
 
 package org.taktik.icure.dao;
 
-import org.ektorp.Attachment;
-import org.ektorp.support.View;
-import org.taktik.icure.entities.Document;
+import org.taktik.icure.entities.Keyword;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-public interface DocumentDAO extends GenericDAO<Document> {
-
-	List<Document> listConflicts();
-
-	List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
-
-	List<Document> findDocumentsWithNoDelegations(int limit);
-
-	List<Document> findDocumentsByDocumentTypeHCPartySecretMessageKeys(String documentTypeCode, String hcPartyId, ArrayList<String> secretForeignKeys);
-
-	InputStream readAttachment(String documentId, String attachmentId);
+public interface KeywordDAO extends GenericDAO<Keyword>  {
+	Keyword getKeyword(String keywordId);
 
 }
