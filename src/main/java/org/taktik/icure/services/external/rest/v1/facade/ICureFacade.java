@@ -39,7 +39,6 @@ import org.taktik.icure.logic.ReplicationLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.logic.impl.ICureLogicImpl;
-import org.taktik.icure.services.external.rest.v1.dto.CheckDto;
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto;
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserStubDto;
@@ -78,22 +77,7 @@ public class ICureFacade implements OpenApiFacade{
 	private SessionLogic sessionLogic;
 	private MapperFacade mapper;
 	private ApplicationContext context;
-
-	@ApiOperation(
-			value = "Get Application info",
-			response = String.class
-	)
-	@Path("/c")
-	@GET
-	@Produces({"text/plain"})
-	public Response checkS() {
-		CheckDto response = new CheckDto();
-		response.setApp("icure-backend");
-		response.setVersion(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier()));
-		return Response.ok(response.toString()).build();
-	}
-
-
+	
 	@ApiOperation(
 			value = "Get version",
 			response = String.class
