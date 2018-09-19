@@ -215,18 +215,11 @@ dependencies {
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
-// replacement of "installWebResourcesDependencies"
-// This version should work on both Windows and Unix system
+// Adding specific windows compilation for taktik frontend
 task npmInstallWindows(type: Exec) {
     description 'start npm on Windows systems'
     workingDir "$projectDir/web/icure-ht"
     executable  'npm.cmd'
-    args 'i'
-}
-task npmInstallUnix(type: Exec) {
-    description 'start npm on Unix systems'
-    workingDir "$projectDir/web/icure-ht"
-    executable  'npm'
     args 'i'
 }
 task bowerInstallWindows(type: Exec) {
@@ -235,19 +228,19 @@ task bowerInstallWindows(type: Exec) {
     executable  'bower.cmd'
     args 'install'
 }
-task bowerInstallUnix(type: Exec) {
-    description 'start bower on Unix systems'
+task installWebResourcesDependencies(type: Exec) {
+    group 'build'
+    description 'Package web resources'
+
     workingDir "$projectDir/web/icure-ht"
-    executable  'bower'
-    args 'install'
+    commandLine "npm", "install"
+    commandLine "bower", "install"
 }
 npmInstallWindows.onlyIf{ Os.isFamily(Os.FAMILY_WINDOWS)}
 bowerInstallWindows.onlyIf{ Os.isFamily(Os.FAMILY_WINDOWS)}
 bowerInstallWindows.dependsOn(npmInstallWindows)
 
-npmInstallUnix.onlyIf{ !Os.isFamily(Os.FAMILY_WINDOWS)}
-bowerInstallUnix.onlyIf{ !Os.isFamily(Os.FAMILY_WINDOWS)}
-bowerInstallUnix.dependsOn(npmInstallUnix)
+installWebResourcesDependencies.onlyIf{ !Os.isFamily(Os.FAMILY_WINDOWS)}
 
 
 task packageHtWebResources(type: Exec) {
@@ -274,8 +267,8 @@ task packageTzWebResources(type: Exec) {
     }
 }
 
-packageHtWebResources.dependsOn(bowerInstallUnix)
-packageTzWebResources.dependsOn(bowerInstallUnix)
+packageHtWebResources.dependsOn(installWebResourcesDependencies)
+packageTzWebResources.dependsOn(installWebResourcesDependencies)
 packageHtWebResources.dependsOn(bowerInstallWindows)
 packageTzWebResources.dependsOn(bowerInstallWindows)
 
@@ -327,7 +320,7 @@ springBoot {
  * Usage : -P skipFrontend=0
  */
 bowerInstallWindows.onlyIf { !project.hasProperty('skipFrontend') }
-bowerInstallUnix.onlyIf { !project.hasProperty('skipFrontend') }
+installWebResourcesDependencies.onlyIf { !project.hasProperty('skipFrontend') }
 packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
 copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
