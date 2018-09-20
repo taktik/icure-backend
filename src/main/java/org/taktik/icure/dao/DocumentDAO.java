@@ -34,5 +34,8 @@ public interface DocumentDAO extends GenericDAO<Document> {
 
 	List<Document> findDocumentsWithNoDelegations(int limit);
 
+	List<Document> findDocumentsByDocumentTypeHCPartySecretMessageKeys(String documentTypeCode, String hcPartyId, ArrayList<String> secretForeignKeys);
+
 	InputStream readAttachment(String documentId, String attachmentId);
+
 }

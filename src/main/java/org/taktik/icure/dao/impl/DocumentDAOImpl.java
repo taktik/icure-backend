@@ -48,96 +48,104 @@ import java.util.stream.Collectors;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted) emit( null, doc._id )}")
 public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements DocumentDAO {
 
-	@Autowired
-	public DocumentDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
-		super(Document.class, db, idGenerator);
-		initStandardDesignDocument();
-	}
+    @Autowired
+    public DocumentDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
+        super(Document.class, db, idGenerator);
+        initStandardDesignDocument();
+    }
 
-	@Override
-	protected void beforeSave(Document entity) {
-		super.beforeSave(entity);
+    @Override
+    protected void beforeSave(Document entity) {
+        super.beforeSave(entity);
 
-		if (entity.getAttachment() != null) {
-			String newAttachmentId = DigestUtils.sha256Hex(entity.getAttachment());
+        if (entity.getAttachment() != null) {
+            String newAttachmentId = DigestUtils.sha256Hex(entity.getAttachment());
 
-			if (!newAttachmentId.equals(entity.getAttachmentId())) {
-				if (entity.getAttachments().containsKey(entity.getAttachmentId())) {
-					entity.setRev(deleteAttachment(entity.getId(), entity.getRev(), entity.getAttachmentId()));
-					entity.getAttachments().remove(entity.getAttachmentId());
-				}
-				entity.setAttachmentId(newAttachmentId);
-				entity.setAttachmentDirty(true);
-			}
-		} else {
-			if (entity.getAttachmentId() != null) {
-				entity.setRev(deleteAttachment(entity.getId(), entity.getRev(), entity.getAttachmentId()));
-				entity.setAttachmentId(null);
-				entity.setAttachmentDirty(false);
-			}
-		}
-	}
+            if (!newAttachmentId.equals(entity.getAttachmentId())) {
+                if (entity.getAttachments().containsKey(entity.getAttachmentId())) {
+                    entity.setRev(deleteAttachment(entity.getId(), entity.getRev(), entity.getAttachmentId()));
+                    entity.getAttachments().remove(entity.getAttachmentId());
+                }
+                entity.setAttachmentId(newAttachmentId);
+                entity.setAttachmentDirty(true);
+            }
+        } else {
+            if (entity.getAttachmentId() != null) {
+                entity.setRev(deleteAttachment(entity.getId(), entity.getRev(), entity.getAttachmentId()));
+                entity.setAttachmentId(null);
+                entity.setAttachmentDirty(false);
+            }
+        }
+    }
 
-	@Override
-	protected void afterSave(Document entity) {
-		super.afterSave(entity);
+    @Override
+    protected void afterSave(Document entity) {
+        super.afterSave(entity);
 
-		if (entity.isAttachmentDirty()) {
-			if (entity.getAttachment() != null && entity.getAttachmentId() != null) {
-				UTI uti = UTI.get(entity.getMainUti());
-				String mimeType = "application/xml";
-				if (uti != null && uti.getMimeTypes() != null && uti.getMimeTypes().size() > 0) {
-					mimeType = uti.getMimeTypes().get(0);
-				}
-				AttachmentInputStream a = new AttachmentInputStream(entity.getAttachmentId(), new ByteArrayInputStream(entity.getAttachment()), mimeType);
-				entity.setRev(createAttachment(entity.getId(), entity.getRev(), a));
-				entity.setAttachmentDirty(false);
-			}
-		}
-	}
+        if (entity.isAttachmentDirty()) {
+            if (entity.getAttachment() != null && entity.getAttachmentId() != null) {
+                UTI uti = UTI.get(entity.getMainUti());
+                String mimeType = "application/xml";
+                if (uti != null && uti.getMimeTypes() != null && uti.getMimeTypes().size() > 0) {
+                    mimeType = uti.getMimeTypes().get(0);
+                }
+                AttachmentInputStream a = new AttachmentInputStream(entity.getAttachmentId(), new ByteArrayInputStream(entity.getAttachment()), mimeType);
+                entity.setRev(createAttachment(entity.getId(), entity.getRev(), a));
+                entity.setAttachmentDirty(false);
+            }
+        }
+    }
 
-	@Override
-	public void postLoad(Document entity) {
-		super.postLoad(entity);
+    @Override
+    public void postLoad(Document entity) {
+        super.postLoad(entity);
 
-		if (entity.getAttachmentId() != null) {
-			try {
-				InputStream attachmentIs = entity.getAttachmentId().contains("|")?new BufferedInputStream(new FileInputStream(entity.getAttachmentId().split("\\|")[1])):
-						getAttachmentInputStream(entity.getId(), entity.getAttachmentId());
-				byte[] layout = ByteStreams.toByteArray(attachmentIs);
-				entity.setAttachment(layout);
-			} catch (IOException e) {
-				//Could not load
-			}
-		}
-	}
+        if (entity.getAttachmentId() != null) {
+            try {
+                InputStream attachmentIs = entity.getAttachmentId().contains("|") ? new BufferedInputStream(new FileInputStream(entity.getAttachmentId().split("\\|")[1])) :
+                        getAttachmentInputStream(entity.getId(), entity.getAttachmentId());
+                byte[] layout = ByteStreams.toByteArray(attachmentIs);
+                entity.setAttachment(layout);
+            } catch (IOException e) {
+                //Could not load
+            }
+        }
+    }
 
-	@Override
-	@View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
-	public List<Document> listConflicts() {
-		return queryView("conflicts");
-	}
+    @Override
+    @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
+    public List<Document> listConflicts() {
+        return queryView("conflicts");
+    }
 
-	@Override
-	@View(name = "by_hcparty_message", map = "classpath:js/document/By_hcparty_message_map.js")
-	public List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
-		ComplexKey[] keys = secretForeignKeys.stream().map(fk -> ComplexKey.of(hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretForeignKeys.size()]);
-		return queryView("by_hcparty_message", keys);
-	}
+    @Override
+    @View(name = "by_hcparty_message", map = "classpath:js/document/By_hcparty_message_map.js")
+    public List<Document> findDocumentsByHCPartySecretMessageKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
+        ComplexKey[] keys = secretForeignKeys.stream().map(fk -> ComplexKey.of(hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretForeignKeys.size()]);
+        return queryView("by_hcparty_message", keys);
+    }
 
-	@Override
-	@View(name = "without_delegations", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && (!doc.delegations || Object.keys(doc.delegations).length === 0)) emit(doc._id )}")
-	public List<Document> findDocumentsWithNoDelegations(int limit) {
-		ViewQuery viewQuery = createQuery("without_delegations")
-			.limit(limit)
-			.includeDocs(true);
+    @Override
+    @View(name = "without_delegations", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && (!doc.delegations || Object.keys(doc.delegations).length === 0)) emit(doc._id )}")
+    public List<Document> findDocumentsWithNoDelegations(int limit) {
+        ViewQuery viewQuery = createQuery("without_delegations")
+                .limit(limit)
+                .includeDocs(true);
 
-		return db.queryView(viewQuery, Document.class);
-	}
+        return db.queryView(viewQuery, Document.class);
+    }
 
-	@Override
-	public InputStream readAttachment(String documentId, String attachmentId) {
-		return getAttachmentInputStream(documentId, attachmentId);
-	}
+    @Override
+    @View(name = "by_type_hcparty_message", map = "classpath:js/document/By_document_type_hcparty_message_map.js")
+    public List<Document> findDocumentsByDocumentTypeHCPartySecretMessageKeys(String documentTypeCode, String hcPartyId, ArrayList<String> secretForeignKeys) {
+
+        ComplexKey[] keys = secretForeignKeys.stream().map(fk -> ComplexKey.of(documentTypeCode, hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretForeignKeys.size()]);
+        return queryView("by_type_hcparty_message", keys);
+    }
+
+    @Override
+    public InputStream readAttachment(String documentId, String attachmentId) {
+        return getAttachmentInputStream(documentId, attachmentId);
+    }
 
 }

@@ -546,5 +546,4 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 			log.debug("DesignDocument was unchanged. Database was not updated.");
 		}
 	}
-
 }

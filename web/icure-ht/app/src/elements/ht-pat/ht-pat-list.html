@@ -17,7 +17,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-button.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-pat-list">
@@ -155,6 +157,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     left: calc(20% + 32px);
                     position: absolute;
                     bottom: 20px;
+                }
+
+                .progress-bar {
+                    width: 20%;
+                    right: 32px;
+                    position: absolute;
+                    bottom: 8px;
                 }
 
                 .add-btn-container {
@@ -580,6 +589,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button class="add-btn" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
                         </paper-button>
+                        <template is="dom-if" if="[[taskProgress]]">
+                            <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
+                        </template>
                     </template>
                 </div>
                 <vaadin-checkbox class="show-all-patients" checked="{{showInactive}}">
@@ -851,6 +863,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         notify: true
                     },
                     nbPatientSelected:{
+                        type: Number,
+                        value: 0
+                    },
+                    taskProgress:{
                         type: Number,
                         value: 0
                     },
@@ -1391,18 +1407,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 if(this.exportOption){
                     //export here
+                    this.set('taskProgress', 0.001);
                     let p = Promise.resolve([])
-                    this.patientSelected.forEach(patient =>{
+                    this.patientSelected.forEach((patient, pidx) =>{
                         p = p.then(acc =>
                             this.api.patient().getPatient(patient.id)
-                                .then(patientDto =>{
-                                    this.api.crypto()
+                                .then(patientDto => {
+                                    return this.api.crypto()
                                         .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
-                                        this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                        return this.api.bekmehr().generateSmfExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
                                             secretForeignKeys: secretForeignKeys,
                                             comment: null
-                                        }).then(output => {
+                                        }, (progress) => this.set('taskProgress', (pidx+progress)/this.patientSelected.length)).then(output => {
                                             //creation of the xml file
                                             var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
 
@@ -1419,10 +1436,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             window.URL.revokeObjectURL(url);
 
                                             document.body.removeChild(a);
+
                                         }).catch( error=> console.log(error))
                                 })
                         }))
                     })
+                    p.finally(() => this.set('taskProgress', 0))
                 }
                 if(this.fusionOption){
                     this.set("patientSelected",this.patientSelected.filter(element => element.check===true))

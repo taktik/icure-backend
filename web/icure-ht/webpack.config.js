@@ -70,7 +70,7 @@ module.exports = {
     },
 	mode: 'development',
     plugins: [
-        // This plugin will generate an index.html file for us that can be used
+        // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
         new HtmlWebpackPlugin({
@@ -94,14 +94,15 @@ module.exports = {
 		port: 9000,
 		proxy: {
 			'/rest/v1': {
-				//target: 'https://backend.icure.cloud',
+			    //target: 'https://icure.cloud',
 				target: 'http://127.0.0.1:16043',
 				changeOrigin: true
 			},
             '/ws': {
-                //target: 'https://backend.icure.cloud',
+                //target: 'wss://icure.cloud',
                 target: 'ws://127.0.0.1:16043',
-                ws: true
+                ws: true,
+                changeOrigin: true
             }
 		}
 	},
