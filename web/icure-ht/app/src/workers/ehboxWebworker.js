@@ -34,7 +34,7 @@ onmessage = e => {
         iccCryptoXApi.cacheKeyPair(e.data.keyPair, user.healthcarePartyId)
 
         const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
-        const iccMessageXApi    = new iccXApi.IccMessagheXApi(iccHost, iccHeaders, iccCryptoXApi)
+        const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
 
         const treatMessage =  (message) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
             .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
