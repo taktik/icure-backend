@@ -21,6 +21,8 @@
     import {IccHcpartyXApi} from 'icc-api/dist/icc-x-api/icc-hcparty-x-api'
     import {IccHelementXApi} from 'icc-api/dist/icc-x-api/icc-helement-x-api'
     import {IccPatientXApi} from 'icc-api/dist/icc-x-api/icc-patient-x-api'
+    import {IccInvoiceXApi} from 'icc-api/dist/icc-x-api/icc-invoice-x-api'
+    import {IccMessageXApi} from 'icc-api/dist/icc-x-api/icc-message-x-api'
 
     class IccApi extends Polymer.Element {
         static get is() {
@@ -118,11 +120,16 @@
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
 
+
+
             this.contacticc = new IccContactXApi(this.host, this.headers, this.cryptoicc)
             this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
+
+            this.invoicexicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
+            this.messagexicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc)
 
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
@@ -261,8 +268,16 @@
             return this.invoiceicc
         }
 
+        invoiceX(){
+            return this.invoicexicc
+        }
+
         message() {
             return this.messageicc
+        }
+
+        messageX() {
+            return this.messagexicc
         }
 
         patient() {
