@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.InvoiceInterventionType;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.entities.utils.MergeUtil;
 
 import java.util.ArrayList;
@@ -50,6 +52,10 @@ public class Invoice extends StoredICureDocument {
 	private String thirdPartyReference;
 
 	private InvoiceType invoiceType;
+	private MediumType sentMediumType;
+	private InvoiceInterventionType interventionType;
+
+	private String groupId;
 
 	private Double paid;
 
@@ -201,6 +207,18 @@ public class Invoice extends StoredICureDocument {
 	public void setPaid(Double paid) {
 		this.paid = paid;
 	}
+
+	public MediumType getSentMediumType() { return sentMediumType; }
+
+	public void setSentMediumType(MediumType sentMediumType) { this.sentMediumType = sentMediumType; }
+
+	public InvoiceInterventionType getInterventionType() { return interventionType; }
+
+	public void setInterventionType(InvoiceInterventionType interventionType) { this.interventionType = interventionType; }
+
+	public String getGroupId() { return groupId; }
+
+	public void setGroupId(String groupId) { this.groupId = groupId; }
 
 	@Override
 	public boolean equals(Object o) {
