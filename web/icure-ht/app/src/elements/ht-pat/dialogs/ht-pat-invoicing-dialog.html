@@ -51,7 +51,7 @@
             }
 
             #invoiceDialog{
-                height: calc(100vh - 64px);
+                height: calc(100vh - 40px);
                 width: calc( 100% - 40px );
                 z-index: 1100;
                 display: grid;
@@ -104,11 +104,12 @@
             }
 
             .invoice-detail{
-                height: 255px;
+                height: 240px;
                 width: auto;
                 overflow-y: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 margin-top: 10px;
+                margin-bottom: 10px;
             }
 
             .buttons{
@@ -584,6 +585,22 @@
                 color: var(--app-error-color);
             }
 
+            .tarificationBtnEnable{
+                background-color: var(--app-status-color-ok);
+            }
+
+            .tarificationBtnDisable{
+                background-color: var(--app-background-color-darker);
+            }
+
+            .invoiceBtnDisable{
+                background-color: var(--app-background-color-darker);
+            }
+
+            .invoiceBtnEnable{
+                background-color: var(--app-status-color-ok);
+            }
+
 
         </style>
 
@@ -734,9 +751,6 @@
                         <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr" item-value-path="id" on-filter-changed="_nmclSearch" label="[[localize('nmcl','Nomenclature',language)]]" value=""></vaadin-combo-box>
                         <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
                         <paper-icon-button icon="icons:save" on-tap="_addFavoriteCode"></paper-icon-button>
-                        <template is="dom-if" if="[[npi]]">
-                            <paper-icon-button icon="icons:thumb-up" on-tap="_verifyTarification"></paper-icon-button>
-                        </template>
                     </div>
                 </div>
                 <div class="invoice-detail">
@@ -756,10 +770,10 @@
                             <paper-input class="flex-container-descr-nmcl-row" label="[[localize('lab','Label',language)]]" value="{{activeNmclItem.descr}}" readonly></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot','Fee',language)]]" value="{{activeNmclItem.fee.amount}}" on-value-change=""></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('reimb','Reimbursement',language)]]" value="{{activeNmclItem.reimbursement.amount}}" on-value-change=""></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('extra','Extra',language)]]" value="{{activeNmclItem.extra.amount}}" on-value-change=""></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot_pat','Patient fee',language)]]" value="{{activeNmclItem.patientFee.amount}}" on-value-change=""></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot','Fee',language)]]" value="{{activeNmclItem.fee.amount}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('reimb','Reimbursement',language)]]" value="{{activeNmclItem.reimbursement.amount}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('extra','Extra',language)]]" value="{{activeNmclItem.extra.amount}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot_pat','Patient fee',language)]]" value="{{activeNmclItem.patientFee.amount}}"></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row" label="[[localize('prescriber','Prescriber',language)]]" filtered-items="[[prescriberType]]" item-label-path="label.[[language]]" item-value-path="id" value="{{activeNmclItem.prescriberType}}" on-value-changed="_checkIfPrescriberIsNeeded"></vaadin-combo-box>
@@ -776,8 +790,20 @@
 
                 </div>
                 <div class="buttons">
-                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                    <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('valid','Validate',language)]]</paper-button>
+                    <paper-button>[[localize('can','Cancel',language)]]</paper-button>
+
+                    <template is="dom-if" if="[[npi]]">
+                        <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">[[localize('eTarif','Validation eTarif',language)]]</paper-button>
+                    </template>
+                    <template is="dom-if" if="[[!npi]]">
+                        <paper-button on-tap="" class="tarificationBtnDisable">[[localize('eTarif','Validation eTarif',language)]]</paper-button>
+                    </template>
+                    <template is="dom-if" if="[[isNmclVerified]]">
+                        <paper-button on-tap="" class="invoiceBtnEnable">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
+                    </template>
+                    <template is="dom-if" if="[[!isNmclVerified]]">
+                        <paper-button on-tap="" class="invoiceBtnDisable">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
+                    </template>
                 </div>
             </div>
         </paper-dialog>
@@ -968,12 +994,20 @@
                             dmgOwner: ""
                         })
                     },
-
                     invoicingCode:{
                         type: Array,
-                        value: []
+                        value: [],
+                        notify: true
                     },
-
+                    totalInvoice:{
+                        type: Object,
+                        value : () => ({
+                            reimbursement:        {"amount" : 0.00, "currencyUnit": "EUR"},
+                            fee:                  {"amount" : 0.00, "currencyUnit": "EUR"},
+                            patientFee:           {"amount" : 0.00, "currencyUnit": "EUR"},
+                            extra:                {"amount" : 0.00, "currencyUnit": "EUR"}
+                        })
+                    },
                     isThirdParty: {
                         type: Boolean,
                         value: true
@@ -1010,21 +1044,17 @@
                         type: Boolean,
                         value: false
                     },
-                    totalInvoice:{
-                        type: Object,
-                        value : () => ({
-                            reimbursement:        {"amount" : 0.00, "currencyUnit": "EUR"},
-                            fee:                  {"amount" : 0.00, "currencyUnit": "EUR"},
-                            patientFee:           {"amount" : 0.00, "currencyUnit": "EUR"},
-                            extra:                {"amount" : 0.00, "currencyUnit": "EUR"}
-                        })
+                    isNmclVerified:{
+                        type: Boolean,
+                        value: false
                     }
+
                 };
 
             }
 
             static get observers() {
-               return ['_invoicingCodeChange(invoicingCode.*)'];
+               return ['_invoicingCodeChange(invoicingCode.splices)'];
             }
 
             ready() {
@@ -1106,6 +1136,8 @@
 
                 this.set("isTarificationError", false)
                 this.set('isDetailNmcl', false)
+                this.set('isNmclVerified', false)
+                this.set('npi', false)
 
                 if(this.$['nmcl-search'].selectedItem || e.target.dataset.item){
                     let nmcl
@@ -1239,6 +1271,7 @@
                                 this.set("isTarificationError", true)
                             }else{
                                 this.set("isTarificationError", false)
+                                this.set("isNmclVerified", true)
 
                                 r.codes.forEach(c => {
                                     const cind = r.codes.indexOf(c)
@@ -1274,16 +1307,16 @@
             }
 
             calculateTotalOfInvoice(){
-                let fee = 0
-                let patientFee = 0
-                let reimbursement = 0
-                let extra = 0
+                let fee             = 0
+                let patientFee      = 0
+                let reimbursement   = 0
+                let extra           = 0
 
                 this.invoicingCode.map(n => {
-                    fee += n.fee.amount
-                    patientFee += n.patientFee.amount
-                    reimbursement += n.reimbursement.amount
-                    extra += n.extra.amount
+                    fee +=              Number(n.fee.amount)
+                    patientFee +=       Number(n.patientFee.amount)
+                    reimbursement +=    Number(n.reimbursement.amount)
+                    extra +=            Number(n.extra.amount)
                 })
 
                 this.set('totalInvoice.fee.amount', fee)
@@ -1340,8 +1373,9 @@
             }
 
             _invoicingCodeChange(){
-                console.log("dfdf")
+                console.log("value change")
             }
+
 
         }
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog);
