@@ -48,6 +48,7 @@ public class SubContactDto implements Serializable {
 
     protected String planOfActionId;
     protected String healthElementId;
+    protected String classificationId;
 
     protected Long created;
     protected Long modified;
@@ -206,4 +207,12 @@ public class SubContactDto implements Serializable {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public String getClassificationId() {
+        return classificationId;
+    }
+
+    public void setClassificationId(String classificationId) {
+        this.classificationId = classificationId;
+    }
 }

@@ -75,6 +75,7 @@ public class SubContact implements ICureDocument, Serializable {
     protected String formId; // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
     protected String planOfActionId;
     protected String healthElementId;
+    protected String classificationId;
 
     protected java.util.List<ServiceLink> services = new java.util.ArrayList<ServiceLink>();
 
@@ -87,6 +88,7 @@ public class SubContact implements ICureDocument, Serializable {
 	    this.formId = this.formId == null ? other.formId : this.formId;
 	    this.planOfActionId = this.planOfActionId == null ? other.planOfActionId : this.planOfActionId;
 	    this.healthElementId = this.healthElementId == null ? other.healthElementId : this.healthElementId;
+        this.classificationId = this.classificationId == null ? other.classificationId : this.classificationId;
 
 		this.services = MergeUtil.mergeListsDistinct(this.services, other.services,
 			(a,b)-> (a==null&&b==null)||(a!=null&&b!=null&& Objects.equals(a.getServiceId(),b.getServiceId())),
@@ -239,5 +241,13 @@ public class SubContact implements ICureDocument, Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getClassificationId() {
+        return classificationId;
+    }
+
+    public void setClassificationId(String classificationId) {
+        this.classificationId = classificationId;
     }
 }

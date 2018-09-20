@@ -20,6 +20,7 @@ package org.taktik.icure.dao;
 
 import org.ektorp.support.View;
 import org.taktik.icure.entities.DocumentTemplate;
+import org.taktik.icure.entities.embed.DocumentType;
 
 import java.util.List;
 
@@ -27,5 +28,7 @@ public interface DocumentTemplateDAO  extends GenericDAO<DocumentTemplate> {
 	DocumentTemplate createDocumentTemplate(DocumentTemplate entity);
 	List<DocumentTemplate> findByUserGuid(String userId, String guid);
 	List<DocumentTemplate> findBySpecialtyGuid(String healthcarePartyId, String guid);
+	List<DocumentTemplate> findByTypeUserGuid(String documentTypeCode, String userId, String guid);
 	void evictFromCache(DocumentTemplate entity);
+
 }

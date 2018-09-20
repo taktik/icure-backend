@@ -286,6 +286,15 @@ configurations.all {
 }
 
 springBoot {
-    mainClass = "org.taktik.icure.ICureBackendApplicationKt"
+	mainClass = "org.taktik.icure.ICureBackendApplicationKt"
 }
 
+/*
+ * Exclude Frontend Generation in order to compile only backend
+ * Usage : -P skipFrontend=0
+ */
+installWebResourcesDependencies.onlyIf { !project.hasProperty('skipFrontend') }
+packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
+copyTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
