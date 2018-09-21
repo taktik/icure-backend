@@ -705,36 +705,49 @@
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.fee.amount]]</div>
+                                            <div class="cell numeric">[[item.fee]]</div>
                                         </template>
-                                        <template class="footer">[[totalInvoice.fee.amount]]</template>
+                                        <template class="footer">[[totalInvoice.fee]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.reimbursement.amount]]</div>
+                                            <div class="cell numeric">[[item.reimbursement]]</div>
                                         </template>
-                                        <template class="footer">[[totalInvoice.reimbursement.amount]]</template>
+                                        <template class="footer">[[totalInvoice.reimbursement]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.extra.amount]]</div>
+                                            <div class="cell numeric">[[item.extra]]</div>
                                         </template>
-                                        <template class="footer">[[totalInvoice.extra.amount]]</template>
+                                        <template class="footer">[[totalInvoice.extra]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('tot_pat','Patient fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.patientFee.amount]]</div>
+                                            <div class="cell numeric">[[item.patientFee]]</div>
                                         </template>
-                                        <template class="footer">[[totalInvoice.patientFee.amount]]</template>
+                                        <template class="footer">[[totalInvoice.patientFee]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="20px">
+                                        <template class="header">
+                                            <div class="cell numeric"></div>
+                                        </template>
+                                        <template>
+                                            <template is="dom-if" if="[[item.prescriberNeeded]]">
+                                                <iron-icon class="clearBtn" icon="vaadin:doctor"></iron-icon>
+                                            </template>
+                                            <template is="dom-if" if="[[item.isRelativePrestation]]">
+                                                <iron-icon class="clearBtn" icon="vaadin:link"></iron-icon>
+                                            </template>
+                                        </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="20px">
                                         <template>
@@ -779,10 +792,10 @@
                             <paper-input class="flex-container-descr-nmcl-row" label="[[localize('lab','Label',language)]]" value="{{activeNmclItem.descr}}" readonly></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot','Fee',language)]]" value="{{activeNmclItem.fee.amount}}"></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('reimb','Reimbursement',language)]]" value="{{activeNmclItem.reimbursement.amount}}"></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('extra','Extra',language)]]" value="{{activeNmclItem.extra.amount}}"></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot_pat','Patient fee',language)]]" value="{{activeNmclItem.patientFee.amount}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot','Fee',language)]]" value="{{activeNmclItem.fee}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('reimb','Reimbursement',language)]]" value="{{activeNmclItem.reimbursement}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('extra','Extra',language)]]" value="{{activeNmclItem.extra}}"></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('tot_pat','Patient fee',language)]]" value="{{activeNmclItem.patientFee}}"></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row" label="[[localize('prescriber','Prescriber',language)]]" filtered-items="[[prescriberType]]" item-label-path="label.[[language]]" item-value-path="id" value="{{activeNmclItem.prescriberType}}" on-value-changed="_checkIfPrescriberIsNeeded"></vaadin-combo-box>
@@ -1012,10 +1025,10 @@
                     totalInvoice:{
                         type: Object,
                         value : () => ({
-                            reimbursement:        {amount : 0.00, currencyUnit: "EUR"},
-                            fee:                  {amount : 0.00, currencyUnit: "EUR"},
-                            patientFee:           {amount : 0.00, currencyUnit: "EUR"},
-                            extra:                {amount : 0.00, currencyUnit: "EUR"}
+                            reimbursement:     0.00,
+                            fee:               0.00,
+                            patientFee:        0.00,
+                            extra:             0.00
                         })
                     },
                     isThirdParty: {
@@ -1175,16 +1188,18 @@
                             id:                         nmcl.id,
                             descr:                      nmcl.label[this.language],
                             label:                      nmcl.label,
-                            reimbursement:              {amount : 0.00, currencyUnit: "EUR"},
-                            fee:                        {amount : 0.00, currencyUnit: "EUR"},
-                            patientFee:                 {amount : 0.00, currencyUnit: "EUR"},
-                            extra:                      {amount : 0.00, currencyUnit: "EUR"},
+                            reimbursement:              0.00,
+                            fee:                        0.00,
+                            patientFee:                 0.00,
+                            extra:                      0.00,
                             vat:                        "",
                             valid:                      false,
                             financialContract:          "",
                             prescriberType:             0,
                             prescriberNihii:            "",
-                            askDate:                    ""
+                            askDate:                    "",
+                            prescriberNeeded:           false,
+                            isRelativePrestation:       false
                         }
 
                         tabNmcl.push(newNmcl)
@@ -1210,30 +1225,27 @@
 
                     if (preferedCode && preferedCode.typedValue) {
                         let code
+                        preferedCode.typedValue.type === "STRING" ? code = JSON.parse(preferedCode.typedValue.stringValue) : code = preferedCode.typedValue.stringValue
 
-                        if (preferedCode.typedValue.type === "STRING") {
-                            code = JSON.parse(preferedCode.typedValue.stringValue)
-                            code.cs.push(newCode.id)
-                            preferedCode.typedValue.stringValue = JSON.stringify(code)
+                        let existingCode = code.cs.find(c => c === newCode.id)
 
-                        } else {
-                            code = preferedCode.typedValue.stringValue
+                        if(!existingCode){
                             code.cs.push(newCode.id)
-                            preferedCode.typedValue.stringValue = code
+
+                            preferedCode.typedValue.type === "STRING" ? preferedCode.typedValue.stringValue = JSON.stringify(code) : preferedCode.typedValue.stringValue = code
+
+                            this.set('user.properties', this.user.properties.map(x => x))
+
+                            console.log(this.user)
+
+                            this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
+                                detail: user,
+                                bubbles: true,
+                                composed: true
+                            })))
+
+                            this.getFavoritesCodes()
                         }
-
-                        this.set('user.properties', this.user.properties.map(x => x))
-
-                        console.log(this.user)
-
-                        this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
-                            detail: user,
-                            bubbles: true,
-                            composed: true
-                        })))
-
-                        this.getFavoritesCodes()
-
                     }
                 }
             }
@@ -1243,19 +1255,14 @@
 
                 if (preferedCode && preferedCode.typedValue) {
                     let code
-                    if (preferedCode.typedValue.type === "STRING") {
-                        code = JSON.parse(preferedCode.typedValue.stringValue)
-                        const index = code.cs.indexOf(e.target.dataset.item)
-                        delete(code.cs[index])
-                        code.cs.splice(index, 1)
-                        preferedCode.typedValue.stringValue = JSON.stringify(code)
-                    } else {
-                        code = preferedCode.typedValue.stringValue
-                        const index = code.cs.indexOf(e.target.dataset.item)
-                        delete(code.cs[index])
-                        code.cs.splice(index, 1)
-                        preferedCode.typedValue.stringValue = code
-                    }
+
+                    preferedCode.typedValue.type === "STRING" ? code = JSON.parse(preferedCode.typedValue.stringValue) : code = preferedCode.typedValue.stringValue
+
+                    const index = code.cs.indexOf(e.target.dataset.item)
+                    delete(code.cs[index])
+                    code.cs.splice(index, 1)
+
+                    preferedCode.typedValue.type === "STRING" ? preferedCode.typedValue.stringValue = JSON.stringify(code) : preferedCode.typedValue.stringValue = code
 
                     this.set('user.properties', this.user.properties.map(x => x))
 
@@ -1297,9 +1304,9 @@
                                     let item = this.invoicingCode.find(item => item.code === c)
                                     let itemInd = this.invoicingCode.indexOf(item)
 
-                                    item.reimbursement.amount      = r.reimbursements[cind].amount
-                                    item.patientFee.amount         = r.patientFees[cind].amount
-                                    item.fee.amount                = r.fees[cind].amount
+                                    item.reimbursement             = r.reimbursements[cind].amount
+                                    item.patientFee                = r.patientFees[cind].amount
+                                    item.fee                       = r.fees[cind].amount
                                     item.financialContract         = r.financialContracts[cind]
                                     item.valid                     = true
                                     item.askDate                   = moment().format("YYYY-MM-DD")
@@ -1307,7 +1314,6 @@
 
                                     console.log(item)
                                     this.set('invoicingCode[itemInd]', item)
-                                    //this.set("invoicing.thirdPartyJustification", r.justification)
                                     this.$['nmclGrid'].clearCache()
 
                                 })
@@ -1331,16 +1337,16 @@
                 let extra           = 0
 
                 this.invoicingCode.map(n => {
-                    fee +=              Number(n.fee.amount)
-                    patientFee +=       Number(n.patientFee.amount)
-                    reimbursement +=    Number(n.reimbursement.amount)
-                    extra +=            Number(n.extra.amount)
+                    fee +=              Number(n.fee)
+                    patientFee +=       Number(n.patientFee)
+                    reimbursement +=    Number(n.reimbursement)
+                    extra +=            Number(n.extra)
                 })
 
-                this.set('totalInvoice.fee.amount', fee)
-                this.set('totalInvoice.patientFee.amount', patientFee)
-                this.set('totalInvoice.reimbursement.amount', reimbursement)
-                this.set('totalInvoice.extra.amount', extra)
+                this.set('totalInvoice.fee', fee)
+                this.set('totalInvoice.patientFee', patientFee)
+                this.set('totalInvoice.reimbursement', reimbursement)
+                this.set('totalInvoice.extra', extra)
 
                 console.log(this.totalInvoice)
 
@@ -1439,10 +1445,10 @@
                     contactId:              this.currentContact.id,
                     tarificationId :        invoicingCode.id,
                     label:                  invoicingCode.label[this.language],
-                    totalAmount:            invoicingCode.fee.amount,
-                    reimbursement:          invoicingCode.reimbursement.amount,
-                    patientIntervention:    invoicingCode.patientFee.amount,
-                    doctorSupplement:       invoicingCode.extra.amount,
+                    totalAmount:            invoicingCode.fee,
+                    reimbursement:          invoicingCode.reimbursement,
+                    patientIntervention:    invoicingCode.patientFee,
+                    doctorSupplement:       invoicingCode.extra,
                     invoicePeriod:          this.invoicing.invoicePeriod,
                     units:                  1,
                     canceled:               false,
