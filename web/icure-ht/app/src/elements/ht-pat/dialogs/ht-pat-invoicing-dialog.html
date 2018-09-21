@@ -799,7 +799,7 @@
 
                 </div>
                 <div class="buttons">
-                    <paper-button>[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[npi]]">
                         <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">[[localize('eTarif','Validation eTarif',language)]]</paper-button>
@@ -861,16 +861,16 @@
                         type: Array,
                         value : () => [
                             {
-                                "id"   : "efact",
-                                "label": {"fr": "eFact", "nl": "eFact", "en": "eFact"}
+                                id   : "efact",
+                                label: {"fr": "eFact", "nl": "eFact", "en": "eFact"}
                             },
                             {
-                                "id"   : "eattest",
-                                "label": {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
+                                id   : "eattest",
+                                label: {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
                             },
                             {
-                                "id"   : "other",
-                                "label": {"fr": "Autre", "nl": "Anders", "en": "Other"}
+                                id   : "other",
+                                label: {"fr": "Autre", "nl": "Anders", "en": "Other"}
                             }
                         ]
                     },
@@ -878,20 +878,20 @@
                         type: Array,
                         value: () => [
                             {
-                                "id" : "night",
-                                "label" : {"fr" : "Nuit", "nl" : "Nacht", "en" : "Night"}
+                                id : 0,
+                                label : {"fr" : "Semaine", "nl" : "Week", "en" : "Week"}
                             },
                             {
-                                "id" : "week",
-                                "label" : {"fr" : "Semaine", "nl" : "Week", "en" : "Week"}
+                                id : 1,
+                                label : {"fr" : "Nuit", "nl" : "Nacht", "en" : "Night"}
                             },
                             {
-                                "id" : "publicHoliday",
-                                "label" : {"fr" : "Jour férié", "nl" : "Vakantie", "en" : "Public holiday"}
+                                id : 2,
+                                label : {"fr" : "Weekend", "nl" : "Weekend", "en" : "Weekend"}
                             },
                             {
-                                "id" : "weekend",
-                                "label" : {"fr" : "Weekend", "nl" : "Weekend", "en" : "Weekend"}
+                                id : 3,
+                                label : {"fr" : "Jour férié", "nl" : "Vakantie", "en" : "Public holiday"}
                             }
                         ]
                     },
@@ -899,12 +899,12 @@
                         type: Array,
                         value: () => [
                             {
-                                "id" : "physician",
-                                "label" : {"fr" : "Médecin", "nl" : "Arts", "en" : "Physician"}
+                                id : "physician",
+                                label : {"fr" : "Médecin", "nl" : "Arts", "en" : "Physician"}
                             },
                             {
-                                "id" : "traineeDoctor",
-                                "label" : {"fr" : "Médecin stagiaire", "nl" : "Stagiair arts", "en" : "Trainee physician"}
+                                id : "traineeDoctor",
+                                label : {"fr" : "Médecin stagiaire", "nl" : "Stagiair arts", "en" : "Trainee physician"}
                             }
                         ]
                     },
@@ -912,34 +912,34 @@
                         type: Array,
                         value: () => [
                             {
-                                "id" : "0",
-                                "label" : {"fr" : "Pas de prescripteur", "nl" : "No prescriber", "en" : "No prescriber"},
-                                "prescriber" : false
+                                id : 0,
+                                label : {"fr" : "Pas de prescripteur", "nl" : "No prescriber", "en" : "No prescriber"},
+                                prescriber : false
                             },
                             {
-                                "id" : "1",
-                                "label" : {"fr" : "La prestation peut être attribuée à un prescripteur", "nl" : "The benefit can be attributed to a prescriber", "en" : "The benefit can be attributed to a prescriber physician"},
-                                "prescriber" : true
+                                id : 1,
+                                label : {"fr" : "La prestation peut être attribuée à un prescripteur", "nl" : "The benefit can be attributed to a prescriber", "en" : "The benefit can be attributed to a prescriber physician"},
+                                prescriber : true
                             },
                             {
-                                "id" : "3",
-                                "label" : {"fr" : "Les prestations sont effectuées pour ses propres patients", "nl" : "The services are performed for his own patients", "en" : "The services are performed for his own patients"},
-                                "prescriber" : false
+                                id : 3,
+                                label : {"fr" : "Les prestations sont effectuées pour ses propres patients", "nl" : "The services are performed for his own patients", "en" : "The services are performed for his own patients"},
+                                prescriber : false
                             },
                             {
-                                "id" : "4",
-                                "label" : {"fr" : "Il s'agit de prestations ajoutées", "nl" : "These are added benefits", "en" : "These are added benefits"},
-                                "prescriber" : true
+                                id : 4,
+                                label : {"fr" : "Il s'agit de prestations ajoutées", "nl" : "These are added benefits", "en" : "These are added benefits"},
+                                prescriber : true
                             },
                             {
-                                "id" : "5",
-                                "label" : {"fr" : "La prestation peut être attribuée à un prescripteur et elle a été substituée", "nl" : "The benefit can be attributed to a prescriber and has been substituted", "en" : "The benefit can be attributed to a prescriber and has been substituted"},
-                                "prescriber" : true
+                                id : 5,
+                                label : {"fr" : "La prestation peut être attribuée à un prescripteur et elle a été substituée", "nl" : "The benefit can be attributed to a prescriber and has been substituted", "en" : "The benefit can be attributed to a prescriber and has been substituted"},
+                                prescriber : true
                             },
                             {
-                                "id" : "6",
-                                "label" : {"fr" : "La prestation est prescrite par différents prescripteurs et elle a été substituée", "nl" : "The benefit is prescribed by different prescribers and has been substituted", "en" : "The benefit is prescribed by different prescribers and has been substituted"},
-                                "prescriber" : true
+                                id : 6,
+                                label : {"fr" : "La prestation est prescrite par différents prescripteurs et elle a été substituée", "nl" : "The benefit is prescribed by different prescribers and has been substituted", "en" : "The benefit is prescribed by different prescribers and has been substituted"},
+                                prescriber : true
                             }
                         ]
                     },
@@ -947,44 +947,44 @@
                         type: Array,
                         value: () => [
                             {
-                                "id" : "0",
-                                "label" : {"fr" : "0. Pas de justification", "nl" : "0. No justification", "en" : "0. No justification"}
+                                id : "0",
+                                label : {"fr" : "0. Pas de justification", "nl" : "0. No justification", "en" : "0. No justification"}
                             },
                             {
-                                "id" : "1",
-                                "label" : {"fr" : "1. Décès, coma", "nl" : "1. Death, coma", "en" : "1. Death, coma"}
+                                id : "1",
+                                label : {"fr" : "1. Décès, coma", "nl" : "1. Death, coma", "en" : "1. Death, coma"}
                             },
                             {
-                                "id" : "2",
-                                "label" : {"fr" : "2. Etat d'urgence financière", "nl" : "2. State of financial emergency", "en" : "2. State of financial emergency"}
+                                id : "2",
+                                label : {"fr" : "2. Etat d'urgence financière", "nl" : "2. State of financial emergency", "en" : "2. State of financial emergency"}
                             },
                             {
-                                "id" : "3",
-                                "label" : {"fr" : "3. BIM", "nl" : "3. BIM", "en" : "3. BIM"}
+                                id : "3",
+                                label : {"fr" : "3. BIM", "nl" : "3. BIM", "en" : "3. BIM"}
                             },
                             {
-                                "id" : "4",
-                                "label" : {"fr" : "4. Prestations dispensées dans le cadre d'un accord prévoyant le paiement forfaitaire de cetaines prestations", "nl" : "4. Benefits provided under an agreement providing for the payment of certain benefits", "en" : "4. Benefits provided under an agreement providing for the payment of certain benefits"}
+                                id : "4",
+                                label : {"fr" : "4. Prestations dispensées dans le cadre d'un accord prévoyant le paiement forfaitaire de cetaines prestations", "nl" : "4. Benefits provided under an agreement providing for the payment of certain benefits", "en" : "4. Benefits provided under an agreement providing for the payment of certain benefits"}
                             },
                             {
-                                "id" : "5",
-                                "label" : {"fr" : "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes", "nl" : "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers", "en" : "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"}
+                                id : "5",
+                                label : {"fr" : "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes", "nl" : "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers", "en" : "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"}
                             },
                             {
-                                "id" : "6",
-                                "label" : {"fr" : "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés", "nl" : "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled", "en" : "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled"}
+                                id : "6",
+                                label : {"fr" : "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés", "nl" : "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled", "en" : "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled"}
                             },
                             {
-                                "id" : "7",
-                                "label" : {"fr" : "7. Prestations effectuées dans le cadre d'un service de garde de médecine générale", "nl" : "7. Services provided as part of a general medical care service", "en" : "7. Services provided as part of a general medical care service"}
+                                id : "7",
+                                label : {"fr" : "7. Prestations effectuées dans le cadre d'un service de garde de médecine générale", "nl" : "7. Services provided as part of a general medical care service", "en" : "7. Services provided as part of a general medical care service"}
                             },
                             {
-                                "id" : "8",
-                                "label" : {"fr" : "8. Statut affection chronique (sur base d'une attestation fournie par le patient)", "nl" : "8. Chronic condition", "en" : "8. Chronic condition"}
+                                id : "8",
+                                label : {"fr" : "8. Statut affection chronique (sur base d'une attestation fournie par le patient)", "nl" : "8. Chronic condition", "en" : "8. Chronic condition"}
                             },
                             {
-                                "id" : "p",
-                                "label" : {"fr" : "P. Patients palliatifs à domicile", "nl" : "P. Home palliative patients", "en" : "P. Home palliative patients"}
+                                id : "p",
+                                label : {"fr" : "P. Patients palliatifs à domicile", "nl" : "P. Home palliative patients", "en" : "P. Home palliative patients"}
                             }
                         ]
                     },
@@ -994,7 +994,7 @@
                             invoiceType: "efact",
                             hcpId : "",
                             invoiceNumber: "",
-                            invoicePeriod: "week",
+                            invoicePeriod: "0",
                             creditNote: false,
                             liftingLimitationPeriod : false,
                             careProviderType: "physician",
@@ -1012,10 +1012,10 @@
                     totalInvoice:{
                         type: Object,
                         value : () => ({
-                            reimbursement:        {"amount" : 0.00, "currencyUnit": "EUR"},
-                            fee:                  {"amount" : 0.00, "currencyUnit": "EUR"},
-                            patientFee:           {"amount" : 0.00, "currencyUnit": "EUR"},
-                            extra:                {"amount" : 0.00, "currencyUnit": "EUR"}
+                            reimbursement:        {amount : 0.00, currencyUnit: "EUR"},
+                            fee:                  {amount : 0.00, currencyUnit: "EUR"},
+                            patientFee:           {amount : 0.00, currencyUnit: "EUR"},
+                            extra:                {amount : 0.00, currencyUnit: "EUR"}
                         })
                     },
                     isThirdParty: {
@@ -1078,6 +1078,10 @@
             open() {
                 this.$.invoiceDialog.open();
                 this.getFavoritesCodes();
+            }
+
+            _closeDialog(){
+                this.$.invoiceDialog.close();
             }
 
             getFavoritesCodes(){
@@ -1171,14 +1175,14 @@
                             id:                         nmcl.id,
                             descr:                      nmcl.label[this.language],
                             label:                      nmcl.label,
-                            reimbursement:              {"amount" : 0.00, "currencyUnit": "EUR"},
-                            fee:                        {"amount" : 0.00, "currencyUnit": "EUR"},
-                            patientFee:                 {"amount" : 0.00, "currencyUnit": "EUR"},
-                            extra:                      {"amount" : 0.00, "currencyUnit": "EUR"},
+                            reimbursement:              {amount : 0.00, currencyUnit: "EUR"},
+                            fee:                        {amount : 0.00, currencyUnit: "EUR"},
+                            patientFee:                 {amount : 0.00, currencyUnit: "EUR"},
+                            extra:                      {amount : 0.00, currencyUnit: "EUR"},
                             vat:                        "",
                             valid:                      false,
                             financialContract:          "",
-                            prescriberType:             "0",
+                            prescriberType:             0,
                             prescriberNihii:            "",
                             askDate:                    ""
                         }
@@ -1358,7 +1362,7 @@
 
             _checkIfPrescriberIsNeeded(e){
 
-                if(e.detail.value === "0" || e.detail.value === "3"){
+                if(e.detail.value === 0 || e.detail.value === 3){
                     this.set("isPrescriberIsNeeded",false)
                 }else{
                     this.set("isPrescriberIsNeeded", true)
@@ -1400,46 +1404,89 @@
 
             _createInvoice(){
 
-                let tabInvoicingCodes = []
-
-                this.invoicingCode.map(i => {
-                    let code = {
-                        label :                 i.label[this.language],
-                        contactId :             this.currentContact.id,
-                        tarificationId :        i.id,
-                        paymentType :           "insurance",
-                        totalAmount :           i.fee.amount,
-                        reimbursement :         i.reimbursement.amount,
-                        patientIntervention :   i.patientFee.amount,
-                        doctorSupplement :      i.extra.amount,
-                        contract :              i.financialContract,
-                        canceled :              false,
-                        accepted :              false,
-                        pending :               false,
-                        resent :                false,
-                        insuranceJustification : i.thirdPartyJustification
-                    }
-
-                    tabInvoicingCodes.push(code)
-                })
-
                 let invoice = {
                     invoiceDate :           moment(this.invoicing.invoiceDate).format("YYYYMMDD"),
                     sentDate :              "",
                     printedDate :           moment().format("YYYYMMDD"),
-                    invoicingCodes:         tabInvoicingCodes,
+                    invoicingCodes:         [],
                     receipts:               "",
                     recipientType:          "org.taktik.icure.entities.Insurance",
                     recipientId :           "",
-                    invoiceReference :      "",
+                    invoiceReference :      this.invoicing.invoiceNumber,
                     thirdPartyReference :   this.invoicing.thirdPartyJustification,
                     invoiceType :           this.invoicing.invoiceType,
                     paid :                  0.00
                 }
 
-                this.api.invoiceX().newInstance(this.user, this.patient, invoice).then(invoice => {
+                this.api.invoice().newInstance(this.user, this.patient, invoice).then(invoice => {
                     console.log(invoice)
+                    let tabInvoicingCodes = []
+                    this.invoicingCode.map(i => {
+                        const code = this._createInvoicingCodeTab(i)
+                        tabInvoicingCodes.push(code)
+                    })
+                    invoice.invoicingCodes = tabInvoicingCodes
+                    console.log(invoice)
+
+                    //this.api.invoice().appendCodes(this.user.id, this.invoicing.invoiceType, null, null, null, 0, tabInvoicingCodes).then(i=> console.log(i))
+
                 })
+            }
+
+            _createInvoicingCodeTab(invoicingCode){
+
+                let code = {
+                    contactId:              this.currentContact.id,
+                    tarificationId :        invoicingCode.id,
+                    label:                  invoicingCode.label[this.language],
+                    totalAmount:            invoicingCode.fee.amount,
+                    reimbursement:          invoicingCode.reimbursement.amount,
+                    patientIntervention:    invoicingCode.patientFee.amount,
+                    doctorSupplement:       invoicingCode.extra.amount,
+                    invoicePeriod:          this.invoicing.invoicePeriod,
+                    units:                  1,
+                    canceled:               false,
+                    accepted:               false,
+                    pending:                false,
+                    resent:                 false,
+                    longDelayJustification: this.invoicing.liftingLimitationPeriod === true ? 1 : 0,
+                    prescriberNorm:         invoicingCode.prescriberType
+
+                }
+
+                if(invoicingCode.valid === true){
+                    code.contract =  invoicingCode.financialContract
+                }
+
+                //paymentType
+                //paid
+
+                if(this.invoicing.dmgOwner !== ""){
+                    code.gnotionNihii = this.invoicing.dmgOwner
+                    //gnotionSsin
+                    //gnotionLastName
+                    //gnotionFirstName
+                    //gnotionCdHcParty
+                }
+
+                if(invoicingCode.prescriberType !== 0 && invoicingCode.prescriberType !== 3){
+                    code.prescriberNihii = invoicingCode.prescriberNihii
+                    //prescriberSsin
+                    //prescriberLastName
+                    //prescriberFirstName
+                    //prescriberCdHcParty
+                }
+
+                if(this.invoicing.careProviderType !== "physician"){
+                    code.internshipNihii = this.invoicing.nihiiTrainee
+                    //internshipSsin
+                    //internshipLastName
+                    //internshipFirstName
+                    //internshipCdHcParty
+                }
+
+                return code
+
             }
 
 
