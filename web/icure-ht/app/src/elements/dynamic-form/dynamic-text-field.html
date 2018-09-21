@@ -8,6 +8,7 @@
 <link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 
+<link rel="import" href="dynamic-link.html">
 
 <dom-module id="dynamic-text-field">
 	<template>
@@ -101,7 +102,7 @@
 					<input type="text" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 		</template>
 
 	</template>

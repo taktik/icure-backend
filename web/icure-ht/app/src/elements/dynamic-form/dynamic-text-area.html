@@ -7,6 +7,7 @@
 
 <link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="dynamic-link.html">
 
 
 <dom-module id="dynamic-text-area">
@@ -86,7 +87,7 @@
 			</label>
 			<iron-autogrow-textarea class="paper-input-input" slot="input" value="{{value}}" max-rows="32" readonly="[[readOnly]]"></iron-autogrow-textarea>
 		</paper-input-container>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 	</template>
 	<script>
 class DynamicTextArea extends Polymer.TkLocalizerMixin(Polymer.Element) {
