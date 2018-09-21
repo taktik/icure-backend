@@ -146,15 +146,15 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 	}
 
 	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination, boolean includeDocs, boolean descending) {
-		int limit = pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
-		int page = pagination.getPage() != null ? pagination.getPage() : 1;
-		String startDocId = pagination.getStartDocumentId();
+		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
+		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
+		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
 
 		ViewQuery viewQuery = createQuery(viewName)
 				.includeDocs(includeDocs)
-				.startKey(startKey)
+				.startKey(startKey) //Shouldn't be necessary
 				.reduce(false)
-				.startDocId(startDocId)
+				.startDocId(startDocId) //Shouldn't be necessary
 				.limit(limit)
 				.descending(descending);
 
