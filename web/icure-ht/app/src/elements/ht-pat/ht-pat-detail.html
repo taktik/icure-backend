@@ -944,7 +944,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			}
 
-            #therLinkDialog, #hubDialog{
+            #therLinkDialog, #hubDialog, #genInsDialog{
                 width: 80%;
             }
 
@@ -1003,7 +1003,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
 								<div class="patient-birthdate">°[[_timeFormat(patient.dateOfBirth)]]</div>
 								<div class="statusContainer">
-									<paper-fab id="insuranceStatus" mini icon="hardware:security"></paper-fab>
+									<paper-fab id="insuranceStatus" mini icon="hardware:security" on-tap="_openGenInsDialog"></paper-fab>
 									<paper-tooltip for="insuranceStatus">[[localize('adm_ins','insurance',language)]]</paper-tooltip>
 									<paper-fab id="consentStatus" mini icon="icons:thumb-up" on-tap="_openConsentDialog"></paper-fab>
 									<paper-tooltip for="consentStatus">[[localize('consent','insurance',language)]]</paper-tooltip>
@@ -1300,6 +1300,128 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 		</entity-selector>
 
+        <paper-dialog id="genInsDialog">
+            <h2 class="modal-title">[[localize('gen_ins','General insurability',language)]]</h2>
+
+			<template is="dom-if" if="{{curGenInsResp}}">
+				<b>[[localize('ssin','SSIN',language)]]:</b> [[curGenInsResp.inss]]
+				<b>[[localize('nam','Name',language)]]:</b> [[curGenInsResp.firstName]] [[curGenInsResp.lastName]] <br/>
+				<b>[[localize('sex','Gender',language)]]:</b> [[curGenInsResp.sex]]<br/>
+
+				<template is="dom-if" if="{{curGenInsResp.deceased}}"><b>[[localize('deceased','Deceased',language)]]:</b>[[curGenInsResp.deceased]]<br/></template>
+				<template is="dom-if" if="{{curGenInsResp.hospitalizedInfo}}"><b>[[localize('hos_inf','Hospitalized',language)]]:</b>[[curGenInsResp.hospitalizedInfo]]<br/></template>
+				<template is="dom-if" if="{{curGenInsResp.medicalHouseInfo}}">
+					<b>[[localize('mmh_inf','Medical House',language)]]:</b><br/>
+					<b>[[localize('per_sta','Start',language)]]:</b> [[curGenInsResp.medicalHouseInfo.periodStart]]
+					<b>[[localize('per_end','End',language)]]:</b> [[curGenInsResp.medicalHouseInfo.periodEnd]]<br/>
+					<b>[[localize('abo_med','Doctor',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.medical)]]
+					<b>[[localize('abo_nur','Nurse',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.nurse)]]
+					<b>[[localize('abo_kin','Kine',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.kine)]]<br/>
+				</template>
+
+				<template is="dom-if" if="{{curGenInsResp.generalSituation}}"><b>[[localize('generalSituation','generalSituation',language)]]:</b>[[curGenInsResp.generalSituation]]<br/></template>
+				<b>[[localize('paymentByIo','paymentByIo',language)]]:</b>[[curGenInsResp.paymentByIo]]<br/>
+				<b>[[localize('specialSocialCategory','specialSocialCategory',language)]]:</b>[[curGenInsResp.specialSocialCategory]]<br/>
+
+
+				<template is="dom-if" if="{{curGenInsResp.faultMessage}}"><b>[[localize('faultMessage','faultMessage',language)]]:</b>[[curGenInsResp.faultMessage]]<br/></template>
+				<template is="dom-if" if="{{curGenInsResp.faultSource}}"><b>[[localize('faultSource','faultSource',language)]]:</b>[[curGenInsResp.faultSource]]<br/></template>
+				<template is="dom-if" if="{{curGenInsResp.faultCode}}"><b>[[localize('faultCode','faultCode',language)]]:</b>[[curGenInsResp.faultCode]]<br/></template>
+
+
+
+				<vaadin-grid id="insurabilities-list" class="material" overflow="bottom" items=[[curGenInsResp.insurabilities]] active-item="{{selectedInsurability}}">
+					<vaadin-grid-column>
+						<template class="header">
+							<vaadin-grid-sorter path="mut">[[localize('mut','Mut.',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.mutuality]] ([[item.regNrWithMut]]) </div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<vaadin-grid-sorter path="periodStart">[[localize('per_sta','Start',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.period.periodStart]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<vaadin-grid-sorter path="periodEnd">[[localize('per_end','End',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.period.periodEnd]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<vaadin-grid-sorter path="periodCT12">[[localize('ct12','CT1/2',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.ct1]]/[[item.ct2]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<vaadin-grid-sorter path="paymentApproval">[[localize('pay_app','paymentApproval',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.paymentApproval]]</div>
+						</template>
+					</vaadin-grid-column>
+					<vaadin-grid-column>
+						<template class="header">
+							<vaadin-grid-sorter path="insurabilityDate">[[localize('ins_dat','insurabilityDate',language)]]</vaadin-grid-sorter>
+						</template>
+						<template>
+							<div class="cell frozen">[[item.insurabilityDate]]</div>
+						</template>
+					</vaadin-grid-column>
+				</vaadin-grid>
+				<template is="dom-if" if="{{_hasTransfers(curGenInsResp)}}">
+					<vaadin-grid id="transfers-list" class="material" overflow="bottom" items=[[curGenInsResp.transfers]] active-item="{{selectedTransfer}}">
+						<vaadin-grid-column>
+							<template class="header">
+								<vaadin-grid-sorter path="direction">[[localize('tra_dir','Direction',language)]]</vaadin-grid-sorter>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.direction]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column>
+							<template class="header">
+								<vaadin-grid-sorter path="io">[[localize('tra_io','IO',language)]]</vaadin-grid-sorter>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.io]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column>
+							<template class="header">
+								<vaadin-grid-sorter path="date">[[localize('tra_dat','Date',language)]]</vaadin-grid-sorter>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.date]]</div>
+							</template>
+						</vaadin-grid-column>
+					</vaadin-grid>
+				</template>
+			</template>
+			<div>
+				<paper-input id="genInsNiss" label="[[localize('niss','NISS',language)]]" value="{{genInsNiss}}"></paper-input>
+				<vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{genInsDateFrom}}" i18n="[[i18n]]"></vaadin-date-picker>
+				<template is="dom-if" if="{{geninsMMHRequest}}">
+					<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{genInsDateTo}}" i18n="[[i18n]]"></vaadin-date-picker>
+				</template>
+				<paper-button on-tap="_requestGenins">[[localize('gen_ins_req','Request',language)]]</paper-button>
+				<paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+			</div>
+
+
+        </paper-dialog>
+
 		<paper-dialog id="consentDialog">
 			<h2 class="modal-title">[[localize('cons_req','Patient informed consent',language)]]</h2>
 			<template is="dom-if" if="{{!patientConsent.consent}}">
@@ -1412,6 +1534,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
 				<paper-button on-tap="_showTransaction">get transaction</paper-button>
+                <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
 			</template>
 			<template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
 				<paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
@@ -1532,6 +1655,30 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return [];
                 }
             },
+            genInsHcpQuality:{
+                type:String,
+                value:'doctor'
+            },
+			genInsDateFrom:{
+                type:Number,
+                value:null
+            },
+			genInsDateTo:{
+                type:Number,
+                value:null
+            },
+            genInsNiss:{
+			    type:String,
+				value:null
+			},
+			genInsHospitalized:{
+            	type: Boolean,
+                value: false
+        	},
+            genInsDateStartAsString:{
+			    type: Number,
+				value:null
+			},
             selectedTransaction:{
                 type: Object
             },
@@ -1640,7 +1787,33 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			},
 			i18n: {
-				type: Object
+                Type: Object,
+                value() {
+                    //const mym = moment
+                    moment.locale('fr')
+                    const res = {
+                        monthNames: moment.months(),
+                        weekdays: moment.weekdays(),
+                        weekdaysShort: moment.weekdaysShort(),
+                        firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                        week: 'Semaine',
+                        calendar: 'Calendrier',
+                        clear: 'Clear',
+                        today: 'Aujourd\'hui',
+                        cancel: 'Annuler',
+                        formatDate(d) {
+                            //return moment(d).format(moment.localeData().longDateFormat('L'))
+                            return moment(d).format('DD/MM/YYYY')
+                        },
+                        parseDate(s) {
+                            return moment(s, 'DD/MM/YYYY').toDate()
+                        },
+                        formatTitle(monthName, fullYear) {
+                            return monthName + ' ' + fullYear
+                        }
+                    }
+                    return res
+                }
 			},
             dateStartAsString :{
 			    type : String,
@@ -1696,16 +1869,23 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_timeFormat(date) {
-		return this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY');
+		return date ? this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') : '';
 	}
 
 	_dateFormat(date) {
-		return this.api.moment(date).format('DD/MM/YYYY');
+		returndate ? this.api.moment(date).format('DD/MM/YYYY') : '';
 	}
 
 	_contactClasses(contact) {
 		return contact.closingDate ? '' : 'current-contact';
 	}
+
+	_openGenInsDialog(e){
+        e.stopPropagation();
+        const mym = moment;
+        this.set('curGenInsResp', null);
+        this.$.genInsDialog.open();
+    }
 
     _openConsentDialog(e) {
         e.stopPropagation();
@@ -1731,6 +1911,57 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._getHubTherapeuticLinks();
         this._getHubTransactionList();
         this.$.hubDialog.open();
+    }
+
+    _trueOrUnknown(b){
+	    return b ? '+' : '?'
+	}
+
+    _hasTransfers(genins){
+	    return genins && genins.transfers && genins.transfers.length > 0;
+	}
+
+    _requestGenins(){
+	    this.getGenIns().then(genInsResp => this.set('curGenInsResp', genInsResp));
+    }
+
+    /*
+      ssin: string,
+    tokenId: string,
+    keystoreId: string,
+    passPhrase: string,
+    hcpNihii: string,
+    hcpSsin: string,
+    hcpName: string,
+    hcpQuality?: string,
+    date?: number,
+    endDate?: number,
+    hospitalized?: boolean
+    * */
+
+    getGenIns(){
+
+        const dStart = Date.parse(this.genInsDateFrom);
+        if (this.patient.ssin && this.api.tokenId) {
+            const ssin = this.genInsNiss ? this.genInsNiss : this.patient.ssin;
+            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                .then(hcp =>
+					//getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null)
+                    this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
+                       	ssin,
+						this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+                        hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, this.genInsHcpQuality, dStart, this.genInsDateTo, this.genInsHospitalized)
+                ).then(genInsResp => {
+                        if (genInsResp) {
+                            return genInsResp;
+                        } else {
+                            return null;
+                        }
+                    }
+                )
+        } else {
+            return Promise.resolve(null)
+        }
     }
 
     _hcpIdent(tl){
@@ -1785,9 +2016,13 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     _transactionDate(tr){
-        var d = new Date(0);
-        d.setUTCMilliseconds(tr.date);
-        return d.toDateString();
+	    if(tr.date) {
+            var d = new Date(0);
+            d.setUTCMilliseconds(tr.date);
+            return d.toDateString();
+        } else {
+            return "";
+        }
     }
 
     _transactionAuthor(tr){
@@ -1813,7 +2048,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _patientHasHubConsent(cs){
-	    if(cs.author.hcparties[0] || !this.hubSupportsConsent){
+	    if((cs && cs.author && cs.author.hcparties && cs.author.hcparties[0]) || !this.hubSupportsConsent){
 	       return true;
 		}
 		else{
@@ -1824,16 +2059,22 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _getHubHcpConsentDesc(cs){
 	    var desc = '';
 	    //hub
-		if(cs.author.hcparties[0]){
+		if(cs && cs.author && cs.author && cs.author.hcparties && cs.author.hcparties[0]){
 		    desc += cs.author.hcparties[0].name + ' ';
 		}
-		//hcp
-        desc += '[' + cs.hcparty.ids.find(id => id.s === 'ID-HCPARTY').value + '] ';
-        desc += cs.hcparty.ids.find(id => id.s === 'INSS').value;
-		//sign
-        desc += ' ' + this.api.moment( cs.signdate).format('DD/MM/YYYY');
-		//revoke
-        desc += ' ' + this.api.moment( cs.revokedate).format('DD/MM/YYYY');
+		if(cs && cs.hcparty && cs.hcparty.ids) {
+            //hcp
+            desc += '[' + cs.hcparty.ids.find(id => id.s === 'ID-HCPARTY').value + '] ';
+            desc += cs.hcparty.ids.find(id => id.s === 'INSS').value;
+        }
+        if(cs && cs.signdate) {
+            //sign
+            desc += ' ' + this.api.moment(cs.signdate).format('DD/MM/YYYY');
+        }
+        if(cs && cs.revokedate) {
+            //revoke
+            desc += ' ' + this.api.moment(cs.revokedate).format('DD/MM/YYYY');
+        }
 		return desc;
 	}
 
@@ -1846,7 +2087,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getHcpConsentUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                this.api.fhc().Hubcontroller().getHcpConsentUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
                     hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip)
         ).then(consentResp => {
                 if (consentResp) {
@@ -1867,16 +2109,18 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    // author - sign date - type
 		// author - fname lname niss nihii
 
-		if(cs.cds.find(cd => cd.s === 'CD_CONSENTTYPE')){
+		if(cs && cs.cds && cs.cds.find(cd => cd.s === 'CD_CONSENTTYPE')){
 			desc += cs.cds.find(cd => cd.s === 'CD_CONSENTTYPE').value + " : " ;
         }
 
-		if(cs.author.hcparties[0]) {
+		if(cs && cs.author && cs.author.hcparties && cs.author.hcparties[0]) {
             const hcp = cs.author.hcparties[0]
 			desc += hcp.familyname + ' ' + hcp.firstname;
             desc += ' [' + hcp.ids.find(id => id.s === 'ID-HCPARTY').value + ']';
         }
-        desc += ' ' + this.api.moment( cs.signdate).format('DD/MM/YYYY');
+        if(cs && cs.signdate) {
+            desc += ' ' + this.api.moment(cs.signdate).format('DD/MM/YYYY');
+        }
 	    return desc;
 	}
 
@@ -1885,8 +2129,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                     this.patient.ssin)
         ).then(consentResp => {
                 if (consentResp) {
@@ -1912,8 +2157,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                   hcp.lastName, hcp.firstName,  hcp.nihii, hcp.ssin, this.hcpZip,
                     this.patient.ssin, null, null, null)
         ).then(tlResp => {
                 if (tlResp) {
@@ -1933,8 +2179,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         //registerTherapeuticLinkUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber)
         if (this.patient.ssin && this.api.tokenId) {
             this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.ssin, hcp.firstName, hcp.lastName, hcp.nihii,
                     this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber)
             ).then(therLinkResp => {
                     if(therLinkResp.therapeuticLink) {
@@ -1962,8 +2209,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                this.api.fhc().Hubcontroller().getTransactionsListUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
+                this.api.fhc().Hubcontroller().getTransactionsListUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
                     this.patient.ssin, null, null, null, null, null)
         ).then(tranResp => {
                 if (tranResp) {
@@ -2046,9 +2294,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (this.patient.ssin && this.api.tokenId) {
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                        this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                            hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
-                            this.patient.ssin, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sv, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sl,
+                        this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId,
+							this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                            this.patient.ssin, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sv,
+							this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sl,
                             this.selectedTransaction.ids.find(id => id.s === 'LOCAL').value)
                     ).then(tranResp => {
                             if (tranResp) {
@@ -2083,9 +2333,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                 .then(hcp =>
-                    this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                        hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip,
-                        this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
+                    this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId,
+						this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                        this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv,
+						this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
                         this.selectedTransaction.ids.find(id => id.s==='LOCAL').value)
                 ).then(tranResp => {
                         if (tranResp) {
@@ -2251,6 +2503,41 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         } else {
             parentElement.classList.add('open');
             setTimeout(() => parentElement.classList.remove('open'), 6000);
+        }
+    }
+
+    _generateSumehr(){
+        if (this.patient) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+            this.api.patient().getPatient(this.patient.id)
+                .then(patientDto =>{
+                    this.api.crypto()
+                        .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                        .then(secretForeignKeys => {
+                            this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                secretForeignKeys: secretForeignKeys,
+                                recipient: hcp,
+                                comment: "mycomment"
+                            }).then(output => {
+                                //creation of the xml file
+                                var file = typeof output === "string" ? new Blob([output] ,{type: "application/xml"}) : output
+
+                                //creation the downloading link
+                                var a = document.createElement("a");
+                                document.body.appendChild(a);
+                                a.style = "display: none";
+
+                                //download the new file
+                                var url = window.URL.createObjectURL(file);
+                                a.href = url;
+                                a.download = (patientDto.lastName || "Doe").replace(" ","_") + "_" + (patientDto.firstName || "John").replace(" ","_") + "_" + (moment().format("x"))+"_sumehr.xml";
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+
+                                document.body.removeChild(a);
+                            }).catch( error=> console.log(error))
+                        })
+                }))
         }
     }
 
