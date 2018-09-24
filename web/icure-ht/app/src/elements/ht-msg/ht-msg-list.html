@@ -481,7 +481,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             findMessagesByTransportGUID(guid){
                 return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDatesAndGUID(messages.rows);
                 })
             }
 
