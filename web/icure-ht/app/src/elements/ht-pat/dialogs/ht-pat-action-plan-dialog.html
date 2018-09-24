@@ -530,7 +530,8 @@
                 this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
             }
 
-            open() {
+            open(svc) {
+                //TODO for Julien... Init everything with existing planned svc
                 this.$.dialog.open();
             }
 

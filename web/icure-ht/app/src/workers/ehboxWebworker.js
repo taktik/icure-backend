@@ -1,6 +1,8 @@
 import * as fhcApi from 'fhc-api/dist/fhcApi'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
+import {UtilsClass} from "icc-api/dist/icc-x-api/crypto/utils"
+
 import 'moment'
 
 onmessage = e => {
@@ -24,11 +26,11 @@ onmessage = e => {
         const msgApi            = new iccApi.iccMessageApi(iccHost, iccHeaders)
         const beResultApi       = new iccApi.iccBeresultimportApi(iccHost, iccHeaders)
 
-
         const iccHcpartyApi     = new iccApi.iccHcpartyApi(iccHost, iccHeaders)
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
         const iccCryptoXApi     = new iccXApi.IccCryptoXApi(iccHost, iccHeaders, iccHcpartyApi)
 
+        const iccUtils          = new UtilsClass()
 
         //Avoid the hit to the local storage to load the key pair
         iccCryptoXApi.cacheKeyPair(e.data.keyPair, user.healthcarePartyId)
@@ -79,22 +81,13 @@ onmessage = e => {
                                 })
                                     .then(d => docApi.createDocument(d))
                                     .then(createdDocument => {
-                                        console.log(a)
-                                        let contentDecode = self.atob(a.content)
-                                        var byteContent = [];
-                                        let buffer = new Buffer(contentDecode, 'utf8');
-
-                                        for (let i = 0; i < buffer.length; i++) {
-                                            byteContent.push(buffer[i]);
-                                        }
-                                        console.log(createdDocument)
+                                        let byteContent = iccUtils.base64toArrayBuffer(a.content)
                                         return [createdDocument, byteContent]
                                     })
                                     .then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
                             ))
                         })
                         .then(() => null) //DO NOT RETURN A MESSAGE ID TO BE DELETED
-
                 }
             })
 
