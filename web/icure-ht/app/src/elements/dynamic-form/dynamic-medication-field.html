@@ -292,6 +292,11 @@
 
 			}
 
+
+			#filter{
+				width:50%;
+			}
+
 		</style>
 
 		<label hidden$="[[!label]]" aria-hidden="true">
@@ -367,15 +372,62 @@
 
 		<paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
 			<h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
-			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
-			</template>
-			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"></paper-input>
-			</template>
-			<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-				<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
-			</template>
+
+			<div class="regimen-line">
+				<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
+					<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
+				</template>
+				<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
+					<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"></paper-input>
+				</template>
+				<template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
+					<paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
+				</template>
+
+				<!-- my code -->
+				<!--<paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
+					<paper-listbox slot="dropdown-content" selected="{{bufferGeneralFrequency}}">
+						<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
+						<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+						<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+					</paper-listbox>
+				</paper-dropdown-menu>
+				<paper-button on-tap="_addFrequency">{{localize("more","More",language)}}<iron-icon icon="arrow-forward"></iron-icon></paper-button>-->
+			</div>
+			<!--<template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
+				<div class="regimen-line">
+					<template is="dom-if" if="[[rg.weekday]]">
+					</template>
+					<template is="dom-if" if="[[!rg.weekday]]">
+						<template is="dom-if" if="[[rg.date]]">
+						</template>
+						<template is="dom-if" if="[[!rg.date]]">
+							<paper-dropdown-menu label="Time of day" class="regimen--tod">
+								<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
+									<paper-item id ="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
+									<paper-item id ="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
+									<paper-item id ="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
+									<paper-item id ="morning">[[_localize("Morning")]]</paper-item>
+									<paper-item id ="beforelunch">[[_localize("Beforelunch")]]</paper-item>
+									<paper-item id ="afternoon">[[_localize("Afternoon")]]</paper-item>
+									<paper-item id ="duringlunch">[[_localize("Duringlunch")]]</paper-item>
+									<paper-item id ="afterlunch">[[_localize("Afterlunch")]]</paper-item>
+									<paper-item id ="beforedinner">[[_localize("Beforedinner")]]</paper-item>
+									<paper-item id ="duringdinner">[[_localize("Duringdinner")]]</paper-item>
+									<paper-item id ="afterdinner">[[_localize("Afterdinner")]]</paper-item>
+									<paper-item id ="evening">[[_localize("Evening")]]</paper-item>
+									<paper-item id ="night">[[_localize("Night")]]</paper-item>
+									<hr>
+									<paper-item>[[_localize("Precise hour")]]</paper-item>
+								</paper-listbox>
+							</paper-dropdown-menu>
+						</template>
+					</template>
+					<paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number" class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
+					<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units" on-change="_valueChanged"></paper-input>
+					<paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
+				</div>
+			</template>-->
 			<div class="regimen-line">
 				<paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" min="0"></paper-input>
 				<paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
@@ -1059,6 +1111,17 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
         this.set("flagTableFrequency",true)
     }
+
+    _addFrequency(){
+	    this.push("selectedMedicationContentWithId.medicationValue.regimen",{
+            weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
+            date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
+            administratedQuantity: {
+                quantity : 1,
+                unit: this.bufferUnit
+            }
+		})
+	}
 }
 
 customElements.define(DynamicMedicationField.is, DynamicMedicationField);
