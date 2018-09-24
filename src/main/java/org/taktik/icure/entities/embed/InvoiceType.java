@@ -19,5 +19,11 @@
 package org.taktik.icure.entities.embed;
 
 public enum InvoiceType {
-	patient,insurance,efact,other
+	patient,
+	mutualfund,
+	payingagency, //CPAS, complementary assurances...
+    @Deprecated
+	insurance, //Deprecated, see MediumType
+    @Deprecated
+    efact, //Deprecated, see MediumType
 }
