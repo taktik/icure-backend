@@ -376,7 +376,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDatesAndGUID(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -541,10 +541,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             sortByDates(messages){
-                return messages.sort(function (a, b) {
-                    return b.received - a.received ;
+				return messages.sort(function (a, b) {
+					return b.received - a.received ;
+				});
+			}
+
+			sortByDatesAndGUID(messages){
+				return messages.sort(function (a, b) {
+					if(b.received === a.received){
+						let bGuid = b.transportGuid.split(":")[1] || "";
+						let aGuid = a.transportGuid.split(":")[1] || "";
+						return bGuid > aGuid? 1: -1;
+                    }
+                    else{
+                    	return b.received - a.received;
+                    }
                 });
-            }
+			}
 
             getToAddresses(item){
                 return item.toAddresses.reduce((acc, i) =>{return acc + ", " + i}, "" )
