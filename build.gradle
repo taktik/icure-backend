@@ -35,7 +35,7 @@ configure(allprojects) {
 
 
 group = 'org.taktik.icure'
-version = '1.0.17'
+version = '1.0.18'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
@@ -121,9 +121,9 @@ dependencies {
         exclude group: 'org.taktik.commons', module: 'commons-utils'
     }
 
-    //Hibernate
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
-    compile group: 'com.h2database', name: 'h2', version: '1.4.187'
+	//Hibernate
+	compile group:'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
+	compile group:'com.h2database', name: 'h2', version: '1.4.187'
 
     // Jersey
     compile group: 'org.jboss.resteasy', name: 'jaxrs-api', version: '3.0.8.Final'
@@ -228,6 +228,7 @@ task bowerInstallWindows(type: Exec) {
     executable  'bower.cmd'
     args 'install'
 }
+
 task installWebResourcesDependencies(type: Exec) {
     group 'build'
     description 'Package web resources'

@@ -7,6 +7,8 @@
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
 
+<script src="../../../../node_modules/node-forge/dist/forge.min.js"></script>
+
 <dom-module id="ht-import-keychain">
 	<template>
 		<style>
@@ -38,22 +40,80 @@
 				background: var(--app-secondary-color);
 			}
 
+			.remove-msgKeystore-btn{
+				background: var(--app-status-color-nok);
+			}
+
 		</style>
 
-		<paper-dialog id="dialog" opened="{{opened}}">
-			<form is="form" id="keys-form">
+		<paper-dialog id="dialog" opened="{{opened}}" style="overflow: auto">
+			<form is="form" id="keys-form" >
 				<div class="layout vertical center">
+
+					<h3>[[localize('ehe_key','eHealth keychain',language)]]</h3>
+
+					<vaadin-grid id="currentEhKeychainList" items="[[CurrentEhKeychains]]">
+						<vaadin-grid-column flex-grow="15">
+							<template class="header">
+								<div>Name</div>
+							</template>
+							<template>
+								<div class="cell frozen">[[item.keystore.name]]</div>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="4">
+							<template class="header">
+								<div>Set the active keystore</div>
+							</template>
+							<template>
+								<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]' disabled='[[!item.onlyDecrypt]]'>Set active</paper-button>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="4">
+							<template class="header">
+								<div>Set the keystore password</div>
+							</template>
+							<template>
+								<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' >Set password</paper-button>
+							</template>
+						</vaadin-grid-column>
+						<vaadin-grid-column flex-grow="1">
+							<template class="header">
+								<div>[[localize('del','Delete',language)]]</div>
+							</template>
+							<template>
+								<div class="cell frozen">
+									<paper-button class="remove-msgKeystore-btn" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'>X</paper-button>
+								</div>
+							</template>
+						</vaadin-grid-column>
+					</vaadin-grid>
+
 					<h3>[[localize('ple_sel_the_ehe_key','Please select the eHealth keychain',language)]]</h3>
 					<h5>[[localize('it_is_usu_loc_in_the_ehe_dir','it is usually located in the eHeath directory',language)]]</h5>
-					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected"></paper-input>
-					<div>{{message}}</div>
-				</div>
-			</form>
+					<paper-input type="file" id="ehKeychainFileInput" on-change="ehKeychainSelected" multiple="true"></paper-input>
 
-				<div class="buttons">
-					<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-					<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
 				</div>
+				<div>{{message}}</div>
+			</form>
+				<div class="buttons">
+					<!--<paper-button dialog-dismiss on-tap="close" class="modal-button modal-button&#45;&#45;cancel">[[localize('can','Cancel',language)]]</paper-button>-->
+					<paper-button dialog-confirm autofocus class="modal-button modal-button--save" >[[localize('clo','Close',language)]]</paper-button>
+				</div>
+		</paper-dialog>
+		<paper-dialog id="keystorePasswordDialog">
+
+			<h3>[[localize('mdp','Password',language)]]</h3>
+			<h5 id="passwordDialogSubtitle"></h5>
+
+			<span id="errorKeystorePassword"></span>
+			<paper-input id="newPasswordKeystore" label="Set password" type="password"></paper-input>
+
+			<div class="buttons">
+				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button autofocus on-tap="_setPassword" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+			</div>
+
 		</paper-dialog>
 	</template>
 	<script>
@@ -75,6 +135,14 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			opened: {
 				type: Boolean,
 				value: false
+			},
+			CurrentEhKeychains:{
+				type:Array,
+				value:[]
+			},
+			SelectedEhKeychains:{
+				type:Object,
+				value: null
 			}
 		};
 	}
@@ -93,22 +161,26 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	}
 
 	ehKeychainSelected() {
-		this.selectedEhKeychain = this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement ? this.$.ehKeychainFileInput.inputElement.inputElement.files[0] : null;
-	}
 
-	confirm() {
-		const fr = new FileReader();
-		return new Promise((resolve, reject) => {
-			fr.onerror = reject;
-			fr.onabort = reject;
-			fr.onload = function (e) {
-				const keychain = e.target.result;
-				this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId, keychain);
-			}.bind(this);
-			fr.readAsArrayBuffer(this.selectedEhKeychain);
-		});
+		if( this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement){
+			Object.values(this.$.ehKeychainFileInput.inputElement.inputElement.files).forEach( item => {
+				this.push('CurrentEhKeychains', {keystore:{ name:item.name,file:item}, onlyDecrypt: false})
 
-        this.dispatchEvent(new CustomEvent('file-selected', { detail: this.selectedEhKeychain, bubbles: true, composed: true }))
+				const fr = new FileReader();
+				fr.onload = function (e) {
+					const keychain = e.target.result;
+					this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId + "." + item.name, keychain);
+				}.bind(this);
+				fr.readAsArrayBuffer(item);
+
+			})
+		}
+
+		//Clear control
+		this.$.ehKeychainFileInput.value = '';
+
+
+		this.dispatchEvent(new CustomEvent('file-selected', { detail: this.selectedEhKeychains, bubbles: true, composed: true }))
 	}
 
 	attached() {
@@ -126,11 +198,130 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 	open() {
 		this.$.dialog.open();
+		this.set("CurrentEhKeychains",this.getCurrentEhKeychains());
+
 	}
 
 	close() {
 		this.$.dialog.close();
 	}
+
+	_removeKeystore(e){
+
+		if (confirm(this.localize('del','Delete',this.language) + " ?")) {
+			let keystore = e.target.getAttribute('keystore') || "";
+
+			let keys = Object.keys(localStorage);
+			const prefix = "org.taktik.icure.ehealth.keychain.";
+			const healthcarePartyId = this.user.healthcarePartyId;
+
+			keys.forEach(k => {
+				if(k = prefix + healthcarePartyId + "." + keystore){
+					localStorage.removeItem(k);
+				}
+			});
+
+			this.set("CurrentEhKeychains",this.getCurrentEhKeychains());
+		}
+	}
+
+	_SetMainKeystore(e){
+		let keystore = e.target.getAttribute('keystore');
+		localStorage.setItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId,this.CurrentEhKeychains[keystore].keystore.file);
+
+		this.set("CurrentEhKeychains",this.getCurrentEhKeychains());
+	}
+
+	getCurrentEhKeychains(){
+
+		let EhKeychains = [];
+		let keys = Object.keys(localStorage);
+		const prefix = "org.taktik.icure.ehealth.keychain.";
+		const healthcarePartyId = this.user.healthcarePartyId;
+
+		keys.forEach(k => {
+			let actifKeystore = localStorage.getItem(prefix + healthcarePartyId) || "";
+
+			if(k.includes(prefix + healthcarePartyId + ".")){
+				let Keystore = localStorage.getItem(k);
+				EhKeychains.push({
+					keystore:{
+						name: k.replace(prefix,"").replace(healthcarePartyId + ".",""),
+						file: Keystore
+					},onlyDecrypt:(Keystore != "" && Keystore == actifKeystore)?false:true
+				});
+			}
+		})
+
+		return EhKeychains;
+	}
+
+	_openKeystorePasswordDialog(e){
+		let index = e.target.getAttribute('index');
+		const keystore = this.CurrentEhKeychains[index];
+		this.set("SelectedEhKeychains",keystore)
+
+		this.$.errorKeystorePassword.innerHTML = "";
+		this.$.passwordDialogSubtitle.innerHTML = this.localize('ehe_key','eHealth keychain',language) + " " + keystore.keystore.name;
+
+		this.$.keystorePasswordDialog.open();
+	}
+
+	_setPassword(){
+
+		//TODO: displace dependence at right place
+		const forge = require('node-forge');
+
+		const keystore = this.SelectedEhKeychains;
+		const value = this.$.newPasswordKeystore.value;
+		const healthcarePartyId = this.user.healthcarePartyId;
+		const prefix = "org.taktik.icure.ehealth.keychain.password.";
+
+		let p12Der = forge.util.decode64(keystore.keystore.file);
+		let p12Asn1 = forge.asn1.fromDer(p12Der);
+
+		try {
+			//Check keystore password
+			let p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, value);
+
+			this.$.errorKeystorePassword.innerHTML = "";
+			this.$.newPasswordKeystore.value = "";
+
+			//Encrypt and store password
+			try {
+				this._setCryptedValueInLocalstorage(healthcarePartyId, prefix + this.user.healthcarePartyId + "." + keystore.keystore.name, value);
+				this.$.keystorePasswordDialog.close();
+			}
+			catch (ex) {
+				this.$.errorKeystorePassword.innerHTML = this.localize('una_store_password','Unable to store the password',language);
+				console.log(ex);
+			}
+
+		}
+		catch(ex){
+			this.$.errorKeystorePassword.innerHTML = this.localize('inv_pas','Invalid password',language);
+			console.log(ex);
+		}
+
+	}
+
+	_setCryptedValueInLocalstorage(healthcarePartyId, key, value){
+		this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+			.then(encryptedHcPartyKey =>
+				this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
+			)
+			.then(importedAESHcPartyKey =>
+				this.api.crypto().AES.encrypt(importedAESHcPartyKey.key, this.api.crypto().utils.text2ua(value))
+			)
+			.then(data =>
+				this.api.crypto().utils.ua2text(data)
+			)
+			.then(encryptedData =>
+				//Store encrypted password in localstorage
+				localStorage.setItem(key,encryptedData)
+			);
+	}
+
 }
 customElements.define(HtImportKeychain.is, HtImportKeychain);
 </script>

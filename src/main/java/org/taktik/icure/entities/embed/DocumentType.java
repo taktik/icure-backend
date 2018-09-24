@@ -57,9 +57,10 @@ public enum DocumentType {
     result,
     sumehr,
     telemonitoring,
+    template,
+    template_admin,
     treatmentsuspension,
-    vaccination,
-    template;
+    vaccination;
 
 
     public static DocumentType fromName(String name){

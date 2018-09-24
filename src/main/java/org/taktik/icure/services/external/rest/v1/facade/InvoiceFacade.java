@@ -50,6 +50,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
 import org.taktik.icure.logic.InsuranceLogic;
@@ -243,10 +244,10 @@ public class InvoiceFacade implements OpenApiFacade{
 		return mapper.map(invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), invoiceLogic.getInvoice(invoiceId), scheme, forcedValue),InvoiceDto.class);
 	}
 
-	@Path("/byauthor/{userId}/append/{type}")
+	@Path("/byauthor/{userId}/append/{type}/{sentMediumType}")
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@POST
-	public Response appendCodes(@PathParam("userId") String userId, @PathParam("type") String type, @QueryParam("insuranceId") String insuranceId, @QueryParam("secretFKeys") String secretFKeys, @QueryParam("invoiceId") String invoiceId, @QueryParam("gracePriod") Integer gracePeriod, List<InvoicingCodeDto> invoicingCodes) {
+	public Response appendCodes(@PathParam("userId") String userId, @PathParam("type") String type, @PathParam("sentMediumType") String sentMediumType, @QueryParam("insuranceId") String insuranceId, @QueryParam("secretFKeys") String secretFKeys, @QueryParam("invoiceId") String invoiceId, @QueryParam("gracePriod") Integer gracePeriod, List<InvoicingCodeDto> invoicingCodes) {
 		Response response;
 
 		if (invoicingCodes == null) {
@@ -254,7 +255,7 @@ public class InvoiceFacade implements OpenApiFacade{
 		} else {
 			Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
 
-			List<Invoice> invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type),
+			List<Invoice> invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type), MediumType.valueOf(sentMediumType),
 					invoicingCodes.stream().map(ic->mapper.map(ic,InvoicingCode.class)).collect(Collectors.toList()), invoiceId, gracePeriod);
 			if (invoices != null) {
 				response = ResponseUtils.ok(invoices.stream().map(i->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList()));
@@ -293,7 +294,7 @@ public class InvoiceFacade implements OpenApiFacade{
 	@Path("/byauthor/{userId}")
 	public InvoicePaginatedList findByAuthor(@PathParam("userId") String userId, @QueryParam("fromDate") Long fromDate, @QueryParam("toDate") Long toDate, @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
 			"components to form the Complex Key's startKey") @QueryParam("startKey") String startKey, @ApiParam(value = "A patient document ID") @QueryParam("startDocumentId") String startDocumentId, @ApiParam(value = "Number of rows") @QueryParam("limit") Integer limit) {
-		return mapper.map(invoiceLogic.findByAuthor(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), userId, fromDate, toDate, new PaginationOffset<>(ComplexKey.of((Object[])(startKey.split(","))), startDocumentId, 0, limit)), InvoicePaginatedList.class);
+		return mapper.map(invoiceLogic.findByAuthor(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), userId, fromDate, toDate, startKey == null ? null : new PaginationOffset<>(ComplexKey.of((Object[])(startKey.split(","))), startDocumentId, 0, limit)), InvoicePaginatedList.class);
 	}
 
 	@ApiOperation(

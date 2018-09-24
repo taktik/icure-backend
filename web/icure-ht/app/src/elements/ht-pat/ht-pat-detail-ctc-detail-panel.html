@@ -34,7 +34,7 @@
 <link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
-<link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
+<link rel="import" href="dialogs/ht-pat-invoicing-dialog.html">
 <link rel="import" href="ht-pat-detail-table.html">
 <link rel="import" href="ht-pat-detail-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
@@ -298,7 +298,7 @@
 				--paper-fab-speed-dial-action-label-background: transparent;
 				--paper-fab-iron-icon: {
 					transform: scale(0.8);
-					
+
 				};
 				--paper-fab: {
 					background: var(--app-primary-color-dark);
@@ -384,7 +384,7 @@
 						<template is="dom-if" if="[[form.id]]">
 							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" current-contact="[[currentContact]]"
 													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
-													 resources="[[resources]]" on-plan-action="_planAction" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
+													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
 						</template>
 						<template is="dom-repeat" items="[[form.docs]]">
 							<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
@@ -417,6 +417,12 @@
 						<paper-button id="procedureBtn" class="procedure-btn action-btn" on-tap="_planAction">
 							<iron-icon icon="vaadin:tools" ></iron-icon>
 							[[localize('proc','Procedure',language)]]
+						</paper-button>
+					</div>
+					<div id="invoicingBtnCtnr">
+						<paper-button id="invoicingBtn" class="invoicing-btn action-btn" on-tap="_invoicing">
+							<iron-icon icon="vaadin:invoice" ></iron-icon>
+							[[localize('inv','Invoice',language)]]
 						</paper-button>
 					</div>
 				</template>
@@ -480,8 +486,7 @@
 			</div>
 		</paper-dialog>
 
-		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" current-contact="[[currentContact]]"></ht-pat-action-plan-dialog>
-
+		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -637,7 +642,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		dynamicallyLoadedForm && dynamicallyLoadedForm.flushSave();
 	}
 
-	_filesChanged() {
+    _planAction() {
+        this.dispatchEvent(new CustomEvent("plan-action", {composed: true, bubbles: true}))
+    }
+
+    _filesChanged() {
 		if (!this.currentContact) {
 			return;
 		}
@@ -677,8 +686,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		}
 	}
 
-	_planAction() {
-	    this.$.planActionForm.open()
+	_invoicing(){
+	    this.$.invoicingForm.open()
 	}
 
 	addForm(templateGuid) {

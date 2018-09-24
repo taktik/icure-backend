@@ -48,8 +48,6 @@ import java.util.stream.Collectors;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted) emit( null, doc._id )}")
 public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements DocumentDAO {
 
-    private List<Document> by_type_hcparty_message;
-
     @Autowired
     public DocumentDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(Document.class, db, idGenerator);

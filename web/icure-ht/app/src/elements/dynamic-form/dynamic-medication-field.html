@@ -12,6 +12,7 @@
 
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="dynamic-link.html">
 
 
 <dom-module id="dynamic-medication-field">
@@ -297,7 +298,7 @@
 		<label hidden$="[[!label]]" aria-hidden="true">
 			<span>[[label]]</span>
 		</label>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 
 		<template is="dom-if" if="[[wasModified]]">
 			<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>
@@ -765,7 +766,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
 			this.select(this.latestSelected);
 		} else {
-            this.latestSelected = selected;
+		    if(selected) this.latestSelected = selected;
             this.inDoubleClick = true;
 
             //Trigger cheapAlternativeSearch
@@ -785,6 +786,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (searchSeed.cheap) {
                 searchSeed = this.cheapAlternativeSearchSeed
             }
+            if(!searchSeed.id){
+                this.cheapAlternativeSearchSeed = null
+                return Promise.resolve([])
+			}
             this.cheapAlternativeSearchSeed = searchSeed
             return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
                 .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1,mpp2)=>(mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp=>_.extend(_.extend({}, mpp), {cheap : 'cheap'})))

@@ -98,6 +98,20 @@ public class KeywordFacade implements OpenApiFacade{
 		}
 	}
 
+    @ApiOperation(response = KeywordDto.class, value = "Gets all keywords")
+    @GET
+    public Response getKeywords() {
+        Response response;
+        List<Keyword> keywords = keywordLogic.getAllEntities();
+        if (keywords != null) {
+            response = Response.ok().entity(keywords.stream().map(c -> mapper.map(c, KeywordDto.class)).collect(Collectors.toList())).build();
+
+        } else {
+            response = ResponseUtils.internalServerError("Keywords fetching failed");
+        }
+        return response;
+    }
+
 
 	@ApiOperation(
 			value = "Delete keywords.",
