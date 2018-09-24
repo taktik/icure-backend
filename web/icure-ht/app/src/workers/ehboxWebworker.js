@@ -3,7 +3,7 @@ import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
 import {UtilsClass} from "icc-api/dist/icc-x-api/crypto/utils"
 
-import 'moment'
+import moment from 'moment/src/moment'
 
 onmessage = e => {
     if(e.data.action === "loadEhboxMessage"){
