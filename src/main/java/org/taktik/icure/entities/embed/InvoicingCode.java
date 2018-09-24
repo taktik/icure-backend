@@ -94,7 +94,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected String locationNihii;
 	protected String locationCdHcParty;
 
-
+	protected Integer invoicePeriod;
 
 	protected Boolean canceled;
 	protected Boolean accepted;
@@ -600,6 +600,10 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	public void setLocationCdHcParty(String locationCdHcParty) {
 		this.locationCdHcParty = locationCdHcParty;
 	}
+
+	public Integer getInvoicePeriod() { return invoicePeriod; }
+
+	public void setInvoicePeriod(Integer invoicePeriod) { this.invoicePeriod = invoicePeriod; }
 
 	public InvoicingCode solveConflictWith(InvoicingCode other) {
 		this.dateCode = this.dateCode == null ? other.dateCode : this.dateCode;

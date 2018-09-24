@@ -18,6 +18,7 @@
 
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="dynamic-link.html">
 
 <dom-module id="material-text-field-custom" theme-for="vaadin-text-field">
 	<template>
@@ -162,7 +163,7 @@
 			<template is="dom-if" if="[[dataSource]]">
 				<vaadin-combo-box filtered-items="[[items]]" item-label-path="name" item-value-path="id" on-filter-changed="_filterChanged" label="[[_label(label)]]" value="{{comboBoxValue}}"></vaadin-combo-box>
 			</template>
-			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
+			<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 		</template>
 
 	</template>
@@ -189,7 +190,7 @@ class DynamicPopupMenu extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			label: {
 				type: String
 			},
-			value: {
+            value: {
 				type: String,
 				notify: true,
 				observer: '_valueChanged'

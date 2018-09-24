@@ -1,0 +1,90 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+
+
+
+<dom-module id="dynamic-pills">
+    <template>
+        <style include="icpc-styles">
+            span.he-pill {
+                border-radius: 10px;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                padding: 0px 6px 1px 8px;
+                background-color: #ddd;
+                max-width: 100px;
+                width: auto;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 1;
+                margin-right: 4px;
+                height: 12px;
+                cursor: pointer;
+            }
+
+            span.he-pill-highlighted {
+                color: black;
+            }
+            .ICPC-2-fallback { color: var(--paper-blue-grey-500) !important;}
+            .ICPC-2-fallback-back { background: var(--paper-blue-grey-500) !important; color: white !important; }
+            .ICPC-2-fallback span{ background: var(--paper-blue-grey-500) !important; }
+        </style>
+
+        <template is="dom-repeat" items="[[healthElements]]" as="he">
+            <template is="dom-if" if="[[he.descr]]">
+                <span id="pill-[[he.id]]" class$="form-title-bar-btn he-pill [[_heColourStyle(he, highlightedHes.*)]]" on-tap="_highlight">[[he.descr]]</span>
+            </template>
+        </template>
+    </template>
+    <script>
+
+class DynamicPill extends Polymer.TkLocalizerMixin(Polymer.Element) {
+    static get is() {
+        return 'dynamic-pills';
+    }
+
+    static get properties() {
+        return {
+            highlightedHes: {
+                type: Array,
+                notify: true,
+                value: () => []
+            },
+            healthElements: {
+                type: Array,
+                value: () => []
+            }
+        };
+    }
+
+    static get observers() {
+        return [];
+    }
+
+    ready() {
+        super.ready();
+    }
+
+    _highlight(e) {
+        const id = e.target.id.substr(5)
+        const hHe = this.highlightedHes.find(he => he.id === id)
+        if (!hHe) {
+            const newHe = this.healthElements.find(he => he.id === id)
+            newHe && this.push('highlightedHes', newHe)
+        } else {
+            this.splice('highlightedHes', this.highlightedHes.indexOf(hHe), 1)
+        }
+    }
+
+    _heColourStyle(he) {
+        return this.highlightedHes.includes(he) ? "he-pill-highlighted " + (he.colour || "ICPC-2-fallback") + "-back" : (he.colour || "ICPC-2-fallback")
+    }
+
+}
+customElements.define(DynamicPill.is, DynamicPill);
+</script>
+</dom-module>

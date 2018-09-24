@@ -12,6 +12,7 @@
 
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="dynamic-link.html">
 
 
 <dom-module id="dynamic-medication-field">
@@ -302,7 +303,7 @@
 		<label hidden$="[[!label]]" aria-hidden="true">
 			<span>[[label]]</span>
 		</label>
-		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
+		<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 
 		<template is="dom-if" if="[[wasModified]]">
 			<span class="modified-before-out">[[localize('mod','modified',language)]] [[lastModified]] <iron-icon class="modified-icon" icon="schedule"></iron-icon></span>

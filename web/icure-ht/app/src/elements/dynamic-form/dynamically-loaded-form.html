@@ -10,30 +10,11 @@
 <link rel="import" href="../../icpc-styles.html">
 
 <link rel="import" href="dynamic-form.html">
+<link rel="import" href="dynamic-pills.html">
 
 <dom-module id="dynamically-loaded-form">
 	<template>
 		<style include="icpc-styles">
-			span.he-pill {
-				border-radius: 10px;
-				-webkit-border-radius: 10px;
-				-moz-border-radius: 10px;
-				padding: 0px 6px 1px 8px;
-				background-color: #ddd;
-				max-width: 100px;
-				width: auto;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				line-height: 1;
-				margin-right: 4px;
-				height: 12px;
-				cursor: pointer;
-			}
-
-			span.he-pill-highlighted {
-				color: black;
-			}
 
 			.title-bar {
 				flex-grow: 2;
@@ -74,9 +55,7 @@
 				min-height: 30px;
 			}
 
-			.ICPC-2-fallback { color: var(--paper-blue-grey-500) !important;}
-			.ICPC-2-fallback-back { background: var(--paper-blue-grey-500) !important; color: white !important; }
-			.ICPC-2-fallback span{ background: var(--paper-blue-grey-500) !important; }
+
 
 		</style>
 
@@ -84,13 +63,9 @@
 			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
-						  on-link-form="linkForm" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog">
+						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog">
 				<div slot="titlebar" class="title-bar">
-					<template is="dom-repeat" items="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" as="he">
-						<template is="dom-if" if="[[he.descr]]">
-							<span id="pill-[[he.id]]" class$="form-title-bar-btn he-pill [[_heColourStyle(he, highlightedHes.*)]]" on-tap="_highlight">[[he.descr]]</span>
-						</template>
-					</template>
+					<dynamic-pills health-elements="[[_selectedHes(healthElements.*, contact.subContacts.*, dataProvider)]]" highlighted-hes="{{highlightedHes}}"></dynamic-pills>
 				</div>
 			</dynamic-form>
 		</template>
@@ -202,6 +177,19 @@
                 return form && contact && (!currentContact || (contact !== currentContact && !currentContact.subContacts.some(sc => sc.formId === form.id)));
             }
 
+            linkService(e) {
+                const he = e.detail.healthElement
+                if (!he) {
+                    return;
+                }
+                const ctc = this.currentContact
+                ;(he.id ? Promise.resolve(he) : this.promoteServiceToHealthElement(he)).then(he => {
+                        this.dataProvider.getServicesInContact(e.detail.representedObject).forEach(svcStruc => svcStruc && svcStruc[0] && svcStruc[0].svc && !!svcStruc[0].svc.endOfLife && this.api.contact().promoteServiceInContact(ctc, this.user, this._allContacts(), svcStruc[0].svc, this.form.id, null, [he.id]))
+                        this.scheduleSave(ctc)
+                    }
+				)
+            }
+
             linkForm(e) {
                 const he = e.detail.healthElement
                 if (!he) {
@@ -233,21 +221,6 @@
 
             _openActionDialog(e, detail) {
                 this.dispatchEvent(new CustomEvent('plan-action', {detail: this.dataProvider && this.dataProvider.getStringValue(detail.representedObject), bubbles: true, composed: true})); //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
-            }
-
-            _highlight(e) {
-                const id = e.target.id.substr(5)
-                const hHe = this.highlightedHes.find(he => he.id === id)
-                if (!hHe) {
-                    const newHe = this.healthElements.find(he => he.id === id)
-                    newHe && this.push('highlightedHes', newHe)
-                } else {
-                    this.splice('highlightedHes', this.highlightedHes.indexOf(hHe), 1)
-                }
-            }
-
-            _heColourStyle(he) {
-                return this.highlightedHes.includes(he) ? "he-pill-highlighted " + (he.colour || "ICPC-2-fallback") + "-back" : (he.colour || "ICPC-2-fallback")
             }
 
             _selectedHes() {
@@ -404,9 +377,17 @@
                         const sss = self.services(label);
                         return sss && (sss.find(svcs => svcs.find(ss => ss.ctc.id === this.contact.id)) || sss[0]) || [];
                     },
+                    getServicesLinesForContact: label => {
+                        const sss = self.services(label);
+                        return sss && (sss.filter(svcs => svcs.find(ss => !ss.ctc || ss.ctc.id === this.contact.id)) || sss[0]) || [];
+                    },
                     getServiceInContact: label => {
                         const ssLine = self.getServicesLineForContact(label);
                         return ssLine && ssLine.find(ss => !this.api.after(ss.ctc.created, this.contact.created));
+                    },
+                    getServicesInContact: label => {
+                        const ssLines = self.getServicesLinesForContact(label);
+                        return ssLines && ssLines.filter(ss => !ss.ctc || !this.api.after(ss.ctc.created, this.contact.created));
                     },
                     wasModified: label => {
                         const s = self.getServiceInContact(label);

@@ -69,10 +69,12 @@
                 <paper-icon-button id="hc_menu" class="form-title-bar-btn" icon="link" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
                 <paper-listbox slot="dropdown-content">
                     <template is="dom-repeat" items="[[linkables]]" as="he">
-                        <paper-item id="[[he.id]]" class="link" on-tap="link"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
+                        <paper-item id="[[getHeId(he)]]" class="link" on-tap="link"><label class$="colour-code [[he.colour]]"><span></span></label>[[he.descr]]</paper-item>
                     </template>
                 </paper-listbox>
             </paper-menu-button>
+
+            <template is="dom-if" if="[[!noStatus]]">
 
             <paper-menu-button id="stat" horizontal-align="left" dynamic-align="true" allow-outside-scroll>
                 <paper-icon-button id="stat_menu" class="form-title-bar-btn" icon="more-horiz" slot="dropdown-trigger" alt="menu" on-tap="_show"></paper-icon-button>
@@ -107,6 +109,7 @@
                     </paper-item>
                 </paper-listbox>
             </paper-menu-button>
+            </template>
         </template>
     </template>
     <script>
@@ -152,8 +155,8 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     }
 
-    link(e, target) {
-        const he = this.linkables && this.linkables.find(he => he.id === e.target.id) || null
+    link(e) {
+        const he = this.linkables && this.linkables.find(he => e.target.id.startsWith('_he_') ? he.id === e.target.id.substr(4) : he.idService === e.target.id.substr(5) ) || null
         if (!he) {
             return;
         }
@@ -161,7 +164,6 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     showPlanActionForm(e){
-
         this.dispatchEvent(new CustomEvent('dynamically-event', { bubbles: true, composed: true, detail: { representedObject: this.representedObject} }));
     }
 
@@ -171,20 +173,9 @@ class DynamicLink extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.dispatchEvent(new CustomEvent('status-changed', { bubbles: true, composed: true, detail: { representedObject: this.representedObject, status: e.target.id} }));
     }
 
-    _getCssColorStatus(){
-/*
-        const services = this.api.contact().services(this.currentContact, this.representedObject)
-        let status = ""
-
-        if(services[0] && services[0].status) {
-            status = services[0].status
-        }
-
-        return 'stat_act'
-*/
+    getHeId(he) {
+        return he.id ? `_he_${he.id}` : `_svc_${he.idService}`;
     }
-
-
 
 }
 customElements.define(DynamicLink.is, DynamicLink);
