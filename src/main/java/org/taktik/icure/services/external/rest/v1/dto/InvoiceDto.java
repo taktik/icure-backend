@@ -33,6 +33,10 @@ public class InvoiceDto extends IcureDto {
 
 	private List<InvoicingCodeDto> invoicingCodes;
 	private String invoiceType;
+	private String sentMediumType;
+	private String interventionType;
+
+	private String groupId;
 
 	private String recipientType; //org.taktik.icure.entities.HealthcareParty, org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
 	private String recipientId; //for hcps and insurance, patient link happens through secretForeignKeys
@@ -97,6 +101,18 @@ public class InvoiceDto extends IcureDto {
 	public void setInvoiceType(String invoiceType) {
 		this.invoiceType = invoiceType;
 	}
+
+	public String getSentMediumType() { return sentMediumType; }
+
+	public void setSentMediumType(String sentMediumType) { this.sentMediumType = sentMediumType; }
+
+	public String getInterventionType() { return interventionType; }
+
+	public void setInterventionType(String interventionType) { this.interventionType = interventionType; }
+
+	public String getGroupId() { return groupId; }
+
+	public void setGroupId(String groupId) { this.groupId = groupId; }
 
 	public Long getSentDate() {
 		return sentDate;
