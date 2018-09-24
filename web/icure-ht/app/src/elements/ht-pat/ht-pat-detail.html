@@ -1873,7 +1873,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_dateFormat(date) {
-		returndate ? this.api.moment(date).format('DD/MM/YYYY') : '';
+		return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
 	}
 
 	_contactClasses(contact) {
