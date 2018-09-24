@@ -52,7 +52,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	@Override
 	@View(name = "by_hcparty_date", map = "classpath:js/invoice/By_hcparty_date_map.js")
 	public PaginatedList<Invoice> findByHcParty(String hcParty, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset) {
-		ComplexKey startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(hcParty, fromDate) : paginationOffset.getStartKey();
+		ComplexKey startKey = paginationOffset == null || paginationOffset.getStartKey() == null ? ComplexKey.of(hcParty, fromDate) : paginationOffset.getStartKey();
 		ComplexKey endKey = ComplexKey.of(hcParty, toDate == null ? ComplexKey.emptyObject(): toDate);
 		return pagedQueryView("by_hcparty_date", startKey, endKey, paginationOffset, true);
 	}

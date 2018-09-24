@@ -1218,6 +1218,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     timeOutId: {
                         type: String
+                    },
+                    keyPairKeystore:{
+                    	type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -1276,7 +1280,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _timeCheck(period = 300000) {
                 setTimeout(() => {
                     if (this.api.tokenId) {
-                        this.api.fhc().Stscontroller().checkTokenUsingGET(this.api.tokenId).then(isTokenValid => {
+                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
                                 this._getToken().then(() => {
                                     this._timeCheck()
@@ -1436,8 +1440,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (!this.authenticated) {
                         this.authenticated = true
 
-                        this.api.loadUsersAndHcParties()
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
+                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.$.api.crypto().checkPrivateKeyValidity(hcp)).then(ok => {
+                                if (ok) {
+                                    this.api.loadUsersAndHcParties()
                             if (this.credentials.ehpassword) {
                                 const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
                                 if (ehKeychain) {
@@ -1463,6 +1469,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             } else {
                                 this._routePageChanged(destPage)
                             }
+                                } else {
+                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                    this.$.registerKeyPairDialog.opened = true
+                                }
+                            })
                         } else {
                             this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
 
@@ -1549,6 +1560,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.worker = new Worker()
 
+                this.getAlternateKeystores().then(alternateKeystores => {
                 this.worker.postMessage({
                     action: "loadEhboxMessage",
                     hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
@@ -1561,7 +1573,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: this.user,
                     ehpassword: this.credentials.ehpassword,
                     boxId: "INBOX",
+                        alternateKeystores: ({keystore:alternateKeystores.filter(ak => ak.passPhrase)}),
                     keyPair: keyPair
+                })
+
                 })
 
                 this.worker.onmessage = e => {
@@ -1569,6 +1584,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.ehboxInboxMessage.classList.add('notificationEhbox')
                     console.log("Le worker à repondu " + e.data.message)
                 }
+
+            }
+
+			getAlternateKeystores(){
+				const prefix = "org.taktik.icure.ehealth.keychain.";
+				const healthcarePartyId = this.user.healthcarePartyId;
+
+                return Promise.all(
+				Object.keys(localStorage).filter(k => k.includes(prefix + healthcarePartyId + ".") === true)
+                    .map(fk => this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
+					    .then( password =>
+							(this.keyPairKeystore[fk])?
+                                // Get fhc keystore UUID in cache
+								new Promise(x => x(({uuid: this.keyPairKeystore[fk], passPhrase: password}))):
+                                // Upload new keystore
+								this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.api.crypto().utils.base64toByteArray(localStorage.getItem(fk)))
+									.then(res => this.addUUIDKeystoresInCache(fk, res.uuid, password))
+
+						)
+                    )
+                )
+			}
+
+			addUUIDKeystoresInCache(key, uuid, password){
+            	return new Promise(x =>{
+					this.keyPairKeystore[key] = uuid;
+                    x(({uuid: uuid, passPhrase: password}))
+                })
+
+            }
+
+			getDecryptedValueFromLocalstorage(healthcarePartyId, key){
+				let item = localStorage.getItem(key);
+
+                return this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+                    .then(encryptedHcPartyKey =>
+                        this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
+                    )
+                    .then(importedAESHcPartyKey =>
+                        (item)?this.api.crypto().AES.decrypt(importedAESHcPartyKey.key, this.api.crypto().utils.text2ua(item)):null
+                    )
+                    .then(data =>
+                        (data)?this.api.crypto().utils.ua2text(data):null
+                    );
             }
 
             _logList() {

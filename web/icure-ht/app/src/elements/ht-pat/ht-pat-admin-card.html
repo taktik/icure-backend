@@ -1141,7 +1141,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (this.patient.ssin && this.api.tokenId) {
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                        this.api.fhc().DMGcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
+                        this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
                     ).then(dmgConsultResp => {
                         var hcp = {
                             nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
@@ -1156,9 +1156,11 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             }]
                         }
 
+                        return hcp
+                    }).then(hcp  => {
                         dmgOwner.push(hcp);
-
-                    }).then(() => this.set('currentDMGOwner', dmgOwner))
+                        this.set('currentDMGOwner', dmgOwner)
+                    })
             }
 
         })
