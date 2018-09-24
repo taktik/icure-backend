@@ -290,6 +290,34 @@ public class DocumentTemplateFacade implements OpenApiFacade {
         return response;
     }
 
+    @ApiOperation(value = "Download a the document template attachment")
+    @GET
+    @Path("/{documentTemplateId}/attachmentText/{attachmentId}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response getAttachmentText(@PathParam("documentTemplateId") String documentTemplateId, @PathParam("attachmentId") String attachmentId) {
+        Response response;
+
+        if (documentTemplateId == null) {
+            return ResponseUtils.badRequest("Cannot retrieve attachment: provided document ID is null");
+        }
+        if (attachmentId == null) {
+            return ResponseUtils.badRequest("Cannot retrieve attachment: provided attachment ID is null");
+        }
+
+        DocumentTemplate document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId);
+        if (document == null) {
+            response = ResponseUtils.notFound("Document not found");
+        } else {
+            if (document.getAttachment() != null) {
+                response = ResponseUtils.ok(document.getAttachment(), MediaType.APPLICATION_OCTET_STREAM);
+            } else {
+                response = ResponseUtils.notFound("AttachmentDto not found");
+            }
+        }
+
+        return response;
+    }
+
     @ApiOperation(response = DocumentTemplateDto.class, value = "Creates a document's attachment")
     @PUT
     @Path("/{documentTemplateId}/attachment")
