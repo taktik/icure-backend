@@ -1218,6 +1218,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     timeOutId: {
                         type: String
+                    },
+                    keyPairKeystore:{
+                    	type: [],
+                        value: []
                     }
                 }
             }
@@ -1549,20 +1553,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.worker = new Worker()
 
-                this.worker.postMessage({
-                    action: "loadEhboxMessage",
-                    hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
-                    fhcHost: this.api.fhc().host,
-                    fhcHeaders: JSON.stringify(this.api.fhc().headers),
-                    iccHost: this.api.host,
-                    iccHeaders: JSON.stringify(this.api.headers),
-                    tokenId: this.api.tokenId,
-                    keystoreId: this.api.keystoreId,
-                    user: this.user,
-                    ehpassword: this.credentials.ehpassword,
-                    boxId: "INBOX",
-                    keyPair: keyPair
-                })
+				this.getAlternateKeystores().then(alternateKeystores => {
+					this.worker.postMessage({
+						action: "loadEhboxMessage",
+						hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+						fhcHost: this.api.fhc().host,
+						fhcHeaders: JSON.stringify(this.api.fhc().headers),
+						iccHost: this.api.host,
+						iccHeaders: JSON.stringify(this.api.headers),
+						tokenId: this.api.tokenId,
+						keystoreId: this.api.keystoreId,
+						user: this.user,
+						ehpassword: this.credentials.ehpassword,
+						boxId: "INBOX",
+						alternateKeystores: ({keystore: alternateKeystores.filter(ak => ak.passPhrase)}),
+						keyPair: keyPair
+					})
+				})
 
                 this.worker.onmessage = e => {
                     this.set('ehboxWebWorkerMessage', e.data.message)
@@ -1571,6 +1578,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+			getAlternateKeystores(){
+				const prefix = "org.taktik.icure.ehealth.keychain.";
+				const healthcarePartyId = this.user.healthcarePartyId;
+
+                return Promise.all(
+				Object.keys(localStorage).filter(k => k.includes(prefix + healthcarePartyId + ".") === true)
+                    .map(fk => this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
+					    .then( password =>
+							(this.keyPairKeystore[fk])?
+                                // Get fhc keystore UUID in cache
+								new Promise(x => x(({uuid: this.keyPairKeystore[fk], passPhrase: password}))):
+                                // Upload new keystore
+								this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.api.crypto().utils.base64toByteArray(localStorage.getItem(fk)))
+									.then(res => this.addUUIDKeystoresInCache(fk, res.uuid, password))
+
+						)
+                    )
+                )
+			}
+
+			addUUIDKeystoresInCache(key, uuid, password){
+            	return new Promise(x =>{
+					this.keyPairKeystore[key] = uuid;
+                    x(({uuid: uuid, passPhrase: password}))
+                })
+
+            }
+
+			getDecryptedValueFromLocalstorage(healthcarePartyId, key){
+				let item = localStorage.getItem(key);
+
+                return this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+                    .then(encryptedHcPartyKey =>
+                        this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
+                    )
+                    .then(importedAESHcPartyKey =>
+                        (item)?this.api.crypto().AES.decrypt(importedAESHcPartyKey.key, this.api.crypto().utils.text2ua(item)):null
+                    )
+                    .then(data =>
+                        (data)?this.api.crypto().utils.ua2text(data):null
+                    );
+			}
             _logList() {
                 this.$['ht-access-log'].open()
             }
