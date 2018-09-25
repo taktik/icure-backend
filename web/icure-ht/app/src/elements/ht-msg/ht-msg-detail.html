@@ -688,7 +688,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.set('messages', null);
 
 		this.api.message().deleteMessages(msgId)
-			.then(result => console.log(result))
+			.then(x =>
+				this.dispatchEvent(new CustomEvent('refresh-list', { detail: { selection: { item: "Refresh" } } }))
+			)
 	}
 
 	// _FindParty() {

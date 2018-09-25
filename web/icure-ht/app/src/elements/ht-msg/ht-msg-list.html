@@ -133,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 vaadin-grid {
-                    height: calc(100% - 16px - 32px);
+                    height: calc(100% - 16px - 32px - 50px);
                     width: 100%;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
@@ -242,12 +242,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-checkbox-checked-color: var(--app-primary-color);
                 }
 
+                .buttons{
+                    padding-bottom: 10px;
+                }
+
+                .modal-button--delete{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-background-color-light);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
                 <div class="card-title-container">
                     <h1 class="card-title new-notif"><iron-icon icon="icons:arrow-forward"></iron-icon>[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
+                </div>
+                <div class="buttons">
+                    <div>
+                        <paper-button class="modal-button--delete" on-tap="_removeMsgs">[[localize('del','Delete',language)]]</paper-button>
+                    </div>
                 </div>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi">
                     <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
@@ -320,7 +336,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         notify: true
                     },
                     activeItem: {
-                        type: Object
+                        type: Object,
+                        observer: '_activeItemChanged'
                     },
                     messages: {
                         type: Array,
@@ -358,10 +375,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             };
                             return res;
                         }
-                    },
-					selectedRow:{
-                    	type:[],
-                        value:[]
                     }
                 };
             }
@@ -557,6 +570,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'GMD' :
                             this.getGMD();
                             break;
+                        case 'Refresh':
+                        	// Fake selection to refresh binding
+                        	break;
                     }
                 }
             }
@@ -590,10 +606,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
             }
 
+			_removeMsgs(){
+				let mailList = this.shadowRoot.querySelector('#mail-list');
+				let msgs = mailList.selectedItems;
+				if(msgs) this.api.message().deleteMessages(msgs.map(msg => msg.id))
+                    .then(x=> {
+                    	this._refresh();
+					});
+            }
+
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
             }
 
+			_activeItemChanged(item){
+                let mailList = this.shadowRoot.querySelector('#mail-list');
+                if(mailList) mailList.selectedItems = item ? [item] : [];
+            }
 
 		}
 
