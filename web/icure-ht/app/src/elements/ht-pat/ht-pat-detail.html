@@ -1885,6 +1885,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const mym = moment;
         this.set('curGenInsResp', null);
         this.$.genInsDialog.open();
+        this._requestGenins();
     }
 
     _openConsentDialog(e) {
