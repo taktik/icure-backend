@@ -46,6 +46,8 @@ public class InvoicingCodeDto implements Serializable {
     protected Double doctorSupplement;
 	protected Double vat;
 
+	protected Integer invoicePeriod;
+
     //Etarif
     protected String error;
     protected String contract;
@@ -494,4 +496,9 @@ public class InvoicingCodeDto implements Serializable {
 	public void setLocationCdHcParty(String locationCdHcParty) {
 		this.locationCdHcParty = locationCdHcParty;
 	}
+
+	public Integer getInvoicePeriod() { return invoicePeriod; }
+
+	public void setInvoicePeriod(Integer invoicePeriod) { this.invoicePeriod = invoicePeriod; }
+
 }

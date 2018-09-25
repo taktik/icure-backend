@@ -53,6 +53,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
@@ -107,7 +108,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
-	public PaginatedList<Invoice> findByAuthor(String hcParty, String userId, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset) {
+	public PaginatedList<Invoice> findByAuthor(String hcParty, String userId, Long fromDate, Long toDate, PaginationOffset paginationOffset) {
 		return invoiceDAO.findByHcParty(hcParty, fromDate, toDate, paginationOffset);
 	}
 
@@ -176,8 +177,8 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
-	public List<Invoice> appendCodes(String hcPartyId, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime) {
-		if (type == InvoiceType.efact) {
+	public List<Invoice> appendCodes(String hcPartyId, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, MediumType sentMediumType, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime) {
+		if (sentMediumType == MediumType.efact) {
 			invoicingCodes.forEach(c->c.setPending(true));
 		}
 		final int invoiceGraceTimeInDays = invoiceGraceTime == null ? 0 : invoiceGraceTime;
@@ -210,7 +211,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				newInvoice.setInvoiceDate(invoicingCode.getDateCode()!=null?invoicingCode.getDateCode():System.currentTimeMillis());
 				newInvoice.setInvoiceType(type);
 				newInvoice.setRecipientId(insuranceId);
-				newInvoice.setRecipientType(type == InvoiceType.other ? null : type == InvoiceType.patient ? Patient.class.getName() : Insurance.class.getName());
+				newInvoice.setRecipientType((type == InvoiceType.mutualfund || type == InvoiceType.payingagency) ? Insurance.class.getName() : Patient.class.getName());
 				newInvoice.setInvoicingCodes(invoicingCodes);
 				newInvoice.setAuthor(userId);
 				newInvoice.setResponsible(hcPartyId);

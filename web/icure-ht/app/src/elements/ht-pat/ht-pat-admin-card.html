@@ -869,14 +869,25 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.initCurrentCareTeam();
 
-            if (this.patient.partnerships && this.patient.partnerships.length) {
-                (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
-                    ppss.map(pps => {
-                        const index = this.patient.partnerships.findIndex(ps => ps.partnerId === pps.id)
-                        this.set('patient.partnerships.' + index + '.partnerInfo', pps)
+            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',')).then( codes => {
+                if (this.patient.partnerships && this.patient.partnerships.length) {
+                    (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
+                        ppss.map(pps => {
+                            const index = this.patient.partnerships.findIndex(ps => ps.partnerId === pps.id)
+                            this.set('patient.partnerships.' + index + '.partnerInfo', pps)
+                        })
+                    ).finally(() => {
+                        this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id, codes);
+                        this.set('patientMap', _.cloneDeep(this.patient));
+
+                        if (!this.root.activeElement) {
+                            this.$['dynamic-form-administrative'].loadDataMap();
+                        } else {
+                            this.$[this.root.activeElement.id].loadDataMap();
+                        }
                     })
-                ).finally(() => {
-                    this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id);
+                } else {
+                    this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id, codes);
                     this.set('patientMap', _.cloneDeep(this.patient));
 
                     if (!this.root.activeElement) {
@@ -884,18 +895,8 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     } else {
                         this.$[this.root.activeElement.id].loadDataMap();
                     }
-                })
-            } else {
-                this.dataProvider = this.patientDataProvider(this.patient, '', this.patient && this.patient.id);
-                this.set('patientMap', _.cloneDeep(this.patient));
-
-                if (!this.root.activeElement) {
-                    this.$['dynamic-form-administrative'].loadDataMap();
-                } else {
-                    this.$[this.root.activeElement.id].loadDataMap();
                 }
-
-            }
+            })
         }
     }
 
@@ -956,9 +957,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-    patientDataProvider(root, rootPath, id) {
-
-
+    patientDataProvider(root, rootPath, id, codes) {
         const getValue = function (key) {
             return root ? _.get(root, key) : null;
         };
@@ -979,6 +978,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             setMeasureValue: setValue,
             setDateValue: setValue,
             setBooleanValue: setValue,
+            getValueContainers: (key) => {
+                return getValue(key).map((l,idx)=>{
+                    const code = codes.find(c => c.code === l)
+                    return {
+                        id:this.api.crypto().randomUuid(),
+                        index:idx,
+                        content:(code && code.label && _.fromPairs(_.toPairs(code.label).map(([k,v]) => [k, {stringValue: v}]))) || _.fromPairs([[this.language,{stringValue:l}]]),
+                        codes: code ? [code] : []
+                    }
+                })
+            },
+            setValueContainers: (key, value) => setValue(key, value.map(s=> (s.codes && s.codes[0] || {}).code || (s.content[this.language] || {}).stringValue)),
             getSubForms: key => {
                 return (root[key] || []).map((a, idx) => {
                     return {
@@ -1033,7 +1044,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             const sorter = x => [x.name && x.name.toLowerCase().startsWith(words[0]) ? 0 : 1, x.name]
 
                             return this.api.code().findPaginatedCodesByLabel('be', ct.type, typeLng, words[0], null, null, 200).then(results => _.sortBy(results.rows.filter(c => c.label[typeLng] && words.every(w => c.label[typeLng].toLowerCase().includes(w))).map(code => ({
-                                id: code.code, name: code.label[typeLng]
+                                id: code.code, name: code.label[typeLng], stringValue: code.label[typeLng], codes: [code]
                             })), sorter))
                         })).then(responses => _.flatMap(responses))
                 }
@@ -1130,7 +1141,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (this.patient.ssin && this.api.tokenId) {
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp =>
-                        this.api.fhc().DMGcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
+                        this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
                     ).then(dmgConsultResp => {
                         var hcp = {
                             nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
@@ -1145,9 +1156,11 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             }]
                         }
 
+                        return hcp
+                    }).then(hcp  => {
                         dmgOwner.push(hcp);
-
-                    }).then(() => this.set('currentDMGOwner', dmgOwner))
+                        this.set('currentDMGOwner', dmgOwner)
+                    })
             }
 
         })

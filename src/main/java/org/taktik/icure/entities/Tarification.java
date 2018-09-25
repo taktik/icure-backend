@@ -32,6 +32,8 @@ public class Tarification extends Code {
 	Set<Valorisation> valorisations;
 	Map<String,String> category;
 	Boolean	consultationCode;
+	Boolean hasRelatedCode;
+	Boolean needsPrescriber;
 
 	public Tarification() {
 	}
@@ -78,5 +80,21 @@ public class Tarification extends Code {
 
 	public void setConsultationCode(Boolean consultationCode) {
 		this.consultationCode = consultationCode;
+	}
+
+	public Boolean getHasRelatedCode() {
+		return hasRelatedCode;
+	}
+
+	public void setHasRelatedCode(Boolean hasRelatedCode) {
+		this.hasRelatedCode = hasRelatedCode;
+	}
+
+	public Boolean getNeedsPrescriber() {
+		return needsPrescriber;
+	}
+
+	public void setNeedsPrescriber(Boolean needsPrescriber) {
+		this.needsPrescriber = needsPrescriber;
 	}
 }

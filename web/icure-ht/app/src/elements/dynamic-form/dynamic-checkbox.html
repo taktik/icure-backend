@@ -8,6 +8,7 @@
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="dynamic-link.html">
 
 <dom-module id="dynamic-checkbox">
 	<template>
@@ -140,7 +141,7 @@
 						</template>
 					</label>
 					<span class="label-span">[[label]]</span>
-					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[label]]" api="[[api]]"></dynamic-link>
+					<dynamic-link i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkables]]" represented-object="[[key]]" api="[[api]]"></dynamic-link>
 				</div>
 			</paper-checkbox>
 		</template>

@@ -25,6 +25,7 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -32,7 +33,7 @@ import java.io.OutputStream
  * @author Bernard Paulus on 24/05/17.
  */
 interface SoftwareMedicalFileLogic {
-	fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?)
+	fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
     fun importSmfFile(inputStream: InputStream,
                       author: User,
                       language: String,

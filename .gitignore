@@ -40,3 +40,4 @@ dist-tz/
 .gradle/buildOutputCleanup/outputFiles.bin
 .gradle/vcsWorkingDirs/gc.properties
 test.json
+.gradletasknamecache

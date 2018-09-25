@@ -42,8 +42,7 @@ class JerseyConfig(endpoints: List<OpenApiFacade>, @Value("\${server.port}") val
 		register(ApiListingResource::class.java)
 		val beanConfig = BeanConfig()
 		beanConfig.version = "1.0.2"
-		beanConfig.schemes = arrayOf("http")
-		beanConfig.host = "localhost:$serverPort"
+		beanConfig.schemes = arrayOf("https","http")
 		beanConfig.basePath = "/rest/v1/"
 		beanConfig.resourcePackage = "org.taktik.icure.services.external.rest.v1.facade,org.taktik.icure.services.external.rest.v1.dto"
 		beanConfig.prettyPrint = true
