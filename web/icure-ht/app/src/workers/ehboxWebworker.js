@@ -2,8 +2,7 @@ import * as fhcApi from 'fhc-api/dist/fhcApi'
 import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
 import {UtilsClass} from "icc-api/dist/icc-x-api/crypto/utils"
-
-import 'moment'
+import * as moment from 'moment'
 
 onmessage = e => {
     if(e.data.action === "loadEhboxMessage"){
@@ -27,11 +26,13 @@ onmessage = e => {
         const msgApi            = new iccApi.iccMessageApi(iccHost, iccHeaders)
         const beResultApi       = new iccApi.iccBeresultimportApi(iccHost, iccHeaders)
 
+
         const iccHcpartyApi     = new iccApi.iccHcpartyApi(iccHost, iccHeaders)
         const iccPatientApi     = new iccApi.iccPatientApi(iccHost, iccHeaders)
         const iccCryptoXApi     = new iccXApi.IccCryptoXApi(iccHost, iccHeaders, iccHcpartyApi)
 
-        const iccUtils          = new UtilsClass()
+		const iccUtils          = new UtilsClass()
+
 
         //Avoid the hit to the local storage to load the key pair
         iccCryptoXApi.cacheKeyPair(e.data.keyPair, user.healthcarePartyId)
@@ -39,7 +40,7 @@ onmessage = e => {
         const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
         const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
 
-        const treatMessage =  (message) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
+        const treatMessage =  (message) => ehboxApi.getFullMessageUsingPOST(keystoreId, tokenId, ehpassword, boxId, message.id,alternateKeystores)
             .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
             .then(([fullMessage, existingMess]) => {
                 console.log(fullMessage)
@@ -54,13 +55,13 @@ onmessage = e => {
                 } else {
                     console.log('Message not found')
 
-                    let createdDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
-                    let receivedDate = new Date().getTime()
+                    let createdDate = new Date().getTime()
+                    let receivedDate = moment(fullMessage.publicationDateTime, "YYYYMMDD").valueOf()
 
                     let newMessage = {
                         created:                createdDate,
-                        fromAddress:            fullMessage.sender.lastName+' '+fullMessage.sender.firstName,
-                        subject:                fullMessage.document.title,
+                        fromAddress:            fullMessage.sender ? fullMessage.sender.lastName?fullMessage.sender.lastName:""+' '+fullMessage.sender.firstName?fullMessage.sender.firstName:"": "no sender",
+                        subject:                fullMessage.document && fullMessage.document.title?fullMessage.document.title:"no document title",
                         metas:                  fullMessage.customMetas,
                         toAddresses:            [boxId],
                         fromHealthcarePartyId:  "",
@@ -82,13 +83,15 @@ onmessage = e => {
                                 })
                                     .then(d => docApi.createDocument(d))
                                     .then(createdDocument => {
-                                        let byteContent = iccUtils.base64toArrayBuffer(a.content)
+										console.log(a)
+										let byteContent = iccUtils.base64toArrayBuffer(a.content?a.content:a);
                                         return [createdDocument, byteContent]
                                     })
                                     .then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
                             ))
                         })
                         .then(() => null) //DO NOT RETURN A MESSAGE ID TO BE DELETED
+
                 }
             })
 
@@ -96,7 +99,7 @@ onmessage = e => {
             let p = Promise.resolve([])
             messages.forEach(m => {
                 p = p.then(acc => treatMessage(m).then(id => id ? acc.concat([id]) : acc))
-            })
+            });
             return p
         }).then(toBeDeletedIds =>
             Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BININBOX")))
