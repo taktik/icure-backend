@@ -73,11 +73,11 @@ onmessage = e => {
                         .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
                             console.log(createdMessage)
-                            Promise.all([fullMessage.document && fullMessage.document.content].concat(fullMessage.annex || []).map(a => a &&
+                            Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
                                 docxApi.newInstance(user, createdMessage, {
                                     documentLocation:   (fullMessage.document && a === fullMessage.document.content) ? 'body' : 'annex',
                                     documentType:       'result', //Todo identify message and set type accordingly
-                                    mainUti:            docxApi.uti(a.mimeType),
+                                    mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
                                     name:               a.title
                                 })
                                     .then(d => docApi.createDocument(d))
