@@ -32,6 +32,7 @@ public class HealthElementDto extends IcureDto {
     String healthElementId; //The Unique UUID common to a group of HealthElements that form an history
 
     private String descr;
+    private String note;
 
     protected boolean relevant = true;
 
@@ -88,6 +89,10 @@ public class HealthElementDto extends IcureDto {
 	public void setDescr(String descr) {
 		this.descr = descr;
 	}
+
+    public String getNote() { return note; }
+
+    public void setNote(String note) { this.note = note; }
 
     public void setOpeningDate(Long openingDate) {
         this.openingDate = openingDate;
