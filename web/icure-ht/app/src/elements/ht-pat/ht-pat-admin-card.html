@@ -477,23 +477,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </vaadin-grid-column>
                         </vaadin-grid>
                     </div>
+
                     <div>
                         <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
-                        <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
-                            <vaadin-grid-column width="120px">
+                        <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalPatientCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
+                            <vaadin-grid-column width="240px">
                                 <template class="header">
-                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                                    <vaadin-grid-sorter path="name">[[localize('nam','Name',language)]]</vaadin-grid-sorter>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.lastName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.firstName]]</div>
+                                    <div class="cell frozen">[[getHcpName(item)]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column width="80px">
@@ -512,9 +505,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <div class="cell frozen">[[item.speciality]]</div>
                                 </template>
                             </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <vaadin-grid-sorter path="beginDate">[[localize('sta_dat','Start date',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[getStartDate(item)]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <vaadin-grid-sorter path="endDate">[[localize('end_dat','End date',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[getEndDate(item)]]</div>
+                                </template>
+                            </vaadin-grid-column>
                         </vaadin-grid>
                     </div>
-                    <div>
+                    <!--<div>
                         <h4 class="subtitle">[[localize('dmg-owner','DMG owner',language)]]</h4>
                         <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentDMGOwner]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
                             <vaadin-grid-column width="240px">
@@ -558,10 +567,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </vaadin-grid-column>
                         </vaadin-grid>
+                    </div>-->
+                    <!--<div>
+                        <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
+                        <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
+                            <vaadin-grid-column width="120px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.lastName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="120px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.firstName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="80px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="80px">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.speciality]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
                     </div>
                     <div class="button_add_provider">
                         <paper-button class="add-btn" on-tap="showAddPersonToCareTeam">[[localize('add_per','Add person',language)]]</paper-button>
-                    </div>
+                    </div>-->
                 </page>
             </iron-pages>
         </div>
@@ -810,6 +856,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
 
             currentExternalCareTeam: {
+                type: Array,
+                value: [],
+                notify: true
+            },
+
+            currentExternalPatientCareTeam: {
                 type: Array,
                 value: [],
                 notify: true
@@ -1067,6 +1119,8 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$['add-new-person-to-care-team'].open()
     }
 
+
+
     addNewExternalPersonToCareTeam() {
         const careProvider = this.newHcpCareTeam
 
@@ -1108,62 +1162,200 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
     }
 
+    getDmgOwnerAsHcp(){
+        if (this.patient.ssin && this.api.tokenId) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                .then(hcp =>
+                    this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
+                ).then(dmgConsultResp => {
+                let hcp2 = {
+                    nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
+                    firstName: dmgConsultResp.hcParty.firstname,
+                    lastName: dmgConsultResp.hcParty.familyname,
+                    name: dmgConsultResp.hcParty.name,
+                    isDmg: true,
+                    referral: true,
+                    referralPeriods: [{
+                        startDate: dmgConsultResp.from,
+                        endDate: dmgConsultResp.to
+                    }]
+                }
+
+                return hcp2
+            })
+        }else{
+            return Promise.resolve([]);
+        }
+    }
+
+
     initCurrentCareTeam() {
         var internalTeam = []
         var externalTeam = []
-        var dmgOwner = []
+        var externalPatientHcpTeam = []
+        //var dmgOwner = []
 
         this.api.patient().getPatient(this.patient.id).then(patient => {
 
             const internalHcp = patient.delegations
             const externalHcp = patient.patientHealthCareParties
 
-            //internal team
-            Promise.all(
-                _.keys(internalHcp).map(hcpId =>
-                    this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
-                        internalTeam.push(hcp)
+            Promise.all([
+                Promise.all(
+                    _.keys(internalHcp).map(hcpId =>
+                        this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
+                            internalTeam.push(hcp)
+                        )
+                    )
+                ),
+                Promise.all(
+                    externalHcp.map(patientHcp =>
+                        this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp => {
+                            patientHcp.firstName = hcp.firstName;
+                            patientHcp.lastName = hcp.lastName;
+                            patientHcp.name = hcp.name;
+                            patientHcp.nihii = hcp.nihii;
+                            patientHcp.ssin = hcp.ssin;
+                            patientHcp.isDmg = patientHcp.referral;
+                            externalTeam.push(hcp);
+                            externalPatientHcpTeam.push(patientHcp);
+                            }
+                        )
                     )
                 )
-            ).then(() => this.set('currentInternalCareTeam', internalTeam))
+                ]
 
-            //external team
-            Promise.all(
-                externalHcp.map(patientHcp =>
-                    this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp =>
-                        externalTeam.push(hcp)
-                    )
-                )
-            ).then(() => this.set('currentExternalCareTeam', externalTeam))
+            ).then(([,]) => {
+                this.set('currentInternalCareTeam', internalTeam);
+                this.set('currentExternalCareTeam', externalTeam);
+                this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
+            }).then(
+                () => {
+                    //this.set('currentDMGOwner', dmgOwner);
+                    if (this.patient.ssin && this.api.tokenId) {
+                        Promise.all([
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                                .then(hcp =>
+                                    this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
+                                ).then(dmgConsultResp => {
+                                /*let hcp2 = {
+                                    nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
+                                    firstName: dmgConsultResp.hcParty.firstname,
+                                    lastName: dmgConsultResp.hcParty.familyname,
+                                    name: dmgConsultResp.hcParty.name,
+                                    isDmg: true,
+                                    referral: true,
+                                    referralPeriods: [{
+                                        startDate: dmgConsultResp.from,
+                                        endDate: dmgConsultResp.to
+                                    }]
+                                }*/
 
-            //DMG owner
-            this.set('currentDMGOwner', dmgOwner)
-            if (this.patient.ssin && this.api.tokenId) {
-                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp =>
-                        this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
-                    ).then(dmgConsultResp => {
-                        var hcp = {
-                            nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
-                            firstName: dmgConsultResp.hcParty.firstname,
-                            lastName: dmgConsultResp.hcParty.familyname,
-                            name: dmgConsultResp.hcParty.name,
-                            isDmg: true,
-                            referral: true,
-                            referralPeriods: [{
-                                startDate: dmgConsultResp.from,
-                                endDate: dmgConsultResp.to
-                            }]
-                        }
+                                this.api.hcparty().createHealthcareParty({
+                                    "name": (!dmgConsultResp.hcParty.nihii)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
+                                    "lastName": dmgConsultResp.hcParty.familyname,
+                                    "firstName": dmgConsultResp.hcParty.firstname,
+                                    "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
+                                    "ssin": '' //TODO: get SSIN from dmgConsultResp
+                                }).then( hcp2 => {
+                                    var newPhcp = {}
+                                    newPhcp.firstName = hcp2.firstName;
+                                    newPhcp.lastName = hcp2.lastName;
+                                    newPhcp.name = hcp2.name;
+                                    newPhcp.nihii = hcp2.nihii;
+                                    newPhcp.ssin = hcp2.ssin;
+                                    newPhcp.healthcarePartyId = hcp2.id;
+                                    newPhcp.type = "medicalhouse";
+                                    newPhcp.isDmg = true;
+                                    newPhcp.referral = true;
+                                    newPhcp.referralPeriods = [{
+                                        startDate: dmgConsultResp.from,
+                                        endDate: dmgConsultResp.to
+                                    }];
 
-                        return hcp
-                    }).then(hcp  => {
-                        dmgOwner.push(hcp);
-                        this.set('currentDMGOwner', dmgOwner)
-                    })
-            }
+                                    hcp2.pphc = newPhcp;
+                                    hcp2.referral = true;
+                                    hcp2.referralPeriods = [{
+                                        startDate: dmgConsultResp.from,
+                                        endDate: dmgConsultResp.to
+                                    }];
+                                    //TODO: addresses
+
+                                    //TODO:
+                                    // 1. cascade the then's of internal external and dmg : OK
+                                    // 2. check existing list of external parties (and internal ?) : Key = nihii
+                                    if(internalTeam.find(h => h.nihii === hcp2.nihii)){
+                                        console.log('dmg owner in internal team')
+                                    }else if (externalTeam.find(h => h.nihii === hcp2.nihii)){
+                                        console.log('dmg owner in external team')
+                                    }else{
+                                        console.log('dmg owner pushed to external team');
+                                        //externalTeam.push(hcp2);
+                                        externalPatientHcpTeam.push(hcp2);
+                                        this.api.patient().getPatient(this.patient.id).then(patient => {
+                                            var phcp = patient.patientHealthCareParties
+
+                                            phcp.push(newPhcp)
+
+                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
+                                                this.set('patient.patientHealthCareParties', phcp)
+                                                //this.$['add-new-person-to-care-team'].close()
+                                                //this.initCurrentCareTeam()
+
+                                            })
+                                        })
+                                    }
+                                    // 3.1 Update user/party if exists
+                                    // 3.2 Create party if not exists
+                                    // 4 save data
+                                    // Questions: how to handle referral periods ? Extend ?
+                                    // Optional (?) Store last dmg search time in patient : only once a day
+                                    //dmgOwner.push(hcp2);
+                                })
+
+
+                            })]
+                        ).then(([]) => {
+                            this.set('currentInternalCareTeam', internalTeam);
+                            this.set('currentExternalCareTeam', externalTeam);
+                            this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
+                        }).catch(e => {
+                            console.log(e);
+                            this.set('currentInternalCareTeam', internalTeam);
+                            this.set('currentExternalCareTeam', externalTeam);
+                            this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
+
+                        });
+                    }
+                })
 
         })
+    }
+
+    getHCPFromDmgConsultResp(dmgConsultResp){
+        this.api.hcparty().createHealthcareParty({
+            "name": dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
+            "lastName": dmgConsultResp.hcParty.familyname,
+            "firstName": dmgConsultResp.hcParty.firstname,
+            "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
+            "ssin": '' //TODO: get SSIN from dmgConsultResp
+        }).then(hcp =>  {
+                this.api.patient().getPatient(this.patient.id).then(patient => {
+                    var phcp = patient.patientHealthCareParties
+                    var newPhcp = {}
+                    newPhcp.healthcarePartyId = hcp.id
+                    newPhcp.referral = false
+                    newPhcp.sendFormats = {}
+                    phcp.push(newPhcp)
+
+                    this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
+                        this.set('patient.patientHealthCareParties', phcp)
+                        //this.$['add-new-person-to-care-team'].close()
+                        this.initCurrentCareTeam()
+
+                    })
+                })
+            })
     }
 
     getHcpName(hcp){
@@ -1205,27 +1397,30 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     showInfoSelectedHcp(e){
+        //TODO: catch the case no hcp is selected
 
-	    this.$['showHcpInfo'].open()
+        let tmp = this.selectedCareProvider;
 
-        const pphcTab = this.patient.patientHealthCareParties
-        const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedCareProvider.id)
+	    this.$['showHcpInfo'].open();
+
+        const pphcTab = this.patient.patientHealthCareParties;
+        const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedCareProvider.id);
 
         //Comparer les dates pour le detenteur du dmg
         if(pphcTarget){
-            pphcTarget.referralPeriods.map(rp => rp)
+            pphcTarget.referralPeriods.map(rp => rp);
         }
 
-        if(this.selectedCareProvider.isDmg)
+        if(this.selectedCareProvider && this.selectedCareProvider.isDmg)
         {
 
             this.selectedCareProvider.pphc = _.cloneDeep(this.selectedCareProvider);
-            this.set('selectedPerson', this.selectedCareProvider)
+            this.set('selectedPerson', this.selectedCareProvider);
         }
         else
         {
-            this.selectedCareProvider.pphc = pphcTarget
-            this.set('selectedPerson', this.selectedCareProvider)
+            if(pphcTarget) this.selectedCareProvider.pphc = pphcTarget;
+            this.set('selectedPerson', this.selectedCareProvider);
         }
 
     }
