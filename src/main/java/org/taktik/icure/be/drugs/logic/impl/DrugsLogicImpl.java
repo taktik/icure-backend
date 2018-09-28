@@ -222,7 +222,7 @@ public class DrugsLogicImpl implements DrugsLogic {
     public MpExtendedInfos getExtendedMpInfos(MppId medecinePackageID) {
         try {
             drugsDAO.openDataStoreSession();
-            return getExtendedMpInfos(drugsDAO.getInfos(medecinePackageID).getMp().getId());
+            return MP_TO_MPEXTENDEDINFOS.transform(drugsDAO.getExtendedInfos(drugsDAO.getInfos(medecinePackageID).getMp().getId()));
         } finally {
             drugsDAO.closeDataStoreSession();
         }
