@@ -52,7 +52,7 @@ import java.io.Serializable
 import java.util.LinkedList
 import javax.xml.bind.JAXBContext
 
-
+@org.springframework.stereotype.Service
 class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val healthcarePartyLogic: HealthcarePartyLogic,
                                 val healthElementLogic: HealthElementLogic,
