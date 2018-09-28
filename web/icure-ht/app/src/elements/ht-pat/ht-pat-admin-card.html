@@ -1132,7 +1132,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                     // 3.1 Update user/party if exists
                                     console.log('dmg owner in internal team')
                                     let hcpI = internalTeam.find(h => h.nihii === dmgNihii)
-
+                                    //TODO: show status
                                 }else if (externalTeam.find(h => h.nihii === dmgNihii)){
                                     // 3.1 Update user/party if exists
                                     console.log('dmg owner in external team')
@@ -1258,38 +1258,19 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                             startDate: dmgConsultResp.from,
                                             endDate: dmgConsultResp.to
                                         }];
-                                        //TODO: addresses
 
-                                        ////TODO:
-                                        //// 1. cascade the then's of internal external and dmg : OK
-                                        //// 2. check existing list of external parties (and internal ?) : Key = nihii
-                                        //if(internalTeam.find(h => h.nihii === hcp2.nihii)){
-                                        //    // 3.1 Update user/party if exists
-                                        //    console.log('dmg owner in internal team')
-                                        //}else if (externalTeam.find(h => h.nihii === hcp2.nihii)){
-                                        //    // 3.1 Update user/party if exists
-                                        //    console.log('dmg owner in external team')
-                                        //}else{
-                                            // 3.2 Create party if not exists Ok
-                                            console.log('dmg owner pushed to external team');
-                                            //externalTeam.push(hcp2);
-                                            externalPatientHcpTeam.push(hcp2);
-                                            this.api.patient().getPatient(this.patient.id).then(patient => {
-                                                var phcp = patient.patientHealthCareParties
-
-                                                phcp.push(newPhcp)
-
-                                                // 4 save data
-                                                this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                                                    this.set('patient.patientHealthCareParties', phcp)
-                                                    //this.$['add-new-person-to-care-team'].close()
-                                                    //this.initCurrentCareTeam()
-
-                                                })
+                                        console.log('dmg owner pushed to external team');
+                                        //externalTeam.push(hcp2);
+                                        externalPatientHcpTeam.push(hcp2);
+                                        this.api.patient().getPatient(this.patient.id).then(patient => {
+                                            var phcp = patient.patientHealthCareParties
+                                            phcp.push(newPhcp)
+                                            // 4 save data
+                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
+                                                this.set('patient.patientHealthCareParties', phcp)
                                             })
-                                        //}
-                                        // Questions: how to handle referral periods ? Extend ?
-                                        // Optional (?) Store last dmg search time in patient : only once a day
+                                        })
+
                                 })}
 
 
@@ -1309,32 +1290,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 })
 
         })
-    }
-
-    getHCPFromDmgConsultResp(dmgConsultResp){
-        this.api.hcparty().createHealthcareParty({
-            "name": dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
-            "lastName": dmgConsultResp.hcParty.familyname,
-            "firstName": dmgConsultResp.hcParty.firstname,
-            "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
-            "ssin": '' //TODO: get SSIN from dmgConsultResp
-        }).then(hcp =>  {
-                this.api.patient().getPatient(this.patient.id).then(patient => {
-                    var phcp = patient.patientHealthCareParties
-                    var newPhcp = {}
-                    newPhcp.healthcarePartyId = hcp.id
-                    newPhcp.referral = false
-                    newPhcp.sendFormats = {}
-                    phcp.push(newPhcp)
-
-                    this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                        this.set('patient.patientHealthCareParties', phcp)
-                        //this.$['add-new-person-to-care-team'].close()
-                        this.initCurrentCareTeam()
-
-                    })
-                })
-            })
     }
 
     getHcpName(hcp){
