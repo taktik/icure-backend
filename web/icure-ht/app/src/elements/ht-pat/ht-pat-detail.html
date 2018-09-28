@@ -2931,10 +2931,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							}
 							ins.ct2 && pi.parameters.tc2 !== ins.ct2 && (pi.parameters = _.assign(pi.parameters || {}, { tc2: ins.ct2 }));
 							ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, { paymentapproval: 'true' }) : delete pi.parameters.paymentapproval;
+
 							if (patient === this.patient) {
 								this.set('patient.insurabilities.0', pi);
 								this.api.patient().modifyPatient(this.patient).then(p => this.api.register(p,'patient'));
 							}
+
 						});
 					}
 					this.selectedTherLink = null;
