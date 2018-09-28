@@ -1326,8 +1326,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="{{curGenInsResp.hospitalizedInfo}}"><b>[[localize('hos_inf','Hospitalized',language)]]:</b>[[curGenInsResp.hospitalizedInfo]]<br/></template>
 				<template is="dom-if" if="{{curGenInsResp.medicalHouseInfo}}">
 					<b>[[localize('mmh_inf','Medical House',language)]]:</b><br/>
-					<b>[[localize('per_sta','Start',language)]]:</b> [[curGenInsResp.medicalHouseInfo.periodStart]]
-					<b>[[localize('per_end','End',language)]]:</b> [[curGenInsResp.medicalHouseInfo.periodEnd]]<br/>
+					<b>[[localize('per_sta','Start',language)]]:</b> [[_dateFormat2(curGenInsResp.medicalHouseInfo.periodStart, 'YYYYMMDD', 'DD/MM/YYYY')]]
+					<b>[[localize('per_end','End',language)]]:</b> [[dateFormat2(curGenInsResp.medicalHouseInfo.periodEnd, 'YYYYMMDD', 'DD/MM/YYYY')]]<br/>
 					<b>[[localize('abo_med','Doctor',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.medical)]]
 					<b>[[localize('abo_nur','Nurse',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.nurse)]]
 					<b>[[localize('abo_kin','Kine',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.kine)]]<br/>
@@ -1358,7 +1358,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<vaadin-grid-sorter path="periodStart">[[localize('per_sta','Start',language)]]</vaadin-grid-sorter>
 						</template>
 						<template>
-							<div class="cell frozen">[[item.period.periodStart]]</div>
+							<div class="cell frozen">[[_dateFormat2(item.period.periodStart,'YYYYMMDD','DD/MM/YYYY')]]</div>
 						</template>
 					</vaadin-grid-column>
 					<vaadin-grid-column>
@@ -1366,7 +1366,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<vaadin-grid-sorter path="periodEnd">[[localize('per_end','End',language)]]</vaadin-grid-sorter>
 						</template>
 						<template>
-							<div class="cell frozen">[[item.period.periodEnd]]</div>
+							<div class="cell frozen">[[_dateFormat2(item.period.periodEnd,'YYYYMMDD','DD/MM/YYYY')]]</div>
 						</template>
 					</vaadin-grid-column>
 					<vaadin-grid-column>
@@ -1390,7 +1390,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<vaadin-grid-sorter path="insurabilityDate">[[localize('ins_dat','insurabilityDate',language)]]</vaadin-grid-sorter>
 						</template>
 						<template>
-							<div class="cell frozen">[[item.insurabilityDate]]</div>
+							<div class="cell frozen">[[_dateFormat2(item.insurabilityDate,'YYYYMMDD','DD/MM/YYYY')]]</div>
 						</template>
 					</vaadin-grid-column>
 				</vaadin-grid>
@@ -1890,6 +1890,11 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
 	}
 
+	_dateFormat2(date, fFrom, fTo){
+	    return date ? this.api.moment(date, fFrom).format(fTo) : '';
+
+    }
+
 	_contactClasses(contact) {
 		return contact.closingDate ? '' : 'current-contact';
 	}
@@ -1899,6 +1904,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const mym = moment;
         this.set('curGenInsResp', null);
         this.$.genInsDialog.open();
+        this._requestGenins();
     }
 
     _openConsentDialog(e) {

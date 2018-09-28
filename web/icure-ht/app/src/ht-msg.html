@@ -38,6 +38,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 bottom: 0;
                 right: 0;
             }
+            ht-msg-detail{
+                padding: 15px;
+            }
         </style>
         <div class="container">
             <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
@@ -45,7 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                         select-list="[[selectList]]" on-selection-messages-change="handleMessageChange"></ht-msg-list>
             <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                        user="[[user]]" select-message="[[selectMessage]]"></ht-msg-detail>
+                        user="[[user]]" select-message="[[selectMessage]]" on-refresh-list="handleRefreshlist"></ht-msg-detail>
         </div>
 
     </template>
@@ -84,6 +87,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             handleMessageChange(e) {
                 this.set('selectMessage', e.detail)
+            }
+
+			handleRefreshlist(e) {
+            	new Promise(Ok =>{
+					let selectList = this.selectList
+					this.set('selectList', e.detail);
+            		Ok(selectList);
+                }).then(selectList=> this.set('selectList', selectList))
+
             }
 
         }
