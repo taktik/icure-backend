@@ -1078,33 +1078,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         })
     }
 
-    getDmgOwnerAsHcp(){
-        if (this.patient.ssin && this.api.tokenId) {
-            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                .then(hcp =>
-                    this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
-                ).then(dmgConsultResp => {
-                let hcp2 = {
-                    nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
-                    firstName: dmgConsultResp.hcParty.firstname,
-                    lastName: dmgConsultResp.hcParty.familyname,
-                    name: dmgConsultResp.hcParty.name,
-                    isDmg: true,
-                    referral: true,
-                    referralPeriods: [{
-                        startDate: dmgConsultResp.from,
-                        endDate: dmgConsultResp.to
-                    }]
-                }
-
-                return hcp2
-            })
-        }else{
-            return Promise.resolve([]);
-        }
-    }
-
-
     initCurrentCareTeam() {
         var internalTeam = []
         var externalTeam = []
@@ -1154,29 +1127,22 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 .then(hcp =>
                                     this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
                                 ).then(dmgConsultResp => {
+                                const dmgNihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : ''
+                                if(internalTeam.find(h => h.nihii === dmgNihii)){
+                                    // 3.1 Update user/party if exists
+                                    console.log('dmg owner in internal team')
+                                    let hcpI = internalTeam.find(h => h.nihii === dmgNihii)
 
-                                this.api.hcparty().createHealthcareParty({
-                                    "name": (!dmgConsultResp.hcParty.nihii)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
-                                    "lastName": dmgConsultResp.hcParty.familyname,
-                                    "firstName": dmgConsultResp.hcParty.firstname,
-                                    "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
-                                    "ssin": '' //TODO: get SSIN from dmgConsultResp
-                                }).then( hcp2 => {
-                                    var newPhcp = {}
-                                    newPhcp.firstName = hcp2.firstName;
-                                    newPhcp.lastName = hcp2.lastName;
-                                    newPhcp.name = hcp2.name;
-                                    newPhcp.nihii = hcp2.nihii;
-                                    newPhcp.ssin = hcp2.ssin;
-                                    newPhcp.healthcarePartyId = hcp2.id;
-                                    newPhcp.type = "medicalhouse";
-                                    newPhcp.isDmg = true;
-                                    newPhcp.referral = true;
-                                    newPhcp.referralPeriods = [{
-                                        startDate: dmgConsultResp.from,
-                                        endDate: dmgConsultResp.to
-                                    }];
-                                    hcp2.addresses = [];
+                                }else if (externalTeam.find(h => h.nihii === dmgNihii)){
+                                    // 3.1 Update user/party if exists
+                                    console.log('dmg owner in external team')
+                                    let hcpE = externalTeam.find(h => h.nihii === dmgNihii)
+                                    hcpE.name = (!dmgConsultResp.hcParty.name)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' + dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name;
+                                    hcpE.lastName = dmgConsultResp.hcParty.familyname;
+                                    hcpE.firstName = dmgConsultResp.hcParty.firstname;
+                                    hcpE.nihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value;
+
+                                    hcpE.addresses = [];
                                     if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses){
                                         dmgConsultResp.hcParty.addresses.map(addr =>{
 
@@ -1188,56 +1154,143 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                             hcAddr.houseNumber = addr.housenumber ? addr.housenumber : '';
                                             hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : '';
                                             hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : '';
-                                            hcp2.addresses.push(hcAddr);
+                                            hcpE.addresses.push(hcAddr);
                                         });
                                     }
 
                                     if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
                                         const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
                                         if(cd){
-                                            hcp2.speciality = cd.value ? cd.value : '';
+                                            hcpE.speciality = cd.value ? cd.value : '';
                                         }
                                     }
-
-                                    hcp2.pphc = newPhcp;
-                                    hcp2.referral = true;
-                                    hcp2.referralPeriods = [{
+                                    hcpE.referral = true;
+                                    hcpE.isDmg = true;
+                                    hcpE.referralPeriods = [{
                                         startDate: dmgConsultResp.from,
                                         endDate: dmgConsultResp.to
                                     }];
-                                    //TODO: addresses
 
-                                    //TODO:
-                                    // 1. cascade the then's of internal external and dmg : OK
-                                    // 2. check existing list of external parties (and internal ?) : Key = nihii
-                                    if(internalTeam.find(h => h.nihii === hcp2.nihii)){
-                                        console.log('dmg owner in internal team')
-                                    }else if (externalTeam.find(h => h.nihii === hcp2.nihii)){
-                                        console.log('dmg owner in external team')
-                                    }else{
-                                        console.log('dmg owner pushed to external team');
-                                        //externalTeam.push(hcp2);
-                                        externalPatientHcpTeam.push(hcp2);
-                                        this.api.patient().getPatient(this.patient.id).then(patient => {
-                                            var phcp = patient.patientHealthCareParties
+                                    this.api.hcparty().modifyHealthcareParty(hcpE).then(() => {})
+                                    this.api.patient().getPatient(this.patient.id).then(patient => {
 
-                                            phcp.push(newPhcp)
+                                        let phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
+                                        const phcpEidx = patient.patientHealthCareParties.indexOf(phcpE);
+                                        if(phcpE){
+                                            phcpE.referralPeriods = [{
+                                                startDate: dmgConsultResp.from,
+                                                endDate: dmgConsultResp.to
+                                            }];
+                                            phcpE.referral = true;
+                                            phcpE.isDmg = true;
+                                            if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                                const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                                if(cd.value === 'orgprimaryhealthcarecenter'){
+                                                    phcpE.type = "medicalhouse";
+                                                } else if(cd.value === 'persphysician'){
+                                                    phcpE.type = "doctor";
+                                                } else{
+                                                    phcpE.type = "other";
+                                                }
+                                            }
+                                            //patient.patientHealthCareParties[phcpEidx] = phcpE;
+                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {})
+                                        }
+                                    })
+                                }else{
+                                    console.log('dmg owner not yet in patientHcParties')
+                                    this.api.hcparty().createHealthcareParty({
+                                        "name": (!dmgConsultResp.hcParty.name)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
+                                        "lastName": dmgConsultResp.hcParty.familyname,
+                                        "firstName": dmgConsultResp.hcParty.firstname,
+                                        "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
+                                        "ssin": '' //TODO: get SSIN from dmgConsultResp
+                                    }).then( hcp2 => {
+                                        var newPhcp = {}
+                                        newPhcp.firstName = hcp2.firstName;
+                                        newPhcp.lastName = hcp2.lastName;
+                                        newPhcp.name = hcp2.name;
+                                        newPhcp.nihii = hcp2.nihii;
+                                        newPhcp.ssin = hcp2.ssin;
+                                        newPhcp.healthcarePartyId = hcp2.id;
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                            const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                            if(cd.value === 'orgprimaryhealthcarecenter'){
+                                                newPhcp.type = "medicalhouse";
+                                            } else if(cd.value === 'persphysician'){
+                                                newPhcp.type = "doctor";
+                                            } else{
+                                                newPhcp.type = "other";
+                                            }
+                                        }
+                                        newPhcp.isDmg = true;
+                                        newPhcp.referral = true;
+                                        newPhcp.referralPeriods = [{
+                                            startDate: dmgConsultResp.from,
+                                            endDate: dmgConsultResp.to
+                                        }];
+                                        hcp2.addresses = [];
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses){
+                                            dmgConsultResp.hcParty.addresses.map(addr =>{
 
-                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                                                this.set('patient.patientHealthCareParties', phcp)
-                                                //this.$['add-new-person-to-care-team'].close()
-                                                //this.initCurrentCareTeam()
+                                                let hcAddr  = {};
+                                                hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : '';
+                                                hcAddr.street = addr.street ? addr.street : '';
+                                                hcAddr.city = addr.city ? addr.city : '';
+                                                hcAddr.postalCode = addr.zip ? addr.zip : '';
+                                                hcAddr.houseNumber = addr.housenumber ? addr.housenumber : '';
+                                                hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : '';
+                                                hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : '';
+                                                hcp2.addresses.push(hcAddr);
+                                            });
+                                        }
 
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                            const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                            if(cd){
+                                                hcp2.speciality = cd.value ? cd.value : '';
+                                            }
+                                        }
+
+                                        hcp2.pphc = newPhcp;
+                                        hcp2.referral = true;
+                                        hcp2.referralPeriods = [{
+                                            startDate: dmgConsultResp.from,
+                                            endDate: dmgConsultResp.to
+                                        }];
+                                        //TODO: addresses
+
+                                        ////TODO:
+                                        //// 1. cascade the then's of internal external and dmg : OK
+                                        //// 2. check existing list of external parties (and internal ?) : Key = nihii
+                                        //if(internalTeam.find(h => h.nihii === hcp2.nihii)){
+                                        //    // 3.1 Update user/party if exists
+                                        //    console.log('dmg owner in internal team')
+                                        //}else if (externalTeam.find(h => h.nihii === hcp2.nihii)){
+                                        //    // 3.1 Update user/party if exists
+                                        //    console.log('dmg owner in external team')
+                                        //}else{
+                                            // 3.2 Create party if not exists Ok
+                                            console.log('dmg owner pushed to external team');
+                                            //externalTeam.push(hcp2);
+                                            externalPatientHcpTeam.push(hcp2);
+                                            this.api.patient().getPatient(this.patient.id).then(patient => {
+                                                var phcp = patient.patientHealthCareParties
+
+                                                phcp.push(newPhcp)
+
+                                                // 4 save data
+                                                this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
+                                                    this.set('patient.patientHealthCareParties', phcp)
+                                                    //this.$['add-new-person-to-care-team'].close()
+                                                    //this.initCurrentCareTeam()
+
+                                                })
                                             })
-                                        })
-                                    }
-                                    // 3.1 Update user/party if exists
-                                    // 3.2 Create party if not exists
-                                    // 4 save data
-                                    // Questions: how to handle referral periods ? Extend ?
-                                    // Optional (?) Store last dmg search time in patient : only once a day
-                                    //dmgOwner.push(hcp2);
-                                })
+                                        //}
+                                        // Questions: how to handle referral periods ? Extend ?
+                                        // Optional (?) Store last dmg search time in patient : only once a day
+                                })}
 
 
                             })]
