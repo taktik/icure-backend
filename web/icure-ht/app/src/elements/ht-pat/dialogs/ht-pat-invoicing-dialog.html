@@ -639,8 +639,8 @@
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material">
-                    <template is="dom-repeat" items="[[invoice]]">
-                        <paper-material class="layout vertical invoice-item invoice--big iron-selected">
+                    <template is="dom-repeat" items="[[invoices]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
@@ -649,7 +649,7 @@
                                 <div class="invoice-text-row grey">
                                     <h4>[[item.invoiceType]]</h4>
                                     <p>
-                                        <template is="dom-repeat" items="[[invoice.invoicingCodes]]">
+                                        <template is="dom-repeat" items="[[invoices.invoicingCodes]]">
                                             [[item.code]],
                                         </template>
                                     </p>
@@ -670,10 +670,10 @@
                         </div>
                     </div>
                     <div class="flex-container">
-                        <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_type','Invoice type',language)]]" value="{{invoice.invoiceType}}" on-value-changed="analyzeInvoiceType"></vaadin-combo-box>
-                        <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]" value="{{invoice.invoiceReference}}"></paper-input>
-                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{returnDate(invoice.invoiceDate)}}" i18n="[[i18n]]"></vaadin-date-picker>
-                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{invoice.invoicePeriod}}"></vaadin-combo-box>
+                        <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_type','Invoice type',language)]]" value="{{selectedInvoice.invoiceType}}" on-value-changed="analyzeInvoiceType"></vaadin-combo-box>
+                        <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]" value="{{selectedInvoice.invoiceReference}}"></paper-input>
+                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{returnDate(selectedInvoice.invoiceDate)}}" i18n="[[i18n]]"></vaadin-date-picker>
+                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}"></vaadin-combo-box>
                     </div>
                     <template is="dom-if" if="[[_checkInvoiceType]]">
                         <div class="flex-container">
@@ -681,12 +681,12 @@
                                <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>[[localize('inv_cr_no','Credit note',language)]]<br/>
                                <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>[[localize('inv_llp','Lifting limitation period',language)]]
                            </div>
-                           <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]" item-label-path="label.[[language]]" item-value-path="id" on-value-changed="analyzeCareProviderType" label="[[localize('inv_care_prov_ty','Care provider type',language)]]" value="{{invoice.careProviderType}}"></vaadin-combo-box>
-                           <template is="dom-if" if="[[_isTrainee(invoice.careProviderType)]]">
-                               <paper-input id="invoice-nihiiTrainee" label="[[localize('train_nihii','NIHII trainee',language)]]" value="{{invoice.internshipNihii}}"></paper-input>
+                           <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]" item-label-path="label.[[language]]" item-value-path="id" on-value-changed="analyzeCareProviderType" label="[[localize('inv_care_prov_ty','Care provider type',language)]]" value="{{selectedInvoice.careProviderType}}"></vaadin-combo-box>
+                           <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
+                               <paper-input id="invoice-nihiiTrainee" label="[[localize('train_nihii','NIHII trainee',language)]]" value="{{selectedInvoice.internshipNihii}}"></paper-input>
                            </template>
-                            <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_tpj','Third party justification',language)]]" value="{{invoice.thirdPartyReference}}" on-value-changed=""></vaadin-combo-box>
-                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]" value="{{invoice.gnotionNihii}}"></paper-input><iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]" class="infoDmg"></iron-icon>
+                            <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_tpj','Third party justification',language)]]" value="{{selectedInvoice.thirdPartyReference}}" on-value-changed=""></vaadin-combo-box>
+                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]" value="{{selectedInvoice.gnotionNihii}}"></paper-input><iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]" class="infoDmg"></iron-icon>
                         </div>
                     </template>
                 </div>
@@ -699,7 +699,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <vaadin-grid id="nmclGrid" items="[[invoice.invoicingCodes]]" class="material" active-item="{{activeNmclItem}}" on-tap="_showDetail">
+                                <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material" active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
@@ -794,6 +794,7 @@
                     </div>
                     <div class="invoice-nomenclature-code-option">
                         <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr" item-value-path="id" on-filter-changed="_nmclSearch" label="[[localize('nmcl','Nomenclature',language)]]" value=""></vaadin-combo-box>
+                        <vaadin-combo-box id="code-type" filtered-items="[[codeType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('code_type','Code type',language)]]" value="{{selectedCodeType}}" on-value-changed=""></vaadin-combo-box>
                         <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
                         <paper-icon-button icon="icons:save" on-tap="_addFavoriteCode"></paper-icon-button>
                     </div>
@@ -902,6 +903,23 @@
                         value: false
                     },
                     invoiceType: {
+                        type: Array,
+                        value : () => [
+                            {
+                                id   : "efact",
+                                label: {"fr": "eFact", "nl": "eFact", "en": "eFact"}
+                            },
+                            {
+                                id   : "eattest",
+                                label: {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
+                            },
+                            {
+                                id   : "other",
+                                label: {"fr": "Autre", "nl": "Anders", "en": "Other"}
+                            }
+                        ]
+                    },
+                    codeType: {
                         type: Array,
                         value : () => [
                             {
@@ -1033,10 +1051,14 @@
                         ]
                     },
 
-                    invoice: {
+                    selectedInvoice: {
                         type: Object,
                         value : () => {},
                         observer: 'invoiceChange'
+                    },
+                    invoices: {
+                        type: Object,
+                        value : () => {}
                     },
                     totalInvoice:{
                         type: Object,
@@ -1098,6 +1120,9 @@
                     hcp: {
                         type: Object,
                         value : () => ({})
+                    },
+                    selectedCodeType: {
+                        type: String
                     }
 
                 };
@@ -1117,22 +1142,33 @@
                 super.ready();
             }
 
-            open() {
-                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().newInstance(this.user, this.patient)]).then(([hcp, invoice]) => {
+            _selectInvoice(e){
+                const selected = this.invoices.find(inv => inv.id === e.currentTarget.id)
+                this.set('selectedInvoice', selected)
+                this.calculateTotalOfInvoice()
+            }
 
-                    invoice.invoiceDate                 = moment().format("YYYYMMDD")
-                    invoice.invoiceReference            = ""
-                    invoice.thirdPartyReference         = "0"
-                    invoice.invoiceType                 = "efact"
-                    invoice.invoicePeriod               = 0
-                    invoice.longDelayJustification      = 0
-                    invoice.gnotionNihii                = ""
-                    invoice.internshipNihii             = ""
-                    invoice.creditNote                  = false
-                    invoice.careProviderType            = "persphysician"
+            open() {
+                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient), this.api.invoice().newInstance(this.user, this.patient)]).then(([hcp, invoices, newInvoice]) => {
+
+                    newInvoice.invoiceDate                 = moment().format("YYYYMMDD")
+                    newInvoice.invoiceReference            = ""
+                    newInvoice.thirdPartyReference         = "0"
+                    newInvoice.invoiceType                 = "efact"
+                    newInvoice.invoicePeriod               = 0
+                    newInvoice.longDelayJustification      = 0
+                    newInvoice.gnotionNihii                = ""
+                    newInvoice.internshipNihii             = ""
+                    newInvoice.creditNote                  = false
+                    newInvoice.careProviderType            = "persphysician"
 
                     this.set('hcp', hcp)
-                    this.set('invoice', invoice)
+                    this.set('selectedInvoice', newInvoice)
+                    invoices.push(this.selectedInvoice)
+                    this.set('invoices', invoices)
+
+
+
                     this.$.invoiceDialog.open()
                     this.getFavoritesCodes()
                 })
@@ -1147,7 +1183,7 @@
             }
 
             _checkInvoiceType(){
-                return this.invoice.invoiceType === "efact" ? true : false
+                return this.selectedInvoice.invoiceType === "efact" ? true : false
             }
 
             getFavoritesCodes(){
@@ -1163,14 +1199,15 @@
             }
 
             _isCreditNote(e){
-                this.set('invoice.creditNote', e.target.checked)
+                this.set('selectedInvoice.creditNote', e.target.checked)
             }
 
             _isLiftingLimitationPeriod(e){
-                this.set('invoice.longDelayJustification', e.target.checked)
+                this.set('selectedInvoice.longDelayJustification', e.target.checked)
             }
 
             analyzeInvoiceType(e){
+                this.set('selectedCodeType', e.detail.value)
                 return e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
 
@@ -1221,85 +1258,86 @@
 
                     const nmcl = (e.target.dataset.item) ? JSON.parse(e.target.dataset.item) : this.$['nmcl-search'].selectedItem
 
-                    let invoicingCodes = this.invoice.invoicingCodes
+                    let invoicingCodes = this.selectedInvoice.invoicingCodes
 
                     const newNmcl = {
-                        code: nmcl.code,
-                        contactId: this.currentContact.id,
-                        tarificationId: nmcl.id,
-                        label: nmcl.label[this.language],
-                        totalAmount: Number(0.00).toFixed(2),
-                        reimbursement: Number(0.00).toFixed(2),
-                        patientIntervention: Number(0.00).toFixed(2),
-                        doctorSupplement: Number(0.00).toFixed(2),
-                        units: 1,
-                        canceled: false,
-                        accepted: false,
-                        pending: false,
-                        resent: false,
-                        dateCode: moment().format("YYYYMMDD"),
-                        prescriberNeeded: false,
-                        isRelativePrestation: false,
-                        valid: false,
-                        id: this.api.crypto().randomUuid(),
-                        prescriberNihii: null,
-                        prescriberNorm: 0
+                        code:                       nmcl.code,
+                        contactId:                  this.currentContact.id,
+                        tarificationId:             nmcl.id,
+                        label:                      nmcl.label[this.language],
+                        totalAmount:                Number(0.00).toFixed(2),
+                        reimbursement:              Number(0.00).toFixed(2),
+                        patientIntervention:        Number(0.00).toFixed(2),
+                        doctorSupplement:           Number(0.00).toFixed(2),
+                        units:                      1,
+                        canceled:                   false,
+                        accepted:                   false,
+                        pending:                    false,
+                        resent:                     false,
+                        dateCode:                   moment().format("YYYYMMDD"),
+                        prescriberNeeded:           false,
+                        isRelativePrestation:       false,
+                        valid:                      false,
+                        id:                         this.api.crypto().randomUuid(),
+                        prescriberNihii:            null,
+                        prescriberNorm:             0
 
                     }
-                        const ins = this.patient.insurabilities.find(i=>!i.endDate)
-                        const age = moment().diff(this.patient.dateOfBirth, 'years', true)
-                        const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
+                    const ins = this.patient.insurabilities.find(i=>!i.endDate)
+                    const age = moment().diff(this.patient.dateOfBirth, 'years', true)
+                    const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
 
-                        const trainee = this.hcp.statuses
-                        const convention = this.hcp.convention
+                    const trainee = this.hcp.statuses
+                    const convention = this.hcp.convention
 
 
-                        const env = new evaljs.Environment({patient:{preferentialstatus:!!ins.parameters.preferentialstatus, age: age, dmg: (dmg && dmg.referral) ? !!dmg.referral : false, chronical:!!ins.parameters.chronicalDisease}, hcp: {trainee: trainee, convention: convention}})
+                    const env = new evaljs.Environment({patient:{preferentialstatus:!!ins.parameters.preferentialstatus, age: age, dmg: (dmg && dmg.referral) ? !!dmg.referral : false, chronical:!!ins.parameters.chronicalDisease}, hcp: {trainee: trainee, convention: convention}})
 
-                        nmcl.valorisations.map(val => {
-                            const gen = (env.gen(val.predicate)())
+                    nmcl.valorisations.map(val => {
+                        const gen = (env.gen(val.predicate)())
+                        let status = {done:false}
 
-                            let status = {done:false}
-                            while(!status.done) {
-                                status = gen.next()
-                            }
+                        while(!status.done) {
+                            status = gen.next()
+                        }
 
-                            if(status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)){
-                                newNmcl.totalAmount =           Number(val.totalAmount).toFixed(2)
-                                newNmcl.reimbursement =         Number(val.reimbursement).toFixed(2)
-                                newNmcl.patientIntervention =   Number(val.patientIntervention).toFixed(2)
+                        if(status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)){
+                            newNmcl.totalAmount =           Number(val.totalAmount).toFixed(2)
+                            newNmcl.reimbursement =         Number(val.reimbursement).toFixed(2)
+                            newNmcl.patientIntervention =   Number(val.patientIntervention).toFixed(2)
+                        }
+                    })
+
+                    invoicingCodes.push(newNmcl)
+
+                    this.api.invoice().appendCodes(this.user.id, this.selectedCodeType, this.patient.insurabilities[0].insuranceId, this.patient.secretForeignKeys, null, 0, invoicingCodes).then(inv => {
+
+                        inv.map(invoice => {
+
+                            if(!invoice.id){
+
+                                invoice.id                          = this.selectedInvoice.id
+                                invoice.invoiceDate                 = this.selectedInvoice.invoiceDate
+                                invoice.invoiceReference            = this.selectedInvoice.invoiceReference
+                                invoice.thirdPartyReference         = this.selectedInvoice.thirdPartyReference
+                                invoice.invoicePeriod               = this.selectedInvoice.invoicePeriod
+                                invoice.longDelayJustification      = this.selectedInvoice.longDelayJustification
+                                invoice.gnotionNihii                = this.selectedInvoice.gnotionNihii
+                                invoice.internshipNihii             = this.selectedInvoice.internshipNihii
+                                invoice.creditNote                  = this.selectedInvoice.creditNote
+                                invoice.careProviderType            = this.selectedInvoice.careProviderType
+                                invoice.delegations                 = this.selectedInvoice.delegations
+
+                                this.api.invoice().createInvoice(this.selectedInvoice).then(invoice => {
+                                    this.set('selectedInvoice', invoice)
+                                    this.$['nmclGrid'].clearCache()
+                                    this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                                    this.calculateTotalOfInvoice()
+                                    console.log(this.selectedInvoice)
+                                })
                             }
                         })
-
-                        invoicingCodes.push(newNmcl)
-
-
-                        this.api.invoice().appendCodes(this.user.id, this.invoice.invoiceType, this.patient.insurabilities[0].insuranceId, this.patient.secretForeignKeys, null, 0, invoicingCodes).then(inv => {
-
-                            let invoice = inv[0]
-                            invoice.invoiceDate                 = this.invoice.invoiceDate
-                            invoice.invoiceReference            = this.invoice.invoiceReference
-                            invoice.thirdPartyReference         = this.invoice.thirdPartyReference
-                            invoice.invoiceType                 = this.invoice.invoiceType
-                            invoice.invoicePeriod               = this.invoice.invoicePeriod
-                            invoice.longDelayJustification      = this.invoice.longDelayJustification
-                            invoice.gnotionNihii                = this.invoice.gnotionNihii
-                            invoice.internshipNihii             = this.invoice.internshipNihii
-                            invoice.creditNote                  = this.invoice.creditNote
-                            invoice.careProviderType            = this.invoice.careProviderType
-                            invoice.delegations                 = this.invoice.delegations
-
-                            this.set('invoice', invoice)
-
-                            this.$['nmclGrid'].clearCache()
-
-                            this.invoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                            this.calculateTotalOfInvoice()
-
-                            console.log(this.invoice)
-
-                        })
-
+                    })
                 }
             }
 
@@ -1365,13 +1403,13 @@
 
                 let nmclCode = []
 
-                this.invoice.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
+                this.selectedInvoice.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
 
-                if(this.patient.ssin && this.api.tokenId && this.invoice.invoiceDate !== "") {
+                if(this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "") {
 
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, moment(this.invoice.invoiceDate).format('YYYYMMDD'), this.invoice.gnotionNihii, this.invoice.thirdPartyReference).then(r => {
+                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, moment(this.selectedInvoice.invoiceDate).format('YYYYMMDD'), this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
                             console.log(r)
 
                             if(r.errors.length > 0){
@@ -1391,8 +1429,8 @@
 
                                 r.codes.forEach(c => {
                                     const cind = r.codes.indexOf(c)
-                                    let item = this.invoice.invoicingCodes.find(item => item.code === c)
-                                    let itemInd = this.invoice.invoicingCodes.indexOf(item)
+                                    let item = this.selectedInvoice.invoicingCodes.find(item => item.code === c)
+                                    let itemInd = this.selectedInvoice.invoicingCodes.indexOf(item)
 
                                     item.reimbursement                      = r.reimbursements[cind].amount
                                     item.patientIntervention                = r.patientFees[cind].amount
@@ -1401,12 +1439,12 @@
                                     item.valid                              = true
                                     item.insuranceJustification             = r.justification
 
-                                    this.set('invoice.invoicingCodes[itemInd]', item)
+                                    this.set('selectedInvoice.invoicingCodes[itemInd]', item)
                                     this.$['nmclGrid'].clearCache()
 
                                 })
                                 this.calculateTotalOfInvoice()
-                                console.log(this.invoice)
+                                console.log(this.selectedInvoice)
                             }
                         }).catch((e)=>{
                             console.log("Exception", e)
@@ -1424,7 +1462,7 @@
                 let reimbursement            = 0
                 let doctorSupplement         = 0
 
-                this.invoice.invoicingCodes.map(n => {
+                this.selectedInvoice.invoicingCodes.map(n => {
                     totalAmount +=            Number(n.totalAmount)
                     patientIntervention +=    Number(n.patientIntervention)
                     reimbursement +=          Number(n.reimbursement)
@@ -1465,7 +1503,7 @@
                 if(e.target.dataset.item){
                     //this.api.invoice().removeCodes(this.user.id, service, this.patient.secretForeignKeys, e.target.item.tarificationId
                     this.set('isDetailNmcl', false)
-                    let tabNmcl = this.invoice.invoicingCodes
+                    let tabNmcl = this.selectedInvoice.invoicingCodes
 
                     const item = tabNmcl.find(n => n.tarificationId === e.target.dataset.item)
                     const iindex = tabNmcl.indexOf(item)
@@ -1473,9 +1511,9 @@
                     delete(tabNmcl[iindex])
                     tabNmcl.splice(iindex, 1)
 
-                    this.set("invoice.invoicingCodes", this.invoice.invoicingCodes.map(x => x))
+                    this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
 
-                    console.log(this.invoice.invoicingCodes)
+                    console.log(this.selectedInvoice.invoicingCodes)
                     this.$['nmclGrid'].clearCache()
 
                     this.calculateTotalOfInvoice()
@@ -1493,15 +1531,15 @@
             _createInvoice(){
 
 
-                if(!this.invoice.id){
-                    this.api.invoice().createInvoice(this.invoice).then(invoice => {
+                if(!this.selectedInvoice.id){
+                    this.api.invoice().createInvoice(this.selectedInvoice).then(invoice => {
                         console.log(invoice)
-                        this.set('invoice', invoice)
+                        this.set('selectedInvoice', invoice)
                     })
                 }else{
-                   this.api.invoice().modifyInvoice(this.invoice).then(invoice => {
+                   this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
                        console.log(invoice)
-                       this.set('invoice', invoice)
+                       this.set('selectedInvoice', invoice)
                    })
                 }
 
@@ -1511,13 +1549,13 @@
             _invoicingCodeChange(){
 
                 if(this.activeNmclItem) {
-                    const code = this.invoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
-                    const codeIdx = this.invoice.invoicingCodes.indexOf(code)
+                    const code = this.selectedInvoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
+                    const codeIdx = this.selectedInvoice.invoicingCodes.indexOf(code)
 
                     let totalAmount = Number(this.activeNmclItem.patientIntervention) + Number(this.activeNmclItem.reimbursement) + Number(this.activeNmclItem.doctorSupplement)
 
                     this.set('activeNmclItem.totalAmount', Number(totalAmount).toFixed(2))
-                    this.set('invoice.invoicingCodes[codeIdx]', this.activeItem)
+                    this.set('selectedInvoice.invoicingCodes[codeIdx]', this.activeItem)
                     this.$['nmclGrid'].clearCache()
                     this.calculateTotalOfInvoice()
                 }

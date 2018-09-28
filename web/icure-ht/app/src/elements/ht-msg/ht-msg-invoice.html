@@ -1,0 +1,377 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<dom-module id="ht-msg-invoice">
+    <template>
+        <custom-style>
+            <style include="shared-styles">
+
+                :host {
+                    display: block;
+                    z-index:2;
+                }
+
+                :host *:focus {
+                    outline: 0 !important;
+                }
+
+                vaadin-grid {
+                    height: calc(100% - 16px - 32px);
+                    width: 100%;
+                    box-shadow: var(--app-shadow-elevation-1);
+                    border: none;
+                    box-sizing: border-box;
+                }
+
+                vaadin-grid.material {
+                    outline: 0 !important;
+                    font-family: Roboto, sans-serif;
+                    background: rgba(0, 0, 0, 0);
+                    border: none;
+                    --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                    --vaadin-grid-cell: {
+                        padding: 8px;
+                    };
+
+                    --vaadin-grid-header-cell: {
+                        height: 48px;
+                        padding: 11.2px;
+                        color: rgba(0, 0, 0, var(--dark-secondary-opacity));
+                        font-size: 12px;
+                        background: rgba(0, 0, 0, 0);
+                        border-top: 0;
+                    };
+
+                    --vaadin-grid-body-cell: {
+                        height: 48px;
+                        color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                        font-size: 13px;
+                    };
+
+                    --vaadin-grid-body-row-hover-cell: {
+                        background-color: var(--paper-grey-200);
+                    };
+
+                    --vaadin-grid-body-row-selected-cell: {
+                        background-color: var(--paper-grey-100);
+                    };
+
+                    --vaadin-grid-focused-cell: {
+                        box-shadow: none;
+                        font-weight: bold;
+                    };
+
+                }
+
+                vaadin-grid.material .cell {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    padding-right: 56px;
+                }
+
+                vaadin-grid.material .cell.last {
+                    padding-right: 24px;
+                    text-al;
+                }
+
+                vaadin-grid.material .cell.numeric {
+                    text-align: right;
+                }
+
+                vaadin-grid.material paper-checkbox {
+                    --primary-color: var(--paper-indigo-500);
+                    margin: 0 24px;
+                }
+
+                vaadin-grid.material vaadin-grid-sorter {
+                    --vaadin-grid-sorter-arrow: {
+                        display: none !important;
+                    };
+                }
+
+                vaadin-grid.material vaadin-grid-sorter .cell {
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                vaadin-grid.material vaadin-grid-sorter iron-icon {
+                    transform: scale(0.8);
+                }
+
+                vaadin-grid.material vaadin-grid-sorter:not([direction]) iron-icon {
+                    color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+                }
+
+                vaadin-grid.material vaadin-grid-sorter[direction] {
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                }
+
+                vaadin-grid.material vaadin-grid-sorter[direction=desc] iron-icon {
+                    transform: scale(0.8) rotate(180deg);
+                }
+
+                vaadin-grid.material::slotted(div) {
+                    outline: 0 !important;
+                    background: red;
+                }
+
+                .invoice-panel{
+                    height: 100%;
+                    width: 100%;
+                }
+
+                .recipient-col{
+                    min-width: 75px;
+                    width:  5%;
+                }
+
+                .oa-col{
+                    min-width: 25px;
+                }
+
+                .ref-col{
+                    min-width: 75px;
+                }
+
+                .invoice-col{
+                    min-width: 40px;
+                }
+
+                .month-col{
+                    min-width: 40px;
+                }
+
+                .invoiceDate-col{
+                    min-width: 50px;
+                }
+
+                .invAmount-col{
+                    min-width: 50px;
+                }
+
+                .accAmount-col{
+                    min-width: 50px;
+                }
+
+                .refAmount-col{
+                    min-width: 50px;
+                }
+
+                .stat-col{
+                    min-width: 50px;
+                }
+
+                .reject-col{
+                    min-width: 100px;
+                }
+
+                .payRef-col{
+                    min-width: 50px;
+                }
+
+                .payDate-col{
+                    min-width: 40px;
+                }
+
+                .payTot-col{
+                    min-width: 40px;
+                }
+
+                .payBank-col{
+                    min-width: 50px;
+                }
+
+                .payPaid-col{
+                    min-width: 50px;
+                }
+
+            </style>
+        </custom-style>
+        <div class="invoice-panel">
+            <div>
+                <vaadin-grid id="invoiceGrid" items="">
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">Prestataire</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="oa-col">
+                        <template class="header">OA</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="ref-col">
+                        <template class="header">Réf. du médecin</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="invoice-col">
+                        <template class="header">N° envoi</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="month-col">
+                        <template class="header">Mois fact.</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="invoiceDate-col">
+                        <template class="header">Date d'envoi</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="invAmount-col">
+                        <template class="header">Montant facturé</template>
+                        <template></template>
+                        <template class="footer">[[totalInvoice.invoicedAmount]]€</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="accAmount-col">
+                        <template class="header">Montant accepté</template>
+                        <template></template>
+                        <template class="footer">[[totalInvoice.acceptedAmount]]€</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="refAmount-col">
+                        <template class="header">Montant refusé</template>
+                        <template></template>
+                        <template class="footer">[[totalInvoice.refusedAmount]]€</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="stat-col">
+                        <template class="header">Statut</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="reject-col">
+                        <template class="header">Motif rejet</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column-group>
+                        <template class="header">Informations de paiement</template>
+                        <vaadin-grid-column class="payRef-col">
+                            <template class="header">Réf</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="payDate-col">
+                            <template class="header">Date</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="payTot-col">
+                            <template class="header">Montant</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="payBank-col">
+                            <template class="header">Compte bancaire</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="payPaid-col">
+                            <template class="header">Payé</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                    </vaadin-grid-column-group>
+                </vaadin-grid>
+            </div>
+        </div>
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+        import filterExParser from '../../../scripts/filterExParser';
+
+        class HtMsgInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-msg-invoice';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    selectedMessages: {
+                        type: Object,
+                        notify: true
+                    },
+                    activeItem: {
+                        type: Object
+                    },
+                    messages: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    selectList: {
+                        type: Object
+                    },
+                    i18n: {
+                        Type: Object,
+                        value: function () {
+                            moment.locale('fr');
+                            const res = {
+                                monthNames: moment.months(),
+                                weekdays: moment.weekdays(),
+                                weekdaysShort: moment.weekdaysShort(),
+                                firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                                week: 'Semaine',
+                                calendar: 'Calendrier',
+                                clear: 'Clear',
+                                today: 'Aujourd\'hui',
+                                cancel: 'Annuler',
+                                formatDate: function (d) {
+                                    //return moment(d).format(moment.localeData().longDateFormat('L'))
+                                    return moment(d).format('DD/MM/YYYY');
+                                },
+                                parseDate: function (s) {
+                                    return moment(s, 'DD/MM/YYYY').toDate();
+                                },
+                                formatTitle: function (monthName, fullYear) {
+                                    return monthName + ' ' + fullYear;
+                                }
+                            };
+                            return res;
+                        }
+                    },
+                    totalInvoice:{
+                        type: Object,
+                        value : () => ({
+                            invoicedAmount:     Number(0.00).toFixed(2),
+                            acceptedAmount:     Number(0.00).toFixed(2),
+                            refusedAmount:      Number(0.00).toFixed(2)
+                        })
+                    },
+
+                };
+            }
+
+            constructor() {
+                super();
+            }
+
+            static get observers() {
+                return [];
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            _getMessage(){
+
+            }
+
+
+        }
+
+        customElements.define(HtMsgInvoice.is, HtMsgInvoice);
+    </script>
+</dom-module>

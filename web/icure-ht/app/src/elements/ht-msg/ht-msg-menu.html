@@ -402,7 +402,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
 						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
 						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
-						<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
+						<!--<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
@@ -443,7 +443,6 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: function () {
 					return [];
 				}
-
 			},
 			selectedLocalize: {
 				type: Array,
