@@ -19,7 +19,7 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.taktik.icure.constants.Roles;
 
 import javax.persistence.Entity;

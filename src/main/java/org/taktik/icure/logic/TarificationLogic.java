@@ -20,7 +20,7 @@ package org.taktik.icure.logic;
 
 import java.util.List;
 
-import com.drew.lang.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Tarification;

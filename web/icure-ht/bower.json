@@ -75,6 +75,9 @@
   },
   "resolutions": {
     "iron-selector": "1f6b245bbe94c7693180ff06064e5e1b0b801a90",
-    "highcharts": "^5.0.0"
+    "highcharts": "^5.0.0",
+    "vaadin-element-mixin": "2.1.2",
+    "vaadin-usage-statistics": "2.0.1",
+    "vaadin-development-mode-detector": "2.0.0"
   }
 }
