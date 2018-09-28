@@ -256,7 +256,6 @@ public class Invoice extends StoredICureDocument {
 		this.groupId = groupId;
 	}
 
-	@Override
 	public String getGnotionNihii() {
 		return gnotionNihii;
 	}
