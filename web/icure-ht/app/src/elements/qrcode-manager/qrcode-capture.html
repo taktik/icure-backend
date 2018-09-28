@@ -121,6 +121,7 @@ class QrcodeCapture extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		if (navigator.getUserMedia) {
 			navigator.getUserMedia({ audio: false, video: { width: 1280, height: 720 } }, stream => {
+			    this.stream = stream
 				video.srcObject = stream;
 				video.onloadedmetadata = function () {
 					video.play();
@@ -136,7 +137,8 @@ class QrcodeCapture extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	stop() {
 		cancelAnimationFrame(this.tick.bind(this));
-	}
+		this.stream && (this.stream.getTracks() || []).forEach(t => t.stop())
+    }
 
 }
 
