@@ -864,7 +864,7 @@ public class EfactLogicImpl implements EfactLogic {
 					}
 
 					items.add(createInvoiceItem(hcp, encodeRefFromUUID(UUID.fromString(ivc.getId())), Long.valueOf(ivc.getCode() != null ? ivc.getCode() : ivc.getTarificationId().split("\\|")[1]), Math.round(reimbursement * 100), Math.round(patientIntervention * 100), Math.round(doctorSupplement * 100),
-							ivc.getContract(), ivc.getDateCode(), ivc.getEidReadingHour(), ivc.getEidReadingValue(), ivc.getSide() == null ? -1 : ivc.getSide(), ivc.getOverride3rdPayerCode(), ivc.getTimeOfDay() == null ? -1 : ivc.getTimeOfDay(), ivc.getCancelPatientInterventionReason(), ivc.getRelatedCode() == null ? 0 : Long.valueOf(ivc.getRelatedCode()), ivc.getGnotionNihii(), ivc.getPrescriberNihii(), ivc.getUnits() == null ? 1 : ivc.getUnits(), ivc.getPrescriberNorm() == null ? -1 : ivc.getPrescriberNorm(), ivc.getPercentNorm() == null ? -1 : ivc.getPercentNorm()
+							ivc.getContract(), ivc.getDateCode(), ivc.getEidReadingHour(), ivc.getEidReadingValue(), ivc.getSide() == null ? -1 : ivc.getSide(), ivc.getOverride3rdPayerCode(), ivc.getTimeOfDay() == null ? -1 : ivc.getTimeOfDay(), ivc.getCancelPatientInterventionReason(), ivc.getRelatedCode() == null ? 0 : Long.valueOf(ivc.getRelatedCode()), iv.getGnotionNihii(), ivc.getPrescriberNihii(), ivc.getUnits() == null ? 1 : ivc.getUnits(), ivc.getPrescriberNorm() == null ? -1 : ivc.getPrescriberNorm(), ivc.getPercentNorm() == null ? -1 : ivc.getPercentNorm()
 					));
 
 					ivc.setStatus(InvoicingCode.STATUS_PENDING);

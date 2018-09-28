@@ -639,23 +639,27 @@
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material">
-                    <paper-material class="layout vertical invoice-item invoice--big iron-selected">
-                        <paper-item class="invoice-text">
-                            <div class="invoice-text-row invoice-text-date">
-                                <label>N°</label>
-                                <label>Date</label>
-                            </div>
-                            <div class="invoice-text-row grey">
-                                <h4>Fact</h4>
-                                <p>
-                                    description
-                                </p>
-                            </div>
-                            <div class="invoice-text-row label-container">
+                    <template is="dom-repeat" items="[[invoice]]">
+                        <paper-material class="layout vertical invoice-item invoice--big iron-selected">
+                            <paper-item class="invoice-text">
+                                <div class="invoice-text-row invoice-text-date">
+                                    <label>N° [[item.invoiceReference]]</label>
+                                    <label>[[item.invoiceDate]]</label>
+                                </div>
+                                <div class="invoice-text-row grey">
+                                    <h4>[[item.invoiceType]]</h4>
+                                    <p>
+                                        <template is="dom-repeat" items="[[invoice.invoicingCodes]]">
+                                            [[item.code]],
+                                        </template>
+                                    </p>
+                                </div>
+                                <div class="invoice-text-row label-container">
 
-                            </div>
-                        </paper-item>
-                    </paper-material>
+                                </div>
+                            </paper-item>
+                        </paper-material>
+                    </template>
                 </paper-listbox>
             </div>
             <div class="detail-panel">
@@ -666,23 +670,23 @@
                         </div>
                     </div>
                     <div class="flex-container">
-                        <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_type','Invoice type',language)]]" value="{{invoicing.invoiceType}}" on-value-changed="analyzeInvoiceType"></vaadin-combo-box>
-                        <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]" value="{{invoicing.invoiceNumber}}"></paper-input>
-                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoicing.invoiceDate}}" i18n="[[i18n]]"></vaadin-date-picker>
-                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{invoicing.invoicePeriod}}"></vaadin-combo-box>
+                        <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_type','Invoice type',language)]]" value="{{invoice.invoiceType}}" on-value-changed="analyzeInvoiceType"></vaadin-combo-box>
+                        <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]" value="{{invoice.invoiceReference}}"></paper-input>
+                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{returnDate(invoice.invoiceDate)}}" i18n="[[i18n]]"></vaadin-date-picker>
+                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{invoice.invoicePeriod}}"></vaadin-combo-box>
                     </div>
-                    <template is="dom-if" if="[[isThirdParty]]">
+                    <template is="dom-if" if="[[_checkInvoiceType]]">
                         <div class="flex-container">
                             <div id="invoice-creditNote">
                                <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>[[localize('inv_cr_no','Credit note',language)]]<br/>
                                <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>[[localize('inv_llp','Lifting limitation period',language)]]
                            </div>
-                           <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]" item-label-path="label.[[language]]" item-value-path="id" on-value-changed="analyzeCareProviderType" label="[[localize('inv_care_prov_ty','Care provider type',language)]]" value="{{invoicing.careProviderType}}"></vaadin-combo-box>
-                           <template is="dom-if" if="[[isTrainee]]">
-                               <paper-input id="invoice-nihiiTrainee" label="[[localize('train_nihii','NIHII trainee',language)]]" value="{{invoicing.nihiiTrainee}}"></paper-input>
+                           <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]" item-label-path="label.[[language]]" item-value-path="id" on-value-changed="analyzeCareProviderType" label="[[localize('inv_care_prov_ty','Care provider type',language)]]" value="{{invoice.careProviderType}}"></vaadin-combo-box>
+                           <template is="dom-if" if="[[_isTrainee(invoice.careProviderType)]]">
+                               <paper-input id="invoice-nihiiTrainee" label="[[localize('train_nihii','NIHII trainee',language)]]" value="{{invoice.internshipNihii}}"></paper-input>
                            </template>
-                            <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_tpj','Third party justification',language)]]" value="{{invoicing.thirdPartyJustification}}" on-value-changed=""></vaadin-combo-box>
-                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]" value="{{invoicing.dmgOwner}}"></paper-input><iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]" class="infoDmg"></iron-icon>
+                            <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_tpj','Third party justification',language)]]" value="{{invoice.thirdPartyReference}}" on-value-changed=""></vaadin-combo-box>
+                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]" value="{{invoice.gnotionNihii}}"></paper-input><iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]" class="infoDmg"></iron-icon>
                         </div>
                     </template>
                 </div>
@@ -695,7 +699,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <vaadin-grid id="nmclGrid" items="[[invoicingCodes]]" class="material" active-item="{{activeNmclItem}}" on-tap="_showDetail">
+                                <vaadin-grid id="nmclGrid" items="[[invoice.invoicingCodes]]" class="material" active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
@@ -711,7 +715,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="750px">
+                                    <vaadin-grid-column width="730px">
                                         <template class="header">
                                             <div class="cell frozen">[[localize('lab','Label',language)]]</div>
                                         </template>
@@ -719,7 +723,7 @@
                                             <div class="cell frozen">[[item.label]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="50px">
+                                    <vaadin-grid-column width="60px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('tot_pat','Patient fees',language)]]</div>
                                         </template>
@@ -728,7 +732,7 @@
                                         </template>
                                         <template class="footer">[[totalInvoice.patientIntervention]] €</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="50px">
+                                    <vaadin-grid-column width="60px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]</div>
                                         </template>
@@ -737,7 +741,7 @@
                                         </template>
                                         <template class="footer">[[totalInvoice.reimbursement]] €</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="50px">
+                                    <vaadin-grid-column width="60px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
@@ -939,7 +943,7 @@
                         type: Array,
                         value: () => [
                             {
-                                id : "physician",
+                                id : "persphysician",
                                 label : {"fr" : "Médecin", "nl" : "Arts", "en" : "Physician"}
                             },
                             {
@@ -1029,30 +1033,10 @@
                         ]
                     },
 
-                    invoiceDTO: {
+                    invoice: {
                         type: Object,
-                        value : () => {}
-                    },
-
-                    invoicing:{
-                        type: Object,
-                        value : () => ({
-                            invoiceType: "efact",
-                            invoiceNumber: "",
-                            invoicePeriod: 0,
-                            creditNote: false,
-                            liftingLimitationPeriod : false,
-                            careProviderType: "physician",
-                            nihiiTrainee: "",
-                            invoiceDate: moment().format("YYYY-MM-DD"),
-                            thirdPartyJustification : "0",
-                            dmgOwner: ""
-                        })
-                    },
-                    invoicingCodes:{
-                        type: Array,
-                        value: () => [],
-                        notify: true
+                        value : () => {},
+                        observer: 'invoiceChange'
                     },
                     totalInvoice:{
                         type: Object,
@@ -1125,8 +1109,8 @@
             }
 
             getNmclColorStatus(status){
-                const classs =  status === true ? 'verifiedNmcl' : 'unverifiedNmcl'
-                return classs
+                return status === true ? 'verifiedNmcl' : 'unverifiedNmcl'
+
             }
 
             ready() {
@@ -1136,13 +1120,19 @@
             open() {
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().newInstance(this.user, this.patient)]).then(([hcp, invoice]) => {
 
-                    invoice.invoiceDate            = moment().format("YYYYMMDD")
-                    invoice.invoiceReference       = this.invoicing.invoiceReference
-                    invoice.thirdPartyReference    = this.invoicing.thirdPartyJustification
-                    invoice.invoiceType            = this.invoicing.invoiceType
+                    invoice.invoiceDate                 = moment().format("YYYYMMDD")
+                    invoice.invoiceReference            = ""
+                    invoice.thirdPartyReference         = "0"
+                    invoice.invoiceType                 = "efact"
+                    invoice.invoicePeriod               = 0
+                    invoice.longDelayJustification      = 0
+                    invoice.gnotionNihii                = ""
+                    invoice.internshipNihii             = ""
+                    invoice.creditNote                  = false
+                    invoice.careProviderType            = "persphysician"
 
                     this.set('hcp', hcp)
-                    this.set('invoiceDto', invoice)
+                    this.set('invoice', invoice)
                     this.$.invoiceDialog.open()
                     this.getFavoritesCodes()
                 })
@@ -1150,6 +1140,14 @@
 
             _closeDialog(){
                 this.$.invoiceDialog.close();
+            }
+
+            _isTrainee(careProviderType){
+                return careProviderType === "persphysician" ? false : true
+            }
+
+            _checkInvoiceType(){
+                return this.invoice.invoiceType === "efact" ? true : false
             }
 
             getFavoritesCodes(){
@@ -1165,11 +1163,11 @@
             }
 
             _isCreditNote(e){
-                this.set('invoicing.creditNote', e.target.checked)
+                this.set('invoice.creditNote', e.target.checked)
             }
 
             _isLiftingLimitationPeriod(e){
-                this.set('invoicing.liftingLimitationPeriod', e.target.checked)
+                this.set('invoice.longDelayJustification', e.target.checked)
             }
 
             analyzeInvoiceType(e){
@@ -1223,37 +1221,31 @@
 
                     const nmcl = (e.target.dataset.item) ? JSON.parse(e.target.dataset.item) : this.$['nmcl-search'].selectedItem
 
-                    let tabNmcl = this.invoicingCodes
-                    const foundNmcl = tabNmcl.find(n => n.code === nmcl.code)
+                    let invoicingCodes = this.invoice.invoicingCodes
 
-                    if(!foundNmcl){
-                        const newNmcl = {
-                            code:                       nmcl.code,
-                            contactId:                  this.currentContact.id,
-                            tarificationId :            nmcl.id,
-                            label:                      nmcl.label[this.language],
-                            totalAmount:                Number(0.00).toFixed(2),
-                            reimbursement:              Number(0.00).toFixed(2),
-                            patientIntervention:        Number(0.00).toFixed(2),
-                            doctorSupplement:           Number(0.00).toFixed(2),
-                            invoicePeriod:              this.invoicing.invoicePeriod,
-                            units:                      1,
-                            canceled:                   false,
-                            accepted:                   false,
-                            pending:                    false,
-                            resent:                     false,
-                            longDelayJustification:     this.invoicing.liftingLimitationPeriod === true ? 1 : 0,
-                            dateCode :                  moment().format("YYYYMMDD"),
-                            prescriberNeeded:           false,
-                            isRelativePrestation:       false,
-                            valid:                      false,
-                            gnotionNihii:               this.invoicing.dmgOwner,
-                            id:                         this.api.crypto().randomUuid(),
-                            prescriberNihii:            null,
-                            internshipNihii:            (this.invoicing.careProviderType !== "persphysician" ? this.invoicing.nihiiTrainee : ""),
-                            prescriberNorm:             0
-                        }
+                    const newNmcl = {
+                        code: nmcl.code,
+                        contactId: this.currentContact.id,
+                        tarificationId: nmcl.id,
+                        label: nmcl.label[this.language],
+                        totalAmount: Number(0.00).toFixed(2),
+                        reimbursement: Number(0.00).toFixed(2),
+                        patientIntervention: Number(0.00).toFixed(2),
+                        doctorSupplement: Number(0.00).toFixed(2),
+                        units: 1,
+                        canceled: false,
+                        accepted: false,
+                        pending: false,
+                        resent: false,
+                        dateCode: moment().format("YYYYMMDD"),
+                        prescriberNeeded: false,
+                        isRelativePrestation: false,
+                        valid: false,
+                        id: this.api.crypto().randomUuid(),
+                        prescriberNihii: null,
+                        prescriberNorm: 0
 
+                    }
                         const ins = this.patient.insurabilities.find(i=>!i.endDate)
                         const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                         const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
@@ -1262,7 +1254,7 @@
                         const convention = this.hcp.convention
 
 
-                        const env = new evaljs.Environment({patient:{preferentialstatus:!!ins.parameters.preferentialstatus, age: age, dmg: !!dmg.referral, chronical:!!ins.parameters.chronicalDisease}, hcp: {trainee: trainee, convention: convention}})
+                        const env = new evaljs.Environment({patient:{preferentialstatus:!!ins.parameters.preferentialstatus, age: age, dmg: (dmg && dmg.referral) ? !!dmg.referral : false, chronical:!!ins.parameters.chronicalDisease}, hcp: {trainee: trainee, convention: convention}})
 
                         nmcl.valorisations.map(val => {
                             const gen = (env.gen(val.predicate)())
@@ -1279,14 +1271,35 @@
                             }
                         })
 
-                        tabNmcl.push(newNmcl)
-                        this.set("invoicingCodes", tabNmcl)
-                        this.$['nmclGrid'].clearCache()
+                        invoicingCodes.push(newNmcl)
 
-                        this.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                        this.calculateTotalOfInvoice()
 
-                    }
+                        this.api.invoice().appendCodes(this.user.id, this.invoice.invoiceType, this.patient.insurabilities[0].insuranceId, this.patient.secretForeignKeys, null, 0, invoicingCodes).then(inv => {
+
+                            let invoice = inv[0]
+                            invoice.invoiceDate                 = this.invoice.invoiceDate
+                            invoice.invoiceReference            = this.invoice.invoiceReference
+                            invoice.thirdPartyReference         = this.invoice.thirdPartyReference
+                            invoice.invoiceType                 = this.invoice.invoiceType
+                            invoice.invoicePeriod               = this.invoice.invoicePeriod
+                            invoice.longDelayJustification      = this.invoice.longDelayJustification
+                            invoice.gnotionNihii                = this.invoice.gnotionNihii
+                            invoice.internshipNihii             = this.invoice.internshipNihii
+                            invoice.creditNote                  = this.invoice.creditNote
+                            invoice.careProviderType            = this.invoice.careProviderType
+                            invoice.delegations                 = this.invoice.delegations
+
+                            this.set('invoice', invoice)
+
+                            this.$['nmclGrid'].clearCache()
+
+                            this.invoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                            this.calculateTotalOfInvoice()
+
+                            console.log(this.invoice)
+
+                        })
+
                 }
             }
 
@@ -1352,13 +1365,13 @@
 
                 let nmclCode = []
 
-                this.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
+                this.invoice.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
 
-                if(this.patient.ssin && this.api.tokenId && this.invoicing.invoiceDate !== "") {
+                if(this.patient.ssin && this.api.tokenId && this.invoice.invoiceDate !== "") {
 
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, "20180912", this.invoicing.dmgOwner, this.invoicing.thirdPartyJustification).then(r => {
+                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, moment(this.invoice.invoiceDate).format('YYYYMMDD'), this.invoice.gnotionNihii, this.invoice.thirdPartyReference).then(r => {
                             console.log(r)
 
                             if(r.errors.length > 0){
@@ -1378,8 +1391,8 @@
 
                                 r.codes.forEach(c => {
                                     const cind = r.codes.indexOf(c)
-                                    let item = this.invoicingCodes.find(item => item.code === c)
-                                    let itemInd = this.invoicingCodes.indexOf(item)
+                                    let item = this.invoice.invoicingCodes.find(item => item.code === c)
+                                    let itemInd = this.invoice.invoicingCodes.indexOf(item)
 
                                     item.reimbursement                      = r.reimbursements[cind].amount
                                     item.patientIntervention                = r.patientFees[cind].amount
@@ -1388,12 +1401,12 @@
                                     item.valid                              = true
                                     item.insuranceJustification             = r.justification
 
-                                    console.log(item)
-                                    this.set('invoicingCodes[itemInd]', item)
+                                    this.set('invoice.invoicingCodes[itemInd]', item)
                                     this.$['nmclGrid'].clearCache()
 
                                 })
                                 this.calculateTotalOfInvoice()
+                                console.log(this.invoice)
                             }
                         }).catch((e)=>{
                             console.log("Exception", e)
@@ -1411,7 +1424,7 @@
                 let reimbursement            = 0
                 let doctorSupplement         = 0
 
-                this.invoicingCodes.map(n => {
+                this.invoice.invoicingCodes.map(n => {
                     totalAmount +=            Number(n.totalAmount)
                     patientIntervention +=    Number(n.patientIntervention)
                     reimbursement +=          Number(n.reimbursement)
@@ -1452,7 +1465,7 @@
                 if(e.target.dataset.item){
                     //this.api.invoice().removeCodes(this.user.id, service, this.patient.secretForeignKeys, e.target.item.tarificationId
                     this.set('isDetailNmcl', false)
-                    let tabNmcl = this.invoicingCodes
+                    let tabNmcl = this.invoice.invoicingCodes
 
                     const item = tabNmcl.find(n => n.tarificationId === e.target.dataset.item)
                     const iindex = tabNmcl.indexOf(item)
@@ -1460,13 +1473,12 @@
                     delete(tabNmcl[iindex])
                     tabNmcl.splice(iindex, 1)
 
-                    this.set("invoicingCodes", this.invoicingCodes.map(x => x))
+                    this.set("invoice.invoicingCodes", this.invoice.invoicingCodes.map(x => x))
 
-                    console.log(this.invoicingCodes)
+                    console.log(this.invoice.invoicingCodes)
                     this.$['nmclGrid'].clearCache()
 
                     this.calculateTotalOfInvoice()
-
                 }
             }
 
@@ -1480,34 +1492,41 @@
 
             _createInvoice(){
 
-                this.api.invoice().appendCodes(this.user.id, this.invoicing.invoiceType, this.patient.insurabilities[0].insuranceId, this.patient.secretForeignKeys, null, 0, this.invoicingCodes).then(inv => {
 
-                    let invoice = inv.find(i=>!i.id)
+                if(!this.invoice.id){
+                    this.api.invoice().createInvoice(this.invoice).then(invoice => {
+                        console.log(invoice)
+                        this.set('invoice', invoice)
+                    })
+                }else{
+                   this.api.invoice().modifyInvoice(this.invoice).then(invoice => {
+                       console.log(invoice)
+                       this.set('invoice', invoice)
+                   })
+                }
 
-                    if(invoice){
-                        invoice.invoiceReference       = this.invoicing.invoiceReference
-                        invoice.thirdPartyReference    = this.invoicing.thirdPartyJustification
-                        invoice.invoiceType            = this.invoicing.invoiceType
 
-                        //this.api.invoice().createInvoice(invoice).then(invoice => ())
-                    }
-                })
             }
 
             _invoicingCodeChange(){
 
                 if(this.activeNmclItem) {
-                    const code = this.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
-                    const codeIdx = this.invoicingCodes.indexOf(code)
+                    const code = this.invoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
+                    const codeIdx = this.invoice.invoicingCodes.indexOf(code)
 
                     let totalAmount = Number(this.activeNmclItem.patientIntervention) + Number(this.activeNmclItem.reimbursement) + Number(this.activeNmclItem.doctorSupplement)
 
                     this.set('activeNmclItem.totalAmount', Number(totalAmount).toFixed(2))
-                    this.set('invoicingCodes[codeIdx]', this.activeItem)
+                    this.set('invoice.invoicingCodes[codeIdx]', this.activeItem)
                     this.$['nmclGrid'].clearCache()
                     this.calculateTotalOfInvoice()
                 }
             }
+
+            returnDate(date){
+                return moment(date).format('YYYY-MM-DD')
+            }
+
         }
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog);
     </script>
