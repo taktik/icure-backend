@@ -643,7 +643,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
     _planAction() {
-        this.dispatchEvent(new CustomEvent("plan-action", {composed: true, bubbles: true}))
+        this.dispatchEvent(new CustomEvent("plan-action", {composed: true, bubbles: true,detail: this.currentContact.services.filter(svc => svc.label==="Actes")[0]}))
     }
 
     _filesChanged() {

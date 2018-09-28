@@ -1137,6 +1137,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									</template>
 								</paper-listbox>
 							</collapse-button>
+							<collapse-button>
+								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_surgical_hes" on-tap="toggleSelectAll" elevation="">
+									<div class="one-line-menu list-title"><span>[[localize('surg','Surgical',language)]]</span></div>
+									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
+								</paper-item>
+								<paper-listbox id="suhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
+									<template is="dom-if" if="[[!surgicalHealthElements.length]]">
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_sur_hea_ele','No surgical health elements',language)]]</div></paper-item>
+									</template>
+									<template id="surgicalHesDomRepeat" is="dom-repeat" items="[[surgicalHealthElements]]" as="he">
+										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
+									</template>
+								</paper-listbox>
+							</collapse-button>
 					</div>
 				</paper-material>
 				<div class="add-btn-container"><paper-button class="add-btn" on-tap="_addHealthElement">[[localize('add_heal_elem','Add Health Element',language)]]</paper-button></div>
@@ -2762,6 +2776,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 						this.set('allergies', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'allergy')));
 						this.set('risks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'risk')));
 						this.set('familyrisks', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')));
+						this.set('surgicalHealthElements', combinedHes.filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === '')));
 
                         this.activeHealthElements.length && (this.root.querySelector('#cb_ahelb').opened = true)
                         this.inactiveHealthElements.length && (this.root.querySelector('#cb_ihelb').opened = true)
@@ -2769,7 +2784,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         this.risks.length && (this.root.querySelector('#cb_rhelb').opened = true)
 
 
-                        this.set('selectedHealthcareElements', (this.selectedHealthcareElements || []).filter(he => this.activeHealthElements.concat(this.inactiveHealthElements).concat(this.archivedHealthElements).concat(this.allergies).concat(this.risks).concat(this.familyrisks).includes(he)))
+                        this.set('selectedHealthcareElements', (this.selectedHealthcareElements || []).filter(he => this.activeHealthElements.concat(this.inactiveHealthElements).concat(this.archivedHealthElements).concat(this.allergies).concat(this.risks).concat(this.familyrisks).concat(this.surgicalHealthElements).includes(he)))
 					});
 
 					const unclosedContact = ctcs.find(c => !c.closingDate);
@@ -3401,7 +3416,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_addedHealthElementSelected(event, healthElement) {
-		this.api.helement().newInstance(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(he => this.patientChanged());
+		this.api.helement().newInstance(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => {
+		    this.api.helement().createHealthElement(he)
+        }).then(he => this.patientChanged());
 	}
 
 	_editedHealthElementSelected(event, healthElement) {
