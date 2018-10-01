@@ -84,7 +84,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 
 	@Override
 	public boolean hasAny() {
-		return designDocContainsAllView() && db.queryView(createQuery("all")).getSize() > 0;
+		return designDocContainsAllView() && db.queryView(createQuery("all").limit(1)).getSize() > 0;
 	}
 
 	@Override

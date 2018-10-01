@@ -296,7 +296,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				.latest-lab-result {
 					grid-area: 2 / 1 / span 1 / span 2;
 				}
-				
+
 				.todo-card {
 					grid-area: 2 / 3 / span 1 / span 2;
 				}
@@ -333,17 +333,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-row-gap: 24px;
 				}
 				.latest-patients-card {
-					grid-area: 1 / 1 / span 1 / span 4;	
+					grid-area: 1 / 1 / span 1 / span 4;
 				}
 				.todays-consultations {
-					grid-area: 2 / 1 / span 1 / span 2;	
+					grid-area: 2 / 1 / span 1 / span 2;
 				}
 				.latest-lab-result {
-					grid-area: 2 / 3 / span 1 / span 2 ;	
+					grid-area: 2 / 3 / span 1 / span 2 ;
 				}
-				
+
 				.todo-card {
-					grid-area: 3  / 1 / span 1 / span 4;	
+					grid-area: 3  / 1 / span 1 / span 4;
 				}
 			}
 
@@ -372,7 +372,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					grid-row-start: 3;
 					grid-row-end: span 1;
 				}
-				
+
 				.todo-card {
 					grid-column-start:1;
 					grid-column-end: span 1;
@@ -464,7 +464,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 		</div>
 
-		
+
 
 	</template>
 
@@ -627,7 +627,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
-		location.replace(location.href.replace(/(.+?)\/#\/main.*/, `$1/#/pat/${target.dataset.id}`));
+		location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
 	}
 
 	openMessage(ev) {
@@ -635,7 +635,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
-		location.replace(location.href.replace(/(.+?)\/#\/main.*/, `$1/#/msg/${target.dataset.id}`));
+		location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
 	}
 
 }

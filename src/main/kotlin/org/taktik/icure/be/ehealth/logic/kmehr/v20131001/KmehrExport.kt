@@ -21,7 +21,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.v20131001
 
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
-import org.apache.tika.Tika
 import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
@@ -118,6 +117,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import javax.swing.text.rtf.RTFEditorKit
 import javax.xml.datatype.XMLGregorianCalendar
 import kotlin.collections.HashMap
 
@@ -136,7 +136,6 @@ open class KmehrExport {
     @Autowired var userLogic: UserLogic?= null
     @Autowired var insuranceLogic: InsuranceLogic?= null
 
-	val tika = Tika()
 	val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20131001"
@@ -317,7 +316,11 @@ open class KmehrExport {
                 }
                 content.binaryValue?.let {
 					if (Arrays.equals(content.binaryValue.slice(0..4).toByteArray(), "{\\rtf".toByteArray())) {
-						texts.add(TextType().apply { l = language; value = tika.parseToString(content.binaryValue.inputStream()) })
+						texts.add(TextType().apply { l = language; value = RTFEditorKit().let {
+                            val document = it.createDefaultDocument()
+                            it.read(content.binaryValue.inputStream(), document, 0)
+                            document.getText(0, document.length) ?: ""
+                        }})
 					} else {
 						lnks.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.APPLICATION_PDF; value = content.binaryValue })
 					}

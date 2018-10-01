@@ -445,7 +445,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
         </style>
 
-        <icc-api id="api" host="/rest/v1" fhc-host="https://fhcprd.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+        <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
@@ -1236,16 +1236,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super()
             }
 
+
+            setUrls() {
+                const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
+
+                this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
+                this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+            }
+
             ready() {
                 super.ready()
-                if (!this.route.__queryParams.token && !this.route.__queryParams.userId) {
-                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/, '/#')
-                    let fullHref = newHref.endsWith('/') ? newHref : newHref + '/'
-                    if (fullHref !== window.location.href) {
-                        window.location.href = fullHref
+
+                const url = new URL(window.location.href)
+                if (!url.hash || !url.hash.startsWith('#/')) {
+                    url.hash = '#/'
+                    window.location.replace(url.toString())
                     }
-                }
+
                 window.app = this
+
+                if (!this.icureUrl) { this.setUrls() }
+
                 this.set('api', this.$.api)
 
                 document.onmousemove = this.resetTimer.bind(this)
@@ -1318,6 +1329,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('view', 'auth')
                 } else {
                     console.log("page is -> " + page)
+
+                    if (!this.icureUrl) { this.setUrls() }
+
                     if (!this.authenticated && (!page || !page.startsWith('auth'))) {
                         if (sessionStorage.getItem('auth') || (this.route.__queryParams.token && this.route.__queryParams.userId)) {
                             this.loginAndRedirect(page)
@@ -1423,7 +1437,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
                         const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
                         language && this.set('language', language)
-                    })
 
                     this.$.loginDialog.opened = false
 
@@ -1441,7 +1454,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.authenticated = true
 
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.$.api.crypto().checkPrivateKeyValidity(hcp)).then(ok => {
+                                this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
                                 if (ok) {
                                     this.api.loadUsersAndHcParties()
                             if (this.credentials.ehpassword) {
@@ -1475,21 +1488,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 }
                             })
                         } else {
-                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-
                                 if (hcp.publicKey) {
                                     this.registerKeyPairDialogMessage = ""
                                     this.$.registerKeyPairDialog.opened = true
                                 } else {
+                                    console.log("HCP public key is " + hcp.publicKey, hcp)
                                     this.$.firstConnectionDialog.opened = true
                                 }
-
-
-                            })
                         }
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
+                    })
                 }).catch(function (e) {
                     this.authenticated = false
                     sessionStorage.removeItem('auth')
@@ -1560,24 +1570,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.worker = new Worker()
 
-                this.getAlternateKeystores().then(alternateKeystores => {
-                this.worker.postMessage({
-                    action: "loadEhboxMessage",
-                    hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
-                    fhcHost: this.api.fhc().host,
-                    fhcHeaders: JSON.stringify(this.api.fhc().headers),
-                    iccHost: this.api.host,
-                    iccHeaders: JSON.stringify(this.api.headers),
-                    tokenId: this.api.tokenId,
-                    keystoreId: this.api.keystoreId,
-                    user: this.user,
-                    ehpassword: this.credentials.ehpassword,
-                    boxId: "INBOX",
-                        alternateKeystores: ({keystore:alternateKeystores.filter(ak => ak.passPhrase)}),
-                    keyPair: keyPair
-                })
-
-                })
+				this.getAlternateKeystores().then(alternateKeystores => {
+					this.worker.postMessage({
+						action: "loadEhboxMessage",
+						hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+						fhcHost: this.api.fhc().host,
+						fhcHeaders: JSON.stringify(this.api.fhc().headers),
+						iccHost: this.api.host,
+						iccHeaders: JSON.stringify(this.api.headers),
+						tokenId: this.api.tokenId,
+						keystoreId: this.api.keystoreId,
+						user: this.user,
+						ehpassword: this.credentials.ehpassword,
+						boxId: "INBOX",
+						alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
+						keyPair: keyPair
+					})
+				})
 
                 this.worker.onmessage = e => {
                     this.set('ehboxWebWorkerMessage', e.data.message)

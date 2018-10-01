@@ -22,6 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
+import org.taktik.icure.validation.AutoFix;
+import org.taktik.icure.validation.ValidCode;
 
 import java.io.Serializable;
 import java.util.List;
@@ -29,24 +32,26 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Medicinalproduct implements Serializable {
-	protected List<Code> intendedcds;
-	protected List<Code> deliveredcds;
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected List<CodeStub> intendedcds;
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected List<CodeStub> deliveredcds;
 	protected String intendedname;
 	protected Object deliveredname;
 
-	public List<Code> getIntendedcds() {
+	public List<CodeStub> getIntendedcds() {
 		return intendedcds;
 	}
 
-	public void setIntendedcds(List<Code> intendedcds) {
+	public void setIntendedcds(List<CodeStub> intendedcds) {
 		this.intendedcds = intendedcds;
 	}
 
-	public List<Code> getDeliveredcds() {
+	public List<CodeStub> getDeliveredcds() {
 		return deliveredcds;
 	}
 
-	public void setDeliveredcds(List<Code> deliveredcds) {
+	public void setDeliveredcds(List<CodeStub> deliveredcds) {
 		this.deliveredcds = deliveredcds;
 	}
 
