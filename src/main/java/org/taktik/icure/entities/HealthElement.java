@@ -47,6 +47,7 @@ public class HealthElement extends StoredICureDocument {
     protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
     protected String descr;
+    protected String note;
 
     protected boolean relevant = true;
 
@@ -118,6 +119,10 @@ public class HealthElement extends StoredICureDocument {
     public void setDescr(String descr) {
         this.descr = descr;
     }
+
+    public String getNote() { return note; }
+
+    public void setNote(String note) { this.note = note; }
 
     public String getIdOpeningContact() {
         return idOpeningContact;
