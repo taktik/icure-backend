@@ -271,7 +271,7 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 						name: k.replace(this.api.crypto().keychainLocalStoreIdPrefix,"").replace(healthcarePartyId + ".",""),
 						file: Keystore
 					},onlyDecrypt:!(Keystore !== "" && Keystore === actifKeystore),
-                    personalKeystore:(Keystore != "" && Keystore == mmhKeystore)?false:true
+                    personalKeystore:(Keystore !== "" && Keystore === mmhKeystore)?false:true
 				});
 			}
 		})
