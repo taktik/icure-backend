@@ -52,8 +52,6 @@ document.addEventListener('WebComponentsReady', function componentsReady() {
     }
 
     if (polyfills.length) {
-        var script = document.querySelector('script[src*="' + name +'"]');
-        var newScript = document.createElement('script');
         // Load it from the right place.
         var seq = polyfills.join('-')
 
@@ -71,6 +69,8 @@ document.addEventListener('WebComponentsReady', function componentsReady() {
             import( /* webpackChunkName: "wcl-sd" */ 'webcomponentsjs/webcomponents-sd.js')
         } else if (seq === 'sd-ce') {
             import( /* webpackChunkName: "wcl-sd-ce" */ 'webcomponentsjs/webcomponents-sd-ce.js')
+        }else if (seq === 'lite') {
+            import( /* webpackChunkName: "wcl-lite" */ 'webcomponentsjs/webcomponents-lite.js')
         }
     } else {
         // Ensure `WebComponentsReady` is fired also when there are no polyfills loaded.
