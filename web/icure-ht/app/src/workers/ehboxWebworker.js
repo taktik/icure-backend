@@ -3,7 +3,7 @@ import * as iccApi from 'icc-api/dist/icc-api/iccApi'
 import * as iccXApi from 'icc-api/dist/icc-x-api/index'
 import {UtilsClass} from "icc-api/dist/icc-x-api/crypto/utils"
 
-import 'moment'
+import moment from 'moment/src/moment'
 
 onmessage = e => {
     if(e.data.action === "loadEhboxMessage"){
@@ -73,11 +73,11 @@ onmessage = e => {
                         .then(messageInstance => msgApi.createMessage(messageInstance))
                         .then(createdMessage => {
                             console.log(createdMessage)
-                            Promise.all([fullMessage.document && fullMessage.document.content].concat(fullMessage.annex || []).map(a => a &&
+                            Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
                                 docxApi.newInstance(user, createdMessage, {
                                     documentLocation:   (fullMessage.document && a === fullMessage.document.content) ? 'body' : 'annex',
                                     documentType:       'result', //Todo identify message and set type accordingly
-                                    mainUti:            docxApi.uti(a.mimeType),
+                                    mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
                                     name:               a.title
                                 })
                                     .then(d => docApi.createDocument(d))

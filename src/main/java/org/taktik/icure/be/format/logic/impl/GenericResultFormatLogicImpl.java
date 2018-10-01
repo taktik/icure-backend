@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,8 +36,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.tika.parser.txt.CharsetDetector;
-import org.apache.tika.parser.txt.CharsetMatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.Contact;
@@ -99,28 +98,7 @@ public abstract class GenericResultFormatLogicImpl {
 		} else if ("cp1252".equals(frenchCp850OrCp1252)) {
 			text = new String(rawData, "cp1252");
 		} else {
-			CharsetDetector cd = new CharsetDetector();
-			cd.setText(rawData);
-			CharsetMatch[] cms = cd.detectAll();
-
-			Reader r = null;
-
-			for (CharsetMatch cm : cms) {
-				if (cm.getName().startsWith("UTF-8") || cm.getName().startsWith("ISO-8859")) {
-					r = cm.getReader();
-					if (r != null) {
-						break;
-					}
-				}
-			}
-
-			if (r != null) {
-				StringWriter writer = new StringWriter();
-				IOUtils.copy(r,writer);
-				text = writer.toString();
-			} else {
-				text = new String(rawData, "ISO-8859-1");
-			}
+			text = new String(rawData, StandardCharsets.UTF_8);
 		}
 		return text;
 	}

@@ -57,6 +57,7 @@ import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.utils.FuzzyValues;
 
 @Service
 public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> implements InvoiceLogic {
@@ -194,8 +195,8 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		Set<Invoice> modifiedInvoices = new HashSet<>();
 		Set<Invoice> createdInvoices = new HashSet<>();
 
-		for (InvoicingCode invoicingCode : invoicingCodes) {
-			LocalDateTime icDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(invoicingCode.getDateCode()), ZoneId.systemDefault());
+		for (InvoicingCode invoicingCode : new ArrayList<>(invoicingCodes)) {
+			LocalDateTime icDateTime = FuzzyValues.getDateTime(invoicingCode.getDateCode());
 
 			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : invoices.stream().filter(i ->
 					i.getInvoiceDate() != null && Math.abs(LocalDateTime.ofInstant(Instant.ofEpochMilli(i.getInvoiceDate()), ZoneId.systemDefault()).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
