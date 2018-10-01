@@ -1579,11 +1579,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
 			getAlternateKeystores(){
-				const prefix = "org.taktik.icure.ehealth.keychain.";
 				const healthcarePartyId = this.user.healthcarePartyId;
 
                 return Promise.all(
-				Object.keys(localStorage).filter(k => k.includes(prefix + healthcarePartyId + ".") === true)
+				Object.keys(localStorage).filter(k => k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".") === true)
                     .map(fk => this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
 					    .then( password =>
 							(this.keyPairKeystore[fk])?
