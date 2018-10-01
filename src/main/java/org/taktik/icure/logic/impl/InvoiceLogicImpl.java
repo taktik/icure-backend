@@ -185,7 +185,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		final int invoiceGraceTimeInDays = invoiceGraceTime == null ? 0 : invoiceGraceTime;
 		Invoice selectedInvoice = (invoiceId != null) ? this.getInvoice(invoiceId) : null;
 		List<Invoice> invoices = selectedInvoice != null ? new ArrayList<>() : this.listByHcPartyPatientSksUnsent(hcPartyId,secretPatientKeys).stream().filter(i->
-				i.getInvoiceType() == type && (insuranceId == null ? i.getRecipientId() == null  : insuranceId.equals(i.getRecipientId()))
+				i.getInvoiceType() == type && i.getSentMediumType() == sentMediumType && (insuranceId == null ? i.getRecipientId() == null  : insuranceId.equals(i.getRecipientId()))
 		).collect(Collectors.toList());
 		if (selectedInvoice == null &&  invoices.isEmpty()) {
 			invoices = this.listByHcPartyRecipientIdsUnsent(hcPartyId,Collections.singleton(insuranceId)).stream().filter(i->
@@ -211,6 +211,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				Invoice newInvoice = new Invoice();
 				newInvoice.setInvoiceDate(invoicingCode.getDateCode()!=null?invoicingCode.getDateCode():System.currentTimeMillis());
 				newInvoice.setInvoiceType(type);
+				newInvoice.setSentMediumType(sentMediumType);
 				newInvoice.setRecipientId(insuranceId);
 				newInvoice.setRecipientType((type == InvoiceType.mutualfund || type == InvoiceType.payingagency) ? Insurance.class.getName() : Patient.class.getName());
 				newInvoice.setInvoicingCodes(invoicingCodes);
