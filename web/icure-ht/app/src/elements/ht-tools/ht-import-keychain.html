@@ -256,11 +256,13 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 		let EhKeychains = [];
 		let keys = Object.keys(localStorage);
-		const prefix = "org.taktik.icure.ehealth.keychain.";
+		//const prefix = "org.taktik.icure.ehealth.keychain.";
+        const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH."
 		const healthcarePartyId = this.user.healthcarePartyId;
 
 		keys.forEach(k => {
 			let actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId) || "";
+            let mmhKeystore = localStorage.getItem(prefixMMH + healthcarePartyId) || "";
 
 			if(k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".")){
 				let Keystore = localStorage.getItem(k);
@@ -268,7 +270,8 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 					keystore:{
 						name: k.replace(this.api.crypto().keychainLocalStoreIdPrefix,"").replace(healthcarePartyId + ".",""),
 						file: Keystore
-					},onlyDecrypt:!(Keystore !== "" && Keystore === actifKeystore)
+					},onlyDecrypt:!(Keystore !== "" && Keystore === actifKeystore),
+                    personalKeystore:(Keystore != "" && Keystore == mmhKeystore)?false:true
 				});
 			}
 		})
@@ -302,6 +305,7 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		const value = this.$.newPasswordKeystore.value;
 		const healthcarePartyId = this.user.healthcarePartyId;
 		const prefix = this.api.crypto().keychainLocalStoreIdPrefix + "password.";
+        //const prefixMMH = "org.taktik.icure.ehealth.keychain.MMH.";
 
 		let p12Der = forge.util.decode64(keystore.keystore.file);
 		let p12Asn1 = forge.asn1.fromDer(p12Der);
