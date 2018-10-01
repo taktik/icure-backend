@@ -649,7 +649,7 @@
                                 <div class="invoice-text-row grey">
                                     <h4>[[item.invoiceType]]</h4>
                                     <p>
-                                        <template is="dom-repeat" items="[[invoices.invoicingCodes]]">
+                                        <template is="dom-repeat" items="[[item.invoicingCodes]]">
                                             [[item.code]],
                                         </template>
                                     </p>
@@ -1146,6 +1146,7 @@
                 const selected = this.invoices.find(inv => inv.id === e.currentTarget.id)
                 this.set('selectedInvoice', selected)
                 this.calculateTotalOfInvoice()
+                this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
             }
 
             open() {
@@ -1409,7 +1410,7 @@
 
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, moment(this.selectedInvoice.invoiceDate).format('YYYYMMDD'), this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
+                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
                             console.log(r)
 
                             if(r.errors.length > 0){
@@ -1529,21 +1530,10 @@
             }
 
             _createInvoice(){
-
-
-                if(!this.selectedInvoice.id){
-                    this.api.invoice().createInvoice(this.selectedInvoice).then(invoice => {
-                        console.log(invoice)
-                        this.set('selectedInvoice', invoice)
-                    })
-                }else{
-                   this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
-                       console.log(invoice)
-                       this.set('selectedInvoice', invoice)
-                   })
-                }
-
-
+                this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
+                    console.log(invoice)
+                    this.set('selectedInvoice', invoice)
+                })
             }
 
             _invoicingCodeChange(){
