@@ -1,18 +1,32 @@
 /* webpack.config.js */
 
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
+var OfflinePlugin = require('offline-plugin')
 // var HtmlIncluderWebpackPlugin = require('html-includer-webpack-plugin').default;
-var Clean = require('clean-webpack-plugin');
-var path = require('path');
+var Clean = require('clean-webpack-plugin')
+var path = require('path')
+
 console.log(path.resolve(__dirname))
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname, 'app/src/ht-app-tz.html'),
+    entry: path.resolve(__dirname, 'app/index.tz.js'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
-	    filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'dist-tz')
+        filename: '[name].[contenthash].bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    },
+    optimization: {
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all'
+                }
+            }
+        }
     },
     // Tell Webpack which directories to look in to resolve import statements.
     // Normally Webpack will look in node_modules by default but since we’re overriding
@@ -50,7 +64,7 @@ module.exports = {
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
-	            use: [{ loader: 'babel-loader', options: { /*presets: ['es2015']*/ }}],
+                use: [{loader: 'babel-loader', options: {plugins: ['syntax-dynamic-import']}}],
                 exclude: /(node_modules|bower_components)/
             },
             {
@@ -70,7 +84,20 @@ module.exports = {
     },
 	mode: 'development',
     plugins: [
-        // This plugin will generate an index.html file for us that can be used
+        // This plugin will generate an index.html file for us that can be use
+        // by the Webpack dev server. We can give it a template file (written in EJS)
+        // and it will handle injecting our bundle for us.
+        new OfflinePlugin({
+            // Unless specified in webpack's configuration itself
+            publicPath: '/',
+
+            appShell: '/',
+            externals: [
+                '/'
+            ]
+        })
+        ,
+        // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
         new HtmlWebpackPlugin({
@@ -85,7 +112,7 @@ module.exports = {
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
         }]),
-        new Clean(['build']),
+        new Clean(['dist']),
     ],
 	devServer: {
 		contentBase: path.join(__dirname,'dist'),
@@ -94,15 +121,16 @@ module.exports = {
 		port: 9000,
 		proxy: {
 			'/rest/v1': {
-                //target: 'https://backend.icure.cloud',
+                //target: 'https://icure.cloud',
                 target: 'http://127.0.0.1:16043',
                 changeOrigin: true
 			},
             '/ws': {
-                //target: 'https://backend.icure.cloud',
+                //target: 'wss://icure.cloud',
                 target: 'ws://127.0.0.1:16043',
-                ws: true
+                ws: true,
+                changeOrigin: true
             }
 		}
 	},
-};
+}
