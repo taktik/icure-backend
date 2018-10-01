@@ -28,12 +28,9 @@ import org.taktik.icure.dto.filter.Filter;
 import org.taktik.icure.dto.gui.Editor;
 import org.taktik.icure.dto.gui.type.Data;
 import org.taktik.icure.services.external.rest.handlers.DiscriminatedTypeAdapter;
-import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair;
 import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate;
 
 import java.util.Base64;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -49,7 +46,6 @@ public class GsonSerializerFactory {
 			.registerTypeAdapter(Filter.class, new DiscriminatedTypeAdapter<>(Filter.class))
 			.registerTypeAdapter(Editor.class, new DiscriminatedTypeAdapter<>(Editor.class))
 			.registerTypeAdapter(Data.class, new DiscriminatedTypeAdapter<>(Data.class))
-			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.be.dmg.DmgMessage.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.be.dmg.DmgMessage.class))
 			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class))
 			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class))
 			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class))

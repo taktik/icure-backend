@@ -18,20 +18,8 @@
 
 package org.taktik.icure.be.mikrono.impl;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.google.common.base.Strings;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +29,19 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.taktik.icure.be.mikrono.MikronoLogic;
 import org.taktik.icure.dto.message.EmailOrSmsMessage;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentsDto;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MikronoLogicImpl implements MikronoLogic {
 	private Map<String,String> tokensPerServer;

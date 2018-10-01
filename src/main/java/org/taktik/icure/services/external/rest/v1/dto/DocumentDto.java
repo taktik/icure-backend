@@ -105,6 +105,14 @@ public class DocumentDto extends IcureDto {
 		this.documentStatus = documentStatus;
 	}
 
+	public DocumentLocation getDocumentLocation(){
+		return documentLocation;
+	}
+
+	public void setDocumentLocation(DocumentLocation documentLocation){
+		this.documentLocation = documentLocation;
+	}
+
 	private String encryptedSelf;
 	public String getEncryptedSelf() {
 		return encryptedSelf;

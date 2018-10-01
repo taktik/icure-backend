@@ -24,7 +24,9 @@ import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
+import org.taktik.icure.validation.ValidCode;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,8 +49,10 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
     @NotNull(autoFix = AutoFix.CURRENTHCPID)
     protected String responsible; //healthcarePartyId
 
-    protected java.util.Set<Code> codes = new HashSet<>();
-    protected java.util.Set<Code> tags = new HashSet<>();
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected java.util.Set<CodeStub> codes = new HashSet<>();
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected java.util.Set<CodeStub> tags = new HashSet<>();
 
     //Those are typically filled in the contacts
     //Used when we want to find all contacts for a specific patient
@@ -133,19 +137,19 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
 		this.encryptedSelf = encryptedSelf;
 	}
 
-	public Set<Code> getCodes() {
+	public Set<CodeStub> getCodes() {
         return codes;
     }
 
-    public void setCodes(Set<Code> codes) {
+    public void setCodes(Set<CodeStub> codes) {
         this.codes = codes;
     }
 
-    public Set<Code> getTags() {
+    public Set<CodeStub> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Code> tags) {
+    public void setTags(Set<CodeStub> tags) {
         this.tags = tags;
     }
 
