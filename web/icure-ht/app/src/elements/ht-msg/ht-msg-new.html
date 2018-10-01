@@ -1,0 +1,702 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
+
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+
+<link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+<link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+
+<link rel="import" href="../filter-panel/filter-panel.html">
+
+<link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
+<link rel="import" href="../dynamic-form/entity-selector.html">
+
+
+<dom-module id="ht-msg-new">
+    <template>
+        <style>
+            .notification-panel {
+                position: fixed;
+                top:50%;
+                right: 0;
+                z-index:1000;
+                color: white;
+                font-size: 13px;
+                background: rgba(255, 0, 0, 0.55);
+                height: 96px;
+                padding: 0 8px 0 12px;
+                border-radius: 3px 0 0 3px;
+                overflow: hidden;
+                white-space: nowrap;
+                width: 0;
+                opacity: 0;
+            }
+
+            .notification {
+                animation: notificationAnim 7.5s ease-in;
+            }
+
+            @keyframes notificationAnim {
+                0%{
+                    width: 0;
+                    opacity: 0;
+                }
+                5%{
+                    width: 440px;
+                    opacity: 1;
+                }
+                7%{
+                    width: 420px;
+                    opacity: 1;
+                }
+                95%{
+                    width: 420px;
+                    opacity: 1;
+                }
+                100%{
+                    width: 0;
+                    opacity: 0;
+                }
+            }
+
+            .prescription-progress-bar {
+                width: calc( 100% - 40px );
+            }
+
+            .details-panel {
+                box-sizing: border-box;
+                grid-column: 3 / span 1;
+                grid-row: 1 / span 1;
+                background:var(--app-background-color-light);
+                float:left;
+                padding:5px;
+                display:flex;
+                flex-flow: column nowrap;
+                align-items: flex-start;
+                z-index:0;
+                height: 100%;
+                width: 100%;
+            }
+
+            .contact-title{
+                display:block;
+                @apply --paper-font-body2;
+                @apply --padding-32;
+                padding-bottom:8px;
+                padding-top: 32px;
+            }
+            /*.contact-title:first-child{
+                padding-top:0;
+            }*/
+            .pat-details-card > .card-content {
+                padding: 16px 16px 32px !important;
+            }
+
+            .pat-details-card {
+                width: 100%;
+                padding: 10px 15px;
+            }
+
+            .horizontal {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                flex-basis: 100%;
+            }
+
+            .justified {
+                justify-content: space-between;
+            }
+
+            .pat-details-input {
+                flex-grow: 1;
+                margin: 16px;
+            }
+
+            input {
+                border: none;
+                width: 100%;
+            }
+
+            paper-dialog {
+                margin: 0;
+            }
+
+            .contact-card-container {
+                position: relative;
+                overflow-y: auto;
+                height: calc(100% - 48px);
+                padding-bottom: 32px;
+            }
+
+            paper-dialog {
+                min-width:30%;
+            }
+
+            .extra-info{
+                color:var(--app-text-color-disabled);
+                font-style: italic;
+                font-size: 80%;
+            }
+
+            vaadin-upload{
+                margin:16px;
+                min-height:280px;
+                background: var(--app-background-color);
+                --vaadin-upload-buttons-primary: {
+                    padding:16px;
+                };
+                --vaadin-upload-button-add: {
+                    background: var(--app-secondary-color);
+                    color:var(--app-text-color);
+                };
+                --vaadin-upload-file-progress: {
+                    --paper-progress-active-color:var(--app-secondary-color);
+                };
+                --vaadin-upload-file-commands: {
+                    color: var(--app-primary-color);
+                }
+
+            }
+
+            .close-button-icon{
+                position: absolute;
+                top: 0;
+                right: 0;
+                margin: 0;
+                transform: translate(50%, -50%);
+                height: 32px;
+                width: 32px;
+                padding: 8px;
+                background: var(--app-primary-color);
+            }
+
+            paper-dialog {
+                width: 80%;
+            }
+
+            vaadin-grid {
+                height:100%;
+                --vaadin-grid-body-row-hover-cell: {
+                    /* background-color: var(--app-primary-color); */
+                    color: white;
+                };
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--app-primary-color);
+                    color: white;
+                };
+            }
+
+            paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            .modal-title{
+                background:  var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .modal-subtitle{
+                display: inline-flex;
+                margin-top: 16px;
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+            }
+
+            .modal-button--delete{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-status-color-nok);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+            }
+
+            filter-panel{
+                flex-grow: 9;
+                /* --panel-width: 60%; */
+            }
+
+            .layout-bar{
+                flex-grow: 1;
+                display: inline-flex;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-around;
+                height:48px;
+                background: var(--app-secondary-color);
+                border-left: 1px solid var(--app-secondary-color-dark);
+            }
+
+            .layout-bar .list, .layout-bar .graphique, .layout-bar .doc{
+                height: 32px;
+                width: 32px;
+                padding: 5px;
+                color: var(--app-primary-color-dark);
+            }
+
+            .layout-bar .table{
+                height: 30px;
+                width: 30px;
+                padding: 0;
+                color: var(--app-primary-color-dark);
+            }
+
+            .floating-action-bar{
+                display: flex;
+                position: absolute;
+                height: 40px;
+                bottom: 16px;
+                background: var(--app-secondary-color);
+                border-radius: 3px;
+                grid-column: 3/3;
+                grid-row: 1/1;
+                z-index: 1000;
+                left: 50%;
+                transform: translate(-50%, 0);
+                box-shadow: var(--app-shadow-elevation-2);
+            }
+
+            .add-forms-container {
+                position: absolute;
+                bottom: 48px;
+                left: 0;
+                background-color: var(--app-background-color-light);
+                opacity: .8;
+                padding: 8px 0;
+                border-radius: 2px;
+                max-width: 253px;
+            }
+            .floating-action-bar paper-fab-speed-dial-action {
+                --paper-fab-speed-dial-action-label-background: transparent;
+                --paper-fab-iron-icon: {
+                    transform: scale(0.8);
+
+                };
+                --paper-fab: {
+                    background: var(--app-primary-color-dark);
+                }
+            }
+
+            .floating-action-bar paper-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-weight: bold;
+                font-size: 12px;
+                height: 40px;
+                min-width: 130px;
+                padding: 10px 1.2em;
+                border-radius: 0;
+                margin:0;
+            }
+
+            .floating-action-bar paper-button:hover{
+                background: var(--app-dark-color-faded);
+                transition: var(--transition_-_transition);
+            }
+
+            .floating-action-bar paper-button:not(:first-child){
+                border-left: 1px solid var(--app-secondary-color-dark);
+            }
+
+            .close-add-forms-btn{
+                background: var(--app-secondary-color-dark) !important;
+            }
+
+            .floating-action-bar iron-icon{
+                box-sizing: border-box;
+                padding: 2px;
+                margin-right: 8px;
+            }
+
+            .horizontal{
+                flex-flow: row nowrap;
+            }
+
+            .contact-card-container {
+                position: relative;
+                overflow-y: auto;
+                height: calc(100% - 48px);
+                padding-bottom: 32px;
+            }
+
+        </style>
+            <div class="details-panel" style=" overflow:auto;">
+                <paper-card class="pat-details-card" >
+                    <h2>[[localize('new_mes','New message',language)]]</h2>
+                    <div>
+                        <paper-input id="newMsg-From" label="[[localize('from','From',language)]]" value="[[user.name]]"></paper-input>
+                        <vaadin-combo-box id="quality-To" items="[[quality]]" style="width: 100%" value="NIHII" required error-message="This field is required" on-change="refreshHcpList"></vaadin-combo-box>
+                        <vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[hcpList]]" item-label-path="displayName"
+                                          style="width: 100%" allow-custom-value on-change="_AddDestinations">
+                            <template>[[item.displayName]]</template>
+                        </vaadin-combo-box>
+
+                        <template is="dom-if" if="[[newMessage.destinations.length]]">
+                            <vaadin-grid id="destinationsList" items="[[newMessage.destinations]]">
+                                <vaadin-grid-column width="10%">
+                                    <template class="header">
+                                        <div>Quality</div>
+                                    </template>
+                                    <template>
+                                        <div class="cell frozen">[[item.quality]]</div>
+                                    </template>
+                                </vaadin-grid-column><vaadin-grid-column>
+                                    <template class="header">
+                                        <div>Name</div>
+                                    </template>
+                                    <template>
+                                        <div class="cell frozen">[[item.displayName]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column  width="10%">
+                                    <template>
+                                        <div class="cell frozen">
+                                            <paper-button class="remove-destinations-btn" on-tap="_removeDestinations" indexed$='[[index]]' >Remove</paper-button>
+                                        </div>
+                                    </template>
+                                </vaadin-grid-column>
+                            </vaadin-grid>
+                        </template>
+                        <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.title}}"></paper-input>
+                    </div>
+                    <div>
+                        <div class="modal-subtitle">Options</div>
+                    </div>
+                    <div>
+                        <paper-checkbox value="{{newMessage.encrypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                        <paper-checkbox value="{{newMessage.important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                    </div>
+                    <div>
+                        <label>Accused</label>
+                        <paper-checkbox value="{{newMessage.publicationDate}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                        <paper-checkbox value="{{newMessage.reception}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                        <paper-checkbox value="{{newMessage.read}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                    </div>
+                    <div>
+                        <div class="modal-subtitle">Message</div>
+                        <paper-input id="messageBodyFile" type="file" multiple="true" on-change="msgBodyFileInputSelected"></paper-input>
+                        <iron-autogrow-textarea placeholder="Message" style="min-height: 80px;width: calc(100% - 64px);" value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
+                    </div>
+                    <div>
+                        <div class="modal-subtitle">Annexes</div>
+                        <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT" form-data-name="attachment" on-upload-success="_fileUploaded" max-file-size="10000000"></vaadin-upload>
+                    </div>
+                    <div>
+                        <div class="modal-subtitle">Patient</div>
+                        <!--<paper-input id="newMsg-SSIN" label="[[localize('SSIN','SSIN :',language)]]" value="{{newMessage.patientInss}}"></paper-input>-->
+                        <vaadin-combo-box id="newMsg-SSIN" label="[[localize('to','To',language)]]" items="[[patientList]]" item-label-path="displayName"
+                                          style="width: 100%" allow-custom-value on-change="_AddSSIN">
+                            <template>[[item.displayName]]</template>
+                        </vaadin-combo-box>
+                    </div>
+                    <div class="buttons">
+                        <div>
+                            <paper-button class="modal-button" >[[localize('can','Cancel',language)]]</paper-button>
+                            <paper-button class="modal-button--save" on-tap="_SendNewMessage" >[[localize('send','Send',language)]]</paper-button>
+                        </div>
+                    </div>
+                </paper-card>
+            </div>
+
+    </template>
+    <script>
+
+		import jsPDF from 'jspdf/dist/jspdf.min';
+		import _ from 'lodash/lodash';
+		import JsBarcode from 'JsBarcode';
+		import moment from 'moment/src/moment';
+		import XML from 'parse-xml/dist/parse-xml';
+
+		class HtMsgNew extends Polymer.TkLocalizerMixin(Polymer.Element) {
+			static get is() {
+				return 'ht-msg-new';
+			}
+
+			static get properties() {
+				return {
+					api: {
+						type: Object
+					},
+					user: {
+						type: Object
+					},
+					newMessage:{
+						type:Object,
+                        value: {}
+                    },
+					msgAnnexes:{
+						type:Array,
+						value: []
+					},
+					test:{
+						type: Array,
+						value: []
+					},
+                    quality:{
+						type:[],
+                        value: ["CBE","EHP","INSS","NIHII","NIHII-HOSPITAL","NIHII-PHARMACY"]
+                    },
+                    hcpList:{
+						type:[]
+                    },
+					patientList:{
+						type:[]
+                    },
+					msgBodyFile:{
+						type:Object
+					},
+					files: {
+						type: Array
+					}
+				};
+			}
+
+			static get observers() {
+				// return ['_focusChanged(selectMessage, selectMessage.*)'];
+			}
+
+			constructor() {
+				super();
+			}
+
+			ready(){
+				super.ready();
+
+				this.LoadHcpList("NIHII");
+                this.LoadPatients();
+				this.set("newMessage.destinations",[])
+
+				// const vaadinUpload = this.$['vaadin-upload'];
+				// vaadinUpload.addEventListener('upload-before', function(event) {
+				// 	console.log("this.files");
+				// 	console.log(this.files);
+				// })
+				// vaadinUpload.addEventListener('upload-request', function(event) {
+				// 	// console.log('upload xhr after open: ', event.detail.xhr);
+                //     //
+				// 	// event.detail.xhr.setRequestHeader('X-File-Name', event.detail.file.name);
+				// 	// event.detail.formData.append('documentId', 1234);
+				// });
+                //
+				// vaadinUpload.addEventListener('upload-start', function(event) {
+				// 	// console.log('upload xhr after send: ', event.detail.xhr);
+				// });
+			}
+
+			refreshHcpList(){
+				let qualityTo = this.shadowRoot.querySelector('#quality-To');
+				this.LoadHcpList(qualityTo.value || "");
+            }
+
+			LoadHcpList(quality){
+				this.api.hcparty().listHealthcareParties().then(hcps => {
+					let filtredHcps = hcps.rows
+						.filter(hcp=> (hcp.lastName || hcp.firstName) && this.filterHcp(hcp,quality))
+						.map(hcp => this.cleanHcp(hcp,quality))
+						.sort((a,b)=> a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) :a.lastName.localeCompare(b.lastName));
+					this.set("hcpList",filtredHcps)
+				})
+            }
+            
+            filterHcp(hcp,quality){
+				switch (quality) {
+                    case "CBE":
+                    	return hcp.cbe && !isNaN(parseInt(hcp.cbe));
+                    case "EHP":
+                        return hcp.ehp != undefined
+                    case "INSS":
+						return hcp.ssin && !isNaN(parseInt(hcp.ssin));
+                    case "NIHII":
+					case "NIHII-HOSPITAL":
+					case "NIHII-PHARMACY":
+                    	return hcp.nihii && !isNaN(parseInt(hcp.nihii));
+				}
+                return false;
+            }
+
+			cleanHcp(hcp,quality){
+				hcp.nihii = hcp.nihii ? parseInt(hcp.nihii) : "";
+				hcp.cbe = hcp.cbe ? parseInt(hcp.cbe) : "";
+				hcp.lastName = hcp.lastName ? hcp.lastName.toLowerCase().trim(): "";
+				hcp.firstName = hcp.firstName ? hcp.firstName.toLowerCase().trim() : "";
+				hcp.displayName =  hcp.lastName + " " + hcp.firstName + " [" + this.getQualityValue(hcp,quality) + "]";
+				return hcp;
+            }
+
+            getQualityValue(hcp,quality){
+				switch (quality) {
+					case "CBE":
+						return hcp.cbe;
+					case "INSS":
+						return hcp.ssin;
+					case "NIHII":
+					case "NIHII-HOSPITAL":
+					case "NIHII-PHARMACY":
+						return hcp.nihii;
+				}
+            }
+
+			LoadPatients(){
+				this.api.patient().listPatients(this.user.healthcarePartyId).then(patients =>{
+					let filtredpatients = patients.rows.filter(pat => pat.ssin).map(pat =>{
+						pat.displayName = pat.firstName + " " + pat.lastName + " " + pat.ssin
+                        return pat
+                    })
+					this.set("patientList",filtredpatients)
+				})
+			}
+
+			_fileUploaded(e) {
+				// if (!this.currentContact) {
+				// 	return;
+				// }
+				// const vaadinUpload = this.$['vaadin-upload'];
+				// const f = e.detail.file;
+				// const d = f.doc;
+                //
+				// let sc = this.currentContact.subContacts.find(sbc => (sbc.status || 0) & 64);
+				// if (!sc) {
+				// 	sc = { status: 64, services: [] };
+				// 	this.currentContact.subContacts.push(sc);
+				// }
+				// const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
+				// this.currentContact.services.push(svc);
+				// sc.services.push({ serviceId: svc.id });
+				// if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
+				// 	this.saveCurrentContact().then(c => this._contactsChanged());
+				// }
+
+			}
+
+			_AddDestinations(){
+				let newMsgTo = this.shadowRoot.querySelector('#newMsg-To');
+				let qualityTo = this.shadowRoot.querySelector('#quality-To');
+				console.log(qualityTo.value);
+				if(newMsgTo.selectedItem || (!newMsgTo.selectedItem && parseInt(newMsgTo.value))) {
+					let hcp ={};
+                    if(newMsgTo.selectedItem) {
+                    	hcp = newMsgTo.selectedItem
+					}
+                    else {
+                    	hcp.displayName = newMsgTo.value;
+                        hcp.nihii = qualityTo.value.includes("NIHII") ? newMsgTo.value: undefined;
+                        hcp.cbe = qualityTo.value === "CBE" ? newMsgTo.value: undefined;
+                        hcp.ssin = qualityTo.value === "INSS" ? newMsgTo.value: undefined;
+					}
+					hcp.quality = qualityTo.value;
+					this.push('newMessage.destinations', hcp);
+					newMsgTo.value = ""
+				}
+            }
+
+			_removeDestinations(e){
+				let index = e.target.getAttribute('indexed');
+				this.newMessage.destinations.splice(index,1);
+				let destinationsList = this.shadowRoot.querySelector('#destinationsList');
+				destinationsList.clearCache();
+            }
+
+			_AddSSIN(e){
+				let newMsgSSIN = this.shadowRoot.querySelector("#newMsg-SSIN");
+				if( newMsgSSIN && newMsgSSIN.selectedItem){
+                    let ssin = newMsgSSIN.selectedItem.ssin;
+                    this.set("newMessage.ssin",ssin);
+				}
+				else{
+					this.set("newMessage.ssin",undefined);
+                }
+            }
+
+			_SendNewMessage(){
+
+				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
+                    let message = {};
+                    //message.id
+                    //message.publicationId
+                    message.sender = this.setAddressee(currentHcp);
+                    //message.mandatee
+                    message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp));
+					console.log(message.destinations);
+                    // message.isImportant
+                    // message.isEncrypted
+                    message.isUsePublicationReceipt = this.newMessage.publicationDate;
+                    message.isUseReceivedReceipt = this.newMessage.reception;
+                    message.isUseReadReceipt = this.newMessage.read;
+                    // message.isHasAnnex
+                    // message.isHasFreeInformations
+                    // message.publicationDateTime
+                    // message.expirationDateTime
+                    // message.size
+                    // message.customMetas
+
+                    // message.document
+                    // message.reeText
+                    // message.freeInformationTableTitle
+                    // message.freeInformationTableRows
+                    message.patientInss = this.newMessage.ssin;
+                    // message.annex
+                    // message.copyMailTo
+                    // message.documentTitle
+                    // message.annexList
+
+                    // this.api.fhcEhboxcontrollerApi().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,
+                    //     this.newMessage.publicationDate,this.newMessage.reception,this.newMessage.read)
+
+				})
+			}
+
+			setAddressee(hcp){
+					let Addressee = {};
+					Addressee.identifierType = hcp.quality;
+					Addressee.id = this.getQualityValue(hcp,hcp.quality);
+					Addressee.quality = hcp.type;
+					Addressee.applicationId = hcp.applicationID;
+					Addressee.lastName = hcp.lastName;
+					Addressee.firstName = hcp.firstName;
+					Addressee.organizationName = hcp.companyName;
+					//Addressee.personInOrganisation ="";
+					return Addressee;
+            }
+
+		}
+
+		customElements.define(HtMsgNew.is, HtMsgNew);
+    </script>
+</dom-module>

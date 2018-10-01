@@ -31,6 +31,7 @@ import org.taktik.icure.entities.CalendarItem;
 
 import java.util.List;
 
+
 @Repository("calendarItemDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItem' && !doc.deleted) emit( null, doc._id )}")
 public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements CalendarItemDAO {
