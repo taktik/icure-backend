@@ -26,4 +26,6 @@ public enum InvoiceType {
 	insurance, //Deprecated, see MediumType
     @Deprecated
     efact, //Deprecated, see MediumType
+	@Deprecated
+	other, //Deprecated
 }
