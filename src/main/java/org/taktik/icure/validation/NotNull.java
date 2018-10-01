@@ -54,7 +54,6 @@ public @interface NotNull {
 	@Retention(RUNTIME)
 	@Documented
 	@interface List {
-
 		NotNull[] value();
 	}
 }

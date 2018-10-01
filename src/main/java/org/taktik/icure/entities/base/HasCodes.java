@@ -21,7 +21,6 @@ package org.taktik.icure.entities.base;
 import java.util.Set;
 
 public interface HasCodes {
-    Set<Code> getCodes();
-
-    void setCodes(Set<Code> codes);
+    Set<CodeStub> getCodes();
+    void setCodes(Set<CodeStub> codes);
 }
