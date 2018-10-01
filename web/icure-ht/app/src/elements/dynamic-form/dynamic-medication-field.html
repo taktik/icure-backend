@@ -12,6 +12,9 @@
 
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+
 <link rel="import" href="dynamic-link.html">
 
 
@@ -391,6 +394,10 @@
 						<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
 					</paper-listbox>
 				</paper-dropdown-menu>
+				<vaadin-date-picker label="Start date" placeholder="{{Date.now()}}">
+				</vaadin-date-picker>
+				<vaadin-date-picker label="End date" placeholder="">
+				</vaadin-date-picker>
 				<paper-button on-tap="_setFrequencyList">{{localize("more","More",language)}}<iron-icon icon="arrow-forward"></iron-icon></paper-button>
 			</div>
 			<template is="dom-if" if="[[flagTableFrequency]]">
