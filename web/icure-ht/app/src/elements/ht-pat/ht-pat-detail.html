@@ -2874,7 +2874,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     type: {identifier: 'org.taktik.icure.user.eHealthEnv'},
                     typedValue: {type: 'STRING', stringValue: 'prd'}
                 });
-            
+
             switch (propHub.typedValue.stringValue) {
                 case 'rsb':
                     this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx':'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
@@ -3412,9 +3412,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_addedHealthElementSelected(event, healthElement) {
-		this.api.helement().newInstance(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => {
-		    this.api.helement().createHealthElement(he)
-        }).then(he => this.patientChanged());
+		this.api.helement().newInstance(this.user, this.patient, this._normalizedHealthElement(healthElement)).then(he => this.api.helement().createHealthElement(he)).then(() => this.patientChanged());
 	}
 
 	_editedHealthElementSelected(event, healthElement) {

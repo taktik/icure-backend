@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Address;
@@ -71,7 +72,7 @@ public class HealthcareParty extends StoredDocument implements Person {
     protected List<HealthcarePartyStatus> statuses;
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected List<Code> specialityCodes; //Speciality codes, default is first
+    protected List<CodeStub> specialityCodes; //Speciality codes, default is first
 	protected Map<TelecomType, String> sendFormats;
 
 	protected String notes;
@@ -270,11 +271,11 @@ public class HealthcareParty extends StoredDocument implements Person {
         this.statuses = statuses;
     }
 
-    public List<Code> getSpecialityCodes() {
+    public List<CodeStub> getSpecialityCodes() {
         return specialityCodes;
     }
 
-    public void setSpecialityCodes(List<Code> specialityCodes) {
+    public void setSpecialityCodes(List<CodeStub> specialityCodes) {
         this.specialityCodes = specialityCodes;
     }
 

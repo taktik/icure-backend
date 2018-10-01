@@ -21,6 +21,7 @@ package org.taktik.icure.entities.embed;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 
 import java.io.Serializable;
 
@@ -28,7 +29,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Duration implements Serializable {
 	Double value;
-	Code unit; //CD-TIMEUNIT
+	CodeStub unit; //CD-TIMEUNIT
 
 	public Double getValue() {
 		return value;
@@ -38,11 +39,11 @@ public class Duration implements Serializable {
 		this.value = value;
 	}
 
-	public Code getUnit() {
+	public CodeStub getUnit() {
 		return unit;
 	}
 
-	public void setUnit(Code unit) {
+	public void setUnit(CodeStub unit) {
 		this.unit = unit;
 	}
 }

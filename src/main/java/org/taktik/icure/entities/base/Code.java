@@ -33,7 +33,7 @@ import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Code extends StoredDocument {
+public class Code extends StoredDocument implements CodeIdentification {
 	private static final long serialVersionUID = 1L;
 	public static final Map<String,String> versionsMap = ImmutableMap.of(
 			"INAMI-RIZIV", "1.0"
