@@ -445,7 +445,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
         </style>
 
-        <icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+        <icc-api id="api" host="/rest/v1" fhc-host="https://fhcprd.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
@@ -1220,8 +1220,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String
                     },
                     keyPairKeystore:{
-                    	type: [],
-                        value: []
+                    	type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -1440,8 +1440,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (!this.authenticated) {
                         this.authenticated = true
 
-                        this.api.loadUsersAndHcParties()
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
+                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.$.api.crypto().checkPrivateKeyValidity(hcp)).then(ok => {
+                                if (ok) {
+                                    this.api.loadUsersAndHcParties()
                             if (this.credentials.ehpassword) {
                                 const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
                                 if (ehKeychain) {
@@ -1467,6 +1469,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             } else {
                                 this._routePageChanged(destPage)
                             }
+                                } else {
+                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                    this.$.registerKeyPairDialog.opened = true
+                                }
+                            })
                         } else {
                             this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
 
@@ -1576,6 +1583,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.ehboxInboxMessage.classList.add('notificationEhbox')
                     console.log("Le worker à repondu " + e.data.message)
                 }
+
             }
 
 			getAlternateKeystores(){
@@ -1619,7 +1627,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .then(data =>
                         (data)?this.api.crypto().utils.ua2text(data):null
                     );
-			}
+            }
+
             _logList() {
                 this.$['ht-access-log'].open()
             }
