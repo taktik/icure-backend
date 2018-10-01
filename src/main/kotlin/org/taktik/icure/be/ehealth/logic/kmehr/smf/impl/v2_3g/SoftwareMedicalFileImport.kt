@@ -26,6 +26,7 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Content
@@ -195,7 +196,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 ?.let {
                     this.tags.addAll(it.contents?.mapNotNull {
                         it.cds?.find { it.s == CDCONTENTschemes.CD_ENCOUNTER }
-                            ?.value?.let { Code("be", "CD-ENCOUNTER", it, "1.0") }
+                            ?.value?.let { CodeStub("CD-ENCOUNTER", it, "1.0") }
                     } ?: listOf())
                 }
 
@@ -236,7 +237,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.id = idGenerator.newGUID().toString()
 	        this.healthElementId = idGenerator.newGUID().toString()
 	        descr = label
-            this.tags.add(Code("be", "CD-ITEM", cdItem, "1"))
+            this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.author = author.id
             this.responsible = author.healthcarePartyId
@@ -247,13 +248,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
-            item.lifecycle?.let { this.tags.add(Code("be", "CD-LIFECYCLE", it.cd.value.value(), "1")) }
+            item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
             this.status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" ||it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 } ?: 0) + if(item.isIsrelevant != true) 2 else 0)
         }
     }
 
-    private fun extractCodes(item: ItemType): Set<Code> {
-        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD  }.map { Code(it.s.value(), it.value, it.sv) } +
+    private fun extractCodes(item: ItemType): Set<CodeStub> {
+        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD  }.map { CodeStub(it.s.value(), it.value, it.sv) } +
             item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                 it.cds.filter {
                     listOf(CDCONTENTschemes.CD_DRUG_CNK,
@@ -263,16 +264,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                            CDCONTENTschemes.CD_ATC,
                            CDCONTENTschemes.CD_PATIENTWILL,
                            CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
-                }.map { Code(it.s.value(), it.value, it.sv) }
+                }.map { CodeStub(it.s.value(), it.value, it.sv) }
             }).toSet()
     }
 
-    private fun extractTags(item: ItemType): Set<Code> {
-        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { Code(it.s.value(), it.value, it.sv) } +
+    private fun extractTags(item: ItemType): Collection<CodeStub> {
+        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub(it.s.value(), it.value, it.sv) } +
             item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                 it.cds.filter {
                     listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
-                }.map { Code(it.s.value(), it.value, it.sv) }
+                }.map { CodeStub(it.s.value(), it.value, it.sv) }
             }).toSet()
     }
 
@@ -284,7 +285,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                  v: ImportResult): Service {
         return Service().apply {
             this.id = idGenerator.newGUID().toString()
-            this.tags.add(Code("be", "CD-ITEM", cdItem, "1"))
+            this.tags.add(CodeStub( "CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.codes = extractCodes(item).toMutableSet()
             this.label = label
@@ -295,7 +296,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
-            item.lifecycle?.let { this.tags.add(Code("be", "CD-LIFECYCLE", it.cd.value.value(), "1")) }
+            item.lifecycle?.let { this.tags.add(CodeStub( "CD-LIFECYCLE", it.cd.value.value(), "1")) }
             this.status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" ||it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 } ?: 0) + if(item.isIsrelevant != true) 2 else 0)
             this.content = mapOf(language to Content().apply {
                 when {
@@ -304,14 +305,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             substanceProduct = item.contents.filter { it.substanceproduct != null }.firstOrNull()?.let {
                                 it.substanceproduct?.let {
                                     Substanceproduct().apply {
-                                        intendedcds = it.intendedcd?.let { listOf(Code("be", it.s, it.value, it.sv)) }
+                                        intendedcds = it.intendedcd?.let { listOf(CodeStub( it.s, it.value, it.sv)) }
                                         intendedname = it.intendedname.toString()
                                     }
                                 }
                             }
                             medicinalProduct = item.contents.filter { it.medicinalproduct != null }.firstOrNull()?.let {
                                 it.medicinalproduct?.let { Medicinalproduct().apply {
-                                intendedcds = it.intendedcd?.let { listOf(Code("be", it.s, it.value, it.sv)) }
+                                intendedcds = it.intendedcd?.let { listOf(CodeStub( it.s, it.value, it.sv)) }
                                 intendedname = it.intendedname.toString()
                             } } }
                             compoundPrescription = item.contents.map { it.compoundprescription?.value }.filterNotNull().firstOrNull()
@@ -323,7 +324,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             }}
                             duration = item.duration?.let { dt -> Duration().apply {
                                 value = dt.decimal.toDouble()
-                                unit = dt.unit?.cd?.let { Code("be", it.s.value(), it.value, it.sv) }
+                                unit = dt.unit?.cd?.let { CodeStub( it.s.value(), it.value, it.sv) }
                             } }
                             numberOfPackages = item.quantity?.decimal?.toInt()
                             item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }.joinToString(", ").let {if (it.isNotBlank()) instructionForPatient = (instructionForPatient ?: "") + it }

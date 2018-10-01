@@ -22,10 +22,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
+import org.taktik.icure.validation.ValidCode;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -69,8 +71,10 @@ public class SubContact implements ICureDocument, Serializable {
     @NotNull(autoFix = AutoFix.CURRENTHCPID)
     protected String responsible; //healthcarePartyId
 
-    protected java.util.Set<Code> codes = new HashSet<>();
-    protected java.util.Set<Code> tags = new HashSet<>();
+    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+    protected java.util.Set<CodeStub> codes = new HashSet<>();
+    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+    protected java.util.Set<CodeStub> tags = new HashSet<>();
 
     protected String formId; // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
     protected String planOfActionId;
@@ -216,22 +220,22 @@ public class SubContact implements ICureDocument, Serializable {
 	}
 
 	@Override
-    public Set<Code> getCodes() {
+    public Set<CodeStub> getCodes() {
         return codes;
     }
 
     @Override
-    public void setCodes(Set<Code> codes) {
+    public void setCodes(Set<CodeStub> codes) {
         this.codes = codes;
     }
 
     @Override
-    public Set<Code> getTags() {
+    public Set<CodeStub> getTags() {
         return tags;
     }
 
     @Override
-    public void setTags(Set<Code> tags) {
+    public void setTags(Set<CodeStub> tags) {
         this.tags = tags;
     }
 

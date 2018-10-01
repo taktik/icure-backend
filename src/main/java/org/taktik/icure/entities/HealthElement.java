@@ -35,6 +35,7 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HealthElement extends StoredICureDocument {
     @NotNull
+    private
     String healthElementId; //The Unique UUID common to a group of HealthElements that forms an history
 
     //Usually one of the following is used (either valueDate or openingDate and closingDate)
@@ -49,15 +50,15 @@ public class HealthElement extends StoredICureDocument {
 
     protected boolean relevant = true;
 
-    protected String idOpeningContact;
-    protected String idClosingContact;
+    private String idOpeningContact;
+    private String idClosingContact;
 
-	protected String idService; //When a service is used to create the healthElement
+	private String idService; //When a service is used to create the healthElement
 
 	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
 
 	@Valid
-    protected List<PlanOfAction> plansOfAction = new java.util.ArrayList<>();
+	private List<PlanOfAction> plansOfAction = new java.util.ArrayList<>();
 
 	public HealthElement solveConflictWith(HealthElement other) {
 		super.solveConflictsWith(other);

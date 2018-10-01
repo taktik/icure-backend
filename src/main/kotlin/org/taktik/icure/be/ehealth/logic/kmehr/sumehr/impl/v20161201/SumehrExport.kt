@@ -32,6 +32,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Service
@@ -371,7 +372,7 @@ class SumehrExport : KmehrExport() {
 							if (e.value.any { p ->
 								Regex(p.replace("*", ".*")).matches(label)
 							}) {
-								svc.tags.add(Code(e.key.first, e.key.second, "1.0"))
+								svc.tags.add(CodeStub(e.key.first, e.key.second, "1.0"))
 								true
 							} else false
 						}
