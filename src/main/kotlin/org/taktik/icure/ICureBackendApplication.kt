@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
@@ -54,7 +56,7 @@ import org.taktik.icure.services.external.http.WebSocketServlet
 import javax.servlet.ServletContext
 import javax.servlet.ServletRegistration
 
-@SpringBootApplication
+@SpringBootApplication(exclude = [FreeMarkerAutoConfiguration::class])
 @EnableWebSecurity
 @PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
@@ -71,6 +73,7 @@ class ICureBackendApplication {
     @Bean
     fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
         //Check that core types have corresponding codes
+        log.info("icure (" + propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.identifier) + ") is initialised")
         taskExecutor.execute {
             listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
                    Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,

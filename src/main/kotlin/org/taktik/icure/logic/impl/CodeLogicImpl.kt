@@ -20,9 +20,9 @@
 package org.taktik.icure.logic.impl
 
 
-import com.drew.lang.annotations.NotNull
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
+import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.dao.CodeDAO

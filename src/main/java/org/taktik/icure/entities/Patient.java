@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.Address;
@@ -34,6 +35,8 @@ import org.taktik.icure.entities.embed.Partnership;
 import org.taktik.icure.entities.embed.PatientHealthCareParty;
 import org.taktik.icure.entities.embed.PersonalStatus;
 import org.taktik.icure.entities.utils.MergeUtil;
+import org.taktik.icure.validation.AutoFix;
+import org.taktik.icure.validation.ValidCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +93,8 @@ public class Patient extends StoredICureDocument implements Person {
 
     protected Map<String,List<String>> parameters = new HashMap<>();
 
-    protected java.util.List<Code> patientProfessions = new java.util.ArrayList<>();
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
 
 
 	public @Nullable
@@ -317,11 +321,11 @@ public class Patient extends StoredICureDocument implements Person {
         this.patientHealthCareParties = patientHealthCareParties;
     }
 
-    public List<Code> getPatientProfessions() {
+    public List<CodeStub> getPatientProfessions() {
         return patientProfessions;
     }
 
-    public void setPatientProfessions(List<Code> patientProfessions) {
+    public void setPatientProfessions(List<CodeStub> patientProfessions) {
         this.patientProfessions = patientProfessions;
     }
 

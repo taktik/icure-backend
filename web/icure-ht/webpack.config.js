@@ -2,13 +2,16 @@
 
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var OfflinePlugin = require('offline-plugin');
 // var HtmlIncluderWebpackPlugin = require('html-includer-webpack-plugin').default;
 var Clean = require('clean-webpack-plugin');
 var path = require('path');
+
 console.log(path.resolve(__dirname))
+
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname, 'app/src/ht-app.html'),
+    entry: path.resolve(__dirname, 'app/index.js'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
 	    filename: '[name].bundle.js',
@@ -39,7 +42,7 @@ module.exports = {
 
 				        options: {
 				        	/*presets: ['es2015'],*/
-					        plugins: ['babel-plugin-lodash','syntax-dynamic-import']
+					        plugins: ['babel-plugin-lodash', 'syntax-dynamic-import']
 				        }
 			        },
 			        {
@@ -50,7 +53,7 @@ module.exports = {
             {
                 // If you see a file that ends in .js, just send it to the babel-loader.
                 test: /\.js$/,
-	            use: [{ loader: 'babel-loader', options: { /*presets: ['es2015']*/ }}],
+	            use: [{ loader: 'babel-loader', options: { plugins: ['syntax-dynamic-import'] }}],
                 exclude: /(node_modules|bower_components)/
             },
             {
@@ -73,9 +76,22 @@ module.exports = {
         // This plugin will generate an index.html file for us that can be use
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
+        new OfflinePlugin({
+            // Unless specified in webpack's configuration itself
+            publicPath: '/',
+
+            appShell: '/',
+            externals: [
+                '/'
+            ]
+        })
+        ,
+        // This plugin will generate an index.html file for us that can be use
+        // by the Webpack dev server. We can give it a template file (written in EJS)
+        // and it will handle injecting our bundle for us.
         new HtmlWebpackPlugin({
             inject: false,
-	        debug: true,
+            debug: true,
             template: path.resolve(__dirname, 'app/index.ejs')
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
@@ -85,7 +101,7 @@ module.exports = {
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
         }]),
-        new Clean(['build']),
+        new Clean(['dist']),
     ],
 	devServer: {
 		contentBase: path.join(__dirname,'dist'),

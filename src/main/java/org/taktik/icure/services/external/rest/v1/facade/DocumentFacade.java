@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

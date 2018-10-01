@@ -18,7 +18,7 @@
 
 package org.taktik.icure.dao.impl;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.taktik.icure.dao.Option;
