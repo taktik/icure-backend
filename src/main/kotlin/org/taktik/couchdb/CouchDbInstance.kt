@@ -75,11 +75,23 @@ class CouchDbInstance(val httpClient: HttpClient,
             .setParameter("include_docs", "true")
             .apply { since?.let { setParameter("since", since) } }
             .build()
+        log.debug("URI: $uri: start request")
         httpClient.newRequest(uri)
-            .apply { user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((u + ":" + p).toByteArray())) } } }
+            .apply {
+                user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(("$u:$p").toByteArray())) } }
+                idleTimeout(300, TimeUnit.SECONDS)
+                timeout(900, TimeUnit.SECONDS)
+            }
             .onResponseContent { response, byteBuffer ->
+                log.debug("URI: "+uri+": "+byteBuffer.remaining())
                 parser.parse(byteBuffer)
                 heartBeat()
+            }
+            .onResponseFailure { response, failure ->
+                log.error("URI: $uri: request failed with user $user:$password", failure)
+            }
+            .onRequestFailure { request, failure ->
+                log.error("URI: $uri: request failed ", failure)
             }.send {}
 
     }
