@@ -39,7 +39,7 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;

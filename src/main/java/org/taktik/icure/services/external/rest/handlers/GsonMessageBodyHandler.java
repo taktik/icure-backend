@@ -18,12 +18,17 @@
 
 package org.taktik.icure.services.external.rest.handlers;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import org.apache.commons.codec.binary.Base64;
-
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair;
-import org.taktik.icure.services.external.rest.v1.dto.be.dmg.DmgMessage;
-import org.taktik.icure.services.external.rest.v1.dto.be.dmg.DmgMessageResponse;
 import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate;
 
 import javax.ws.rs.Consumes;
@@ -34,13 +39,18 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Double.*;
+import static java.lang.Double.MAX_VALUE;
+import static java.lang.Double.MIN_VALUE;
 
 //Used by Jersey instead of jackson
 @Provider
@@ -70,14 +80,6 @@ public final class GsonMessageBodyHandler implements MessageBodyWriter<Object>,
 					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class))
 					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class))
 					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class))
-					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.be.dmg.DmgMessage.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.be.dmg.DmgMessage.class))
-					.registerTypeAdapter(DmgMessageResponse.class, (JsonSerializer<DmgMessageResponse>)(src, typeOfSrc, context) -> {
-						JsonObject res = new JsonObject();
-						res.add("dmgMessage", context.serialize(src.getDmgMessage(), DmgMessage.class));
-						res.add("message", context.serialize(src.getMessage()));
-						res.add("document", context.serialize(src.getDocument()));
-						return res;
-					})
 					.registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> src == null ? null : new JsonPrimitive(src.isNaN() ? 0d : src.isInfinite() ? (src > 0 ? MAX_VALUE : MIN_VALUE) : src))
 					.registerTypeAdapter(Boolean.class, (JsonDeserializer<Boolean>) (json, typeOfSrc, context) -> ((JsonPrimitive)json).isBoolean() ? json.getAsBoolean() : ((JsonPrimitive)json).isString() ? json.getAsString().equals("true") : json.getAsInt() != 0);
 			gson = gsonBuilder.create();

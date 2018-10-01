@@ -19,14 +19,11 @@
 package org.taktik.icure.validation;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.fasterxml.uuid.Generators;
-import org.taktik.icure.be.ehealth.logic.crypto.Crypto;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.security.CryptoUtils;

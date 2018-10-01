@@ -109,6 +109,6 @@ public class StringUtils {
 	}
 
 	public static boolean equals(@Nullable String s1, @Nullable String s2) {
-		return (s1 != null && s2 != null) && (org.apache.commons.lang.StringUtils.equals(s1,s2) || org.apache.commons.lang.StringUtils.equals(sanitizeString(s1),sanitizeString(s2)));
+		return (s1 != null && s2 != null) && (org.apache.commons.lang3.StringUtils.equals(s1,s2) || org.apache.commons.lang3.StringUtils.equals(sanitizeString(s1),sanitizeString(s2)));
 	}
 }

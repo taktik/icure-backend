@@ -53,6 +53,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 bottom: 0;
                 right: 0;
             }
+
+            ht-msg-detail{
+                padding: 15px;
+            }
+
         </style>
         <div class="container">
             <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
@@ -75,6 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  select-list="[[selectList]]"
                                  on-selection-messages-change="handleMessageChange"></ht-msg-invoice>
             </template>
+
         </div>
 
     </template>
@@ -123,6 +129,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             handleMessageChange(e) {
                 this.set('selectMessage', e.detail)
+            }
+
+			handleRefreshlist(e) {
+            	new Promise(Ok =>{
+					let selectList = this.selectList
+					this.set('selectList', e.detail);
+            		Ok(selectList);
+                }).then(selectList=> this.set('selectList', selectList))
+
             }
 
         }
