@@ -343,9 +343,21 @@
                 }
             }
 
-            open() {
+            open(selectedMedicationContentWithId) {
+                if (selectedMedicationContentWithId) {
+                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId);
+
+                    const isCustom = this.hasCustomFrequencyTable(selectedMedicationContentWithId.medicationValue.regimen);
+                    this.set('customFrequencyTable', isCustom);
+                    this.set('flagTableFrequency', isCustom);
+                    this.set('bufferUnit',selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
+                    this.set('bufferQuantity',selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
+                    this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
+                    this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
+                }
                 this.$['medication-detail'].open()
             }
+
 
             addPosologyRegimen() {
                 const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
@@ -392,6 +404,10 @@
                 }
                 rgModel.set('rg.dayPeriod', { type: "CD-DAYPERIOD", code: target.item.id });
                 this._valueChanged();
+            }
+
+            _valueChanged() {
+                this.dispatchEvent('value-changed',{detail: this.selectedMedicationContentWithId, bubbles: true, composed: true})
             }
 
             _setFrequencyList() {
