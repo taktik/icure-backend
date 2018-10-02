@@ -50,4 +50,7 @@ public class ResponseUtils {
 	public static Response ok(Object entity) {
 		return Response.ok().entity(entity).build();
 	}
+	public static Response ok(Object entity,String mime) {
+		return Response.ok(entity,mime).build();
+	}
 }

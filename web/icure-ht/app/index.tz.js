@@ -3,7 +3,7 @@ OfflinePluginRuntime.install();
 
 document.addEventListener('WebComponentsReady', function componentsReady() {
     document.removeEventListener('WebComponentsReady', componentsReady, false);
-    import( /* webpackChunkName: "ht-app" */ "./src/ht-app.html")
+    import( /* webpackChunkName: "ht-app" */ "./src/ht-app-tz.html")
 }, false);
 
 

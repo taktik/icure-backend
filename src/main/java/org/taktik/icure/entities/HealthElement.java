@@ -47,6 +47,7 @@ public class HealthElement extends StoredICureDocument {
     protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
     protected String descr;
+    protected String note;
 
     protected boolean relevant = true;
 
@@ -68,9 +69,13 @@ public class HealthElement extends StoredICureDocument {
 		this.valueDate = other.valueDate==null?this.valueDate:this.valueDate==null?other.valueDate:Long.valueOf(Math.min(this.valueDate,other.valueDate));
 
 		this.descr = this.descr == null ? other.descr : this.descr;
+		this.note = this.note == null ? other.note : this.note;
 
 		this.idOpeningContact = this.idOpeningContact == null ? other.idOpeningContact : this.idOpeningContact;
 		this.idClosingContact = this.idClosingContact == null ? other.idClosingContact : this.idClosingContact;
+		this.idService = this.idService == null ? other.idService : this.idService;
+
+		this.status = this.status == null ? other.status : this.status;
 
 		this.plansOfAction = MergeUtil.mergeListsDistinct(this.plansOfAction, other.plansOfAction,
 			(a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
@@ -118,6 +123,10 @@ public class HealthElement extends StoredICureDocument {
     public void setDescr(String descr) {
         this.descr = descr;
     }
+
+    public String getNote() { return note; }
+
+    public void setNote(String note) { this.note = note; }
 
     public String getIdOpeningContact() {
         return idOpeningContact;

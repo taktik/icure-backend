@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.InvoiceInterventionType;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.entities.utils.MergeUtil;
 
 import java.util.ArrayList;
@@ -36,56 +38,84 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Invoice extends StoredICureDocument {
-	private Long invoiceDate; //yyyyMMdd
+	private Long invoiceDate; // yyyyMMdd
 	private Long sentDate;
 	private Long printedDate;
 
 	private List<InvoicingCode> invoicingCodes = new ArrayList<>();
 	private Map<String, String> receipts = new HashMap<>();
 
-	private String recipientType; //org.taktik.icure.entities.HealthcareParty, org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
-	private String recipientId; //for hcps and insurance, patient link happens through secretForeignKeys
+	private String recipientType; // org.taktik.icure.entities.HealthcareParty,
+	// org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
+	private String recipientId; // for hcps and insurance, patient link happens through secretForeignKeys
 
 	private String invoiceReference;
 	private String thirdPartyReference;
 
 	private InvoiceType invoiceType;
+	private MediumType sentMediumType;
+	private InvoiceInterventionType interventionType;
+
+	private String groupId;
 
 	private Double paid;
 
-    protected String gnotionNihii;
-    protected String gnotionSsin;
-    protected String gnotionLastName;
-    protected String gnotionFirstName;
-    protected String gnotionCdHcParty;
+	private String gnotionNihii;
+	private String gnotionSsin;
+	private String gnotionLastName;
+	private String gnotionFirstName;
+	private String gnotionCdHcParty;
+	private Integer invoicePeriod;
+	private String careProviderType;
+	private String internshipNihii;
+	private String internshipSsin;
+	private String internshipLastName;
+	private String internshipFirstName;
+	private String internshipCdHcParty;
 
-    protected Integer invoicePeriod;
-    protected String careProviderType;
-    protected String internshipNihii;
-    protected String internshipSsin;
-    protected String internshipLastName;
-    protected String internshipFirstName;
-    protected String internshipCdHcParty;
+	private Integer longDelayJustification;
 
-    protected Integer longDelayJustification;
-
-    protected Boolean creditNote;
-
+	private Boolean creditNote;
 
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
 
-		this.invoiceDate = other.invoiceDate == null ? this.invoiceDate : this.invoiceDate == null ? other.invoiceDate : Long.valueOf(Math.max(this.invoiceDate, other.invoiceDate));
-		this.sentDate = other.sentDate == null ? this.sentDate : this.sentDate == null ? other.sentDate : Long.valueOf(Math.max(this.sentDate, other.sentDate));
-		this.paid = other.paid == null ? this.paid : this.paid == null ? other.paid : Double.valueOf(Math.max(this.paid, other.paid));
+		this.invoiceDate = other.invoiceDate == null ? this.invoiceDate
+				: this.invoiceDate == null ? other.invoiceDate
+				: Long.valueOf(Math.max(this.invoiceDate, other.invoiceDate));
+		this.sentDate = other.sentDate == null ? this.sentDate
+				: this.sentDate == null ? other.sentDate : Long.valueOf(Math.max(this.sentDate, other.sentDate));
+		this.printedDate = other.printedDate == null ? this.printedDate
+				: this.printedDate == null ? other.printedDate : Long.valueOf(Math.max(this.printedDate, other.printedDate));
+		this.paid = other.paid == null ? this.paid
+				: this.paid == null ? other.paid : Double.valueOf(Math.max(this.paid, other.paid));
 
 		this.invoiceReference = this.invoiceReference == null ? other.invoiceReference : this.invoiceReference;
 		this.invoiceType = this.invoiceType == null ? other.invoiceType : this.invoiceType;
+		this.sentMediumType = this.sentMediumType == null ? other.sentMediumType : this.sentMediumType;
 		this.recipientType = this.recipientType == null ? other.recipientType : this.recipientType;
+		this.interventionType = this.interventionType == null ? other.interventionType : this.interventionType;
 		this.recipientId = this.recipientId == null ? other.recipientId : this.recipientId;
+		this.groupId = this.groupId == null ? other.groupId : this.groupId;
 
-		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes :
-			MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
+		this.longDelayJustification = this.longDelayJustification == null ? other.longDelayJustification : this.longDelayJustification;
+		this.creditNote = this.creditNote == null ? other.creditNote : this.creditNote;
+
+		this.gnotionNihii = this.gnotionNihii == null ? other.gnotionNihii : this.gnotionNihii;
+		this.gnotionSsin = this.gnotionSsin == null ? other.gnotionSsin : this.gnotionSsin;
+		this.gnotionLastName = this.gnotionLastName == null ? other.gnotionLastName : this.gnotionLastName;
+		this.gnotionFirstName = this.gnotionFirstName == null ? other.gnotionFirstName : this.gnotionFirstName;
+		this.gnotionCdHcParty = this.gnotionCdHcParty == null ? other.gnotionCdHcParty : this.gnotionCdHcParty;
+		this.invoicePeriod = this.invoicePeriod == null ? other.invoicePeriod : this.invoicePeriod;
+		this.careProviderType = this.careProviderType == null ? other.careProviderType : this.careProviderType;
+		this.internshipNihii = this.internshipNihii == null ? other.internshipNihii : this.internshipNihii;
+		this.internshipSsin = this.internshipSsin == null ? other.internshipSsin : this.internshipSsin;
+		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
+		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
+		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
+
+		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes
+				: MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
 				(a, b) -> Objects.equals(a != null ? a.getId() : null, b != null ? b.getId() : null),
 				(a, b) -> a == null ? b : b == null ? a : a.solveConflictWith(b));
 		if (this.receipts != null && other.receipts != null) {
@@ -102,21 +132,37 @@ public class Invoice extends StoredICureDocument {
 		return Invoice.reassignationInvoiceFromOtherInvoice(i, i.invoicingCodes, uuidGenerator);
 	}
 
-	public static Invoice reassignationInvoiceFromOtherInvoice(Invoice i, List<InvoicingCode> codes, UUIDGenerator uuidGenerator) {
+	private static Invoice reassignationInvoiceFromOtherInvoice(Invoice i, List<InvoicingCode> codes,
+	                                                            UUIDGenerator uuidGenerator) {
 		Invoice ni = new Invoice();
 
 		ni.invoiceDate = i.invoiceDate;
 		ni.recipientType = i.recipientType;
 		ni.recipientId = i.recipientId;
 		ni.invoiceType = i.invoiceType;
-		ni.secretForeignKeys = i.secretForeignKeys; //The new invoice is linked to the same patient
-		ni.cryptedForeignKeys = i.cryptedForeignKeys; //The new invoice is linked to the same patient
+		ni.sentMediumType = i.sentMediumType;
+		ni.interventionType = i.interventionType;
+		ni.secretForeignKeys = i.secretForeignKeys; // The new invoice is linked to the same patient
+		ni.cryptedForeignKeys = i.cryptedForeignKeys; // The new invoice is linked to the same patient
 		ni.paid = i.paid;
 		ni.author = i.author;
 		ni.responsible = i.responsible;
 
 		ni.created = System.currentTimeMillis();
 		ni.modified = ni.created;
+
+		ni.gnotionNihii = i.gnotionNihii;
+		ni.gnotionSsin = i.gnotionSsin;
+		ni.gnotionLastName = i.gnotionLastName;
+		ni.gnotionFirstName = i.gnotionFirstName;
+		ni.gnotionCdHcParty = i.gnotionCdHcParty;
+		ni.invoicePeriod = i.invoicePeriod;
+		ni.careProviderType = i.careProviderType;
+		ni.internshipNihii = i.internshipNihii;
+		ni.internshipSsin = i.internshipSsin;
+		ni.internshipLastName = i.internshipLastName;
+		ni.internshipFirstName = i.internshipFirstName;
+		ni.internshipCdHcParty = i.internshipCdHcParty;
 
 		ni.invoicingCodes = codes.stream().map(ic -> {
 			InvoicingCode invoicingCode = new InvoicingCode(ic);
@@ -221,83 +267,164 @@ public class Invoice extends StoredICureDocument {
 		this.paid = paid;
 	}
 
-    public String getGnotionNihii() { return gnotionNihii; }
+	public MediumType getSentMediumType() {
+		return sentMediumType;
+	}
 
-    public void setGnotionNihii(String gnotionNihii) { this.gnotionNihii = gnotionNihii; }
+	public void setSentMediumType(MediumType sentMediumType) {
+		this.sentMediumType = sentMediumType;
+	}
 
-    public String getGnotionSsin() { return gnotionSsin; }
+	public InvoiceInterventionType getInterventionType() {
+		return interventionType;
+	}
 
-    public void setGnotionSsin(String gnotionSsin) { this.gnotionSsin = gnotionSsin; }
+	public void setInterventionType(InvoiceInterventionType interventionType) {
+		this.interventionType = interventionType;
+	}
 
-    public String getGnotionLastName() { return gnotionLastName; }
+	public String getGroupId() {
+		return groupId;
+	}
 
-    public void setGnotionLastName(String gnotionLastName) { this.gnotionLastName = gnotionLastName; }
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
 
-    public String getGnotionFirstName() { return gnotionFirstName; }
+	public String getGnotionNihii() {
+		return gnotionNihii;
+	}
 
-    public void setGnotionFirstName(String gnotionFirstName) { this.gnotionFirstName = gnotionFirstName; }
+	public void setGnotionNihii(String gnotionNihii) {
+		this.gnotionNihii = gnotionNihii;
+	}
 
-    public String getGnotionCdHcParty() { return gnotionCdHcParty; }
+	public String getGnotionSsin() {
+		return gnotionSsin;
+	}
 
-    public void setGnotionCdHcParty(String gnotionCdHcParty) { this.gnotionCdHcParty = gnotionCdHcParty; }
+	public void setGnotionSsin(String gnotionSsin) {
+		this.gnotionSsin = gnotionSsin;
+	}
 
-    public Integer getInvoicePeriod() { return invoicePeriod; }
+	public String getGnotionLastName() {
+		return gnotionLastName;
+	}
 
-    public void setInvoicePeriod(Integer invoicePeriod) { this.invoicePeriod = invoicePeriod; }
+	public void setGnotionLastName(String gnotionLastName) {
+		this.gnotionLastName = gnotionLastName;
+	}
 
-    public String getInternshipNihii() { return internshipNihii; }
+	public String getGnotionFirstName() {
+		return gnotionFirstName;
+	}
 
-    public void setInternshipNihii(String internshipNihii) { this.internshipNihii = internshipNihii; }
+	public void setGnotionFirstName(String gnotionFirstName) {
+		this.gnotionFirstName = gnotionFirstName;
+	}
 
-    public String getInternshipSsin() { return internshipSsin; }
+	public String getGnotionCdHcParty() {
+		return gnotionCdHcParty;
+	}
 
-    public void setInternshipSsin(String internshipSsin) { this.internshipSsin = internshipSsin; }
+	public void setGnotionCdHcParty(String gnotionCdHcParty) {
+		this.gnotionCdHcParty = gnotionCdHcParty;
+	}
 
-    public String getInternshipLastName() { return internshipLastName; }
+	public Integer getInvoicePeriod() {
+		return invoicePeriod;
+	}
 
-    public void setInternshipLastName(String internshipLastName) { this.internshipLastName = internshipLastName; }
+	public void setInvoicePeriod(Integer invoicePeriod) {
+		this.invoicePeriod = invoicePeriod;
+	}
 
-    public String getInternshipFirstName() { return internshipFirstName; }
+	public String getInternshipNihii() {
+		return internshipNihii;
+	}
 
-    public void setInternshipFirstName(String internshipFirstName) { this.internshipFirstName = internshipFirstName; }
+	public void setInternshipNihii(String internshipNihii) {
+		this.internshipNihii = internshipNihii;
+	}
 
-    public String getInternshipCdHcParty() { return internshipCdHcParty; }
+	public String getInternshipSsin() {
+		return internshipSsin;
+	}
 
-    public void setInternshipCdHcParty(String internshipCdHcParty) { this.internshipCdHcParty = internshipCdHcParty; }
+	public void setInternshipSsin(String internshipSsin) {
+		this.internshipSsin = internshipSsin;
+	}
 
-    public Integer getLongDelayJustification() {
-        return longDelayJustification;
-    }
+	public String getInternshipLastName() {
+		return internshipLastName;
+	}
 
-    public void setLongDelayJustification(Integer longDelayJustification) { this.longDelayJustification = longDelayJustification; }
+	public void setInternshipLastName(String internshipLastName) {
+		this.internshipLastName = internshipLastName;
+	}
 
-    public Boolean getCreditNote() { return creditNote; }
+	public String getInternshipFirstName() {
+		return internshipFirstName;
+	}
 
-    public void setCreditNote(Boolean creditNote) { this.creditNote = creditNote; }
+	public void setInternshipFirstName(String internshipFirstName) {
+		this.internshipFirstName = internshipFirstName;
+	}
 
-    public String getCareProviderType() { return careProviderType; }
+	public String getInternshipCdHcParty() {
+		return internshipCdHcParty;
+	}
 
-    public void setCareProviderType(String careProviderType) { this.careProviderType = careProviderType; }
+	public void setInternshipCdHcParty(String internshipCdHcParty) {
+		this.internshipCdHcParty = internshipCdHcParty;
+	}
 
-    @Override
+	public Integer getLongDelayJustification() {
+		return longDelayJustification;
+	}
+
+	public void setLongDelayJustification(Integer longDelayJustification) {
+		this.longDelayJustification = longDelayJustification;
+	}
+
+	public Boolean getCreditNote() {
+		return creditNote;
+	}
+
+	public void setCreditNote(Boolean creditNote) {
+		this.creditNote = creditNote;
+	}
+
+	public String getCareProviderType() {
+		return careProviderType;
+	}
+
+	public void setCareProviderType(String careProviderType) {
+		this.careProviderType = careProviderType;
+	}
+
+	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
 		Invoice invoice = (Invoice) o;
-		return Objects.equals(invoiceDate, invoice.invoiceDate) &&
-			Objects.equals(sentDate, invoice.sentDate) &&
-			Objects.equals(paid, invoice.paid) &&
-			Objects.equals(invoicingCodes, invoice.invoicingCodes) &&
-			Objects.equals(recipientType, invoice.recipientType) &&
-			Objects.equals(recipientId, invoice.recipientId) &&
-			Objects.equals(invoiceReference, invoice.invoiceReference) &&
-			invoiceType == invoice.invoiceType;
+		return Objects.equals(invoiceDate, invoice.invoiceDate) && Objects.equals(sentDate, invoice.sentDate)
+				&& Objects.equals(paid, invoice.paid) && Objects.equals(invoicingCodes, invoice.invoicingCodes)
+				&& Objects.equals(recipientType, invoice.recipientType)
+				&& Objects.equals(sentMediumType, invoice.sentMediumType)
+				&& Objects.equals(recipientId, invoice.recipientId)
+				&& Objects.equals(invoiceReference, invoice.invoiceReference)
+				&& invoiceType == invoice.invoiceType;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), invoiceDate, sentDate, invoicingCodes, recipientType, recipientId, invoiceReference, invoiceType);
+		return Objects.hash(super.hashCode(), invoiceDate, sentDate, invoicingCodes, recipientType, recipientId,
+				invoiceReference, invoiceType);
 	}
 
 	private String encryptedSelf;
