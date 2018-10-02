@@ -45,7 +45,6 @@
 <link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
 
 
-
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 
@@ -54,22 +53,22 @@
         <style>
 
 
-            .invoice-item{
+            .invoice-item {
                 height: 90px;
                 width: auto;
                 box-shadow: var(--shadow-elevation-3dp_-_box-shadow);
                 margin-top: 10px;
             }
 
-            .invoice-item-title{
+            .invoice-item-title {
                 height: 20px;
                 width: auto;
-                background: rgba(0,0,0,.1);
+                background: rgba(0, 0, 0, .1);
             }
 
-            #invoiceDialog{
+            #invoiceDialog {
                 height: calc(100vh - 40px);
-                width: calc( 100% - 40px );
+                width: calc(100% - 40px);
                 z-index: 1100;
                 display: grid;
                 grid-template-columns: 20% 80%;
@@ -81,7 +80,7 @@
                 right: 0;
             }
 
-            .invoice-panel{
+            .invoice-panel {
                 background: var(--app-background-color-dark);
                 top: 64px;
                 left: 0;
@@ -89,11 +88,11 @@
                 grid-column: 1/1;
                 grid-row: 1/1;
                 z-index: 3;
-                overflow: hidden;
+                overflow-y: auto;
                 margin-top: 0px;
             }
 
-            .detail-panel{
+            .detail-panel {
                 height: 100%;
                 background: var(--app-background-color);
                 top: 64px;
@@ -106,21 +105,21 @@
                 overflow-y: auto;
             }
 
-            .invoice-header{
+            .invoice-header {
                 height: 140px;
                 width: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 margin-top: 5px;
             }
 
-            .invoice-nomenclature-code{
+            .invoice-nomenclature-code {
                 height: 320px;
                 overflow-y: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 margin-top: 10px;
             }
 
-            .invoice-detail{
+            .invoice-detail {
                 height: 230px;
                 width: auto;
                 overflow-y: auto;
@@ -129,17 +128,16 @@
                 margin-bottom: 10px;
             }
 
-            .buttons{
+            .buttons {
                 float: right;
             }
 
-            paper-input{
+            paper-input {
                 --paper-input-container-focus-color: var(--app-secondary-color-dark);
                 --paper-input-container-invalid-color: var(--app-error-color);
             }
 
-
-            .flex-container{
+            .flex-container {
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
@@ -147,77 +145,83 @@
                 height: 55px;
             }
 
-            .flex-container-nmcl{
+            .flex-container-nmcl {
                 display: flex;
                 flex-flow: row nowrap;
                 align-items: flex-end;
                 height: 55px;
             }
 
-            .flex-container-nmcl-row{
+            .flex-container-nmcl-row {
                 flex: 1;
                 padding: 4px;
             }
 
-            .flex-container-descr-nmcl-row{
+            .flex-container-descr-nmcl-row {
                 flex: 8;
                 padding: 4px;
             }
 
-            #invoice-type{
+            #invoice-type {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-number{
-                flex: 1;
-                margin: auto;
-            }
-
-            #invoice-date{
+            #invoice-mode {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-period{
+            #invoice-number {
+                flex: 1;
+                margin: auto;
+            }
+
+            #invoice-date {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-careProviderType{
+            #invoice-period {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-nihiiTrainee{
+            #invoice-careProviderType {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-thirdPartyJustification{
+            #invoice-nihiiTrainee {
+                flex: 1;
+                margin: auto;
+                padding: 0 8px 0 8px;
+            }
+
+            #invoice-thirdPartyJustification {
                 flex: 3;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-dmg{
+            #invoice-dmg {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            #invoice-creditNote{
+            #invoice-creditNote {
                 flex: 1;
                 margin: auto;
                 padding: 0 8px 0 8px;
             }
 
-            .title{
+            .title {
                 height: 20px;
                 color: var(--app-text-color);
                 background-color: var(--app-background-color-dark);
@@ -232,46 +236,46 @@
                 padding-left: 8px;
             }
 
-            .invoice-nomenclature-code-container{
+            .invoice-nomenclature-code-container {
                 height: 225px
             }
 
-            .nmcl-descr{
+            .nmcl-descr {
                 overflow-y: auto;
                 height: 225px
             }
 
-            .nmcl-favorite{
+            .nmcl-favorite {
                 display: flex;
                 height: 25px;
                 padding: 5px;
             }
 
-            .invoice-nomenclature-code-option{
+            .invoice-nomenclature-code-option {
                 height: 58px;
                 display: flex;
             }
 
-            .nmcl-list{
+            .nmcl-list {
                 overflow-y: auto;
             }
 
-            #nmclGrid{
+            #nmclGrid {
                 height: 202px;
             }
 
-            #nmcl-search{
+            #nmcl-search {
                 flex: 1;
             }
 
-            .invoice-item{
+            .invoice-item {
                 background: var(--app-light-color);
-                color:var(--app-text-color);
-                outline:0;
-                padding:0;
+                color: var(--app-text-color);
+                outline: 0;
+                padding: 0;
                 align-items: flex-start !important;
                 @apply --shadow-elevation-2dp;
-                position:relative;
+                position: relative;
             }
 
             .invoice-item .label-container {
@@ -279,16 +283,16 @@
                 flex-flow: row nowrap;
             }
 
-            .invoice-item.iron-selected{
+            .invoice-item.iron-selected {
                 background: var(--app-primary-color);
-                color:var(--app-light-color);
+                color: var(--app-light-color);
                 @apply --text-shadow;
             }
 
-            .invoice-item h4{
-                font-size:14px;
+            .invoice-item h4 {
+                font-size: 14px;
                 font-weight: 600;
-                margin:0;
+                margin: 0;
                 -webkit-user-select: none; /* Chrome/Safari */
                 -moz-user-select: none; /* Firefox */
                 -ms-user-select: none; /* IE10+ */
@@ -299,8 +303,8 @@
 
             }
 
-            .invoice-item .invoice-text-row{
-                width:calc(100% - 32px);
+            .invoice-item .invoice-text-row {
+                width: calc(100% - 32px);
                 display: flex;
                 flex-flow: row wrap;
                 justify-content: flex-start;
@@ -312,17 +316,17 @@
                 padding-right: 32px;
             }
 
-            .invoice-item .invoice-text-row:first-child, .invoice-item .invoice-text-row:last-child{
-                height:24px;
+            .invoice-item .invoice-text-row:first-child, .invoice-item .invoice-text-row:last-child {
+                height: 24px;
             }
 
             .invoice-item .colour-code:not(:first-child) {
                 margin-left: 4px;
             }
 
-            .invoice-item p{
+            .invoice-item p {
                 @apply --paper-font-body1;
-                margin:0;
+                margin: 0;
                 -webkit-user-select: none; /* Chrome/Safari */
                 -moz-user-select: none; /* Firefox */
                 -ms-user-select: none; /* IE10+ */
@@ -332,70 +336,69 @@
                 user-select: none;
             }
 
-            .invoice-item--big{
+            .invoice-item--big {
                 min-height: 96px;
                 /*@apply --padding-16;*/
                 /*border-bottom: 1px solid var(--app-background-color-dark);*/
             }
 
-            .invoice-item--small{
+            .invoice-item--small {
                 min-height: 32px;
                 /*@apply --padding-right-left-16;*/
                 padding-bottom: 8px;
             }
 
-            .invoice-item--small .invoice-text-row:nth-child(2){
+            .invoice-item--small .invoice-text-row:nth-child(2) {
                 justify-content: space-between;
             }
 
-            .invoice-item--small .invoice-text-row:last-child{
+            .invoice-item--small .invoice-text-row:last-child {
                 display: none;
             }
 
-            .invoice-item--small .he-dots-container{
-                display:none;
+            .invoice-item--small .he-dots-container {
+                display: none;
             }
 
-            .he-dots-container{
-                display:flex;
-                flex-flow:row wrap;
+            .he-dots-container {
+                display: flex;
+                flex-flow: row wrap;
                 justify-content: flex-end;
             }
-
 
             paper-item.menu-item.opened {
                 @apply --padding-right-left-16;
             }
 
-            paper-item{
-                background:transparent;
-                outline:0;
-                --paper-item-selected:{
+            paper-item {
+                background: transparent;
+                outline: 0;
+                --paper-item-selected: {
 
                 };
 
-                --paper-item-disabled-color:{
+                --paper-item-disabled-color: {
                     color: red;
                 };
 
                 --paper-item-focused: {
-                    background:transparent;
+                    background: transparent;
                 };
                 --paper-item-focused-before: {
-                    background:transparent;
+                    background: transparent;
                 };
 
             }
 
-            paper-item.opened{
+            paper-item.opened {
                 padding-top: 8px;
 
             }
 
-            .opened{
-                color:var(--app-text-color);
-                background:var(--app-text-color-light);
-                border-radius:2px 2px 0 0;
+            .opened {
+                color: var(--app-text-color);
+                background: var(--app-text-color-light);
+                border-radius: 2px 2px 0 0;
                 box-shadow: 0 4px 0 0 white,
                 0 -2px 0 0 white,
                 0 2px 2px 0 rgba(0, 0, 0, 0.14),
@@ -404,22 +407,22 @@
 
             }
 
-            paper-material.iron-selected > .invoice-text > .invoice-text-date{
-                color:var(--app-text-color-light)!important;
+            paper-material.iron-selected > .invoice-text > .invoice-text-date {
+                color: var(--app-text-color-light) !important;
             }
 
-            .invoice-text{
-                background:transparent;
-                flex-direction:column;
+            .invoice-text {
+                background: transparent;
+                flex-direction: column;
                 justify-content: space-between;
                 align-items: flex-start;
-                width:100%;
+                width: 100%;
                 height: 100%;
-                padding:0;
+                padding: 0;
             }
 
-            .invoice-text:focus::before, .invoice-text:focus::after{
-                background:transparent;
+            .invoice-text:focus::before, .invoice-text:focus::after {
+                background: transparent;
             }
 
             .invoice-text-row p {
@@ -429,59 +432,59 @@
                 white-space: nowrap;
             }
 
-            .invoice-text-date{
-                justify-content: space-between!important;
+            .invoice-text-date {
+                justify-content: space-between !important;
                 position: relative;
                 top: 0;
                 left: 0;
                 right: 0;
-                background: rgba(0,0,0,.1);
+                background: rgba(0, 0, 0, .1);
                 @apply --padding-right-left-16;
                 color: var(--app-text-color-disabled);
-                height:24px;
+                height: 24px;
             }
 
-            .invoice--big{
+            .invoice--big {
                 min-height: 96px;
                 /*@apply --padding-16;*/
                 /*border-bottom: 1px solid var(--app-background-color-dark);*/
             }
 
-            .invoice--small{
+            .invoice--small {
                 min-height: 32px;
                 /*@apply --padding-right-left-16;*/
                 padding-bottom: 8px;
             }
 
-            .invoice--small .invoice-text-row:nth-child(2){
+            .invoice--small .invoice-text-row:nth-child(2) {
                 justify-content: space-between;
             }
 
-            .invoice--small .invoice-text-row:last-child{
+            .invoice--small .invoice-text-row:last-child {
                 display: none;
             }
 
-            .invoice--small .he-dots-container{
-                display:none;
+            .invoice--small .he-dots-container {
+                display: none;
             }
 
-            .he-dots-container{
-                display:flex;
-                flex-flow:row wrap;
+            .he-dots-container {
+                display: flex;
+                flex-flow: row wrap;
                 justify-content: flex-end;
             }
 
             paper-listbox {
-                outline:0;
+                outline: 0;
                 --paper-listbox-selected-item: {
-                    color:var(--app-text-color-light);
-                    background:var(--app-primary-color);
+                    color: var(--app-text-color-light);
+                    background: var(--app-primary-color);
                 };
-                --paper-listbox-disabled-color:{
+                --paper-listbox-disabled-color: {
                     color: red;
                 };
 
-                background:transparent;
+                background: transparent;
                 padding: 0;
             }
 
@@ -494,15 +497,15 @@
                 flex-direction: row;
                 justify-content: space-between;
                 align-items: center;
-                flex-wrap:nowrap;
+                flex-wrap: nowrap;
             }
 
-            .verifiedNmcl{
-               color: var(--app-status-color-ok);
-               height: 8px;
+            .verifiedNmcl {
+                color: var(--app-status-color-ok);
+                height: 8px;
             }
 
-            .unverifiedNmcl{
+            .unverifiedNmcl {
                 color: var(--app-status-color-nok);
                 height: 8px;
             }
@@ -541,7 +544,6 @@
                     font-weight: bold;
                 };
             }
-
 
             vaadin-grid.material .cell {
                 overflow: hidden;
@@ -585,12 +587,12 @@
                 transform: scale(0.8) rotate(180deg);
             }
 
-            .clearBtn{
+            .clearBtn {
                 height: 16px;
                 width: 16px;
             }
 
-            .nmclFavoriteCode{
+            .nmclFavoriteCode {
                 background-color: var(--app-secondary-color-dark);
                 margin: 0 5px 0 0;
                 color: var(--app-text-color-light);
@@ -601,34 +603,34 @@
                 padding-left: 8px;
             }
 
-            .tarificationError{
+            .tarificationError {
                 padding: 5px;
                 width: auto;
                 height: 20px;
                 color: var(--app-error-color);
             }
 
-            .tarificationBtnEnable{
+            .tarificationBtnEnable {
                 background-color: var(--app-status-color-ok);
             }
 
-            .tarificationBtnDisable{
+            .tarificationBtnDisable {
                 background-color: var(--app-background-color-darker);
             }
 
-            .tarificationBtnEnableWithWarning{
+            .tarificationBtnEnableWithWarning {
                 background-color: var(--app-status-color-pending);
             }
 
-            .invoiceBtnDisable{
+            .invoiceBtnDisable {
                 background-color: var(--app-background-color-darker);
             }
 
-            .invoiceBtnEnable{
+            .invoiceBtnEnable {
                 background-color: var(--app-status-color-ok);
             }
 
-            .infoDmg{
+            .infoDmg {
                 height: 16px;
                 width: 16px;
             }
@@ -640,14 +642,15 @@
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material">
                     <template is="dom-repeat" items="[[invoices]]">
-                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
+                                        id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
-                                    <label>[[item.invoiceDate]]</label>
+                                    <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
-                                    <h4>[[item.invoiceType]]</h4>
+                                    <h4>[[item.invoiceType]] [[item.sentMediumType]]</h4>
                                     <p>
                                         <template is="dom-repeat" items="[[item.invoicingCodes]]">
                                             [[item.code]],
@@ -670,23 +673,54 @@
                         </div>
                     </div>
                     <div class="flex-container">
-                        <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_type','Invoice type',language)]]" value="{{selectedInvoice.invoiceType}}" on-value-changed="analyzeInvoiceType"></vaadin-combo-box>
-                        <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]" value="{{selectedInvoice.invoiceReference}}"></paper-input>
-                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{returnDate(selectedInvoice.invoiceDate)}}" i18n="[[i18n]]"></vaadin-date-picker>
-                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}"></vaadin-combo-box>
+                        <vaadin-combo-box id="invoice-type" filtered-items="[[invoiceType]]"
+                                          item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
+                                          label="[[localize('inv_type','Invoice type',language)]]"
+                                          value="{{selectedInvoice.invoiceType}}"
+                                          on-value-changed=""></vaadin-combo-box>
+                        <vaadin-combo-box id="invoice-mode" filtered-items="[[sentMediumType]]"
+                                          item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
+                                          label="[[localize('inv_smt','Sent Medium Type',language)]]"
+                                          value="{{selectedInvoice.sentMediumType}}"
+                                          on-value-changed="analyzeMediumType"></vaadin-combo-box>
+                        <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]"
+                                     value="{{selectedInvoice.invoiceReference}}"></paper-input>
+                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]"
+                                            value="{{invoiceDateAsString}}" i18n="[[i18n]]"></vaadin-date-picker>
+                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]"
+                                          item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
+                                          label="[[localize('inv_per','Invoice period',language)]]"
+                                          value="{{selectedInvoice.invoicePeriod}}"></vaadin-combo-box>
                     </div>
-                    <template is="dom-if" if="[[_checkInvoiceType]]">
+                    <template is="dom-if" if="[[_checkInvoiceMediumType]]">
                         <div class="flex-container">
                             <div id="invoice-creditNote">
-                               <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>[[localize('inv_cr_no','Credit note',language)]]<br/>
-                               <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>[[localize('inv_llp','Lifting limitation period',language)]]
-                           </div>
-                           <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]" item-label-path="label.[[language]]" item-value-path="id" on-value-changed="analyzeCareProviderType" label="[[localize('inv_care_prov_ty','Care provider type',language)]]" value="{{selectedInvoice.careProviderType}}"></vaadin-combo-box>
-                           <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
-                               <paper-input id="invoice-nihiiTrainee" label="[[localize('train_nihii','NIHII trainee',language)]]" value="{{selectedInvoice.internshipNihii}}"></paper-input>
-                           </template>
-                            <vaadin-combo-box id="invoice-thirdPartyJustification" filtered-items="[[thirdPartyJustification]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_tpj','Third party justification',language)]]" value="{{selectedInvoice.thirdPartyReference}}" on-value-changed=""></vaadin-combo-box>
-                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]" value="{{selectedInvoice.gnotionNihii}}"></paper-input><iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]" class="infoDmg"></iron-icon>
+                                <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>
+                                [[localize('inv_cr_no','Credit note',language)]]<br/>
+                                <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>
+                                [[localize('inv_llp','Lifting limitation period',language)]]
+                            </div>
+                            <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]"
+                                              item-label-path="label.[[language]]" item-value-path="id"
+                                              on-value-changed="analyzeCareProviderType"
+                                              label="[[localize('inv_care_prov_ty','Care provider type',language)]]"
+                                              value="{{selectedInvoice.careProviderType}}"></vaadin-combo-box>
+                            <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
+                                <paper-input id="invoice-nihiiTrainee"
+                                             label="[[localize('train_nihii','NIHII trainee',language)]]"
+                                             value="{{selectedInvoice.internshipNihii}}"></paper-input>
+                            </template>
+                            <vaadin-combo-box id="invoice-thirdPartyJustification"
+                                              filtered-items="[[thirdPartyJustification]]"
+                                              item-label-path="label.[[language]]" item-value-path="id"
+                                              on-filter-changed=""
+                                              label="[[localize('inv_tpj','Third party justification',language)]]"
+                                              value="{{selectedInvoice.thirdPartyReference}}"
+                                              on-value-changed=""></vaadin-combo-box>
+                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
+                                         value="{{selectedInvoice.gnotionNihii}}"></paper-input>
+                            <iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]"
+                                       class="infoDmg"></iron-icon>
                         </div>
                     </template>
                 </div>
@@ -699,11 +733,13 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material" active-item="{{activeNmclItem}}" on-tap="_showDetail">
+                                <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
+                                             active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
-                                                <iron-icon icon="vaadin:circle" class$="[[getNmclColorStatus(item.valid)]]"></iron-icon>
+                                                <iron-icon icon="vaadin:circle"
+                                                           class$="[[getNmclColorStatus(item.valid)]]"></iron-icon>
                                             </div>
                                         </template>
                                     </vaadin-grid-column>
@@ -725,7 +761,8 @@
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="60px">
                                         <template class="header">
-                                            <div class="cell numeric">[[localize('tot_pat','Patient fees',language)]]</div>
+                                            <div class="cell numeric">[[localize('tot_pat','Patient fees',language)]]
+                                            </div>
                                         </template>
                                         <template>
                                             <div class="cell numeric">[[item.patientIntervention]]</div>
@@ -734,7 +771,8 @@
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="60px">
                                         <template class="header">
-                                            <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]</div>
+                                            <div class="cell numeric">[[localize('reimb','Reimbursement',language)]]
+                                            </div>
                                         </template>
                                         <template>
                                             <div class="cell numeric">[[item.reimbursement]]</div>
@@ -775,7 +813,9 @@
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
-                                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.tarificationId]]" on-tap="_deleteNmclCode"></iron-icon>
+                                                <iron-icon icon="clear" class="clearBtn"
+                                                           data-item$="[[item.tarificationId]]"
+                                                           on-tap="_deleteNmclCode"></iron-icon>
                                             </div>
                                         </template>
                                     </vaadin-grid-column>
@@ -788,13 +828,20 @@
                         <template is="dom-repeat" items="[[favoriteCode]]">
                             <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
                                 [[item.code]]
-                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]" on-tap="_deleteFavoriteCode"></iron-icon>
+                                <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
+                                           on-tap="_deleteFavoriteCode"></iron-icon>
                             </paper-button>
                         </template>
                     </div>
                     <div class="invoice-nomenclature-code-option">
-                        <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr" item-value-path="id" on-filter-changed="_nmclSearch" label="[[localize('nmcl','Nomenclature',language)]]" value=""></vaadin-combo-box>
-                        <vaadin-combo-box id="code-type" filtered-items="[[codeType]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('code_type','Code type',language)]]" value="{{selectedCodeType}}" on-value-changed=""></vaadin-combo-box>
+                        <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
+                                          item-value-path="id" on-filter-changed="_nmclSearch"
+                                          label="[[localize('nmcl','Nomenclature',language)]]"
+                                          value=""></vaadin-combo-box>
+                        <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
+                                          item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
+                                          label="[[localize('code_type','Code type',language)]]"
+                                          value="{{selectedMediumCodeType}}"></vaadin-combo-box>
                         <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
                         <paper-icon-button icon="icons:save" on-tap="_addFavoriteCode"></paper-icon-button>
                     </div>
@@ -807,30 +854,55 @@
                     </div>
                     <template is="dom-if" if="[[isTarificationError]]">
                         <template is="dom-repeat" items="[[tarificationError]]">
-                            <div class="tarificationError">[[item.code]]: [[_getErrorMsg(item, language)]] ([[item.value]])</div>
+                            <div class="tarificationError">[[item.code]]: [[_getErrorMsg(item, language)]]
+                                ([[item.value]])
+                            </div>
                         </template>
                     </template>
                     <template is="dom-if" if="[[isDetailNmcl]]">
                         <div class="flex-container-nmcl">
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('co','Code',language)]]" value="{{activeNmclItem.code}}" readonly></paper-input>
-                            <paper-input class="flex-container-descr-nmcl-row" label="[[localize('lab','Label',language)]]" value="{{activeNmclItem.label}}" readonly></paper-input>
+                            <paper-input class="flex-container-nmcl-row" label="[[localize('co','Code',language)]]"
+                                         value="{{activeNmclItem.code}}" readonly></paper-input>
+                            <paper-input class="flex-container-descr-nmcl-row"
+                                         label="[[localize('lab','Label',language)]]" value="{{activeNmclItem.label}}"
+                                         readonly></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row" label="[[localize('tot_pat','Patient fee',language)]]" value="{{activeNmclItem.patientIntervention}}"></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row" label="[[localize('reimb','Reimbursement',language)]]" value="{{activeNmclItem.reimbursement}}"></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row" label="[[localize('extra','Extra',language)]]" value="{{activeNmclItem.doctorSupplement}}"></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row" label="[[localize('tot','Fee',language)]]" value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
+                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                                         label="[[localize('tot_pat','Patient fee',language)]]"
+                                         value="{{activeNmclItem.patientIntervention}}"></paper-input>
+                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                                         label="[[localize('reimb','Reimbursement',language)]]"
+                                         value="{{activeNmclItem.reimbursement}}"></paper-input>
+                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                                         label="[[localize('extra','Extra',language)]]"
+                                         value="{{activeNmclItem.doctorSupplement}}"></paper-input>
+                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                                         label="[[localize('tot','Fee',language)]]"
+                                         value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
                         </div>
                         <div class="flex-container-nmcl">
-                            <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row" label="[[localize('prescriber','Prescriber',language)]]" filtered-items="[[prescriberType]]" item-label-path="label.[[language]]" item-value-path="id" value="{{activeNmclItem.prescriberNorm}}" on-value-changed="_checkIfPrescriberIsNeeded"></vaadin-combo-box>
+                            <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
+                                              label="[[localize('prescriber','Prescriber',language)]]"
+                                              filtered-items="[[prescriberType]]" item-label-path="label.[[language]]"
+                                              item-value-path="id" value="{{activeNmclItem.prescriberNorm}}"
+                                              on-value-changed="_checkIfPrescriberIsNeeded"></vaadin-combo-box>
                             <template is="dom-if" if="[[isPrescriberIsNeeded]]">
-                                <paper-input class="flex-container-nmcl-row" label="[[localize('prescriber_nihii','Prescriber nihii',language)]]" value="{{activeNmclItem.prescriberNihii}}"></paper-input>
+                                <paper-input class="flex-container-nmcl-row"
+                                             label="[[localize('prescriber_nihii','Prescriber nihii',language)]]"
+                                             value="{{activeNmclItem.prescriberNihii}}"></paper-input>
                             </template>
                         </div>
                         <div class="flex-container-nmcl">
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('valid','Validation',language)]]" value="{{activeNmclItem.valid}}" readonly></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('fin_con','Financial contract',language)]]" value="{{activeNmclItem.contract}}" readonly></paper-input>
-                            <paper-input class="flex-container-nmcl-row" label="[[localize('inv_tpj','Justification TP',language)]]" value="{{activeNmclItem.insuranceJustification}}" readonly></paper-input>
+                            <paper-input class="flex-container-nmcl-row"
+                                         label="[[localize('valid','Validation',language)]]"
+                                         value="{{activeNmclItem.valid}}" readonly></paper-input>
+                            <paper-input class="flex-container-nmcl-row"
+                                         label="[[localize('fin_con','Financial contract',language)]]"
+                                         value="{{activeNmclItem.contract}}" readonly></paper-input>
+                            <paper-input class="flex-container-nmcl-row"
+                                         label="[[localize('inv_tpj','Justification TP',language)]]"
+                                         value="{{activeNmclItem.insuranceJustification}}" readonly></paper-input>
                         </div>
                     </template>
 
@@ -840,22 +912,32 @@
 
                     <template is="dom-if" if="[[!isTarificationMcnError]]">
                         <template is="dom-if" if="[[npi]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">[[localize('eTarif','Validation eTarif',language)]]</paper-button>
+                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">
+                                [[localize('eTarif','Validation eTarif',language)]]
+                            </paper-button>
                         </template>
                         <template is="dom-if" if="[[!npi]]">
-                            <paper-button on-tap="" class="tarificationBtnDisable">[[localize('eTarif','Validation eTarif',language)]]</paper-button>
+                            <paper-button on-tap="" class="tarificationBtnDisable">[[localize('eTarif','Validation
+                                eTarif',language)]]
+                            </paper-button>
                         </template>
                     </template>
 
                     <template is="dom-if" if="[[isTarificationMcnError]]">
-                        <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">[[localize('eTarif','Validation eTarif',language)]]</paper-button>
+                        <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">
+                            [[localize('eTarif','Validation eTarif',language)]]
+                        </paper-button>
                     </template>
 
                     <template is="dom-if" if="[[isNmclVerified]]">
-                        <paper-button on-tap="_createInvoice" class="invoiceBtnEnable">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
+                        <paper-button on-tap="_createInvoice" class="invoiceBtnEnable">
+                            [[localize('val_invoice','Justificatory + create invoice',language)]]
+                        </paper-button>
                     </template>
                     <template is="dom-if" if="[[!isNmclVerified]]">
-                        <paper-button on-tap="" class="invoiceBtnDisable">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
+                        <paper-button on-tap="" class="invoiceBtnDisable">[[localize('val_invoice','Justificatory +
+                            create invoice',language)]]
+                        </paper-button>
                     </template>
                 </div>
             </div>
@@ -863,13 +945,13 @@
 
     </template>
     <script>
-        import * as models from 'icc-api/dist/icc-api/model/models';
-        import moment from 'moment/src/moment';
+        import * as models from 'icc-api/dist/icc-api/model/models'
+        import moment from 'moment/src/moment'
         import * as evaljs from "evaljs"
 
         class HtPatInvoicingDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
-                return 'ht-pat-invoicing-dialog';
+                return 'ht-pat-invoicing-dialog'
             }
 
             static get properties() {
@@ -895,7 +977,7 @@
                         type: Object,
                         value: null
                     },
-                    resources:{
+                    resources: {
                         type: Object
                     },
                     opened: {
@@ -904,35 +986,47 @@
                     },
                     invoiceType: {
                         type: Array,
-                        value : () => [
+                        value: () => [
                             {
-                                id   : "efact",
-                                label: {"fr": "eFact", "nl": "eFact", "en": "eFact"}
+                                id: "patient",
+                                label: {"fr": "Patient", "nl": "Patient", "en": "Patient"}
                             },
                             {
-                                id   : "eattest",
-                                label: {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
+                                id: "mutualfund",
+                                label: {"fr": "Mutuelle", "nl": "Mutual", "en": "Mutual"}
                             },
                             {
-                                id   : "other",
-                                label: {"fr": "Autre", "nl": "Anders", "en": "Other"}
+                                id: "payingagency",
+                                label: {"fr": "Autre organisme", "nl": "Anders", "en": "Paying agency"}
                             }
                         ]
                     },
-                    codeType: {
+                    sentMediumType: {
                         type: Array,
-                        value : () => [
+                        value: () => [
                             {
-                                id   : "efact",
-                                label: {"fr": "eFact", "nl": "eFact", "en": "eFact"}
+                                id: "cdrom",
+                                label: {"fr": "cdrom", "nl": "cdrom", "en": "cdrom"}
                             },
                             {
-                                id   : "eattest",
+                                id: "eattest",
                                 label: {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
                             },
                             {
-                                id   : "other",
-                                label: {"fr": "Autre", "nl": "Anders", "en": "Other"}
+                                id: "efact",
+                                label: {"fr": "eFact", "nl": "eFact", "en": "eFact"}
+                            },
+                            {
+                                id: "email",
+                                label: {"fr": "Email", "nl": "Email", "en": "Email"}
+                            },
+                            {
+                                id: "mediprima",
+                                label: {"fr": "Mediprima", "nl": "Mediprima", "en": "Mediprima"}
+                            },
+                            {
+                                id: "paper",
+                                label: {"fr": "Papier", "nl": "Paper", "en": "Paper"}
                             }
                         ]
                     },
@@ -940,68 +1034,88 @@
                         type: Array,
                         value: () => [
                             {
-                                id : 0,
-                                label : {"fr" : "Semaine", "nl" : "Week", "en" : "Week"}
+                                id: 0,
+                                label: {"fr": "Semaine", "nl": "Week", "en": "Week"}
                             },
                             {
-                                id : 1,
-                                label : {"fr" : "Nuit", "nl" : "Nacht", "en" : "Night"}
+                                id: 1,
+                                label: {"fr": "Nuit", "nl": "Nacht", "en": "Night"}
                             },
                             {
-                                id : 2,
-                                label : {"fr" : "Weekend", "nl" : "Weekend", "en" : "Weekend"}
+                                id: 2,
+                                label: {"fr": "Weekend", "nl": "Weekend", "en": "Weekend"}
                             },
                             {
-                                id : 3,
-                                label : {"fr" : "Jour férié", "nl" : "Vakantie", "en" : "Public holiday"}
+                                id: 3,
+                                label: {"fr": "Jour férié", "nl": "Vakantie", "en": "Public holiday"}
                             }
                         ]
                     },
-                    careProviderType:{
+                    careProviderType: {
                         type: Array,
                         value: () => [
                             {
-                                id : "persphysician",
-                                label : {"fr" : "Médecin", "nl" : "Arts", "en" : "Physician"}
+                                id: "persphysician",
+                                label: {"fr": "Médecin", "nl": "Arts", "en": "Physician"}
                             },
                             {
-                                id : "traineeDoctor",
-                                label : {"fr" : "Médecin stagiaire", "nl" : "Stagiair arts", "en" : "Trainee physician"}
+                                id: "traineeDoctor",
+                                label: {"fr": "Médecin stagiaire", "nl": "Stagiair arts", "en": "Trainee physician"}
                             }
                         ]
                     },
-                    prescriberType:{
+                    prescriberType: {
                         type: Array,
                         value: () => [
                             {
-                                id : 0,
-                                label : {"fr" : "Pas de prescripteur", "nl" : "No prescriber", "en" : "No prescriber"},
-                                prescriber : false
+                                id: 0,
+                                label: {"fr": "Pas de prescripteur", "nl": "No prescriber", "en": "No prescriber"},
+                                prescriber: false
                             },
                             {
-                                id : 1,
-                                label : {"fr" : "La prestation peut être attribuée à un prescripteur", "nl" : "The benefit can be attributed to a prescriber", "en" : "The benefit can be attributed to a prescriber physician"},
-                                prescriber : true
+                                id: 1,
+                                label: {
+                                    "fr": "La prestation peut être attribuée à un prescripteur",
+                                    "nl": "The benefit can be attributed to a prescriber",
+                                    "en": "The benefit can be attributed to a prescriber physician"
+                                },
+                                prescriber: true
                             },
                             {
-                                id : 3,
-                                label : {"fr" : "Les prestations sont effectuées pour ses propres patients", "nl" : "The services are performed for his own patients", "en" : "The services are performed for his own patients"},
-                                prescriber : false
+                                id: 3,
+                                label: {
+                                    "fr": "Les prestations sont effectuées pour ses propres patients",
+                                    "nl": "The services are performed for his own patients",
+                                    "en": "The services are performed for his own patients"
+                                },
+                                prescriber: false
                             },
                             {
-                                id : 4,
-                                label : {"fr" : "Il s'agit de prestations ajoutées", "nl" : "These are added benefits", "en" : "These are added benefits"},
-                                prescriber : true
+                                id: 4,
+                                label: {
+                                    "fr": "Il s'agit de prestations ajoutées",
+                                    "nl": "These are added benefits",
+                                    "en": "These are added benefits"
+                                },
+                                prescriber: true
                             },
                             {
-                                id : 5,
-                                label : {"fr" : "La prestation peut être attribuée à un prescripteur et elle a été substituée", "nl" : "The benefit can be attributed to a prescriber and has been substituted", "en" : "The benefit can be attributed to a prescriber and has been substituted"},
-                                prescriber : true
+                                id: 5,
+                                label: {
+                                    "fr": "La prestation peut être attribuée à un prescripteur et elle a été substituée",
+                                    "nl": "The benefit can be attributed to a prescriber and has been substituted",
+                                    "en": "The benefit can be attributed to a prescriber and has been substituted"
+                                },
+                                prescriber: true
                             },
                             {
-                                id : 6,
-                                label : {"fr" : "La prestation est prescrite par différents prescripteurs et elle a été substituée", "nl" : "The benefit is prescribed by different prescribers and has been substituted", "en" : "The benefit is prescribed by different prescribers and has been substituted"},
-                                prescriber : true
+                                id: 6,
+                                label: {
+                                    "fr": "La prestation est prescrite par différents prescripteurs et elle a été substituée",
+                                    "nl": "The benefit is prescribed by different prescribers and has been substituted",
+                                    "en": "The benefit is prescribed by different prescribers and has been substituted"
+                                },
+                                prescriber: true
                             }
                         ]
                     },
@@ -1009,107 +1123,140 @@
                         type: Array,
                         value: () => [
                             {
-                                id : "0",
-                                label : {"fr" : "0. Pas de justification", "nl" : "0. No justification", "en" : "0. No justification"}
+                                id: "0",
+                                label: {
+                                    "fr": "0. Pas de justification",
+                                    "nl": "0. No justification",
+                                    "en": "0. No justification"
+                                }
                             },
                             {
-                                id : "1",
-                                label : {"fr" : "1. Décès, coma", "nl" : "1. Death, coma", "en" : "1. Death, coma"}
+                                id: "1",
+                                label: {"fr": "1. Décès, coma", "nl": "1. Death, coma", "en": "1. Death, coma"}
                             },
                             {
-                                id : "2",
-                                label : {"fr" : "2. Etat d'urgence financière", "nl" : "2. State of financial emergency", "en" : "2. State of financial emergency"}
+                                id: "2",
+                                label: {
+                                    "fr": "2. Etat d'urgence financière",
+                                    "nl": "2. State of financial emergency",
+                                    "en": "2. State of financial emergency"
+                                }
                             },
                             {
-                                id : "3",
-                                label : {"fr" : "3. BIM", "nl" : "3. BIM", "en" : "3. BIM"}
+                                id: "3",
+                                label: {"fr": "3. BIM", "nl": "3. BIM", "en": "3. BIM"}
                             },
                             {
-                                id : "4",
-                                label : {"fr" : "4. Prestations dispensées dans le cadre d'un accord prévoyant le paiement forfaitaire de cetaines prestations", "nl" : "4. Benefits provided under an agreement providing for the payment of certain benefits", "en" : "4. Benefits provided under an agreement providing for the payment of certain benefits"}
+                                id: "4",
+                                label: {
+                                    "fr": "4. Prestations dispensées dans le cadre d'un accord prévoyant le paiement forfaitaire de cetaines prestations",
+                                    "nl": "4. Benefits provided under an agreement providing for the payment of certain benefits",
+                                    "en": "4. Benefits provided under an agreement providing for the payment of certain benefits"
+                                }
                             },
                             {
-                                id : "5",
-                                label : {"fr" : "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes", "nl" : "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers", "en" : "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"}
+                                id: "5",
+                                label: {
+                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
+                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
+                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
+                                }
                             },
                             {
-                                id : "6",
-                                label : {"fr" : "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés", "nl" : "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled", "en" : "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled"}
+                                id: "6",
+                                label: {
+                                    "fr": "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés",
+                                    "nl": "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled",
+                                    "en": "6. Services provided in institutions specializing in the care of children, the elderly people or the disabled"
+                                }
                             },
                             {
-                                id : "7",
-                                label : {"fr" : "7. Prestations effectuées dans le cadre d'un service de garde de médecine générale", "nl" : "7. Services provided as part of a general medical care service", "en" : "7. Services provided as part of a general medical care service"}
+                                id: "7",
+                                label: {
+                                    "fr": "7. Prestations effectuées dans le cadre d'un service de garde de médecine générale",
+                                    "nl": "7. Services provided as part of a general medical care service",
+                                    "en": "7. Services provided as part of a general medical care service"
+                                }
                             },
                             {
-                                id : "8",
-                                label : {"fr" : "8. Statut affection chronique (sur base d'une attestation fournie par le patient)", "nl" : "8. Chronic condition", "en" : "8. Chronic condition"}
+                                id: "8",
+                                label: {
+                                    "fr": "8. Statut affection chronique (sur base d'une attestation fournie par le patient)",
+                                    "nl": "8. Chronic condition",
+                                    "en": "8. Chronic condition"
+                                }
                             },
                             {
-                                id : "p",
-                                label : {"fr" : "P. Patients palliatifs à domicile", "nl" : "P. Home palliative patients", "en" : "P. Home palliative patients"}
+                                id: "p",
+                                label: {
+                                    "fr": "P. Patients palliatifs à domicile",
+                                    "nl": "P. Home palliative patients",
+                                    "en": "P. Home palliative patients"
+                                }
                             }
                         ]
                     },
 
                     selectedInvoice: {
                         type: Object,
-                        value : () => {},
-                        observer: 'invoiceChange'
+                        value: () => {
+                        }
                     },
                     invoices: {
                         type: Object,
-                        value : () => {}
+                        value: () => {
+                        }
                     },
-                    totalInvoice:{
+                    totalInvoice: {
                         type: Object,
-                        value : () => ({
-                            reimbursement:          Number(0.00).toFixed(2),
-                            totalAmount:            Number(0.00).toFixed(2),
-                            patientIntervention:    Number(0.00).toFixed(2),
-                            doctorSupplement:       Number(0.00).toFixed(2)
+                        value: () => ({
+                            reimbursement: Number(0.00).toFixed(2),
+                            totalAmount: Number(0.00).toFixed(2),
+                            patientIntervention: Number(0.00).toFixed(2),
+                            doctorSupplement: Number(0.00).toFixed(2)
                         })
                     },
                     isThirdParty: {
                         type: Boolean,
                         value: true
                     },
-                    nmclListItem:{
+                    nmclListItem: {
                         type: Array,
                         value: () => []
                     },
                     nmclFilterValue: {
                         type: String
                     },
-                    npi:{
+                    npi: {
                         type: Boolean,
                         value: false
                     },
-                    favoriteCode:{
+                    favoriteCode: {
                         type: Object
                     },
-                    isTarificationError:{
+                    isTarificationError: {
                         type: Boolean,
                         value: false
                     },
-                    isDetailNmcl:{
+                    isDetailNmcl: {
                         type: Boolean,
                         value: false
                     },
-                    tarificationError:{
+                    tarificationError: {
                         type: Array
                     },
-                    activeNmclItem:{
+                    activeNmclItem: {
                         type: Object
                     },
-                    isPrescriberIsNeeded:{
+                    isPrescriberIsNeeded: {
                         type: Boolean,
                         value: false
                     },
-                    isNmclVerified:{
+                    isNmclVerified: {
                         type: Boolean,
                         value: false
                     },
-                    isTrainee:{
+                    isTrainee: {
                         type: Boolean,
                         value: false
                     },
@@ -1119,172 +1266,188 @@
                     },
                     hcp: {
                         type: Object,
-                        value : () => ({})
+                        value: () => ({})
                     },
-                    selectedCodeType: {
+                    selectedMediumCodeType: {
                         type: String
+                    },
+                    i18n: {
+                        type: Object
+                    },
+                    invoiceDateAsString: {
+                        type: String,
+                        observer: '_invoiceDateAsStringChanged'
                     }
 
-                };
+                }
 
             }
 
             static get observers() {
-               return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)'];
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)']
             }
 
-            getNmclColorStatus(status){
+            getNmclColorStatus(status) {
                 return status === true ? 'verifiedNmcl' : 'unverifiedNmcl'
 
             }
 
             ready() {
-                super.ready();
+                super.ready()
             }
 
-            _selectInvoice(e){
+            _selectInvoice(e) {
                 const selected = this.invoices.find(inv => inv.id === e.currentTarget.id)
+                this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
                 this.set('selectedInvoice', selected)
+                this.set('selectedMediumCodeType', selected.sentMediumType)
                 this.calculateTotalOfInvoice()
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
             }
 
             open() {
-                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient), this.api.invoice().newInstance(this.user, this.patient)]).then(([hcp, invoices, newInvoice]) => {
+                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
 
-                    newInvoice.invoiceDate                 = moment().format("YYYYMMDD")
-                    newInvoice.invoiceReference            = ""
-                    newInvoice.thirdPartyReference         = "0"
-                    newInvoice.invoiceType                 = "efact"
-                    newInvoice.invoicePeriod               = 0
-                    newInvoice.longDelayJustification      = 0
-                    newInvoice.gnotionNihii                = ""
-                    newInvoice.internshipNihii             = ""
-                    newInvoice.creditNote                  = false
-                    newInvoice.careProviderType            = "persphysician"
+                    const newInvoice = {}
+
+                    newInvoice.invoiceDate = moment().format("YYYYMMDD")
+                    newInvoice.invoiceReference = ""
+                    newInvoice.thirdPartyReference = "0"
+                    newInvoice.invoiceType = "mutualfund"
+                    newInvoice.sentMediumType = "efact"
+                    newInvoice.invoicePeriod = 0
+                    newInvoice.longDelayJustification = 0
+                    newInvoice.gnotionNihii = ""
+                    newInvoice.internshipNihii = ""
+                    newInvoice.creditNote = false
+                    newInvoice.careProviderType = "persphysician"
 
                     this.set('hcp', hcp)
+                    this.set('invoiceDateAsString', this.returnDatePickerDate(newInvoice.invoiceDate))
                     this.set('selectedInvoice', newInvoice)
+                    this.set('selectedMediumCodeType', newInvoice.sentMediumType)
                     invoices.push(this.selectedInvoice)
-                    this.set('invoices', invoices)
-
-
+                    this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
 
                     this.$.invoiceDialog.open()
                     this.getFavoritesCodes()
                 })
             }
 
-            _closeDialog(){
-                this.$.invoiceDialog.close();
+            _closeDialog() {
+                this.$.invoiceDialog.close()
             }
 
-            _isTrainee(careProviderType){
+            _isTrainee(careProviderType) {
                 return careProviderType === "persphysician" ? false : true
             }
 
-            _checkInvoiceType(){
-                return this.selectedInvoice.invoiceType === "efact" ? true : false
+            _checkInvoiceMediumType() {
+                return this.selectedInvoice.sentMediumType === "efact" ? true : false
             }
 
-            getFavoritesCodes(){
+            getFavoritesCodes() {
                 const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
 
-                if(preferedCode && preferedCode.typedValue){
+                if (preferedCode && preferedCode.typedValue) {
                     const code = JSON.parse(preferedCode.typedValue.stringValue)
 
-                    this.api.tarification().getTarifications(new models.ListOfIdsDto({ ids: code.cs.map(c => c)})).then(t => {
+                    this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: code.cs.map(c => c)})).then(t => {
                         this.set("favoriteCode", t)
                     })
                 }
             }
 
-            _isCreditNote(e){
+            _isCreditNote(e) {
                 this.set('selectedInvoice.creditNote', e.target.checked)
             }
 
-            _isLiftingLimitationPeriod(e){
+            _isLiftingLimitationPeriod(e) {
                 this.set('selectedInvoice.longDelayJustification', e.target.checked)
             }
 
-            analyzeInvoiceType(e){
-                this.set('selectedCodeType', e.detail.value)
+            analyzeMediumType(e) {
+                this.set('selectedMediumCodeType', e.detail.value)
                 return e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
 
-            _nmclSearch(e){
-                let latestSearchValue = e && e.detail.value;
-                this.latestSearchValue = latestSearchValue;
+            _nmclSearch(e) {
+                let latestSearchValue = e && e.detail.value
+                this.latestSearchValue = latestSearchValue
                 if (!latestSearchValue || latestSearchValue.length < 2) {
-                    console.log("Cancelling empty search");
-                    this.set('nmclListItem', []);
-                    return;
+                    console.log("Cancelling empty search")
+                    this.set('nmclListItem', [])
+                    return
                 }
                 this._nmclDataProvider() && this._nmclDataProvider().filter(latestSearchValue).then(res => {
                     if (latestSearchValue !== this.latestSearchValue) {
-                        console.log("Cancelling obsolete search");
-                        return;
+                        console.log("Cancelling obsolete search")
+                        return
                     }
-                    this.set('nmclListItem', res.rows);
-                });
+                    this.set('nmclListItem', res.rows)
+                })
             }
 
-            _nmclDataProvider(){
+            _nmclDataProvider() {
                 return {
                     filter: function (nmclFilterValue) {
-                        let count = 10;
+                        let count = 10
                         return Promise.all([this.api.tarification().findPaginatedTarificationsByLabel('be', 'INAMI-RIZIV', 'fr', nmclFilterValue, null, count)]).then(results => {
-                            const nmclList = results[0];
-                            const filtered = _.flatten(nmclList.rows.map(nmcl => ({id: nmcl.id, descr: nmcl.code+': '+nmcl.label[this.language], code: nmcl.code , label : nmcl.label, valorisations: nmcl.valorisations})));
-                            return { totalSize: filtered.length, rows: filtered};
-                        });
+                            const nmclList = results[0]
+                            const filtered = _.flatten(nmclList.rows.map(nmcl => ({
+                                id: nmcl.id,
+                                descr: nmcl.code + ': ' + nmcl.label[this.language],
+                                code: nmcl.code,
+                                label: nmcl.label,
+                                valorisations: nmcl.valorisations
+                            })))
+                            return {totalSize: filtered.length, rows: filtered}
+                        })
 
                     }.bind(this)
-                };
+                }
 
             }
 
-            _getDescription(label){
+            _getDescription(label) {
                 return label[this.language]
             }
 
-            _addNmcl(e){
+            _addNmcl(e) {
 
                 this.set("isTarificationError", false)
                 this.set('isDetailNmcl', false)
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
 
-                if(this.$['nmcl-search'].selectedItem || e.target.dataset.item){
+                if (this.$['nmcl-search'].selectedItem || e.target.dataset.item) {
 
                     const nmcl = (e.target.dataset.item) ? JSON.parse(e.target.dataset.item) : this.$['nmcl-search'].selectedItem
 
-                    let invoicingCodes = this.selectedInvoice.invoicingCodes
-
                     const newNmcl = {
-                        code:                       nmcl.code,
-                        contactId:                  this.currentContact.id,
-                        tarificationId:             nmcl.id,
-                        label:                      nmcl.label[this.language],
-                        totalAmount:                Number(0.00).toFixed(2),
-                        reimbursement:              Number(0.00).toFixed(2),
-                        patientIntervention:        Number(0.00).toFixed(2),
-                        doctorSupplement:           Number(0.00).toFixed(2),
-                        units:                      1,
-                        canceled:                   false,
-                        accepted:                   false,
-                        pending:                    false,
-                        resent:                     false,
-                        dateCode:                   moment().format("YYYYMMDD"),
-                        prescriberNeeded:           false,
-                        isRelativePrestation:       false,
-                        valid:                      false,
-                        id:                         this.api.crypto().randomUuid(),
-                        prescriberNihii:            null,
-                        prescriberNorm:             0
+                        code: nmcl.code,
+                        contactId: this.currentContact.id,
+                        tarificationId: nmcl.id,
+                        label: nmcl.label[this.language],
+                        totalAmount: Number(0.00).toFixed(2),
+                        reimbursement: Number(0.00).toFixed(2),
+                        patientIntervention: Number(0.00).toFixed(2),
+                        doctorSupplement: Number(0.00).toFixed(2),
+                        units: 1,
+                        canceled: false,
+                        accepted: false,
+                        pending: false,
+                        resent: false,
+                        dateCode: moment().format("YYYYMMDD"),
+                        prescriberNeeded: false,
+                        isRelativePrestation: false,
+                        valid: false,
+                        id: this.api.crypto().randomUuid(),
+                        prescriberNihii: null,
+                        prescriberNorm: 0
 
                     }
-                    const ins = this.patient.insurabilities.find(i=>!i.endDate)
+                    const ins = this.patient.insurabilities.find(i => !i.endDate)
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
 
@@ -1292,59 +1455,77 @@
                     const convention = this.hcp.convention
 
 
-                    const env = new evaljs.Environment({patient:{preferentialstatus:!!ins.parameters.preferentialstatus, age: age, dmg: (dmg && dmg.referral) ? !!dmg.referral : false, chronical:!!ins.parameters.chronicalDisease}, hcp: {trainee: trainee, convention: convention}})
+                    const env = new evaljs.Environment({
+                        patient: {
+                            preferentialstatus: (ins && ins.parameters) ? !!ins.parameters.preferentialstatus : false,
+                            age: age,
+                            dmg: (dmg && dmg.referral) ? !!dmg.referral : false,
+                            chronical: (ins && ins.parameters) ? !!ins.parameters.chronicalDisease : false
+                        }, hcp: {trainee: trainee, convention: convention}
+                    })
 
                     nmcl.valorisations.map(val => {
                         const gen = (env.gen(val.predicate)())
-                        let status = {done:false}
+                        let status = {done: false}
 
-                        while(!status.done) {
+                        while (!status.done) {
                             status = gen.next()
                         }
 
-                        if(status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)){
-                            newNmcl.totalAmount =           Number(val.totalAmount).toFixed(2)
-                            newNmcl.reimbursement =         Number(val.reimbursement).toFixed(2)
-                            newNmcl.patientIntervention =   Number(val.patientIntervention).toFixed(2)
+                        if (status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)) {
+                            newNmcl.totalAmount = Number(val.totalAmount).toFixed(2)
+                            newNmcl.reimbursement = Number(val.reimbursement).toFixed(2)
+                            newNmcl.patientIntervention = Number(val.patientIntervention).toFixed(2)
                         }
                     })
 
-                    invoicingCodes.push(newNmcl)
+                    this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
 
-                    this.api.invoice().appendCodes(this.user.id, this.selectedCodeType, this.patient.insurabilities[0].insuranceId, this.patient.secretForeignKeys, null, 0, invoicingCodes).then(inv => {
+                        const patientKeys = secretForeignKeys.join(",")
 
-                        inv.map(invoice => {
+                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
 
-                            if(!invoice.id){
+                            inv.map(invoice => {
+                                if (!invoice.id) {
+                                    invoice.invoiceDate = this.selectedInvoice.invoiceDate
+                                    invoice.invoiceReference = this.selectedInvoice.invoiceReference
+                                    invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
+                                    invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
+                                    invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
+                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii
+                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii
+                                    invoice.creditNote = this.selectedInvoice.creditNote
+                                    invoice.careProviderType = this.selectedInvoice.careProviderType
 
-                                invoice.id                          = this.selectedInvoice.id
-                                invoice.invoiceDate                 = this.selectedInvoice.invoiceDate
-                                invoice.invoiceReference            = this.selectedInvoice.invoiceReference
-                                invoice.thirdPartyReference         = this.selectedInvoice.thirdPartyReference
-                                invoice.invoicePeriod               = this.selectedInvoice.invoicePeriod
-                                invoice.longDelayJustification      = this.selectedInvoice.longDelayJustification
-                                invoice.gnotionNihii                = this.selectedInvoice.gnotionNihii
-                                invoice.internshipNihii             = this.selectedInvoice.internshipNihii
-                                invoice.creditNote                  = this.selectedInvoice.creditNote
-                                invoice.careProviderType            = this.selectedInvoice.careProviderType
-                                invoice.delegations                 = this.selectedInvoice.delegations
+                                    this.api.invoice().newInstance(this.user, this.patient, invoice)
+                                        .then(invoice => this.api.invoice().createInvoice(invoice))
+                                        .then(invoice => {
+                                            this.set('selectedInvoice', invoice)
+                                            this.$['nmclGrid'].clearCache()
+                                            this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                                            this.calculateTotalOfInvoice()
+                                            console.log(this.selectedInvoice)
+                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                                        })
+                                }else{
+                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                        this.set('invoices', invoices)
+                                        const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
+                                        this.set('selectedInvoice', selectedInvoice)
+                                        this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                                        this.calculateTotalOfInvoice()
+                                    })
+                                }
 
-                                this.api.invoice().createInvoice(this.selectedInvoice).then(invoice => {
-                                    this.set('selectedInvoice', invoice)
-                                    this.$['nmclGrid'].clearCache()
-                                    this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                                    this.calculateTotalOfInvoice()
-                                    console.log(this.selectedInvoice)
-                                })
-                            }
+                            })
                         })
                     })
                 }
             }
 
 
-            _addFavoriteCode(){
-                if(this.$['nmcl-search'].selectedItem) {
+            _addFavoriteCode() {
+                if (this.$['nmcl-search'].selectedItem) {
 
                     const newCode = this.$['nmcl-search'].selectedItem
                     const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
@@ -1354,7 +1535,7 @@
 
                         let existingCode = code.cs.find(c => c === newCode.id)
 
-                        if(!existingCode){
+                        if (!existingCode) {
                             code.cs.push(newCode.id)
 
                             preferedCode.typedValue.stringValue = JSON.stringify(code)
@@ -1375,7 +1556,7 @@
                 }
             }
 
-            _deleteFavoriteCode(e){
+            _deleteFavoriteCode(e) {
                 const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
 
                 if (preferedCode && preferedCode.typedValue) {
@@ -1400,30 +1581,32 @@
 
             }
 
-            _verifyTarification(){
+            _verifyTarification() {
 
                 let nmclCode = []
 
                 this.selectedInvoice.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
 
-                if(this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "") {
+                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "") {
 
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId,this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
+                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
                             console.log(r)
+                            this.set('isDetailNmcl', false)
+                            this.set("tarificationError", null)
 
-                            if(r.errors.length > 0){
+                            if (r.errors.length > 0) {
                                 const errors = r.errors
                                 this.set("tarificationError", errors)
                                 this.set("isTarificationError", true)
 
-                                if(errors[0].code === "999999"){
+                                if (errors[0].code === "999999") {
                                     this.set("isTarificationMcnError", true)
                                     this.set("isNmclVerified", true)
                                 }
 
-                            }else{
+                            } else {
                                 this.set("isTarificationError", false)
                                 this.set("isNmclVerified", true)
                                 this.set("isTarificationMcnError", false)
@@ -1433,12 +1616,12 @@
                                     let item = this.selectedInvoice.invoicingCodes.find(item => item.code === c)
                                     let itemInd = this.selectedInvoice.invoicingCodes.indexOf(item)
 
-                                    item.reimbursement                      = r.reimbursements[cind].amount
-                                    item.patientIntervention                = r.patientFees[cind].amount
-                                    item.totalAmount                        = r.fees[cind].amount
-                                    item.contract                           = r.financialContracts[cind]
-                                    item.valid                              = true
-                                    item.insuranceJustification             = r.justification
+                                    item.reimbursement = r.reimbursements[cind].amount
+                                    item.patientIntervention = r.patientFees[cind].amount
+                                    item.totalAmount = r.fees[cind].amount
+                                    item.contract = r.financialContracts[cind]
+                                    item.valid = true
+                                    item.insuranceJustification = r.justification
 
                                     this.set('selectedInvoice.invoicingCodes[itemInd]', item)
                                     this.$['nmclGrid'].clearCache()
@@ -1447,27 +1630,27 @@
                                 this.calculateTotalOfInvoice()
                                 console.log(this.selectedInvoice)
                             }
-                        }).catch((e)=>{
+                        }).catch((e) => {
                             console.log("Exception", e)
                         })
                     })
 
-                }else{
+                } else {
                     //Todo manage mandatory fields
                 }
             }
 
-            calculateTotalOfInvoice(){
-                let totalAmount              = 0
-                let patientIntervention      = 0
-                let reimbursement            = 0
-                let doctorSupplement         = 0
+            calculateTotalOfInvoice() {
+                let totalAmount = 0
+                let patientIntervention = 0
+                let reimbursement = 0
+                let doctorSupplement = 0
 
                 this.selectedInvoice.invoicingCodes.map(n => {
-                    totalAmount +=            Number(n.totalAmount)
-                    patientIntervention +=    Number(n.patientIntervention)
-                    reimbursement +=          Number(n.reimbursement)
-                    doctorSupplement +=       Number(n.doctorSupplement)
+                    totalAmount += Number(n.totalAmount)
+                    patientIntervention += Number(n.patientIntervention)
+                    reimbursement += Number(n.reimbursement)
+                    doctorSupplement += Number(n.doctorSupplement)
                 })
 
                 this.set('totalInvoice.totalAmount', Number(totalAmount).toFixed(2))
@@ -1476,32 +1659,32 @@
                 this.set('totalInvoice.doctorSupplement', Number(doctorSupplement).toFixed(2))
             }
 
-            _getErrorMsg(item, language){
+            _getErrorMsg(item, language) {
                 return language === "fr" ? item.msgFr : item.msgNl
             }
 
-            _showDetail(){
-                if(this.activeNmclItem){
+            _showDetail() {
+                if (this.activeNmclItem) {
                     const selected = this.activeNmclItem
                     this.set('isDetailNmcl', true)
-                }else{
+                } else {
                     this.set('isDetailNmcl', false)
                 }
             }
 
-            _checkIfPrescriberIsNeeded(e){
+            _checkIfPrescriberIsNeeded(e) {
 
-                if(e.detail.value === 0 || e.detail.value === 3){
-                    this.set("isPrescriberIsNeeded",false)
-                }else{
+                if (e.detail.value === 0 || e.detail.value === 3) {
+                    this.set("isPrescriberIsNeeded", false)
+                } else {
                     this.set("isPrescriberIsNeeded", true)
                 }
 
             }
 
-            _deleteNmclCode(e){
+            _deleteNmclCode(e) {
                 e.stopPropagation()
-                if(e.target.dataset.item){
+                if (e.target.dataset.item) {
                     //this.api.invoice().removeCodes(this.user.id, service, this.patient.secretForeignKeys, e.target.item.tarificationId
                     this.set('isDetailNmcl', false)
                     let tabNmcl = this.selectedInvoice.invoicingCodes
@@ -1514,31 +1697,37 @@
 
                     this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
 
-                    console.log(this.selectedInvoice.invoicingCodes)
+                    this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
+                        console.log(invoice)
+                        this.set('selectedInvoice', invoice)
+                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                    })
+
                     this.$['nmclGrid'].clearCache()
 
                     this.calculateTotalOfInvoice()
                 }
             }
 
-            analyzeCareProviderType(e){
-                if(e.detail.value === "traineeDoctor"){
-                    this.set("isTrainee",true)
-                }else{
+            analyzeCareProviderType(e) {
+                if (e.detail.value === "traineeDoctor") {
+                    this.set("isTrainee", true)
+                } else {
                     this.set("isTrainee", false)
                 }
             }
 
-            _createInvoice(){
+            _createInvoice() {
                 this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
                     console.log(invoice)
                     this.set('selectedInvoice', invoice)
+                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
                 })
             }
 
-            _invoicingCodeChange(){
+            _invoicingCodeChange() {
 
-                if(this.activeNmclItem) {
+                if (this.activeNmclItem) {
                     const code = this.selectedInvoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
                     const codeIdx = this.selectedInvoice.invoicingCodes.indexOf(code)
 
@@ -1551,11 +1740,29 @@
                 }
             }
 
-            returnDate(date){
-                return moment(date).format('YYYY-MM-DD')
+            returnDatePickerDate(date) {
+                return date ? ("" + date).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$1-$2-$3') : 'N/A'
+
             }
 
+            _formatInvoiceDate(date) {
+                return date ? ("" + date).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
+            }
+
+            datePickerChanged() {
+                console.log('datePickerChange')
+            }
+
+            _invoiceDateAsStringChanged(invoiceDateAsString) {
+                const dateInt = parseInt(invoiceDateAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
+                if (this.selectedInvoice && (this.selectedInvoice.invoiceDate !== dateInt)) {
+                    this.set('selectedInvoice.invoiceDate', dateInt)
+                }
+            }
+
+
         }
-        customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog);
+
+        customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
     </script>
 </dom-module>
