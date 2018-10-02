@@ -627,7 +627,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
-		location.replace(location.href.replace(/(.+?)\/#(\/main\/)?(\?.+)?/, `$1/#/pat/${target.dataset.id}/$3`));
+		location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${target.dataset.id}`));
 	}
 
 	openMessage(ev) {
@@ -635,7 +635,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		while (target && !target.dataset.id) {
 			target = target.parentNode;
 		}
-		location.replace(location.href.replace(/(.+?)\/#(\/main\/)?(\?.+)?/, `$1/#/msg/${target.dataset.id}/$3`));
+		location.replace(location.href.replace(/(.+?)#.*/, `$1#/msg/${target.dataset.id}`));
 	}
 
 }

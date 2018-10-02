@@ -21,7 +21,6 @@ package org.taktik.icure.entities.base;
 import java.util.Set;
 
 public interface HasTags {
-    Set<Code> getTags();
-
-    void setTags(Set<Code> tags);
+    Set<CodeStub> getTags();
+    void setTags(Set<CodeStub> tags);
 }

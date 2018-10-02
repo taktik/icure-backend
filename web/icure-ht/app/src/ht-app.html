@@ -789,7 +789,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
             setUrls() {
-                const params = _.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
+                const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
 
                 this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
@@ -798,12 +798,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ready() {
                 super.ready()
 
-
-                if (!this.route.__queryParams.token && !this.route.__queryParams.userId) {
-                    let fullHref = window.location.href.replace(/^(http.+?)(\/index.html\/?#?|\/#)(\/.+?)?(\?.+)?$/, '$1/#$3$4')
-                    if (fullHref !== window.location.href) {
-                        window.location.href = fullHref
-                    }
+                const url = new URL(window.location.href)
+                if (!url.hash || !url.hash.startsWith('#/')) {
+                    url.hash = '#/'
+                    window.location.replace(url.toString())
                 }
 
                 window.app = this
@@ -825,7 +823,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _userSaved(e) {
                 this.set('user', e.detail)
             }
-
 
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)

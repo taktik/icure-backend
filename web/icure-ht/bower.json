@@ -39,7 +39,7 @@
     "vaadin-combo-box": "^3.0.2",
     "vaadin-icons": "^4.1.0",
     "vaadin-date-picker": "^2.0.2",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.2.6",
     "promise-polyfill": "polymerlabs/promise-polyfill#^2.0.1",
     "iron-iconset": "^2.0.0",
     "simple-statistics": "^4.1.1",

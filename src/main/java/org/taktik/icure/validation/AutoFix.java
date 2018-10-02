@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.uuid.Generators;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeIdentification;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.security.CryptoUtils;
 import org.taktik.icure.utils.FuzzyValues;
@@ -37,9 +38,9 @@ public enum AutoFix {
 	CURRENTHCPID((b,v,sl)-> sl.getCurrentHealthcarePartyId()),
 	NOFIX((b,v,sl)->v),
 	NORMALIZECODE((b,v,sl)-> {
-		Code c = (Code) v;
-		String[] parts = c.getId().split("|");
+		CodeIdentification c = (CodeIdentification) v;
 		if (c.getId() != null) {
+			String[] parts = c.getId().split("|");
 			if (c.getType() == null) {
 				c.setType(parts[0]);
 			}
