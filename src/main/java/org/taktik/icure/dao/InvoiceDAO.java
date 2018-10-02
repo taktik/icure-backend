@@ -26,6 +26,8 @@ import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Invoice;
+import org.taktik.icure.entities.embed.InvoiceType;
+import org.taktik.icure.entities.embed.MediumType;
 
 public interface InvoiceDAO extends GenericDAO<Invoice> {
 	PaginatedList<Invoice> findByHcParty(String hcParty, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset);
@@ -37,6 +39,8 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 	List<Invoice> listByHcPartyPatientFk(String hcParty, Set<String> secretPatientKeys);
 	List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientFkUnsent(String hcParty, Set<String> secretPatientKeys);
+
+	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
 
 	List<Invoice> listByServiceIds(Set<String> serviceIds);
 
