@@ -1,0 +1,579 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../../bower_components/tk-token-field/tk-token-field.html">
+<link rel="import" href="../../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+
+<link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+
+
+
+<dom-module id="medication-selection-dialog">
+    <template>
+        <style>
+            paper-dialog {
+                width: 80%;
+            }
+
+            vaadin-grid {
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--app-primary-color);
+                    color: white;
+                };
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--app-primary-color);
+                    color: white;
+                };
+            }
+
+            paper-input {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            .modal-title {
+                background: var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .modal-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+            }
+
+            .modal-button--save {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+            }
+
+            paper-input {
+                --paper-input-container-focus-color: var(--app-primary-color);
+                --paper-input-container-label: {
+                    color:var(--app-text-color);
+                    opacity:1;
+                };
+            }
+
+            paper-tabs {
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
+            }
+
+            paper-tab {
+                --paper-tab-ink: var(--app-secondary-color);
+            }
+
+            paper-tab.iron-selected {
+                font-weight: bold;
+            }
+
+            paper-tab.iron-selected > iron-icon {
+                color: var(--app-secondary-color);
+            }
+
+            paper-dialog {
+                min-height: 480px;
+                min-width: 600px;
+                max-height: unset!important;
+                width: 80%;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .no-grid {
+                display: none;
+            }
+
+            .no-column{
+                display: none;
+            }
+
+            .column{
+                margin: 2px;
+            }
+
+            div.cheap {
+                color: #606060;
+            }
+
+
+            vaadin-grid {
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--app-primary-color);
+                    color: white;
+                };
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--app-primary-color);
+                    color: white;
+                };
+            }
+
+            .modal-title{
+                background:  var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .buttons{
+                position: absolute;
+                bottom: 0;
+                right: 12px;
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
+            }
+        </style>
+
+        <paper-dialog id="medication-selection" always-on-top="true">
+            <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
+            <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
+                <paper-tab name="medicinalProduct" on-tap="setMedicationType">
+                    [[localize('medication-by-product-name','By product name',language)]]
+                </paper-tab>
+                <paper-tab name="substanceProduct" on-tap="setMedicationType">
+                    [[localize('medication-by-molecule','By molecule',language)]]
+                </paper-tab>
+                <paper-tab name="compoundPrescription" on-tap="setMedicationType">
+                    [[localize('medication-compound','Compound prescription',language)]]
+                </paper-tab>
+            </paper-tabs>
+            <template is="dom-if" if="[[_isCompoundPrescription(medicationType)]]">
+                <paper-input-container always-float-label="true">
+                    <label slot="label">Compound Prescription</label>
+                    <iron-autogrow-textarea class="paper-input-input" slot="input" id="compoundPrescriptionText" value="{{compoundPrescriptionText}}"></iron-autogrow-textarea>
+                </paper-input-container>
+            </template>
+            <div class$="grid-container [[_noGridClass(medicationType)]]">
+                <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+
+                <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
+                    <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
+                        <vaadin-grid-column width="[[_columnWidth(column)]]">
+                            <template class="header">
+                                <vaadin-grid-sorter path="[[column.key]]">[[column.title]]</vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class$="cell frozen [[item.cheap]]">[[_cellContent(item, column)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                    </template>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <div></div>
+                        </template>
+                        <template>
+                            <div class$="cell frozen [[item.cheap]]"><img src$="[[drugPicture(item)]]"></div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button modal-button--cancel" dialog-dismiss on-tap="skip">[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+                <!--<paper-button class="modal-button modal-button--save" on-tap="getAlternatives">[[localize('get-alt','Alternatives',language)]]</paper-button>-->
+
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        import _ from 'lodash/lodash'
+        import accounting from '../../../../scripts/accounting';
+
+        class MedicationSelectionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'medication-selection-dialog'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    medicationType: {
+                        type: String,
+                        value: 'medicinalProduct'
+                    },
+                    compoundPrescriptionText: {
+                        type: String
+                    },
+                    value: {
+                        type: Array,
+                        notify: true,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    columnsDefinition: {
+                        type: Object,
+                        value: function () {
+                            return {
+                                substanceProduct: [{key: 'name', title: 'Name', size: '400px'}],
+                                medicinalProduct: [{key: 'name', title: 'Name', size: '400px'}, {
+                                    key: 'pricepatstd',
+                                    title: 'Price pat.'
+                                }, {key: 'pubprice', title: 'Price'}]
+                            };
+                        }
+                    },
+                    selectedMedicationFromList: {
+                        type: Object,
+                        value: null,
+                        observer: "_selectedMedicationFromListChanged"
+                    },
+                    selectedMedicationContentWithId: {
+                        type: Object,
+                        value: null,
+                        notify: true
+                    },
+
+                }
+            }
+
+            static get observers() {
+                return [
+                ];
+            }
+
+            constructor() {
+                super()
+            }
+
+            open() {
+                this.$['medication-selection'].open()
+            }
+
+            ready() {
+                super.ready()
+
+                let grid = this.$['entities-list'];
+
+                grid.lastParams = null; //Used to prevent double calls
+                grid.size = 0;
+                grid.pageSize = 50;
+                grid.dataProvider = (params, callback) => {
+                    const columns = this._getColumns(this.medicationType)
+                    const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || columns[0] && columns[0].key
+                    const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false
+
+                    const pageSize = params.pageSize || grid.pageSize
+                    const startIndex = (params.page || 0) * pageSize
+                    const endIndex = ((params.page || 0) + 1) * pageSize
+
+                    const thisParams = this.filterValue + "|" + sort + "|" + this.medicationType + "|" + (desc ? "<|" : ">|") + startIndex + ":" + pageSize + ":"
+
+                    let latestSearchValue = this.filterValue
+                    this.latestSearchValue = latestSearchValue
+                    if (!latestSearchValue || latestSearchValue.length < 2) {
+                        console.log("Cancelling empty search")
+                        this.setGridSize(grid, 0)
+                        callback([])
+                        return
+                    }
+
+                    console.log("Starting search for " + thisParams)
+
+                    const limit = endIndex || grid.pageSize
+                    const offset = params.index
+                    if (this.medicationType === 'substanceProduct') {
+                        this.api.bedrugs().getInnClusters(this.latestSearchValue, this.language, null, 0, 100).then(packs => {
+                            return {totalSize: packs.length, rows: (desc ? _.reverse(_.sortBy(packs, sort)) : _.sortBy(packs, sort)).slice(offset, limit)}
+                        }).then(function (res) {
+                            if (this.filterValue !== latestSearchValue) {
+                                console.log("Cancelling obsolete search")
+                                return
+                            }
+                            if (grid.size !== res.totalSize) {
+                                this.setGridSize(grid, res.totalSize)
+                            }
+                            grid.latestResults = _.slice(res.rows, startIndex, endIndex)
+                            callback(grid.latestResults)
+                        }.bind(this))
+                    }
+                    else {
+                        const fillCache = (minSize) => grid.drugsCache && grid.drugsCache.allItemsLoaded ? Promise.resolve(grid.drugsCache) : Promise.all([this.api.bedrugs().getMedecinePackages(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100),
+                            this.api.bedrugs().getMedecinePackagesFromIngredients(this.latestSearchValue, this.language, null, grid.drugsCacheUpperSearchIndex || 0, 100)])
+                            .then(([packs, packsIng]) => {
+
+                                const newItems = _.unionBy(packs, packsIng, 'id.id') //what to do when there are no newitems ?
+                                if (newItems.length > 0) {
+                                    grid.drugsCacheUpperSearchIndex = (grid.drugsCacheUpperSearchIndex || 0) + 100
+                                }
+                                return [(grid.drugsCache = _.sortBy(_.unionBy(grid.drugsCache || [], newItems, 'id.id'), 'name')), newItems.length]
+                            })
+                            .then(([cache, newItemsLength]) => {
+                                cache.allItemsLoaded = !newItemsLength
+                                return cache.length > minSize || !newItemsLength ? Promise.resolve(cache) : fillCache(minSize)
+                            })
+
+                        this.loadCheapAlternativesIfNeeded(this.selectedMedicationFromList).then(alternatives => {
+                            const cheapAlternativeSearchSeedIndex = this.cheapAlternativeSearchSeed ? grid.drugsCache.findIndex(mpp => mpp.id.id === this.cheapAlternativeSearchSeed.id.id) : -1
+                            const cacheEndIndex = cheapAlternativeSearchSeedIndex === -1 ? endIndex :
+                                (cheapAlternativeSearchSeedIndex < endIndex ? endIndex - alternatives.length : endIndex)
+                            ;((grid.drugsCache && grid.drugsCache.length >= cacheEndIndex) ? Promise.resolve(grid.drugsCache) : fillCache(cacheEndIndex)).then(cache => {
+                                this.setGridSize(grid, cache.length + alternatives.length)
+
+                                if (cheapAlternativeSearchSeedIndex === -1 || endIndex <= cheapAlternativeSearchSeedIndex) {
+                                    callback(cache.slice(startIndex, endIndex))
+                                } else if (cheapAlternativeSearchSeedIndex + alternatives.length < startIndex) {
+                                    callback(cache.slice(startIndex - alternatives.length, endIndex - alternatives.length))
+                                } else {
+                                    const fullVirtualDataSet = cache.map(it => it)
+                                    fullVirtualDataSet.splice(cheapAlternativeSearchSeedIndex + 1, 0, ...alternatives)
+                                    callback(fullVirtualDataSet.slice(startIndex, endIndex))
+                                }
+                            })
+                        })
+                    }
+                };
+            }
+
+            setGridSize(grid, size) {
+                console.log('setSize', size)
+                grid.set('size', size)
+            }
+
+            _cellContent(item, column) {
+                return column.key.indexOf("price") !== -1 ? accounting.formatMoney(_.get(item, column.key) / 100, "€", 2, " ", ",") :
+                    (column.key.indexOf("name") !== -1 && _.get(item, "cheap") && _.get(item, "cheap") === 'cheap' ? '\u2794 ' + _.get(item, column.key) :
+                        _.get(item, column.key));
+            }
+
+            _columnWidth(column) {
+                return column.size || "100px";
+            }
+
+            selectMedicationFromList(med) {
+                if (med.id) {
+                    this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
+                        this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
+                            "intendedname": med.name,
+                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
+                        })
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
+                            weekday: null,
+                            date: null,
+                            administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
+                        }])
+                        this.set("bufferUnit",mppInfos.gal.name)
+                        this.set("bufferQuantity",1)
+
+                    })
+                } else {
+                    if (med.inncluster) {
+                        this.set('selectedMedicationContentWithId.medicationValue.substanceProduct', {
+                            "intendedname": med.name,
+                            "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
+                        })
+                    } else {
+                        this.set('selectedMedicationContentWithId.medicationValue', {
+                            "compoundPrescription": med.name
+                        })
+                    }
+                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
+                        weekday: null,
+                        date: null,
+                        administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
+                    }])
+                    this.set("bufferUnit",this.localize('generic_unit','unit',language))
+                    this.set("bufferQuantity",1)
+                }
+                if (this.selectedMedicationContentWithId.isNew) {
+                    this.push('value',this.newMedication)
+                }
+                this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.selectedMedicationContentWithId, bubbles: true, composed: true}))
+            }
+
+            click(e) {
+                const selected = this.selectedMedicationFromList;
+
+                console.log('selected ' + selected + ' - ' + this.latestSelected);
+                if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
+                    this.select(this.latestSelected);
+                } else {
+                    if (selected) this.latestSelected = selected;
+                    this.inDoubleClick = true;
+
+                    //Trigger cheapAlternativeSearch
+                    if (this.selectedMedicationFromList && !this.selectedMedicationFromList.cheap) {
+                        const grid = this.$['entities-list']
+                        grid.clearCache();
+                    }
+
+                    setTimeout(() => {
+                        delete this.inDoubleClick;
+                    }, 500);
+                }
+            }
+
+            loadCheapAlternativesIfNeeded(searchSeed) {
+                if (searchSeed) {
+                    if (searchSeed.cheap) {
+                        searchSeed = this.cheapAlternativeSearchSeed
+                    }
+                    if (!searchSeed.id) {
+                        this.cheapAlternativeSearchSeed = null
+                        return Promise.resolve([])
+                    }
+                    this.cheapAlternativeSearchSeed = searchSeed
+                    return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
+                        .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1, mpp2) => (mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp => _.extend(_.extend({}, mpp), {cheap: 'cheap'})))
+                } else {
+                    this.cheapAlternativeSearchSeed = null
+                    return Promise.resolve([])
+                }
+            }
+
+            refresh() {
+                //Give the gui the time to update the field
+                setTimeout(function () {
+                    let currentValue = this.filterValue;
+
+                    if (this.latestSearchValue === currentValue) {
+                        return;
+                    }
+                    setTimeout(function () {
+                        if (currentValue === this.filterValue) {
+                            console.log("Triggering search for " + this.filterValue);
+
+                            this.selectedMedicationFromList = null
+                            this.cheapAlternativeSearchSeed = null
+
+                            const grid = this.$['entities-list']
+                            grid.drugsCache = null;
+                            grid.drugsCacheUpperSearchIndex = 0;
+                            grid.clearCache();
+                        } else {
+                            console.log("Skipping search for " + this.filterValue + " != " + currentValue);
+                        }
+                    }.bind(this), 500); //Wait for the user to stop typing
+                }.bind(this), 100);
+            }
+
+            confirm() {
+                if (this.compoundPrescriptionText) {
+                    this.select({name: this.compoundPrescriptionText})
+                } else if (this.selectedMedicationFromList) {
+                    this.select(this.selectedMedicationFromList);
+                }
+            }
+
+            skip() {
+            }
+
+            close() {
+                if (!this.customFrequencyTable) {
+                    this._setFrequencyList()
+                }
+
+                this.set('customFrequencyTable', false)
+                this.set('selectedMedicationContentWithId', null)
+                this.set('flagTableFrequency', false)
+            }
+
+            select(item) {
+                if (item) {
+                    this.selectMedicationFromList(item);
+                    this.$['medication-selection'].close();
+                }
+            }
+
+            _selectedMedicationFromListChanged(item) {
+                var grid = this.$['entities-list'];
+                grid.selectedItems = item ? [item] : [];
+            }
+
+            _indexOfDayPeriod(code) {
+                return this._dayPeriods.indexOf(code)
+            }
+
+            _getColumns(medicationType) {
+                return this.columnsDefinition[medicationType] || []
+            }
+
+            _isCompoundPrescription(medicationType) {
+                return medicationType === 'compoundPrescription';
+            }
+
+            _isMedicinalProduct(medicationType) {
+                return medicationType === 'medicinalProduct';
+            }
+
+            _noGridClass(medicationType) {
+                return this._isCompoundPrescription(medicationType) ? 'no-grid' : ''
+            }
+
+            _noColumnClass(medicationType) {
+                return this._isMedicinalProduct(medicationType) ? 'no-column' : ''
+            }
+
+            drugPicture(med) {
+                if (!med.rrsstate) {
+                    return require('../../../../images/Drug.None.gif')
+                }
+                if (med.rrsstate === 'R') {
+                    return require('../../../../images/Drug.NotReduced.gif')
+                } else if (med.rrsstate === 'B') {
+                    return require('../../../../images/Drug.NoAlternative.gif')
+                }
+                else if (med.rrsstate === 'G') {
+                    return require('../../../../images/Drug.Cheap.gif')
+                }
+                else {
+                    return require('../../../../images/Drug.None.gif')
+                }
+
+                //return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
+            }
+
+            _indexOfDayPeriod(code) {
+                return this._dayPeriods.indexOf(code)
+            }
+
+            _getColumns(medicationType) {
+                return this.columnsDefinition[medicationType] || []
+            }
+
+            _isCompoundPrescription(medicationType) {
+                return medicationType === 'compoundPrescription';
+            }
+
+            _isMedicinalProduct(medicationType) {
+                return medicationType === 'medicinalProduct';
+            }
+
+        }
+
+        customElements.define(MedicationSelectionDialog.is, MedicationSelectionDialog)
+    </script>
+</dom-module>

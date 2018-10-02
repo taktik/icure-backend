@@ -77,26 +77,7 @@ public class ICureFacade implements OpenApiFacade{
 	private SessionLogic sessionLogic;
 	private MapperFacade mapper;
 	private ApplicationContext context;
-
-	@ApiOperation(
-			value = "Shutdown Icure Application"
-	)
-	@POST
-	@Path("/shutdown")
-	public Response  shutdownApplication(){
-		logger.info("Recieved shutdown command");
-		new Thread(() -> {
-			try {
-				logger.info("Shutting down");
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			((ConfigurableApplicationContext) context).close();
-		}).start();
-		return Response.ok("true").build();
-	}
-
+	
 	@ApiOperation(
 			value = "Get version",
 			response = String.class

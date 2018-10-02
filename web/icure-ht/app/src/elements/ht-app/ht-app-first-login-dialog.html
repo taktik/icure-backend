@@ -139,7 +139,6 @@ class HtAppFirstLoginDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
     generateKey(){
         if(this.password !== "" && this.password === this.password_verif){
             this.set('passwordError', '');
-            var jsSha256 = require("js-sha256")
             var hash = sha256.create()
             hash.update(this.password)
             const passwordHash = hash.hex()

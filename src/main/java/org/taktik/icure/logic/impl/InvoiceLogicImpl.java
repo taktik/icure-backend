@@ -53,6 +53,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
@@ -177,14 +178,14 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
-	public List<Invoice> appendCodes(String hcPartyId, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime) {
-		if (type == InvoiceType.efact) {
+	public List<Invoice> appendCodes(String hcPartyId, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, MediumType sentMediumType, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime) {
+		if (sentMediumType == MediumType.efact) {
 			invoicingCodes.forEach(c->c.setPending(true));
 		}
 		final int invoiceGraceTimeInDays = invoiceGraceTime == null ? 0 : invoiceGraceTime;
 		Invoice selectedInvoice = (invoiceId != null) ? this.getInvoice(invoiceId) : null;
 		List<Invoice> invoices = selectedInvoice != null ? new ArrayList<>() : this.listByHcPartyPatientSksUnsent(hcPartyId,secretPatientKeys).stream().filter(i->
-				i.getInvoiceType() == type && (insuranceId == null ? i.getRecipientId() == null  : insuranceId.equals(i.getRecipientId()))
+				i.getInvoiceType() == type && i.getSentMediumType() == sentMediumType && (insuranceId == null ? i.getRecipientId() == null  : insuranceId.equals(i.getRecipientId()))
 		).collect(Collectors.toList());
 		if (selectedInvoice == null &&  invoices.isEmpty()) {
 			invoices = this.listByHcPartyRecipientIdsUnsent(hcPartyId,Collections.singleton(insuranceId)).stream().filter(i->
@@ -210,8 +211,9 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				Invoice newInvoice = new Invoice();
 				newInvoice.setInvoiceDate(invoicingCode.getDateCode()!=null?invoicingCode.getDateCode():System.currentTimeMillis());
 				newInvoice.setInvoiceType(type);
+				newInvoice.setSentMediumType(sentMediumType);
 				newInvoice.setRecipientId(insuranceId);
-				newInvoice.setRecipientType(type == InvoiceType.other ? null : type == InvoiceType.patient ? Patient.class.getName() : Insurance.class.getName());
+				newInvoice.setRecipientType((type == InvoiceType.mutualfund || type == InvoiceType.payingagency) ? Insurance.class.getName() : Patient.class.getName());
 				newInvoice.setInvoicingCodes(invoicingCodes);
 				newInvoice.setAuthor(userId);
 				newInvoice.setResponsible(hcPartyId);
