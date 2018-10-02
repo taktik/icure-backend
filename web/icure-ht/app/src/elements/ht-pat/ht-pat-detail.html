@@ -1336,7 +1336,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<b>[[localize('sex','Gender',language)]]:</b> [[curGenInsResp.sex]]<br/>
 
 				<template is="dom-if" if="{{curGenInsResp.deceased}}"><b>[[localize('deceased','Deceased',language)]]:</b>[[curGenInsResp.deceased]]<br/></template>
-				<template is="dom-if" if="{{curGenInsResp.hospitalizedInfo}}"><b>[[localize('hos_inf','Hospitalized',language)]]:</b>[[curGenInsResp.hospitalizedInfo]]<br/></template>
+				<template is="dom-if" if="{{curGenInsResp.hospitalizedInfo}}"><b>[[localize('hos_inf','Hospitalized',language)]]:</b>[[_formatHospitalizedInfo(curGenInsResp.hospitalizedInfo)]]<br/></template>
 				<template is="dom-if" if="{{curGenInsResp.medicalHouseInfo}}">
 					<b>[[localize('mmh_inf','Medical House',language)]]:</b><br/>
 					<b>[[localize('per_sta','Start',language)]]:</b> [[_dateFormat2(curGenInsResp.medicalHouseInfo.periodStart, 'YYYYMMDD', 'DD/MM/YYYY')]]
@@ -1444,8 +1444,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<template is="dom-if" if="{{geninsMMHRequest}}">
 					<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{genInsDateTo}}" i18n="[[i18n]]"></vaadin-date-picker>
 				</template>
+				<vaadin-checkbox checked="{{genInsHospitalized}}">[[localize('pat_hos','Hospitalized',language)]]</vaadin-checkbox>
 				<paper-button on-tap="_requestGenins">[[localize('gen_ins_req','Request',language)]]</paper-button>
-                <paper-button on-tap="_requestGeninsMMH">[[localize('gen_ins_req_mmh','Request MMH',language)]]</paper-button>
+				<template is="dom-if" if="{{geninsMMHRequest}}">
+					<paper-button on-tap="_requestGeninsMMH">[[localize('gen_ins_req_mmh','Request MMH',language)]]</paper-button>
+				</template>
 				<paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
 			</div>
 
@@ -1955,6 +1958,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('genInsAFF', null);
         this.set('genInsDateFrom', null);
         this.set('genInsDateTo', null);
+        this.set('genInsHospitalized', false);
         //TODO: init MMH if possible
         this.$.genInsDialog.open();
         if(!this.curGenInsResp || this.curGenInsResp.inss !== this.patient.ssin){
@@ -1991,6 +1995,14 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _trueOrUnknown(b){
 	    return b ? '+' : '?'
+	}
+
+    _formatHospitalizedInfo(hi){
+	    let info = '';
+	    info += hi && hi.hospital ? this.localize('hosp', 'Hospital', this.language)+ ':' + hi.hospital + ' ' : ''
+        info += hi && hi.admissionDate ? this.localize('adm_dat', 'AdmissionDate', this.language) + ':' + this._dateFormat2(hi.admissionDate, 'YYYYMMDD', 'DD/MM/YYYY') + ' ' : ''
+        info += hi && hi.admissionService ? this.localize('adm_svc', 'AdmissionService', this.language)+ ':' + hi.admissionService + ' ' : ''
+	    return info;
 	}
 
     _hasTransfers(genins){
