@@ -1685,6 +1685,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return [];
                 }
             },
+            curGenInsResp:{
+			    type:Object,
+				value:null
+			},
 			genInsDateFrom:{
                 type:Number,
                 value:null
@@ -1936,7 +1940,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_dateFormat2(date, fFrom, fTo){
 	    return date ? this.api.moment(date, fFrom).format(fTo) : '';
-
     }
 
 	_contactClasses(contact) {
@@ -1946,7 +1949,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_openGenInsDialog(e){
         e.stopPropagation();
         const mym = moment;
-        this.set('curGenInsResp', null);
+        //this.set('curGenInsResp', null);
         this.set('genInsNiss', null);
         this.set('genInsOA', null);
         this.set('genInsAFF', null);
@@ -1954,7 +1957,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('genInsDateTo', null);
         //TODO: init MMH if possible
         this.$.genInsDialog.open();
-        this._requestGenins();
+        if(!this.curGenInsResp || this.curGenInsResp.inss !== this.patient.ssin){
+            this.set('curGenInsResp', null);
+            this._requestGenins();
+        }
     }
 
     _openConsentDialog(e) {
@@ -3054,10 +3060,17 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
 			if (patient.ssin && this.api.tokenId) {
+                this.set('curGenInsResp', null)
+
                 if(!this.geninsMMHRequest) this.initMHSession();
-                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
+                    patient.ssin,
+					this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+					hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
                     const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
 					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
+
+                    this.set('curGenInsResp', gi)
 
 					this.$.insuranceStatus.classList.remove('medicalHouse');
 					this.$.insuranceStatus.classList.remove('noInsurance');
