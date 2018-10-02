@@ -1,20 +1,20 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="../../../bower_components/iron-input/iron-input.html">
-<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
-<link rel="import" href="../../../bower_components/tk-token-field/tk-token-field.html">
-<link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../../../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../../bower_components/tk-token-field/tk-token-field.html">
+<link rel="import" href="../../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
 
-<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
 
-<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
 
 
@@ -208,6 +208,7 @@
     </template>
     <script>
         import _ from 'lodash/lodash'
+        import accounting from '../../../../scripts/accounting';
 
         class MedicationSelectionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -225,6 +226,13 @@
                     },
                     compoundPrescriptionText: {
                         type: String
+                    },
+                    value: {
+                        type: Array,
+                        notify: true,
+                        value: function () {
+                            return [];
+                        }
                     },
                     columnsDefinition: {
                         type: Object,
@@ -403,7 +411,7 @@
                 if (this.selectedMedicationContentWithId.isNew) {
                     this.push('value',this.newMedication)
                 }
-                this.$['medication-detail'].open()
+                this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.selectedMedicationContentWithId, bubbles: true, composed: true}))
             }
 
             click(e) {
@@ -531,18 +539,18 @@
 
             drugPicture(med) {
                 if (!med.rrsstate) {
-                    return require('../../../images/Drug.None.gif')
+                    return require('../../../../images/Drug.None.gif')
                 }
                 if (med.rrsstate === 'R') {
-                    return require('../../../images/Drug.NotReduced.gif')
+                    return require('../../../../images/Drug.NotReduced.gif')
                 } else if (med.rrsstate === 'B') {
-                    return require('../../../images/Drug.NoAlternative.gif')
+                    return require('../../../../images/Drug.NoAlternative.gif')
                 }
                 else if (med.rrsstate === 'G') {
-                    return require('../../../images/Drug.Cheap.gif')
+                    return require('../../../../images/Drug.Cheap.gif')
                 }
                 else {
-                    return require('../../../images/Drug.None.gif')
+                    return require('../../../../images/Drug.None.gif')
                 }
 
                 //return pat.picture ? 'data:image/jpeg;base64,' + pat.picture : pat.gender === 'female' ? require('../../../images/Female-128.jpg') : require('../../../images/Male-128.jpg')
