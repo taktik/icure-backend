@@ -1,6 +1,7 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 
@@ -10,6 +11,21 @@
         <style>
             paper-dialog {
                 width: 80%;
+            }
+
+            #medication-detail .save-line {
+                height: 20px;
+            }
+            .save-line > .buttons {
+                bottom: 10px;
+            }
+
+            .medication-line > span{
+                padding: 0 4px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 90%;
+                white-space: nowrap;
             }
 
             .regimen-line{
@@ -49,6 +65,12 @@
                 margin:auto;
                 padding:0 8px 0 8px;
             }
+            .regimen--datepicker{
+                flex-grow: 3;
+                margin: auto;
+                padding: 0 8px 2px 8px;
+                cursor: pointer;
+            }
 
             paper-input {
                 --paper-input-container-focus-color: var(--app-primary-color);
@@ -83,6 +105,44 @@
                 font-weight: 700;
             }
 
+            .modal-title{
+                background:  var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .buttons{
+                position: absolute;
+                bottom: 0;
+                right: 12px;
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
+            }
+
+            #filter{
+                width:50%;
+            }
+
+            .dropdown-priority {
+                cursor: pointer;
+            }
+
         </style>
 
         <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
@@ -98,6 +158,14 @@
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
                     <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
                 </template>
+
+                <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
+                    <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{bufferMedicPriority}}">
+                        <paper-item id="daily">[[localize('low','Low',language)]]</paper-item>
+                        <paper-item id="weekly">[[localize('middle','Middle',language)]]</paper-item>
+                        <paper-item id="monthly">[[localize('high','High',language)]]</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
             </div>
             <div class="regimen-line">
                 <paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity"
@@ -114,6 +182,8 @@
                         <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
+                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" class="regimen--datepicker"></vaadin-date-picker>
+                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" class="regimen--datepicker"></vaadin-date-picker>
                 <paper-button on-tap="_setFrequencyList">{{localize("more","More",language)}}
                     <iron-icon icon="arrow-forward"></iron-icon>
                 </paper-button>
@@ -167,8 +237,10 @@
                     [[localize('add_pos_reg','Add posology regimen',language)]]
                 </paper-button>
             </template>
-            <div class="buttons">
-                <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+            <div class="regimen-line save-line">
+                <div class="buttons">
+                    <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+                </div>
             </div>
         </paper-dialog>
 
@@ -237,6 +309,16 @@
                     customFrequencyTable: {
                         type: Boolean,
                         value: false
+                    },
+                    bufferBeginMoment: {
+                        type: String,
+                        value: "",
+                        observer: "changeBeginMoment"
+                    },
+                    bufferEndMoment: {
+                        type: String,
+                        value: "",
+                        observer: "changeEndMoment"
                     }
                 }
             }
@@ -339,6 +421,20 @@
                         unit: this.bufferUnit
                     }
                 })
+            }
+
+            changeBeginMoment(){
+                // if (this.bufferBeginMoment > this.bufferEndMoment) {
+                // 	return;
+                // }
+                this.set("selectedMedicationContentWithId.medicationValue.beginMoment" , this.api.moment(this.bufferBeginMoment));
+            }
+
+            changeEndMoment(){
+                // if (this.bufferBeginMoment > this.bufferEndMoment) {
+                //     return;
+                // }
+                this.set("selectedMedicationContentWithId.medicationValue.endMoment" , this.api.moment(this.bufferEndMoment));
             }
         }
 

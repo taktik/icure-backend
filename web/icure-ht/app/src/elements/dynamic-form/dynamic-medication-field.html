@@ -66,37 +66,6 @@
 				border-bottom: 1px dotted var(--app-secondary-color-dark);
 			}
 
-			.medication-line {
-				margin: 4px 0;
-				text-overflow: ellipsis;
-				height: 18px;
-				font-size: 13px;
-				width: 100%;
-				min-width: initial;
-				display:flex;
-				flex-direction: row;
-				justify-content: space-between;
-				flex-wrap: nowrap;
-			}
-
-			.medication-line > span{
-				padding: 0 4px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				max-width: 90%;
-				white-space: nowrap;
-			}
-
-			.medication-line > .action-buttons {
-				width:45px;
-				padding-right:0;
-			}
-
-
-			.grid-container {
-				margin: 0 0 56px 0;
-			}
-
 			paper-dropdown-menu, paper-listbox{
 				width: 250px;
 			}
@@ -187,10 +156,6 @@
                 cursor: pointer
             }
 
-			.container {
-				@apply(--layout-horizontal);
-			}
-
 			iron-selector > * {
 				padding: 16px 16px;
 			}
@@ -219,39 +184,22 @@
 				};
 			}
 
-			.modal-title{
-				background:  var(--app-background-color-dark);
-				margin-top: 0;
-				padding: 16px 24px;
+			.medication-line {
+				margin: 4px 0;
+				text-overflow: ellipsis;
+				height: 18px;
+				font-size: 13px;
+				width: 100%;
+				min-width: initial;
+				display:flex;
+				flex-direction: row;
+				justify-content: space-between;
+				flex-wrap: nowrap;
 			}
 
-			.buttons{
-				position: absolute;
-				bottom: 0;
-				right: 12px;
-			}
-
-			.modal-button{
-				--paper-button-ink-color: var(--app-secondary-color-dark);
-				color: var(--app-text-color);
-				font-weight: 400;
-				font-size: 14px;
-				height: 40px;
-				min-width: 100px;
-				padding: 10px 1.2em;
-			}
-
-			.modal-button--save{
-				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-				background: var(--app-secondary-color);
-				color: var(--app-primary-color-dark);
-				font-weight: 700;
-
-			}
-
-
-			#filter{
-				width:50%;
+			.medication-line > .action-buttons {
+				width:45px;
+				padding-right:0;
 			}
 
 		</style>
