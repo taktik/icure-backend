@@ -1,0 +1,347 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+
+<dom-module id="medication-details-dialog">
+    <template>
+        <style>
+            paper-dialog {
+                width: 80%;
+            }
+
+            .regimen-line{
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+                align-items: flex-end;
+
+            }
+            .regimen-line paper-icon-button {
+                margin-left:12px;
+                margin-bottom:12px;
+                height: 20px;
+                width: 20px;
+                padding: 2px;
+            }
+
+            .regimen--frequency {
+                flex-grow: 3;
+                margin:auto;
+                padding:0 8px 0 8px;
+            }
+            .regimen--tod{
+                flex-grow: 3;
+                margin:auto;
+                padding:0 8px 0 8px;
+            }
+            .regimen--quantity {
+                flex-grow: 1;
+                margin:auto;
+                padding:0 8px 0 8px;
+                max-width:80px;
+
+            }
+            .regimen--units {
+                flex-grow: 3;
+                margin:auto;
+                padding:0 8px 0 8px;
+            }
+
+            paper-input {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            .buttons{
+                position: absolute;
+                bottom: 0;
+                right: 12px;
+            }
+
+            .modal-title {
+                background: var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .modal-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+            }
+
+            .modal-button--save {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+            }
+
+        </style>
+
+        <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
+            <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
+
+            <div class="regimen-line">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
+                </template>
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"></paper-input>
+                </template>
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
+                </template>
+            </div>
+            <div class="regimen-line">
+                <paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity"
+                             min="0"></paper-input>
+                <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
+
+                <paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency" value="{{bufferNumberByFrequency}}">
+                    <div slot="suffix">X</div>
+                </paper-input>
+                <paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
+                    <paper-listbox slot="dropdown-content" selected="{{bufferGeneralFrequency}}">
+                        <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
+                        <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                        <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <paper-button on-tap="_setFrequencyList">{{localize("more","More",language)}}
+                    <iron-icon icon="arrow-forward"></iron-icon>
+                </paper-button>
+            </div>
+            <template is="dom-if" if="[[flagTableFrequency]]">
+                <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
+                    <div class="regimen-line">
+                        <paper-dropdown-menu label="Frequency" class="regimen--frequency">
+                            <paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-iron-select="_selectFrequency">
+                                <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
+                                <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                                <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <template is="dom-if" if="[[rg.weekday]]">
+                        </template>
+                        <template is="dom-if" if="[[!rg.weekday]]">
+                            <template is="dom-if" if="[[rg.date]]">
+                            </template>
+                            <template is="dom-if" if="[[!rg.date]]">
+                                <paper-dropdown-menu label="Time of day" class="regimen--tod">
+                                    <paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
+                                        <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
+                                        <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
+                                        <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
+                                        <paper-item id="morning">[[_localize("Morning")]]</paper-item>
+                                        <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
+                                        <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
+                                        <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
+                                        <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
+                                        <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
+                                        <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
+                                        <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
+                                        <paper-item id="evening">[[_localize("Evening")]]</paper-item>
+                                        <paper-item id="night">[[_localize("Night")]]</paper-item>
+                                        <hr>
+                                        <paper-item>[[_localize("Precise hour")]]</paper-item>
+                                    </paper-listbox>
+                                </paper-dropdown-menu>
+                            </template>
+                        </template>
+                        <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                     class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
+                        <paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"
+                                     on-change="_valueChanged"></paper-input>
+                        <paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
+                    </div>
+                </template>
+                <paper-button on-tap="addPosologyRegimen">
+                    <iron-icon icon="add"></iron-icon>
+                    [[localize('add_pos_reg','Add posology regimen',language)]]
+                </paper-button>
+            </template>
+            <div class="buttons">
+                <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
+    </template>
+    <script>
+
+        import _ from 'lodash/lodash'
+
+        class MedicationDetailsDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'medication-details-dialog'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    selectedMedicationContentWithId: {
+                        type: Object,
+                        value: null,
+                        notify: true
+                    },
+                    flagTableFrequency: {
+                        type: Boolean,
+                        value: false
+                    },
+                    _dayPeriods: {
+                        type: Array,
+                        value: () => [
+                            "beforebreakfast",
+                            "duringbreakfast",
+                            "afterbreakfast",
+                            "morning",
+                            "beforelunch",
+                            "afternoon",
+                            "duringlunch",
+                            "afterlunch",
+                            "beforedinner",
+                            "duringdinner",
+                            "afterdinner",
+                            "evening",
+                            "night"
+                        ]
+                    },
+                    bufferUnit: {
+                        type: String,
+                        value: null
+                    },
+                    bufferQuantity: {
+                        type: Number,
+                        value: 0
+                    },
+                    bufferNumberByFrequency: {
+                        type: Number,
+                        value: 1
+                    },
+                    bufferFrequency: {
+                        type: String,
+                        value: "daily"
+                    },
+                    bufferGeneralFrequency: {
+                        type: Number,
+                        value: 1
+                    },
+                    customFrequencyTable: {
+                        type: Boolean,
+                        value: false
+                    }
+                }
+            }
+
+            constructor() {
+                super()
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            hasCustomFrequencyTable(regimen) {
+                if (regimen.length <= 1) {
+                    return false
+                } else {
+                    let reg1 = regimen[0]
+                    let allEqual = false
+                    const difReg = regimen.find(reg => !_.isEqual(reg1, reg))
+                    return difReg ? true : false
+                }
+            }
+
+            open() {
+                this.$['medication-detail'].open()
+            }
+
+            addPosologyRegimen() {
+                const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
+                this.push('selectedMedicationContentWithId.medicationValue.regimen', { weekday: null, date: null, administratedQuantity: { quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit } });
+            }
+
+            clearPosologyRegimen(event, target) {
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
+                if(this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
+                    this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1);
+                }
+            }
+
+            _localize(s) {
+                return this.api.contact().medication().localize(s, this.language);
+            }
+
+            _selectedFrequency(rg) {
+                return rg.weekday !== null && rg.weekday !== undefined ? 1 : rg.date ? 2 : 0;
+            }
+
+            _selectFrequency(event, target) {
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
+                if (!rgModel) {
+                    return;
+                }
+                if (target.item.id === 'daily') {
+                    rgModel.set('rg.weekday', null);
+                    rgModel.set('rg.date', null);
+                } else if (target.item.id === 'weekly') {
+                    rgModel.set('rg.weekday', {});
+                    rgModel.set('rg.date', null);
+                } else if (target.item.id === 'monthly') {
+                    rgModel.set('rg.weekday', null);
+                    rgModel.set('rg.date', -1);
+                }
+                this._valueChanged();
+            }
+
+            _selectDayPeriod(event, target) {
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
+                if (!rgModel) {
+                    return;
+                }
+                rgModel.set('rg.dayPeriod', { type: "CD-DAYPERIOD", code: target.item.id });
+                this._valueChanged();
+            }
+
+            _setFrequencyList() {
+                let bufferTable = []
+
+                for(let cpt=0;cpt<this.$.numberByFrequency.value;cpt++) {
+                    bufferTable.push({
+                        weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
+                        date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
+                        administratedQuantity: {
+                            quantity : this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                            unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                        }
+                    })
+                }
+
+                this.set("customFrequencyTable", true);
+                this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
+                this.set("flagTableFrequency",true)
+            }
+
+            _addFrequency() {
+                this.push("selectedMedicationContentWithId.medicationValue.regimen", {
+                    weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
+                    date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
+                    administratedQuantity: {
+                        quantity : 1,
+                        unit: this.bufferUnit
+                    }
+                })
+            }
+        }
+
+        customElements.define(MedicationDetailsDialog.is, MedicationDetailsDialog)
+    </script>
+</dom-module>

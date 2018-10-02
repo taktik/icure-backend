@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <DATE>2018-10-02</DATE>
+    <STATUS>Published</STATUS>
+    <NAME>Item Type</NAME>
+    <VALUE>
+        <CODE>surgery</CODE>
+        <DESCRIPTION L='en'>Surgical history</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
