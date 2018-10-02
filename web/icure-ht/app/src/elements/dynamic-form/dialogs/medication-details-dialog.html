@@ -159,6 +159,9 @@
                     <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
                 </template>
 
+                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" class="regimen--datepicker"></vaadin-date-picker>
+                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" class="regimen--datepicker"></vaadin-date-picker>
+
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{bufferMedicPriority}}">
                         <paper-item id="daily">[[localize('low','Low',language)]]</paper-item>
@@ -182,8 +185,6 @@
                         <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
-                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" class="regimen--datepicker"></vaadin-date-picker>
-                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" class="regimen--datepicker"></vaadin-date-picker>
                 <paper-button on-tap="_setFrequencyList">{{localize("more","More",language)}}
                     <iron-icon icon="arrow-forward"></iron-icon>
                 </paper-button>
@@ -304,7 +305,7 @@
                     },
                     bufferGeneralFrequency: {
                         type: Number,
-                        value: 1
+                        value: 0
                     },
                     customFrequencyTable: {
                         type: Boolean,
