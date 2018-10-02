@@ -186,7 +186,6 @@
 
 			.medication-line {
 				margin: 4px 0;
-				text-overflow: ellipsis;
 				height: 18px;
 				font-size: 13px;
 				width: 100%;
@@ -200,6 +199,12 @@
 			.medication-line > .action-buttons {
 				width:45px;
 				padding-right:0;
+			}
+
+			.medication-line > span {
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
 			}
 
 		</style>

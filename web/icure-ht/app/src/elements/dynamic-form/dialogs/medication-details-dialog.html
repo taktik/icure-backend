@@ -150,13 +150,13 @@
 
             <div class="regimen-line">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"  disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"  disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}" disabled="true"></paper-input>
                 </template>
 
                 <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" class="regimen--datepicker"></vaadin-date-picker>
@@ -312,14 +312,19 @@
                         value: false
                     },
                     bufferBeginMoment: {
-                        type: String,
-                        value: "",
+                        type: Object,
+                        value: {},
                         observer: "changeBeginMoment"
                     },
                     bufferEndMoment: {
-                        type: String,
-                        value: "",
+                        type: Object,
+                        value: {},
                         observer: "changeEndMoment"
+                    },
+                    bufferMedicPriority: {
+                        type: Number,
+                        value: 0,
+                        observer: "changeMedicPriority"
                     }
                 }
             }
@@ -441,17 +446,21 @@
             }
 
             changeBeginMoment(){
-                // if (this.bufferBeginMoment > this.bufferEndMoment) {
-                // 	return;
-                // }
-                this.set("selectedMedicationContentWithId.medicationValue.beginMoment" , this.api.moment(this.bufferBeginMoment));
+                if (this.bufferBeginMoment <= this.bufferEndMoment) {
+                    this.set("selectedMedicationContentWithId.medicationValue.beginMoment" , this.api.moment(this.bufferBeginMoment));
+                }
             }
 
             changeEndMoment(){
-                // if (this.bufferBeginMoment > this.bufferEndMoment) {
-                //     return;
-                // }
-                this.set("selectedMedicationContentWithId.medicationValue.endMoment" , this.api.moment(this.bufferEndMoment));
+                if (this.bufferBeginMoment <= this.bufferEndMoment) {
+                    this.set("selectedMedicationContentWithId.medicationValue.endMoment" , this.api.moment(this.bufferEndMoment));
+                }
+            }
+
+            changeMedicPriority() {
+                if ( (this.bufferMedicPriority >= 0) && (this.bufferMedicPriority <= 2) ) {
+                    this.set("selectedMedicationContentWithId.medicationValue.medicPriority" , this.api.moment(this.bufferMedicPriority));
+                }
             }
         }
 
