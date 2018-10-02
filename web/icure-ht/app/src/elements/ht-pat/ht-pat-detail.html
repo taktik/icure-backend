@@ -1671,10 +1671,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return [];
                 }
             },
-            genInsHcpQuality:{
-                type:String,
-                value:'doctor'
-            },
 			genInsDateFrom:{
                 type:Number,
                 value:null
@@ -1984,28 +1980,14 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             const kss = ks;
 		})
         const dStart = Date.parse(this.genInsDateFrom);
-        let dEnd = null;
         if (this.patient.ssin && this.api.tokenId) {
-            let tokenId = this.api.tokenId;
-            let keystoreId = this.api.keystoreId;
-            let passPhrase = this.api.credentials.ehpassword;
-            this.genInsHcpQuality = 'doctor';
-            if(asMMH){
-                //nihii = this.MMHNihii;
-                tokenId = this.MMHTokenId;
-                keystoreId = this.MMHKeystoreId;
-                passPhrase = this.MMHPassPhrase;
-                dEnd = Date.parse(this.genInsDateTo);
-                this.genInsHcpQuality = 'medicalhouse';
-            }
-            const ssin = this.genInsNiss ? this.genInsNiss : this.patient.ssin;
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                 .then(hcp =>
 					//getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null)
                     this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
-                       	ssin,
-						tokenId, keystoreId, passPhrase,
-                        asMMH? this.MMHNihii :hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, this.genInsHcpQuality, dStart, dEnd, this.genInsHospitalized)
+                        this.genInsNiss ? this.genInsNiss : this.patient.ssin,
+                        asMMH? this.MMHTokenId : this.api.tokenId, asMMH? this.MMHKeystoreId : this.api.keystoreId, asMMH? this.MMHPassPhrase : this.api.credentials.ehpassword,
+                        asMMH? this.MMHNihii :hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
                 ).then(genInsResp => {
                         if (genInsResp) {
                             return genInsResp;
