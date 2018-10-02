@@ -14,19 +14,7 @@ module.exports = {
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
         filename: '[name].[contenthash].bundle.js',
-        path: path.resolve(__dirname, 'dist')
-    },
-    optimization: {
-        runtimeChunk: 'single',
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all'
-                }
-            }
-        }
+        path: path.resolve(__dirname, 'dist-tz')
     },
     // Tell Webpack which directories to look in to resolve import statements.
     // Normally Webpack will look in node_modules by default but since we’re overriding
@@ -112,10 +100,10 @@ module.exports = {
             from: path.resolve(__dirname, 'app/bower_components/webcomponentsjs/*.js'),
             to: 'bower_components/webcomponentsjs/[name].[ext]'
         }]),
-        new Clean(['dist']),
+        new Clean(['dist-tz']),
     ],
 	devServer: {
-		contentBase: path.join(__dirname,'dist'),
+		contentBase: path.join(__dirname,'dist-tz'),
 		compress: true,
 		overlay: true,
 		port: 9000,
