@@ -1457,10 +1457,10 @@
 
                     const env = new evaljs.Environment({
                         patient: {
-                            preferentialstatus: !!ins.parameters.preferentialstatus,
+                            preferentialstatus: (ins && ins.parameters) ? !!ins.parameters.preferentialstatus : false,
                             age: age,
                             dmg: (dmg && dmg.referral) ? !!dmg.referral : false,
-                            chronical: !!ins.parameters.chronicalDisease
+                            chronical: (ins && ins.parameters) ? !!ins.parameters.chronicalDisease : false
                         }, hcp: {trainee: trainee, convention: convention}
                     })
 
@@ -1508,7 +1508,13 @@
                                             this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
                                         })
                                 }else{
-                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                        this.set('invoices', invoices)
+                                        const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
+                                        this.set('selectedInvoice', selectedInvoice)
+                                        this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                                        this.calculateTotalOfInvoice()
+                                    })
                                 }
 
                             })
@@ -1587,6 +1593,8 @@
 
                         this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
                             console.log(r)
+                            this.set('isDetailNmcl', false)
+                            this.set("tarificationError", null)
 
                             if (r.errors.length > 0) {
                                 const errors = r.errors
@@ -1689,7 +1697,12 @@
 
                     this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
 
-                    console.log(this.selectedInvoice.invoicingCodes)
+                    this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
+                        console.log(invoice)
+                        this.set('selectedInvoice', invoice)
+                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                    })
+
                     this.$['nmclGrid'].clearCache()
 
                     this.calculateTotalOfInvoice()
