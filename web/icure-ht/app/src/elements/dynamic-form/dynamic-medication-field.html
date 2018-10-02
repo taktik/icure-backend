@@ -17,8 +17,8 @@
 
 <link rel="import" href="dynamic-link.html">
 
-<link rel="import" href="dialogs/medication-details-dialog.html">
 <link rel="import" href="dialogs/medication-selection-dialog.html">
+<link rel="import" href="dialogs/medication-details-dialog.html">
 
 
 <dom-module id="dynamic-medication-field">
@@ -195,8 +195,7 @@
 				padding: 16px 16px;
 			}
 
-			label,
-			.container {
+			label {
 				cursor: text;
 			}
 
@@ -208,23 +207,6 @@
 				top: 50%;
 				transform: translateY(-50%);
 			}
-
-            .no-grid {
-                display: none;
-            }
-
-			.no-column{
-				display: none;
-			}
-
-			.column{
-				margin: 2px;
-			}
-
-			div.cheap {
-				color: #606060;
-			}
-
 
 			vaadin-grid {
 				--vaadin-grid-body-row-hover-cell: {
@@ -294,13 +276,10 @@
 
 		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
 
-		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-selection-dialog>
-		<medication-detail-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-detail-dialog>
+		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails"></medication-selection-dialog>
+		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
 	</template>
 	<script>
-
-import accounting from '../../../scripts/accounting';
-import styx from '../../../scripts/styx';
 
 class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {
@@ -395,6 +374,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
 		}
 	}
+
+	_displayMedicationDetails() {
+        this.$['medication-detail'].open()
+    }
 
 	localizedMedicationValueWithId(id, e, lng) {
 		if (!e) {

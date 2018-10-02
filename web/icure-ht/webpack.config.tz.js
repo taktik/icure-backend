@@ -16,18 +16,6 @@ module.exports = {
         filename: '[name].[contenthash].bundle.js',
         path: path.resolve(__dirname, 'dist-tz')
     },
-    optimization: {
-        runtimeChunk: 'single',
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all'
-                }
-            }
-        }
-    },
     // Tell Webpack which directories to look in to resolve import statements.
     // Normally Webpack will look in node_modules by default but since we’re overriding
     // the property we’ll need to tell it to look there in addition to the
