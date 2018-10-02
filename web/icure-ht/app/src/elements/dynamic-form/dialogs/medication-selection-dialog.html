@@ -46,6 +46,10 @@
                 padding: 16px 24px;
             }
 
+            #entities-list {
+                margin-bottom: 55px;
+            }
+
             .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
                 color: var(--app-text-color);
@@ -412,7 +416,7 @@
                 if (this.selectedMedicationContentWithId.isNew) {
                     this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
                 } else {
-                    this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.selectedMedicationContentWithId, bubbles: true, composed: true}))
+                    this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
                 }
             }
 

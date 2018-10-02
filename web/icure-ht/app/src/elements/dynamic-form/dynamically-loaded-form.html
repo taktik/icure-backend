@@ -413,25 +413,25 @@
                         if (_.isEqual(currentValueContainers, containers)) {
                             return;
                         }
-                        const isModified = containers.map(service => {
-                            let svc = this.currentContact.services.find(s => s.id === service.id);
+                        const isModified = containers.map(container => {
+                            let svc = this.currentContact.services.find(s => s.id === container.id);
                             if (svc) {
-                                _.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id));
-                                if (!_.isEqual(svc.content, service.content) || svc.index !== service.index || svc.endOfLife) {
-                                    _.extend(svc.content, _.cloneDeep(service.content));
-                                    svc.index = service.index;
+                                _.pull(currentValueContainers, currentValueContainers.find(s => s.id === container.id));
+                                if (!_.isEqual(svc.content, container.content) || svc.index !== container.index || svc.endOfLife) {
+                                    _.extend(svc.content, _.cloneDeep(container.content));
+                                    svc.index = container.index;
                                     delete svc.endOfLife;
 
                                     return true;
                                 }
                             } else {
-                                const prevSvc = currentValueContainers.find(s => s.id === service.id);
+                                const prevSvc = currentValueContainers.find(s => s.id === container.id);
                                 if (prevSvc) {
-                                    _.pull(currentValueContainers, currentValueContainers.find(s => s.id === service.id));
+                                    _.pull(currentValueContainers, currentValueContainers.find(s => s.id === container.id));
                                 }
-                                if (!prevSvc || !_.isEqual(prevSvc.content, service.content)) {
-                                    self.dispatchService(_.extend(this.createService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), service.id, initWrapper(label)),
-                                        {index: service.index, content: _.cloneDeep(service.content), codes: service.codes && service.codes.map(_.cloneDeep)}));
+                                if (!prevSvc || !_.isEqual(prevSvc.content, container.content)) {
+                                    self.dispatchService(_.extend(this.createService(label, form.id, null, (this.highlightedHes || []).map(he => he.id), container.id, initWrapper(label)),
+                                        {index: container.index, content: _.cloneDeep(container.content), codes: container.codes && container.codes.map(_.cloneDeep)}));
                                     return true;
                                 }
                             }

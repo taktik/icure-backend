@@ -150,14 +150,17 @@
 
             <div class="regimen-line">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"  disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"  disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}" disabled="true"></paper-input>
                 </template>
+
+                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" on-change="_valueChanged" class="regimen--datepicker"></vaadin-date-picker>
+                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" on-change="_valueChanged" class="regimen--datepicker"></vaadin-date-picker>
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{bufferMedicPriority}}">
@@ -182,8 +185,6 @@
                         <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
-                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" class="regimen--datepicker"></vaadin-date-picker>
-                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" class="regimen--datepicker"></vaadin-date-picker>
                 <paper-button on-tap="_setFrequencyList">{{localize("more","More",language)}}
                     <iron-icon icon="arrow-forward"></iron-icon>
                 </paper-button>
@@ -304,21 +305,26 @@
                     },
                     bufferGeneralFrequency: {
                         type: Number,
-                        value: 1
+                        value: 0
                     },
                     customFrequencyTable: {
                         type: Boolean,
                         value: false
                     },
                     bufferBeginMoment: {
-                        type: String,
-                        value: "",
-                        observer: "changeBeginMoment"
+                        type: Object,
+                        value: {}
+                        // observer: "changeBeginMoment"
                     },
                     bufferEndMoment: {
-                        type: String,
-                        value: "",
-                        observer: "changeEndMoment"
+                        type: Object,
+                        value: {}
+                        // observer: "changeEndMoment"
+                    },
+                    bufferMedicPriority: {
+                        type: Number,
+                        value: 0,
+                        observer: "changeMedicPriority"
                     }
                 }
             }
@@ -342,17 +348,21 @@
                 }
             }
 
-            open(selectedMedicationContentWithId) {
+            open(medicationDetail,selectedMedicationContentWithId) {
                 if (selectedMedicationContentWithId) {
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId);
 
                     const isCustom = this.hasCustomFrequencyTable(selectedMedicationContentWithId.medicationValue.regimen);
+                    this.set('codes',selectedMedicationContentWithId.codes ? selectedMedicationContentWithId.codes : []);
                     this.set('customFrequencyTable', isCustom);
                     this.set('flagTableFrequency', isCustom);
                     this.set('bufferUnit',selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
                     this.set('bufferQuantity',selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
                     this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
                     this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
+                    this.set('bufferMedicPriority', selectedMedicationContentWithId.medicationValue.regimen[0] ? this.changeMedicPriority() : 0)
+                    // this.set('bufferBeginMoment', selectedMedicationContentWithId.medicationValue.regimen[0] ? this.changeBeginMoment(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
+                    // this.set('bufferEndMoment', selectedMedicationContentWithId.medicationValue.regimen[0] ? this.changeEndMoment(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
                 }
                 this.$['medication-detail'].open()
             }
@@ -439,18 +449,28 @@
                 })
             }
 
-            changeBeginMoment(){
-                // if (this.bufferBeginMoment > this.bufferEndMoment) {
-                // 	return;
-                // }
-                this.set("selectedMedicationContentWithId.medicationValue.beginMoment" , this.api.moment(this.bufferBeginMoment));
-            }
+            // changeBeginMoment(){
+            //     if (this.selectedMedicationContentWithId) {
+            //         this.push("selectedMedicationContentWithId.medicationValue.regimen", {
+            //             beginMoment: this.api.moment(this.bufferBeginMoment)
+            //         })
+            //     }
+            // }
+            //
+            // changeEndMoment(){
+            //     if (this.selectedMedicationContentWithId) {
+            //         this.push("selectedMedicationContentWithId.medicationValue.regimen", {
+            //             endMoment: this.api.moment(this.bufferEndMoment)
+            //         })
+            //     }
+            // }
 
-            changeEndMoment(){
-                // if (this.bufferBeginMoment > this.bufferEndMoment) {
-                //     return;
-                // }
-                this.set("selectedMedicationContentWithId.medicationValue.endMoment" , this.api.moment(this.bufferEndMoment));
+            changeMedicPriority() {
+                if (this.selectedMedicationContentWithId) {
+                    this.push("selectedMedicationContentWithId.medicationValue.regimen", {
+                        endMoment: this.api.moment(this.bufferMedicPriority)
+                    })
+                }
             }
         }
 
