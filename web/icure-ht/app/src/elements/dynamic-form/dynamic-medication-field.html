@@ -330,11 +330,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _medicationCreated(e) {
     	this.push('value',e.detail)
-        this._displayMedicationDetails()
+        this._displayMedicationDetails(e)
 	}
 
-	_displayMedicationDetails() {
-        this.$['medication-detail'].open()
+	_displayMedicationDetails(e) {
+        this.$['medication-detail'].open(e.detail,this.extractContentWithIdFromMedicationService(e.detail,true))
     }
 
 	localizedMedicationValueWithId(id, e, lng) {
@@ -346,12 +346,30 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
-		return { id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue, isNew: isNew || false };
+		return {
+		    id: m.id,
+            codes: m.codes,
+            medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {
+                medicationValue: { regimen: [] }
+            })).medicationValue,
+            isNew: isNew || false };
 	}
 
 	addMedication() {
 		const id = this.api.crypto().randomUuid();
-		const newMedication =  { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) };
+		const newMedication =  {
+		    id: id,
+			index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1,
+			codes: [],
+			content: _.fromPairs([[
+			    this.language,
+				{
+				    medicationValue: {
+				    	regimen: []
+					}
+				}
+			]])
+		};
 		this.$['medication-selection'].open(newMedication, this.extractContentWithIdFromMedicationService(newMedication, true));
 	}
 
@@ -359,7 +377,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const id = el.target.parentElement.parentElement.id;
 		const item = this.value.find(s => s.id === id);
 		if (item) {
-			this.$['medication-detail'].open(this.extractContentWithIdFromMedicationService(item));
+			this.$['medication-detail'].open(item, this.extractContentWithIdFromMedicationService(item));
 		}
 	}
 
