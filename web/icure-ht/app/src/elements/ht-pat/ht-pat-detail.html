@@ -1316,7 +1316,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="genInsDialog">
             <h2 class="modal-title">[[localize('gen_ins','General insurability',language)]]</h2>
-
+            <!-- TODO: add switch to get Genins as MMH  -->
+            <!-- TODO: Show switch only when MMH token is present  -->
 			<template is="dom-if" if="{{curGenInsResp}}">
 				<b>[[localize('ssin','SSIN',language)]]:</b> [[curGenInsResp.inss]]
 				<b>[[localize('nam','Name',language)]]:</b> [[curGenInsResp.firstName]] [[curGenInsResp.lastName]] <br/>
@@ -1430,6 +1431,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{genInsDateTo}}" i18n="[[i18n]]"></vaadin-date-picker>
 				</template>
 				<paper-button on-tap="_requestGenins">[[localize('gen_ins_req','Request',language)]]</paper-button>
+                <paper-button on-tap="_requestGeninsMMH">[[localize('gen_ins_req_mmh','Request MMH',language)]]</paper-button>
 				<paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
 			</div>
 
@@ -1693,6 +1695,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Number,
 				value:null
 			},
+            geninsMMHRequest:{
+			  type: Boolean,
+              value: false
+            },
             selectedTransaction:{
                 type: Object
             },
@@ -1854,7 +1860,27 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             historyElement:{
 			    type: Object
-			}
+			},
+            keyPairKeystore:{
+                type: Array,
+                value: () => []
+            },
+            MMHKeystoreId:{
+                type : String,
+                value : null
+			},
+			MMHPassPhrase:{
+			    type: String,
+                value: null
+            },
+            MMHTokenId:{
+                type : String,
+                value : null
+			},
+            MMHNihii:{
+			    type: String,
+                value: null
+            }
 		};
 	}
 
@@ -1903,6 +1929,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation();
         const mym = moment;
         this.set('curGenInsResp', null);
+        //TODO: init MMH if possible
         this.$.genInsDialog.open();
         this._requestGenins();
     }
@@ -1942,23 +1969,43 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     _requestGenins(){
-	    this.getGenIns().then(genInsResp => this.set('curGenInsResp', genInsResp));
+	    this.getGenIns(false).then(genInsResp => this.set('curGenInsResp', genInsResp));
+    }
+
+    _requestGeninsMMH(){
+        this.getGenIns(true).then(genInsResp => this.set('curGenInsResp', genInsResp));
     }
 
 
-
-    getGenIns(){
-
+    getGenIns(asMMH){
+	    //TODO: add switch to get genins as MMH
+        if(!this.geninsMMHRequest) this.initMHSession();
+        this.getMMHKeystore().then(ks => {
+            const kss = ks;
+		})
         const dStart = Date.parse(this.genInsDateFrom);
+        let dEnd = null;
         if (this.patient.ssin && this.api.tokenId) {
+            let tokenId = this.api.tokenId;
+            let keystoreId = this.api.keystoreId;
+            let passPhrase = this.api.credentials.ehpassword;
+            this.genInsHcpQuality = 'doctor';
+            if(asMMH){
+                //nihii = this.MMHNihii;
+                tokenId = this.MMHTokenId;
+                keystoreId = this.MMHKeystoreId;
+                passPhrase = this.MMHPassPhrase;
+                dEnd = Date.parse(this.genInsDateTo);
+                this.genInsHcpQuality = 'medicalhouse';
+            }
             const ssin = this.genInsNiss ? this.genInsNiss : this.patient.ssin;
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                 .then(hcp =>
 					//getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null)
                     this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
                        	ssin,
-						this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
-                        hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, this.genInsHcpQuality, dStart, this.genInsDateTo, this.genInsHospitalized)
+						tokenId, keystoreId, passPhrase,
+                        asMMH? this.MMHNihii :hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, this.genInsHcpQuality, dStart, dEnd, this.genInsHospitalized)
                 ).then(genInsResp => {
                         if (genInsResp) {
                             return genInsResp;
@@ -1970,6 +2017,94 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         } else {
             return Promise.resolve(null)
         }
+    }
+
+    initMHSession() {
+
+        /*
+    * TODO:
+    * 0. init values
+    * 1. If user has MedicalHouseNihii
+    * 2. Then If user has MedicalHouseKeystore in local storage
+    * 3. Then If user has Password stored
+    * 4. Then upload Keystore to FHC --> KeystoreId
+    * 5. Then Get token --> TokenId
+    * */
+        //1.
+        const propMHNihii = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.medicalHouse.nihii') ||
+            (this.user.properties[this.user.properties.length] = {
+                type: {identifier: 'org.taktik.icure.user.medicalHouse.nihii'},
+                typedValue: {type: 'STRING', stringValue: ''}
+            });
+        const MHNihii = propMHNihii.typedValue.stringValue;
+        this.MMHNihii= MHNihii;
+        if(MHNihii && MHNihii !== ''){
+            //2. 3. 4.
+            this.getMMHKeystore().then(ks => {
+                ks.map(k => {
+                    this.set('MMHKeystoreId',k.uuid);
+                    this.set('MMHPassPhrase',k.passPhrase);
+                    this.set('MMHTokenId', '');
+                    this.api.fhc().Stscontroller().requestTokenUsingGET(k.passPhrase, this.getNihii8(MHNihii), k.uuid, true ).then(tid => {
+                        this.set('MMHTokenId', tid.tokenId);
+                        this.set('geninsMMHRequest', true);
+                    });
+
+				})
+            })
+		}
+    }
+
+    getNihii8(nihii){
+	    return nihii && nihii !== '' &&  nihii.length >= 8 ? nihii.substring(0,8) : '';
+    }
+
+    getMMHKeystore(){
+        const prefix =this.api.crypto().keychainLocalStoreIdPrefix;
+        const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH.";
+        const healthcarePartyId = this.user.healthcarePartyId;
+        const mmhKeystore = localStorage.getItem(prefixMMH + healthcarePartyId) || "";
+		const storageKey = prefix + healthcarePartyId;
+
+
+        return Promise.all(
+            Object.keys(localStorage).filter(k => k.includes(storageKey) === true && localStorage.getItem(k) === mmhKeystore)
+                .map(fk =>
+                    this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
+                    .then( password =>
+                        (this.keyPairKeystore[fk]) ?
+                            // Get fhc keystore UUID in cache
+                            new Promise(x => x(({uuid: this.keyPairKeystore[fk], passPhrase: password}))) :
+                            // Upload new keystore
+                            this.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.api.crypto().utils.base64toByteArray(localStorage.getItem(fk)))
+                                .then(res => this.addUUIDKeystoresInCache(fk, res.uuid, password))
+
+                    )
+                )
+        )
+    }
+
+    getDecryptedValueFromLocalstorage(healthcarePartyId, key){
+        let item = localStorage.getItem(key);
+
+        return this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+            .then(encryptedHcPartyKey =>
+                this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
+            )
+            .then(importedAESHcPartyKey =>
+                (item)?this.api.crypto().AES.decrypt(importedAESHcPartyKey.key, this.api.crypto().utils.text2ua(item)):null
+            )
+            .then(data =>
+                (data)?this.api.crypto().utils.ua2text(data):null
+            );
+    }
+
+    addUUIDKeystoresInCache(key, uuid, password){
+        return new Promise(x =>{
+            this.keyPairKeystore[key] = uuid;
+            x(({uuid: uuid, passPhrase: password}))
+        })
+
     }
 
     _hcpIdent(tl){
@@ -2895,6 +3030,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
 			if (patient.ssin && this.api.tokenId) {
+			    //this.initMHSession();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.lastName, "doctor", null, null).then(gi => {
                     const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
 					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
