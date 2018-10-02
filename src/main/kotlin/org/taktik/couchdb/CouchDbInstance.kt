@@ -66,7 +66,9 @@ class CouchDbInstance(val httpClient: HttpClient,
         return future
     }
 
-    fun changes(since: String?, changeDetected: (Change) -> Unit, heartBeat: () -> Unit) {
+    fun changes(since: String?, changeDetected: (Change) -> Unit, heartBeat: () -> Unit) : CompletableFuture<Unit> {
+        val future = CompletableFuture<Unit>()
+
         val parser = PartialJsonParser(AsyncDeserializerImpl(Change::class.java, changeDetected))
 
         val uri = URIBuilder("${baseUrl.normalize()}/$dbName/_changes")
@@ -79,20 +81,25 @@ class CouchDbInstance(val httpClient: HttpClient,
         httpClient.newRequest(uri)
             .apply {
                 user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(("$u:$p").toByteArray())) } }
-                idleTimeout(300, TimeUnit.SECONDS)
-                timeout(900, TimeUnit.SECONDS)
+                idleTimeout(30, TimeUnit.SECONDS)
+                timeout(30, TimeUnit.DAYS)
             }
             .onResponseContent { response, byteBuffer ->
                 log.debug("URI: "+uri+": "+byteBuffer.remaining())
                 parser.parse(byteBuffer)
                 heartBeat()
             }
+            .onResponseSuccess { response ->
+                future.complete(Unit)
+            }
             .onResponseFailure { response, failure ->
                 log.error("URI: $uri: request failed with user $user:$password", failure)
+                future.completeExceptionally(failure)
             }
             .onRequestFailure { request, failure ->
                 log.error("URI: $uri: request failed ", failure)
+                future.completeExceptionally(failure)
             }.send {}
-
+        return future
     }
 }

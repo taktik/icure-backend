@@ -136,7 +136,7 @@ public class NewGroupObserver {
 					}
 				});
 				return Unit.INSTANCE;
-			});
+			}).whenComplete((unit, throwable) -> {this.startObserver();});
 	}
 
 	private void startHttpClient() {

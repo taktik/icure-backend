@@ -13,6 +13,7 @@
     <!-- icure -->
 
     <logger name="org.taktik" level="INFO" />
+    <logger name="org.taktik.couchdb" level="ERROR" />
     <logger name="org.taktik.icure.logic" level="INFO" />
     <logger name="org.taktik.icure.dao" level="INFO" />
 
