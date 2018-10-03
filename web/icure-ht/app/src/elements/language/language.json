@@ -891,6 +891,9 @@
     "wee": "Weekly",
     "welcome_mess" : "Welkom bij de Icure applicatie",
     "you_hav_bee_log_out": "You have been logged out.",
-    "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe"
+    "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe",
+    "middle": "Middle",
+    "start-date": "Start date",
+    "end-date": "End date"
   }
 }
