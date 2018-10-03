@@ -16,11 +16,12 @@
             #medication-detail .save-line {
                 height: 20px;
             }
+
             .save-line > .buttons {
                 bottom: 10px;
             }
 
-            .medication-line > span{
+            .medication-line > span {
                 padding: 0 4px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -28,16 +29,17 @@
                 white-space: nowrap;
             }
 
-            .regimen-line{
+            .regimen-line {
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
                 align-items: flex-end;
 
             }
+
             .regimen-line paper-icon-button {
-                margin-left:12px;
-                margin-bottom:12px;
+                margin-left: 12px;
+                margin-bottom: 12px;
                 height: 20px;
                 width: 20px;
                 padding: 2px;
@@ -45,27 +47,31 @@
 
             .regimen--frequency {
                 flex-grow: 3;
-                margin:auto;
-                padding:0 8px 0 8px;
+                margin: auto;
+                padding: 0 8px 0 8px;
             }
-            .regimen--tod{
+
+            .regimen--tod {
                 flex-grow: 3;
-                margin:auto;
-                padding:0 8px 0 8px;
+                margin: auto;
+                padding: 0 8px 0 8px;
             }
+
             .regimen--quantity {
                 flex-grow: 1;
-                margin:auto;
-                padding:0 8px 0 8px;
-                max-width:80px;
+                margin: auto;
+                padding: 0 8px 0 8px;
+                max-width: 80px;
 
             }
+
             .regimen--units {
                 flex-grow: 3;
-                margin:auto;
-                padding:0 8px 0 8px;
+                margin: auto;
+                padding: 0 8px 0 8px;
             }
-            .regimen--datepicker{
+
+            .regimen--datepicker {
                 flex-grow: 3;
                 margin: auto;
                 padding: 0 8px 2px 8px;
@@ -76,7 +82,7 @@
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
-            .buttons{
+            .buttons {
                 position: absolute;
                 bottom: 0;
                 right: 12px;
@@ -105,19 +111,19 @@
                 font-weight: 700;
             }
 
-            .modal-title{
-                background:  var(--app-background-color-dark);
+            .modal-title {
+                background: var(--app-background-color-dark);
                 margin-top: 0;
                 padding: 16px 24px;
             }
 
-            .buttons{
+            .buttons {
                 position: absolute;
                 bottom: 0;
                 right: 12px;
             }
 
-            .modal-button{
+            .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
                 color: var(--app-text-color);
                 font-weight: 400;
@@ -127,7 +133,7 @@
                 padding: 10px 1.2em;
             }
 
-            .modal-button--save{
+            .modal-button--save {
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
@@ -135,8 +141,8 @@
 
             }
 
-            #filter{
-                width:50%;
+            #filter {
+                width: 50%;
             }
 
             .dropdown-priority {
@@ -150,17 +156,21 @@
 
             <div class="regimen-line">
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"  disabled="true"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
+                                 disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"  disabled="true"></paper-input>
+                    <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
+                                 disabled="true"></paper-input>
                 </template>
                 <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
                     <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}" disabled="true"></paper-input>
                 </template>
 
-                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" on-change="_valueChanged" class="regimen--datepicker"></vaadin-date-picker>
-                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" on-change="_valueChanged" class="regimen--datepicker"></vaadin-date-picker>
+                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{bufferBeginMoment}}" on-change="_valueChanged"
+                                    class="regimen--datepicker"></vaadin-date-picker>
+                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{bufferEndMoment}}" on-change="_valueChanged"
+                                    class="regimen--datepicker"></vaadin-date-picker>
 
                 <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
                     <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{bufferMedicPriority}}">
@@ -313,13 +323,13 @@
                     },
                     bufferBeginMoment: {
                         type: Object,
-                        value: {}
-                        // observer: "changeBeginMoment"
+                        value: {},
+                        observer: "changeBeginMoment"
                     },
                     bufferEndMoment: {
                         type: Object,
-                        value: {}
-                        // observer: "changeEndMoment"
+                        value: {},
+                        observer: "changeEndMoment"
                     },
                     bufferMedicPriority: {
                         type: Number,
@@ -348,16 +358,17 @@
                 }
             }
 
-            open(medicationDetail,selectedMedicationContentWithId) {
+            open(medicationDetail, selectedMedicationContentWithId) {
                 if (selectedMedicationContentWithId) {
-                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId);
+                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId)
+                    this.set('medicationDetail', medicationDetail)
 
-                    const isCustom = this.hasCustomFrequencyTable(selectedMedicationContentWithId.medicationValue.regimen);
-                    this.set('codes',selectedMedicationContentWithId.codes ? selectedMedicationContentWithId.codes : []);
-                    this.set('customFrequencyTable', isCustom);
-                    this.set('flagTableFrequency', isCustom);
-                    this.set('bufferUnit',selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
-                    this.set('bufferQuantity',selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
+                    const isCustom = this.hasCustomFrequencyTable(selectedMedicationContentWithId.medicationValue.regimen)
+
+                    this.set('customFrequencyTable', isCustom)
+                    this.set('flagTableFrequency', isCustom)
+                    this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
+                    this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
                     this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
                     this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
                     this.set('bufferMedicPriority', selectedMedicationContentWithId.medicationValue.regimen[0] ? this.changeMedicPriority() : 0)
@@ -369,73 +380,77 @@
 
 
             addPosologyRegimen() {
-                const reg = this.selectedMedicationContentWithId.medicationValue.regimen;
-                this.push('selectedMedicationContentWithId.medicationValue.regimen', { weekday: null, date: null, administratedQuantity: { quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit } });
+                const reg = this.selectedMedicationContentWithId.medicationValue.regimen
+                this.push('selectedMedicationContentWithId.medicationValue.regimen', {
+                    weekday: null,
+                    date: null,
+                    administratedQuantity: {quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit}
+                })
             }
 
             clearPosologyRegimen(event, target) {
-                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
-                if(this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
-                    this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1);
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
+                if (this.selectedMedicationContentWithId.medicationValue.regimen.length > 1) {
+                    this.splice('selectedMedicationContentWithId.medicationValue.regimen', this.selectedMedicationContentWithId.medicationValue.regimen.indexOf(rgModel.rg), 1)
                 }
             }
 
             _localize(s) {
-                return this.api.contact().medication().localize(s, this.language);
+                return this.api.contact().medication().localize(s, this.language)
             }
 
             _selectedFrequency(rg) {
-                return rg.weekday !== null && rg.weekday !== undefined ? 1 : rg.date ? 2 : 0;
+                return rg.weekday !== null && rg.weekday !== undefined ? 1 : rg.date ? 2 : 0
             }
 
             _selectFrequency(event, target) {
-                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (!rgModel) {
-                    return;
+                    return
                 }
                 if (target.item.id === 'daily') {
-                    rgModel.set('rg.weekday', null);
-                    rgModel.set('rg.date', null);
+                    rgModel.set('rg.weekday', null)
+                    rgModel.set('rg.date', null)
                 } else if (target.item.id === 'weekly') {
-                    rgModel.set('rg.weekday', {});
-                    rgModel.set('rg.date', null);
+                    rgModel.set('rg.weekday', {})
+                    rgModel.set('rg.date', null)
                 } else if (target.item.id === 'monthly') {
-                    rgModel.set('rg.weekday', null);
-                    rgModel.set('rg.date', -1);
+                    rgModel.set('rg.weekday', null)
+                    rgModel.set('rg.date', -1)
                 }
-                this._valueChanged();
+                this._valueChanged()
             }
 
             _selectDayPeriod(event, target) {
-                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target);
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (!rgModel) {
-                    return;
+                    return
                 }
-                rgModel.set('rg.dayPeriod', { type: "CD-DAYPERIOD", code: target.item.id });
-                this._valueChanged();
+                rgModel.set('rg.dayPeriod', {type: "CD-DAYPERIOD", code: target.item.id})
+                this._valueChanged()
             }
 
             _valueChanged() {
-                this.dispatchEvent('value-changed',{detail: this.selectedMedicationContentWithId, bubbles: true, composed: true})
+                this.dispatchEvent(new CustomEvent('value-changed', {detail: this.selectedMedicationContentWithId, bubbles: true, composed: true}))
             }
 
             _setFrequencyList() {
                 let bufferTable = []
 
-                for(let cpt=0;cpt<this.$.numberByFrequency.value;cpt++) {
+                for (let cpt = 0; cpt < this.$.numberByFrequency.value; cpt++) {
                     bufferTable.push({
                         weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
                         date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
                         administratedQuantity: {
-                            quantity : this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                            quantity: this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
                             unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
                         }
                     })
                 }
 
-                this.set("customFrequencyTable", true);
-                this.set("selectedMedicationContentWithId.medicationValue.regimen",bufferTable);
-                this.set("flagTableFrequency",true)
+                this.set("customFrequencyTable", true)
+                this.set("selectedMedicationContentWithId.medicationValue.regimen", bufferTable)
+                this.set("flagTableFrequency", true)
             }
 
             _addFrequency() {
@@ -443,33 +458,31 @@
                     weekday: this.$.generalFrequency.selectedItem.id === "weekly" ? {} : null,
                     date: this.$.generalFrequency.selectedItem.id === "monthly" ? -1 : null,
                     administratedQuantity: {
-                        quantity : 1,
+                        quantity: 1,
                         unit: this.bufferUnit
                     }
                 })
             }
 
-            // changeBeginMoment(){
-            //     if (this.selectedMedicationContentWithId) {
-            //         this.push("selectedMedicationContentWithId.medicationValue.regimen", {
-            //             beginMoment: this.api.moment(this.bufferBeginMoment)
-            //         })
-            //     }
-            // }
-            //
-            // changeEndMoment(){
-            //     if (this.selectedMedicationContentWithId) {
-            //         this.push("selectedMedicationContentWithId.medicationValue.regimen", {
-            //             endMoment: this.api.moment(this.bufferEndMoment)
-            //         })
-            //     }
-            // }
+            changeBeginMoment() {
+                if (this.selectedMedicationContentWithId) {
+                    this.set("selectedMedicationContentWithId.medicationValue.beginMoment", parseInt(this.bufferBeginMoment.replace(/(....)-(..)-(..)/, '$1$2$3')))
+                    this._valueChanged()
+                }
+            }
+
+            changeEndMoment() {
+                if (this.selectedMedicationContentWithId) {
+                    this.set("selectedMedicationContentWithId.medicationValue.beginMoment", parseInt(this.bufferEndMoment.replace(/(....)-(..)-(..)/, '$1$2$3')))
+                    this._valueChanged()
+                }
+            }
 
             changeMedicPriority() {
-                if (this.selectedMedicationContentWithId) {
-                    this.push("selectedMedicationContentWithId.medicationValue.regimen", {
-                        endMoment: this.api.moment(this.bufferMedicPriority)
-                    })
+                if (this.medicationDetail) {
+                    const code = this.bufferMedicPriority === 0 ? 'low' : this.bufferMedicPriority === 1 ? 'middle' : 'high'
+                    this.set("medicationDetail.codes", [{id: `CD-PRIORITY:${code}:1.0`, type: 'CD-PRIORITY', code: code, version: '1.0'}])
+                    this._valueChanged()
                 }
             }
         }
