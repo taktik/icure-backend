@@ -30,6 +30,10 @@ public abstract class AbstractReplicator<T extends StoredDocument> implements Fi
 	private HazelcastInstance hazelcast;
 	private IMap<String, ReplicatorJobStatus> replicatorJobsStatusesByGroupId;
 
+	public IMap<String, ReplicatorJobStatus> getReplicatorJobsStatusesByGroupId() {
+		return replicatorJobsStatusesByGroupId;
+	}
+
 	@Value("${icure.couchdb.username}")
 	protected String couchDbUsername;
 	@Value("${icure.couchdb.password}")

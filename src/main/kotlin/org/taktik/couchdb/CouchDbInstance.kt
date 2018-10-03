@@ -81,8 +81,8 @@ class CouchDbInstance(val httpClient: HttpClient,
         httpClient.newRequest(uri)
             .apply {
                 user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(("$u:$p").toByteArray())) } }
-                idleTimeout(30, TimeUnit.SECONDS)
-                timeout(30, TimeUnit.DAYS)
+                idleTimeout(60, TimeUnit.SECONDS)
+                timeout(60, TimeUnit.DAYS)
             }
             .onResponseContent { response, byteBuffer ->
                 log.debug("URI: "+uri+": "+byteBuffer.remaining())

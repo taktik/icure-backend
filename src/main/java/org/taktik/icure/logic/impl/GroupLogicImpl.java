@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
-	private static final String ADMIN_GROUP = "XX-f203c688-159c-4d7e-8453-c5f24dce8418";
+	public static final String ADMIN_GROUP = "XX-f203c688-159c-4d7e-8453-c5f24dce8418";
 	private SessionLogic sessionLogic;
 	private GroupDAO groupDAO;
 	private CouchDbInstance couchdbInstance;
@@ -93,6 +93,5 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 		Group result = groupDAO.save(group);
 		return result.getRev() != null ? result : null;
 	}
-
 
 }
