@@ -321,7 +321,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		    //After save, make sure that the currently edited data is connected to the loaded data
 			(this.api.localize(currentlyEditedMedication.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
 		}
-		if (!_.isEqual(localizedValue, this.localizedValue)) {
+		if (!_.isEqual(this.value, this.previouslySavedValue)) {
+		    this.set('previouslySavedValue', _.cloneDeep(this.value))
 			this.set('localizedValue', localizedValue);
 			this.set('refresher', this.refresher+1)
 			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
@@ -365,6 +366,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    this.language,
 				{
 				    medicationValue: {
+				        medicinalProduct: {
+				            priority: "low",
+							beginMoment: 0,
+							endMoment: 0
+						},
 				    	regimen: []
 					}
 				}

@@ -3379,7 +3379,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	_addMedication(e) {
         const id = this.api.crypto().randomUuid();
         const medicationValue = { regimen: [] }
-        const newMedication =  { label: this.localize('medication','medication',this.language), id: id, content: _.fromPairs([[this.language, { medicationValue: medicationValue }]]), tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) };
+        const newMedication =  {
+            label: this.localize('medication','medication',this.language),
+			id: id,
+			content: _.fromPairs([[this.language, { medicationValue: medicationValue }]]),
+			tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] }))
+        };
 
         this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
 	}
