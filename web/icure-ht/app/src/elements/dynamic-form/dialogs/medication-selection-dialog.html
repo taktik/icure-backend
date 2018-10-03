@@ -46,6 +46,10 @@
                 padding: 16px 24px;
             }
 
+            #entities-list {
+                margin-bottom: 55px;
+            }
+
             .modal-button {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
                 color: var(--app-text-color);
@@ -227,13 +231,6 @@
                     compoundPrescriptionText: {
                         type: String
                     },
-                    value: {
-                        type: Array,
-                        notify: true,
-                        value: function () {
-                            return [];
-                        }
-                    },
                     columnsDefinition: {
                         type: Object,
                         value: function () {
@@ -250,6 +247,10 @@
                         type: Object,
                         value: null,
                         observer: "_selectedMedicationFromListChanged"
+                    },
+                    newMedication: {
+                        type: Object,
+                        value: null
                     },
                     selectedMedicationContentWithId: {
                         type: Object,
@@ -269,7 +270,11 @@
                 super()
             }
 
-            open() {
+            open(medication, selectedMedicationContentWithId) {
+                if (medication) {
+                    this.set('newMedication', medication);
+                    this.set('selectedMedicationContentWithId', selectedMedicationContentWithId);
+                }
                 this.$['medication-selection'].open()
             }
 
@@ -409,9 +414,10 @@
                     this.set("bufferQuantity",1)
                 }
                 if (this.selectedMedicationContentWithId.isNew) {
-                    this.push('value',this.newMedication)
+                    this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                } else {
+                    this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
                 }
-                this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.selectedMedicationContentWithId, bubbles: true, composed: true}))
             }
 
             click(e) {

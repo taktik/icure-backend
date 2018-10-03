@@ -12,6 +12,9 @@
 
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+
 <link rel="import" href="dynamic-link.html">
 
 <link rel="import" href="dialogs/medication-selection-dialog.html">
@@ -61,37 +64,6 @@
 				float: right;
 				font-style: italic;
 				border-bottom: 1px dotted var(--app-secondary-color-dark);
-			}
-
-			.medication-line {
-				margin: 4px 0;
-				text-overflow: ellipsis;
-				height: 18px;
-				font-size: 13px;
-				width: 100%;
-				min-width: initial;
-				display:flex;
-				flex-direction: row;
-				justify-content: space-between;
-				flex-wrap: nowrap;
-			}
-
-			.medication-line > span{
-				padding: 0 4px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				max-width: 90%;
-				white-space: nowrap;
-			}
-
-			.medication-line > .action-buttons {
-				width:45px;
-				padding-right:0;
-			}
-
-
-			.grid-container {
-				margin: 0 0 56px 0;
 			}
 
 			paper-dropdown-menu, paper-listbox{
@@ -178,11 +150,11 @@
 				height: 20px;
 				width: 20px;
 				padding: 2px;
+                cursor: pointer;
 			}
-
-			.container {
-				@apply(--layout-horizontal);
-			}
+            a.cursor-pointer {
+                cursor: pointer
+            }
 
 			iron-selector > * {
 				padding: 16px 16px;
@@ -212,39 +184,27 @@
 				};
 			}
 
-			.modal-title{
-				background:  var(--app-background-color-dark);
-				margin-top: 0;
-				padding: 16px 24px;
+			.medication-line {
+				margin: 4px 0;
+				height: 18px;
+				font-size: 13px;
+				width: 100%;
+				min-width: initial;
+				display:flex;
+				flex-direction: row;
+				justify-content: space-between;
+				flex-wrap: nowrap;
 			}
 
-			.buttons{
-				position: absolute;
-				bottom: 0;
-				right: 12px;
+			.medication-line > .action-buttons {
+				width:45px;
+				padding-right:0;
 			}
 
-			.modal-button{
-				--paper-button-ink-color: var(--app-secondary-color-dark);
-				color: var(--app-text-color);
-				font-weight: 400;
-				font-size: 14px;
-				height: 40px;
-				min-width: 100px;
-				padding: 10px 1.2em;
-			}
-
-			.modal-button--save{
-				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-				background: var(--app-secondary-color);
-				color: var(--app-primary-color-dark);
-				font-weight: 700;
-
-			}
-
-
-			#filter{
-				width:50%;
+			.medication-line > span {
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
 			}
 
 		</style>
@@ -267,9 +227,9 @@
 		</template>
 		</ul>
 
-		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a on-tap="addMedication()">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
+		<paper-icon-button icon="add" on-tap="addMedication"></paper-icon-button><a class="cursor-pointer" on-tap="addMedication">[[localize('add_pre_dru','Add prescription drug',language)]]</a>
 
-		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails"></medication-selection-dialog>
+		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
 	</template>
 	<script>
@@ -368,8 +328,13 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 	}
 
-	_displayMedicationDetails() {
-        this.$['medication-detail'].open()
+    _medicationCreated(e) {
+    	this.push('value',e.detail)
+        this._displayMedicationDetails(e)
+	}
+
+	_displayMedicationDetails(e) {
+        this.$['medication-detail'].open(e.detail,this.extractContentWithIdFromMedicationService(e.detail,true))
     }
 
 	localizedMedicationValueWithId(id, e, lng) {
@@ -381,29 +346,38 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
-		return { id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue, isNew: isNew || false };
+		return {
+		    id: m.id,
+            codes: m.codes,
+            medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {
+                medicationValue: { regimen: [] }
+            })).medicationValue,
+            isNew: isNew || false };
 	}
 
 	addMedication() {
 		const id = this.api.crypto().randomUuid();
-		this.set('newMedication', { id: id, index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1, content: _.fromPairs([[this.language, { medicationValue: { regimen: [] } }]]) });
-		this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(this.newMedication, true));
-		this.$['medication-selection'].open();
+		const newMedication =  {
+		    id: id,
+			index: this.value.reduce((acc, v) => Math.max(v.index, acc), 0) + 1,
+			codes: [],
+			content: _.fromPairs([[
+			    this.language,
+				{
+				    medicationValue: {
+				    	regimen: []
+					}
+				}
+			]])
+		};
+		this.$['medication-selection'].open(newMedication, this.extractContentWithIdFromMedicationService(newMedication, true));
 	}
 
 	editMedication(el) {
 		const id = el.target.parentElement.parentElement.id;
 		const item = this.value.find(s => s.id === id);
 		if (item) {
-			this.set('selectedMedicationContentWithId', this.extractContentWithIdFromMedicationService(item));
-			const isCustom = this.hasCustomFrequencyTable(this.selectedMedicationContentWithId.medicationValue.regimen);
-            this.set('customFrequencyTable', isCustom);
-            this.set('flagTableFrequency', isCustom);//,this.selectedMedicationContentWithId.medicationValue.regimen.length > 1);
-			this.set('bufferUnit',this.selectedMedicationContentWithId.medicationValue.regimen[0] ? this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
-            this.set('bufferQuantity',this.selectedMedicationContentWithId.medicationValue.regimen[0] ? this.selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
-			this.set('bufferNumberByFrequency', this.selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? this.selectedMedicationContentWithId.medicationValue.regimen.length : 1)
-			this.set('bufferGeneralFrequency', this.selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(this.selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
-			this.$['medication-detail'].open();
+			this.$['medication-detail'].open(item, this.extractContentWithIdFromMedicationService(item));
 		}
 	}
 

@@ -57,6 +57,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
 <link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
+<link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
+<link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -1058,13 +1060,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-item>
 								<paper-listbox id="suhelb" class="menu-content sublist" selectable="ht-pat-he-tree-detail" multi toggle-shift on-selected-items-changed="selectedMainElementItemsChanged">
 									<template is="dom-if" if="[[!surgicalHealthElements.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_sur_hea_ele','No surgical history',language)]]</div></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_sur_hea_ele','No surgical history',language)]]</div></paper-item><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement" data-tags="ODMI-CD-ITEM|surgery|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template id="surgicalHesDomRepeat" is="dom-repeat" items="[[surgicalHealthElements]]" as="he">
 										<ht-pat-he-tree-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="[[getHeId(he)]]" he="[[he]]" selected="[[_isItemInArray(he,selectedHealthcareElements,selectedHealthcareElements.*)]]" on-selection-change="handleSelectionChange" on-edit-he="_editHealthElement" on-activate-he="_activate" on-archive-he="_archive" on-inactivate-he="_inactivate"></ht-pat-he-tree-detail>
 									</template>
 									<template is="dom-if" if="[[surgicalHealthElements.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add surgical history',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addHealthElement" data-label="Family risk" data-tags="ODMI-CD-ITEM|surgery|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_fam_ris','Add surgical history',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addInactiveHealthElement" data-label="Family risk" data-tags="ODMI-CD-ITEM|surgery|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
@@ -1126,7 +1128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
 									<template is="dom-if" if="[[!medications.length]]">
-										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med','No medications',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item list-info"><div class="one-line-menu">[[localize('no_med','No medications',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addMedication" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 									<template is="dom-repeat" items="[[medications]]" as="medication">
 										<paper-item class="menu-item" id="_svc_[[medication.id]]">
@@ -1136,7 +1138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										</paper-item>
 									</template>
 									<template is="dom-if" if="[[medications.length]]">
-										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med','Add medication',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addService" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
+										<paper-item class="menu-item sublist-footer"><div class="one-line-menu">[[localize('add_med','Add medication',language)]]</div><paper-icon-button class="menu-item-icon" icon="icons:add" on-tap="_addMedication" data-label="Medications" data-tags="CD-ITEM|medication|1.0"></paper-icon-button></paper-item>
 									</template>
 								</paper-listbox>
 							</collapse-button>
@@ -1597,7 +1599,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-radio-group>
 			</div>
 		</paper-dialog>
+
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
+		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
+		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
+
 	</template>
 	<script>
 
@@ -3488,11 +3494,32 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.$['add-healthelement-dialog'].set('entity', { plansOfAction: [], closingDate: parseInt(moment().format('YYYYMMDDHHmmss')), tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) });
 	}
 
-	_addService(e) {
-		this.set('editedSvcLabel', e.target.dataset.label);
-		this.$['add-service-dialog'].open();
-		this.$['add-service-dialog'].set('entity', { 'label': e.target.dataset.label, 'tags': (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) });
+	_addMedication(e) {
+        const id = this.api.crypto().randomUuid();
+        const medicationValue = { regimen: [] }
+        const newMedication =  { label: this.localize('medication','medication',this.language), id: id, content: _.fromPairs([[this.language, { medicationValue: medicationValue }]]), tags: (e.target.dataset.tags ? e.target.dataset.tags.split(',') : []).map(c => ({ id: c, type: c.split('|')[0], code: c.split('|')[1], version: c.split('|')[2] })) };
+
+        this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
 	}
+
+    _medicationCreated(e) {
+        if (!this.currentContact) {
+            return;
+        }
+        this.api.contact().service().newInstance(this.api.user, e.detail).then(svc => this.saveService(svc)).then(() => this.patientChanged())
+	}
+
+    _displayMedicationDetails(e) {
+	    const m = e.detail
+        this.$['medication-details'].open(e.detail, { id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue, isNew: true } );
+    }
+
+    _medicationChanged(e) {
+        if (!this.currentContact) {
+            return;
+        }
+        this.saveService(e.detail).then(() => this.patientChanged())
+    }
 
 	_healthElementsSelectorColumns() {
 		return [{ key: 'descr', title: 'Description' }, { key: 'plansOfActionDescr', title: 'Plans of action' }];
