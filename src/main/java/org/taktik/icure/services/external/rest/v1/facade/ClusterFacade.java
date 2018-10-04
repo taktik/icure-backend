@@ -17,6 +17,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +50,10 @@ public class ClusterFacade implements OpenApiFacade {
 			throw new IllegalAccessException("No registered user");
 		}
 
-		return ((Set< Map.Entry<String, ReplicatorJobStatus>>) userReplicator.getReplicatorJobsStatusesByGroupId().entrySet()).stream().map(e -> new SyncStatusDto(e.getKey(), e.getValue().getTimestamp())).collect(Collectors.toList());
+		return userReplicator.getReplicatorJobsStatusesByGroupId().entrySet().stream()
+				.map(e -> new SyncStatusDto(e.getKey(), e.getValue().getTimestamp(), e.getValue().getUpdates()))
+				.sorted(Comparator.comparing(SyncStatusDto::getGroupId))
+				.collect(Collectors.toList());
 	}
 
 	@Autowired

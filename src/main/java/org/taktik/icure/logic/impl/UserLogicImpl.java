@@ -170,24 +170,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 
 	@Override
-	public void createDefaultUserIfNecessary() {
-		User testUser = getUserByLogin(UserLogicImpl.defaultUserName);
-		if (testUser == null) {
-			log.info("Creating default admin user");
-
-			User user = buildStandardUser(UserLogicImpl.defaultUserName, defaultUserPassword);
-
-			// Add admin permission
-			Permission adminPermission = new Permission();
-			adminPermission.grant(Permissions.Type.AUTHENTICATE);
-			adminPermission.grant(Permissions.Type.ADMIN);
-			user.getPermissions().add(adminPermission);
-
-			userDAO.create(user);
-		}
-	}
-
-	@Override
 	public User buildStandardUser(String userName, String password) {
 		User user = new User();
 
@@ -231,6 +213,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		return getParents(user);
 	}
 
+	@Override
+	public List<User> getUsersByLogin(String login) {
+		return userDAO.findByUsername(formatLogin(login));
+	}
+
 	public User getUserByLogin(String login) {
 		// Format login
 		login = formatLogin(login);
@@ -239,9 +226,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 		if (byUsername.size() == 0) {
 			return null;
-		}
-		if (byUsername.size() > 1) {
-			throw new IllegalStateException("Two users with login " + login);
 		}
 
 		return byUsername.get(0);

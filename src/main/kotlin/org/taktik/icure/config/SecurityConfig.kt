@@ -34,6 +34,8 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.taktik.icure.logic.ICureSessionLogic
+import org.taktik.icure.logic.PermissionLogic
+import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.security.AuthenticationFailureHandler
 import org.taktik.icure.security.AuthenticationSuccessHandler
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
@@ -84,7 +86,7 @@ class SecurityConfig {
             remotingExceptionTranslationFilter: ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, applicationTokensAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
 
     @Bean
-    fun daoAuthenticationProvider(userDetailsService: UserDetailsService, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider().apply {
+    fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, userDetailsService: UserDetailsService, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
         setPasswordEncoder(passwordEncoder)
         setUserDetailsService(userDetailsService)
     }

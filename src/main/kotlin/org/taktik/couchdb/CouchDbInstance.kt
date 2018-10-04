@@ -38,7 +38,7 @@ class CouchDbInstance(val httpClient: HttpClient,
 
         try {
             val request = httpClient.newRequest(uri).timeout(5, TimeUnit.SECONDS)
-                .apply { user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((u + ":" + p).toByteArray())) } } }
+                .apply { user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(("$u:$p").toByteArray())) } } }
 
             request.send(object : BufferingResponseListener() {
                override fun onComplete(it: Result?) {
@@ -77,26 +77,26 @@ class CouchDbInstance(val httpClient: HttpClient,
             .setParameter("include_docs", "true")
             .apply { since?.let { setParameter("since", since) } }
             .build()
-        log.debug("URI: $uri: start request")
+        log.info("URI: $uri: start request")
         httpClient.newRequest(uri)
             .apply {
                 user?.let { u -> password?.let { p -> header(HttpHeader.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(("$u:$p").toByteArray())) } }
                 idleTimeout(60, TimeUnit.SECONDS)
                 timeout(60, TimeUnit.DAYS)
             }
-            .onResponseContent { response, byteBuffer ->
+            .onResponseContent { _, byteBuffer ->
                 log.debug("URI: "+uri+": "+byteBuffer.remaining())
                 parser.parse(byteBuffer)
                 heartBeat()
             }
-            .onResponseSuccess { response ->
+            .onResponseSuccess {
                 future.complete(Unit)
             }
-            .onResponseFailure { response, failure ->
+            .onResponseFailure { _, failure ->
                 log.error("URI: $uri: request failed with user $user:$password", failure)
                 future.completeExceptionally(failure)
             }
-            .onRequestFailure { request, failure ->
+            .onRequestFailure { _, failure ->
                 log.error("URI: $uri: request failed ", failure)
                 future.completeExceptionally(failure)
             }.send {}

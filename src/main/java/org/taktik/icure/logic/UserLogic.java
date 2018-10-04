@@ -39,8 +39,6 @@ import java.util.Set;
 
 public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic<User> {
 
-	void createDefaultUserIfNecessary();
-
 	/**
 	 * Retrieve properties or the given user
 	 */
@@ -108,6 +106,8 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 	void modifyRoles(String userId, Set<Role> roles);
 
 	User getUser(String id);
+
+	List<User> getUsersByLogin(String login);
 
 	User getUserByLogin(String login);
 
