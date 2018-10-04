@@ -1328,16 +1328,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			</div>
 		</entity-selector>
 
+
         <paper-dialog id="genInsDialog">
             <h2 class="modal-title">[[localize('gen_ins','General insurability',language)]]</h2>
-            <!-- TODO: add switch to get Genins as MMH  -->
-            <!-- TODO: Show switch only when MMH token is present  -->
-			<template is="dom-if" if="{{curGenInsResp}}">
+            <template is="dom-if" if="{{curGenInsResp}}">
 				<b>[[localize('ssin','SSIN',language)]]:</b> [[curGenInsResp.inss]]
 				<b>[[localize('nam','Name',language)]]:</b> [[curGenInsResp.firstName]] [[curGenInsResp.lastName]] <br/>
-				<b>[[localize('sex','Gender',language)]]:</b> [[curGenInsResp.sex]]<br/>
+				<b>[[localize('sex','Gender',language)]]:</b> [[localize(curGenInsResp.sex,curGenInsResp.sex,language)]]<br/>
+                <b>[[localize('dat_of_bir','Birthdate',language)]]:</b> [[_dateFormat2(curGenInsResp.dateOfBirth,'YYYYMMDD','DD/MM/YYYY')]]<br/>
 
-				<template is="dom-if" if="{{curGenInsResp.deceased}}"><b>[[localize('deceased','Deceased',language)]]:</b>[[curGenInsResp.deceased]]<br/></template>
+				<template is="dom-if" if="{{curGenInsResp.deceased}}"><b>[[localize('deceased','Deceased',language)]]:</b>[[_dateFormat2(curGenInsResp.deceased,'YYYYMMDD', 'DD/MM/YYYY')]]<br/></template>
 				<template is="dom-if" if="{{curGenInsResp.hospitalizedInfo}}"><b>[[localize('hos_inf','Hospitalized',language)]]:</b>[[_formatHospitalizedInfo(curGenInsResp.hospitalizedInfo)]]<br/></template>
 				<template is="dom-if" if="{{curGenInsResp.medicalHouseInfo}}">
 					<b>[[localize('mmh_inf','Medical House',language)]]:</b><br/>
@@ -1348,9 +1348,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<b>[[localize('abo_kin','Kine',language)]]:</b> [[_trueOrUnknown(curGenInsResp.medicalHouseInfo.kine)]]<br/>
 				</template>
 
-				<template is="dom-if" if="{{curGenInsResp.generalSituation}}"><b>[[localize('generalSituation','generalSituation',language)]]:</b>[[curGenInsResp.generalSituation]]<br/></template>
-				<b>[[localize('paymentByIo','paymentByIo',language)]]:</b>[[curGenInsResp.paymentByIo]]<br/>
-				<b>[[localize('specialSocialCategory','specialSocialCategory',language)]]:</b>[[curGenInsResp.specialSocialCategory]]<br/>
+				<template is="dom-if" if="{{curGenInsResp.generalSituation}}"><b>[[localize('generalSituation','generalSituation',language)]]:</b>[[localize(curGenInsResp.generalSituation, curGenInsResp.generalSituation, language)]]<br/></template>
+				<b>[[localize('paymentByIo','paymentByIo',language)]]:</b>[[_yesOrNo(curGenInsResp.paymentByIo)]]<br/>
+				<b>[[localize('specialSocialCategory','specialSocialCategory',language)]]:</b>[[_yesOrNo(curGenInsResp.specialSocialCategory)]]<br/>
 
 
 				<template is="dom-if" if="{{curGenInsResp.faultMessage}}"><b>[[localize('faultMessage','faultMessage',language)]]:</b>[[curGenInsResp.faultMessage]]<br/></template>
@@ -1392,6 +1392,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="cell frozen">[[item.ct1]]/[[item.ct2]]</div>
 						</template>
 					</vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">
+                            <vaadin-grid-sorter path="elevated">[[localize('ele','Elevated',language)]]</vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[_isElevated(item.ct1)]]</div>
+                        </template>
+                    </vaadin-grid-column>
 					<vaadin-grid-column>
 						<template class="header">
 							<vaadin-grid-sorter path="paymentApproval">[[localize('pay_app','paymentApproval',language)]]</vaadin-grid-sorter>
@@ -1416,7 +1424,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<vaadin-grid-sorter path="direction">[[localize('tra_dir','Direction',language)]]</vaadin-grid-sorter>
 							</template>
 							<template>
-								<div class="cell frozen">[[item.direction]]</div>
+								<div class="cell frozen">[[localize(item.direction,item.direction,language)]]</div>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column>
@@ -1432,7 +1440,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<vaadin-grid-sorter path="date">[[localize('tra_dat','Date',language)]]</vaadin-grid-sorter>
 							</template>
 							<template>
-								<div class="cell frozen">[[item.date]]</div>
+								<div class="cell frozen">[[_dateFormat2(item.date,'YYYYMMDD','DD/MM/YYYY')]]</div>
 							</template>
 						</vaadin-grid-column>
 					</vaadin-grid>
@@ -1951,12 +1959,17 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return date ? this.api.moment(date, fFrom).format(fTo) : '';
     }
 
+    _isElevated(CT){
+	    return CT && CT.substring(2) !== '0' ? this._yesOrNo(true) : this._yesOrNo(false);
+    }
+
 	_contactClasses(contact) {
 		return contact.closingDate ? '' : 'current-contact';
 	}
 
 	_openGenInsDialog(e){
         e.stopPropagation();
+
         const mym = moment;
         //this.set('curGenInsResp', null);
         this.set('genInsNiss', null);
@@ -2002,6 +2015,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _trueOrUnknown(b){
 	    return b ? '+' : '?'
 	}
+
+	_yesOrNo(b){
+	    return b ? this.localize('yes','yes',this.language) : this.localize('no','no',this.language)
+    }
 
     _formatHospitalizedInfo(hi){
 	    let info = '';
