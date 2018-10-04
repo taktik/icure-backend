@@ -204,8 +204,8 @@
                             <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
                         </paper-listbox>
                     </paper-dropdown-menu>
-                    <paper-button on-tap="_setFrequencyList">{{localize("details","Details",language)}}
-                        <iron-icon icon="arrow-downward"></iron-icon>
+                    <paper-button on-tap="_setFrequencyList"><iron-icon icon="zoom-in"></iron-icon> {{localize("details","Details",language)}}
+                        <!--<iron-icon icon="arrow-downward"></iron-icon>-->
                     </paper-button>
                 </div>
                 <template is="dom-if" if="[[flagTableFrequency]]">
@@ -247,7 +247,8 @@
                             </template>
                             <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
                                          class="regimen--quantity" min="0" on-change="_valueChanged"></paper-input>
-                            <paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"
+                            <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen&#45;&#45;units"-->
+                            <paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"
                                          on-change="_valueChanged"></paper-input>
                             <paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
                         </div>
@@ -310,7 +311,7 @@
                     },
                     bufferUnit: {
                         type: String,
-                        value: null
+                        value: "loading ..."
                     },
                     bufferQuantity: {
                         type: Number,
@@ -374,13 +375,14 @@
                     this.set('selectedMedicationContentWithId', selectedMedicationContentWithId)
                     console.log("open",selectedMedicationContentWithId)
                     this.set('medicationDetail', medicationDetail)
+                    console.log("med details",medicationDetail)
 
                     const isCustom = this.hasCustomFrequencyTable(selectedMedicationContentWithId.medicationValue.regimen)
                     this.set('customFrequencyTable', isCustom)
                     this.set('flagTableFrequency', isCustom)
 
-                    this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "")
-                    this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 0)
+                    this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "not found :(")
+                    this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 1)
                     this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
                     this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
                     const previousPriority = selectedMedicationContentWithId.medicationValue.medicinalProduct.priority
@@ -482,14 +484,12 @@
                 if (numberDate) {
                     const str = (typeof numberDate != "string") ? numberDate.toString() : numberDate
                     const Y = str.substring(0,4), M = str.substring(4,6), D = str.substring(6,8)
-
-                    console.log(`date to str : ${M}/${D}/${Y}`)
-                    return `${M}/${D}/${Y}`
+                    return `${Y}-${M}-${D}`
                 }
             }
 
             changeBeginMoment() {
-                if (this.selectedMedicationContentWithId) {
+                if (this.selectedMedicationContentWithId && this.beginMomentAsString) {
                     const beginMoment = parseInt(this.beginMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment", beginMoment)
                     this._valueChanged()
@@ -497,11 +497,10 @@
             }
 
             changeEndMoment() {
-                if (this.selectedMedicationContentWithId) {
+                if (this.selectedMedicationContentWithId && this.endMomentAsString) {
                     const endMoment = parseInt(this.endMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment", endMoment)
                     this._valueChanged()
-                    console.log("this medic",this.selectedMedicationContentWithId)
                 }
             }
 
