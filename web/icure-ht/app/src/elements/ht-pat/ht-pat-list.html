@@ -1120,6 +1120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         'searchString': latestSearchValue
                     }
 
+
                     if (grid.lastParams !== thisParams) {
                         grid.lastParams = thisParams
                         console.log("Starting search for " + thisParams)
@@ -1702,7 +1703,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set("hcpSelectedForSharing."+index+".delegation",[])
                     }
                     this.push("hcpSelectedForSharing."+index+".delegation",tag)
-                    
+
                     if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length === 12){
                         this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
                     }
