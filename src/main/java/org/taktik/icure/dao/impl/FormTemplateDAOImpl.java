@@ -64,20 +64,22 @@ class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTem
 
     @Override
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
-    public List<FormTemplate> findByUserGuid(String userId, String guid) {
+    public List<FormTemplate> findByUserGuid(String userId, String guid, boolean loadLayout) {
         ComplexKey from = ComplexKey.of(userId, guid != null ? guid : "");
 		ComplexKey to = ComplexKey.of(userId, guid != null ? guid : "\ufff0");
 		List<FormTemplate> formTemplates = queryView("by_userId_and_guid", from, to);
 
 		// invoke postLoad()
-		formTemplates.forEach(this::postLoad);
+	    if (loadLayout) {
+		    formTemplates.forEach(this::postLoad);
+	    }
 
 		return formTemplates;
 	}
 
     @Override
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    public List<FormTemplate> findBySpecialtyGuid(String specialityCode, String guid) {
+    public List<FormTemplate> findBySpecialtyGuid(String specialityCode, String guid, boolean loadLayout) {
 
 		List<FormTemplate> formTemplates;
 		if (guid !=null) {
@@ -90,7 +92,9 @@ class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTem
 		}
 
 		// invoke postLoad()
-		formTemplates.forEach(this::postLoad);
+	    if (loadLayout) {
+		    formTemplates.forEach(this::postLoad);
+	    }
 
 		return formTemplates;
 	}
