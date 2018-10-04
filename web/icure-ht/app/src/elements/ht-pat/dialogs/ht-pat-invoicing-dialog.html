@@ -650,7 +650,7 @@
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
-                                    <h4>[[item.invoiceType]] [[item.sentMediumType]]</h4>
+                                    <h4>[[getInvoiceType(item.invoiceType)]] [[getSentMediumType(item.sentMediumType)]]</h4>
                                     <p>
                                         <template is="dom-repeat" items="[[item.invoicingCodes]]">
                                             [[item.code]],
@@ -1516,7 +1516,6 @@
                                         this.calculateTotalOfInvoice()
                                     })
                                 }
-
                             })
                         })
                     })
@@ -1760,6 +1759,15 @@
                 }
             }
 
+            getInvoiceType(invoiceType){
+               const type = this.invoiceType.find(type => type.id == invoiceType)
+               return type.label[this.language]
+            }
+
+            getSentMediumType(sentMediumType){
+                const type = this.sentMediumType.find(type => type.id == sentMediumType)
+                return type.label[this.language]
+            }
 
         }
 
