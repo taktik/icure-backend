@@ -894,6 +894,24 @@
     "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe",
     "middle": "Middle",
     "start-date": "Start date",
-    "end-date": "End date"
+    "end-date": "End date",
+    "mutual":"Mutual",
+    "bill_num":"Bill Number",
+    "bill_date":"Bill's Date",
+    "suppl":"Extra charge",
+    "prestat":"Recipient",
+    "med_ref":"Doctor's Referral",
+    "num_send":"Number of the sending",
+    "billd_month":"Billed month",
+    "date_send":"Date of the sending",
+    "billd_amnt":"Billed amount",
+    "accptd_amnt":"Accepted amount",
+    "denied_amnt":"Refused amount",
+    "reas_rej":"Reason for rejection",
+    "pay_info":"Payment information",
+    "ref":"Ref",
+    "amnt":"Amount",
+    "bk_acnt":"Bank account",
+    "paid":"Paid"
   }
 }

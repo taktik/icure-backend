@@ -650,7 +650,7 @@
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
-                                    <h4>[[item.invoiceType]] [[item.sentMediumType]]</h4>
+                                    <h4>[[getInvoiceType(item.invoiceType)]] [[getSentMediumType(item.sentMediumType)]]</h4>
                                     <p>
                                         <template is="dom-repeat" items="[[item.invoicingCodes]]">
                                             [[item.code]],
@@ -1297,6 +1297,12 @@
             }
 
             _selectInvoice(e) {
+                this.set("isTarificationError", false)
+                this.set("isTarificationMcnError", false)
+                this.set('isDetailNmcl', false)
+                this.set('isNmclVerified', false)
+                this.set('npi', false)
+
                 const selected = this.invoices.find(inv => inv.id === e.currentTarget.id)
                 this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
                 this.set('selectedInvoice', selected)
@@ -1306,6 +1312,13 @@
             }
 
             open() {
+
+                this.set("isTarificationMcnError", false)
+                this.set("isTarificationError", false)
+                this.set('isDetailNmcl', false)
+                this.set('isNmclVerified', false)
+                this.set('npi', false)
+
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
 
                     const newInvoice = {}
@@ -1415,6 +1428,7 @@
 
             _addNmcl(e) {
 
+                this.set("isTarificationMcnError", false)
                 this.set("isTarificationError", false)
                 this.set('isDetailNmcl', false)
                 this.set('isNmclVerified', false)
@@ -1516,7 +1530,6 @@
                                         this.calculateTotalOfInvoice()
                                     })
                                 }
-
                             })
                         })
                     })
@@ -1760,6 +1773,15 @@
                 }
             }
 
+            getInvoiceType(invoiceType){
+               const type = this.invoiceType.find(type => type.id == invoiceType)
+               return type.label[this.language]
+            }
+
+            getSentMediumType(sentMediumType){
+                const type = this.sentMediumType.find(type => type.id == sentMediumType)
+                return type.label[this.language]
+            }
 
         }
 
