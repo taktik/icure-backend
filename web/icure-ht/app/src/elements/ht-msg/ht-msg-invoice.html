@@ -27,6 +27,8 @@
 
                 vaadin-grid {
                     height: calc(100% - 16px - 32px);
+                    height: -webkit-fill-available;
+                    /* cascading compatibility */
                     width: 100%;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
@@ -198,13 +200,85 @@
                     min-width: 50px;
                 }
 
+                .facture-title {
+                    padding: 15px;
+                    font-size: 25px;
+                    text-transform: capitalize;
+                    margin: 0;
+                    color: #212121;
+                    height: 25px;
+                    line-height: 25px;
+                }
+
+                vaadin-grid#sendingGrid,
+                vaadin-grid#invoiceGrid {
+                    height: calc(100vh - 120px);
+                }
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <div>
+            <template is="dom-if" if="[[statusPending]]">
+                <div class="facture-title">
+                    [[_displayInvoiceStatus(invoicesStatus)]]
+                </div>
                 <vaadin-grid id="invoiceGrid" items="">
                     <vaadin-grid-column class="recipient-col">
-                        <template class="header">Prestataire</template>
+                        <template class="header">[[localize('mutual','Mutual',language)]]</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">[[localize('nill_num','Bill Number',language)]]</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">[[localize('pat_ident','Patient',language)]]</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">[[localize('niss','NISS',language)]]</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">[[localize('bill_date','Bill\'s Date',language)]]</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column-group>
+                        <template class="header">Montants</template>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">OA</template>
+                            <template></template>
+                            <template class="footer">[[totalPendingInvoices.totalReimbursement]]€</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">[[localize('pat_ident','Patient',language)]]</template>
+                            <template class="footer">[[totalPendingInvoices.totalPatientIntervention]]€</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">[[localize('suppl','Supplement',language)]]</template>
+                            <template class="footer">[[totalPendingInvoices.totalDoctorSupplement]]€</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">[[localize('tot','Total',language)]]</template>
+                            <template class="footer">[[totalPendingInvoices.totalAmount]]€</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                    </vaadin-grid-column-group>
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">[[localize('sta','Statut',language)]]</template>
+                        <template></template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </template>
+
+            <template is="dom-if" if="[[!statusPending]]">
+                <div class="facture-title">
+                    [[_displayInvoiceStatus(invoicesStatus)]]
+                </div>
+                <vaadin-grid id="sendingGrid" items="">
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">[[localize('prestat','Recipient',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="oa-col">
@@ -212,69 +286,70 @@
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="ref-col">
-                        <template class="header">Réf. du médecin</template>
+                        <template class="header">[[localize('med_ref','Doctor\'s ref',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="invoice-col">
-                        <template class="header">N° envoi</template>
+                        <template class="header">[[localize('num_send','Number of the sending',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="month-col">
-                        <template class="header">Mois fact.</template>
+                        <template class="header">[[localize('billd_month','Billed month',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="invoiceDate-col">
-                        <template class="header">Date d'envoi</template>
+                        <template class="header">[[localize('date_send','Date of the sending',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="invAmount-col">
-                        <template class="header">Montant facturé</template>
+                        <template class="header">[[localize('billd_amnt','Billed amount',language)]]</template>
                         <template></template>
-                        <template class="footer">[[totalInvoice.invoicedAmount]]€</template>
+                        <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="accAmount-col">
-                        <template class="header">Montant accepté</template>
+                        <template class="header">[[localize('accptd_amnt','Accepted Amount',language)]]</template>
                         <template></template>
-                        <template class="footer">[[totalInvoice.acceptedAmount]]€</template>
+                        <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="refAmount-col">
-                        <template class="header">Montant refusé</template>
+                        <template class="header">[[localize('denied_amnt','Refused amount',language)]]</template>
                         <template></template>
-                        <template class="footer">[[totalInvoice.refusedAmount]]€</template>
+                        <template class="footer">[[totalInvoices.refusedAmount]]€</template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="stat-col">
-                        <template class="header">Statut</template>
+                        <template class="header">[[localize('sta','Statut',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column class="reject-col">
-                        <template class="header">Motif rejet</template>
+                        <template class="header">[[localize('reas_rej','Reason for rejection',language)]]</template>
                         <template></template>
                     </vaadin-grid-column>
                     <vaadin-grid-column-group>
-                        <template class="header">Informations de paiement</template>
+                        <template class="header">[[localize('pay_info','Payment information',language)]]</template>
                         <vaadin-grid-column class="payRef-col">
-                            <template class="header">Réf</template>
+                            <template class="header">[[localize('ref','Ref',language)]]</template>
                             <template></template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="payDate-col">
-                            <template class="header">Date</template>
+                            <template class="header">[[localize('dat','Date',language)]]</template>
                             <template></template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="payTot-col">
-                            <template class="header">Montant</template>
+                            <template class="header">[[localize('amnt','Amount',language)]]</template>
                             <template></template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="payBank-col">
-                            <template class="header">Compte bancaire</template>
+                            <template class="header">[[localize('bk_acnt','Bank account',language)]]</template>
                             <template></template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="payPaid-col">
-                            <template class="header">Payé</template>
+                            <template class="header">[[localize('paid','Paid',language)]]</template>
                             <template></template>
                         </vaadin-grid-column>
                     </vaadin-grid-column-group>
                 </vaadin-grid>
-            </div>
+            </template>
+
         </div>
     </template>
 
@@ -341,7 +416,7 @@
                             return res;
                         }
                     },
-                    totalInvoice:{
+                    totalInvoices:{
                         type: Object,
                         value : () => ({
                             invoicedAmount:     Number(0.00).toFixed(2),
@@ -349,6 +424,23 @@
                             refusedAmount:      Number(0.00).toFixed(2)
                         })
                     },
+                    totalPendingInvoices:{
+                        type: Object,
+                        value : () => ({
+                            totalReimbursement:          Number(0.00).toFixed(2),
+                            totalAmount:                 Number(0.00).toFixed(2),
+                            totalPatientIntervention:    Number(0.00).toFixed(2),
+                            totalDoctorSupplement:       Number(0.00).toFixed(2)
+                        })
+                    },
+                    invoicesStatus: {
+                        type: String,
+                        observer: '_invoicesStatusChanged'
+                    },
+                    statusPending:{
+                        type: Boolean,
+                        value: true
+                    }
 
                 };
             }
@@ -368,6 +460,20 @@
             _getMessage(){
 
             }
+
+            _invoicesStatusChanged(){
+                this.invoicesStatus === "pending" ? this.set('statusPending', true) : this.set('statusPending', false)
+            }
+
+            _displayInvoiceStatus(status){
+
+               // pas envoye => listToInsurancesUnsent
+               // envoye => findMessagesByTransportGuid efactBatch
+
+
+                return status
+            }
+
 
 
         }
