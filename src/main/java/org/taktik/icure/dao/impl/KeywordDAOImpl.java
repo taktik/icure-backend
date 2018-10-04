@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao.impl;
 
+import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +27,8 @@ import org.taktik.icure.dao.KeywordDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.Keyword;
+
+import java.util.List;
 
 
 @Repository("keywordDAO")
@@ -41,6 +44,17 @@ class KeywordDAOImpl extends GenericIcureDAOImpl<Keyword> implements KeywordDAO 
 	public Keyword getKeyword(String keywordId) {
 		return get(keywordId);
 	}
+
+    @View(name = "by_user", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( doc.userId, doc)}")
+    @Override
+    public List<Keyword> getByUserId(String userId) {
+        ViewQuery viewQuery = createQuery("by_user")
+                .startKey(userId)
+                .endKey(userId)
+                .includeDocs(false);
+
+        return db.queryView(viewQuery, Keyword.class);
+    }
 
 
 }
