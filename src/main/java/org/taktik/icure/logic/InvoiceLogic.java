@@ -46,6 +46,7 @@ public interface InvoiceLogic {
 	List<Invoice> listByHcPartyRecipientIds(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientSks(String hcParty, Set<String> patientSks);
 
+	List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate);
 	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
 
 	List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds);
