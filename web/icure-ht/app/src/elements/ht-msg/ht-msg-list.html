@@ -64,8 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     align-items: flex-start;
                     height: 100%;
                     width: 100%;
-
-                    padding-top: 75px;
+                    padding-top: 90px;
                 }
 
                 .card-title-container{
@@ -255,16 +254,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-weight: 700;
                 }
 
+                .del-button {
+                    position: fixed;
+                    bottom: 40px;
+                }
+
+                #mail-list {
+                    height: 85vh;
+                    height: calc(100vh - 110px);
+                    height: -webkit-fill-available;
+                    /* cascading compatibility */
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                <div class="card-title-container">
-                    <h1 class="card-title new-notif"><iron-icon icon="icons:arrow-forward"></iron-icon>[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
-                </div>
-                <div class="buttons">
+                <div class="del-button">
                     <div>
-                        <paper-button class="modal-button--delete" on-tap="_removeMsgs">[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi">

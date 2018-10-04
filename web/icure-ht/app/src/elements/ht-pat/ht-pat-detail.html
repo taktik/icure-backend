@@ -133,6 +133,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding: 0;
 			}
 
+			.contact-text-row p {
+				padding-right: 30px;
+			}
+
 			paper-listbox{
 				background:transparent;
 				padding: 0;
@@ -196,7 +200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 			.opened{
 				color:var(--app-text-color);
-				background:var(--app-text-color-light);
+				/*background:var(--app-text-color-light);*/
 				border-radius:2px 2px 0 0;
 				box-shadow: 0 4px 0 0 white,
 							0 -2px 0 0 white,
@@ -701,6 +705,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				justify-content: space-between;
 				align-items: center;
 				flex-wrap:nowrap;
+			}
+			.layout.vertical:hover {
+				/*background: lightgreen;*/
+				cursor: pointer;
+			}
+			.layout.vertical.iron-selected:hover {
+				background: var(--app-primary-color);
+				cursor: initial;
 			}
 
 			.todo-list{
