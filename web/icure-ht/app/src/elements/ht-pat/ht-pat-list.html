@@ -37,6 +37,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     outline: none;
                 }
 
+                #scroller tbody#item {
+                    cursor: pointer;
+                }
+
                 paper-input {
                     --paper-input-container-focus-color: var(--app-primary-color);
                     --paper-input-container-label: {
@@ -358,11 +362,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     z-index: 2;
                     display : flex;
 
-                }
+                }ht-hcp-list
 
                 #selectPatientOption_back {
                     min-width: 80px;
                     cursor: pointer;
+                    line-height: 35px;
                 }
 
                 #selectPatientOption_text {
@@ -378,7 +383,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 #sharePatientDialog {
-                    height: 550px;
                     width: 1000px;
                 }
 
@@ -444,6 +448,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 paper-dialog > div {
                     margin-top:0;
                 }
+
+                @media screen and (max-width: 915px) {
+                    :host #patients-list {
+                        height: calc(100% - 180px);
+                    }
+                    div.container {
+                        display: inherit;
+                    }
+                    div.first-filter-panel {
+                        padding: 0;
+                        position: fixed;
+                        width: 50vw;
+                        transform: translateX(-48vw);
+                        transition: .3s ease-in-out;
+                        border-right: 5px solid grey;
+                        border-style: double;
+                    }
+                    div.first-filter-panel:focus,
+                    div.first-filter-panel:hover,
+                    div.first-filter-panel:target,
+                    div.first-filter-panel:active {
+                        transform: translateX(0);
+                    }
+                    .add-btn-container {
+                        width: 100%;
+                        left: inherit;
+                        position: initial;
+                        justify-content: initial;
+                        padding-top: 15px;
+                        overflow-x: scroll;
+                        height: 100px;
+                        border-left: 1px dashed lightgrey;
+                        border-right: 1px dashed lightgrey;
+                        box-sizing: border-box;
+                    }
+                    .add-btn-container paper-button.add-btn,
+                    .add-btn-container .exportcsv-btn {
+                        height: 60px;
+                    }
+                    .show-all-patients {
+                        left: 50%;
+                        transform: translateX(-50%);
+                        position: absolute;
+                        bottom: 83px;
+                        height: 30px;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        max-width: 80vw;
+                    }
+                }
             </style>
         </custom-style>
 
@@ -485,9 +540,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
                         <div id="selectPatientOption_text">
                             [[nbPatientSelected]] patient(s) selected
-                        </div>
-                        <div id="selectPatientOption_option">
-                            <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
                         </div>
                     </div>
                 </template>
@@ -587,8 +639,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <paper-button class="add-btn" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
+                        <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
                         </paper-button>
+                        <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]] <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon></paper-button>
                         <template is="dom-if" if="[[taskProgress]]">
                             <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
                         </template>
