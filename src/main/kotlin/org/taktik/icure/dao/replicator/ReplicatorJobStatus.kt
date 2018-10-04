@@ -12,15 +12,15 @@ class ReplicatorJobStatus(
     val updates = updates.takeLast(10)
 
     fun timestamp(timestamp: Long): ReplicatorJobStatus {
-        return ReplicatorJobStatus(timestamp, seq)
-    }
-
-    fun update(timestamp: Long, seq: String?, updates: List<String>): ReplicatorJobStatus {
-        return ReplicatorJobStatus(timestamp, seq ?: this.seq, (this.updates + updates).takeLast(10))
+        return update(timestamp)
     }
 
     fun seq(seq: String?): ReplicatorJobStatus {
-        return ReplicatorJobStatus(timestamp, seq ?: this.seq)
+        return update(timestamp, seq)
+    }
+
+    fun update(timestamp: Long, seq: String? = null, updates: List<String> = listOf()): ReplicatorJobStatus {
+        return ReplicatorJobStatus(timestamp, seq ?: this.seq, (this.updates + updates).takeLast(10))
     }
 
     override fun equals(o: Any?): Boolean {

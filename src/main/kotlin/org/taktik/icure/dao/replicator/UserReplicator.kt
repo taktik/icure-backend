@@ -6,8 +6,6 @@ import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.User
 
 import javax.ws.rs.core.Context
-import java.util.ArrayList
-import java.util.stream.Collectors
 
 /**
  * @author Bernard Paulus - 13/03/2017
@@ -27,7 +25,7 @@ class UserReplicator(hazelcast: HazelcastInstance, private var userDAO: UserDAO?
 
     override fun replicate(group: Group, entityIds: List<String>): List<String> {
         return entityIds.map { id ->
-            val from = userDAO!!.getUserOnUserDb(id, group.id)
+            val from = userDAO!!.getUserOnUserDb(id, group.id, true)
             var to: User? = userDAO!!.findOnFallback(group.id+":"+id)
 
             if (to == null) {

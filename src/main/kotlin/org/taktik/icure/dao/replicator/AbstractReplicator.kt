@@ -117,20 +117,14 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
     }
 
     fun observe(change: Change, group: Group) {
-        if (change.doc == null) {
-            return
-        }
-        if (entityType.canonicalName == change.doc!!["java_type"]) {
+        if (change.doc != null && entityType.canonicalName == change.doc!!["java_type"]) {
             val entityIds = ImmutableList.of(change.doc!!["_id"] as String)
             try {
                 val ids = replicate(group, entityIds)
-                replicatorJobsStatusesByGroupId!![group.id] = replicatorJobsStatusesByGroupId!![group.id]?.update(System.currentTimeMillis(), change.seq, ids) ?: ReplicatorJobStatus(System.currentTimeMillis())
+                replicatorJobsStatusesByGroupId!![group.id] = replicatorJobsStatusesByGroupId!![group.id]?.update(System.currentTimeMillis(), change.seq, ids) ?: ReplicatorJobStatus(System.currentTimeMillis(), change.seq, ids)
             } catch (e: Exception) {
                 log.error("replication failed: {}", e.localizedMessage)
-                return
             }
-
-            ReplicatorJobStatus(System.currentTimeMillis(), change.seq)
         }
     }
 

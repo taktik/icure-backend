@@ -32,6 +32,7 @@ import org.taktik.icure.logic.listeners.UserLogicListener;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -143,4 +144,5 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 
 	User getUserOnUserDb(String userId, String groupId);
 
+	List<User> getUsersByPartialId(String id);
 }

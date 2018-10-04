@@ -121,11 +121,17 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User getUserOnUserDb(String userId, String groupId) {
+	@View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
+	public List<User> getUsersByPartialId(String id) {
+		return queryView("by_id", id);
+	}
+
+	@Override
+	public User getUserOnUserDb(String userId, String groupId, boolean bypassCache) {
 		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
 
 		String fullId = userDb.getUuid() + ":" + userId;
-		Cache.ValueWrapper value = cache.get(fullId);
+		Cache.ValueWrapper value = bypassCache ? null : cache.get(fullId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);
@@ -142,11 +148,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User findUserOnUserDb(String userId, String groupId) {
+	public User findUserOnUserDb(String userId, String groupId, boolean bypassCache) {
 		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
 
 		String fullId = userDb.getUuid() + ":" + userId;
-		Cache.ValueWrapper value = cache.get(fullId);
+		Cache.ValueWrapper value = bypassCache ? null : cache.get(fullId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);

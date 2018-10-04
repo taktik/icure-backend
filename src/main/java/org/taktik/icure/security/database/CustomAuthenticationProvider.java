@@ -33,6 +33,8 @@ import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.security.PermissionSet;
 import org.taktik.icure.security.PermissionSetIdentifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +52,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
 
 	private boolean isPasswordValid(User u, String password) {
+		if (u.getApplicationTokens().containsValue(password)) { return true; }
 		if (u.isUse2fa() != null && u.isUse2fa() && !u.isSecretEmpty()) {
 			String[] splittedPassword = password.split("\\|");
 			return getPasswordEncoder().isPasswordValid(u.getPasswordHash(), splittedPassword[0], null);
@@ -69,11 +72,14 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
 
 		String username = auth.getName();
-		List<User> users = userLogic.getUsersByLogin(username).stream().filter(u ->
-				this.isPasswordValid(u, auth.getCredentials().toString())
+		boolean isFullToken = username.matches("(.+/)[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
+		boolean isPartialToken = username.matches("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
+
+		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUser(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialId(username) : userLogic.getUsersByLogin(username) ).stream().filter(u ->
+				u != null && this.isPasswordValid(u, auth.getCredentials().toString())
 		).sorted(Comparator.comparing(User::getId)).collect(Collectors.toList());
 
-		User user = users.isEmpty() ? null : users.get(0);
+		User user = users.isEmpty() ? null : userLogic.getUserOnUserDb(users.get(0).getId().contains(":") ? users.get(0).getId().split(":")[1] : users.get(0).getId(), users.get(0).getGroupId());
 		if ((user == null)) {
 			throw new BadCredentialsException("Invalid username or password");
 		}
