@@ -358,11 +358,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     z-index: 2;
                     display : flex;
 
-                }
+                }ht-hcp-list
 
                 #selectPatientOption_back {
                     min-width: 80px;
                     cursor: pointer;
+                    line-height: 35px;
                 }
 
                 #selectPatientOption_text {
@@ -378,7 +379,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 #sharePatientDialog {
-                    height: 550px;
                     width: 1000px;
                 }
 
@@ -486,9 +486,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div id="selectPatientOption_text">
                             [[nbPatientSelected]] patient(s) selected
                         </div>
-                        <div id="selectPatientOption_option">
-                            <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
-                        </div>
                     </div>
                 </template>
                 <template is="dom-if" if="{{!_isPatientsSelected(nbPatientSelected.*)}}">
@@ -587,8 +584,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <paper-button class="add-btn" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
+                        <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
                         </paper-button>
+                        <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]] <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon></paper-button>
                         <template is="dom-if" if="[[taskProgress]]">
                             <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
                         </template>
