@@ -676,7 +676,7 @@
     "cre": "Create",
     "dai": "Daily",
     "dat": "Date",
-    "dat_of_bir": "Date of birth",
+    "dat_of_bir": "Geboortedatum",
     "des": "Description",
     "det": "Detail",
     "dru_des": "Drug descr.",
@@ -967,6 +967,8 @@
     "tra_io":"VI",
     "tra_dat":"Datum",
     "fromOtherIo":"van andere VI",
-    "toOtherIo":"naar andere VI"
+    "toOtherIo":"naar andere VI",
+    "ele":"Voorkeurstarief"
   }
 }
+
