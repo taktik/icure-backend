@@ -37,6 +37,8 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
+<link rel="import" href="./ht-msg-new.html">
+
 
 <dom-module id="ht-msg-detail">
 	<template>
@@ -95,7 +97,7 @@
 				grid-row: 1 / span 1;
 				background:var(--app-background-color-light);
 				float:left;
-				padding:20px;
+				padding:5px;
 				display:flex;
 				flex-flow: column nowrap;
 				align-items: flex-start;
@@ -119,8 +121,7 @@
 			}
 
 			.pat-details-card {
-				width: calc(100% - 64px);
-				margin: 0 32px;
+				width: 100%;
 				padding: 10px 15px;
 			}
 
@@ -424,73 +425,7 @@
 		</template>
 
 		<template is="dom-if" if="[[!messages]]">
-			<div class="details-panel" style=" overflow:auto;">
-			<paper-card class="pat-details-card" >
-				<h2>[[localize('new_mes','New message',language)]]</h2>
-				<div>
-					<paper-input id="newMsg-From" label="[[localize('from','From',language)]]" value="[[user.name]]"></paper-input>
-					<!--<paper-input id="newMsg-To" label="[[localize('to','To',language)]]" value="{{newMessage.destinations}}"></paper-input>-->
-					<vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[test]]" value="{{searchValue}}" style="width: 100%">
-						<!--<template>-->
-							<!--[[index]]: [[item.label]] <b>[[item.value]</b>-->
-						<!--</template>-->
-					</vaadin-combo-box>
-					<paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.title}}"></paper-input>
-				</div>
-				<div>
-					<div class="modal-subtitle">Options</div>
-				</div>
-				<div>
-					<paper-checkbox value="{{newMessage.encrypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-					<paper-checkbox value="{{newMessage.important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
-				</div>
-				<div>
-					<label>Accused</label>
-					<paper-checkbox value="{{newMessage.publicationDate}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-					<paper-checkbox value="{{newMessage.reception}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-					<paper-checkbox value="{{newMessage.read}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
-				</div>
-				<div>
-					<div class="modal-subtitle">Message</div>
-					<paper-input id="messageBodyFile" type="file" multiple="true" on-change="msgBodyFileInputSelected"></paper-input>
-					<iron-autogrow-textarea placeholder="Message" style="min-height: 80px;width: calc(100% - 64px);" value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
-				</div>
-				<div>
-					<div class="modal-subtitle">Annexes</div>
-					<paper-input id="msgAnnexesFileInput" type="file" multiple="true" on-change="msgAnnexesFileInputSelected"></paper-input>
-
-					<template is="dom-if" if="[[msgAnnexes.length]]">
-						<vaadin-grid id="msgAnnexesList" items="[[msgAnnexes]]">
-							<vaadin-grid-column>
-								<template class="header">
-									<div>Name</div>
-								</template>
-								<template>
-									<div class="cell frozen">[[item.name]]</div>
-								</template>
-							</vaadin-grid-column>
-							<vaadin-grid-column>
-								<template>
-									<div class="cell frozen">
-										<paper-button class="remove-msgAnnexe-btn" on-tap="_removeMsgAnnexe" indexed$='[[index]]' >Remove</paper-button>
-									</div>
-								</template>
-							</vaadin-grid-column>
-						</vaadin-grid>
-					</template>
-				</div>
-				<div>
-					<div class="modal-subtitle">Patient</div>
-					<paper-input id="newMsg-SSIN" label="[[localize('SSIN','SSIN :',language)]]" value="{{newMessage.patientInss}}"></paper-input>
-				</div>
-				<div class="buttons">
-					<div>
-						<paper-button class="modal-button" >[[localize('can','Cancel',language)]]</paper-button>
-						<paper-button class="modal-button--save" on-tap="_SendNewMessage" >[[localize('send','Send',language)]]</paper-button>
-					</div>
-				</div>
-			</paper-card>
-			</div>
+			<ht-msg-new api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]"></ht-msg-new>
 		</template>
 
 	</template>
@@ -519,6 +454,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				type: Object
 			},
 			user: {
+				type: Object
+			},
+			credentials:{
 				type: Object
 			},
 			currentContact: {
@@ -660,16 +598,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		msgAnnexesFileInput.value = '';
 
 		console.log(this.msgAnnexes);
-	}
-
-	msgBodyFileInputSelected() {
-
-		let messageBodyFile = this.shadowRoot.querySelector('#messageBodyFile');
-
-		if( messageBodyFile.inputElement && messageBodyFile.inputElement.inputElement){
-			this.push('msgBodyFile',messageBodyFile.inputElement.inputElement.files[0])
-		}
-
 	}
 
 	_removeMsgAnnexe(e){
