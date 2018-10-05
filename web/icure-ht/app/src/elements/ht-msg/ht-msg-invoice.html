@@ -7,6 +7,9 @@
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html"
+><link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
@@ -198,142 +201,180 @@
                     min-width: 50px;
                 }
 
+                .gridContainer{
+                    height: calc(100% - 16px - 32px);
+                }
+
+                .pendingStatus{
+                    height: 8px;
+                    width: 8px;
+                    color: var(--app-status-color-pending);
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <template is="dom-if" if="[[statusPending]]">
-                <div>
-                    [[_displayInvoiceStatus(invoicesStatus)]]
-                </div>
-                <vaadin-grid id="invoiceGrid" items="">
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">Mutuelle</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">N° facture</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">Patient</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">N° Niss</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">Date de la facture</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column-group>
-                        <template class="header">Montants</template>
+            <div>
+                [[_displayInvoiceStatus(invoicesStatus)]]
+            </div>
+            <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="" on-keydown="refreshFilter"></paper-input>
+            <div class="gridContainer">
+                <template is="dom-if" if="[[statusPending]]">
+                    <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]">
                         <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.invoice.sentMediumType]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.patient.insurance.code]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="invoice.invoiceReference">N° facture</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.invoice.invoiceReference]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="invoice.patient.firstName">Patient</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.patient.firstName]] [[item.patient.lastName]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="patient.ssin">Niss</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.patient.ssin]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="invoice.invoiceDate" direction="desc">Date facture</vaadin-grid-sorter>
+                            </template>
+                            <template>[[returnDate(item.invoice.invoiceDate)]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column-group>
+                            <template class="header">Montants</template>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="invoice.reimbursement">OA</vaadin-grid-sorter>
+                                </template>
+                                <template>[[_formatAmount(item.invoice.reimbursement)]]</template>
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="invoice.patientIntervention">Patient</vaadin-grid-sorter>
+                                </template>
+                                <template>[[_formatAmount(item.invoice.patientIntervention)]]</template>
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="invoice.doctorSupplement">Supplément</vaadin-grid-sorter>
+                                </template>
+                                <template>[[_formatAmount(item.invoice.doctorSupplement)]]</template>
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">
+                                    <vaadin-grid-sorter path="invoice.totalAmount">Total</vaadin-grid-sorter>
+                                </template>
+                                <template>[[_formatAmount(item.invoice.totalAmount)]]</template>
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="invoice.statut">Statut</vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <iron-icon icon="vaadin:circle" class="pendingStatus"></iron-icon>
+                                [[item.invoice.statut]]
+                            </template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </template>
+
+                <template is="dom-if" if="[[!statusPending]]">
+                    <vaadin-grid id="sendingGrid" items="">
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">Prestataire</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="oa-col">
                             <template class="header">OA</template>
                             <template></template>
-                            <template class="footer">[[totalPendingInvoices.totalReimbursement]]€</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
-                            <template class="header">Patient</template>
-                            <template class="footer">[[totalPendingInvoices.totalPatientIntervention]]€</template>
+                        <vaadin-grid-column class="ref-col">
+                            <template class="header">Réf. du médecin</template>
                             <template></template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
-                            <template class="header">Supplément</template>
-                            <template class="footer">[[totalPendingInvoices.totalDoctorSupplement]]€</template>
+                        <vaadin-grid-column class="invoice-col">
+                            <template class="header">N° envoi</template>
                             <template></template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col">
-                            <template class="header">Total</template>
-                            <template class="footer">[[totalPendingInvoices.totalAmount]]€</template>
+                        <vaadin-grid-column class="month-col">
+                            <template class="header">Mois fact.</template>
                             <template></template>
                         </vaadin-grid-column>
-                    </vaadin-grid-column-group>
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">Statut</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </template>
-
-            <template is="dom-if" if="[[!statusPending]]">
-                <div>
-                    [[_displayInvoiceStatus(invoicesStatus)]]
-                </div>
-                <vaadin-grid id="sendingGrid" items="">
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">Prestataire</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="oa-col">
-                        <template class="header">OA</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="ref-col">
-                        <template class="header">Réf. du médecin</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="invoice-col">
-                        <template class="header">N° envoi</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="month-col">
-                        <template class="header">Mois fact.</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="invoiceDate-col">
-                        <template class="header">Date d'envoi</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="invAmount-col">
-                        <template class="header">Montant facturé</template>
-                        <template></template>
-                        <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="accAmount-col">
-                        <template class="header">Montant accepté</template>
-                        <template></template>
-                        <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="refAmount-col">
-                        <template class="header">Montant refusé</template>
-                        <template></template>
-                        <template class="footer">[[totalInvoices.refusedAmount]]€</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="stat-col">
-                        <template class="header">Statut</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="reject-col">
-                        <template class="header">Motif rejet</template>
-                        <template></template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column-group>
-                        <template class="header">Informations de paiement</template>
-                        <vaadin-grid-column class="payRef-col">
-                            <template class="header">Réf</template>
+                        <vaadin-grid-column class="invoiceDate-col">
+                            <template class="header">Date d'envoi</template>
                             <template></template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="payDate-col">
-                            <template class="header">Date</template>
+                        <vaadin-grid-column class="invAmount-col">
+                            <template class="header">Montant facturé</template>
+                            <template></template>
+                            <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="accAmount-col">
+                            <template class="header">Montant accepté</template>
+                            <template></template>
+                            <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="refAmount-col">
+                            <template class="header">Montant refusé</template>
+                            <template></template>
+                            <template class="footer">[[totalInvoices.refusedAmount]]€</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="stat-col">
+                            <template class="header">Statut</template>
                             <template></template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="payTot-col">
-                            <template class="header">Montant</template>
+                        <vaadin-grid-column class="reject-col">
+                            <template class="header">Motif rejet</template>
                             <template></template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="payBank-col">
-                            <template class="header">Compte bancaire</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="payPaid-col">
-                            <template class="header">Payé</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                    </vaadin-grid-column-group>
-                </vaadin-grid>
-            </template>
-
+                        <vaadin-grid-column-group>
+                            <template class="header">Informations de paiement</template>
+                            <vaadin-grid-column class="payRef-col">
+                                <template class="header">Réf</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="payDate-col">
+                                <template class="header">Date</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="payTot-col">
+                                <template class="header">Montant</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="payBank-col">
+                                <template class="header">Compte bancaire</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="payPaid-col">
+                                <template class="header">Payé</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+                    </vaadin-grid>
+                </template>
+            </div>
         </div>
     </template>
 
@@ -424,6 +465,20 @@
                     statusPending:{
                         type: Boolean,
                         value: true
+                    },
+                    invoices:{
+                        type: Object,
+                        value : () => ({
+                            pending:            [],
+                            processed:          [],
+                            rejected:           [],
+                            accepted:           [],
+                            archived:           []
+                        })
+                    },
+                    multiSort:{
+                        type: Boolean,
+                        value: true
                     }
 
                 };
@@ -434,14 +489,77 @@
             }
 
             static get observers() {
-                return [];
+                return ['_invoicesChange(invoices.*)'];
             }
 
             ready() {
                 super.ready();
+                this.getMessage()
             }
 
-            _getMessage(){
+            getMessage(){
+
+                const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
+                    .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
+                    .then(insurance => {
+
+                        const invPen = {
+                            invoice: {
+                                invoiceId: invoice.id,
+                                invoiceReference: invoice.invoiceReference,
+                                invoiceDate: invoice.invoiceDate,
+                                sentMediumType: invoice.sentMediumType,
+                                invoiceType: invoice.invoiceType,
+                                patientIntervention : 0.00,
+                                reimbursement: 0.00,
+                                totalAmount: 0.00,
+                                doctorSupplement: 0.00,
+                                statut: "Pending"
+                            },
+                            patient: {
+                                firstName: patient.firstName,
+                                lastName: patient.lastName,
+                                ssin: patient.ssin,
+                                insurance: {
+                                    code: insurance.code
+                                }
+                            }
+                        }
+
+                        invoice.invoicingCodes.map(code => {
+                            invPen.invoice.patientIntervention += Number(code.patientIntervention)
+                            invPen.invoice.reimbursement += Number(code.reimbursement)
+                            invPen.invoice.totalAmount += Number(code.totalAmount)
+                            invPen.invoice.doctorSupplement += Number(code.doctorSupplement)
+                        })
+
+                        this.push('invoices.pending', invPen)
+                    }))
+
+                this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
+                    invUnsent.forEach(inv =>
+                        this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
+                            .then(patId => treatPendingInvoice(patId, inv)
+                    )))
+            }
+
+            calculateTotalPendingInvoices(){
+
+                let total = {
+                    totalReimbursement :          Number(0.00),
+                    totalAmount :                 Number(0.00),
+                    totalPatientIntervention :    Number(0.00),
+                    totalDoctorSupplement :       Number(0.00),
+                }
+
+                this.invoices.pending.map(invoice => {
+                    total.totalReimbursement          += Number(invoice.invoice.reimbursement)
+                    total.totalAmount                 += Number(invoice.invoice.totalAmount)
+                    total.totalPatientIntervention    += Number(invoice.invoice.patientIntervention)
+                    total.totalDoctorSupplement       += Number(invoice.invoice.doctorSupplement)
+                })
+
+                this.set('totalPendingInvoices', total)
 
             }
 
@@ -451,13 +569,33 @@
 
             _displayInvoiceStatus(status){
 
-               // pas envoye => listToInsurancesUnsent
                // envoye => findMessagesByTransportGuid efactBatch
 
 
                 return status
             }
 
+            returnDate(dateAsLong){
+                return dateAsLong ? ("" + dateAsLong).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
+            }
+
+            _formatAmount(amount){
+                return Number(amount).toFixed(2)
+            }
+
+            refreshFilter(){
+                if(this.statusPending){
+
+                }
+            }
+
+            _invoicesChange(){
+                this.calculateTotalPendingInvoices()
+            }
+
+            createInvoice(){
+
+            }
 
 
         }
