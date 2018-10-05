@@ -174,7 +174,6 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 		if( this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement){
 			Object.values(this.$.ehKeychainFileInput.inputElement.inputElement.files).forEach( item => {
-				this.push('CurrentEhKeychains', {keystore:{ name:item.name,file:item}, onlyDecrypt: false})
 
 				const fr = new FileReader();
 				fr.onload = function (e) {

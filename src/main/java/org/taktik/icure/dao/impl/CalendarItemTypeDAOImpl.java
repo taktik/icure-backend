@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao.impl;
 
+import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +28,8 @@ import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.CalendarItemType;
 
+import java.util.List;
+
 @Repository("calendarItemTypeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType' && !doc.deleted) emit( null, doc._id )}")
 public class CalendarItemTypeDAOImpl extends GenericDAOImpl<CalendarItemType> implements CalendarItemTypeDAO {
@@ -35,5 +38,16 @@ public class CalendarItemTypeDAOImpl extends GenericDAOImpl<CalendarItemType> im
     public CalendarItemTypeDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(CalendarItemType.class, db, idGenerator);
         initStandardDesignDocument();
+    }
+
+    @Override
+    @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , doc )}")
+    public List<CalendarItemType> getAllEntitiesIncludeDelete() {
+
+        ViewQuery viewQuery = createQuery("all_and_deleted").includeDocs(false);
+        List<CalendarItemType> result = db.queryView(viewQuery, CalendarItemType.class);
+        result.forEach(this::postLoad);
+
+        return result;
     }
 }

@@ -20,7 +20,10 @@ package org.taktik.icure.dao;
 
 import org.taktik.icure.entities.Keyword;
 
+import java.util.List;
+
 public interface KeywordDAO extends GenericDAO<Keyword>  {
 	Keyword getKeyword(String keywordId);
 
+	List<Keyword> getByUserId(String userId);
 }

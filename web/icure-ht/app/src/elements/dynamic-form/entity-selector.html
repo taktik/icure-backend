@@ -24,7 +24,7 @@
 			}
 
 			paper-input{
-				--paper-input-container-focus-color: var(--app-primary-color);	
+				--paper-input-container-focus-color: var(--app-primary-color);
 			}
 
 			.modal-title{
@@ -156,8 +156,8 @@ class EntitySelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			this.latestSearchValue = latestSearchValue;
 			if (!latestSearchValue || latestSearchValue.length < 2) {
 				console.log("Cancelling empty search");
-				grid.set("size", 0);
-				callback([]);
+				//grid.set("size", 0);
+				callback([], 0);
 				return;
 			}
 
@@ -169,10 +169,7 @@ class EntitySelector extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					console.log("Cancelling obsolete search");
 					return;
 				}
-				if (grid.size !== res.totalSize) {
-					grid.set("size", res.totalSize);
-				}
-				callback(_.slice(res.rows, startIndex, endIndex));
+				callback(_.slice(res.rows, startIndex, endIndex), res.totalSize);
 			}.bind(this));
 		}.bind(this);
 	}
