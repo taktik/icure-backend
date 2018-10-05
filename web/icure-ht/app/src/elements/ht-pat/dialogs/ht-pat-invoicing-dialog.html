@@ -1822,10 +1822,11 @@
                 pdf.text("Date des prestations", 20, 96)
                 pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
 
-                pdf.text("Code prestation", 61, 102)
-                pdf.text("Intervention OA", 101, 102)
-                pdf.text("Intervention personnelle", 130, 102)
-                pdf.text("Supplément", 164, 102)
+                pdf.text("Code prestation", 51, 102)
+                pdf.text("Intervention OA", 80, 102)
+                pdf.text("Intervention personnelle", 110, 102)
+                pdf.text("Supplément", 150, 102)
+                pdf.text("Total", 180, 102)
 
                 let startNmclHeight = 108
 
@@ -1833,14 +1834,56 @@
                     let invoiceDate = this._formatInvoiceDate(code.dateCode)
                     pdf.text(invoiceDate,20, startNmclHeight)
                     pdf.text(code.code.toString(),50, startNmclHeight)
-                    pdf.text(code.reimbursement.toString(),90, startNmclHeight)
-                    pdf.text(code.patientIntervention.toString(),120, startNmclHeight)
-                    pdf.text(code.doctorSupplement.toString(),150, startNmclHeight)
+                    pdf.text(code.reimbursement.toString(),95, startNmclHeight)
+                    pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
+                    pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
+                    pdf.text(code.totalAmount.toString(),184, startNmclHeight)
 
                     startNmclHeight = Number(startNmclHeight) + 6
                 })
 
-                //pdf.lines([[0, 0], [210, 0]], 5.788, 76);
+                pdf.text("Total", 20, 260)
+                pdf.text("0.00", 95, 260)
+                pdf.text("0.00", 132, 260)
+                pdf.text("0.00", 160, 260)
+                pdf.text("0.00", 184, 260)
+
+                pdf.text("Total dû par le patient", 20, 266)
+                pdf.text("0.00", 184, 266)
+
+                pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
+                pdf.text("0.00", 184, 272)
+
+                pdf.text("Montant total à payer par le patient ", 20, 278)
+                pdf.text("0.00", 184, 278)
+
+                pdf.setFontSize(6);
+                pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+
+
+                //Horizontals lines
+                pdf.lines([[0, 0], [180, 0]], 18, 20);
+                pdf.lines([[0, 0], [180, 0]], 18, 27.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 34.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 80);
+                pdf.lines([[0, 0], [180, 0]], 18, 86);
+                pdf.lines([[0, 0], [180, 0]], 18, 92);
+                pdf.lines([[0, 0], [180, 0]], 18, 98);
+                pdf.lines([[0, 0], [180, 0]], 18, 262);
+                pdf.lines([[0, 0], [180, 0]], 18, 268);
+                pdf.lines([[0, 0], [180, 0]], 18, 274);
+                pdf.lines([[0, 0], [180, 0]], 18, 280);
+
+
+                //Verticals lines
+                pdf.lines([[0, 60], [0, 0]], 18, 20);
+                pdf.lines([[0, 60], [0, 0]], 68, 20);
+                pdf.lines([[0, 45], [0, 0]], 75, 34.5);
+                pdf.lines([[0, 45], [0, 0]], 132, 34.5);
+                pdf.lines([[0, 60], [0, 0]], 198, 20);
+
+                pdf.lines([[0, 194], [0, 0]], 18, 86);
+                pdf.lines([[0, 194], [0, 0]], 198, 86);
 
                 pdf.addPage()
 
@@ -1856,19 +1899,20 @@
                 pdf.text("Prénom: "+this.hcp.lastName, 20, 52)
                 pdf.text("BCE: ", 135, 52)
                 pdf.text("Adresse: ", 20, 58)
-                pdf.text("INAMI: "+this.hcp.nihii, 20, 70)
-                pdf.text("BCE: "+this.hcp.cbe, 20, 76)
-                pdf.text("N° mutuelle: "+ "/ N° OA", 20, 82)
+                pdf.text("INAMI: "+this.hcp.nihii, 20, 64)
+                pdf.text("BCE: "+this.hcp.cbe, 20, 70)
+                pdf.text("N° mutuelle: "+ "/ N° OA", 20, 76)
 
 
                 pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
                 pdf.text("Date des prestations", 20, 96)
                 pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
 
-                pdf.text("Code prestation", 61, 102)
-                pdf.text("Intervention OA", 101, 102)
-                pdf.text("Intervention personnelle", 130, 102)
-                pdf.text("Supplément", 164, 102)
+                pdf.text("Code prestation", 51, 102)
+                pdf.text("Intervention OA", 80, 102)
+                pdf.text("Intervention personnelle", 110, 102)
+                pdf.text("Supplément", 150, 102)
+                pdf.text("Total", 180, 102)
 
                 startNmclHeight = 108
 
@@ -1876,12 +1920,56 @@
                     let invoiceDate = this._formatInvoiceDate(code.dateCode)
                     pdf.text(invoiceDate,20, startNmclHeight)
                     pdf.text(code.code.toString(),50, startNmclHeight)
-                    pdf.text(code.reimbursement.toString(),90, startNmclHeight)
-                    pdf.text(code.patientIntervention.toString(),120, startNmclHeight)
-                    pdf.text(code.doctorSupplement.toString(),150, startNmclHeight)
+                    pdf.text(code.reimbursement.toString(),95, startNmclHeight)
+                    pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
+                    pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
+                    pdf.text(code.totalAmount.toString(),184, startNmclHeight)
 
                     startNmclHeight = Number(startNmclHeight) + 6
                 })
+
+                pdf.text("Total", 20, 260)
+                pdf.text("0.00", 95, 260)
+                pdf.text("0.00", 132, 260)
+                pdf.text("0.00", 160, 260)
+                pdf.text("0.00", 184, 260)
+
+                pdf.text("Total dû par le patient", 20, 266)
+                pdf.text("0.00", 184, 266)
+
+                pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
+                pdf.text("0.00", 184, 272)
+
+                pdf.text("Montant total à payer par le patient ", 20, 278)
+                pdf.text("0.00", 184, 278)
+
+                pdf.setFontSize(6);
+                pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+
+                //Horizontals lines
+                pdf.lines([[0, 0], [180, 0]], 18, 20);
+                pdf.lines([[0, 0], [180, 0]], 18, 27.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 34.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 80);
+                pdf.lines([[0, 0], [180, 0]], 18, 86);
+                pdf.lines([[0, 0], [180, 0]], 18, 92);
+                pdf.lines([[0, 0], [180, 0]], 18, 98);
+                pdf.lines([[0, 0], [180, 0]], 18, 262);
+                pdf.lines([[0, 0], [180, 0]], 18, 268);
+                pdf.lines([[0, 0], [180, 0]], 18, 274);
+                pdf.lines([[0, 0], [180, 0]], 18, 280);
+
+
+                //Verticals lines
+                pdf.lines([[0, 60], [0, 0]], 18, 20);
+                pdf.lines([[0, 7], [0, 0]], 68, 20);
+                pdf.lines([[0, 45], [0, 0]], 132, 34.5);
+                pdf.lines([[0, 60], [0, 0]], 198, 20);
+
+                pdf.lines([[0, 194], [0, 0]], 18, 86);
+                pdf.lines([[0, 194], [0, 0]], 198, 86);
+
+
 
                 pdf.autoPrint();
 
