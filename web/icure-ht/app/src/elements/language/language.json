@@ -1016,6 +1016,7 @@
     "tra_dat":"Datum",
     "fromOtherIo":"van andere VI",
     "toOtherIo":"naar andere VI",
-    "ele":"Voorkeurstarief"
+    "ele":"Voorkeurstarief",
+    "err":"Fout"
   }
 }

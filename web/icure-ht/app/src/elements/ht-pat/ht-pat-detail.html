@@ -1418,9 +1418,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <template is="dom-if" if="{{curGenInsResp.generalSituation}}"><p><b>[[localize('generalSituation','generalSituation',language)]]:</b>[[localize(curGenInsResp.generalSituation, curGenInsResp.generalSituation, language)]]</p></template>
                     <p><b>[[localize('paymentByIo','paymentByIo',language)]]:</b>[[_yesOrNo(curGenInsResp.paymentByIo)]]</p>
                     <p><b>[[localize('specialSocialCategory','specialSocialCategory',language)]]:</b>[[_yesOrNo(curGenInsResp.specialSocialCategory)]]</p>
-                    <template is="dom-if" if="{{curGenInsResp.faultMessage}}"><p><b>[[localize('faultMessage','faultMessage',language)]]:</b>[[curGenInsResp.faultMessage]]</p></template>
-                    <template is="dom-if" if="{{curGenInsResp.faultSource}}"><p><b>[[localize('faultSource','faultSource',language)]]:</b>[[curGenInsResp.faultSource]]</p></template>
-                    <template is="dom-if" if="{{curGenInsResp.faultCode}}"><p><b>[[localize('faultCode','faultCode',language)]]:</b>[[curGenInsResp.faultCode]]</p></template>
+                    <template is="dom-if" if="{{_hasErrors(curGenInsResp.errors)}}">
+                        <p><b>[[localize('err','Error',language)]]:</b><br/>
+                        <template is="dom-repeat" items="[[curGenInsResp.errors]]" as="error">
+                            <b>[[error.code]]</b>: [[_formatError(error)]]<br/>
+                        </template>
+                        </p>
+                    </template>
+                    <template is="dom-if" if="{{!_hasErrors(curGenInsResp.errors)}}">
+                        <template is="dom-if" if="{{curGenInsResp.faultMessage}}"><p><b>[[localize('faultMessage','faultMessage',language)]]:</b>[[curGenInsResp.faultMessage]]</p></template>
+                        <template is="dom-if" if="{{curGenInsResp.faultSource}}"><p><b>[[localize('faultSource','faultSource',language)]]:</b>[[curGenInsResp.faultSource]]</p></template>
+                        <template is="dom-if" if="{{curGenInsResp.faultCode}}"><p><b>[[localize('faultCode','faultCode',language)]]:</b>[[curGenInsResp.faultCode]]</p></template>
+                    </template>
                 </div>
                 <div>
                     <template is="dom-if" if="{{curGenInsResp.medicalHouseInfo}}">
@@ -2113,6 +2122,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 info += hi && hi.admissionDate ? this.localize('adm_dat', 'AdmissionDate', this.language) + ':' + this._dateFormat2(hi.admissionDate, 'YYYYMMDD', 'DD/MM/YYYY') + ' ' : ''
                 info += hi && hi.admissionService ? this.localize('adm_svc', 'AdmissionService', this.language)+ ':' + hi.admissionService + ' ' : ''
                 return info;
+            }
+
+            _hasErrors(errs){
+                return errs && errs.length > 0;
+                //return true;
+            }
+
+            _formatError(error){
+                return(this.language === 'nl' ? error.locNl : error.locFr) +  ' : ' + error.value + ' : ' + (this.language === 'nl' ? error.msgNl : error.msgFr);
             }
 
             _hasTransfers(genins){
