@@ -1411,7 +1411,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <p><b>[[localize('sex','Gender',language)]]:</b> [[localize(curGenInsResp.sex,curGenInsResp.sex,language)]]</p>
                     <p><b>[[localize('dat_of_bir','Birthdate',language)]]:</b> [[_dateFormat2(curGenInsResp.dateOfBirth,'YYYYMMDD','DD/MM/YYYY')]]</p>
 
-                    <template is="dom-if" if="{{curGenInsResp.deceased}}"><p><b>[[localize('deceased','Deceased',language)]]:</b>[[curGenInsResp.deceased]]</p></template>
+                    <template is="dom-if" if="{{curGenInsResp.deceased}}"><p><b>[[localize('deceased','Deceased',language)]]:</b>[[_dateFormat2(curGenInsResp.deceased,'YYYYMMDD','DD/MM/YYYY')]]</p></template>
                     <template is="dom-if" if="{{curGenInsResp.hospitalizedInfo}}"><p><b>[[localize('hos_inf','Hospitalized',language)]]:</b>[[_formatHospitalizedInfo(curGenInsResp.hospitalizedInfo)]]</p></template>
                 </div>
                 <div>
