@@ -59,7 +59,12 @@ public class CalendarItemTypeLogicImpl extends GenericLogicImpl<CalendarItemType
         return calendarItemTypeDAO.save(calendarItemType);
     }
 
-	@Autowired
+    @Override
+    public List<CalendarItemType> getAllEntitiesIncludeDelete() {
+        return calendarItemTypeDAO.getAllEntitiesIncludeDelete();
+    }
+
+    @Autowired
   public void setCalendarItemDAO(CalendarItemTypeDAO calendarItemTypeDAO) {
 		this.calendarItemTypeDAO = calendarItemTypeDAO;
 	}

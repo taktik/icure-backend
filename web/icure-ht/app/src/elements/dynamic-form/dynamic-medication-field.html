@@ -144,6 +144,7 @@
 			.action-buttons paper-icon-button {
 				padding: 2px;
 				margin-top: -1px;
+				margin-left: 10px;
 			}
 
 			paper-icon-button {
@@ -186,7 +187,8 @@
 
 			.medication-line {
 				margin: 4px 0;
-				height: 18px;
+				height: 25px;
+				line-height: 25px;
 				font-size: 13px;
 				width: 100%;
 				min-width: initial;
@@ -194,10 +196,15 @@
 				flex-direction: row;
 				justify-content: space-between;
 				flex-wrap: nowrap;
+				padding-left: 5px;
+				border-top: 1px dashed rgba(0,0,0,.1);
+			}
+			.medication-line:first-child {
+				border-top: none;
 			}
 
 			.medication-line > .action-buttons {
-				width:45px;
+				width:70px;
 				padding-right:0;
 			}
 
@@ -205,6 +212,11 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
+			}
+
+			paper-icon-button {
+				height: 25px;
+				width: 25px;
 			}
 
 		</style>
@@ -321,7 +333,8 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		    //After save, make sure that the currently edited data is connected to the loaded data
 			(this.api.localize(currentlyEditedMedication.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue = this.selectedMedicationContentWithId.medicationValue
 		}
-		if (!_.isEqual(localizedValue, this.localizedValue)) {
+		if (!_.isEqual(this.value, this.previouslySavedValue)) {
+		    this.set('previouslySavedValue', _.cloneDeep(this.value))
 			this.set('localizedValue', localizedValue);
 			this.set('refresher', this.refresher+1)
 			this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: this.value } }));
@@ -365,6 +378,11 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    this.language,
 				{
 				    medicationValue: {
+				        medicinalProduct: {
+				            priority: "low",
+							beginMoment: 0,
+							endMoment: 0
+						},
 				    	regimen: []
 					}
 				}

@@ -36,6 +36,8 @@
         </style>
         <paper-dialog id="dialog" opened="{{opened}}">
             <div>
+                <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
+                             on-keydown="refresh"></paper-input>
                 <vaadin-grid items="[[logList]]">
                     <vaadin-grid-column>
                         <template class="header">
@@ -92,43 +94,102 @@
                     listPatient :{
                         type : Array,
                         value : []
+                    },
+                    filterValue : {
+                        type : String,
+                        value : "",
+                        observer : "filterValueChanged"
+                    },
+                    latestSearchValue : {
+                        type : String,
+                        value : ""
                     }
                 };
             }
 
             open() {
                 this.$.dialog.open();
+            }
 
-                this.api.patient().listPatients(this.user.healthcarePartyId).then(patients => {
+            convertDate(date){
+                return this.api.moment(date).format("DD/MM/YYYY")
+            }
+
+            updateList(){
+
+                let latestSearchValue = this.filterValue
+                this.latestSearchValue = latestSearchValue
+
+                const filter = /^[0-9]{11}$/.test(latestSearchValue) ? {
+                    '$type': 'PatientByHcPartyAndSsinFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'ssin': latestSearchValue
+                } : /^[0-3]?[0-9][\/-](1[0-2]|0?[0-9])[\/-]([1-2][89012])?[0-9][0-9]$/.test(latestSearchValue) ? {
+                    '$type': 'PatientByHcPartyDateOfBirthFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'dateOfBirth': latestSearchValue.replace(/([0-3]?[0-9])[\/-](1[0-2]|0?[0-9])[\/-]((?:[1-2][89012])?[0-9][0-9])/g, (correspondance, p1, p2, p3, decalage, chaine )=>(p3.length===4 ? p3 : (p3 >20) ? "19"+p3 : "20"+p3)+(p2.length===2 ? p2 : "0"+p2)+(p1.length===2 ? p1 : "0"+p1))
+                } : {
+                    '$type': 'PatientByHcPartyNameContainsFuzzyFilter',
+                    'healthcarePartyId': this.user.healthcarePartyId,
+                    'searchString': latestSearchValue
+                }
+
+                console.log(filter)
+
+                Promise.all([this.api.patient().filterBy(null,null,1000,0,'lastName',true,{filter: filter}),this.api.user().listUsers()]).then(([patients,users]) => {
                     let promises = [];
                     let logListTemp = [];
-                    this.api.user().listUsers().then( users => {
-                        users.rows.map(user =>{
-                            promises.push(this.api.accesslog().findByUserAfterDate(user.id, 'USER_ACCESS', +new Date() - 1000 * 3600 * 24 * 7, null, null, 1000, true).then(results => {
+                    let listIdUser =[];
+                    patients.rows.map(patient =>{
+                        Object.keys(patient.delegations).map(id =>{
+                            let temp = users.rows.find(user => user.healthcarePartyId===id)
+                            if(!listIdUser.find(userId => userId===temp.id)){
+                                listIdUser.push(temp.id)
+                            }
+                        })
+                    })
+                    listIdUser.map(id =>{
+
+                        promises.push(this.api.accesslog().findByUserAfterDate(id, 'USER_ACCESS', +new Date() - 1000 * 3600 * 24 * 7, null, null, 1000, true).then(results => {
                                 results.rows.map(result => {
                                     let patient = patients.rows.find(pat => result.patientId===pat.id)
                                     if(patient)
                                         logListTemp.push({
                                             date: result.date,
                                             patient: patient.lastName + " " + patient.firstName,
-                                            user: user.name
+                                            user: users.rows.find(user => user.id===id).name
                                         })
                                 })
                             }))
+                    })
+
+                    Promise.all(promises).then(responses => {
+                        logListTemp.sort( (a,b) =>{
+                            return b.date -a.date;
                         })
-                    }).finally(x =>{
-                        Promise.all(promises).then(y => {
-                            logListTemp.sort( (a,b) =>{
-                                return b.date -a.date;
-                            })
-                            this.set("logList",logListTemp)
-                        })
+                        this.set("logList",logListTemp)
                     })
                 })
             }
 
-            convertDate(date){
-                return this.api.moment(date).format("DD/MM/YYYY")
+            filterValueChanged(){
+                //Give the gui the time to update the field
+                setTimeout(function () {
+                    let currentValue = this.filterValue;
+
+                    if(this.latestSearchValue===this.filterValue){
+                        return;
+                    }
+
+                    setTimeout(function () {
+                        if (currentValue === this.filterValue) {
+                            console.log("Triggering search for " + this.filterValue);
+                            this.updateList();
+                        } else {
+                            console.log("Skipping search for " + this.filterValue + " != " + currentValue);
+                        }
+                    }.bind(this), 500); //Wait for the user to stop typing
+                }.bind(this), 100);
             }
         }
         customElements.define(HtExportKey.is, HtExportKey);

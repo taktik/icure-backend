@@ -43,12 +43,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .sub-container {
                 width: 100%;
-                height: 100%;
+                height: calc(100% - 64px);
                 display: grid;
                 grid-template-columns: 35% 50%;
                 grid-template-rows: 100%;
+                grid-template-rows: 100%;
                 position: fixed;
-                top: 0;
+                top: 64px;
                 left: 15%;
                 bottom: 0;
                 right: 0;
@@ -70,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  on-selection-messages-change="handleMessageChange"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                   user="[[user]]" select-message="[[selectMessage]]"></ht-msg-detail>
+                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]"></ht-msg-detail>
                 </div>
             </template>
 
@@ -100,6 +101,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object
                     },
+					credentials:{
+						type: Object
+					},
                     selectList: {
                         type: Object
                     },

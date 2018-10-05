@@ -147,6 +147,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					margin-top: 2px;
 				}
 
+				.export-btn-container {
+					width: 100%;
+					left: 0;
+				}
+
 			</style>
 		</custom-style>
 
@@ -203,7 +208,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid-column>
 			</vaadin-grid>
 
-			<div class="btn-container">
+			<div class="btn-container export-btn-container">
 				<paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]</paper-button>
 			</div>
 		</div>

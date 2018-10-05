@@ -511,7 +511,7 @@
 			}
 
 			_isTextArea(layoutItem) {
-				return layoutItem.editor.key === 'StringEditor' && layoutItem.editor.multiline === true;
+				return layoutItem.editor.key === 'StringEditor' && layoutItem.editor.multiline === true || layoutItem.editor.key === 'StyledStringEditor' ;
 			}
 
 			_isTextField(layoutItem) {
