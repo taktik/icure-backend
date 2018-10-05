@@ -20,6 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-button.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
+
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-pat-list">
@@ -252,9 +254,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container {
                     width: 100%;
                     height: calc(100vh - 64px);
-                    display: grid;
-                    grid-template-columns: 20% 30% 50%;
-                    grid-template-rows: 100%;
+                    /*display: grid;*/
+                    /*grid-template-columns: 20% 30% 50%;*/
+                    /*grid-template-rows: 100%;*/
                     position: fixed;
                     top: 64px;
                     left: 0;
@@ -449,6 +451,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin-top:0;
                 }
 
+                .saved-filters {
+                    display: flex;
+                    flex-flow: row wrap;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    width: 100%;
+                }
+
+                .filter-tag {
+                    background: rgba(0,0,0,.1);
+                    color: var(--exm-token-input-badge-text-color, --text-primary-color);
+                    height: 34px;
+                    font-size: 13px;
+                    min-width: initial;
+
+                    margin: 0 8px 8px 0;
+                    border-radius: 5px;
+                    text-transform: capitalize;
+                }
+                .del-filter {
+                    height: 16px;
+                    width: 16px;
+                    margin-left: 8px;
+                }
+
                 @media screen and (max-width: 915px) {
                     :host #patients-list {
                         height: calc(100% - 180px);
@@ -503,32 +530,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </custom-style>
 
         <div class="container">
-            <div class="first-filter-panel">
-                <h4 class="filter-panel-title">Filtres sauvegardés</h4>
-                <div class="submenus-container">
-                    <paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]"
-                                   focused on-selected-values-changed="selectFilter" multi>
-                        <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
-                                  id="filterMenu">
-                            <paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]"
-                                        user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
-                                <div class="one-line-menu list-title">
-                                    [[filter.name]]
-                                </div>
-                                <div class="deleteFilterIcon">
-                                    <iron-icon icon="vaadin:close-circle" id="[[filter.name]]"
-                                               on-tap="deleteFilter"></iron-icon>
-                                </div>
-                            </paper-item>
-                        </template>
-                    </paper-listbox>
-                </div>
-                <div class="save-btn-container">
-                    <paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save
-                        Filter',language)]]
-                    </paper-button>
-                </div>
-            </div>
+            <!--<div class="first-filter-panel">-->
+                <!--<h4 class="filter-panel-title">Filtres sauvegardés</h4>-->
+                <!--<div class="submenus-container">-->
+                    <!--<paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]"-->
+                                   <!--focused on-selected-values-changed="selectFilter" multi>-->
+                        <!--<template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"-->
+                                  <!--id="filterMenu">-->
+                            <!--<paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]"-->
+                                        <!--user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">-->
+                                <!--<div class="one-line-menu list-title">-->
+                                    <!--[[filter.name]]-->
+                                <!--</div>-->
+                                <!--<div class="deleteFilterIcon">-->
+                                    <!--<iron-icon icon="vaadin:close-circle" id="[[filter.name]]"-->
+                                               <!--on-tap="deleteFilter"></iron-icon>-->
+                                <!--</div>-->
+                            <!--</paper-item>-->
+                        <!--</template>-->
+                    <!--</paper-listbox>-->
+                <!--</div>-->
+                <!--<div class="save-btn-container">-->
+                    <!--<paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save-->
+                        <!--Filter',language)]]-->
+                    <!--</paper-button>-->
+                <!--</div>-->
+            <!--</div>-->
 
             <div class="second-filter-panel">
 
@@ -544,8 +571,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                 </template>
                 <template is="dom-if" if="{{!_isPatientsSelected(nbPatientSelected.*)}}">
+
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
-                                 on-keydown="refresh"></paper-input>
+                                 on-keydown="refresh">
+                        <div slot="suffix">
+                            <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter"></paper-icon-button>
+                            <paper-tooltip for="save-filter">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
+                        </div>
+                    </paper-input>
+
+                    <div class="saved-filters">
+                        <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
+                                  id="filterMenu">
+                            <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" on-tap="selectFilter"
+                                        user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
+                                <div class="one-line-menu list-title">
+                                    [[filter.name]]
+                                </div>
+                                <div>
+                                    <iron-icon class="del-filter" icon="clear" id="[[filter.name]]"
+                                               on-tap="deleteFilter"></iron-icon>
+                                </div>
+                        </template>
+                    </div>
                 </template>
 
 
