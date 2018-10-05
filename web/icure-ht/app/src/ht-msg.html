@@ -47,6 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: grid;
                 grid-template-columns: 35% 50%;
                 grid-template-rows: 100%;
+                grid-template-rows: 100%;
                 position: fixed;
                 top: 64px;
                 left: 15%;
@@ -78,6 +79,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-msg-invoice api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                                  user="[[user]]"
                                  select-list="[[selectList]]"
+                                 invoices-status="[[invoicesStatus]]"
                                  on-selection-messages-change="handleMessageChange"></ht-msg-invoice>
             </template>
 
@@ -108,6 +110,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     invoicesLayout: {
                         type: Boolean,
                         value: false
+                    },
+                    invoicesStatus:{
+                        type: String,
+                        value: null
                     }
 
             }
@@ -124,6 +130,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             handleMenuChange(e) {
                 if (e.detail && e.detail.selection.item === 'e_invOut') {
                     this.set('invoicesLayout', true)
+                    this.set('invoicesStatus', e.detail.selection.status)
                 } else {
                     this.set('invoicesLayout', false)
                 }

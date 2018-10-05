@@ -402,8 +402,8 @@
 						<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon ic on="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 					</template>
 					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
-						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
 					</div>
@@ -1103,14 +1103,15 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			filter: function (filterValue, limit, offset, sortKey, descending) {
 				const regExp = filterValue && new RegExp(filterValue, "i");
 
-				return Promise.all([
+				const all = this.allTemplates || (this.allTemplates = Promise.all([
 				    this.api.form().findFormTemplates(),
                     this.api.form().findFormTemplatesBySpeciality(((this.api.hcParties[this.user.healthcarePartyId]||{}).specialityCodes||[])[0] || 'deptgeneralpractice')
-                ])
-                    .then(res=>_.uniqBy(_.flatMap(res),'id'))
+                ]).then( res => _.chain(res[0].concat(res[1])).uniqBy(x=>x.id).sortBy(['group','name']).value()))
+
+                return all
                     .then(fts => {
 					const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
-					return { totalSize: fts.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
+					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
 				});
 			}.bind(this)
 		};
