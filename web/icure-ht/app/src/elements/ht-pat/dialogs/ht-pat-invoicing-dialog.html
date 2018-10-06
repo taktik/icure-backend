@@ -640,7 +640,7 @@
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
             <div class="invoice-panel">
-                <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material">
+                <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
                     <template is="dom-repeat" items="[[invoices]]">
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
                                         id="[[item.id]]">
@@ -738,8 +738,9 @@
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
-                                                <iron-icon icon="vaadin:circle"
-                                                           class$="[[getNmclColorStatus(item.valid)]]"></iron-icon>
+                                                <template is="dom-if" if="[[item.valid]]">
+                                                    <iron-icon icon="vaadin:check" class="verifiedNmcl"></iron-icon>
+                                                </template>
                                             </div>
                                         </template>
                                     </vaadin-grid-column>
@@ -1288,62 +1289,66 @@
                 return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)']
             }
 
-            getNmclColorStatus(status) {
-                return status === true ? 'verifiedNmcl' : 'unverifiedNmcl'
-
-            }
-
             ready() {
                 super.ready()
             }
 
             _selectInvoice(e) {
+
+                const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
+
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
 
-                const selected = this.invoices.find(inv => inv.id === e.currentTarget.id)
+                const selected = this.invoices.find(inv => inv.id === invoiceId)
                 this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
                 this.set('selectedInvoice', selected)
                 this.set('selectedMediumCodeType', selected.sentMediumType)
-                this.calculateTotalOfInvoice()
+
+                invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
             }
 
             open() {
 
-                this.set("isTarificationMcnError", false)
-                this.set("isTarificationError", false)
-                this.set('isDetailNmcl', false)
-                this.set('isNmclVerified', false)
-                this.set('npi', false)
-
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
 
-                    const newInvoice = {}
-
-                    newInvoice.invoiceDate = moment().format("YYYYMMDD")
-                    newInvoice.invoiceReference = ""
-                    newInvoice.thirdPartyReference = "0"
-                    newInvoice.invoiceType = "mutualfund"
-                    newInvoice.sentMediumType = "efact"
-                    newInvoice.invoicePeriod = 0
-                    newInvoice.longDelayJustification = 0
-                    newInvoice.gnotionNihii = ""
-                    newInvoice.internshipNihii = ""
-                    newInvoice.creditNote = false
-                    newInvoice.careProviderType = "persphysician"
-
                     this.set('hcp', hcp)
-                    this.set('invoiceDateAsString', this.returnDatePickerDate(newInvoice.invoiceDate))
-                    this.set('selectedInvoice', newInvoice)
-                    this.set('selectedMediumCodeType', newInvoice.sentMediumType)
-                    invoices.push(this.selectedInvoice)
-                    this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
+                    this.set('invoices',invoices)
+
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate == moment().format("YYYYMMDD") )
+
+                    if(!invoiceOfDay){
+                        const newInvoice = {}
+
+                        newInvoice.id = ""
+                        newInvoice.invoicingCodes = []
+                        newInvoice.invoiceDate = moment().format("YYYYMMDD")
+                        newInvoice.invoiceReference = ""
+                        newInvoice.thirdPartyReference = "0"
+                        newInvoice.invoiceType = "mutualfund"
+                        newInvoice.sentMediumType = "efact"
+                        newInvoice.invoicePeriod = 0
+                        newInvoice.longDelayJustification = 0
+                        newInvoice.gnotionNihii = ""
+                        newInvoice.internshipNihii = ""
+                        newInvoice.creditNote = false
+                        newInvoice.careProviderType = "persphysician"
+
+                        this.push('invoices',newInvoice)
+
+                        this._selectInvoice("")
+                    }else{
+                        this._selectInvoice(invoiceOfDay.id)
+                    }
+
+                    this.set('invoices', _.orderBy(this.invoices, ['invoiceDate'], ['desc']))
 
                     this.$.invoiceDialog.open()
+
                     this.getFavoritesCodes()
                 })
             }
@@ -1515,20 +1520,19 @@
                                     this.api.invoice().newInstance(this.user, this.patient, invoice)
                                         .then(invoice => this.api.invoice().createInvoice(invoice))
                                         .then(invoice => {
-                                            this.set('selectedInvoice', invoice)
                                             this.$['nmclGrid'].clearCache()
-                                            this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                                            this.calculateTotalOfInvoice()
                                             console.log(this.selectedInvoice)
-                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                                this.set('invoices', invoices)
+                                                this._selectInvoice(invoice.id)
+                                            })
+
                                         })
                                 }else{
                                     this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
                                         this.set('invoices', invoices)
                                         const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
-                                        this.set('selectedInvoice', selectedInvoice)
-                                        this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                                        this.calculateTotalOfInvoice()
+                                        this._selectInvoice(selectedInvoice.id)
                                     })
                                 }
                             })
