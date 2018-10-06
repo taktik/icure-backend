@@ -211,6 +211,14 @@
                     color: var(--app-status-color-pending);
                 }
 
+                #pendingDetailDialog{
+                    height: calc(100vh - 40px);
+                    width: calc(85% - 40px);
+                    z-index: 1100;
+                    position: fixed;
+                    top: 64px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -220,7 +228,7 @@
             <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="" on-keydown="refreshFilter"></paper-input>
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
-                    <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]">
+                    <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
@@ -231,7 +239,7 @@
                             <template class="header">
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.patient.insurance.code]]</template>
+                            <template>[[item.insurance.code]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
@@ -263,28 +271,28 @@
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.reimbursement">OA</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.invoice.reimbursement)]]</template>
+                                <template>[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.patientIntervention">Patient</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.invoice.patientIntervention)]]</template>
+                                <template>[[_formatAmount(item.totalInvoice.patientIntervention)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.doctorSupplement">Supplément</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.invoice.doctorSupplement)]]</template>
+                                <template>[[_formatAmount(item.totalInvoice.doctorSupplement)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.totalAmount">Total</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.invoice.totalAmount)]]</template>
+                                <template>[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
@@ -375,6 +383,64 @@
                     </vaadin-grid>
                 </template>
             </div>
+
+            <paper-dialog id="pendingDetailDialog">
+                <div>
+                    Details of invoice n° [[activeGridItem.invoice.invoiceReference]]
+                </div>
+                    <vaadin-grid id="pendingGridDetail" items="[[activeGridItem.invoice.invoicingCodes]]">
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">Date</template>
+                            <template>[[returnDate(item.dateCode)]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">Code</template>
+                            <template>[[item.code]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">Libellé</template>
+                            <template>[[item.label]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">PR</template>
+                            <template>[[item.relatedCode]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">Tp</template>
+                            <template>[[item.insuranceJustification]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">N° engagement</template>
+                            <template>[[item.contract]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column-group>
+                            <template class="header">Montants</template>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">OA</template>
+                                <template>[[item.reimbursement]]</template>
+                                <template class="footer">0.00€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">Patient</template>
+                                <template>[[item.patientIntervention]]</template>
+                                <template class="footer">0.00€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">Supplément</template>
+                                <template>[[item.doctorSupplement]]</template>
+                                <template class="footer">0.00€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="header">Total</template>
+                                <template>[[item.totalAmount]]</template>
+                                <template class="footer">0.00€</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+                    </vaadin-grid>
+                <div class="button">
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                </div>
+            </paper-dialog>
         </div>
     </template>
 
@@ -382,7 +448,6 @@
 
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
-        import filterExParser from '../../../scripts/filterExParser';
 
         class HtMsgInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -479,8 +544,13 @@
                     multiSort:{
                         type: Boolean,
                         value: true
+                    },
+                    activeGridItem:{
+                        type: Object,
+                        value: function () {
+                            return [];
+                        }
                     }
-
                 };
             }
 
@@ -504,33 +574,22 @@
                     .then(insurance => {
 
                         const invPen = {
-                            invoice: {
-                                invoiceId: invoice.id,
-                                invoiceReference: invoice.invoiceReference,
-                                invoiceDate: invoice.invoiceDate,
-                                sentMediumType: invoice.sentMediumType,
-                                invoiceType: invoice.invoiceType,
-                                patientIntervention : 0.00,
-                                reimbursement: 0.00,
-                                totalAmount: 0.00,
-                                doctorSupplement: 0.00,
-                                statut: "Pending"
-                            },
-                            patient: {
-                                firstName: patient.firstName,
-                                lastName: patient.lastName,
-                                ssin: patient.ssin,
-                                insurance: {
-                                    code: insurance.code
-                                }
+                            invoice: invoice,
+                            patient: patient,
+                            insurance: insurance,
+                            totalInvoice: {
+                                patientIntervention:    Number(0.00),
+                                reimbursement:          Number(0.00),
+                                totalAmount:            Number(0.00),
+                                doctorSupplement:       Number(0.00)
                             }
                         }
 
                         invoice.invoicingCodes.map(code => {
-                            invPen.invoice.patientIntervention += Number(code.patientIntervention)
-                            invPen.invoice.reimbursement += Number(code.reimbursement)
-                            invPen.invoice.totalAmount += Number(code.totalAmount)
-                            invPen.invoice.doctorSupplement += Number(code.doctorSupplement)
+                            invPen.totalInvoice.patientIntervention += Number(code.patientIntervention)
+                            invPen.totalInvoice.reimbursement += Number(code.reimbursement)
+                            invPen.totalInvoice.totalAmount += Number(code.totalAmount)
+                            invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
                         })
 
                         this.push('invoices.pending', invPen)
@@ -553,10 +612,10 @@
                 }
 
                 this.invoices.pending.map(invoice => {
-                    total.totalReimbursement          += Number(invoice.invoice.reimbursement)
-                    total.totalAmount                 += Number(invoice.invoice.totalAmount)
-                    total.totalPatientIntervention    += Number(invoice.invoice.patientIntervention)
-                    total.totalDoctorSupplement       += Number(invoice.invoice.doctorSupplement)
+                    total.totalReimbursement          += Number(invoice.totalInvoice.reimbursement)
+                    total.totalAmount                 += Number(invoice.totalInvoice.totalAmount)
+                    total.totalPatientIntervention    += Number(invoice.totalInvoice.patientIntervention)
+                    total.totalDoctorSupplement       += Number(invoice.totalInvoice.doctorSupplement)
                 })
 
                 this.set('totalPendingInvoices', total)
@@ -595,6 +654,10 @@
 
             createInvoice(){
 
+            }
+
+            _showPendingDetail(){
+                this.$.pendingDetailDialog.open()
             }
 
 
