@@ -344,6 +344,38 @@ public class InvoiceFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/unsent")
+	public Response listByHcPartyEfactUnsent(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactUnsent(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/mediumType/{sentMediumType}/invoiceType/{invoiceType}/sent/{sent}")
+	public Response listByHcPartySentMediumTypeInvoiceTypeSentDate(@PathParam("hcPartyId") String hcParty, @PathParam("sentMediumType") MediumType sentMediumType,
+																   @PathParam("invoiceType") InvoiceType invoiceType, @PathParam("sent") boolean sent,
+																   @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
 			value = "Update delegations in healthElements.",
 			httpMethod = "POST",
 			notes = "Keys must be delimited by coma"
