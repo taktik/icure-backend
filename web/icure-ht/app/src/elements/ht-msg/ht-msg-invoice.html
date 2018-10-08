@@ -132,7 +132,11 @@
 
                 .invoice-panel{
                     height: 100%;
-                    width: 100%;
+                    width: 80%;
+                    position: fixed;
+                    left: 20%;
+                    padding: 0 20px;
+                    box-sizing: border-box;
                 }
 
                 .recipient-col{
@@ -213,6 +217,13 @@
                 vaadin-grid#sendingGrid,
                 vaadin-grid#invoiceGrid {
                     height: calc(100vh - 120px);
+                }
+
+                @media screen and (max-width:1025px){
+                    .invoice-panel {
+                        left: 0;
+                        width: 100%;
+                    }
                 }
             </style>
         </custom-style>
