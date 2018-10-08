@@ -640,7 +640,7 @@
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
             <div class="invoice-panel">
-                <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material">
+                <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
                     <template is="dom-repeat" items="[[invoices]]">
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
                                         id="[[item.id]]">
@@ -738,8 +738,9 @@
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
-                                                <iron-icon icon="vaadin:circle"
-                                                           class$="[[getNmclColorStatus(item.valid)]]"></iron-icon>
+                                                <template is="dom-if" if="[[item.valid]]">
+                                                    <iron-icon icon="vaadin:check" class="verifiedNmcl"></iron-icon>
+                                                </template>
                                             </div>
                                         </template>
                                     </vaadin-grid-column>
@@ -946,6 +947,7 @@
     </template>
     <script>
         import * as models from 'icc-api/dist/icc-api/model/models'
+        import jsPDF from 'jspdf/dist/jspdf.min';
         import moment from 'moment/src/moment'
         import * as evaljs from "evaljs"
 
@@ -1287,62 +1289,66 @@
                 return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)']
             }
 
-            getNmclColorStatus(status) {
-                return status === true ? 'verifiedNmcl' : 'unverifiedNmcl'
-
-            }
-
             ready() {
                 super.ready()
             }
 
             _selectInvoice(e) {
+
+                const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
+
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
 
-                const selected = this.invoices.find(inv => inv.id === e.currentTarget.id)
+                const selected = this.invoices.find(inv => inv.id === invoiceId)
                 this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
                 this.set('selectedInvoice', selected)
                 this.set('selectedMediumCodeType', selected.sentMediumType)
-                this.calculateTotalOfInvoice()
+
+                invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
             }
 
             open() {
 
-                this.set("isTarificationMcnError", false)
-                this.set("isTarificationError", false)
-                this.set('isDetailNmcl', false)
-                this.set('isNmclVerified', false)
-                this.set('npi', false)
-
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
 
-                    const newInvoice = {}
-
-                    newInvoice.invoiceDate = moment().format("YYYYMMDD")
-                    newInvoice.invoiceReference = ""
-                    newInvoice.thirdPartyReference = "0"
-                    newInvoice.invoiceType = "mutualfund"
-                    newInvoice.sentMediumType = "efact"
-                    newInvoice.invoicePeriod = 0
-                    newInvoice.longDelayJustification = 0
-                    newInvoice.gnotionNihii = ""
-                    newInvoice.internshipNihii = ""
-                    newInvoice.creditNote = false
-                    newInvoice.careProviderType = "persphysician"
-
                     this.set('hcp', hcp)
-                    this.set('invoiceDateAsString', this.returnDatePickerDate(newInvoice.invoiceDate))
-                    this.set('selectedInvoice', newInvoice)
-                    this.set('selectedMediumCodeType', newInvoice.sentMediumType)
-                    invoices.push(this.selectedInvoice)
-                    this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
+                    this.set('invoices',invoices)
+
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate == moment().format("YYYYMMDD") )
+
+                    if(!invoiceOfDay){
+                        const newInvoice = {}
+
+                        newInvoice.id = ""
+                        newInvoice.invoicingCodes = []
+                        newInvoice.invoiceDate = moment().format("YYYYMMDD")
+                        newInvoice.invoiceReference = ""
+                        newInvoice.thirdPartyReference = "0"
+                        newInvoice.invoiceType = "mutualfund"
+                        newInvoice.sentMediumType = "efact"
+                        newInvoice.invoicePeriod = 0
+                        newInvoice.longDelayJustification = 0
+                        newInvoice.gnotionNihii = ""
+                        newInvoice.internshipNihii = ""
+                        newInvoice.creditNote = false
+                        newInvoice.careProviderType = "persphysician"
+
+                        this.push('invoices',newInvoice)
+
+                        this._selectInvoice("")
+                    }else{
+                        this._selectInvoice(invoiceOfDay.id)
+                    }
+
+                    this.set('invoices', _.orderBy(this.invoices, ['invoiceDate'], ['desc']))
 
                     this.$.invoiceDialog.open()
+
                     this.getFavoritesCodes()
                 })
             }
@@ -1452,7 +1458,7 @@
                         accepted: false,
                         pending: false,
                         resent: false,
-                        dateCode: moment().format("YYYYMMDD"),
+                        dateCode: this.selectedInvoice.invoiceDate,
                         prescriberNeeded: false,
                         isRelativePrestation: false,
                         valid: false,
@@ -1514,20 +1520,19 @@
                                     this.api.invoice().newInstance(this.user, this.patient, invoice)
                                         .then(invoice => this.api.invoice().createInvoice(invoice))
                                         .then(invoice => {
-                                            this.set('selectedInvoice', invoice)
                                             this.$['nmclGrid'].clearCache()
-                                            this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                                            this.calculateTotalOfInvoice()
                                             console.log(this.selectedInvoice)
-                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                                this.set('invoices', invoices)
+                                                this._selectInvoice(invoice.id)
+                                            })
+
                                         })
                                 }else{
                                     this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
                                         this.set('invoices', invoices)
                                         const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
-                                        this.set('selectedInvoice', selectedInvoice)
-                                        this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                                        this.calculateTotalOfInvoice()
+                                        this._selectInvoice(selectedInvoice.id)
                                     })
                                 }
                             })
@@ -1735,6 +1740,7 @@
                     console.log(invoice)
                     this.set('selectedInvoice', invoice)
                     this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                    this.generateJustificatory()
                 })
             }
 
@@ -1781,6 +1787,198 @@
             getSentMediumType(sentMediumType){
                 const type = this.sentMediumType.find(type => type.id == sentMediumType)
                 return type.label[this.language]
+            }
+
+            generateJustificatory(){
+
+                const width = 210
+                const height = 297
+
+                const center = function (pdf, x, txt, fontSize) {
+                    return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
+                };
+
+                const pdf = new jsPDF('p', 'mm', [width, height]);
+
+
+                pdf.setFontSize(9);
+                pdf.setFont('Arial');
+                pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
+                pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU PATIENT", 86, 24)
+                pdf.text("Patient", 38.5, 31.5)
+                pdf.text("Dispensateur de soins", 117, 31.5)
+                pdf.text("Identification", 20, 38.5)
+                pdf.text("Identification", 77, 38.5)
+                pdf.text("Les prestations de santé ont été effectuées pour le compte de :", 134, 38.5)
+                pdf.text("Nom: "+this.patient.firstName, 20, 45.5)
+                pdf.text("Nom: "+this.hcp.firstName, 77, 45.5)
+                pdf.text("Nom: ", 135, 45.5)
+                pdf.text("Prénom: "+this.patient.lastName, 20, 52)
+                pdf.text("Prénom: "+this.hcp.firstName, 77, 52)
+                pdf.text("BCE: ", 135, 52)
+                pdf.text("NISS: "+this.patient.inss, 20, 58)
+                pdf.text("Adresse: "+this.patient.firstName, 77, 58)
+                pdf.text("INAMI: "+this.hcp.nihii, 77, 70)
+                pdf.text("BCE: "+this.hcp.cbe, 77, 76)
+
+
+                pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
+                pdf.text("Date des prestations", 20, 96)
+                pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
+
+                pdf.text("Code prestation", 51, 102)
+                pdf.text("Intervention OA", 80, 102)
+                pdf.text("Intervention personnelle", 110, 102)
+                pdf.text("Supplément", 150, 102)
+                pdf.text("Total", 180, 102)
+
+                let startNmclHeight = 108
+
+                this.selectedInvoice.invoicingCodes.map(code => {
+                    let invoiceDate = this._formatInvoiceDate(code.dateCode)
+                    pdf.text(invoiceDate,20, startNmclHeight)
+                    pdf.text(code.code.toString(),50, startNmclHeight)
+                    pdf.text(code.reimbursement.toString(),95, startNmclHeight)
+                    pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
+                    pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
+                    pdf.text(code.totalAmount.toString(),184, startNmclHeight)
+
+                    startNmclHeight = Number(startNmclHeight) + 6
+                })
+
+                pdf.text("Total", 20, 260)
+                pdf.text("0.00", 95, 260)
+                pdf.text("0.00", 132, 260)
+                pdf.text("0.00", 160, 260)
+                pdf.text("0.00", 184, 260)
+
+                pdf.text("Total dû par le patient", 20, 266)
+                pdf.text("0.00", 184, 266)
+
+                pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
+                pdf.text("0.00", 184, 272)
+
+                pdf.text("Montant total à payer par le patient ", 20, 278)
+                pdf.text("0.00", 184, 278)
+
+                pdf.setFontSize(6);
+                pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+
+
+                //Horizontals lines
+                pdf.lines([[0, 0], [180, 0]], 18, 20);
+                pdf.lines([[0, 0], [180, 0]], 18, 27.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 34.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 80);
+                pdf.lines([[0, 0], [180, 0]], 18, 86);
+                pdf.lines([[0, 0], [180, 0]], 18, 92);
+                pdf.lines([[0, 0], [180, 0]], 18, 98);
+                pdf.lines([[0, 0], [180, 0]], 18, 262);
+                pdf.lines([[0, 0], [180, 0]], 18, 268);
+                pdf.lines([[0, 0], [180, 0]], 18, 274);
+                pdf.lines([[0, 0], [180, 0]], 18, 280);
+
+
+                //Verticals lines
+                pdf.lines([[0, 60], [0, 0]], 18, 20);
+                pdf.lines([[0, 60], [0, 0]], 68, 20);
+                pdf.lines([[0, 45], [0, 0]], 75, 34.5);
+                pdf.lines([[0, 45], [0, 0]], 132, 34.5);
+                pdf.lines([[0, 60], [0, 0]], 198, 20);
+
+                pdf.lines([[0, 194], [0, 0]], 18, 86);
+                pdf.lines([[0, 194], [0, 0]], 198, 86);
+
+                pdf.addPage()
+
+                pdf.setFontSize(9);
+                pdf.setFont('Arial');
+                pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
+                pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MEDECIN", 86, 24)
+                pdf.text("Dispensateur de soins", 117, 31.5)
+                pdf.text("Identification", 20, 38.5)
+                pdf.text("Les prestations de santé ont été effectuées pour le compte de :", 134, 38.5)
+                pdf.text("Nom: "+this.hcp.firstName, 20, 45.5)
+                pdf.text("Nom: ", 135, 45.5)
+                pdf.text("Prénom: "+this.hcp.lastName, 20, 52)
+                pdf.text("BCE: ", 135, 52)
+                pdf.text("Adresse: ", 20, 58)
+                pdf.text("INAMI: "+this.hcp.nihii, 20, 64)
+                pdf.text("BCE: "+this.hcp.cbe, 20, 70)
+                pdf.text("N° mutuelle: "+ "/ N° OA", 20, 76)
+
+
+                pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
+                pdf.text("Date des prestations", 20, 96)
+                pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
+
+                pdf.text("Code prestation", 51, 102)
+                pdf.text("Intervention OA", 80, 102)
+                pdf.text("Intervention personnelle", 110, 102)
+                pdf.text("Supplément", 150, 102)
+                pdf.text("Total", 180, 102)
+
+                startNmclHeight = 108
+
+                this.selectedInvoice.invoicingCodes.map(code => {
+                    let invoiceDate = this._formatInvoiceDate(code.dateCode)
+                    pdf.text(invoiceDate,20, startNmclHeight)
+                    pdf.text(code.code.toString(),50, startNmclHeight)
+                    pdf.text(code.reimbursement.toString(),95, startNmclHeight)
+                    pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
+                    pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
+                    pdf.text(code.totalAmount.toString(),184, startNmclHeight)
+
+                    startNmclHeight = Number(startNmclHeight) + 6
+                })
+
+                pdf.text("Total", 20, 260)
+                pdf.text("0.00", 95, 260)
+                pdf.text("0.00", 132, 260)
+                pdf.text("0.00", 160, 260)
+                pdf.text("0.00", 184, 260)
+
+                pdf.text("Total dû par le patient", 20, 266)
+                pdf.text("0.00", 184, 266)
+
+                pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
+                pdf.text("0.00", 184, 272)
+
+                pdf.text("Montant total à payer par le patient ", 20, 278)
+                pdf.text("0.00", 184, 278)
+
+                pdf.setFontSize(6);
+                pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+
+                //Horizontals lines
+                pdf.lines([[0, 0], [180, 0]], 18, 20);
+                pdf.lines([[0, 0], [180, 0]], 18, 27.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 34.5);
+                pdf.lines([[0, 0], [180, 0]], 18, 80);
+                pdf.lines([[0, 0], [180, 0]], 18, 86);
+                pdf.lines([[0, 0], [180, 0]], 18, 92);
+                pdf.lines([[0, 0], [180, 0]], 18, 98);
+                pdf.lines([[0, 0], [180, 0]], 18, 262);
+                pdf.lines([[0, 0], [180, 0]], 18, 268);
+                pdf.lines([[0, 0], [180, 0]], 18, 274);
+                pdf.lines([[0, 0], [180, 0]], 18, 280);
+
+
+                //Verticals lines
+                pdf.lines([[0, 60], [0, 0]], 18, 20);
+                pdf.lines([[0, 7], [0, 0]], 68, 20);
+                pdf.lines([[0, 45], [0, 0]], 132, 34.5);
+                pdf.lines([[0, 60], [0, 0]], 198, 20);
+
+                pdf.lines([[0, 194], [0, 0]], 18, 86);
+                pdf.lines([[0, 194], [0, 0]], 198, 86);
+
+
+
+                pdf.autoPrint();
+
+                pdf.save(`efactJustificatory_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.selectedInvoice.invoiceDate || '00000000'}.pdf`);
+
             }
 
         }
