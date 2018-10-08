@@ -20,6 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-button.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
+
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-pat-list">
@@ -33,8 +35,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 :host #patients-list {
-                    height: calc(100% - 140px);
+                    height: calc(100% - 185px);
                     outline: none;
+                }
+
+                #scroller tbody#item {
+                    cursor: pointer;
                 }
 
                 paper-input {
@@ -154,7 +160,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .show-all-patients {
-                    left: calc(20% + 32px);
                     position: absolute;
                     bottom: 20px;
                 }
@@ -166,9 +171,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     bottom: 8px;
                 }
 
+                .add-btn-mobileonly {
+                    display: block;
+                    position: fixed;
+                    bottom: 0;
+                    right: 0;
+                }
+                .toggle-btn {
+                    position: relative;
+                }
+                .closed {
+                    display: none;
+                }
+
                 .add-btn-container {
-                    width: 80%;
-                    left: 20%;
+                    right: 28px;
                     position: absolute;
                     bottom: 16px;
 
@@ -201,6 +218,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     min-width: 100px;
                     @apply --shadow-elevation-2dp;
                     padding: 10px 1.2em;
+                }
+                
+                .add-btn, .exportcsv-btn {
+                    text-transform: capitalize;
                 }
 
                 .save-btn-container {
@@ -248,9 +269,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container {
                     width: 100%;
                     height: calc(100vh - 64px);
-                    display: grid;
-                    grid-template-columns: 20% 30% 50%;
-                    grid-template-rows: 100%;
+                    /*display: grid;*/
+                    /*grid-template-columns: 20% 30% 50%;*/
+                    /*grid-template-rows: 100%;*/
                     position: fixed;
                     top: 64px;
                     left: 0;
@@ -352,17 +373,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #selectPatientOption {
                     height: 34px;
                     padding: 14px;
-                    background: #edf4fd;
+                    background: var(--app-background-color-dark);
                     -webkit-transition: background .15s;
                     transition: background .15s;
                     z-index: 2;
                     display : flex;
+                    border-left: 1px solid rgba(0,0,0,.05);
+                    border-right: 1px solid rgba(0,0,0,.05);
 
-                }
+                }ht-hcp-list
 
                 #selectPatientOption_back {
                     min-width: 80px;
                     cursor: pointer;
+                    line-height: 35px;
                 }
 
                 #selectPatientOption_text {
@@ -378,7 +402,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 #sharePatientDialog {
-                    height: 550px;
                     width: 1000px;
                 }
 
@@ -444,36 +467,102 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 paper-dialog > div {
                     margin-top:0;
                 }
+
+                .saved-filters {
+                    display: flex;
+                    flex-flow: row wrap;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    width: 100%;
+                }
+
+                .filter-tag {
+                    background: rgba(0,0,0,.1);
+                    color: var(--exm-token-input-badge-text-color, --text-primary-color);
+                    height: 34px;
+                    font-size: 13px;
+                    min-width: initial;
+
+                    margin: 0 8px 8px 0;
+                    border-radius: 5px;
+                    text-transform: capitalize;
+                }
+                .del-filter {
+                    height: 16px;
+                    width: 16px;
+                    margin-left: 8px;
+                }
+
+                .add-btn-mobile {
+                    display: none;
+                }
+
+                @media screen and (max-width: 1024px) {
+                    div.container {
+                        display: inherit;
+                    }
+                    .add-btn-container {
+                        width: 100%;
+                        left: inherit;
+                        position: initial;
+                        justify-content: initial;
+                        padding-top: 15px;
+                        overflow-x: scroll;
+                        height: 100px;
+                        border-left: 1px dashed lightgrey;
+                        border-right: 1px dashed lightgrey;
+                        box-sizing: border-box;
+                    }
+                    .add-btn-container paper-button.add-btn,
+                    .add-btn-container .exportcsv-btn {
+                        height: 60px;
+                    }
+
+                    .add-btn-container {
+                        display: none;
+                    }
+
+                    .add-btn-mobile {
+                        display: block;
+                        position: fixed;
+                        bottom: 10px;
+                        right: 35px;
+                    }
+                    .add-list-mobile {
+                        position: fixed;
+                        bottom: 69px;
+                        right: 38px;
+
+                        background: var(--app-background-color-light);
+                        width: 200px;
+                        border: 1px solid rgba(0,0,0,.1);
+                        border-radius: 2px;
+                        z-index: 99;
+                        padding: 8px 0;
+
+                        transition: .25s ease-out;
+                        transform: scaleY(0);
+                        transform-origin: bottom;
+                    }
+                    .shown-menu {
+                        transform: scaleY(1);
+                    }
+                    .toggle-btn {
+                        color: var(--app-text-color);
+                        background: var(--app-secondary-color);
+                    }
+                    .add-elem-mobile {
+                        cursor: pointer;
+                        padding: 10px;
+                    }
+                    .add-elem-mobile:hover {
+                        background: rgba(0,0,0,.1);
+                    }
+                }
             </style>
         </custom-style>
 
         <div class="container">
-            <div class="first-filter-panel">
-                <h4 class="filter-panel-title">Filtres sauvegardés</h4>
-                <div class="submenus-container">
-                    <paper-listbox selected-values="[[_selectedFilterIndexes(selectedFilters, selectedFilters.*)]]"
-                                   focused on-selected-values-changed="selectFilter" multi>
-                        <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
-                                  id="filterMenu">
-                            <paper-item class="menu-trigger menu-item" id="[[filter.name]]" api="[[api]]"
-                                        user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
-                                <div class="one-line-menu list-title">
-                                    [[filter.name]]
-                                </div>
-                                <div class="deleteFilterIcon">
-                                    <iron-icon icon="vaadin:close-circle" id="[[filter.name]]"
-                                               on-tap="deleteFilter"></iron-icon>
-                                </div>
-                            </paper-item>
-                        </template>
-                    </paper-listbox>
-                </div>
-                <div class="save-btn-container">
-                    <paper-button class="add-btn" on-tap="_saveFilter">[[localize('save_filter','Save
-                        Filter',language)]]
-                    </paper-button>
-                </div>
-            </div>
 
             <div class="second-filter-panel">
 
@@ -486,14 +575,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div id="selectPatientOption_text">
                             [[nbPatientSelected]] patient(s) selected
                         </div>
-                        <div id="selectPatientOption_option">
-                            <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon>
-                        </div>
                     </div>
                 </template>
                 <template is="dom-if" if="{{!_isPatientsSelected(nbPatientSelected.*)}}">
+
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}"
-                                 on-keydown="refresh"></paper-input>
+                                 on-keydown="refresh">
+                        <div slot="suffix">
+                            <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter"></paper-icon-button>
+                            <paper-tooltip for="save-filter">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
+                        </div>
+                    </paper-input>
+
+                    <div id="saved-filters" class="saved-filters">
+                        <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
+                                  id="filterMenu">
+                            <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" on-tap="selectFilter"
+                                        user="[[user]]" language="[[language]]" data-item$="[[filter.filter]]">
+                                <div class="one-line-menu list-title">
+                                    [[filter.name]]
+                                </div>
+                                <div>
+                                    <iron-icon class="del-filter" icon="clear" id="[[filter.name]]"
+                                               on-tap="deleteFilter"></iron-icon>
+                                </div>
+                        </template>
+                    </div>
                 </template>
 
 
@@ -567,6 +674,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
                 </vaadin-grid>
+
+                <div class="add-btn-mobile">
+                    <paper-fab mini icon="more-vert" id="add-btn-mobile-btn" class="toggle-btn" on-tap="toggleMobileMenu"></paper-fab>
+                    <paper-tooltip position="left" for="add-btn-mobile-btn">[[localize('more','More',language)]]</paper-tooltip>
+                    <div id="add-list-mobile" class$="add-list-mobile [[isShown]]">
+                        <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
+                            <div class="add-elem-mobile" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
+                            </div>
+
+                            <template is="dom-if" if="[[btnSelectionPatient]]">
+                                <div class="add-elem-mobile" on-tap="_sharePatient">[[localize('share_pat','Share
+                                    patients',language)]]
+                                </div>
+                                <div class="add-elem-mobile" on-tap="_exportPatient">[[localize('export_pat','Export
+                                    patients',language)]]
+                                </div>
+                                <div class="add-elem-mobile" on-tap="_fusionPatient">[[localize('fusion_pat','Fusion
+                                    patients',language)]]
+                                </div>
+                            </template>
+                            <div class="add-elem-mobile" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
+                            </div>
+                        </template>
+                        <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
+                            <div class="add-elem-mobile" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
+                            </div>
+                            <div class="add-elem-mobile" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]]</iron-icon>
+                            </div>
+                            <template is="dom-if" if="[[taskProgress]]">
+                                <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
+                            </template>
+                        </template>
+                    </div>
+
+                </div>
+
                 <div class="add-btn-container">
                     <template is="dom-if" if="[[!_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
                         <paper-button class="add-btn" on-tap="_addPatient">[[localize('add_pat','Add Patient',language)]]
@@ -587,8 +730,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
-                        <paper-button class="add-btn" on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
+                        <paper-button on-tap="_cancelSelecting">[[localize('canc','Cancel',language)]]
                         </paper-button>
+                        <paper-button class="add-btn" on-tap="_openPatientActionDialog">[[localize('sel','Select',language)]] <iron-icon icon="icons:check" on-tap="_openPatientActionDialog"></iron-icon></paper-button>
                         <template is="dom-if" if="[[taskProgress]]">
                             <vaadin-progress-bar class="progress-bar" value="[[taskProgress]]"></vaadin-progress-bar>
                         </template>
@@ -999,6 +1143,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     hcpFilterValue: {
                         type: String
+                    },
+                    mobileMenuHidden: {
+                        type: Boolean,
+                        value: true
+                    },
+                    isShown: {
+                        type: String,
+                        value: ""
                     }
                 }
             }
@@ -1066,6 +1218,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         'healthcarePartyId': this.user.healthcarePartyId,
                         'searchString': latestSearchValue
                     }
+
 
                     if (grid.lastParams !== thisParams) {
                         grid.lastParams = thisParams
@@ -1155,6 +1308,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     }.bind(this)
                 };
+            }
+
+            toggleMobileMenu() {
+                this.set('mobileMenuHidden', !this.mobileMenuHidden)
+                this.set('isShown', !this.mobileMenuHidden ? "shown-menu" : "")
             }
 
 
@@ -1335,10 +1493,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             selectFilter(e) {
                 const activeFilters = this._activeFilters()
-
-                this.set('selectedFilters', e.target.selectedValues.map(idx => activeFilters[idx]))
-                if (this.selectedFilters[0]) {
-                    this.set('filterValue', this._selectedFiltersAsString())
+                const clickedElem = e.target.parentNode
+                const parentElem = clickedElem.parentNode.parentNode
+                const childsElem = parentElem.querySelectorAll(".filter-tag")
+                const toMap = Array.prototype.slice.call(childsElem)
+                let activeId, i = 0
+                toMap.map( (idx) => {
+                    if (clickedElem === idx) {
+                        activeId = i
+                    }
+                    i++
+                })
+                if (activeFilters[activeId]) {
+                    this.set('filterValue', activeFilters[activeId].filter.searchString)
                     this.previouslySetFilterValue = this.filterValue
                 } else {
                     if (this.filterValue === this.previouslySetFilterValue) {
@@ -1649,7 +1816,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set("hcpSelectedForSharing."+index+".delegation",[])
                     }
                     this.push("hcpSelectedForSharing."+index+".delegation",tag)
-                    
+
                     if(this.hcpSelectedForSharing[index].delegation.filter(x => x.includes("cdItem")).length === 12){
                         this.push("hcpSelectedForSharing."+index+".delegation","medicalInformation")
                     }

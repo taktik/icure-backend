@@ -379,13 +379,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            paper-dialog#ht-invite-hcp{
+                width: 50vw;
+                left: 0;
+                transform: translateX(50%);
+                margin: 0;
+            }
+
             .inviteHcpInput {
-                width: 400px;
+                width: 100%;
             }
 
             .formNewHcp {
                 height: 350px;
-                width: 450px;
             }
 
             .buttons {
@@ -622,7 +628,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
                         <splash-screen></splash-screen>
                     </ht-hcp>
-                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen></splash-screen>
                     </ht-msg>
                     <ht-view404 name="view404"></ht-view404>
@@ -1150,11 +1156,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
 			getAlternateKeystores(){
-				const prefix = "org.taktik.icure.ehealth.keychain.";
 				const healthcarePartyId = this.user.healthcarePartyId;
 
                 return Promise.all(
-				Object.keys(localStorage).filter(k => k.includes(prefix + healthcarePartyId + ".") === true)
+				Object.keys(localStorage).filter(k => k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".") === true)
                     .map(fk => this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
 					    .then( password =>
 							(this.keyPairKeystore[fk])?
