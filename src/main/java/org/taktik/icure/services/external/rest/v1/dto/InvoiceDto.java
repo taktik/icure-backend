@@ -44,6 +44,25 @@ public class InvoiceDto extends IcureDto {
 	private String invoiceReference;
 	private String thirdPartyReference;
 
+	protected String gnotionNihii;
+	protected String gnotionSsin;
+	protected String gnotionLastName;
+	protected String gnotionFirstName;
+	protected String gnotionCdHcParty;
+
+	protected Integer invoicePeriod;
+
+	protected String internshipNihii;
+	protected String internshipSsin;
+	protected String internshipLastName;
+	protected String internshipFirstName;
+	protected String internshipCdHcParty;
+
+	protected Integer longDelayJustification;
+	protected Boolean creditNote;
+
+	protected String careProviderType;
+
 	private Map<String,String> receipts = new HashMap<>();
 
 	public Long getInvoiceDate() {
@@ -154,4 +173,62 @@ public class InvoiceDto extends IcureDto {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+	public String getGnotionNihii() { return gnotionNihii; }
+
+	public void setGnotionNihii(String gnotionNihii) { this.gnotionNihii = gnotionNihii; }
+
+	public String getGnotionSsin() { return gnotionSsin; }
+
+	public void setGnotionSsin(String gnotionSsin) { this.gnotionSsin = gnotionSsin; }
+
+	public String getGnotionLastName() { return gnotionLastName; }
+
+	public void setGnotionLastName(String gnotionLastName) { this.gnotionLastName = gnotionLastName; }
+
+	public String getGnotionFirstName() { return gnotionFirstName; }
+
+	public void setGnotionFirstName(String gnotionFirstName) { this.gnotionFirstName = gnotionFirstName; }
+
+	public String getGnotionCdHcParty() { return gnotionCdHcParty; }
+
+	public void setGnotionCdHcParty(String gnotionCdHcParty) { this.gnotionCdHcParty = gnotionCdHcParty; }
+
+	public Integer getInvoicePeriod() { return invoicePeriod;}
+
+	public void setInvoicePeriod(Integer invoicePeriod) { this.invoicePeriod = invoicePeriod; }
+
+	public String getInternshipNihii() { return internshipNihii; }
+
+	public void setInternshipNihii(String internshipNihii) { this.internshipNihii = internshipNihii; }
+
+	public String getInternshipSsin() { return internshipSsin; }
+
+	public void setInternshipSsin(String internshipSsin) { this.internshipSsin = internshipSsin; }
+
+	public String getInternshipLastName() { return internshipLastName; }
+
+	public void setInternshipLastName(String internshipLastName) { this.internshipLastName = internshipLastName; }
+
+	public String getInternshipFirstName() { return internshipFirstName; }
+
+	public void setInternshipFirstName(String internshipFirstName) { this.internshipFirstName = internshipFirstName; }
+
+	public String getInternshipCdHcParty() { return internshipCdHcParty; }
+
+	public void setInternshipCdHcParty(String internshipCdHcParty) { this.internshipCdHcParty = internshipCdHcParty; }
+
+	public Integer getLongDelayJustification() {
+		return longDelayJustification;
+	}
+
+	public void setLongDelayJustification(Integer longDelayJustification) { this.longDelayJustification = longDelayJustification; }
+
+	public Boolean getCreditNote() { return creditNote; }
+
+	public void setCreditNote(Boolean creditNote) { this.creditNote = creditNote; }
+
+	public String getCareProviderType() { return careProviderType; }
+
+	public void setCareProviderType(String careProviderType) { this.careProviderType = careProviderType; }
 }

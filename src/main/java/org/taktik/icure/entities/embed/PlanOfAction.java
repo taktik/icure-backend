@@ -22,9 +22,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
+import org.taktik.icure.validation.ValidCode;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -67,8 +69,10 @@ public class PlanOfAction implements ICureDocument, Serializable {
     protected Long modified;
     protected Long endOfLife;
 
-	protected Set<Code> codes = new HashSet<>();
-	protected Set<Code> tags = new HashSet<>();
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected Set<CodeStub> codes = new HashSet<>();
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected Set<CodeStub> tags = new HashSet<>();
 
 	public PlanOfAction solveConflictWith(PlanOfAction other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
@@ -127,19 +131,19 @@ public class PlanOfAction implements ICureDocument, Serializable {
 		this.encryptedSelf = encryptedSelf;
 	}
 
-	public Set<Code> getCodes() {
+	public Set<CodeStub> getCodes() {
         return codes;
     }
 
-    public void setCodes(Set<Code> codes) {
+    public void setCodes(Set<CodeStub> codes) {
         this.codes = codes;
     }
 
-    public Set<Code> getTags() {
+    public Set<CodeStub> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Code> tags) {
+    public void setTags(Set<CodeStub> tags) {
         this.tags = tags;
     }
 

@@ -86,6 +86,7 @@ import javax.xml.datatype.DatatypeConstants
 /**
  * @author Bernard Paulus on 29/05/17.
  */
+@org.springframework.stereotype.Service
 class SoftwareMedicalFileExport : KmehrExport() {
 
 	fun exportSMF(

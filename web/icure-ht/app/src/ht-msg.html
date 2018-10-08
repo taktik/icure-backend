@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-msg/ht-msg-detail.html">
 <link rel="import" href="elements/ht-msg/ht-msg-menu.html">
 <link rel="import" href="elements/ht-msg/ht-msg-list.html">
+<link rel="import" href="elements/ht-msg/ht-msg-invoice.html">
 
 
 <link rel="import" href="./shared-styles.html">
@@ -26,11 +27,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: calc(100% - 20px);
                 /*padding: 10px;*/
             }
-            .container{
+
+            .container {
                 width: 100%;
                 height: calc(100vh - 64px);
-                display: grid;
-                grid-template-columns: 15% 35% 50%;
+                display:grid;
+                grid-template-columns: 20% 30% 50%;
                 grid-template-rows: 100%;
                 position: fixed;
                 top: 64px;
@@ -38,14 +40,94 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 bottom: 0;
                 right: 0;
             }
+
+            .sub-container {
+                width: 100%;
+                height: calc(100% - 64px);
+                display: grid;
+                grid-template-columns: 35% 45%;
+                grid-template-rows: 100%;
+                grid-template-rows: 100%;
+                position: fixed;
+                top: 64px;
+                left: 20%;
+                bottom: 0;
+                right: 0;
+            }
+
+            ht-msg-detail{
+                padding: 15px;
+            }
+
+            .display-left-menu{
+                display:none;
+                position:fixed;
+                top: 50%;
+                left: 0;
+                z-index: 120;
+                background: var(--app-background-color-dark);
+                transform:translateY(-50%) rotate(0);
+                border-radius:0 50% 50% 0;
+                transition: transform 0.2s ease-in;
+
+            }
+            .display-left-menu.open{
+                left:50vw;
+                border-radius:50% 0 0  50% ;
+                transform:translateY(-50%) rotate(180deg);
+                transition: transform 0.2s ease-in;
+            }
+
+            @media screen and (max-width:1025px){
+                .container{
+                    grid-template-columns: 0 40% 60%;
+
+                }
+                .container.expanded {
+                    grid-template-columns: 20% 30% 50%;
+                }
+                .sub-container {
+                    left: 0%;
+                    grid-template-columns: 50% 50%;
+                }
+                ht-msg-menu{
+                    display:none;
+                    width: 50vw;
+                }
+                .container.expanded ht-msg-menu {
+                    display: block;
+                }
+                .display-left-menu{
+                    display:inherit;
+                }
+
+            }
+
         </style>
         <div class="container">
+            <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
-                        on-selection-change="handleMenuChange"></ht-msg-menu>
-            <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
-                        select-list="[[selectList]]" on-selection-messages-change="handleMessageChange"></ht-msg-list>
-            <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                        user="[[user]]" select-message="[[selectMessage]]"></ht-msg-detail>
+                         on-selection-change="handleMenuChange"></ht-msg-menu>
+            <template is="dom-if" if="[[!invoicesLayout]]">
+                <div class="sub-container">
+                    <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+                                 user="[[user]]"
+                                 select-list="[[selectList]]"
+                                 on-selection-messages-change="handleMessageChange"></ht-msg-list>
+
+                    <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]"></ht-msg-detail>
+                </div>
+            </template>
+
+            <template is="dom-if" if="[[invoicesLayout]]">
+                    <ht-msg-invoice api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+                                 user="[[user]]"
+                                 select-list="[[selectList]]"
+                                 invoices-status="[[invoicesStatus]]"
+                                 on-selection-messages-change="handleMessageChange"></ht-msg-invoice>
+            </template>
+
         </div>
 
     </template>
@@ -53,7 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script>
         class HtMsg extends Polymer.Element {
             static get is() {
-                return 'ht-msg';
+                return 'ht-msg'
             }
 
             static get properties() {
@@ -64,14 +146,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     user: {
                         type: Object
                     },
+					credentials:{
+						type: Object
+					},
                     selectList: {
                         type: Object
+                    },
+                    invoicesLayout: {
+                        type: Boolean,
+                        value: false
+                    },
+                    invoicesStatus:{
+                        type: String,
+                        value: null
                     }
-                };
+
+            }
             }
 
             constructor() {
-                super();
+                super()
             }
 
             ready() {
@@ -79,6 +173,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             handleMenuChange(e) {
+                if (e.detail && e.detail.selection.item === 'e_invOut') {
+                    this.set('invoicesLayout', true)
+                    this.set('invoicesStatus', e.detail.selection.status)
+                } else {
+                    this.set('invoicesLayout', false)
+                }
                 this.set('selectList', e.detail)
             }
 
@@ -86,8 +186,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('selectMessage', e.detail)
             }
 
+			handleRefreshlist(e) {
+            	new Promise(Ok =>{
+					let selectList = this.selectList
+					this.set('selectList', e.detail);
+            		Ok(selectList);
+                }).then(selectList=> this.set('selectList', selectList))
+
+            }
+
+            _expandColumn(e) {
+                this.root.querySelector('.display-left-menu').classList.toggle('open');
+                this.root.querySelector('.container').classList.toggle('expanded');
+            }
+            _closeColumn(e) {
+                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.root.querySelector('.container').classList.remove('expanded');
+            }
+
         }
 
-        customElements.define(HtMsg.is, HtMsg);
+        customElements.define(HtMsg.is, HtMsg)
     </script>
 </dom-module>

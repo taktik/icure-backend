@@ -23,9 +23,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
+import org.taktik.icure.validation.ValidCode;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -94,10 +96,14 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
 
 	protected Set<String> invoicingCodes = new HashSet<>();
+
 	//For the content of the Service
-	protected Set<Code> codes = new HashSet<>(); //stub object of the Code
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected Set<CodeStub> codes = new HashSet<>(); //stub object of the Code
+
 	//For the type of the Service
-	protected Set<Code> tags = new HashSet<>(); //stub object of the tag
+	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+	protected Set<CodeStub> tags = new HashSet<>(); //stub object of the tag
 
 	public Service solveConflictWith(Service other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
@@ -180,19 +186,19 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.index = index;
 	}
 
-	public java.util.Set<Code> getCodes() {
+	public java.util.Set<CodeStub> getCodes() {
 		return codes;
 	}
 
-	public void setCodes(java.util.Set<Code> codes) {
+	public void setCodes(java.util.Set<CodeStub> codes) {
 		this.codes = codes;
 	}
 
-	public java.util.Set<Code> getTags() {
+	public java.util.Set<CodeStub> getTags() {
 		return tags;
 	}
 
-	public void setTags(java.util.Set<Code> tags) {
+	public void setTags(java.util.Set<CodeStub> tags) {
 		this.tags = tags;
 	}
 

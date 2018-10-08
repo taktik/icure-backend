@@ -37,6 +37,8 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
+<link rel="import" href="./ht-msg-new.html">
+
 
 <dom-module id="ht-msg-detail">
 	<template>
@@ -95,13 +97,15 @@
 				grid-row: 1 / span 1;
 				background:var(--app-background-color-light);
 				float:left;
-				padding:20px;
+				padding:5px;
 				display:flex;
 				flex-flow: column nowrap;
 				align-items: flex-start;
 				z-index:0;
 				height: 100%;
 				width: 100%;
+
+				padding-top: 75px;
 			}
 
 			.contact-title{
@@ -119,8 +123,8 @@
 			}
 
 			.pat-details-card {
-				width: calc(100% - 64px);
-				margin: 0 32px;
+				width: 100%;
+				padding: 10px 15px;
 			}
 
 			.horizontal {
@@ -223,6 +227,11 @@
 				padding: 16px 24px;
 			}
 
+			.modal-subtitle{
+				display: inline-flex;
+				margin-top: 16px;
+			}
+
 			.modal-button{
 				--paper-button-ink-color: var(--app-secondary-color-dark);
 				color: var(--app-text-color);
@@ -236,6 +245,13 @@
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
+				color: var(--app-primary-color-dark);
+				font-weight: 700;
+			}
+
+			.modal-button--delete{
+				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+				background: var(--app-status-color-nok);
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
 			}
@@ -348,22 +364,72 @@
 				height: calc(100% - 48px);
 				padding-bottom: 32px;
 			}
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
-		<div class="details-panel" on-dragover="_onDrag">
-			<div class="contact-card-container">
-				<template is="dom-repeat" items="[[messages]]" as="msg">
-				<div>From : [[msg.fromAddress]]</div>
-				<div>To : [[msg.toAddresses]]</div>
-				<div>Subject: [[msg.subject]]</div>
-				<div>Body: 
-					<template is="dom-repeat" items="[[msg.body]]" as="text">[[text]]</template>
-				</div>
-				</template>
-			</div>
-		</div>
+			<div class="details-panel" on-dragover="_onDrag">
+					<template is="dom-repeat" items="[[messages]]" as="msg">
+						<div class="details-panel" style=" overflow:auto;">
+							<paper-card class="pat-details-card" >
+								<paper-input readonly value="From : [[msg.fromAddress]]"></paper-input>
+								<paper-input readonly value="To : [[msg.toAddresses]]"></paper-input>
+								<paper-input readonly value="Subject: [[msg.subject]]"></paper-input>
+                                <paper-input readonly value="Date: [[_timeFormat(msg.received)]]"></paper-input>
 
-	</template>
+								<template is="dom-if" if="[[msg.body]]">
+									<iron-autogrow-textarea style="min-height: 80px; width: 100%;" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+								</template>
+
+								<template is="dom-repeat" items="[[selectedDocuments]]">
+									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
+									<paper-card class="pat-details-card">
+											<span>[[item.name]]</span>
+											<a href="[[item.dataUrl]]" target="_blank">[[localize('dl','Download',language)]]</a>
+											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
+												<div class="img-container">
+													<img src$="[[item.dataUrl]]">
+												</div>
+											</template>
+											<template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
+												<pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
+											</template>
+											<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
+												<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[item.name]] [[mimeType(item.mainUti)]] [[type]]</span>
+												<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
+												<vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+											</template>
+									</paper-card>
+									</template>
+								</template>
+
+								<!--<template is="dom-if" if="[[msg.annex.length]]">-->
+									<!--<vaadin-grid id="msgAnnexesList" items="[[msg.annex]]">-->
+										<!--<vaadin-grid-column>-->
+											<!--<template class="header">-->
+												<!--<div>Name</div>-->
+											<!--</template>-->
+											<!--<template>-->
+												<!--<div class="cell frozen">[[item.name]]</div>-->
+											<!--</template>-->
+										<!--</vaadin-grid-column>-->
+									<!--</vaadin-grid>-->
+								<!--</template>-->
+
+								<div class="buttons">
+									<div>
+										<paper-button class="modal-button--delete" on-tap="_removeMsg" msgId$='[[msg.id]]'>[[localize('del','Delete',language)]]</paper-button>
+									</div>
+								</div>
+							</paper-card>
+						</div>
+					</template>
+			</div>
+		</template>
+
+		<template is="dom-if" if="[[!messages]]">
+			<ht-msg-new api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]"></ht-msg-new>
+		</template>
+
 	</template>
 	<script>
 
@@ -371,6 +437,7 @@ import jsPDF from 'jspdf/dist/jspdf.min';
 import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
+import XML from 'parse-xml/dist/parse-xml';
 
 class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -391,6 +458,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			user: {
 				type: Object
 			},
+			credentials:{
+				type: Object
+			},
 			currentContact: {
 				type: Object,
 				value: null
@@ -399,7 +469,39 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Object
 			},
 			messages: {
-			    type: Object
+			    type: Object,
+				value: null
+			},
+			newMessage:{
+				type:Object,
+				value: null
+			},
+			msgAnnexes:{
+				type:Array,
+				value: []
+			},
+			selectedDocuments:{
+				type: Object
+			},
+			searchValue:{
+				type: String,
+				value: '',
+				observer: '_FindParty'
+			},
+			test:{
+				type: Array,
+				value: []
+			},
+			msgBodyFile:{
+				type:Object
+			},
+			dataUrls:{
+				type: [],
+				value: []
+			},
+			types:{
+				type:[],
+				value: []
 			}
 		};
 	}
@@ -412,22 +514,46 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		super();
 	}
 
+	ready(){
+		super.ready();
+	}
+
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
             this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
-        	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect).then(docs => {
-				docs.length ?
-        	    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> {
-                    console.log("on a un attachment !" + typeof a)
-                    tempSelect.body.push(a.toString())
-                    console.log(tempSelect.body)
-                    this.set('messages', [tempSelect]);
-                }))
-					: this.set('messages', [tempSelect]);
-                this.getChildren(tempSelect.id)
-	    	})
-	    }
+        	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
+				.then(docs => {
+				if(docs.length) {
+					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys).map(doc =>
+						this.api.document().getAttachment(doc.id, doc.attachmentId, doc.secretForeignKeys).then(a =>
+							this.getDataUrls(doc)
+								.then(dataUrl => {
+									doc.dataUrl = dataUrl;
+									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
+									return doc
+								})
+						)
+					)
+				}
+
+	    	}).then(docs =>{
+	    		if(docs && docs.length){
+                    Promise.all(docs).then(docs=>{
+                        this.set('messages', [tempSelect])
+                        this.set("selectedDocuments", docs);
+                        this.getChildren(tempSelect.id)
+                    })
+				}
+				else{
+					this.set('messages', [tempSelect])
+					this.set("selectedDocuments", []);
+					this.getChildren(tempSelect.id)
+                }
+            })
+	    }else{
+			this.set('messages', null);
+		}
 	}
 
 	getChildren(item){
@@ -445,6 +571,91 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }.bind(this))
 	}
 
+	getDataUrls(doc){
+		return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
+					.then(decryptedAndImportedAesHcPartyKeys => {
+						let collatedAesKeys = {};
+						decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
+						return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
+							.then(enckeys =>
+								this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+									this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+										let xml = XML.parseXml(att);
+										if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);}else{this.set("type","Non Valid Type")}
+									})
+									: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+							);
+					})
+	}
+
+	msgAnnexesFileInputSelected() {
+
+		let msgAnnexesFileInput = this.shadowRoot.querySelector('#msgAnnexesFileInput');
+
+		if( msgAnnexesFileInput.inputElement && msgAnnexesFileInput.inputElement.inputElement){
+			Object.values(msgAnnexesFileInput.inputElement.inputElement.files).forEach( item => this.push('msgAnnexes',item))
+		}
+
+		//Clear control
+		msgAnnexesFileInput.value = '';
+
+		console.log(this.msgAnnexes);
+	}
+
+	_removeMsgAnnexe(e){
+
+		let index = e.target.getAttribute('indexed');
+		this.msgAnnexes.splice(index,1);
+
+		let msgAnnexesList = this.shadowRoot.querySelector('#msgAnnexesList')
+		msgAnnexesList.clearCache();
+	}
+
+	_removeMsg(e){
+		let msgId = e.target.getAttribute('msgId');
+		console.log(msgId);
+
+		this.set('messages', null);
+
+		this.api.message().deleteMessages(msgId)
+			.then(x =>
+				this.dispatchEvent(new CustomEvent('refresh-list', { detail: { selection: { item: "Refresh" } } }))
+			)
+	}
+
+	// _FindParty() {
+	// 	this.set("test", this.api.hcparty().findByName("cédr", keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc).map(x=>x.nihi));
+	// 	console.log(this.test);
+	// }
+
+	_SendNewMessage(){
+
+	}
+
+	_imageMimeType(uti, utis, dataUrl) {
+		console.log(uti + " " + utis + " " + dataUrl);
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+	}
+
+	_pdfMimeType(uti, utis, dataUrl) {
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
+	}
+
+	_xmlMimeType(uti, utis) {
+		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+	}
+
+	_isEqualTo(title, string) {
+		return title == string;
+	}
+
+	mimeType(u){
+		return this.api.document().mimeType(u)
+	}
+
+	_timeFormat(date) {
+		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
+	}
 }
 
 customElements.define(HtMsgDetail.is, HtMsgDetail);

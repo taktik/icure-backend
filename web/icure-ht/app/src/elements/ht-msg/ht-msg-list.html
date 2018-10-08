@@ -18,6 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-list">
@@ -132,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 vaadin-grid {
-                    height: calc(100% - 16px - 32px);
+                    height: calc(100% - 16px - 32px - 50px);
                     width: 100%;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
@@ -241,15 +242,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-checkbox-checked-color: var(--app-primary-color);
                 }
 
+                .buttons{
+                    padding-bottom: 10px;
+                }
+
+                .modal-button--delete{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-background-color-light);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+                }
+
+                .del-button {
+                    position: fixed;
+                    bottom: 40px;
+                }
+
+                #mail-list {
+                    padding-right: 0;
+                    margin-right: 0;
+                    height: 85vh;
+                    height: calc(100vh - 110px);
+                    height: -webkit-fill-available;
+                    /* cascading compatibility */
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                <div class="card-title-container">
-                    <h1 class="card-title new-notif"><iron-icon icon="icons:arrow-forward"></iron-icon>[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
+                <div class="del-button">
+                    <div>
+                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                    </div>
                 </div>
-                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
-                             items="[[messages]]" on-tap="click">
+                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
                     <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
                         <vaadin-grid-column width="100px">
                             <template class="header">
@@ -261,8 +288,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                     </template> -->
+                    <vaadin-grid-selection-column></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
-                        <vaadin-grid-column width="30%">
+                        <vaadin-grid-column flex-grow="2">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
                                 </vaadin-grid-sorter>
@@ -272,7 +300,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column width="30%">
+                    <vaadin-grid-column flex-grow="2">
                         <template class="header">
                             <div>[[localize('dat','Date',language)]]</div>
                         </template>
@@ -280,7 +308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[_timeFormat(item.received)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="40%">
+                    <vaadin-grid-column flex-grow="3">
                         <template class="header">
                             <vaadin-grid-sorter class="cell frozen" path="subject">
                                 [[localize('sub','Subject',language)]]
@@ -319,7 +347,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         notify: true
                     },
                     activeItem: {
-                        type: Object
+                        type: Object,
+                        observer: '_activeItemChanged'
                     },
                     messages: {
                         type: Array,
@@ -357,6 +386,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             };
                             return res;
                         }
+                    },
+                    listTitle:{
+                    	type: String
                     }
                 };
             }
@@ -373,10 +405,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super.ready();
             }
 
+			_newMsg(){
+				this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
+				this.findMessagesByTransportGUID('SENTBOX:*').then(messages => this.set('messages', messages || []));
+			}
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDatesAndGUID(messages.rows);
                 }).then(messages => this.set('messages', messages || []));
             }
 
@@ -444,16 +480,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEheIn(){
-                this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('INBOX:*').then(messages => this.set('messages', messages || []));
             }
+
+			getChap4In(){
+				this.findMessagesByTransportGUID('CHAP4IN:*').then(messages => this.set('messages', messages || []));
+			}
 
             getProtIn(){
                 this.findMessagesByTransportGUID('BININBOX:*').then(messages => this.set('messages', messages || []));
             }
 
             getEheOut(){
-                this.findMessagesByTransportGUID('CHAP4OUT:*').then(messages => this.set('messages', messages || []));
+                this.findMessagesByTransportGUID('SENTBOX:*').then(messages => this.set('messages', messages || []));
             }
+
+			getChap4Out(){
+				this.findMessagesByTransportGUID('CHAP4OUT:*').then(messages => this.set('messages', messages || []));
+			}
 
             getProtOut(){
                 this.findMessagesByTransportGUID('BINSENTBOX:*').then(messages => this.set('messages', messages || []));
@@ -468,7 +512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEhealthMessages(){
-                this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
+				this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
                             acc.push(m)
@@ -481,13 +525,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             findMessagesByTransportGUID(guid){
                 return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
-                    return this.sortByDates(messages.rows);
+                    return this.sortByDatesAndGUID(messages.rows);
                 })
             }
 
             _refresh() {
                 if (this.selectList && this.selectList.selection) {
-                    switch (this.selectList.selection.item) {
+                	let item = this.selectList.selection.item
+					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item)
+                    switch (item) {
+                        case 'newMsg':
+                        	this._newMsg();
+                        	break;
                         case 'inbox' :
                             this.getInbox();
                             break;
@@ -521,6 +570,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'eheIn' :
                             this.getEheIn();
                             break;
+                        case 'Chap4In' :
+                        	this.getChap4In();
                         case 'protIn' :
                             this.getProtIn();
                             break;
@@ -536,15 +587,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'GMD' :
                             this.getGMD();
                             break;
+                        case 'Refresh':
+                        	// Fake selection to refresh binding
+                        	break;
                     }
                 }
             }
 
             sortByDates(messages){
-                return messages.sort(function (a, b) {
-                    return b.received - a.received ;
+				return messages.sort(function (a, b) {
+					return b.received - a.received ;
+				});
+			}
+
+			sortByDatesAndGUID(messages){
+				return messages.sort(function (a, b) {
+					if(b.received === a.received){
+						let bGuid = b.transportGuid.split(":")[1] || "";
+						let aGuid = a.transportGuid.split(":")[1] || "";
+						return bGuid > aGuid? 1: -1;
+                    }
+                    else{
+                    	return b.received - a.received;
+                    }
                 });
-            }
+			}
 
             getToAddresses(item){
                 return item.toAddresses.reduce((acc, i) =>{return acc + ", " + i}, "" )
@@ -556,11 +623,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
             }
 
-            _timeFormat(date) {
-                return date && this.api.moment(date).format(date > 99991231 ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY') || '';
+			_removeMsgs(){
+				let mailList = this.shadowRoot.querySelector('#mail-list');
+				let msgs = mailList.selectedItems;
+				if(msgs) this.api.message().deleteMessages(msgs.map(msg => msg.id))
+                    .then(x=> {
+                    	this._refresh();
+					});
             }
 
-        }
+            _timeFormat(date) {
+                return date && this.api.moment(date).format('DD/MM/YYYY') || '';
+            }
+
+			_activeItemChanged(item){
+                let mailList = this.shadowRoot.querySelector('#mail-list');
+                if(mailList) mailList.selectedItems = item ? [item] : [];
+            }
+
+            setListTitle(title){
+            	this.set("listTitle",this.localize("boxtitle." + title,'List',this.language))
+            }
+
+		}
 
         customElements.define(HtMsgList.is, HtMsgList);
     </script>

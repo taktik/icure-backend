@@ -85,6 +85,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-items: center;
 				height: 100%;
 				width: 100%;
+				overflow-y: auto;
+				overflow-x: hidden;
 			}
 
 			.new-msg-btn{
@@ -391,7 +393,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		</style>
 		<div class="col-left">
-			<paper-button class="new-msg-btn">[[localize('new_mes','New Message',language)]]</paper-button>
+			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button>
 				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:inbox"></iron-icon>[[localize('inb','Inbox',language)]] <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
@@ -402,7 +404,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
 						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
 						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
-						<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
+						<!--<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
@@ -412,10 +414,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-item>
 				<paper-listbox class="menu-content sublist" multi toggle-shift>
 						<paper-item on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
-						<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
+						<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 						<paper-item on-tap="_ehealthMessages">[[localize('ehe_mes','Ehealth Messages',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
+            <collapse-button>
+                <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_e_inv" elevation="">
+                    <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon>[[localize('inv','Invoices',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
+                </paper-item>
+                <paper-listbox class="menu-content sublist" multi toggle-shift>
+                    <paper-item on-tap="_e_inv_pen">[[localize('e_inv','Invoices pending',language)]]</paper-item>
+                    <paper-item on-tap="_e_inv_pro">[[localize('e_inv','Sending processed',language)]]</paper-item>
+                    <paper-item on-tap="_e_inv_rej">[[localize('e_inv','Sending rejected',language)]]</paper-item>
+                    <paper-item on-tap="_e_inv_acc">[[localize('e_inv','Sending accepted',language)]]</paper-item>
+                    <paper-item on-tap="_e_inv_arc">[[localize('e_inv','Sending archived',language)]]</paper-item>
+                </paper-listbox>
+            </collapse-button>
 			<paper-item class="trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
 		</div>
 	</template>
@@ -443,7 +458,6 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: function () {
 					return [];
 				}
-
 			},
 			selectedLocalize: {
 				type: Array,
@@ -509,6 +523,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }).then(num => this.set('unreadNumber', num || 0));
     }
 
+	_newMsg(){
+		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'newMsg' } } }));
+	}
+
     _inbox(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
@@ -525,7 +543,27 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _e_inv(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut' } } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+    }
+
+    _e_inv_pen(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+    }
+
+    _e_inv_pro(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'process'} } }));
+    }
+
+    _e_inv_rej(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'reject'} } }));
+    }
+
+    _e_inv_acc(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'accept'} } }));
+    }
+
+    _e_inv_arc(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'archive'} } }));
     }
 
     _reportIn(){

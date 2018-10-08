@@ -29,8 +29,8 @@ import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -57,7 +57,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 /**
- * This class creates a lucene index based on a XML file describing 
+ * This class creates a lucene index based on a XML file describing
  * how to create the index
  * @author abaudoux
  *
@@ -65,35 +65,35 @@ import org.jdom.input.SAXBuilder;
 public class IndexCreator {
 	protected String config;
 	protected String output;
-	
+
 	protected Map<String,Analyzer> analyzers;
-	
+
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
 	PropertyUtilsBean pub = new PropertyUtilsBean();
-	
+
 	protected final static Transformer TO_STRING_TRANSFORMER = new Transformer() {
 		public Object transform(Object input) {
 			return input.toString();
 		}
 	};
-	
+
 	/**
 	 * Create a lucene index.
-	 * 
+	 *
 	 * @param args
-	 * @throws IOException 
-	 * @throws JDOMException 
+	 * @throws IOException
+	 * @throws JDOMException
 	 */
 	public static void main(String[] args) throws Exception {
 		new IndexCreator(args[0],args[1]).createIndex();
 	}
-	
+
 	public IndexCreator(String configPath,String outputPath) {
 		this.config=configPath;
 		this.output = outputPath;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void createIndex() throws JDOMException, IOException, MappingException, ClassNotFoundException {
 		buildAnalyzerMap();
@@ -129,9 +129,9 @@ public class IndexCreator {
 	private void processClass(Element classToIndex, IndexWriter writer, SessionFactory sf) throws CorruptIndexException, IOException {
 		String className = classToIndex.getAttributeValue("class");
 		String langProp = classToIndex.getAttributeValue("langProp");
-		float boost = (classToIndex.getAttributeValue("boost") == null) ? 
+		float boost = (classToIndex.getAttributeValue("boost") == null) ?
 				1.0f : Float.valueOf(classToIndex.getAttributeValue("boost"));
-		boolean includeDiscriminator = (classToIndex.getAttributeValue("includeDiscriminator") != null) && 
+		boolean includeDiscriminator = (classToIndex.getAttributeValue("includeDiscriminator") != null) &&
 										(classToIndex.getAttributeValue("includeDiscriminator").equals("true"));
 		log.info("Indexing class " + className + " with boost " + boost);
 		Session sess = sf.openSession();
@@ -156,7 +156,7 @@ public class IndexCreator {
 				try {
 					lang = pub.getNestedProperty(o, langProp).toString();
 				} catch (Exception e) {
-					
+
 				}
 			}
 			Analyzer analyzer = getAnalyserForLanguage(lang);
@@ -166,7 +166,7 @@ public class IndexCreator {
 			}
 		}
 	}
-	
+
 	private Analyzer getAnalyserForLanguage(String lang) {
 		Analyzer result = analyzers.get(lang);
 		if (result == null) {
