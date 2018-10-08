@@ -219,6 +219,10 @@
                     top: 64px;
                 }
 
+                #pendingGridDetail{
+                    height: 500px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -387,6 +391,8 @@
             <paper-dialog id="pendingDetailDialog">
                 <div>
                     Details of invoice n° [[activeGridItem.invoice.invoiceReference]]
+                    <paper-input label="Patient" value="[[activeGridItem.patient.firstName]] [[activeGridItem.patient.lastName]]"readonly></paper-input>
+                    <paper-input label="Mutuelle" value="[[activeGridItem.insurance.code]]"readonly></paper-input>
                 </div>
                     <vaadin-grid id="pendingGridDetail" items="[[activeGridItem.invoice.invoicingCodes]]">
                         <vaadin-grid-column class="recipient-col">
@@ -596,10 +602,13 @@
                     }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
-                    invUnsent.forEach(inv =>
-                        this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
-                            .then(patId => treatPendingInvoice(patId, inv)
-                    )))
+                    invUnsent.forEach(inv =>{
+                        if(inv.printedDate && inv.printedDate != "" && inv.sentMediumType === "efact"){
+                                this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
+                                    .then(patId => treatPendingInvoice(patId, inv))
+                            }
+                    }
+                    ))
             }
 
             calculateTotalPendingInvoices(){
