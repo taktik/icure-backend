@@ -3253,6 +3253,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							if (ins.ct1 && (!pi.parameters || pi.parameters.tc1 !== ins.ct1)) {
 								pi.parameters = _.assign(pi.parameters || {}, { tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false' });
 							}
+							pi.identificationNumber = ins.regNrWithMut;
+
 							ins.ct2 && pi.parameters.tc2 !== ins.ct2 && (pi.parameters = _.assign(pi.parameters || {}, { tc2: ins.ct2 }));
 							ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, { paymentapproval: 'true' }) : delete pi.parameters.paymentapproval;
 
