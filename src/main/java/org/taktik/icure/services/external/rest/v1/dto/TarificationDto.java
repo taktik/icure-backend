@@ -29,6 +29,7 @@ public class TarificationDto extends CodeDto {
 	Boolean	consultationCode;
 	Boolean hasRelatedCode;
 	Boolean needsPrescriber;
+	Set<String> relatedCodes;
 
 	public Set<ValorisationDto> getValorisations() {
 		return valorisations;
@@ -68,5 +69,13 @@ public class TarificationDto extends CodeDto {
 
 	public void setNeedsPrescriber(Boolean needsPrescriber) {
 		this.needsPrescriber = needsPrescriber;
+	}
+
+	public Set<String> getRelatedCodes() {
+		return relatedCodes;
+	}
+
+	public void setRelatedCodes(Set<String> relatedCodes) {
+		this.relatedCodes = relatedCodes;
 	}
 }
