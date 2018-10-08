@@ -798,7 +798,6 @@
     "mon": "Monthly",
     "low": "gematigde",
     "modify":"Modify",
-    "more" : "Plus",
     "my_pro": "My profile",
     "nat": "Natuur",
     "new_con": "New Contact",
@@ -1011,12 +1010,12 @@
     "deceased" : "overleden",
     "female" : "vrouw",
     "male" : "man",
-    "tra_dir":"Richting",
+    "tra_dir":"Transfer",
     "tra_io":"VI",
     "tra_dat":"Datum",
     "fromOtherIo":"van andere VI",
     "toOtherIo":"naar andere VI",
-    "ele":"Voorkeurstarief"
+    "ele":"Voorkeurstarief",
+    "err":"Fout"
   }
 }
-
