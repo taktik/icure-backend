@@ -1011,7 +1011,7 @@
     "deceased" : "overleden",
     "female" : "vrouw",
     "male" : "man",
-    "tra_dir":"Richting",
+    "tra_dir":"Transfer",
     "tra_io":"VI",
     "tra_dat":"Datum",
     "fromOtherIo":"van andere VI",
@@ -1019,4 +1019,3 @@
     "ele":"Voorkeurstarief"
   }
 }
-
