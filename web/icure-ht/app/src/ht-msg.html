@@ -72,7 +72,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
             .display-left-menu.open{
-                left:20%;
+                left:50vw;
                 border-radius:50% 0 0  50% ;
                 transform:translateY(-50%) rotate(180deg);
                 transition: transform 0.2s ease-in;
@@ -92,6 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 ht-msg-menu{
                     display:none;
+                    width: 50vw;
                 }
                 .container.expanded ht-msg-menu {
                     display: block;
@@ -197,6 +198,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _expandColumn(e) {
                 this.root.querySelector('.display-left-menu').classList.toggle('open');
                 this.root.querySelector('.container').classList.toggle('expanded');
+            }
+            _closeColumn(e) {
+                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.root.querySelector('.container').classList.remove('expanded');
             }
 
         }

@@ -320,10 +320,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.add-btn-container{
-				width:20%;
-				position: absolute;
-				bottom: 16px;
-				/*display:none;*/
+				position: relative;
+				bottom: 6px;
 				display:flex;
 				flex-direction: row;
 				justify-content: center;
@@ -858,7 +856,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 			.display-left-menu.open{
-				left:20%;
+				left:50vw;
 				border-radius:50% 0 0  50% ;
 				transform:translateY(-50%) rotate(180deg);
 				transition: transform 0.2s ease-in;
@@ -875,11 +873,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					width:40%;
 				}
 				.container.expanded{
-					grid-template-columns: 20% 30% 50%;
+					/*grid-template-columns: 20% 30% 50%;*/
 				}
-
+				.container.expanded .first-panel {
+					width: 50vw;
+                    z-index: 1001;
+				}
 				.container.expanded .fit-bottom {
-					left:20%!important;
+					/*left:20%!important;*/
 					width:30%;
 				}
 				.selection-toast-button{
@@ -902,6 +903,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 				.display-left-menu{
 					display:inherit;
+				}
+				.floating-action-bar {
+					position: fixed;
+					left: 0;
+					bottom: 0;
+					width: 100vw;
+					transform: none;
 				}
 			}
 
@@ -1021,7 +1029,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<div class="first-panel">
 				<paper-material class="zone compact-menu">
 					<paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
-						<paper-item id="_admin_info" class="horizontal layout patient-info-container">
+						<paper-item id="_admin_info" class="horizontal layout patient-info-container" on-tap="_expandColumn">
 							<paper-fab class="btn-close" mini icon="close" on-tap="close"></paper-fab>
 							<div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
 							<div class="patient-info">
@@ -1039,7 +1047,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</div>
 							</div>
 						</paper-item>
-						<paper-item class="menu-item" id="_complete_file">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
+						<paper-item class="menu-item" id="_complete_file" on-tap="_expandColumn">[[localize('com_fil','Complete file',language)]]<iron-icon class="menu-item-icon" icon="icons:arrow-forward"></iron-icon></paper-item>
 					</paper-listbox>
 					<div class="submenus-container">
 							<collapse-button id="cb_ahelb">
@@ -3730,6 +3738,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.root.querySelector('.container').classList.toggle('expanded');
 		this._updateFilterPanels();
 	}
+    _closeColumn(e) {
+        this.root.querySelector('.display-left-menu').classList.remove('open');
+        this.root.querySelector('.container').classList.remove('expanded');
+    }
 
 	_concat(a, b, c, d, e) {
 		return (a || []).concat(b || []).concat(c || []).concat(d || []).concat(e || []);
