@@ -161,7 +161,7 @@
             }
 
             vaadin-upload{
-                margin:16px;
+                margin: 16px 0;
                 min-height:280px;
                 background: var(--app-background-color);
                 --vaadin-upload-buttons-primary: {
@@ -356,18 +356,61 @@
                 padding-bottom: 32px;
             }
 
+            .two-col {
+                display: grid;
+                grid-template-columns: 50% 50%;
+            }
+
+            #metadataDialog {
+                width: 50%;
+            }
+
+            paper-checkbox {
+                margin-right: 16px;
+            }
+
+            vaadin-combo-box {
+                width: 100%;
+            }
+            vaadin-upload {
+                min-height: 0;
+            }
+            iron-autogrow-textarea {
+                min-height: 80px;
+                width: 100%;
+            }
+            .form-disabled {
+                opacity: .5;
+                background: var(--app-background-color-darker);
+            }
+            iron-autogrow-textarea .floated-label-placeholder {
+                display: none;
+            }
+
+            .fright {
+                float: right;
+            }
+            .clearb {
+                clear: both
+            }
+
         </style>
             <div class="details-panel" style=" overflow:auto;">
                 <paper-card class="pat-details-card" >
                     <h2>[[localize('new_mes','New message',language)]]</h2>
+                    <paper-input id="newMsg-From" label="[[localize('from','From',language)]]" value="[[user.name]]"></paper-input>
+                    <div class="two-col">
+                        <div>
+                            <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required" label="[[localize('sch_by', 'Search by', language)]]" on-change="refreshHcpList"></vaadin-combo-box>
+                        </div>
+                        <div>
+                            <vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[hcpList]]" item-label-path="displayName"
+                                              allow-custom-value on-change="_AddDestinations">
+                                <template>[[item.displayName]]</template>
+                            </vaadin-combo-box>
+                        </div>
+                    </div>
                     <div>
-                        <paper-input id="newMsg-From" label="[[localize('from','From',language)]]" value="[[user.name]]"></paper-input>
-                        <vaadin-combo-box id="type-To" items="[[type]]" style="width: 100%" value="NIHII" required error-message="This field is required" on-change="refreshHcpList"></vaadin-combo-box>
-                        <vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[hcpList]]" item-label-path="displayName"
-                                          style="width: 100%" allow-custom-value on-change="_AddDestinations">
-                            <template>[[item.displayName]]</template>
-                        </vaadin-combo-box>
-
                         <template is="dom-if" if="[[newMessage.destinations.length]]">
                             <vaadin-grid id="destinationsList" items="[[newMessage.destinations]]">
                                 <vaadin-grid-column width="10%">
@@ -395,24 +438,22 @@
                             </vaadin-grid>
                         </template>
                     </div>
-                    <div>
-                        <div class="modal-subtitle">Options</div>
-                    </div>
+                    <div class="modal-subtitle">Options</div>
                     <div>
                         <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
                         <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
                     </div>
+                    <div class="modal-subtitle">Accused</div>
                     <div>
-                        <label>Accused</label>
                         <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
                         <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
                         <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
                     </div>
+                    <div class="modal-subtitle">Message</div>
                     <div>
-                        <div class="modal-subtitle">Message</div>
                         <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.documentTitle}}"></paper-input>
-                        <paper-input id="messageBodyFile" type="file" multiple="false" on-change="msgBodyFileInputSelected"></paper-input>
-                        <iron-autogrow-textarea id="messageBodyText" placeholder="Message" style="min-height: 80px;width: calc(100% - 64px);" value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
+                        <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false" on-change="msgBodyFileInputSelected"></paper-input>
+                        <iron-autogrow-textarea id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]" value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
                     </div>
                     <div>
                         <div class="modal-subtitle">Annexes</div>
@@ -420,8 +461,8 @@
                     </div>
                     <div>
                         <div class="modal-subtitle">Patient</div>
-                        <vaadin-combo-box id="newMsg-SSIN" label="[[localize('to','To',language)]]" items="[[patientList]]" item-label-path="displayName"
-                                          style="width: 100%" allow-custom-value on-change="_AddSSIN">
+                        <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"
+                                          allow-custom-value on-change="_AddSSIN">
                             <template>[[item.displayName]]</template>
                         </vaadin-combo-box>
                     </div>
@@ -430,7 +471,7 @@
                         <paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>
                     </div>
                     <div class="buttons">
-                        <div>
+                        <div class="fright">
                             <paper-button class="modal-button" >[[localize('can','Cancel',language)]]</paper-button>
                             <paper-button class="modal-button--save" on-tap="_SendNewMessage" >[[localize('send','Send',language)]]</paper-button>
                         </div>
@@ -438,15 +479,15 @@
                 </paper-card>
             </div>
 
-        <paper-dialog id="metadataDialog" style="width:50%;">
+        <paper-dialog id="metadataDialog">
             <h3 class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</h3>
             <div>
                 <paper-input id="newMsgMetadataKey" label="[[localize('key','Key',language)]]"></paper-input>
                 <paper-input id="newMsgMetadataValue" label="[[localize('value','Value',language)]]"></paper-input>
-                <paper-button class="modal-button" on-tap="addMetadata">[[localize('add','Add',language)]]</paper-button>
+                <paper-button class="modal-button fright" on-tap="addMetadata">[[localize('add','Add',language)]]</paper-button>
             </div>
 
-            <vaadin-grid id="customMetasList" items="[[newMessage.customMetas]]">
+            <vaadin-grid id="customMetasList" class="clearb" items="[[newMessage.customMetas]]">
                 <vaadin-grid-column>
                     <template class="header">
                         <div>Key</div>
@@ -752,8 +793,9 @@
 				let messageBodyFile = this.shadowRoot.querySelector('#messageBodyFile');
 				let messageBodyText = this.shadowRoot.querySelector('#messageBodyText');
 
-				messageBodyText.value = "";
+                messageBodyText.value = ""
 				messageBodyText.disabled = false;
+                messageBodyText.classList.remove("form-disabled")
 
 				if( messageBodyFile.inputElement && messageBodyFile.inputElement.inputElement){
 					let file = messageBodyFile.inputElement.inputElement.files[0];
@@ -775,8 +817,8 @@
 
 					messageBodyText.value = file.name;
 					messageBodyText.disabled = true;
+                    messageBodyText.classList.add("form-disabled")
 				}
-
 			}
 
 			setSenderAddressee(hcp){

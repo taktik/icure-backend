@@ -217,7 +217,7 @@
 
                 vaadin-grid#sendingGrid,
                 vaadin-grid#invoiceGrid {
-                    height: calc(100vh - 120px);
+                    height: calc(100vh - 185px);
                 }
 
                 @media screen and (max-width:1025px){
@@ -244,10 +244,16 @@
                     top: 64px;
                 }
 
+                .invoice-status {
+                    font-size: 24px;
+                    text-transform: capitalize;
+                    padding-top: 5px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <div>
+            <div class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
             </div>
             <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="" on-keydown="refreshFilter"></paper-input>
