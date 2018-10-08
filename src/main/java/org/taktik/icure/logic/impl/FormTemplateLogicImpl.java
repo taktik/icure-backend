@@ -86,8 +86,8 @@ public class FormTemplateLogicImpl extends GenericLogicImpl<FormTemplate, FormTe
 
 	@Override
 	public List<FormTemplate> getFormTemplatesByGuid(String userId, String specialityCode, String formTemplateGuid) {
-		List<FormTemplate> byUserGuid = formTemplateDAO.findByUserGuid(userId, formTemplateGuid);
-		return byUserGuid.size()>0 ? byUserGuid : formTemplateDAO.findBySpecialtyGuid(specialityCode, formTemplateGuid);
+		List<FormTemplate> byUserGuid = formTemplateDAO.findByUserGuid(userId, formTemplateGuid, true);
+		return byUserGuid.size()>0 ? byUserGuid : formTemplateDAO.findBySpecialtyGuid(specialityCode, formTemplateGuid, true);
 	}
 
 	@Override
@@ -141,13 +141,13 @@ public class FormTemplateLogicImpl extends GenericLogicImpl<FormTemplate, FormTe
 	}
 
 	@Override
-	public List<FormTemplate> getFormTemplatesBySpecialty(String specialityCode) {
-		return formTemplateDAO.findBySpecialtyGuid(specialityCode, null);
+	public List<FormTemplate> getFormTemplatesBySpecialty(String specialityCode, boolean loadLayout) {
+		return formTemplateDAO.findBySpecialtyGuid(specialityCode, null, loadLayout);
 	}
 
 	@Override
-	public List<FormTemplate> getFormTemplatesByUser(String userId) {
-		return formTemplateDAO.findByUserGuid(userId, null);
+	public List<FormTemplate> getFormTemplatesByUser(String userId, boolean loadLayout) {
+		return formTemplateDAO.findByUserGuid(userId, null, loadLayout);
 	}
 
 	@Override

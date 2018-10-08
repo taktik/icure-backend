@@ -13,4 +13,6 @@ public interface CalendarItemTypeLogic extends EntityPersister<CalendarItemType,
     CalendarItemType getCalendarItemType(String calendarItemTypeId);
 
     CalendarItemType modifyCalendarTypeItem(CalendarItemType calendarItemType);
+
+    List<CalendarItemType> getAllEntitiesIncludeDelete();
 }
