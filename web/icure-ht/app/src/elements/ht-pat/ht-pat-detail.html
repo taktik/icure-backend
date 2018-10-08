@@ -2172,25 +2172,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    //TODO: add switch to get genins as MMH
         //if(!this.geninsMMHRequest) this.initMHSession();
         const dStart = Date.parse(this.genInsDateFrom);
-        if (this.patient.ssin && this.api.tokenId) {
-            if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
-                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp => {
-                            return this.api.fhc().Geninscontroller().getGeneralInsurabilityByMembershipUsingGET(
-                                this.genInsOA, this.genInsAFF,
-                                asMMH ? this.MMHTokenId : this.api.tokenId, asMMH ? this.MMHKeystoreId : this.api.keystoreId, asMMH ? this.MMHPassPhrase : this.api.credentials.ehpassword,
-                                asMMH ? this.MMHNihii : hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
-                        }
-                    ).then(genInsResp => {
-                            if (genInsResp) {
-                                return genInsResp;
-                            } else {
-                                return null;
-                            }
-                        }
-                    )
-            }
-            else {
+//        if (this.patient.ssin && this.api.tokenId) {
+		if (this.api.tokenId) {
+            //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
+			if(((this.genInsNiss && this.genInsNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.genInsOA && this.genInsOA !=='')){
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp => {
                             return this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
@@ -2206,7 +2191,30 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             }
                         }
                     )
-            }
+			}else{
+			    //there is no niss
+				let oa = this.genInsOA;
+				let aff = this.genInsAFF;
+                const pi = this.patient.insurabilities && _.assign({}, this.patient.insurabilities[0] || {});
+				return this.api.insurance().getInsurance(pi.insuranceId).then(insu =>{
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.api.fhc().Geninscontroller().getGeneralInsurabilityByMembershipUsingGET(
+                                    (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
+                                    (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
+                                    asMMH ? this.MMHTokenId : this.api.tokenId, asMMH ? this.MMHKeystoreId : this.api.keystoreId, asMMH ? this.MMHPassPhrase : this.api.credentials.ehpassword,
+                                    asMMH ? this.MMHNihii : hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
+                            }
+                        ).then(genInsResp => {
+                                if (genInsResp) {
+                                    return genInsResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+				});
+			}
         } else {
             return Promise.resolve(null)
         }
