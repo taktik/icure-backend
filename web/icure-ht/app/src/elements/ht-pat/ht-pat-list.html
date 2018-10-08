@@ -587,7 +587,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
                     </paper-input>
 
-                    <div class="saved-filters">
+                    <div id="saved-filters" class="saved-filters">
                         <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
                                   id="filterMenu">
                             <paper-button class="filter-tag" id="[[filter.name]]" api="[[api]]" on-tap="selectFilter"
@@ -1493,10 +1493,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             selectFilter(e) {
                 const activeFilters = this._activeFilters()
-
-                this.set('selectedFilters', e.target.selectedValues.map(idx => activeFilters[idx]))
-                if (this.selectedFilters[0]) {
-                    this.set('filterValue', this._selectedFiltersAsString())
+                const clickedElem = e.target.parentNode
+                const parentElem = clickedElem.parentNode.parentNode
+                const childsElem = parentElem.querySelectorAll(".filter-tag")
+                const toMap = Array.prototype.slice.call(childsElem)
+                let activeId, i = 0
+                toMap.map( (idx) => {
+                    if (clickedElem === idx) {
+                        activeId = i
+                    }
+                    i++
+                })
+                if (activeFilters[activeId]) {
+                    this.set('filterValue', activeFilters[activeId].filter.searchString)
                     this.previouslySetFilterValue = this.filterValue
                 } else {
                     if (this.filterValue === this.previouslySetFilterValue) {
