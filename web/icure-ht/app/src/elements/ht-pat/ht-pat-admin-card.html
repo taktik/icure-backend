@@ -837,7 +837,8 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.initCurrentCareTeam();
 
-            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',')).then( codes => {
+
+            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
                     (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
                         ppss.map(pps => {
