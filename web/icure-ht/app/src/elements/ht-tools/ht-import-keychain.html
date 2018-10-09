@@ -312,10 +312,12 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		const value = this.$.newPasswordKeystore.value;
 		const healthcarePartyId = this.user.healthcarePartyId;
 		const prefix = this.api.crypto().keychainLocalStoreIdPrefix + "password.";
-        //const prefixMMH = "org.taktik.icure.ehealth.keychain.MMH.";
 
-		let p12Der = forge.util.decode64(keystore.keystore.file);
-		let p12Asn1 = forge.asn1.fromDer(p12Der);
+		try{
+			let p12Der = forge.util.decode64(keystore.keystore.file);
+			let p12Asn1 = forge.asn1.fromDer(p12Der);
+
+
 
 		try {
 			//Check keystore password
@@ -340,6 +342,14 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			this.$.errorKeystorePassword.innerHTML = this.localize('inv_pas','Invalid password',language);
 			console.log(ex);
 		}
+		}
+		catch (ex) {
+			this.$.errorKeystorePassword.innerHTML = this.localize('inv_keychain_file','Invalid keystore file',language);
+			console.log(ex);
+		}
+
+	}
+
 	getActiveButtonText(AlternateKeystore){
 		return !AlternateKeystore?this.localize('act','Is active',this.language):this.localize('mak_act','Set active',this.language)
 	}
