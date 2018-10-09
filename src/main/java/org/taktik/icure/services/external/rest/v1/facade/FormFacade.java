@@ -341,7 +341,7 @@ public class FormFacade implements OpenApiFacade {
 	@GET
 	@Path("/template")
 	public Response findFormTemplates() {
-		List<FormTemplate> formTemplates = null;
+		List<FormTemplate> formTemplates;
 		try {
 			formTemplates = formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), false);
 		} catch (Exception e) {

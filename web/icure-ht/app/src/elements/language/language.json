@@ -250,6 +250,7 @@
     "save_filter" : "Save filter",
     "sca_the_fol_cod_wit_you_tab": "Scan the following code with your tablet",
     "sch": "Search",
+    "sch_by": "Search by",
     "sea_for_hea_ele":"Search for health element",
     "sel": "Select",
     "sel_all": "Select All",
@@ -311,9 +312,9 @@
     "wee": "Weekly",
     "welcome_mess" : "Welcome to the Icure application",
     "you_hav_bee_log_out": "You have been logged out.",
-    "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe"
-
-
+    "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe",
+    "join_write": "Write a message or select a file below",
+    "join_asmsg": "Join a file as message"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -560,6 +561,7 @@
     "save_filter": "Sauvegarder le filtre",
     "sca_the_fol_cod_wit_you_tab": "Scanner le code ci-dessous avec votre tablette",
     "sch": "Recherche",
+    "sch_by": "Recherche par",
     "sea_for_hea_ele":"Rechercher élément de soins",
     "sel": "Sélectionner",
     "sel_all": "Tout sélec.",
@@ -798,7 +800,6 @@
     "mon": "Monthly",
     "low": "gematigde",
     "modify":"Modify",
-    "more" : "Plus",
     "my_pro": "My profile",
     "nat": "Natuur",
     "new_con": "New Contact",
@@ -1011,12 +1012,14 @@
     "deceased" : "overleden",
     "female" : "vrouw",
     "male" : "man",
-    "tra_dir":"Richting",
+    "tra_dir":"Transfer",
     "tra_io":"VI",
     "tra_dat":"Datum",
     "fromOtherIo":"van andere VI",
     "toOtherIo":"naar andere VI",
-    "ele":"Voorkeurstarief"
+    "ele":"Voorkeurstarief",
+    "err":"Fout",
+    "join_write": "Écrivez un message ou sélectionnez un fichier ci-dessus",
+    "join_asmsg": "Joindre un fichier comme message"
   }
 }
-

@@ -34,6 +34,7 @@ public class Tarification extends Code {
 	Boolean	consultationCode;
 	Boolean hasRelatedCode;
 	Boolean needsPrescriber;
+	Set<String> relatedCodes;
 
 	public Tarification() {
 	}
@@ -96,5 +97,13 @@ public class Tarification extends Code {
 
 	public void setNeedsPrescriber(Boolean needsPrescriber) {
 		this.needsPrescriber = needsPrescriber;
+	}
+
+	public Set<String> getRelatedCodes() {
+		return relatedCodes;
+	}
+
+	public void setRelatedCodes(Set<String> relatedCodes) {
+		this.relatedCodes = relatedCodes;
 	}
 }

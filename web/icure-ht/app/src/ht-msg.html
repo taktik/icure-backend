@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-msg/ht-msg-menu.html">
 <link rel="import" href="elements/ht-msg/ht-msg-list.html">
 <link rel="import" href="elements/ht-msg/ht-msg-invoice.html">
+<link rel="import" href="elements/ht-msg/ht-msg-new.html">
 
 
 <link rel="import" href="./shared-styles.html">
@@ -31,7 +32,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .container {
                 width: 100%;
                 height: calc(100vh - 64px);
-                display: grid;
+                display:grid;
                 grid-template-columns: 15% 85%;
                 grid-template-rows: 100%;
                 position: fixed;
@@ -43,26 +44,71 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .sub-container {
                 width: 100%;
-                height: calc(100% - 64px);
+                height: 100%;
                 display: grid;
-                grid-template-columns: 35% 50%;
+                grid-template-columns: 50% 50%;
                 grid-template-rows: 100%;
                 grid-template-rows: 100%;
-                position: fixed;
-                top: 64px;
-                left: 15%;
-                bottom: 0;
-                right: 0;
             }
 
             ht-msg-detail{
                 padding: 15px;
             }
 
+            .display-left-menu{
+                display:none;
+                position:fixed;
+                top: 50%;
+                left: 0;
+                z-index: 120;
+                background: var(--app-background-color-dark);
+                transform:translateY(-50%) rotate(0);
+                border-radius:0 50% 50% 0;
+                transition: transform 0.2s ease-in;
+
+            }
+            .display-left-menu.open{
+                left:50vw;
+                border-radius:50% 0 0  50% ;
+                transform:translateY(-50%) rotate(180deg);
+                transition: transform 0.2s ease-in;
+            }
+
+            paper-dialog {
+                width:80%;
+                height: 80%;
+            }
+
+            @media screen and (max-width:1025px){
+                .container{
+                    grid-template-columns: 0 40% 60%;
+
+                }
+                .container.expanded {
+                    grid-template-columns: 20% 30% 50%;
+                }
+                .sub-container {
+                    left: 0%;
+                    grid-template-columns: 30% 71%;
+                }
+                ht-msg-menu{
+                    display:none;
+                    width: 50vw;
+                }
+                .container.expanded ht-msg-menu {
+                    display: block;
+                }
+                .display-left-menu{
+                    display:inherit;
+                }
+
+            }
+
         </style>
         <div class="container">
+            <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
             <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
-                         on-selection-change="handleMenuChange"></ht-msg-menu>
+                         on-selection-change="handleMenuChange" on-new-msg="_newMsg"></ht-msg-menu>
             <template is="dom-if" if="[[!invoicesLayout]]">
                 <div class="sub-container">
                     <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
@@ -84,6 +130,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
 
         </div>
+
+        <ht-msg-new id="new-msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]"></ht-msg-new>
 
     </template>
 
@@ -150,6 +198,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _expandColumn(e) {
+                this.root.querySelector('.display-left-menu').classList.toggle('open');
+                this.root.querySelector('.container').classList.toggle('expanded');
+            }
+            _closeColumn(e) {
+                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.root.querySelector('.container').classList.remove('expanded');
+            }
+
+            _newMsg() {
+                this.$['new-msg'].open()
+            }
         }
 
         customElements.define(HtMsg.is, HtMsg)
