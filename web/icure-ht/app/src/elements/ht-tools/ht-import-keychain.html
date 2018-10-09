@@ -66,7 +66,7 @@
 								<div>Set the active keystore</div>
 							</template>
 							<template>
-								<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]' disabled='[[!item.onlyDecrypt]]'>Set active</paper-button>
+								<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]' disabled='[[!item.onlyDecrypt]]'>[[getActiveButtonText(item.onlyDecrypt)]]</paper-button>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column flex-grow="4">
@@ -74,7 +74,7 @@
 								<div>Set as MH keystore</div>
 							</template>
 							<template>
-								<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]' disabled='[[!item.personalKeystore]]'>Set as MH keystore</paper-button>
+								<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]' disabled='[[!item.personalKeystore]]'>[[getActiveMMButtonText(item.personalKeystore)]]</paper-button>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column flex-grow="4">
@@ -82,7 +82,7 @@
 								<div>Set the keystore password</div>
 							</template>
 							<template>
-								<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' >Set password</paper-button>
+								<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' >[[getPasswordButtonText(item.hasPassword)]]</paper-button>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column flex-grow="1">
@@ -331,7 +331,20 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			this.$.errorKeystorePassword.innerHTML = this.localize('inv_pas','Invalid password',language);
 			console.log(ex);
 		}
+	getActiveButtonText(AlternateKeystore){
+		return !AlternateKeystore?this.localize('act','Is active',this.language):this.localize('mak_act','Set active',this.language)
+	}
 
+	getActiveMMButtonText(personalKeystore){
+		return !personalKeystore?this.localize('act','Is active',this.language):this.localize('mak_act','Set active',this.language)
+	}
+
+	getPasswordButtonText(havePassword){
+		return havePassword?this.localize('change','Change',this.language):this.localize('set','Set',this.language)
+	}
+
+	_displayAltDeleteButton(item){
+		return !item.onlyDecrypt || !item.personalKeystore
 	}
 
 	_setCryptedValueInLocalstorage(healthcarePartyId, key, value){
