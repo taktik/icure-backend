@@ -170,7 +170,9 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 	ehKeychainSelected() {
 
-		let actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId) || "";
+		const actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId) || "";
+		const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH.";
+		const mmhKeystore = localStorage.getItem(prefixMMH + this.user.healthcarePartyId) || "";
 
 		if( this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement){
 			Object.values(this.$.ehKeychainFileInput.inputElement.inputElement.files).forEach( item => {
@@ -180,8 +182,15 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 					const keychain = e.target.result;
 					this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId + "." + item.name, keychain);
 
-					let keystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId + "." + item.name)
-					this.push('CurrentEhKeychains', {keystore:{ name:item.name,file:keystore}, onlyDecrypt: !(keystore !== "" && keystore === actifKeystore)});
+					let keystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId + "." + item.name);
+					if(!this.CurrentEhKeychains.map(keychaine => keychaine.keystore.name).includes(item.name)) {
+						this.push('CurrentEhKeychains', {
+							keystore: {name: item.name, file: keystore},
+							onlyDecrypt: !(keystore !== "" && keystore === actifKeystore),
+							personalKeystore: !(keystore !== "" && keystore === mmhKeystore),
+							hasPassword: !!(localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + "password." + this.user.healthcarePartyId + "." + item.name))
+						});
+					}
 
 				}.bind(this);
 				fr.readAsArrayBuffer(item);
@@ -255,14 +264,12 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 		let EhKeychains = [];
 		let keys = Object.keys(localStorage);
-		//const prefix = "org.taktik.icure.ehealth.keychain.";
-        const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH."
+        const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH.";
 		const healthcarePartyId = this.user.healthcarePartyId;
+		const actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId) || "";
+		const mmhKeystore = localStorage.getItem(prefixMMH + healthcarePartyId) || "";
 
 		keys.forEach(k => {
-			let actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId) || "";
-            let mmhKeystore = localStorage.getItem(prefixMMH + healthcarePartyId) || "";
-
 			if(k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".")){
 				let Keystore = localStorage.getItem(k);
 				EhKeychains.push({
@@ -270,7 +277,8 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 						name: k.replace(this.api.crypto().keychainLocalStoreIdPrefix,"").replace(healthcarePartyId + ".",""),
 						file: Keystore
 					},onlyDecrypt:!(Keystore !== "" && Keystore === actifKeystore),
-                    personalKeystore:(Keystore !== "" && Keystore === mmhKeystore)?false:true
+                    personalKeystore:!(Keystore !== "" && Keystore === mmhKeystore),
+					hasPassword: !!(localStorage.getItem(k.replace(this.api.crypto().keychainLocalStoreIdPrefix,this.api.crypto().keychainLocalStoreIdPrefix + "password.")))
 				});
 			}
 		})
