@@ -219,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     @apply --shadow-elevation-2dp;
                     padding: 10px 1.2em;
                 }
-                
+
                 .add-btn, .exportcsv-btn {
                     text-transform: capitalize;
                 }
@@ -1339,7 +1339,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }.bind(this), 100)
             }
 
-
+            getAllPatients() {
+                return this.api.getRowsUsingPagination(
+                    (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
+                        rows: pl.rows.map(p=>({/*Just keep the fields you need*/})),
+                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                        done:!pl.nextKeyPair
+                    }))
+                )
+            }
 
             pimpPatient(p) {
                 p.email = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
