@@ -1576,6 +1576,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
+            <div class="buttons">
+				<vaadin-checkbox on-tap="_switchTest" checked="{{showGeninsTest}}" id="testgenins">[[localize('tst','Test',language)]]</vaadin-checkbox>
+			</div>
+			<div id="geninstest" style="display: none">
+				<paper-input id="genInsNiss" label="[[localize('niss','NISS',language)]]" value="{{genInsNiss}}"></paper-input>
+				<paper-input id="genInsOA" label="[[localize('OA','Mut',language)]]" value="{{genInsOA}}"></paper-input>
+				<paper-input id="genInsAFF" label="[[localize('AFF','Membership Nr',language)]]" value="{{genInsAFF}}"></paper-input>
+			</div>
         </paper-dialog>
 
 		<paper-dialog id="consentDialog">
@@ -2032,6 +2040,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             MMHNihii:{
 			    type: String,
                 value: null
+            },
+            showGeninsTest:{
+			    type: Boolean,
+                value: false
             }
 		};
 	}
@@ -2046,6 +2058,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
+    }
+
+    _switchTest(){
+	    this.set('showGeninsTest', !this.showGeninsTest);
+        let testdiv = this.root.querySelector('#geninstest')
+        if(this.showGeninsTest){
+            testdiv.style = '';
+        } else {
+            testdiv.style = 'display: none';
+        }
     }
 
     selectedContactIdsChanged() {
@@ -3226,7 +3248,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
 			if (patient.ssin && this.api.tokenId) {
-                this.set('curGenInsResp', null)
+
+                let dlg = this.root.querySelector('#genInsDialog')
+				if(!dlg.opened) this.set('curGenInsResp', null);
 
                 if(!this.geninsMMHRequest) this.initMHSession();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
@@ -3236,7 +3260,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
 					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
 
-                    this.set('curGenInsResp', gi)
+                    if(!dlg.opened) this.set('curGenInsResp', gi);
 
 					this.$.insuranceStatus.classList.remove('medicalHouse');
 					this.$.insuranceStatus.classList.remove('noInsurance');

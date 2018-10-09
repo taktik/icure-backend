@@ -19,7 +19,7 @@ public class CodeStub implements Serializable, CodeIdentification {
 	public CodeStub() {
 	}
 
-	public CodeStub(String code, String type, String version) {
+	public CodeStub(String type, String code, String version) {
 		this.code = code;
 		this.type = type;
 		this.version = version;
