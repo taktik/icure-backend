@@ -292,6 +292,7 @@ public class User extends StoredDocument implements Principal, Cloneable, Serial
 		return id != null ? id.hashCode() : 0;
 	}
 
+	@JsonIgnore
 	public boolean isSecretEmpty() {
 		return secret == null;
 	}
