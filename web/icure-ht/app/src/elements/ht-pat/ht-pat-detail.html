@@ -3248,7 +3248,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
 			if (patient.ssin && this.api.tokenId) {
-                this.set('curGenInsResp', null)
+
+                let dlg = this.root.querySelector('#genInsDialog')
+				if(!dlg.opened) this.set('curGenInsResp', null);
 
                 if(!this.geninsMMHRequest) this.initMHSession();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
@@ -3258,7 +3260,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
 					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
 
-                    this.set('curGenInsResp', gi)
+                    if(!dlg.opened) this.set('curGenInsResp', gi);
 
 					this.$.insuranceStatus.classList.remove('medicalHouse');
 					this.$.insuranceStatus.classList.remove('noInsurance');
