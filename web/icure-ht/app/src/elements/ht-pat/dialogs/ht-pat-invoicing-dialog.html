@@ -903,7 +903,7 @@
                                          value="{{activeNmclItem.contract}}" readonly></paper-input>
                             <paper-input class="flex-container-nmcl-row"
                                          label="[[localize('inv_tpj','Justification TP',language)]]"
-                                         value="{{activeNmclItem.insuranceJustification}}" readonly></paper-input>
+                                         value="{{activeNmclItem.override3rdPayerCode}}" readonly></paper-input>
                         </div>
                     </template>
 
@@ -911,33 +911,40 @@
                 <div class="buttons">
                     <paper-button on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
-                    <template is="dom-if" if="[[!isTarificationMcnError]]">
-                        <template is="dom-if" if="[[npi]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">
+                    <template is="dom-if" if="[[!isInvoiceClosed]]">
+                        <template is="dom-if" if="[[!isTarificationMcnError]]">
+                            <template is="dom-if" if="[[npi]]">
+                                <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">
+                                    [[localize('eTarif','Validation eTarif',language)]]
+                                </paper-button>
+                            </template>
+                            <template is="dom-if" if="[[!npi]]">
+                                <paper-button on-tap="" class="tarificationBtnDisable">[[localize('eTarif','Validation
+                                    eTarif',language)]]
+                                </paper-button>
+                            </template>
+                        </template>
+
+                        <template is="dom-if" if="[[isTarificationMcnError]]">
+                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">
                                 [[localize('eTarif','Validation eTarif',language)]]
                             </paper-button>
                         </template>
-                        <template is="dom-if" if="[[!npi]]">
-                            <paper-button on-tap="" class="tarificationBtnDisable">[[localize('eTarif','Validation
-                                eTarif',language)]]
+
+                        <template is="dom-if" if="[[isNmclVerified]]">
+                            <paper-button on-tap="_createInvoice" class="invoiceBtnEnable">
+                                [[localize('val_invoice','Justificatory + create invoice',language)]]
+                            </paper-button>
+                        </template>
+                        <template is="dom-if" if="[[!isNmclVerified]]">
+                            <paper-button on-tap="" class="invoiceBtnDisable">[[localize('val_invoice','Justificatory +
+                                create invoice',language)]]
                             </paper-button>
                         </template>
                     </template>
-
-                    <template is="dom-if" if="[[isTarificationMcnError]]">
-                        <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">
-                            [[localize('eTarif','Validation eTarif',language)]]
-                        </paper-button>
-                    </template>
-
-                    <template is="dom-if" if="[[isNmclVerified]]">
+                    <template is="dom-if" if="[[isInvoiceClosed]]">
                         <paper-button on-tap="_createInvoice" class="invoiceBtnEnable">
-                            [[localize('val_invoice','Justificatory + create invoice',language)]]
-                        </paper-button>
-                    </template>
-                    <template is="dom-if" if="[[!isNmclVerified]]">
-                        <paper-button on-tap="" class="invoiceBtnDisable">[[localize('val_invoice','Justificatory +
-                            create invoice',language)]]
+                            [[localize('val_justificatory','Justificatory',language)]]
                         </paper-button>
                     </template>
                 </div>
@@ -1279,6 +1286,10 @@
                     invoiceDateAsString: {
                         type: String,
                         observer: '_invoiceDateAsStringChanged'
+                    },
+                    isInvoiceClosed:{
+                        type: Boolean,
+                        value: false
                     }
 
                 }
@@ -1310,6 +1321,7 @@
 
                 invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
             }
 
             open() {
@@ -1639,7 +1651,7 @@
                                     item.totalAmount = r.fees[cind].amount
                                     item.contract = r.financialContracts[cind]
                                     item.valid = true
-                                    item.insuranceJustification = r.justification
+                                    item.override3rdPayerCode = r.justification
 
                                     this.set('selectedInvoice.invoicingCodes[itemInd]', item)
                                     this.$['nmclGrid'].clearCache()
@@ -1736,11 +1748,15 @@
             }
 
             _createInvoice() {
+                this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
                 this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
                     console.log(invoice)
                     this.set('selectedInvoice', invoice)
-                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
-                    this.generateJustificatory()
+                    this._selectInvoice(invoice.id)
+                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                        this.set('invoices', invoices)
+                        this.generateJustificatory()
+                    })
                 })
             }
 
