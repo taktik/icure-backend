@@ -318,7 +318,8 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 			//Encrypt and store password
 			try {
-				this._setCryptedValueInLocalstorage(healthcarePartyId, prefix + this.user.healthcarePartyId + "." + keystore.keystore.name, value);
+				this._setCryptedValueInLocalstorage(healthcarePartyId, prefix + this.user.healthcarePartyId + "." + keystore.keystore.name, value)
+					.then(p => this.refreshCurrentEhKeychainList());
 				this.$.keystorePasswordDialog.close();
 			}
 			catch (ex) {
@@ -348,7 +349,7 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 	}
 
 	_setCryptedValueInLocalstorage(healthcarePartyId, key, value){
-		this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+		return this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
 			.then(encryptedHcPartyKey =>
 				this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
 			)
@@ -359,7 +360,6 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 				this.api.crypto().utils.ua2text(data)
 			)
 			.then(encryptedData =>
-				//Store encrypted password in localstorage
 				localStorage.setItem(key,encryptedData)
 			);
 	}
