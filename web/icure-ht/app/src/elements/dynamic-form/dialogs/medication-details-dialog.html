@@ -199,9 +199,9 @@
                     </paper-input>
                     <paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
                         <paper-listbox slot="dropdown-content" selected="{{bufferGeneralFrequency}}">
-                            <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
-                            <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
-                            <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                            <paper-item id="daily" on-tap="_valueChanged">[[localize('dai','Daily',language)]]</paper-item>
+                            <paper-item id="weekly" on-tap="_valueChanged">[[localize('wee','Weekly',language)]]</paper-item>
+                            <paper-item id="monthly" on-tap="_valueChanged">[[localize('mon','Monthly',language)]]</paper-item>
                         </paper-listbox>
                     </paper-dropdown-menu>
                     <paper-button on-tap="_setFrequencyList"><iron-icon icon="zoom-in"></iron-icon> {{localize("details","Details",language)}}
