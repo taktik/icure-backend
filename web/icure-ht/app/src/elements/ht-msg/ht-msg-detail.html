@@ -37,7 +37,6 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
-<link rel="import" href="./ht-msg-new.html">
 
 
 <dom-module id="ht-msg-detail">
@@ -315,7 +314,7 @@
 				--paper-fab-speed-dial-action-label-background: transparent;
 				--paper-fab-iron-icon: {
 					transform: scale(0.8);
-					
+
 				};
 				--paper-fab: {
 					background: var(--app-primary-color-dark);
@@ -424,10 +423,6 @@
 						</div>
 					</template>
 			</div>
-		</template>
-
-		<template is="dom-if" if="[[!messages]]">
-			<ht-msg-new api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]"></ht-msg-new>
 		</template>
 
 	</template>
