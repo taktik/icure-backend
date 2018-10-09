@@ -1576,7 +1576,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
-            <div style="display: none">
+            <div class="buttons">
+                <vaadin-checkbox on-tap="_switchTest" checked="{{showGeninsTest}}" id="testgenins">[[localize('tst','Test',language)]]</vaadin-checkbox>
+            </div>
+            <div id="geninstest" style="display: none">
                 <paper-input id="genInsNiss" label="[[localize('niss','NISS',language)]]" value="{{genInsNiss}}"></paper-input>
                 <paper-input id="genInsOA" label="[[localize('OA','Mut',language)]]" value="{{genInsOA}}"></paper-input>
                 <paper-input id="genInsAFF" label="[[localize('AFF','Membership Nr',language)]]" value="{{genInsAFF}}"></paper-input>
@@ -2037,6 +2040,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             MMHNihii:{
 			    type: String,
                 value: null
+            },
+            showGeninsTest:{
+			    type: Boolean,
+                value: null
             }
 		};
 	}
@@ -2051,6 +2058,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
+    }
+
+    _switchTest(){
+	    this.set('showGeninsTest', !this.showGeninsTest);
+        let testdiv = this.root.querySelector('#geninstest')
+        if(this.showGeninsTest){
+            testdiv.style = '';
+        } else {
+            testdiv.style = 'display: none';
+        }
     }
 
     selectedContactIdsChanged() {
