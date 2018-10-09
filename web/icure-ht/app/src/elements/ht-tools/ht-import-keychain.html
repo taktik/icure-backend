@@ -91,7 +91,8 @@
 							</template>
 							<template>
 								<div class="cell frozen">
-									<paper-button class="remove-msgKeystore-btn" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'>X</paper-button>
+									<paper-button class="remove-msgKeystore-btn" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]' hidden='[[_displayAltDeleteButton(item)]]'>X</paper-button>
+									<paper-button class="unset-msgMMKeystore-btn" on-tap="_unsetMMKeystore" hidden='[[item.personalKeystore]]'>[[localize('unsetMHKeychain','Unset MH keystore',language)]]</paper-button>
 								</div>
 							</template>
 						</vaadin-grid-column>
@@ -246,6 +247,11 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		}
 	}
 
+	_unsetMMKeystore(){
+		localStorage.removeItem(this.api.crypto().keychainLocalStoreIdPrefix + 'MMH.' + this.user.healthcarePartyId);
+		this.refreshCurrentEhKeychainList();
+	}
+
 	_SetMainKeystore(e){
 		let keystore = e.target.getAttribute('keystore');
 		localStorage.setItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId,this.CurrentEhKeychains[keystore].keystore.file);
@@ -300,6 +306,7 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		this.$.errorKeystorePassword.innerHTML = "";
 		this.$.passwordDialogSubtitle.innerHTML = this.localize('ehe_key','eHealth keychain',language) + " " + keystore.keystore.name;
 
+		this.$.newPasswordKeystore.value = "";
 		this.$.keystorePasswordDialog.open();
 	}
 
