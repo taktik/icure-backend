@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -18,7 +19,7 @@ public class CodeStub implements Serializable, CodeIdentification {
 	public CodeStub() {
 	}
 
-	public CodeStub(String code, String type, String version) {
+	public CodeStub(String type, String code, String version) {
 		this.code = code;
 		this.type = type;
 		this.version = version;
@@ -64,5 +65,21 @@ public class CodeStub implements Serializable, CodeIdentification {
 	@Override
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		CodeStub codeStub = (CodeStub) o;
+		return Objects.equals(id, codeStub.id) &&
+				Objects.equals(code, codeStub.code) &&
+				Objects.equals(type, codeStub.type) &&
+				Objects.equals(version, codeStub.version);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, code, type, version);
 	}
 }
