@@ -237,9 +237,19 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		return contactDAO.listServicesByLabel(hcPartyId, null).parallelStream()
 				.filter(v -> v.getValue() != null && v.getValue() >= minOccurences)
 				.map(v -> new LabelledOccurence((String) v.getKey().getComponents().get(0), v.getValue()))
-				.sorted(Comparator.comparing(LabelledOccurence::getOccurence))
+				.sorted(Comparator.comparing(LabelledOccurence::getOccurence).reversed())
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public List<LabelledOccurence> getServiceCodesOccurences(String hcPartyId, String codeType, long minOccurences) {
+		return contactDAO.listCodesFrequencies(hcPartyId, codeType).parallelStream()
+				.filter(v -> v.getValue() != null && v.getValue() >= minOccurences)
+				.map(v -> new LabelledOccurence((String) v.getKey().getComponents().get(2), v.getValue()))
+				.sorted(Comparator.comparing(LabelledOccurence::getOccurence).reversed())
+				.collect(Collectors.toList());
+	}
+
 
 	@Override
 	public List<Contact> findContactsByHCPartyFormIds(String hcPartyId, List<String> ids) {
