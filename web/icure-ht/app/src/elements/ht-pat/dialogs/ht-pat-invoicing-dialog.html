@@ -684,7 +684,7 @@
                                           value="{{selectedInvoice.sentMediumType}}"
                                           on-value-changed="analyzeMediumType"></vaadin-combo-box>
                         <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]"
-                                     value="{{selectedInvoice.invoiceReference}}"></paper-input>
+                                     value="{{selectedInvoice.invoiceReference}}" readonly></paper-input>
                         <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]"
                                             value="{{invoiceDateAsString}}" i18n="[[i18n]]"></vaadin-date-picker>
                         <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]"
@@ -1526,6 +1526,7 @@
 
                             inv.map(invoice => {
                                 if (!invoice.id) {
+
                                     invoice.invoiceDate = this.selectedInvoice.invoiceDate
                                     invoice.invoiceReference = this.selectedInvoice.invoiceReference
                                     invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
@@ -1754,15 +1755,27 @@
             }
 
             _createInvoice() {
+
                 this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
-                this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
-                    console.log(invoice)
-                    this.set('selectedInvoice', invoice)
-                    this._selectInvoice(invoice.id)
-                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                        this.set('invoices', invoices)
-                        this.generateJustificatory()
-                    })
+
+
+                this.api.entityRef().getLatest("Invoice::").then(latest => {
+                    console.log(latest)
+                    const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
+                    const newReference = Number(lastReference) + 1
+
+                    this.set("selectedInvoice.invoiceReference", newReference)
+                    this.api.invoice().modifyInvoice(this.selectedInvoice)
+                        .then(invoice => this.api.entityRef().createEntityReference({docId: invoice.id, id: "Invoice::"+newReference})
+                        .then( () => {
+                            console.log(invoice)
+                            this.set('selectedInvoice', invoice)
+                            this._selectInvoice(invoice.id)
+                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                this.set('invoices', invoices)
+                                this.generateJustificatory()
+                            })
+                        }))
                 })
             }
 
