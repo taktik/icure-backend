@@ -114,12 +114,17 @@
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc)
 
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
+            this.entityreficc = new api.iccEntityrefApi(this.host, this.headers)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
         }
 
         accesslog() {
             return this.accesslogicc
+        }
+
+        entityRef(){
+            return this.entityreficc
         }
 
         auth() {
