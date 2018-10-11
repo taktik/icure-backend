@@ -1327,8 +1327,6 @@
 
 
             _selectInvoice(e) {
-                console.log("dans invoice")
-                console.log(this.invoices)
                 const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
 
                 this.set("isTarificationError", false)
@@ -1347,9 +1345,6 @@
                 invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                 this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
-
-                console.log("apres selection")
-                console.log(this.invoices)
             }
 
             open() {
@@ -2081,6 +2076,8 @@
                             this.$['nmclGrid'].clearCache()
 
                             this.calculateTotalOfInvoice()
+
+                            this._selectInvoice(this.selectedInvoice.id)
                         })
                     })
                 }
