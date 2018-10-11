@@ -814,6 +814,14 @@
                                     <vaadin-grid-column width="20px">
                                         <template>
                                             <div class="cell frozen">
+                                                <iron-icon icon="vaadin:exchange" class="clearBtn"
+                                                           on-tap="_openTransfertDialog"></iron-icon>
+                                            </div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="20px">
+                                        <template>
+                                            <div class="cell frozen">
                                                 <iron-icon icon="clear" class="clearBtn"
                                                            data-item$="[[item.tarificationId]]"
                                                            on-tap="_deleteNmclCode"></iron-icon>
@@ -904,10 +912,6 @@
                             <paper-input class="flex-container-nmcl-row"
                                          label="[[localize('inv_tpj','Justification TP',language)]]"
                                          value="{{activeNmclItem.override3rdPayerCode}}" readonly></paper-input>
-                            <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
-                                              item-label-path="label.[[language]]" item-value-path="id"
-                                              label="[[localize('code_type','Code type',language)]]"
-                                              value="{{bufferTypeCode}}"></vaadin-combo-box>
                         </div>
                     </template>
 
@@ -952,6 +956,15 @@
                         </paper-button>
                     </template>
                 </div>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="transferDialog">
+            <div>
+                <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
+                                  item-label-path="label.[[language]]" item-value-path="id"
+                                  label="[[localize('code_type','Code type',language)]]"
+                                  value="{{bufferTypeCode}}"></vaadin-combo-box>
             </div>
         </paper-dialog>
 
@@ -1316,6 +1329,7 @@
             _selectInvoice(e) {
                 const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
 
+                console.log(this.invoices)
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
@@ -2003,11 +2017,45 @@
 
             _tranferNmcl(){
                 if(this.bufferTypeCode!=this.selectedMediumCodeType){
-                    var invoice = this.invoices.find(invoice =>  invoice.invoiceDate===this.activeNmclItem.dateCode && invoice.sentMediumType===this.bufferTypeCode)
-
-                    invoice ? this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
+                    this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.join(",")
-                        this.api.invoice().appendCodes(this.user.id, invoice.invoiceType, this.bufferTypeCode, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [this.activeNmclItem]).then(response => {
+                        console.log("im here")
+                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [this.activeNmclItem]).then(response => {
+                            console.log(response)
+                            response.map(invoice => {
+                                if (!invoice.id) {
+                                    invoice.invoiceDate = this.selectedInvoice.invoiceDate
+                                    invoice.invoiceReference = this.selectedInvoice.invoiceReference
+                                    invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
+                                    invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
+                                    invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
+                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii
+                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii
+                                    invoice.creditNote = this.selectedInvoice.creditNote
+                                    invoice.careProviderType = this.selectedInvoice.careProviderType
+
+                                    this.api.invoice().newInstance(this.user, this.patient, invoice)
+                                        .then(invoice => this.api.invoice().createInvoice(invoice))
+                                        .then(invoice => {
+                                            this.$['nmclGrid'].clearCache()
+                                            console.log(this.selectedInvoice)
+                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                                this.set('invoices', invoices)
+                                                this._selectInvoice(invoice.id)
+                                            })
+
+                                        })
+                                }else{
+                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                        this.set('invoices', invoices)
+                                        const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
+                                        this._selectInvoice(selectedInvoice.id)
+                                    })
+                                }
+                            })
+
+
+
                             this.set('isDetailNmcl', false)
                             let tabNmcl = this.selectedInvoice.invoicingCodes
 
@@ -2029,8 +2077,13 @@
 
                             this.calculateTotalOfInvoice()
                         })
-                    }) : console.log("problème lors du transfert")
+                    })
                 }
+            }
+
+            _openTransfertDialog(e){
+                e.stopPropagation()
+                this.$["transferDialog"].open()
             }
 
         }
