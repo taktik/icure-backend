@@ -1327,9 +1327,10 @@
 
 
             _selectInvoice(e) {
+                console.log("dans invoice")
+                console.log(this.invoices)
                 const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
 
-                console.log(this.invoices)
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
@@ -1338,13 +1339,17 @@
 
                 const selected = this.invoices.find(inv => inv.id === invoiceId)
 
-                this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
                 this.set('selectedInvoice', selected)
                 this.set('selectedMediumCodeType', selected.sentMediumType)
+                this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
+
 
                 invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                 this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+
+                console.log("apres selection")
+                console.log(this.invoices)
             }
 
             open() {
