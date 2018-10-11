@@ -36,6 +36,8 @@ public interface MessageLogic extends EntityPersister<Message, String> {
 
 	PaginatedList<Message> findByToAddress(String partyId, String toAddress, PaginationOffset<List<Object>> paginationOffset, Boolean reverse);
 
+	PaginatedList<Message> findByTransportGuidReceived(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset);
+
 	PaginatedList<Message> findByTransportGuid(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset);
 
 	Message addDelegation(String messageId, Delegation delegation);
