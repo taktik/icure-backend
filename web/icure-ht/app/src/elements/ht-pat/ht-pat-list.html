@@ -751,6 +751,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <paper-dialog id="add-patient-dialog">
+
             <div class="horizontal">
                 <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
                 <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
@@ -774,6 +775,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-menu-button>
                 </paper-input-container>
             </div>
+
+            <!--<div class="horizontal">-->
+                <!--<paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>-->
+                <!--<paper-checkbox value="{{hasDoctorSubscription}}" label="Has doctor subscription">Has doctor subscription?</paper-checkbox>-->
+                <!--<paper-checkbox value="{{hasPhysiotherapistSubscription}}" label="Has physiotherapist subscription">Has physiotherapist subscription?</paper-checkbox>-->
+                <!--<paper-checkbox value="{{hasNurseSubscription}}" label="Has nurse subscription">Has nurse subscription?</paper-checkbox>-->
+            <!--</div>-->
+
             <div>
                 <template is="dom-if" if="[[displayResult]]">
                     <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
@@ -1477,33 +1486,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return this.api.getRowsUsingPagination(
                     (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
                         rows: pl.rows.map(
-                            p=>(
-                            delete p.mergedIds,
-                                delete p.active,
-                                p.created = moment( p.created ).format('DD/MM/YYYY'),
-                                p.modified = moment( p.modified ).format('DD/MM/YYYY'),
-                                delete p.author,
-                                delete p.responsible,
-                                delete p.codes,
-                                delete p.tags,
-                                delete p.secretForeignKeys,
-                                delete p.cryptedForeignKeys,
-                                delete p.delegations,
-                                delete p.encryptionKeys,
-                                delete p.preferredUserId,
-                                delete p.externalId,
-                                delete p.alias,
-                                delete p.partnerName,
-                                delete p.id,
-                                delete p.rev,
-                                p = p
-                        )
-                ),
+                            p => (
+                                p.languages = p.languages.join(' / '),
+                                p.dateOfBirth = ( p.dateOfBirth ? ("" + p.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A') ),
+                                _.assign(
+                                    _.pick( p, ['lastName'], ['firstName'], ['dateOfBirth'], ['gender'], ['languages'], ['ssin'] ),
+                                    _.fromPairs(
+                                        _.flatMap(
+                                            p.addresses,
+                                            a => [
+                                                [a.addressType+'_street', a.street],
+                                                [a.addressType+'_number', a.houseNumber],
+                                                [a.addressType+'_zip', a.postalCode],
+                                                [a.addressType+'_city', a.city]
+                                            ]
+                                            .concat(
+                                                _.map(
+                                                    a.telecoms,
+                                                    t => [
+                                                        a.addressType+'_'+t.telecomType, t.telecomNumber
+                                                    ]
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                    ),
                     nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
                     nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
                     done:!pl.nextKeyPair
-            }))
-            )
+                    }))
+                )
             }
 
 
@@ -1524,15 +1538,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
             generateXlsFile( data ) {
-
-
-
-                // Rewrite date for HR, input = yyyymmdd, output = dd/mm/yyyy
-                data.forEach(
-                    item => item.dateOfBirth = item.dateOfBirth ? ("" + item.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A'),
-            )
-
-
 
                 // Create xls work book and assign properties
                 const xlsWorkBook = { SheetNames: [], Sheets: {} };
