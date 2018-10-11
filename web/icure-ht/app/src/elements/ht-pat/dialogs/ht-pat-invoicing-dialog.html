@@ -1360,7 +1360,7 @@
 
 
             _selectInvoice(e) {
-                const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
+                const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
 
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
@@ -1505,9 +1505,9 @@
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
 
-                if (this.$['nmcl-search'].selectedItem || e.target.dataset.item) {
+                if (this.shadowRoot.querySelector("#nmcl-search").selectedItem || e.target.dataset.item) {
 
-                    const nmcl = (e.target.dataset.item) ? JSON.parse(e.target.dataset.item) : this.$['nmcl-search'].selectedItem
+                    const nmcl = (e.target.dataset.item) ? JSON.parse(e.target.dataset.item) : this.shadowRoot.querySelector("#nmcl-search").selectedItem
 
                     const newNmcl = {
                         code: nmcl.code,
@@ -1609,9 +1609,9 @@
 
 
             _addFavoriteCode() {
-                if (this.$['nmcl-search'].selectedItem) {
+                if (this.shadowRoot.querySelector("#nmcl-search").selectedItem) {
 
-                    const newCode = this.$['nmcl-search'].selectedItem
+                    const newCode = this.shadowRoot.querySelector("#nmcl-search").selectedItem
                     const preferedCode = this.user.properties.find(p => p.type && p.type.identifier === "org.taktik.icure.tarification.favorites")
 
                     if (preferedCode && preferedCode.typedValue) {
