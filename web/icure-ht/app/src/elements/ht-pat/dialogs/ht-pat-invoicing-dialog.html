@@ -47,6 +47,7 @@
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
+<link rel="import" href="related-code-link.html">
 
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
@@ -779,7 +780,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="730px">
+                                    <vaadin-grid-column width="650px">
                                         <template class="header">
                                             <div class="cell frozen">[[localize('lab','Label',language)]]</div>
                                         </template>
@@ -833,9 +834,10 @@
                                             <template is="dom-if" if="[[item.prescriberNeeded]]">
                                                 <iron-icon class="clearBtn" icon="vaadin:doctor"></iron-icon>
                                             </template>
-                                            <template is="dom-if" if="[[item.isRelativePrestation]]">
-                                                <iron-icon class="clearBtn" icon="vaadin:link"></iron-icon>
-                                            </template>
+                                            <related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>
+                                            <!--<template is="dom-if" if="[[item.isRelativePrestation]]">-->
+                                                  <!--<iron-icon class="clearBtn" icon="vaadin:link"></iron-icon>-->
+                                            <!--</template>-->
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="20px">
@@ -1385,6 +1387,21 @@
                 invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                 this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                 this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+
+
+                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: this.selectedInvoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls => {
+                    nmcls.map(nmcl =>{
+                        const sn = this.selectedInvoice.invoicingCodes.find(n => n.tarificationId === nmcl.id)
+
+                        if(sn){
+                            const idSn = this.selectedInvoice.invoicingCodes.indexOf(sn)
+                            sn.prescriberNeeded = nmcl.needsPrescriber
+                            sn.isRelativePrestation = nmcl.hasRelatedCode
+
+                            this.set('selectedInvoice.invoicingCodes.'+idSn, sn)
+                        }
+                    })
+                })
             }
 
             open() {
@@ -1533,7 +1550,7 @@
                         pending: false,
                         resent: false,
                         dateCode: this.selectedInvoice.invoiceDate,
-                        prescriberNeeded: nmlc.needsPrescriber,
+                        prescriberNeeded: nmcl.needsPrescriber,
                         isRelativePrestation: nmcl.hasRelatedCode,
                         valid: false,
                         id: this.api.crypto().randomUuid(),
@@ -1683,7 +1700,7 @@
 
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
+                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference == "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => {
                             console.log(r)
                             this.set('isDetailNmcl', false)
                             this.set("tarificationError", null)
@@ -1749,7 +1766,6 @@
                 this.set('totalInvoice.patientIntervention', Number(patientIntervention).toFixed(2))
                 this.set('totalInvoice.reimbursement', Number(reimbursement).toFixed(2))
                 this.set('totalInvoice.doctorSupplement', Number(doctorSupplement).toFixed(2))
-                console.log(this.invoices)
             }
 
             _getErrorMsg(item, language) {
@@ -2146,6 +2162,17 @@
             _openTransfertDialog(e){
                 e.stopPropagation()
                 this.$["transferDialog"].open()
+            }
+
+            linkNmclToRelatedCode(e){
+                if(e.detail.relativeCode && e.detail.parentId){
+                    let selectedNmcl = this.selectedInvoice.invoicingCodes.find(n => n.id === e.detail.parentId) || null
+                    if(selectedNmcl !== null){
+                       const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
+                        selectedNmcl.relatedCode = e.detail.relativeCode
+                        this.set('selectedInvoice.invoicingCodes[selectedNmclId]', selectedNmcl)
+                    }
+                }
             }
 
         }
