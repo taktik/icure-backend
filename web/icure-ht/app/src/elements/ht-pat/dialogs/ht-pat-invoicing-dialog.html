@@ -1246,6 +1246,14 @@
                                 }
                             },
                             {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
+                                }
+                            },
+                            {
                                 id: "p",
                                 label: {
                                     "fr": "P. Patients palliatifs à domicile",
@@ -1438,6 +1446,7 @@
                     const code = JSON.parse(preferedCode.typedValue.stringValue)
 
                     this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: code.cs.map(c => c)})).then(t => {
+                        this.set("favoriteCode", t)
                     })
                 }
 
@@ -1524,8 +1533,8 @@
                         pending: false,
                         resent: false,
                         dateCode: this.selectedInvoice.invoiceDate,
-                        prescriberNeeded: false,
-                        isRelativePrestation: false,
+                        prescriberNeeded: nmlc.needsPrescriber,
+                        isRelativePrestation: nmcl.hasRelatedCode,
                         valid: false,
                         id: this.api.crypto().randomUuid(),
                         prescriberNihii: null,
@@ -2065,8 +2074,9 @@
             }
 
             _getOvveride3PayerCodeAsString(tp){
-                const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
-                return tpAsString.label[this.language]
+                    const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
+                    return (tpAsString) ? tpAsString.label[this.language] : ""
+
             }
 
             _tranferNmcl(){
