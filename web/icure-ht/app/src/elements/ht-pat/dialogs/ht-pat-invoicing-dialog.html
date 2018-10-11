@@ -1351,7 +1351,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*), selectedInvoiceChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','savingInvoices(invoices.*)']
             }
 
             ready() {
@@ -1360,6 +1360,8 @@
 
 
             _selectInvoice(e) {
+                console.log(this.invoices)
+                console.log(e)
                 const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
 
                 this.set("isTarificationError", false)
@@ -2138,12 +2140,8 @@
                 this.$["transferDialog"].open()
             }
 
-            selectedInvoiceChanged(){
-                console.log("selected invoice changed. Update of invoices list")
-                let invoices = this.invoices
-                invoices.map( invoice => {
-
-                })
+            savingInvoices(){
+                console.log("test")
             }
 
         }
