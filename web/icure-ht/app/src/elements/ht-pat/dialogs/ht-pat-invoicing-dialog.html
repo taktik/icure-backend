@@ -904,6 +904,10 @@
                             <paper-input class="flex-container-nmcl-row"
                                          label="[[localize('inv_tpj','Justification TP',language)]]"
                                          value="{{activeNmclItem.override3rdPayerCode}}" readonly></paper-input>
+                            <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
+                                              item-label-path="label.[[language]]" item-value-path="id"
+                                              label="[[localize('code_type','Code type',language)]]"
+                                              value="{{bufferTypeCode}}"></vaadin-combo-box>
                         </div>
                     </template>
 
@@ -1290,6 +1294,10 @@
                     isInvoiceClosed:{
                         type: Boolean,
                         value: false
+                    },
+                    bufferTypeCode:{
+                        type : String,
+                        observer: '_tranferNmcl'
                     }
 
                 }
@@ -1304,8 +1312,8 @@
                 super.ready()
             }
 
-            _selectInvoice(e) {
 
+            _selectInvoice(e) {
                 const invoiceId = (e.currentTarget && e.currentTarget.id) ? e.currentTarget.id : e
 
                 this.set("isTarificationError", false)
@@ -1315,6 +1323,7 @@
                 this.set('npi', false)
 
                 const selected = this.invoices.find(inv => inv.id === invoiceId)
+
                 this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
                 this.set('selectedInvoice', selected)
                 this.set('selectedMediumCodeType', selected.sentMediumType)
@@ -1327,7 +1336,6 @@
             open() {
 
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
-
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
 
@@ -1384,9 +1392,9 @@
                     const code = JSON.parse(preferedCode.typedValue.stringValue)
 
                     this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: code.cs.map(c => c)})).then(t => {
-                        this.set("favoriteCode", t)
                     })
                 }
+
             }
 
             _isCreditNote(e) {
@@ -1445,7 +1453,6 @@
             }
 
             _addNmcl(e) {
-
                 this.set("isTarificationMcnError", false)
                 this.set("isTarificationError", false)
                 this.set('isDetailNmcl', false)
@@ -1613,7 +1620,6 @@
             }
 
             _verifyTarification() {
-
                 let nmclCode = []
 
                 this.selectedInvoice.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
@@ -1688,6 +1694,7 @@
                 this.set('totalInvoice.patientIntervention', Number(patientIntervention).toFixed(2))
                 this.set('totalInvoice.reimbursement', Number(reimbursement).toFixed(2))
                 this.set('totalInvoice.doctorSupplement', Number(doctorSupplement).toFixed(2))
+                console.log(this.invoices)
             }
 
             _getErrorMsg(item, language) {
@@ -1704,7 +1711,6 @@
             }
 
             _checkIfPrescriberIsNeeded(e) {
-
                 if (e.detail.value === 0 || e.detail.value === 3) {
                     this.set("isPrescriberIsNeeded", false)
                 } else {
@@ -1774,7 +1780,6 @@
             }
 
             _invoicingCodeChange() {
-
                 if (this.activeNmclItem) {
                     const code = this.selectedInvoice.invoicingCodes.find(code => code.id === this.activeNmclItem.id)
                     const codeIdx = this.selectedInvoice.invoicingCodes.indexOf(code)
@@ -1819,7 +1824,6 @@
             }
 
             generateJustificatory(){
-
                 const width = 210
                 const height = 297
 
@@ -2008,6 +2012,38 @@
 
                 pdf.save(`efactJustificatory_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.selectedInvoice.invoiceDate || '00000000'}.pdf`);
 
+            }
+
+            _tranferNmcl(){
+                if(this.bufferTypeCode!=this.selectedMediumCodeType){
+                    var invoice = this.invoices.find(invoice =>  invoice.invoiceDate===this.activeNmclItem.dateCode && invoice.sentMediumType===this.bufferTypeCode)
+
+                    invoice ? this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
+                        const patientKeys = secretForeignKeys.join(",")
+                        this.api.invoice().appendCodes(this.user.id, invoice.invoiceType, this.bufferTypeCode, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [this.activeNmclItem]).then(response => {
+                            this.set('isDetailNmcl', false)
+                            let tabNmcl = this.selectedInvoice.invoicingCodes
+
+                            const item = tabNmcl.find(n => n.tarificationId === this.activeNmclItem)
+                            const iindex = tabNmcl.indexOf(item)
+
+                            delete(tabNmcl[iindex])
+                            tabNmcl.splice(iindex, 1)
+
+                            this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
+
+                            this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
+                                console.log(invoice)
+                                this.set('selectedInvoice', invoice)
+                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                            })
+
+                            this.$['nmclGrid'].clearCache()
+
+                            this.calculateTotalOfInvoice()
+                        })
+                    }) : console.log("problème lors du transfert")
+                }
             }
 
         }
