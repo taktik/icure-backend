@@ -720,29 +720,32 @@
                         searchType =
                             (str.toString().length == 11) ? "patient.niss" : // NISS (length must be 11)
                             (str.length == 8) ? "invoice.invoiceReference" : // bill number
-                            (/([1930-2150])\d+/g) ? "invoice.invoiceDate" : // year (from 1930 to now +100yr)
+                            (str >= 1930 && str <= (new Date().getFullYear() + 100)) ? "invoice.invoiceDate" : // year (from 1930 to now +100yr)
                             // ((str <= ((new Date()).getFullYear() + 100)) && str.length == 4) ? "invoice.invoiceDate" : // year (from 1930 to now +100yr)
                             (typeof str == "float") ? "invoice.totalAmount" : // float amount
+                            (str.includes(".")) ? "invoice.totalAmount" :
                             (str.length == 3 && (100 <= str && str <= 999) ) ? "patient.insurance.code" : // Insurance code
                             "invoice.invoiceReference"
-                        // format output ->s
-                        if (searchType == "patient.niss") { output = parseInt(output,10) }
+                        // format output ->
+                        if (searchType == "patient.niss") { output = output.replace('.',''); output = parseInt(output); }
+                        if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
                     } else { // is a string
                         searchType =
                             (/(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)/.test(str)) ? "invoice.invoiceDate" :
+                            (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.niss" :
                             (str.includes(" ") ) ? "invoice.patient.firstName" :
-                            ((str.length == 15 || str.length == 13) && (str.includes("-") || str.includes("/")) ) ? "patient.niss" :
+                            // ((str.length == 15 || str.length == 13) && (str.includes("-") || str.includes("/") || str.includes(".")) ) ? "patient.niss" :
                             (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
                             "invoice.patient.firstName"
                         // format output ->
-                        if (searchType == "invoice.totalAmount") { output = output.replace('€','').replace(',','.'); output = parseFloat(output) }
-                        if (searchType == "patient.niss") { output = output.replace('-',''); output = output.replace('/',''); output = parseInt(output,10); }
-                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(output).format('YYYYDDMM') }
+                        if (searchType == "invoice.totalAmount") { output = str.replace('€','').replace(',','.'); output = parseFloat(output) }
+                        if (searchType == "patient.niss") { output = str.replace('-',''); output = output.replace('/',''); output = output.replace('.',''); output = parseInt(output); }
+                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(str).format('YYYYDDMM') }
                     }
                 }
                 this.set('filterValue',output)
                 this.set('filterPath',searchType)
-                console.log((isNaN(str) ? "NaN" : "number")+", "+str+":"+typeof str+", output:"+output+":"+typeof output+", searchType:",searchType)
+                console.log((isNaN(str) ? "NaN" : "number")+", in:["+str+":"+typeof str+"], out:["+output+":"+typeof output+"], searchType:",searchType)
             }
 
             _invoicesChange(){
