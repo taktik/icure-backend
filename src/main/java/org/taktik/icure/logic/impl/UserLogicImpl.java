@@ -231,6 +231,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		return getParents(user);
 	}
 
+	@Override
+	public List<User> getUsersByLogin(String login) {
+		return userDAO.findByUsername(formatLogin(login));
+	}
+
 	public User getUserByLogin(String login) {
 		// Format login
 		login = formatLogin(login);
@@ -239,9 +244,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 		if (byUsername.size() == 0) {
 			return null;
-		}
-		if (byUsername.size() > 1) {
-			throw new IllegalStateException("Two users with login " + login);
 		}
 
 		return byUsername.get(0);
@@ -800,7 +802,24 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public User getUserOnUserDb(String userId, String groupId) {
-		return userDAO.getUserOnUserDb(userId, groupId);
+		return userDAO.getUserOnUserDb(userId, groupId, false);
+	}
+
+	@Override
+	public User findUserOnUserDb(String userId, String groupId) {
+		return userDAO.findUserOnUserDb(userId, groupId, false);
+	}
+
+	@Override
+	public List<User> getUsersByPartialIdOnFallbackDb(String id) {
+		return userDAO.getUsersByPartialIdOnFallback(id);
+	}
+
+	@Override
+	public List<User> findUsersByLoginOnFallbackDb(String login) {
+		// Format login
+		login = formatLogin(login);
+		return  userDAO.findByUsernameOnFallback(login);
 	}
 
 	@Autowired

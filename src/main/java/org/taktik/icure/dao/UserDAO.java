@@ -48,4 +48,8 @@ public interface UserDAO extends GenericDAO<User> {
 	void evictFromCache(String groupId, List<String> userIds);
 
 	User saveOnFallback(User user);
+
+	List<User> getUsersByPartialIdOnFallback(String id);
+
+	List<User> findByUsernameOnFallback(String login);
 }
