@@ -2,10 +2,8 @@ package org.taktik.icure.services.external.rest.v1.facade;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.taktik.icure.dao.replicator.ReplicatorJobStatus;
 import org.taktik.icure.dao.replicator.UserReplicator;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
@@ -19,8 +17,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,7 +38,7 @@ public class ClusterFacade implements OpenApiFacade {
 	@GET
 	@Path("/gsyncs")
 	public List<SyncStatusDto> groupSyncStatus() throws IllegalAccessException {
-		String id = sessionLogic.getCurrentSessionContext().getUserId();
+		String id = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
 		if (id == null) {
 			throw new IllegalAccessException("No registered user");
 		}

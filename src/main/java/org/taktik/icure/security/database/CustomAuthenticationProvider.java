@@ -38,10 +38,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
+
 	public CustomAuthenticationProvider(UserLogic userLogic, PermissionLogic permissionLogic) {
 		this.userLogic = userLogic;
 		this.permissionLogic = permissionLogic;
@@ -79,7 +81,16 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 				u != null && this.isPasswordValid(u, auth.getCredentials().toString())
 		).sorted(Comparator.comparing(User::getId)).collect(Collectors.toList());
 
-		User user = users.isEmpty() ? null : userLogic.getUserOnUserDb(users.get(0).getId().contains(":") ? users.get(0).getId().split(":")[1] : users.get(0).getId(), users.get(0).getGroupId());
+		User user = null;
+		String groupId = null;
+
+		for (User u : users) {
+			user = userLogic.getUserOnUserDb(users.get(0).getId().contains(":") ? users.get(0).getId().split(":")[1] : users.get(0).getId(), users.get(0).getGroupId());
+			if (user != null) {
+				groupId = u.getGroupId();
+				break;
+			}
+		}
 		if ((user == null)) {
 			throw new BadCredentialsException("Invalid username or password");
 		}
@@ -103,14 +114,22 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		Set<GrantedAuthority> authorities = permissionSet == null ? new HashSet<>() : permissionSet.getGrantedAuthorities();
 
 		DatabaseUserDetails userDetails = new DatabaseUserDetails(permissionSetIdentifier, authorities, user.getPasswordHash(), user.getSecret(), user.isUse2fa());
-
+		userDetails.setGroupId(groupId);
 		userDetails.setRev(user.getRev());
 		userDetails.setApplicationTokens(user.getApplicationTokens());
 
 		getPreAuthenticationChecks().check(userDetails);
-		additionalAuthenticationChecks(userDetails,
-				(UsernamePasswordAuthenticationToken) auth);
 
+		for (Map.Entry<String,String> token:user.getApplicationTokens().entrySet()) {
+			if (token.getValue().equals(auth.getCredentials())) {
+				userDetails.setApplication(token.getKey());
+			}
+		}
+
+		if (userDetails.getApplication() == null) {
+			additionalAuthenticationChecks(userDetails,
+					(UsernamePasswordAuthenticationToken) auth);
+		}
 		getPostAuthenticationChecks().check(userDetails);
 
 		Object principalToReturn = userDetails;
@@ -129,6 +148,9 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 			return false;
 		}
 		return true;
+	}
+
+	protected void doAfterPropertiesSet() throws Exception {
 	}
 
 	@Override

@@ -79,28 +79,19 @@ class SecurityConfig {
     @Bean
     fun securityConfigAdapter(
             daoAuthenticationProvider: CustomAuthenticationProvider,
-            applicationTokensAuthenticationProvider: ApplicationTokensUserDetailsAuthenticationProvider,
             basicAuthenticationFilter: BasicAuthenticationFilter,
             usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
             exceptionTranslationFilter: ExceptionTranslationFilter,
-            remotingExceptionTranslationFilter: ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, applicationTokensAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
+            remotingExceptionTranslationFilter: ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
 
     @Bean
-    fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, userDetailsService: UserDetailsService, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
+    fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
         setPasswordEncoder(passwordEncoder)
-        setUserDetailsService(userDetailsService)
     }
-
-    @Bean
-    fun applicationTokensAuthenticationProvider() = ApplicationTokensUserDetailsAuthenticationProvider()
-
-    @Bean
-    fun userDetailsService() = UserDetailsService()
 }
 
 @Configuration
 class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
-                            private val applicationTokensAuthenticationProvider: ApplicationTokensUserDetailsAuthenticationProvider,
                             private val basicAuthenticationFilter: Filter,
                             private val usernamePasswordAuthenticationFilter: Filter,
                             private val exceptionTranslationFilter: Filter,
@@ -108,7 +99,6 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
     @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder?) {
         auth!!.authenticationProvider(daoAuthenticationProvider)
-                .authenticationProvider(applicationTokensAuthenticationProvider)
     }
 
     override fun configure(http: HttpSecurity?) {

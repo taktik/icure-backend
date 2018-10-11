@@ -33,6 +33,7 @@ public class DatabaseUserDetails extends AbstractUserDetails {
 	private Map<String,String> applicationTokens;
 	private String application;
 	private String secret;
+	private String groupId;
 	private boolean use2fa;
 
 	public DatabaseUserDetails(PermissionSetIdentifier permissionSetIdentifier, Set<GrantedAuthority> authorities, String passwordHash, String secret, Boolean use2fa) {
@@ -65,6 +66,14 @@ public class DatabaseUserDetails extends AbstractUserDetails {
 
 	public void setApplication(String application) {
 		this.application = application;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}
 
 	public String getApplication() {

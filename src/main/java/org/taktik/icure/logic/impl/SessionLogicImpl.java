@@ -42,6 +42,7 @@ import org.taktik.icure.logic.PropertyLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.security.PermissionSetIdentifier;
 import org.taktik.icure.security.UserDetails;
+import org.taktik.icure.security.database.DatabaseUserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -161,7 +162,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 			// Get user if any
 			PermissionSetIdentifier permissionSetIdentifier = userDetails.getPermissionSetIdentifier();
 			String userId = (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
-			User user = (userId != null && !userId.equals("bootstrap")) ? userLogic.getUser(userId) : null;
+			User user = (userId != null && ((DatabaseUserDetails) userDetails).getGroupId() != null) ? userLogic.getUserOnUserDb(userId, ((DatabaseUserDetails) userDetails).getGroupId()) : null;
 			if (user != null) {
 				// Retrieve the locale from the authentication userdetails if any
 				String authLocale = userDetails.getLocale();
@@ -345,17 +346,40 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 		@Override
 		public User getUser() {
-			String userId = getUserId();
-			if (userId != null && !userId.equals("bootstrap")) {
+
+			if (userDetails != null) {
+				String userId = getUserId();
+				String groupId = ((DatabaseUserDetails) userDetails).getGroupId();
+				if (groupId != null && userId != null) {
+					User u = userLogic.getUserOnUserDb(userId, groupId);
+					u.setGroupId(groupId);
+					return u;
+				}
+			}
+
+			String userId = getGroupIdUserId();
+
+			if (userId != null) {
 				return userLogic.getUserOnFallbackDb(userId);
 			}
 			return null;
 		}
 
 		@Override
+		public String getGroupIdUserId() {
+			String userId = getUserId();
+			if (userDetails == null) {
+				return userId;
+			}
+
+			String groupId = ((DatabaseUserDetails) userDetails).getGroupId();
+			return groupId != null ? groupId +  ":" + userId : userId;
+		}
+
 		public String getUserId() {
 			return (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
 		}
+
 
 		@Override
 		public String getLocale() {

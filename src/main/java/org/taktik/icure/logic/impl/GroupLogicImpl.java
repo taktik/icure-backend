@@ -5,7 +5,6 @@ import org.ektorp.CouchDbInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.GroupDAO;
-import org.taktik.icure.dao.replicator.NewGroupObserver;
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.Replication;
 import org.taktik.icure.entities.base.Security;
@@ -61,7 +60,7 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 
 	@Override
 	public Group createGroup(Group group, Replication initialReplication) throws IllegalAccessException {
-		String id = sessionLogic.getCurrentSessionContext().getUserId();
+		String id = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
 		if (id == null) {
 			throw new IllegalAccessException("No registered user");
 		}
