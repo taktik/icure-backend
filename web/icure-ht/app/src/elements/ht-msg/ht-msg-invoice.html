@@ -8,8 +8,8 @@
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html"
-><link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
@@ -85,7 +85,7 @@
 
                 vaadin-grid.material .cell.last {
                     padding-right: 24px;
-                    text-al;
+                    text-align: center;
                 }
 
                 vaadin-grid.material .cell.numeric {
@@ -217,7 +217,7 @@
 
                 vaadin-grid#sendingGrid,
                 vaadin-grid#invoiceGrid {
-                    height: calc(100vh - 120px);
+                    height: calc(100vh - 185px);
                 }
 
                 @media screen and (max-width:1025px){
@@ -244,16 +244,35 @@
                     top: 64px;
                 }
 
+                #pendingGridDetail{
+                    height: 500px;
+                }
+
+                .invoice-status {
+                    font-size: 24px;
+                    text-transform: capitalize;
+                    padding-top: 5px;
+                }
+
+                .hidden {
+                    display: none;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <div>
+            <div class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
             </div>
-            <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="" on-keydown="refreshFilter"></paper-input>
+            <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keydown="refreshFilter"></paper-input>
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
                     <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
+
+                        <vaadin-grid-filter class="hidden" aria-label="" path="{{filterPath}}" value="[[filterValue]]">
+                            <vaadin-text-field slot="filter" placeholder="" value="{{filterValue}}" focus-target></vaadin-text-field>
+                        </vaadin-grid-filter>
+
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
@@ -263,6 +282,7 @@
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
+
                             </template>
                             <template>[[item.insurance.code]]</template>
                         </vaadin-grid-column>
@@ -412,6 +432,8 @@
             <paper-dialog id="pendingDetailDialog">
                 <div>
                     Details of invoice n° [[activeGridItem.invoice.invoiceReference]]
+                    <paper-input label="Patient" value="[[activeGridItem.patient.firstName]] [[activeGridItem.patient.lastName]]"readonly></paper-input>
+                    <paper-input label="Mutuelle" value="[[activeGridItem.insurance.code]]"readonly></paper-input>
                 </div>
                     <vaadin-grid id="pendingGridDetail" items="[[activeGridItem.invoice.invoicingCodes]]">
                         <vaadin-grid-column class="recipient-col">
@@ -575,6 +597,19 @@
                         value: function () {
                             return [];
                         }
+                    },
+                    filterValue:{
+                        type: String,
+                        value: ""
+                    },
+                    btnSelectionPatient: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    },
+                    showInactive: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -621,10 +656,13 @@
                     }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
-                    invUnsent.forEach(inv =>
-                        this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
-                            .then(patId => treatPendingInvoice(patId, inv)
-                    )))
+                    invUnsent.forEach(inv =>{
+                        if(inv.printedDate && inv.printedDate !== "" && inv.sentMediumType === "efact"){
+                            this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
+                                .then(patId => treatPendingInvoice(patId, inv))
+                        }
+                    }
+                    ))
             }
 
             calculateTotalPendingInvoices(){
@@ -668,9 +706,42 @@
             }
 
             refreshFilter(){
-                if(this.statusPending){
+                setTimeout(function () {
+                    this._searchInGrid(this.filterInput)
+                }.bind(this), 500)
+            }
 
+            _searchInGrid(str) {
+                let searchType = "invoice.patient.firstName"
+                let output = str
+
+                if (!(str.length == 0 || str == "")) {
+                    if (!isNaN(str)) { // is a number
+                        console.log("number")
+                        searchType =
+                            (str.length == 11) ? "patient.niss" :
+                            (str.length == 8) ? "invoice.invoiceReference" :
+                            (str.includes("2018") && str.length == 4) ? "invoice.invoiceDate" :
+                            (str.length == 3 && 100 <= str && str <= 999 && !str.includes(".")) ? "patient.insurance.code" :
+                            (str.includes(".")) ? "invoice.totalAmount" :
+                            "invoice.invoiceReference"
+
+                        if (searchType == "patient.niss") { output = parseInt(output,10) }
+                    } else { // is a string
+                        console.log("nan")
+                        searchType =
+                            (/(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)/.test(str)) ? "invoice.invoiceDate" :
+                            (str.includes(" ") ) ? "invoice.patient.firstName" :
+                            (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
+                            "invoice.patient.firstName"
+
+                        if (searchType == "invoice.totalAmount") { output = output.replace('€','').replace(',','.'); output = parseFloat(output) }
+                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(output).format('YYYYDDMM') }
+                    }
                 }
+                this.set('filterValue',output)
+                this.set('filterPath',searchType)
+                console.log(str+" ("+typeof str+") > "+output+" ("+typeof output+")"," & searchType > ",searchType)
             }
 
             _invoicesChange(){

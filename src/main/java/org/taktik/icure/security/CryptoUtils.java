@@ -30,10 +30,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class CryptoUtils {
 
@@ -73,6 +76,38 @@ public class CryptoUtils {
 		return Bytes.concat(iv, cipherData);
 	}
 
+	static public byte[] decryptAESWithAnyKey(byte[] data, List<String> enckeys) {
+		if (enckeys != null && enckeys.size() > 0) {
+			for (String sfk : enckeys) {
+				ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+				UUID uuid = UUID.fromString(sfk);
+				bb.putLong(uuid.getMostSignificantBits());
+				bb.putLong(uuid.getLeastSignificantBits());
+				try {
+					data = CryptoUtils.decryptAES(data, bb.array());
+					break;
+				} catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) {
+				}
+			}
+		}
+		return data;
+	}
+
+	static public byte[] encryptAESWithAnyKey(byte[] data, String encKey) {
+		if (encKey != null) {
+			ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+			UUID uuid = UUID.fromString(encKey);
+			bb.putLong(uuid.getMostSignificantBits());
+			bb.putLong(uuid.getLeastSignificantBits());
+			try {
+				return CryptoUtils.encryptAES(data, bb.array());
+			} catch (Exception ignored) {
+			}
+		}
+		return data;
+	}
+
+
 	static public byte[] decryptAES(byte[] data, byte[] key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
 		byte[] iv = Arrays.copyOf(data, IV_BYTE_LENGTH);
 		byte[] encData = Arrays.copyOfRange(data, IV_BYTE_LENGTH, data.length);
@@ -104,7 +139,7 @@ public class CryptoUtils {
 		random.nextBytes(ivBytes);
 		return ivBytes;
 	}
-	
+
 	static public void storePkcs12(X509Certificate masterCertificate, X509Certificate hcPartyCertificate, PrivateKey hcPartyPrivateKey, PublicKey hcPartyPublicKey, String hcPartyId, String password) throws InvalidKeyException, NoSuchProviderException, KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
 		//
 		// Chain of Trust
@@ -112,7 +147,7 @@ public class CryptoUtils {
 		Certificate[] chain = new Certificate[2];
 		chain[1] = masterCertificate;
 		chain[0] = hcPartyCertificate;
-		
+
 		//
 		// Storing in PKCS #12 format
 		//

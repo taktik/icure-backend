@@ -102,8 +102,25 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	}
 
 	@Override
-	@View(name = "by_hcparty_transport_guid_received", map = "classpath:js/message/By_hcparty_transport_guid_received_map.js")
+	@View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
 	public PaginatedList<Message> findByTransportGuid(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset) {
+		ComplexKey startKey;
+		ComplexKey endKey;
+		if (transportGuid != null && transportGuid.endsWith(":*")) {
+			String prefix = transportGuid.substring(0, transportGuid.length() - 1);
+			startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, prefix, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+			endKey = ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject());
+		} else {
+			startKey = paginationOffset.getStartKey() == null ? ComplexKey.of(partyId, transportGuid, null) : ComplexKey.of(paginationOffset.getStartKey().toArray());
+			endKey = ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject());
+		}
+
+		return pagedQueryView("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset, true);
+	}
+
+	@Override
+	@View(name = "by_hcparty_transport_guid_received", map = "classpath:js/message/By_hcparty_transport_guid_received_map.js")
+	public PaginatedList<Message> findByTransportGuidReceived(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset) {
 		ComplexKey startKey;
 		ComplexKey endKey;
 		if (transportGuid != null && transportGuid.endsWith(":*")) {

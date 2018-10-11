@@ -177,7 +177,6 @@ public class InvoiceFacade implements OpenApiFacade{
 			Invoice invoice = invoiceLogic.modifyInvoice(mapper.map(invoiceDto, Invoice.class));
 			if (invoice != null) {
 				response = ResponseUtils.ok(mapper.map(invoice, InvoiceDto.class));
-
 			} else {
 				response = ResponseUtils.internalServerError("Invoice modification failed");
 			}
