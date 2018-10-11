@@ -700,7 +700,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     patients',language)]]
                                 </div>
                             </template>
-                            <div class="add-elem-mobile" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
+                            <div class="add-elem-mobile" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                             </div>
                         </template>
                         <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
@@ -732,7 +732,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 patients',language)]]
                             </paper-button>
                         </template>
-                        <paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
+                        <paper-button class="exportcsv-btn" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
@@ -971,6 +971,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import _ from 'lodash/lodash'
         import filterExParser from '../../../scripts/filterExParser'
         import {FilterExPrinter} from '../icc-x-api/filterExPrinter'
+
+        // To generate download xlsx file
+        import '../../../bower_components/js-xlsx/shim.js'
+        const XLSX = require( '../../../bower_components/js-xlsx/dist/xlsx.full.min.js')
 
         class HtPatList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1327,6 +1331,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
             }
 
+
+
+
+
             refresh() {
                 //Give the gui the time to update the field
                 setTimeout(function () {
@@ -1346,16 +1354,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }.bind(this), 100)
             }
 
-            getAllPatients() {
-                return this.api.getRowsUsingPagination(
-                    (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
-                        rows: pl.rows.map(p=>({/*Just keep the fields you need*/})),
-                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                        done:!pl.nextKeyPair
-                    }))
-                )
-            }
+
 
             pimpPatient(p) {
                 p.email = p.addresses && p.addresses.map(a => a.telecoms && a.telecoms.filter(t => t.telecomType === 'email').map(t => t.telecomNumber).join()).filter(a => a).join() || ''
@@ -1413,6 +1412,165 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
 
             }
+
+
+
+            _exportListToCsv() {
+                // Data mapping
+                var dataColumns = [
+                    "lastName",
+                    "firstName",
+                    "gender",
+                    "dateOfBirth",
+                    "ssin",
+                    "email",
+                    "phone",
+                    "mobile"
+                ];
+
+                // Human readable columns
+                var hrColumns = [
+                    this.localize('lastname','Last name'),
+                    this.localize('firstname','First name'),
+                    this.localize('gender','Gender'),
+                    this.localize('birthdate','Birthdate'),
+                    this.localize('ssin','SSIN'),
+                    this.localize('email_address','Email address'),
+                    this.localize('phone_number','Phone number'),
+                    this.localize('mobile_number','Mobile number')
+                ];
+
+                // Define csv content, header = column names
+                var csvFileContent = hrColumns.join(";") + "\n\n";
+
+                // Get grid / we're going to read data from it
+                var grid = this.$['patients-list'];
+
+                // Loop grid with a max of X results (csv)
+                grid.dataProvider({pageSize:10000}, function(items) {
+
+                    // Rewrite date for HR, input = yyyymmdd, output = dd/mm/yyyy
+                    items.forEach( item => item.dateOfBirth = item.dateOfBirth ? ("" + item.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A') )
+
+                    // Populate / collect
+                    items.forEach( item => csvFileContent += dataColumns.map( col => item[col] ).join( ";" ) + '\n' );
+
+                    var fileBlob = new Blob([csvFileContent] ,{type: "text/csv"});
+                    var downloadLink = document.createElement("a");
+                    document.body.appendChild( downloadLink );
+                    downloadLink.style = "display: none";
+
+                    var urlObject = window.URL.createObjectURL( fileBlob );
+
+                    downloadLink.href = urlObject;
+                    downloadLink.download = "patients-list.csv";
+                    downloadLink.click();
+                    window.URL.revokeObjectURL( urlObject )
+                })
+
+            }
+
+
+
+            getAllPatients() {
+
+                return this.api.getRowsUsingPagination(
+                    (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
+                        rows: pl.rows.map(
+                            p=>(
+                            delete p.mergedIds,
+                                delete p.active,
+                                p.created = moment( p.created ).format('DD/MM/YYYY'),
+                                p.modified = moment( p.modified ).format('DD/MM/YYYY'),
+                                delete p.author,
+                                delete p.responsible,
+                                delete p.codes,
+                                delete p.tags,
+                                delete p.secretForeignKeys,
+                                delete p.cryptedForeignKeys,
+                                delete p.delegations,
+                                delete p.encryptionKeys,
+                                delete p.preferredUserId,
+                                delete p.externalId,
+                                delete p.alias,
+                                delete p.partnerName,
+                                delete p.id,
+                                delete p.rev,
+                                p = p
+                        )
+                ),
+                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                    done:!pl.nextKeyPair
+            }))
+            )
+            }
+
+
+
+            _exportListToXls() {
+
+                this.getAllPatients().then(
+                    pl => ({
+                    rows: this.generateXlsFile( pl ),
+                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                    done:!pl.nextKeyPair
+                })
+            )
+
+            }
+
+
+
+            generateXlsFile( data ) {
+
+
+
+                // Rewrite date for HR, input = yyyymmdd, output = dd/mm/yyyy
+                data.forEach(
+                    item => item.dateOfBirth = item.dateOfBirth ? ("" + item.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A'),
+            )
+
+
+
+                // Create xls work book and assign properties
+                const xlsWorkBook = { SheetNames: [], Sheets: {} };
+                xlsWorkBook.Props = { Title: "Patients list", Author: "iCure" };
+
+                // Create sheet based on json data collection
+                var xlsWorkSheet = XLSX.utils.json_to_sheet( data );
+
+                // Link sheet to workbook
+                XLSX.utils.book_append_sheet(xlsWorkBook, xlsWorkSheet, 'Patients list');
+
+                // Virtual data output
+                var xlsWorkBookOutput = new Buffer(XLSX.write(xlsWorkBook, { bookType: 'xls', type: 'buffer' }));
+
+                // Put output to virtual "file"
+                var fileBlob = new Blob([xlsWorkBookOutput] ,{type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+
+                // Create download link and append to page's body
+                var downloadLink = document.createElement("a"); document.body.appendChild( downloadLink ); downloadLink.style = "display: none";
+
+                // Create url
+                var urlObject = window.URL.createObjectURL( fileBlob );
+
+                // Link to url
+                downloadLink.href = urlObject; downloadLink.download = "patients-list.xls";
+
+                // Trigger download and drop object
+                downloadLink.click(); window.URL.revokeObjectURL( urlObject );
+
+                // Free mem
+                fileBlob = false;
+                xlsWorkBookOutput = false;
+
+                return;
+
+            }
+
+
 
             confirm() {
                 this.api.patient().newInstance(this.user, {
