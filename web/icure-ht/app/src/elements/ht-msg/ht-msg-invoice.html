@@ -602,6 +602,10 @@
                         type: String,
                         value: ""
                     },
+                    filterPath:{
+                        type:String,
+                        value: "invoice.patient.firstName"
+                    },
                     btnSelectionPatient: {
                         type: Boolean,
                         value: false,
@@ -712,11 +716,12 @@
             }
 
             _searchInGrid(str) {
-                let searchType = ""
+                let searchType = "invoice.patient.firstName"
                 let output = str
-
+                console.log("---------------------------------------")
                 if (!(str.length == 0 || str == "")) {
                     if (!isNaN(str)) { // is a number
+                        console.log("number !")
                         searchType =
                             (str.toString().length == 11) ? "patient.niss" : // NISS (length must be 11)
                             (str.length == 8) ? "invoice.invoiceReference" : // bill number
@@ -727,9 +732,10 @@
                             (str.length == 3 && (100 <= str && str <= 999) ) ? "patient.insurance.code" : // Insurance code
                             "invoice.invoiceReference"
                         // format output ->
-                        if (searchType == "patient.niss") { output = output.replace('.',''); output = parseInt(output); }
+                        if (searchType == "patient.niss") { output = output.replace('.',''); output = parseInt(output); output = output.toString() }
                         if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
                     } else { // is a string
+                        console.log("NaN !")
                         searchType =
                             (/(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)/.test(str)) ? "invoice.invoiceDate" :
                             (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.niss" :
@@ -739,14 +745,20 @@
                             "invoice.patient.firstName"
                         // format output ->
                         if (searchType == "invoice.totalAmount") { output = str.replace('€','').replace(',','.'); output = parseFloat(output) }
-                        if (searchType == "patient.niss") { output = str.replace('-',''); output = output.replace('/',''); output = output.replace('.',''); output = parseInt(output); }
+                        if (searchType == "patient.niss") { output = str.replace('-',''); output = output.replace('/',''); output = output.replace('.',''); output = output.toString() }
                         if (searchType == "invoice.invoiceDate") { output = this.api.moment(str).format('YYYYDDMM') }
                     }
                 }
                 this.set('filterValue',output)
                 this.set('filterPath',searchType)
-                console.log((isNaN(str) ? "NaN" : "number")+", in:["+str+":"+typeof str+"], out:["+output+":"+typeof output+"], searchType:",searchType)
+                console.log("inputField:["+str+":"+(isNaN(str)?"string":"number")+"]")
+                console.log("output:["+this.filterValue+":"+typeof this.filterValue+"]")
+                console.log("filterPath:"+this.filterPath)
             }
+            // findAndReplace(string, target, replacement) {
+            //     for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
+            //     return string;
+            // }
 
             _invoicesChange(){
                 this.calculateTotalPendingInvoices()
