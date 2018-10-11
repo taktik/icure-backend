@@ -1318,7 +1318,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*), selectedInvoiceChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -2086,6 +2086,14 @@
             _openTransfertDialog(e){
                 e.stopPropagation()
                 this.$["transferDialog"].open()
+            }
+
+            selectedInvoiceChanged(){
+                console.log("selected invoice changed. Update of invoices list")
+                let invoices = this.invoices
+                invoices.map( invoice => {
+
+                })
             }
 
         }
