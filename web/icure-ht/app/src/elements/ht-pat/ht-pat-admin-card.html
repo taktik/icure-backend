@@ -138,8 +138,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
                 margin: 0 32px 32px;
 
-               
-                   
+
+
 
                 --vaadin-grid-cell: {
                     padding: 8px;
@@ -331,8 +331,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .hcpInfo{
                 max-height: calc(520px - 56px);
-                overflow: auto;  
-                padding: 0;             
+                overflow: auto;
+                padding: 0;
             }
 
             .iconHcpInfo{
@@ -359,7 +359,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 justify-content: flex-start;
                 align-items: center;
             }
-            
+
 
             .titleHcpInfo_Icon{
                 height: 24px;
@@ -401,7 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 10px 1.2em;
             }
 
-            
+
 
             iron-icon.smaller {
                 padding-right: 8px;
@@ -527,7 +527,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </iron-pages>
         </div>
 
-        <paper-dialog id="add-person-to-care-team">    
+        <paper-dialog id="add-person-to-care-team">
             <h2 class="modal-title">[[localize('add_per_to_car_tea','Add person',language)]]</h2>
             <div>
                 <vaadin-grid id="hcp-list" class="material" overflow="bottom" items=[[currentHcp]] active-item="{{selectedHcp}}">
@@ -873,11 +873,10 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     scheduleSave(patient) {
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
+            this.saveTimeout = undefined
         }
 
         this.saveAction = function () {
-
-
             if (this.patient.partnerships) {
                 const partnerships = this.patient.partnerships
 
@@ -922,6 +921,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     flushSave() {
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
+            this.saveTimeout = undefined
             this.saveAction();
         }
     }
@@ -930,12 +930,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const getValue = function (key) {
             return root ? _.get(root, key) : null;
         };
-        const setValue = function (key, value) {
-            if (root && _.get(root, key) !== value) {
+        const setValue = (key, value) => {
+            if (root && !_.isEqual( _.get(root, key) , value)) {
                 root === this.patient ? this.set('patient.' + key, value) : _.set(root, key, value);
                 this.scheduleSave(this.patient);
             }
-        }.bind(this);
+        };
         return {
             getStringValue: getValue,
             getNumberValue: getValue,
@@ -1174,28 +1174,28 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                                     this.api.hcparty().modifyHealthcareParty(hcpE).then(() => {})
                                     this.api.patient().getPatient(this.patient.id).then(patient => {
-
-                                        let phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
-                                        const phcpEidx = patient.patientHealthCareParties.indexOf(phcpE);
-                                        if(phcpE){
-                                            phcpE.referralPeriods = [{
-                                                startDate: dmgConsultResp.from,
-                                                endDate: dmgConsultResp.to
-                                            }];
-                                            phcpE.referral = true;
-                                            phcpE.isDmg = true;
+                                        const phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
+                                        if (phcpE) {
+                                            const currentReferralPeriod = phcpE.referralPeriods.find(rp => !rp.endDate)
+                                            let type = "other"
                                             if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
                                                 const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
                                                 if(cd.value === 'orgprimaryhealthcarecenter'){
-                                                    phcpE.type = "medicalhouse";
+                                                    type = "medicalhouse";
                                                 } else if(cd.value === 'persphysician'){
-                                                    phcpE.type = "doctor";
-                                                } else{
-                                                    phcpE.type = "other";
+                                                    type = "doctor";
                                                 }
                                             }
-                                            //patient.patientHealthCareParties[phcpEidx] = phcpE;
-                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {})
+                                            if (!currentReferralPeriod || !phcpE.referral || phcpE.type !== type) {
+                                                phcpE.referralPeriods = [{
+                                                    startDate: dmgConsultResp.from,
+                                                    endDate: null
+                                                }];
+                                                phcpE.referral = true;
+                                                phcpE.isDmg = true;
+
+                                                this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => this.patientChanged())
+                                            }
                                         }
                                     })
                                 }else{
