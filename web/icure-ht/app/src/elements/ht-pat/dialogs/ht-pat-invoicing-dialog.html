@@ -879,7 +879,7 @@
                         </div>
                         <div class="invoice-nomenclature-code-option">
                             <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
-                                              item-value-path="id" on-filter-changed="_nmclSearch"
+                                              item-value-path="id" on-filter-changed="_nmclSearch" on-keydown="isEnterPressed"
                                               label="[[localize('nmcl','Nomenclature',language)]]"
                                               value=""></vaadin-combo-box>
                             <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
@@ -1355,6 +1355,9 @@
                     bufferTypeCode:{
                         type : String,
                         observer: '_tranferNmcl'
+                    },
+                    isSelected:{
+                        type: Boolean
                     }
 
                 }
@@ -1362,7 +1365,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -1371,8 +1374,8 @@
 
 
             _selectInvoice(e) {
+                this.isSelected=true;
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
-
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
@@ -1397,6 +1400,7 @@
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                     this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+                    this.isSelected=false;
                 })
             }
 
@@ -1854,9 +1858,10 @@
                     let totalAmount = Number(this.activeNmclItem.patientIntervention) + Number(this.activeNmclItem.reimbursement) + Number(this.activeNmclItem.doctorSupplement)
 
                     this.set('activeNmclItem.totalAmount', Number(totalAmount).toFixed(2))
-                    this.set('selectedInvoice.invoicingCodes[codeIdx]', this.activeItem)
+                    this.set('selectedInvoice.invoicingCodes.'+codeIdx, this.activeNmclItem)
                     this.$['nmclGrid'].clearCache()
                     this.calculateTotalOfInvoice()
+                    this.selectedInvoiceChanged();
                 }
             }
 
@@ -2160,14 +2165,43 @@
                 this.$["transferDialog"].open()
             }
 
-            linkNmclToRelatedCode(e){
-                if(e.detail.relativeCode && e.detail.parentId){
+
+            linkNmclToRelatedCode(e) {
+                if (e.detail.relativeCode && e.detail.parentId) {
                     let selectedNmcl = this.selectedInvoice.invoicingCodes.find(n => n.id === e.detail.parentId) || null
-                    if(selectedNmcl !== null){
-                       const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
+                    if (selectedNmcl !== null) {
+                        const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
                         selectedNmcl.relatedCode = e.detail.relativeCode
                         this.set('selectedInvoice.invoicingCodes[selectedNmclId]', selectedNmcl)
                     }
+                }
+            }
+
+            savingInvoices(){
+                if (this.saveTimeout) {
+                    clearTimeout(this.saveTimeout);
+                }
+                this.saveAction = () => {
+                    const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
+                    //console.log(invoice)
+                    this.api.invoice().modifyInvoice(invoice).then(response => {
+                        this.set("invoices."+this.invoices.indexOf(invoice),response)
+                        this.isSelected=true;
+                        this.set("selectedInvoice",response)
+                        this.isSelected=false;
+                    })
+                };
+                this.saveTimeout = setTimeout(this.saveAction, 10000);
+            }
+
+            selectedInvoiceChanged(){
+                if(this.isSelected) return;
+                this.savingInvoices();
+            }
+
+            isEnterPressed(e){
+                if(e.keyCode==13){
+                    this._addNmcl(e);
                 }
             }
 
