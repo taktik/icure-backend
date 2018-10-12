@@ -117,7 +117,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	}
 
 	@Override
-	@View(name = "by_hcparty_efact_unsent", map = "classpath:js/invoice/by_hcparty_efact_unsent.js")
+	@View(name = "by_hcparty_efact_unsent", map = "classpath:js/invoice/By_hcparty_efact_unsent.js")
 	public List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate) {
 		ComplexKey startKey = ComplexKey.of(hcParty);
 		ComplexKey endKey = ComplexKey.of(hcParty, "{}");
