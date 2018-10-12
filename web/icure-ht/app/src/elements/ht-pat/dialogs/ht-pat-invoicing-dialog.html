@@ -546,6 +546,8 @@
                 };
             }
 
+
+
             vaadin-grid.material .cell {
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -643,6 +645,11 @@
             .invoiceDateInfoIcon{
                 height: 10px;
                 width: 10px;
+            }
+
+            #relativeCodeDialog{
+                height: 100px;
+                width: 220px;
             }
 
 
@@ -826,7 +833,7 @@
                                         </template>
                                         <template class="footer">[[totalInvoice.totalAmount]] €</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="20px">
+                                    <vaadin-grid-column width="60px">
                                         <template class="header">
                                             <div class="cell numeric"></div>
                                         </template>
@@ -834,11 +841,12 @@
                                             <template is="dom-if" if="[[item.prescriberNeeded]]">
                                                 <iron-icon class="clearBtn" icon="vaadin:doctor"></iron-icon>
                                             </template>
-
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
-                                                <related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>
-                                                  <!--<iron-icon class="clearBtn" icon="vaadin:link"></iron-icon>-->
+                                                <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
+                                                  <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
+                                                  [[item.relatedCode]]
                                             </template>
+
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="20px">
@@ -1002,6 +1010,13 @@
                                   label="[[localize('code_type','Code type',language)]]"
                                   value="{{bufferTypeCode}}"></vaadin-combo-box>
             </div>
+        </paper-dialog>
+
+        <paper-dialog id="relativeCodeDialog">
+            <vaadin-combo-box id="related-code" filtered-items="[[selectedInvoice.invoicingCodes]]"
+                              item-label-path="code" item-value-path="id"
+                              label="Link"
+                              value="{{childRelativeCodeId}}"></vaadin-combo-box>
         </paper-dialog>
 
     </template>
@@ -1358,6 +1373,15 @@
                     },
                     isSelected:{
                         type: Boolean
+                    },
+                    childRelativeCodeId:{
+                        type: String,
+                        value: "",
+                        observer: '_linkCode'
+                    },
+                    parentRelatedCodeId: {
+                        type: String,
+                        value: ""
                     }
 
                 }
@@ -2165,14 +2189,33 @@
                 this.$["transferDialog"].open()
             }
 
+            _openlinkRelativePrestationDialog(e){
+                e.stopPropagation()
+                this.parentRelatedCodeId = e.target.id
+                this.$["relativeCodeDialog"].open()
+            }
 
+            _linkCode(selectedNmclId){
+                if(selectedNmclId != ""){
+                    const childNmcl = this.selectedInvoice.invoicingCodes.find(nmcl => selectedNmclId === nmcl.id) || null
+                    const parentNmcl = this.selectedInvoice.invoicingCodes.find(nmcl => this.parentRelatedCodeId === nmcl.id) || null
+
+                    if(childNmcl !== null && parentNmcl !== null){
+                        parentNmcl.relatedCode = childNmcl.code
+                        this.$["relativeCodeDialog"].close()
+                    }
+
+                }
+
+            }
+
+            //Obsolete because related-code.html is not supported by vaadin-grid for the moment.
             linkNmclToRelatedCode(e) {
                 if (e.detail.relativeCode && e.detail.parentId) {
                     let selectedNmcl = this.selectedInvoice.invoicingCodes.find(n => n.id === e.detail.parentId) || null
                     if (selectedNmcl !== null) {
                         const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
                         selectedNmcl.relatedCode = e.detail.relativeCode
-                        this.set('selectedInvoice.invoicingCodes[selectedNmclId]', selectedNmcl)
                     }
                 }
             }
@@ -2185,10 +2228,22 @@
                     const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
                     //console.log(invoice)
                     this.api.invoice().modifyInvoice(invoice).then(response => {
-                        this.set("invoices."+this.invoices.indexOf(invoice),response)
-                        this.isSelected=true;
-                        this.set("selectedInvoice",response)
-                        this.isSelected=false;
+
+                        this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                            nmcls.map(nmcl =>{
+                                const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                if(sn){
+                                    sn.prescriberNeeded = nmcl.needsPrescriber
+                                    sn.isRelativePrestation = nmcl.hasRelatedCode
+                                }
+                            })
+                        ).finally(()=>{
+                            this.set("invoices."+this.invoices.indexOf(invoice),response)
+                            this.isSelected=true;
+                            this.set("selectedInvoice",response)
+                            this.isSelected=false;
+                        })
+
                     })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
