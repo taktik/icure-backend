@@ -103,8 +103,6 @@
 				z-index:0;
 				height: 100%;
 				width: 100%;
-
-				padding-top: 75px;
 			}
 
 			.contact-title{
@@ -124,6 +122,7 @@
 			.pat-details-card {
 				width: 100%;
 				padding: 10px 15px;
+				height: 100%;
 			}
 
 			.horizontal {
@@ -386,7 +385,7 @@
 
 								<template is="dom-repeat" items="[[selectedDocuments]]">
 									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-									<paper-card class="pat-details-card">
+									<paper-card>
 											<span>[[item.name]]</span>
 											<a href="[[item.dataUrl]]" target="_blank">[[localize('dl','Download',language)]]</a>
 											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
