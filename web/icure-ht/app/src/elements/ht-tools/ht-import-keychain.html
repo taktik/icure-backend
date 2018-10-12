@@ -66,7 +66,7 @@
 								<div>Set the active keystore</div>
 							</template>
 							<template>
-								<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]' disabled='[[!item.onlyDecrypt]]'>Set active</paper-button>
+								<paper-button on-tap="_SetMainKeystore" keystore$='[[index]]' disabled='[[!item.onlyDecrypt]]'>[[getActiveButtonText(item.onlyDecrypt)]]</paper-button>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column flex-grow="4">
@@ -74,7 +74,7 @@
 								<div>Set as MH keystore</div>
 							</template>
 							<template>
-								<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]' disabled='[[!item.personalKeystore]]'>Set as MH keystore</paper-button>
+								<paper-button on-tap="_SetMHKeystore" keystore$='[[index]]' disabled='[[!item.personalKeystore]]'>[[getActiveMMButtonText(item.personalKeystore)]]</paper-button>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column flex-grow="4">
@@ -82,7 +82,7 @@
 								<div>Set the keystore password</div>
 							</template>
 							<template>
-								<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' >Set password</paper-button>
+								<paper-button on-tap="_openKeystorePasswordDialog" index$='[[index]]' >[[getPasswordButtonText(item.hasPassword)]]</paper-button>
 							</template>
 						</vaadin-grid-column>
 						<vaadin-grid-column flex-grow="1">
@@ -91,7 +91,8 @@
 							</template>
 							<template>
 								<div class="cell frozen">
-									<paper-button class="remove-msgKeystore-btn" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]'>X</paper-button>
+									<paper-button class="remove-msgKeystore-btn" on-tap="_removeKeystore" keystore$='[[item.keystore.name]]' hidden='[[_displayAltDeleteButton(item)]]'>X</paper-button>
+									<paper-button class="unset-msgMMKeystore-btn" on-tap="_unsetMMKeystore" hidden='[[item.personalKeystore]]'>[[localize('unsetMHKeychain','Unset MH keystore',language)]]</paper-button>
 								</div>
 							</template>
 						</vaadin-grid-column>
@@ -170,7 +171,9 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 	ehKeychainSelected() {
 
-		let actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId) || "";
+		const actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId) || "";
+		const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH.";
+		const mmhKeystore = localStorage.getItem(prefixMMH + this.user.healthcarePartyId) || "";
 
 		if( this.$.ehKeychainFileInput.inputElement && this.$.ehKeychainFileInput.inputElement.inputElement){
 			Object.values(this.$.ehKeychainFileInput.inputElement.inputElement.files).forEach( item => {
@@ -180,8 +183,15 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 					const keychain = e.target.result;
 					this.api.crypto().saveKeychainInBrowserLocalStorage(this.user.healthcarePartyId + "." + item.name, keychain);
 
-					let keystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId + "." + item.name)
-					this.push('CurrentEhKeychains', {keystore:{ name:item.name,file:keystore}, onlyDecrypt: !(keystore !== "" && keystore === actifKeystore)});
+					let keystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId + "." + item.name);
+					if(!this.CurrentEhKeychains.map(keychaine => keychaine.keystore.name).includes(item.name)) {
+						this.push('CurrentEhKeychains', {
+							keystore: {name: item.name, file: keystore},
+							onlyDecrypt: !(keystore !== "" && keystore === actifKeystore),
+							personalKeystore: !(keystore !== "" && keystore === mmhKeystore),
+							hasPassword: !!(localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + "password." + this.user.healthcarePartyId + "." + item.name))
+						});
+					}
 
 				}.bind(this);
 				fr.readAsArrayBuffer(item);
@@ -237,6 +247,11 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		}
 	}
 
+	_unsetMMKeystore(){
+		localStorage.removeItem(this.api.crypto().keychainLocalStoreIdPrefix + 'MMH.' + this.user.healthcarePartyId);
+		this.refreshCurrentEhKeychainList();
+	}
+
 	_SetMainKeystore(e){
 		let keystore = e.target.getAttribute('keystore');
 		localStorage.setItem(this.api.crypto().keychainLocalStoreIdPrefix + this.user.healthcarePartyId,this.CurrentEhKeychains[keystore].keystore.file);
@@ -255,14 +270,12 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 		let EhKeychains = [];
 		let keys = Object.keys(localStorage);
-		//const prefix = "org.taktik.icure.ehealth.keychain.";
-        const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH."
+        const prefixMMH = this.api.crypto().keychainLocalStoreIdPrefix + "MMH.";
 		const healthcarePartyId = this.user.healthcarePartyId;
+		const actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId) || "";
+		const mmhKeystore = localStorage.getItem(prefixMMH + healthcarePartyId) || "";
 
 		keys.forEach(k => {
-			let actifKeystore = localStorage.getItem(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId) || "";
-            let mmhKeystore = localStorage.getItem(prefixMMH + healthcarePartyId) || "";
-
 			if(k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".")){
 				let Keystore = localStorage.getItem(k);
 				EhKeychains.push({
@@ -270,7 +283,8 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 						name: k.replace(this.api.crypto().keychainLocalStoreIdPrefix,"").replace(healthcarePartyId + ".",""),
 						file: Keystore
 					},onlyDecrypt:!(Keystore !== "" && Keystore === actifKeystore),
-                    personalKeystore:(Keystore !== "" && Keystore === mmhKeystore)?false:true
+                    personalKeystore:!(Keystore !== "" && Keystore === mmhKeystore),
+					hasPassword: !!(localStorage.getItem(k.replace(this.api.crypto().keychainLocalStoreIdPrefix,this.api.crypto().keychainLocalStoreIdPrefix + "password.")))
 				});
 			}
 		})
@@ -292,6 +306,7 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		this.$.errorKeystorePassword.innerHTML = "";
 		this.$.passwordDialogSubtitle.innerHTML = this.localize('ehe_key','eHealth keychain',language) + " " + keystore.keystore.name;
 
+		this.$.newPasswordKeystore.value = "";
 		this.$.keystorePasswordDialog.open();
 	}
 
@@ -304,10 +319,12 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 		const value = this.$.newPasswordKeystore.value;
 		const healthcarePartyId = this.user.healthcarePartyId;
 		const prefix = this.api.crypto().keychainLocalStoreIdPrefix + "password.";
-        //const prefixMMH = "org.taktik.icure.ehealth.keychain.MMH.";
 
-		let p12Der = forge.util.decode64(keystore.keystore.file);
-		let p12Asn1 = forge.asn1.fromDer(p12Der);
+		try{
+			let p12Der = forge.util.decode64(keystore.keystore.file);
+			let p12Asn1 = forge.asn1.fromDer(p12Der);
+
+
 
 		try {
 			//Check keystore password
@@ -318,7 +335,8 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 
 			//Encrypt and store password
 			try {
-				this._setCryptedValueInLocalstorage(healthcarePartyId, prefix + this.user.healthcarePartyId + "." + keystore.keystore.name, value);
+				this._setCryptedValueInLocalstorage(healthcarePartyId, prefix + this.user.healthcarePartyId + "." + keystore.keystore.name, value)
+					.then(p => this.refreshCurrentEhKeychainList());
 				this.$.keystorePasswordDialog.close();
 			}
 			catch (ex) {
@@ -331,11 +349,32 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 			this.$.errorKeystorePassword.innerHTML = this.localize('inv_pas','Invalid password',language);
 			console.log(ex);
 		}
+		}
+		catch (ex) {
+			this.$.errorKeystorePassword.innerHTML = this.localize('inv_keychain_file','Invalid keystore file',language);
+			console.log(ex);
+		}
 
 	}
 
+	getActiveButtonText(AlternateKeystore){
+		return !AlternateKeystore?this.localize('act','Is active',this.language):this.localize('mak_act','Set active',this.language)
+	}
+
+	getActiveMMButtonText(personalKeystore){
+		return !personalKeystore?this.localize('act','Is active',this.language):this.localize('mak_act','Set active',this.language)
+	}
+
+	getPasswordButtonText(havePassword){
+		return havePassword?this.localize('change','Change',this.language):this.localize('set','Set',this.language)
+	}
+
+	_displayAltDeleteButton(item){
+		return !item.onlyDecrypt || !item.personalKeystore
+	}
+
 	_setCryptedValueInLocalstorage(healthcarePartyId, key, value){
-		this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+		return this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
 			.then(encryptedHcPartyKey =>
 				this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
 			)
@@ -346,7 +385,6 @@ class HtImportKeychain extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([
 				this.api.crypto().utils.ua2text(data)
 			)
 			.then(encryptedData =>
-				//Store encrypted password in localstorage
 				localStorage.setItem(key,encryptedData)
 			);
 	}

@@ -66,6 +66,8 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 
 	List<LabelledOccurence> getServiceLabelsOccurences(String hcPartyId, long minOccurences);
 
+	List<LabelledOccurence> getServiceCodesOccurences(String hcPartyId, String codeType, long minOccurences);
+
 	List<Contact> findContactsByHCPartyFormIds(String hcPartyId, List<String> ids);
 
 	PaginatedList<Contact> filterContacts(PaginationOffset paginationOffset, FilterChain<Contact> filter);
