@@ -254,6 +254,11 @@
                     padding-top: 5px;
                 }
 
+                .unlockBtn{
+                    height: 12px;
+                    width: 12px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -340,6 +345,12 @@
                                 [[item.invoice.statut]]
                             </template>
                         </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header"></template>
+                            <template>
+                                <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
+                            </template>
+                        </vaadin-grid-column>
                     </vaadin-grid>
                 </template>
 
@@ -417,6 +428,9 @@
                         </vaadin-grid-column-group>
                     </vaadin-grid>
                 </template>
+                <div class="button">
+                    <paper-button on-tap="sendInvoices">Envoyer</paper-button>
+                </div>
             </div>
 
             <paper-dialog id="pendingDetailDialog">
@@ -606,6 +620,8 @@
 
             getMessage(){
 
+                this.set('invoices.pending', [])
+
                 const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
                     .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
                     .then(insurance => {
@@ -668,7 +684,7 @@
 
             _displayInvoiceStatus(status){
 
-               // envoye => findMessagesByTransportGuid efactBatch
+               // envoyé => findMessagesByTransportGuid efactBatch
 
 
                 return status
@@ -692,7 +708,15 @@
                 this.calculateTotalPendingInvoices()
             }
 
-            createInvoice(){
+            sendInvoices(){
+
+                this.invoices.pending.forEach(fact => {
+                    const oa = fact.insurance.code == "306" ? fact.insurance.code : fact.insurance.code.charAt(0)+"00"
+
+
+                })
+
+                console.log(invoiceByInsurance)
 
             }
 
@@ -700,7 +724,17 @@
                 this.$.pendingDetailDialog.open()
             }
 
+            _unlockInvoice(e){
+                e.stopPropagation()
 
+                if(e.target.dataset.item){
+                    const invoice = JSON.parse(e.target.dataset.item)
+                    delete(invoice.printedDate)
+
+                    this.api.invoice().modifyInvoice(invoice).then(() => this.getMessage())
+
+                }
+            }
         }
 
         customElements.define(HtMsgInvoice.is, HtMsgInvoice);
