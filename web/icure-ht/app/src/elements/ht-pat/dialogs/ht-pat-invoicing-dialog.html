@@ -1246,6 +1246,14 @@
                                 }
                             },
                             {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
+                                }
+                            },
+                            {
                                 id: "p",
                                 label: {
                                     "fr": "P. Patients palliatifs à domicile",
@@ -1351,7 +1359,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','savingInvoices(invoices.*)']
             }
 
             ready() {
@@ -1361,7 +1369,6 @@
 
             _selectInvoice(e) {
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
-
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
@@ -1438,6 +1445,7 @@
                     const code = JSON.parse(preferedCode.typedValue.stringValue)
 
                     this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: code.cs.map(c => c)})).then(t => {
+                        this.set("favoriteCode", t)
                     })
                 }
 
@@ -1524,8 +1532,8 @@
                         pending: false,
                         resent: false,
                         dateCode: this.selectedInvoice.invoiceDate,
-                        prescriberNeeded: false,
-                        isRelativePrestation: false,
+                        prescriberNeeded: nmlc.needsPrescriber,
+                        isRelativePrestation: nmcl.hasRelatedCode,
                         valid: false,
                         id: this.api.crypto().randomUuid(),
                         prescriberNihii: null,
@@ -2065,8 +2073,9 @@
             }
 
             _getOvveride3PayerCodeAsString(tp){
-                const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
-                return tpAsString.label[this.language]
+                    const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
+                    return (tpAsString) ? tpAsString.label[this.language] : ""
+
             }
 
             _tranferNmcl(){
@@ -2136,6 +2145,24 @@
             _openTransfertDialog(e){
                 e.stopPropagation()
                 this.$["transferDialog"].open()
+            }
+
+            savingInvoices(){
+                if (this.saveTimeout) {
+                    clearTimeout(this.saveTimeout);
+                }
+                this.saveAction = () => {
+                    const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
+                    //console.log(invoice)
+                    this.api.invoice().modifyInvoice(invoice).then(response => {
+                        console.log(response)
+                    })
+                };
+                this.saveTimeout = setTimeout(this.saveAction, 10000);
+            }
+
+            selectedInvoiceChanged(){
+                this.savingInvoices();
             }
 
         }
