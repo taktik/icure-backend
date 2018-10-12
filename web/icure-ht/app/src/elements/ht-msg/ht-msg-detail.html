@@ -94,17 +94,14 @@
 				box-sizing: border-box;
 				grid-column: 3 / span 1;
 				grid-row: 1 / span 1;
-				background:var(--app-background-color-light);
-				float:left;
-				padding:5px;
-				display:flex;
+				background: var(--app-background-color-light);
+				padding: 5px;
+				display: flex;
 				flex-flow: column nowrap;
 				align-items: flex-start;
-				z-index:0;
+				z-index: 0;
 				height: 100%;
 				width: 100%;
-
-				padding-top: 75px;
 			}
 
 			.contact-title{
@@ -239,6 +236,7 @@
 				height: 40px;
 				min-width: 100px;
 				padding: 10px 1.2em;
+				text-transform: capitalize;
 			}
 
 			.modal-button--save{
@@ -368,7 +366,6 @@
 		<template is="dom-if" if="[[messages]]">
 			<div class="details-panel" on-dragover="_onDrag">
 					<template is="dom-repeat" items="[[messages]]" as="msg">
-						<div class="details-panel" style=" overflow:auto;">
 							<paper-card class="pat-details-card" >
 								<paper-input readonly value="From : [[msg.fromAddress]]"></paper-input>
 								<paper-input readonly value="To : [[msg.toAddresses]]"></paper-input>
@@ -416,11 +413,10 @@
 
 								<div class="buttons">
 									<div>
-										<paper-button class="modal-button--delete" on-tap="_removeMsg" msgId$='[[msg.id]]'>[[localize('del','Delete',language)]]</paper-button>
+										<paper-button class="modal-button modal-button--delete" on-tap="_removeMsg" msgId$='[[msg.id]]'>[[localize('del','Delete',language)]]</paper-button>
 									</div>
 								</div>
 							</paper-card>
-						</div>
 					</template>
 			</div>
 		</template>
