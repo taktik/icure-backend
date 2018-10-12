@@ -38,6 +38,8 @@ import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Invoice;
+import org.taktik.icure.entities.embed.InvoiceType;
+import org.taktik.icure.entities.embed.MediumType;
 
 @Repository("invoiceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Invoice' && !doc.deleted) emit( null, doc._id )}")
@@ -115,6 +117,34 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	}
 
 	@Override
+	@View(name = "by_hcparty_efact_unsent", map = "classpath:js/invoice/by_hcparty_efact_unsent.js")
+	public List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate) {
+		ComplexKey startKey = ComplexKey.of(hcParty);
+		ComplexKey endKey = ComplexKey.of(hcParty, "{}");
+		if(fromDate != null){
+			startKey = ComplexKey.of(hcParty, fromDate);
+			if(toDate != null){
+				endKey = ComplexKey.of(hcParty, toDate);
+			}
+		}
+		return queryResults(createQuery("by_hcparty_efact_unsent").includeDocs(true).startKey(startKey).endKey(endKey));
+	}
+
+	@Override
+	@View(name = "by_hcparty_sentmediumtype_invoicetype_sent_date", map = "classpath:js/invoice/By_hcparty_sentmediumtype_invoicetype_sent_date.js")
+    public List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate) {
+		ComplexKey startKey = ComplexKey.of(hcParty, sentMediumType, invoiceType, sent);
+		ComplexKey endKey = ComplexKey.of(hcParty, sentMediumType, invoiceType, sent, "{}");
+		if(fromDate != null){
+			startKey = ComplexKey.of(hcParty, sentMediumType, invoiceType, sent, fromDate);
+			if(toDate != null){
+				endKey = ComplexKey.of(hcParty, sentMediumType, invoiceType, sent, toDate);
+			}
+		}
+		return queryResults(createQuery("by_hcparty_sentmediumtype_invoicetype_sent_date").includeDocs(true).startKey(startKey).endKey(endKey));
+    }
+
+    @Override
 	@View(name = "by_serviceid", map = "classpath:js/invoice/By_serviceid_map.js")
 	public List<Invoice> listByServiceIds(Set<String> serviceIds) {
 		return queryResults(createQuery("by_serviceid").includeDocs(true).keys(serviceIds));
