@@ -30,6 +30,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	public static final long STATUS_PRINTED = 2;
 	public static final long STATUS_PAIDPRINTED = 3;
 
+	public static final long STATUS_TO_BE_SENT = 0;
 	public static final long STATUS_PENDING = 4;
 	public static final long STATUS_CANCELED = 8;
 	public static final long STATUS_ACCEPTED = 16;
