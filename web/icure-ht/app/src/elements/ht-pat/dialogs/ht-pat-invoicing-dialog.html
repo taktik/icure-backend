@@ -2041,7 +2041,17 @@
 
                 this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
 
+                if(this.selectedInvoice.creditNote){
+                    console.log(this.selectedInvoice)
+                    this.selectedInvoice.invoicingCodes.map(invoiceCode =>{
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".reimbursement",0-invoiceCode.reimbursement)
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".patientIntervention",0-invoiceCode.patientIntervention)
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".doctorSupplement",0-invoiceCode.doctorSupplement)
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".totalAmount",0-invoiceCode.totalAmount)
 
+                    })
+                }
+                //return;
                 this.api.entityRef().getLatest("Invoice::").then(latest => {
                     console.log(latest)
                     const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
@@ -2126,7 +2136,7 @@
                 pdf.text("Dispensateur de soins", 117, 31.5)
                 pdf.text("Identification", 20, 38.5)
                 pdf.text("Identification", 77, 38.5)
-                pdf.text("Les prestations de santé ont été effectuées pour le compte de :", 134, 38.5)
+                pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
                 pdf.text("Nom: "+this.patient.firstName, 20, 45.5)
                 pdf.text("Nom: "+this.hcp.firstName, 77, 45.5)
                 pdf.text("Nom: ", 135, 45.5)
@@ -2151,6 +2161,11 @@
 
                 let startNmclHeight = 108
 
+                let totTotal=0;
+                let totOA=0;
+                let totPers=0;
+                let totSupp=0;
+
                 this.selectedInvoice.invoicingCodes.map(code => {
                     let invoiceDate = this._formatInvoiceDate(code.dateCode)
                     pdf.text(invoiceDate,20, startNmclHeight)
@@ -2161,22 +2176,27 @@
                     pdf.text(code.totalAmount.toString(),184, startNmclHeight)
 
                     startNmclHeight = Number(startNmclHeight) + 6
+
+                    totTotal+=code.totalAmount;
+                    totOA+=code.reimbursement;
+                    totPers+=code.patientIntervention;
+                    totSupp+=code.doctorSupplement;
                 })
 
                 pdf.text("Total", 20, 260)
-                pdf.text("0.00", 95, 260)
-                pdf.text("0.00", 132, 260)
-                pdf.text("0.00", 160, 260)
-                pdf.text("0.00", 184, 260)
+                pdf.text(totOA.toString(), 95, 260)
+                pdf.text(totPers.toString(), 132, 260)
+                pdf.text(totSupp.toString(), 160, 260)
+                pdf.text(totTotal.toString(), 184, 260)
 
                 pdf.text("Total dû par le patient", 20, 266)
-                pdf.text("0.00", 184, 266)
+                pdf.text(totPers.toString(), 184, 266)
 
                 pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
-                pdf.text("0.00", 184, 272)
+                pdf.text(totOA.toString(), 184, 272)
 
                 pdf.text("Montant total à payer par le patient ", 20, 278)
-                pdf.text("0.00", 184, 278)
+                pdf.text((totPers+totSupp).toString(), 184, 278)
 
                 pdf.setFontSize(6);
                 pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
@@ -2214,7 +2234,7 @@
                 pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MEDECIN", 86, 24)
                 pdf.text("Dispensateur de soins", 117, 31.5)
                 pdf.text("Identification", 20, 38.5)
-                pdf.text("Les prestations de santé ont été effectuées pour le compte de :", 134, 38.5)
+                pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
                 pdf.text("Nom: "+this.hcp.firstName, 20, 45.5)
                 pdf.text("Nom: ", 135, 45.5)
                 pdf.text("Prénom: "+this.hcp.lastName, 20, 52)
@@ -2237,6 +2257,11 @@
 
                 startNmclHeight = 108
 
+                totTotal=0;
+                totOA=0;
+                totPers=0;
+                totSupp=0;
+
                 this.selectedInvoice.invoicingCodes.map(code => {
                     let invoiceDate = this._formatInvoiceDate(code.dateCode)
                     pdf.text(invoiceDate,20, startNmclHeight)
@@ -2247,22 +2272,27 @@
                     pdf.text(code.totalAmount.toString(),184, startNmclHeight)
 
                     startNmclHeight = Number(startNmclHeight) + 6
+
+                    totTotal+=code.totalAmount;
+                    totOA+=code.reimbursement;
+                    totPers+=code.patientIntervention;
+                    totSupp+=code.doctorSupplement;
                 })
 
                 pdf.text("Total", 20, 260)
-                pdf.text("0.00", 95, 260)
-                pdf.text("0.00", 132, 260)
-                pdf.text("0.00", 160, 260)
-                pdf.text("0.00", 184, 260)
+                pdf.text(totOA.toString(), 95, 260)
+                pdf.text(totPers.toString(), 132, 260)
+                pdf.text(totSupp.toString(), 160, 260)
+                pdf.text(totTotal.toString(), 184, 260)
 
                 pdf.text("Total dû par le patient", 20, 266)
-                pdf.text("0.00", 184, 266)
+                pdf.text(totPers.toString(), 184, 266)
 
                 pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
-                pdf.text("0.00", 184, 272)
+                pdf.text(totOA.toString(), 184, 272)
 
                 pdf.text("Montant total à payer par le patient ", 20, 278)
-                pdf.text("0.00", 184, 278)
+                pdf.text((totPers+totSupp).toString(), 184, 278)
 
                 pdf.setFontSize(6);
                 pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
@@ -2402,7 +2432,6 @@
                 if (e.detail.relativeCode && e.detail.parentId) {
                     let selectedNmcl = this.selectedInvoice.invoicingCodes.find(n => n.id === e.detail.parentId) || null
                     if (selectedNmcl !== null) {
-                        const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
                         selectedNmcl.relatedCode = e.detail.relativeCode
                     }
                 }

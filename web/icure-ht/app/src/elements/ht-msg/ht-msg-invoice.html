@@ -310,7 +310,12 @@
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
 
                             </template>
-                            <template>[[item.insurance.code]]</template>
+                            <template>
+                                <!--<vaadin-grid-tree-toggle leaf="[[!item.hasChildren]]" toggle="vaadin:angle-down">
+                                    [[item.insurance.code]]-[[!item.hasChildren]]-[[item.parentUuid]]-[[item.uuid]]
+                                </vaadin-grid-tree-toggle>-->
+                                [[item.insurance.code]]
+                            </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
@@ -729,9 +734,17 @@
                         type: Boolean,
                         value: false
                     },
-                    ifInvoiceSelected:{
+                    ifInvoiceSelected: {
                         type: Boolean,
                         value: true
+                    },
+                    level :{
+                        type : Number,
+                        value : 0
+                    },
+                    expanded : {
+                        type : Boolean,
+                        value : true
                     }
                 };
             }
@@ -750,6 +763,27 @@
             }
 
             getMessage(){
+                /*let cpt=1;
+                while(cpt!=10){
+                    const invoice ={
+                        invoice: null,
+                        patient: null,
+                        insurance :{
+                            code : cpt*100
+                        },
+                        totalInvoice: {
+                            patientIntervention:    Number(0.00),
+                            reimbursement:          Number(0.00),
+                            totalAmount:            Number(0.00),
+                            doctorSupplement:       Number(0.00)
+                        },
+                        hasChildren : true,
+                        uuid : cpt++,
+                        parentUuid : null
+                    }
+                    if(cpt!=8 && cpt!=9)
+                        this.push('invoices.pending', invoice)
+                }*/
 
                 this.set('invoices.pending', [])
 
@@ -766,7 +800,10 @@
                                 reimbursement:          Number(0.00),
                                 totalAmount:            Number(0.00),
                                 doctorSupplement:       Number(0.00)
-                            }
+                            },
+                            hasChildren : false,
+                            uuid : invoice.id,
+                            parentUuid : insurance.code.charAt(0)
                         }
 
                         invoice.invoicingCodes.map(code => {
