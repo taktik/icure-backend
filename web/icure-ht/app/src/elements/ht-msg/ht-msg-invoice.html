@@ -282,7 +282,6 @@
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
-
                             </template>
                             <template>[[item.insurance.code]]</template>
                         </vaadin-grid-column>
@@ -717,6 +716,7 @@
             }
 
             _searchInGrid(str) {
+                console.log(this.shadowRoot.getElementById("invoiceGrid"))
                 let searchType = "invoice.patient.firstName"
                 let output = str
                 console.log("---------------------------------------")
@@ -732,19 +732,21 @@
                             "invoice.invoiceReference"
                         // format output ->
                         if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); output = parseInt(output); output = output.toString() }
-                        if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
+                        if (searchType == "invoice.totalAmount") { output = str.toString() }
                     } else { // is a string
                         console.log("NaN !")
                         searchType =
-                            (/(^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
+                            (str.includes(":")) ? "QUERY" :
+                            (/(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
                             (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.ssin" :
                             (str.includes(" ") ) ? "invoice.patient.firstName" :
                             (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
                             "invoice.patient.firstName"
                         // format output ->
-                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€','').replace(',','.'); output = parseFloat(output) }
+                        if (searchType == "QUERY") { this.treatQuery(str); return } // if user searches for something in particular
+                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€','').replace(',','.') }
                         if (searchType == "patient.ssin") { output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); output = output.toString() }
-                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(this.convertDateToUS(str)).format(this.isUs(str)) }
+                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(this.convertDateToUS(str)).format(this.isUS(str)) }
                     }
                 }
                 this.set('filterValue',output)
@@ -759,7 +761,25 @@
                 const aa = input.slice(0,2),bb = input.slice(3,5),cccc = input.slice(6,11)
                 return (parseInt(aa) > 12) ? `${bb}/${aa}/${cccc}` : `${aa}/${bb}/${cccc}`
             }
-            isUs(input) { return (parseInt(input.slice(0,2)) > 12) ? "YYYYMMDD" : "YYYYDDMM" }
+            isUS(input) { return (parseInt(input.slice(0,2)) > 12) ? "YYYYMMDD" : "YYYYDDMM" }
+            treatQuery(query) { // mainly used for numbers
+                const queryType = (query.substr(0, query.indexOf(":")) ).toLowerCase()
+                let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
+                if (search.includes(':')) { search = this.findAndReplace(search,':',' ') }
+                const searchType =
+                    (queryType == "oa" || queryType.includes("remb") || queryType.includes("reimb") || queryType.includes("verg")) ? "invoice.reimbursement" :
+                    (queryType.includes("pat") && (queryType.includes("name") || queryType.includes("nom") || queryType.includes("naam") ) ) ? "invoice.patient.firstName" :
+                    (queryType.includes("pat") ) ? "invoice.patientIntervention" :
+                    (queryType.includes("suppl") ) ? "invoice.doctorSupplement" :
+                    (queryType.includes("tot") ) ? "invoice.totalAmount" :
+                    (queryType == "niss" || queryType == "ssin" ) ? "patient.ssin" :
+                    (queryType.includes("fact") || queryType.includes("bill") ) ? "invoice.invoiceReference" :
+                    (queryType.includes("mut") || queryType.includes("insur") || queryType.includes("wederz") ) ? "patient.insurance.code" :
+                    "invoice.patient.firstName"
+                this.set('filterValue',search)
+                this.set('filterPath',searchType)
+                console.log("inputField:["+search+":"+(isNaN(search)?"string":"number")+"]","output:["+this.filterValue+":"+typeof this.filterValue+"]","filterPath:\""+this.filterPath+"\"")
+            }
 
             _invoicesChange(){
                 this.calculateTotalPendingInvoices()
