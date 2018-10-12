@@ -722,7 +722,7 @@
                 console.log("---------------------------------------")
                 if (!(str.length == 0 || str == "")) {
                     if (!isNaN(str)) { // is a number
-                        console.log("number !")
+                        console.log(typeof str)
                         searchType =
                             (str.toString().length == 11) ? "patient.ssin" : // NISS (length must be 11)
                             (str.length == 8) ? "invoice.invoiceReference" : // bill number
@@ -732,9 +732,9 @@
                             "invoice.invoiceReference"
                         // format output ->
                         if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); output = parseInt(output); output = output.toString() }
-                        if (searchType == "invoice.totalAmount") { output = str.toString() }
+                        if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
                     } else { // is a string
-                        console.log("NaN !")
+                        console.log(typeof str)
                         searchType =
                             (str.includes(":")) ? "QUERY" :
                             (/(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
@@ -744,7 +744,7 @@
                             "invoice.patient.firstName"
                         // format output ->
                         if (searchType == "QUERY") { this.treatQuery(str); return } // if user searches for something in particular
-                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€','').replace(',','.') }
+                        if (searchType == "invoice.totalAmount") { output = parseFloat(this.findAndReplace(output,'€','').replace(',','.')) }
                         if (searchType == "patient.ssin") { output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); output = output.toString() }
                         if (searchType == "invoice.invoiceDate") { output = this.api.moment(this.convertDateToUS(str)).format(this.isUS(str)) }
                     }
@@ -765,20 +765,29 @@
             treatQuery(query) { // mainly used for numbers
                 const queryType = (query.substr(0, query.indexOf(":")) ).toLowerCase()
                 let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
+                if (search == "*") {search = ""}
                 if (search.includes(':')) { search = this.findAndReplace(search,':',' ') }
-                const searchType =
+                let searchType =
+                    (search <= (new Date().getFullYear() + 100)) ? "yearOnly" : // year (from 1930 to now +100yr)
                     (queryType == "oa" || queryType.includes("remb") || queryType.includes("reimb") || queryType.includes("verg")) ? "invoice.reimbursement" :
                     (queryType.includes("pat") && (queryType.includes("name") || queryType.includes("nom") || queryType.includes("naam") ) ) ? "invoice.patient.firstName" :
                     (queryType.includes("pat") ) ? "invoice.patientIntervention" :
                     (queryType.includes("suppl") ) ? "invoice.doctorSupplement" :
                     (queryType.includes("tot") ) ? "invoice.totalAmount" :
                     (queryType == "niss" || queryType == "ssin" ) ? "patient.ssin" :
-                    (queryType.includes("fact") || queryType.includes("bill") ) ? "invoice.invoiceReference" :
+                    ((queryType.includes("fact") || queryType.includes("bill") || queryType.includes("ref")) || queryType.includes("num") &&(!queryType.includes("dat")) ) ? "invoice.invoiceReference" :
+                    ((queryType.includes("fact") || queryType.includes("bill")) && (!queryType.includes("ref")) && (queryType.includes("dat")) && (!queryType.includes("num")) ) ? "invoice.invoiceDate" :
+                    (queryType.includes("date")) ? "invoice.invoiceDate" :
                     (queryType.includes("mut") || queryType.includes("insur") || queryType.includes("wederz") ) ? "patient.insurance.code" :
                     "invoice.patient.firstName"
+                // format output ->
+                if (searchType == "invoice.totalAmount" || searchType == "invoice.patientIntervention" || searchType == "invoice.doctorSupplement" || searchType == "invoice.reimbursement") { search = parseFloat(this.findAndReplace(search,'€','').replace(',','.')) }
+                if (searchType == "patient.ssin") { search = this.findAndReplace(search,'-',''); search = this.findAndReplace(search,'/',''); search = this.findAndReplace(search,'.',''); search = search.toString() }
+                if (searchType == "invoice.invoiceDate") { search = this.api.moment(this.convertDateToUS(search)).format(this.isUS(search)) }
+                if (searchType == "yearOnly") { searchType = "invoice.invoiceDate" }
                 this.set('filterValue',search)
                 this.set('filterPath',searchType)
-                console.log("inputField:["+search+":"+(isNaN(search)?"string":"number")+"]","output:["+this.filterValue+":"+typeof this.filterValue+"]","filterPath:\""+this.filterPath+"\"")
+                console.log("inputField:["+query+":"+(isNaN(query)?"string":"number")+"]","output:["+this.filterValue+":"+typeof this.filterValue+"]","filterPath:\""+this.filterPath+"\"")
             }
 
             _invoicesChange(){
