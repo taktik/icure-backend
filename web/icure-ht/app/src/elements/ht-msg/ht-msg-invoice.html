@@ -270,7 +270,7 @@
                     <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
 
                         <vaadin-grid-filter class="hidden" aria-label="" path="{{filterPath}}" value="[[filterValue]]">
-                            <vaadin-text-field slot="filter" placeholder="" value="{{filterValue}}" focus-target></vaadin-text-field>
+                            <vaadin-text-field slot="filter" placeholder="" value="{{filterValue}}"></vaadin-text-field>
                         </vaadin-grid-filter>
 
                         <vaadin-grid-column class="recipient-col">
@@ -305,7 +305,7 @@
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="invoice.invoiceDate" direction="desc">Date facture</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="invoice.invoiceDate">Date facture</vaadin-grid-sorter>
                             </template>
                             <template>[[returnDate(item.invoice.invoiceDate)]]</template>
                         </vaadin-grid-column>
@@ -706,7 +706,7 @@
             }
 
             _formatAmount(amount){
-                return Number(amount).toFixed(2)
+                return this.findAndReplace(((Number(amount).toFixed(2)).toString()),'.',',')
             }
 
             refreshFilter(){
@@ -716,13 +716,10 @@
             }
 
             _searchInGrid(str) {
-                console.log(this.shadowRoot.getElementById("invoiceGrid"))
                 let searchType = "invoice.patient.firstName"
                 let output = str
-                console.log("---------------------------------------")
                 if (!(str.length == 0 || str == "")) {
                     if (!isNaN(str)) { // is a number
-                        console.log(typeof str)
                         searchType =
                             (str.toString().length == 11) ? "patient.ssin" : // NISS (length must be 11)
                             (str.length == 8) ? "invoice.invoiceReference" : // bill number
@@ -734,7 +731,6 @@
                         if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); output = parseInt(output); output = output.toString() }
                         if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
                     } else { // is a string
-                        console.log(typeof str)
                         searchType =
                             (str.includes(":")) ? "QUERY" :
                             (/(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
@@ -751,7 +747,7 @@
                 }
                 this.set('filterValue',output)
                 this.set('filterPath',searchType)
-                console.log("inputField:["+str+":"+(isNaN(str)?"string":"number")+"]","output:["+this.filterValue+":"+typeof this.filterValue+"]","filterPath:\""+this.filterPath+"\"")
+                console.log("inputField:["+str+"("+(isNaN(str)?"string":"number")+")]","output:["+this.filterValue+"("+typeof this.filterValue+")]","filterPath:\""+this.filterPath+"\"")
             }
             findAndReplace(string, target, replacement) {
                 for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
@@ -766,7 +762,6 @@
                 const queryType = (query.substr(0, query.indexOf(":")) ).toLowerCase()
                 let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
                 if (search == "*") {search = ""}
-                console.log("is a query",search)
                 if (search.includes(':')) { search = this.findAndReplace(search,':',' ') }
                 let searchType =
                     (queryType.includes("date") && search <= (new Date().getFullYear() + 100)) ? "yearOnly" : // year (from 1930 to now +100yr)
@@ -788,7 +783,7 @@
                 if (searchType == "yearOnly") { searchType = "invoice.invoiceDate" }
                 this.set('filterValue',search)
                 this.set('filterPath',searchType)
-                console.log("inputField:["+query+":"+(isNaN(query)?"string":"number")+"]","output:["+this.filterValue+":"+typeof this.filterValue+"]","filterPath:\""+this.filterPath+"\"")
+                console.log("inputField:["+query+"("+(isNaN(query)?"string":"number")+")]","output:["+this.filterValue+"("+typeof this.filterValue+")]","filterPath:\""+this.filterPath+"\"")
             }
 
             _invoicesChange(){
