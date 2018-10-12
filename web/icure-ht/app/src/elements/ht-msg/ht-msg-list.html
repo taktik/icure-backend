@@ -253,19 +253,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-weight: 700;
                 }
 
+                .del-button {
+                    position: fixed;
+                    bottom: 40px;
+                }
+
+                #mail-list {
+                    padding-right: 0;
+                    margin-right: 0;
+                    height: 85vh;
+                    height: calc(100vh - 110px);
+                    height: -webkit-fill-available;
+                    /* cascading compatibility */
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                <div class="card-title-container">
-                    <h1 class="card-title new-notif"><iron-icon icon="icons:arrow-forward"></iron-icon>[[localize('lat_lab_res','Latest Lab Results',language)]]</h1>
-                </div>
-                <div class="buttons">
+                <div class="del-button">
                     <div>
-                        <paper-button class="modal-button--delete" on-tap="_removeMsgs">[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
-                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi">
+                <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
                     <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
                         <vaadin-grid-column width="100px">
                             <template class="header">
@@ -279,7 +290,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </template> -->
                     <vaadin-grid-selection-column></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
-                        <vaadin-grid-column width="30%">
+                        <vaadin-grid-column flex-grow="2">
                             <template class="header">
                                 <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
                                 </vaadin-grid-sorter>
@@ -289,7 +300,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column width="30%">
+                    <vaadin-grid-column flex-grow="2">
                         <template class="header">
                             <div>[[localize('dat','Date',language)]]</div>
                         </template>
@@ -297,7 +308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[_timeFormat(item.received)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="40%">
+                    <vaadin-grid-column flex-grow="3">
                         <template class="header">
                             <vaadin-grid-sorter class="cell frozen" path="subject">
                                 [[localize('sub','Subject',language)]]
@@ -375,6 +386,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             };
                             return res;
                         }
+                    },
+                    listTitle:{
+                    	type: String
                     }
                 };
             }
@@ -393,7 +407,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			_newMsg(){
 				this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
-            }
+				this.findMessagesByTransportGUID('SENTBOX:*').then(messages => this.set('messages', messages || []));
+			}
 
             getInbox() {
                 this.api.message().findMessagesByToAddress('INBOX', null, null, 1000).then(messages => {
@@ -516,7 +531,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _refresh() {
                 if (this.selectList && this.selectList.selection) {
-                    switch (this.selectList.selection.item) {
+                	let item = this.selectList.selection.item
+					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item)
+                    switch (item) {
                         case 'newMsg':
                         	this._newMsg();
                         	break;
@@ -622,6 +639,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			_activeItemChanged(item){
                 let mailList = this.shadowRoot.querySelector('#mail-list');
                 if(mailList) mailList.selectedItems = item ? [item] : [];
+            }
+
+            setListTitle(title){
+            	this.set("listTitle",this.localize("boxtitle." + title,'List',this.language))
             }
 
 		}

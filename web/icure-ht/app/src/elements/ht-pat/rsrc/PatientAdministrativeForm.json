@@ -194,7 +194,7 @@
 							"label" : "Status",
 							"subForm" : false,
 							"type" : "TKString",
-							"name" : "status"
+							"name" : "personalStatus"
 						},
 						{
 							"editor" : {
@@ -326,7 +326,7 @@
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
-							"name" : "job"
+							"name" : "profession"
 						},
 						{
 							"editor" : {

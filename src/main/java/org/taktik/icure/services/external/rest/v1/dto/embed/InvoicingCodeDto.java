@@ -77,6 +77,7 @@ public class InvoicingCodeDto implements Serializable {
 	protected String locationNihii;
 	protected String locationCdHcParty;
 
+	protected Long status;
 
 	public Long getDateCode() {
         return dateCode;
@@ -403,4 +404,7 @@ public class InvoicingCodeDto implements Serializable {
 
 	public void setCode(String code) { this.code = code; }
 
+    public Long getStatus() { return status; }
+
+    public void setStatus(Long status) { this.status = status; }
 }
