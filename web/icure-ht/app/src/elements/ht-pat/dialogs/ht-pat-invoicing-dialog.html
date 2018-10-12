@@ -47,6 +47,7 @@
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
+<link rel="import" href="related-code-link.html">
 
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
@@ -234,6 +235,7 @@
 
             .title-txt {
                 padding-left: 8px;
+                width: 100%;
             }
 
             .invoice-nomenclature-code-container {
@@ -545,6 +547,8 @@
                 };
             }
 
+
+
             vaadin-grid.material .cell {
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -644,6 +648,50 @@
                 width: 10px;
             }
 
+            #relativeCodeDialog{
+                height: 100px;
+                width: 220px;
+            }
+
+            #eidDialog{
+                height: 220px;
+                width: 500px;
+            }
+
+            #containerEidDialog{
+                heigth: 200px;
+                width: auto;
+                display: flex;
+            }
+
+            .eidContainerBtn{
+                flex: auto;
+                text-align: center;
+            }
+
+            .eidBtn{
+                height: 60px;
+                width: 60px;
+            }
+
+            .eidReadingBtnContainer{
+                right: 0px;
+                float: right;
+            }
+
+            #manualEncodingDialog{
+                height: 340px;
+                width: 500px;
+            }
+
+            .manualEncodingContainer{
+                display: flex;
+            }
+
+            .manualEncodingContainerChild{
+                flex: auto;
+            }
+
 
         </style>
 
@@ -687,6 +735,9 @@
                     <div class="title">
                         <div class="title-txt">
                             [[localize('header','Header',language)]]
+                            <div class="eidReadingBtnContainer">
+                                <iron-icon icon="vaadin:user-card" on-tap="_openEidDialog" style="height: 18px;"></iron-icon>
+                            </div>
                         </div>
                     </div>
                     <div class="flex-container">
@@ -779,7 +830,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="730px">
+                                    <vaadin-grid-column width="650px">
                                         <template class="header">
                                             <div class="cell frozen">[[localize('lab','Label',language)]]</div>
                                         </template>
@@ -825,7 +876,7 @@
                                         </template>
                                         <template class="footer">[[totalInvoice.totalAmount]] €</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="20px">
+                                    <vaadin-grid-column width="60px">
                                         <template class="header">
                                             <div class="cell numeric"></div>
                                         </template>
@@ -834,8 +885,11 @@
                                                 <iron-icon class="clearBtn" icon="vaadin:doctor"></iron-icon>
                                             </template>
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
-                                                <iron-icon class="clearBtn" icon="vaadin:link"></iron-icon>
+                                                <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
+                                                  <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
+                                                  [[item.relatedCode]]
                                             </template>
+
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="20px">
@@ -876,7 +930,7 @@
                         </div>
                         <div class="invoice-nomenclature-code-option">
                             <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
-                                              item-value-path="id" on-filter-changed="_nmclSearch"
+                                              item-value-path="id" on-filter-changed="_nmclSearch" on-keydown="isEnterPressed"
                                               label="[[localize('nmcl','Nomenclature',language)]]"
                                               value=""></vaadin-combo-box>
                             <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
@@ -998,6 +1052,59 @@
                                   item-label-path="label.[[language]]" item-value-path="id"
                                   label="[[localize('code_type','Code type',language)]]"
                                   value="{{bufferTypeCode}}"></vaadin-combo-box>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="relativeCodeDialog">
+            <vaadin-combo-box id="related-code" filtered-items="[[selectedInvoice.invoicingCodes]]"
+                              item-label-path="code" item-value-path="id"
+                              label="Link"
+                              value="{{childRelativeCodeId}}"></vaadin-combo-box>
+        </paper-dialog>
+
+        <paper-dialog id="eidDialog">
+            <h4>Type de lecture</h4>
+            <div id="containerEidDialog">
+                <div class="eidContainerBtn">
+                    <paper-icon-button icon="vaadin:user-card" class="eidBtn" on-tap="_readEidCard"></paper-icon-button>
+                    <p>EID</p>
+                </div>
+                <div class="eidContainerBtn">
+                    <paper-icon-button icon="vaadin:qrcode" class="eidBtn" on-tap="_readBarreCode"></paper-icon-button>
+                    <p>QR code && code-barre</p>
+                </div>
+                <div class="eidContainerBtn">
+                    <paper-icon-button icon="vaadin:pencil" class="eidBtn" on-tap="_showManualEncodingDialog"></paper-icon-button>
+                    <p>Encodage manuel</p>
+                </div>
+            </div>
+            <div class="buttons">
+                <paper-button on-tap="_closeEidDialog">[[localize('can','Cancel',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="manualEncodingDialog">
+            <h4>Encodage manuel</h4>
+            <div class="manualEncodingContainer">
+                <vaadin-combo-box id="reasonOfManualEncoding" filtered-items="[[reasonOfManualEncoding]]"
+                                  item-label-path="label.[[language]]" item-value-path="id"
+                                  label="Raison"
+                                  value="{{manualEncoding.reason}}" class="manualEncodingContainerChild"></vaadin-combo-box>
+            </div>
+            <div class="manualEncodingContainer">
+                <vaadin-combo-box id="code-type" filtered-items="[[typeOfSupport]]"
+                                  item-label-path="label.[[language]]" item-value-path="id"
+                                  label="Type de support"
+                                  value="{{manualEncoding.supportType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
+            </div>
+            <div class="manualEncodingContainer">
+                <paper-input class="flex-container-nmcl-row"
+                             label="N° de serie"
+                             value="{{manualEncoding.serialNumber}}" class="manualEncodingContainerChild"></paper-input>
+            </div>
+            <div class="buttons">
+                <paper-button on-tap="_closeManualEncodingDialog">[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button on-tap="_closeManualEncodingDialog">[[localize('add','Add',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -1263,7 +1370,106 @@
                             }
                         ]
                     },
+                    reasonOfManualEncoding:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: 1,
+                                label: {
+                                            "fr": "Utilisation d’un document d’identité sans puce",
+                                            "nl": "Using an identity document without a chip",
+                                            "en": "Using an identity document without a chip"
+                                }
+                            },
+                            {
+                                id: 2,
+                                label: {
+                                            "fr": "Indisponibilité du lecteur de carte",
+                                            "nl": "Unavailability of the card reader",
+                                            "en": "Unavailability of the card reader"
+                                }
+                            },
+                            {
+                                id: 3,
+                                label: {
+                                            "fr": "Panne du système informatique",
+                                            "nl": "Computer system failure",
+                                            "en": "Computer system failure"
+                                }
+                            }
+                        ]
 
+                    },
+                    typeOfSupport:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: 1,
+                                label: {
+                                    "fr": "Carte d’identité électronique belge (ou Kids-id)",
+                                    "nl": "Belgium electronic identity card (or Kids-id)",
+                                    "en": "Belgium electronic identity card (or Kids-id)"
+                                }
+                            },
+                            {
+                                id: 2,
+                                label: {
+                                    "fr": "Carte d’identité électronique étranger",
+                                    "nl": "Other country electronic identity card",
+                                    "en": "Other country electronic identity card"
+                                }
+                            },
+                            {
+                                id: 4,
+                                label: {
+                                    "fr": "Carte ISI+",
+                                    "nl": "ISI+ card",
+                                    "en": "ISI+ card"
+                                }
+                            },
+                            {
+                                id: 5,
+                                label: {
+                                    "fr": "Document de séjour électronique",
+                                    "nl": "Electronic residence document",
+                                    "en": "Electronic residence document"
+                                }
+                            },
+                            {
+                                id: 7,
+                                label: {
+                                    "fr": "Vignette avec code-à-barres",
+                                    "nl": "Thumbnail with barcode",
+                                    "en": "Thumbnail with barcode"
+                                }
+                            },
+                            {
+                                id: 8,
+                                label: {
+                                    "fr": "Attestation d’assuré social",
+                                    "nl": "Social insurance certificate",
+                                    "en": "Social insurance certificate"
+                                }
+                            },
+                            {
+                                id: 9,
+                                label: {
+                                    "fr": "Attestation de perte ou de vol",
+                                    "nl": "Certificate of loss or theft",
+                                    "en": "Certificate of loss or theft"
+                                }
+                            }
+                        ]
+
+                    },
+                    manualEncoding:{
+                        type: Object,
+                        value: () => ({
+                            reason: "",
+                            supportType: "",
+                            serialNumber: ""
+                        })
+                    },
                     selectedInvoice: {
                         type: Object,
                         value: () => {
@@ -1352,6 +1558,18 @@
                     bufferTypeCode:{
                         type : String,
                         observer: '_tranferNmcl'
+                    },
+                    isSelected:{
+                        type: Boolean
+                    },
+                    childRelativeCodeId:{
+                        type: String,
+                        value: "",
+                        observer: '_linkCode'
+                    },
+                    parentRelatedCodeId: {
+                        type: String,
+                        value: ""
                     }
 
                 }
@@ -1359,7 +1577,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','savingInvoices(invoices.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -1368,6 +1586,7 @@
 
 
             _selectInvoice(e) {
+                this.isSelected=true;
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
@@ -1377,13 +1596,24 @@
 
                 const selected = this.invoices.find(inv => inv.id === invoiceId)
 
-                this.set('selectedInvoice', selected)
-                this.set('selectedMediumCodeType', selected.sentMediumType)
-                this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
+                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                    nmcls.map(nmcl =>{
+                        const sn = selected.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                        if(sn){
+                            sn.prescriberNeeded = nmcl.needsPrescriber
+                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                        }
+                    })
+                ).finally(() => {
+                    this.set('selectedInvoice', selected)
+                    this.set('selectedMediumCodeType', selected.sentMediumType)
+                    this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
 
-                invoiceId !== "" ? this.calculateTotalOfInvoice() : null
-                this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+                    invoiceId !== "" ? this.calculateTotalOfInvoice() : null
+                    this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                    this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+                    this.isSelected=false;
+                })
             }
 
             open() {
@@ -1532,7 +1762,7 @@
                         pending: false,
                         resent: false,
                         dateCode: this.selectedInvoice.invoiceDate,
-                        prescriberNeeded: nmlc.needsPrescriber,
+                        prescriberNeeded: nmcl.needsPrescriber,
                         isRelativePrestation: nmcl.hasRelatedCode,
                         valid: false,
                         id: this.api.crypto().randomUuid(),
@@ -1682,7 +1912,7 @@
 
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
 
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference).then(r => {
+                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference == "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => {
                             console.log(r)
                             this.set('isDetailNmcl', false)
                             this.set("tarificationError", null)
@@ -1748,7 +1978,6 @@
                 this.set('totalInvoice.patientIntervention', Number(patientIntervention).toFixed(2))
                 this.set('totalInvoice.reimbursement', Number(reimbursement).toFixed(2))
                 this.set('totalInvoice.doctorSupplement', Number(doctorSupplement).toFixed(2))
-                console.log(this.invoices)
             }
 
             _getErrorMsg(item, language) {
@@ -1841,9 +2070,10 @@
                     let totalAmount = Number(this.activeNmclItem.patientIntervention) + Number(this.activeNmclItem.reimbursement) + Number(this.activeNmclItem.doctorSupplement)
 
                     this.set('activeNmclItem.totalAmount', Number(totalAmount).toFixed(2))
-                    this.set('selectedInvoice.invoicingCodes[codeIdx]', this.activeItem)
+                    this.set('selectedInvoice.invoicingCodes.'+codeIdx, this.activeNmclItem)
                     this.$['nmclGrid'].clearCache()
                     this.calculateTotalOfInvoice()
+                    this.selectedInvoiceChanged();
                 }
             }
 
@@ -2147,6 +2377,37 @@
                 this.$["transferDialog"].open()
             }
 
+            _openlinkRelativePrestationDialog(e){
+                e.stopPropagation()
+                this.parentRelatedCodeId = e.target.id
+                this.$["relativeCodeDialog"].open()
+            }
+
+            _linkCode(selectedNmclId){
+                if(selectedNmclId != ""){
+                    const childNmcl = this.selectedInvoice.invoicingCodes.find(nmcl => selectedNmclId === nmcl.id) || null
+                    const parentNmcl = this.selectedInvoice.invoicingCodes.find(nmcl => this.parentRelatedCodeId === nmcl.id) || null
+
+                    if(childNmcl !== null && parentNmcl !== null){
+                        parentNmcl.relatedCode = childNmcl.code
+                        this.$["relativeCodeDialog"].close()
+                    }
+
+                }
+
+            }
+
+            //Obsolete because related-code.html is not supported by vaadin-grid for the moment.
+            linkNmclToRelatedCode(e) {
+                if (e.detail.relativeCode && e.detail.parentId) {
+                    let selectedNmcl = this.selectedInvoice.invoicingCodes.find(n => n.id === e.detail.parentId) || null
+                    if (selectedNmcl !== null) {
+                        const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
+                        selectedNmcl.relatedCode = e.detail.relativeCode
+                    }
+                }
+            }
+
             savingInvoices(){
                 if (this.saveTimeout) {
                     clearTimeout(this.saveTimeout);
@@ -2155,14 +2416,61 @@
                     const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
                     //console.log(invoice)
                     this.api.invoice().modifyInvoice(invoice).then(response => {
-                        console.log(response)
+
+                        this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                            nmcls.map(nmcl =>{
+                                const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                if(sn){
+                                    sn.prescriberNeeded = nmcl.needsPrescriber
+                                    sn.isRelativePrestation = nmcl.hasRelatedCode
+                                }
+                            })
+                        ).finally(()=>{
+                            this.set("invoices."+this.invoices.indexOf(invoice),response)
+                            this.isSelected=true;
+                            this.set("selectedInvoice",response)
+                            this.isSelected=false;
+                        })
+
                     })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
 
             selectedInvoiceChanged(){
+                if(this.isSelected) return;
                 this.savingInvoices();
+            }
+
+            isEnterPressed(e){
+                if(e.keyCode==13){
+                    this._addNmcl(e);
+                }
+            }
+
+            _openEidDialog(){
+                this.$["eidDialog"].open()
+            }
+
+            _readEidCard(){
+
+            }
+
+            _readBarreCode(){
+
+            }
+
+            _showManualEncodingDialog(){
+                this.$['eidDialog'].close()
+                this.$['manualEncodingDialog'].open()
+            }
+
+            _closeEidDialog(){
+                this.$['eidDialog'].close()
+            }
+
+            _closeManualEncodingDialog(){
+                this.$['manualEncodingDialog'].close()
             }
 
         }
