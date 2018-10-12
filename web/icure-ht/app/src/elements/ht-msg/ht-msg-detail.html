@@ -587,29 +587,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					})
 	}
 
-	msgAnnexesFileInputSelected() {
-
-		let msgAnnexesFileInput = this.shadowRoot.querySelector('#msgAnnexesFileInput');
-
-		if( msgAnnexesFileInput.inputElement && msgAnnexesFileInput.inputElement.inputElement){
-			Object.values(msgAnnexesFileInput.inputElement.inputElement.files).forEach( item => this.push('msgAnnexes',item))
-		}
-
-		//Clear control
-		msgAnnexesFileInput.value = '';
-
-		console.log(this.msgAnnexes);
-	}
-
-	_removeMsgAnnexe(e){
-
-		let index = e.target.getAttribute('indexed');
-		this.msgAnnexes.splice(index,1);
-
-		let msgAnnexesList = this.shadowRoot.querySelector('#msgAnnexesList')
-		msgAnnexesList.clearCache();
-	}
-
 	_removeMsg(e){
 		let msgId = e.target.getAttribute('msgId');
 		console.log(msgId);
@@ -621,11 +598,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				this.dispatchEvent(new CustomEvent('refresh-list', { detail: { selection: { item: "Refresh" } } }))
 			)
 	}
-
-	// _FindParty() {
-	// 	this.set("test", this.api.hcparty().findByName("cédr", keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc).map(x=>x.nihi));
-	// 	console.log(this.test);
-	// }
 
 	_SendNewMessage(){
 
