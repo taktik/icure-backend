@@ -103,8 +103,6 @@
 				z-index:0;
 				height: 100%;
 				width: 100%;
-
-				padding-top: 75px;
 			}
 
 			.contact-title{
@@ -250,7 +248,7 @@
 
 			.modal-button--delete{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-				background: var(--app-status-color-nok);
+				background: var(--app-background-color-light);
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
 			}
@@ -364,6 +362,17 @@
 				padding-bottom: 32px;
 			}
 
+			.del-button {
+				height: 5vh;
+				margin-top: 15px;
+			}
+
+			.annexe-card{
+				padding: 5px;
+				width: 100%;
+				margin-bottom: 15px;
+			}
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
 			<div class="details-panel" on-dragover="_onDrag">
@@ -381,9 +390,9 @@
 
 								<template is="dom-repeat" items="[[selectedDocuments]]">
 									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-									<paper-card class="pat-details-card">
+									<paper-card class="annexe-card">
 											<span>[[item.name]]</span>
-											<a href="[[item.dataUrl]]" target="_blank">[[localize('dl','Download',language)]]</a>
+											<a href="[[item.dataUrl]]" target="_blank"><iron-icon icon="file-download"></iron-icon></a>
 											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
 												<div class="img-container">
 													<img src$="[[item.dataUrl]]">
@@ -414,9 +423,9 @@
 									<!--</vaadin-grid>-->
 								<!--</template>-->
 
-								<div class="buttons">
+								<div class="del-button">
 									<div>
-										<paper-button class="modal-button--delete" on-tap="_removeMsg" msgId$='[[msg.id]]'>[[localize('del','Delete',language)]]</paper-button>
+										<paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
 									</div>
 								</div>
 							</paper-card>
@@ -467,36 +476,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Object,
 				value: null
 			},
-			newMessage:{
-				type:Object,
-				value: null
-			},
-			msgAnnexes:{
-				type:Array,
-				value: []
-			},
 			selectedDocuments:{
 				type: Object
-			},
-			searchValue:{
-				type: String,
-				value: '',
-				observer: '_FindParty'
-			},
-			test:{
-				type: Array,
-				value: []
-			},
-			msgBodyFile:{
-				type:Object
-			},
-			dataUrls:{
-				type: [],
-				value: []
-			},
-			types:{
-				type:[],
-				value: []
 			}
 		};
 	}
@@ -583,29 +564,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					})
 	}
 
-	msgAnnexesFileInputSelected() {
-
-		let msgAnnexesFileInput = this.shadowRoot.querySelector('#msgAnnexesFileInput');
-
-		if( msgAnnexesFileInput.inputElement && msgAnnexesFileInput.inputElement.inputElement){
-			Object.values(msgAnnexesFileInput.inputElement.inputElement.files).forEach( item => this.push('msgAnnexes',item))
-		}
-
-		//Clear control
-		msgAnnexesFileInput.value = '';
-
-		console.log(this.msgAnnexes);
-	}
-
-	_removeMsgAnnexe(e){
-
-		let index = e.target.getAttribute('indexed');
-		this.msgAnnexes.splice(index,1);
-
-		let msgAnnexesList = this.shadowRoot.querySelector('#msgAnnexesList')
-		msgAnnexesList.clearCache();
-	}
-
 	_removeMsg(e){
 		let msgId = e.target.getAttribute('msgId');
 		console.log(msgId);
@@ -614,17 +572,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		this.api.message().deleteMessages(msgId)
 			.then(x =>
-				this.dispatchEvent(new CustomEvent('refresh-list', { detail: { selection: { item: "Refresh" } } }))
+				this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
 			)
-	}
-
-	// _FindParty() {
-	// 	this.set("test", this.api.hcparty().findByName("cédr", keyPair.startKey || null, keyPair.startKeyDocId || null, count, desc).map(x=>x.nihi));
-	// 	console.log(this.test);
-	// }
-
-	_SendNewMessage(){
-
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {

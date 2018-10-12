@@ -253,16 +253,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .del-button {
-                    position: fixed;
-                    bottom: 40px;
+                    height: 5vh;
+                    margin-top: 15px;
                 }
 
                 #mail-list {
                     padding-right: 0;
                     margin-right: 0;
-                    height: 85vh;
-                    height: calc(100vh - 110px);
-                    height: -webkit-fill-available;
+                    height: 95vh;
+                    height: calc(95vh - 110px);
                     /* cascading compatibility */
                 }
 
@@ -270,23 +269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                <div class="del-button">
-                    <div>
-                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                    </div>
-                </div>
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
-                    <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
-                        <vaadin-grid-column width="100px">
-                            <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize('sen_to','Send To',language)]]
-                                </vaadin-grid-sorter>
-                            </template>
-                            <template>
-                                <div class="cell frozen">[[getToAddresses(item)]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                    </template> -->
                     <vaadin-grid-selection-column></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column flex-grow="2">
@@ -318,6 +301,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
                 </vaadin-grid>
+                <div class="del-button">
+                    <div>
+                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                    </div>
+                </div>
             </div>
         </template>
     </template>
