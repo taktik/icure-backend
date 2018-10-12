@@ -834,10 +834,11 @@
                                             <template is="dom-if" if="[[item.prescriberNeeded]]">
                                                 <iron-icon class="clearBtn" icon="vaadin:doctor"></iron-icon>
                                             </template>
-                                            <related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>
-                                            <!--<template is="dom-if" if="[[item.isRelativePrestation]]">-->
+
+                                            <template is="dom-if" if="[[item.isRelativePrestation]]">
+                                                <related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>
                                                   <!--<iron-icon class="clearBtn" icon="vaadin:link"></iron-icon>-->
-                                            <!--</template>-->
+                                            </template>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="20px">
@@ -1380,27 +1381,22 @@
 
                 const selected = this.invoices.find(inv => inv.id === invoiceId)
 
-                this.set('selectedInvoice', selected)
-                this.set('selectedMediumCodeType', selected.sentMediumType)
-                this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
-
-                invoiceId !== "" ? this.calculateTotalOfInvoice() : null
-                this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
-
-
-                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: this.selectedInvoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls => {
+                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                     nmcls.map(nmcl =>{
-                        const sn = this.selectedInvoice.invoicingCodes.find(n => n.tarificationId === nmcl.id)
-
+                        const sn = selected.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
                         if(sn){
-                            const idSn = this.selectedInvoice.invoicingCodes.indexOf(sn)
                             sn.prescriberNeeded = nmcl.needsPrescriber
                             sn.isRelativePrestation = nmcl.hasRelatedCode
-
-                            this.set('selectedInvoice.invoicingCodes.'+idSn, sn)
                         }
                     })
+                ).finally(() => {
+                    this.set('selectedInvoice', selected)
+                    this.set('selectedMediumCodeType', selected.sentMediumType)
+                    this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
+
+                    invoiceId !== "" ? this.calculateTotalOfInvoice() : null
+                    this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
+                    this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
                 })
             }
 
