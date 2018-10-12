@@ -1,6 +1,6 @@
 function isInvoiceBad(doc) {
   if(!doc.sentDate || doc.invoicingCodes.length === 0) return false;
-  return doc.invoicingCodes.every(function(code){
+  return doc.invoicingCodes.some(function(code){
     return code.status && (code.status & 32) === 32
   });
 }
