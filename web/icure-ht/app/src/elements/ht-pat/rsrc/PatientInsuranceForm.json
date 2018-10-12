@@ -43,7 +43,7 @@
 							"irrelevant" : true,
 							"subForm" : false,
 							"type" : "TKString",
-							"name" : "membership"
+							"name" : "identificationNumber"
 						},
 						{
 							"editor" : {

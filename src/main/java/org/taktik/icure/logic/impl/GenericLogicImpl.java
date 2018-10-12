@@ -34,17 +34,17 @@ public abstract class GenericLogicImpl<E extends Identifiable<String>, D extends
 	}
 
 	@Override
-	public List<E> updateEntities(Collection<E> entities) throws Exception {
+	public List<E> updateEntities(Collection<E> entities) {
 		return new ArrayList<>(getGenericDAO().save(entities));
 	}
 
 	@Override
-	public void deleteEntities(Collection<String> identifiers) throws Exception {
+	public void deleteEntities(Collection<String> identifiers) {
 		getGenericDAO().removeByIds(identifiers);
 	}
 
 	@Override
-	public void undeleteEntities(Collection<String> identifiers) throws Exception {
+	public void undeleteEntities(Collection<String> identifiers) {
 		getGenericDAO().unremoveByIds(identifiers);
 	}
 

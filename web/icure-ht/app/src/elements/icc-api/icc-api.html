@@ -114,12 +114,17 @@
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc)
 
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
+            this.entityreficc = new api.iccEntityrefApi(this.host, this.headers)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
         }
 
         accesslog() {
             return this.accesslogicc
+        }
+
+        entityRef(){
+            return this.entityreficc
         }
 
         auth() {
@@ -335,15 +340,18 @@
         cacheRowsUsingPagination(key, paginator) {
             const cache = this.cache || ((this.cache = {}))
             const promise = cache[key]
-
             if (promise) { return promise }
 
+            return (cache[key] = this.getRowsUsingPagination(paginator))
+        }
+
+        getRowsUsingPagination(paginator) {
             const executePaginator = (latestResult, acc) =>
                 paginator(latestResult.nextKey,latestResult.docId).then((newResult) => {
                     acc.push(...newResult.rows)
                     return newResult.done ? acc : executePaginator(newResult, acc)
                 })
-            return (cache[key] = executePaginator({nextKey: null, nextDocId: null}, []))
+            return executePaginator({nextKey: null, nextDocId: null}, [])
         }
 
         loadUsersAndHcParties() {

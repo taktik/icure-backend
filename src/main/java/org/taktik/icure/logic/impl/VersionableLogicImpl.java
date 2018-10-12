@@ -42,7 +42,7 @@ public abstract class VersionableLogicImpl<V extends Versionable<String>, D exte
 	private static Logger logger = LoggerFactory.getLogger(VersionableLogicImpl.class);
 
 	@Override
-	public List<V> updateEntities(Collection<V> entities) throws Exception {
+	public List<V> updateEntities(Collection<V> entities) {
 		try {
 			return new ArrayList<>(getGenericDAO().save(entities));
 		} catch (BulkUpdateConflictException e) {

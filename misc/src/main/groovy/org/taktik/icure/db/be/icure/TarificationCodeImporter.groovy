@@ -473,8 +473,8 @@ class TarificationCodeImporter extends Importer {
 										predicate: conditions[frtCode] ?: "false&&'${frtCode}'",
 										patientIntervention: val.patientIntervention ?: 0,
 										reimbursement: val.reimbursement ?: 0,
-										doctorSupplement: val.reimbursement ?: 0,
-										totalAmount: val.fee ?: 0,
+										doctorSupplement: 0,
+										totalAmount: val.fee ?: val.patientIntervention + val.reimbursement 	?: 0,
 										vat: 0
 									)
 								}
@@ -565,6 +565,7 @@ class TarificationCodeImporter extends Importer {
 
 		Map<String, Tarification> res = [:]
 
+		codes.sort {a,b -> a.code <=> b.code}
 		codes.each { newCode ->
 			res[newCode.code] = newCode
 			if (current.containsKey(newCode.id)) {
@@ -586,9 +587,11 @@ class TarificationCodeImporter extends Importer {
 							if ((nv.endOfValidity ?: 29991231000000L) >= (v.endOfValidity ?: 29991231000000L) && nv.startOfValidity < (v.endOfValidity ?: 29991231000000L)) {
 								v.endOfValidity = Math.max(v.startOfValidity, nv.startOfValidity)
 							}
-							if (Math.abs(v.startOfValidity-nv.startOfValidity)<1000000 && Math.abs(v.endOfValidity-nv.endOfValidity)<1000000) {
-								return null
-							}
+						}
+					}
+					for (Valorisation nv in newCode.valorisations) {
+						if ((Math.abs(v.startOfValidity-nv.startOfValidity)<1000000 || v.startOfValidity > nv.startOfValidity) && (Math.abs(v.endOfValidity-nv.endOfValidity)<1000000 || v.endOfValidity < nv.endOfValidity)) {
+							return null
 						}
 					}
 					return v

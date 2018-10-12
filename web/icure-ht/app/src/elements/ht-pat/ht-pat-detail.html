@@ -1576,11 +1576,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
-            <div >
-                <paper-input id="genInsNiss" label="[[localize('niss','NISS',language)]]" value="{{genInsNiss}}"></paper-input>
-                <paper-input id="genInsOA" label="[[localize('OA','Mut',language)]]" value="{{genInsOA}}"></paper-input>
-                <paper-input id="genInsAFF" label="[[localize('AFF','Membership Nr',language)]]" value="{{genInsAFF}}"></paper-input>
-            </div>
+            <div class="buttons">
+				<vaadin-checkbox id="switchBox" on-checked-changed="_switchTest" checked="{{showGeninsTest}}" id="testgenins">[[localize('tst','Test',language)]]</vaadin-checkbox>
+			</div>
+			<div id="geninstest" style="display: none">
+				<paper-input id="genInsNiss" label="[[localize('niss','NISS',language)]]" value="{{genInsNiss}}"></paper-input>
+				<paper-input id="genInsOA" label="[[localize('OA','Mut',language)]]" value="{{genInsOA}}"></paper-input>
+				<paper-input id="genInsAFF" label="[[localize('AFF','Membership Nr',language)]]" value="{{genInsAFF}}"></paper-input>
+			</div>
         </paper-dialog>
 
 		<paper-dialog id="consentDialog">
@@ -2037,6 +2040,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             MMHNihii:{
 			    type: String,
                 value: null
+            },
+            showGeninsTest:{
+			    type: Boolean,
+                value: false
             }
 		};
 	}
@@ -2051,6 +2058,19 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     ready() {
         super.ready();
+    }
+
+    _switchTest(e){
+	    //this.set('showGeninsTest', !this.showGeninsTest);
+		e.stopPropagation();
+		let cb = this.root.querySelector('#switchBox');
+		const isChecked = cb.checked;
+        let testdiv = this.root.querySelector('#geninstest')
+        if(isChecked){
+            testdiv.style = '';
+        } else {
+            testdiv.style = 'display: none';
+        }
     }
 
     selectedContactIdsChanged() {
@@ -2172,25 +2192,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    //TODO: add switch to get genins as MMH
         //if(!this.geninsMMHRequest) this.initMHSession();
         const dStart = Date.parse(this.genInsDateFrom);
-        if (this.patient.ssin && this.api.tokenId) {
-            if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
-                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp => {
-                            return this.api.fhc().Geninscontroller().getGeneralInsurabilityByMembershipUsingGET(
-                                this.genInsOA, this.genInsAFF,
-                                asMMH ? this.MMHTokenId : this.api.tokenId, asMMH ? this.MMHKeystoreId : this.api.keystoreId, asMMH ? this.MMHPassPhrase : this.api.credentials.ehpassword,
-                                asMMH ? this.MMHNihii : hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
-                        }
-                    ).then(genInsResp => {
-                            if (genInsResp) {
-                                return genInsResp;
-                            } else {
-                                return null;
-                            }
-                        }
-                    )
-            }
-            else {
+//        if (this.patient.ssin && this.api.tokenId) {
+		if (this.api.tokenId) {
+            //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
+			if(((this.genInsNiss && this.genInsNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.genInsOA && this.genInsOA !=='')){
                 return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                     .then(hcp => {
                             return this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
@@ -2206,7 +2211,30 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                             }
                         }
                     )
-            }
+			}else{
+			    //there is no niss
+				let oa = this.genInsOA;
+				let aff = this.genInsAFF;
+                const pi = this.patient.insurabilities && _.assign({}, this.patient.insurabilities[0] || {});
+				return this.api.insurance().getInsurance(pi.insuranceId).then(insu =>{
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.api.fhc().Geninscontroller().getGeneralInsurabilityByMembershipUsingGET(
+                                    (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
+                                    (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
+                                    asMMH ? this.MMHTokenId : this.api.tokenId, asMMH ? this.MMHKeystoreId : this.api.keystoreId, asMMH ? this.MMHPassPhrase : this.api.credentials.ehpassword,
+                                    asMMH ? this.MMHNihii : hcp.nihii, hcp.ssin, hcp.lastName + ' ' + hcp.firstName, asMMH ? 'medicalhouse' : 'doctor', dStart, asMMH ? Date.parse(this.genInsDateTo) : null, this.genInsHospitalized)
+                            }
+                        ).then(genInsResp => {
+                                if (genInsResp) {
+                                    return genInsResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+				});
+			}
         } else {
             return Promise.resolve(null)
         }
@@ -3223,7 +3251,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
 			if (patient.ssin && this.api.tokenId) {
-                this.set('curGenInsResp', null)
+
+                let dlg = this.root.querySelector('#genInsDialog')
+				if(!dlg.opened) this.set('curGenInsResp', null);
 
                 if(!this.geninsMMHRequest) this.initMHSession();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().Geninscontroller().getGeneralInsurabilityUsingGET(
@@ -3233,7 +3263,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     const genInsOk = !gi.faultCode && gi.insurabilities && gi.insurabilities.length && gi.insurabilities[0].ct1 && !(gi.generalSituation && gi.generalSituation.length);
 					const medicalHouse = gi.medicalHouseInfo && gi.medicalHouseInfo.medical && this.api.before(gi.medicalHouseInfo.periodStart, +new Date()) && (!gi.medicalHouseInfo.periodEnd || this.api.after(gi.medicalHouseInfo.periodEnd + 24 * 3600 * 1000, +new Date()));
 
-                    this.set('curGenInsResp', gi)
+                    if(!dlg.opened) this.set('curGenInsResp', gi);
 
 					this.$.insuranceStatus.classList.remove('medicalHouse');
 					this.$.insuranceStatus.classList.remove('noInsurance');
@@ -3253,6 +3283,8 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 							if (ins.ct1 && (!pi.parameters || pi.parameters.tc1 !== ins.ct1)) {
 								pi.parameters = _.assign(pi.parameters || {}, { tc1: ins.ct1, preferentialstatus: parseInt(ins.ct1) % 2 === 1 ? 'true' : 'false' });
 							}
+							pi.identificationNumber = ins.regNrWithMut;
+
 							ins.ct2 && pi.parameters.tc2 !== ins.ct2 && (pi.parameters = _.assign(pi.parameters || {}, { tc2: ins.ct2 }));
 							ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, { paymentapproval: 'true' }) : delete pi.parameters.paymentapproval;
 
