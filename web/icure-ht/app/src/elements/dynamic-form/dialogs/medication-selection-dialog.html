@@ -393,6 +393,11 @@
                         this.set("bufferUnit",mppInfos.gal.name)
                         this.set("bufferQuantity",1)
 
+                        if (this.selectedMedicationContentWithId.isNew) {
+                            this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                        } else {
+                            this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                        }
                     })
                 } else {
                     if (med.inncluster) {
@@ -412,11 +417,12 @@
                     }])
                     this.set("bufferUnit",this.localize('generic_unit','unit',language))
                     this.set("bufferQuantity",1)
-                }
-                if (this.selectedMedicationContentWithId.isNew) {
-                    this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
-                } else {
-                    this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+
+                    if (this.selectedMedicationContentWithId.isNew) {
+                        this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                    } else {
+                        this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                    }
                 }
             }
 
