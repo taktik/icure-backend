@@ -122,7 +122,6 @@
 			.pat-details-card {
 				width: 100%;
 				padding: 10px 15px;
-				height: 100%;
 			}
 
 			.horizontal {
@@ -368,6 +367,12 @@
 				margin-top: 15px;
 			}
 
+			.annexe-card{
+				padding: 5px;
+				width: 100%;
+				margin-bottom: 15px;
+			}
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
 			<div class="details-panel" on-dragover="_onDrag">
@@ -385,9 +390,9 @@
 
 								<template is="dom-repeat" items="[[selectedDocuments]]">
 									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-									<paper-card>
+									<paper-card class="annexe-card">
 											<span>[[item.name]]</span>
-											<a href="[[item.dataUrl]]" target="_blank">[[localize('dl','Download',language)]]</a>
+											<a href="[[item.dataUrl]]" target="_blank"><iron-icon icon="file-download"></iron-icon></a>
 											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
 												<div class="img-container">
 													<img src$="[[item.dataUrl]]">
