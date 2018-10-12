@@ -41,6 +41,7 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 	List<Invoice> listByHcPartyPatientFkUnsent(String hcParty, Set<String> secretPatientKeys);
 
 	List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate);
  	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
 
 	List<Invoice> listByServiceIds(Set<String> serviceIds);
