@@ -36,6 +36,10 @@
 <dom-module id="ht-msg-new">
     <template>
         <style>
+            h2{
+                margin-block-start:0;
+            }
+
             .notification-panel {
                 position: fixed;
                 top: 50%;
@@ -86,7 +90,7 @@
 
             .details-panel {
                 box-sizing: border-box;
-                padding: 16px;
+                padding: 0 16px;
                 height: 100%;
                 width: 100%;
             }
@@ -134,6 +138,10 @@
 
             paper-dialog {
                 margin: 0;
+                min-width: 30%;
+                width: 80%;
+                max-height: 80%;
+                overflow: auto;
             }
 
             .contact-card-container {
@@ -141,10 +149,6 @@
                 overflow-y: auto;
                 height: calc(100% - 48px);
                 padding-bottom: 32px;
-            }
-
-            paper-dialog {
-                min-width: 30%;
             }
 
             .extra-info {
@@ -156,6 +160,7 @@
             vaadin-upload {
                 margin: 16px 0;
                 min-height: 280px;
+                min-height: 0;
                 background: var(--app-background-color);
                 --vaadin-upload-buttons-primary: {
                     padding: 16px;
@@ -183,10 +188,6 @@
                 width: 32px;
                 padding: 8px;
                 background: var(--app-primary-color);
-            }
-
-            paper-dialog {
-                width: 80%;
             }
 
             vaadin-grid {
@@ -365,10 +366,6 @@
 
             vaadin-combo-box {
                 width: 100%;
-            }
-
-            vaadin-upload {
-                min-height: 0;
             }
 
             iron-autogrow-textarea {
