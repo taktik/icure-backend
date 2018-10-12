@@ -420,7 +420,7 @@
 
 								<div class="del-button">
 									<div>
-										<paper-button class="modal-button--delete" on-tap="_removeMsg"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+										<paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
 									</div>
 								</div>
 							</paper-card>
@@ -471,36 +471,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Object,
 				value: null
 			},
-			newMessage:{
-				type:Object,
-				value: null
-			},
-			msgAnnexes:{
-				type:Array,
-				value: []
-			},
 			selectedDocuments:{
 				type: Object
-			},
-			searchValue:{
-				type: String,
-				value: '',
-				observer: '_FindParty'
-			},
-			test:{
-				type: Array,
-				value: []
-			},
-			msgBodyFile:{
-				type:Object
-			},
-			dataUrls:{
-				type: [],
-				value: []
-			},
-			types:{
-				type:[],
-				value: []
 			}
 		};
 	}
@@ -595,12 +567,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		this.api.message().deleteMessages(msgId)
 			.then(x =>
-				this.dispatchEvent(new CustomEvent('refresh-list', { detail: { selection: { item: "Refresh" } } }))
+				this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
 			)
-	}
-
-	_SendNewMessage(){
-
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
