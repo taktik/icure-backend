@@ -1829,7 +1829,17 @@
 
                 this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
 
+                if(this.selectedInvoice.creditNote){
+                    console.log(this.selectedInvoice)
+                    this.selectedInvoice.invoicingCodes.map(invoiceCode =>{
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".reimbursement",0-invoiceCode.reimbursement)
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".patientIntervention",0-invoiceCode.patientIntervention)
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".doctorSupplement",0-invoiceCode.doctorSupplement)
+                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".totalAmount",0-invoiceCode.totalAmount)
 
+                    })
+                }
+                //return;
                 this.api.entityRef().getLatest("Invoice::").then(latest => {
                     console.log(latest)
                     const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
@@ -2170,9 +2180,7 @@
                 if (e.detail.relativeCode && e.detail.parentId) {
                     let selectedNmcl = this.selectedInvoice.invoicingCodes.find(n => n.id === e.detail.parentId) || null
                     if (selectedNmcl !== null) {
-                        const selectedNmclId = this.selectedInvoice.invoicingCodes.indexOf(selectedNmcl)
                         selectedNmcl.relatedCode = e.detail.relativeCode
-                        this.set('selectedInvoice.invoicingCodes[selectedNmclId]', selectedNmcl)
                     }
                 }
             }
