@@ -250,7 +250,7 @@
 
 			.modal-button--delete{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-				background: var(--app-status-color-nok);
+				background: var(--app-background-color-light);
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
 			}
@@ -364,6 +364,11 @@
 				padding-bottom: 32px;
 			}
 
+			.del-button {
+				height: 5vh;
+				margin-top: 15px;
+			}
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
 			<div class="details-panel" on-dragover="_onDrag">
@@ -414,9 +419,9 @@
 									<!--</vaadin-grid>-->
 								<!--</template>-->
 
-								<div class="buttons">
+								<div class="del-button">
 									<div>
-										<paper-button class="modal-button--delete" on-tap="_removeMsg" msgId$='[[msg.id]]'>[[localize('del','Delete',language)]]</paper-button>
+										<paper-button class="modal-button--delete" on-tap="_removeMsg"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
 									</div>
 								</div>
 							</paper-card>
