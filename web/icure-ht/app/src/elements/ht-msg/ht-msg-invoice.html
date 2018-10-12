@@ -766,9 +766,10 @@
                 const queryType = (query.substr(0, query.indexOf(":")) ).toLowerCase()
                 let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
                 if (search == "*") {search = ""}
+                console.log("is a query",search)
                 if (search.includes(':')) { search = this.findAndReplace(search,':',' ') }
                 let searchType =
-                    (search <= (new Date().getFullYear() + 100)) ? "yearOnly" : // year (from 1930 to now +100yr)
+                    (queryType.includes("date") && search <= (new Date().getFullYear() + 100)) ? "yearOnly" : // year (from 1930 to now +100yr)
                     (queryType == "oa" || queryType.includes("remb") || queryType.includes("reimb") || queryType.includes("verg")) ? "invoice.reimbursement" :
                     (queryType.includes("pat") && (queryType.includes("name") || queryType.includes("nom") || queryType.includes("naam") ) ) ? "invoice.patient.firstName" :
                     (queryType.includes("pat") ) ? "invoice.patientIntervention" :
