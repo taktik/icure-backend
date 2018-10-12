@@ -736,7 +736,7 @@
                     } else { // is a string
                         console.log("NaN !")
                         searchType =
-                            (/(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)/.test(str)) ? "invoice.invoiceDate" :
+                            (/(^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
                             (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.ssin" :
                             (str.includes(" ") ) ? "invoice.patient.firstName" :
                             (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
@@ -744,7 +744,7 @@
                         // format output ->
                         if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€','').replace(',','.'); output = parseFloat(output) }
                         if (searchType == "patient.ssin") { output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); output = output.toString() }
-                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(str).format('YYYYDDMM') }
+                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(this.convertDateToUS(str)).format(this.isUs(str)) }
                     }
                 }
                 this.set('filterValue',output)
@@ -755,6 +755,11 @@
                 for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
                 return string;
             }
+            convertDateToUS(input) {
+                const aa = input.slice(0,2),bb = input.slice(3,5),cccc = input.slice(6,11)
+                return (parseInt(aa) > 12) ? `${bb}/${aa}/${cccc}` : `${aa}/${bb}/${cccc}`
+            }
+            isUs(input) { return (parseInt(input.slice(0,2)) > 12) ? "YYYYMMDD" : "YYYYDDMM" }
 
             _invoicesChange(){
                 this.calculateTotalPendingInvoices()
