@@ -7,6 +7,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
@@ -25,6 +26,8 @@
 <link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
 <link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+
+<link rel="import" href="../../vaadin-icure-theme.html">
 
 <link rel="import" href="../filter-panel/filter-panel.html">
 
@@ -120,6 +123,11 @@
                 flex-direction: row;
                 flex-wrap: wrap;
                 flex-basis: 100%;
+                align-items: center;
+            }
+
+            .horizontal--nowrap {
+                flex-flow: row nowrap;
             }
 
             .justified {
@@ -190,6 +198,11 @@
                 background: var(--app-primary-color);
             }
 
+            paper-dialog {
+                width: 80%;
+                max-height: 80%;
+            }
+
             vaadin-grid {
                 height: 100%;
                 --vaadin-grid-body-row-hover-cell: {
@@ -202,7 +215,7 @@
                 };
             }
 
-            paper-input {
+            paper-input, paper-input-container {
                 --paper-input-container-focus-color: var(--app-primary-color);
             }
 
@@ -213,8 +226,7 @@
             }
 
             .modal-subtitle {
-                display: inline-flex;
-                margin-top: 16px;
+               margin-right: 12px;
             }
 
             .modal-button {
@@ -225,6 +237,7 @@
                 height: 40px;
                 min-width: 100px;
                 padding: 10px 1.2em;
+                text-transform: capitalize;
             }
 
             .modal-button--save {
@@ -232,6 +245,7 @@
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
                 font-weight: 700;
+                text-transform: capitalize;
             }
 
             .modal-button--delete {
@@ -239,6 +253,7 @@
                 background: var(--app-status-color-nok);
                 color: var(--app-primary-color-dark);
                 font-weight: 700;
+                text-transform: capitalize;
             }
 
             filter-panel {
@@ -340,9 +355,7 @@
                 margin-right: 8px;
             }
 
-            .horizontal {
-                flex-flow: row nowrap;
-            }
+            
 
             .contact-card-container {
                 position: relative;
@@ -371,6 +384,7 @@
             iron-autogrow-textarea {
                 min-height: 80px;
                 width: 100%;
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
             .form-disabled {
@@ -382,6 +396,7 @@
                 display: none;
             }
 
+
             .fright {
                 float: right;
             }
@@ -390,8 +405,54 @@
                 clear: both
             }
 
-            .details-panel {
-                overflow: auto;
+            .scrollbox {
+                max-height: 50vh;
+                overflow-y: auto;
+                margin-top: 0;
+                border-bottom: 1px  solid rgba(0,0,0,0.1);
+            }
+
+            .field{
+                padding:12px 0;
+                box-shadow: inset 0 -1px 0 0 rgba(100,121,143,0.122);
+            }
+
+            .destination-tag {
+                background: rgba(0,0,0,.1);
+                color: var(--exm-token-input-badge-text-color,--text-primary-color);
+                height: 32px;
+                min-height: 32px;
+                font-size: 14px;
+                min-width: initial;
+                padding: 0;
+                margin: 0 8px 8px 0;
+                border-radius: 5px;
+                text-transform: capitalize;
+                overflow: hidden;
+            }
+            .destination-type{
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                display: flex;
+                height: 100%;
+                flex-flow: row wrap;
+                padding: 4px;
+                box-sizing: border-box;
+                align-items: center;
+                margin-right: 8px;
+            }
+            .del-destination {
+                height: 22px;
+                width: 22px;
+                margin: 0 4px 0 8px;
+                padding: 2px;
+            }
+
+            paper-checkbox {
+                --paper-checkbox-unchecked-color: var(--app-text-color);
+				--paper-checkbox-label-color: var(--app-text-color);
+				--paper-checkbox-checked-color: var(--app-secondary-color);
+				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
             }
 
             /*#new-msg {*/
@@ -401,116 +462,141 @@
 
         </style>
 
-        <paper-dialog id="new-msg">
-            <div class="details-panel" style="overflow:auto;">
-                <h2>[[localize('new_mes','New message',language)]]</h2>
-                <paper-input id="newMsg-From" label="[[localize('from','From',language)]]" value="[[user.name]]"></paper-input>
-                <div class="two-col">
-                    <div>
+        <paper-dialog id="new-msg" >
+            <h2 class="modal-title">[[localize('new_mes','New message',language)]]</h2>
+            <div class="scrollbox">
+                <div class="field horizontal">
+                    <div class="modal-subtitle">[[localize('from','From',language)]]</div>
+                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float></paper-input>
+
+                </div>
+                <div class="field">
+                    <div class="horizontal horizontal--nowrap">
+                        <div class="modal-subtitle">[[localize('to','To',language)]]</div>
                         <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
-                                          label="[[localize('sch_by', 'Search by', language)]]" on-change="refreshHcpList"></vaadin-combo-box>
-                    </div>
-                    <div>
+                                        label="[[localize('sch_by', 'Search by', language)]]" on-change="refreshHcpList"></vaadin-combo-box>
                         <vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[hcpList]]" item-label-path="displayName"
-                                          allow-custom-value on-change="_AddDestinations">
+                                        allow-custom-value on-change="_AddDestinations">
                             <template>[[item.displayName]]</template>
                         </vaadin-combo-box>
                     </div>
+                    <div class="horizontal">
+                            <template is="dom-if" if="[[newMessage.destinations.length]]">
+                                <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
+                                    <paper-item class="destination-tag" id="[[destination.displayName]]">
+                                        <div class="destination-type">[[destination.type]]</div>
+                                        <div class="one-line-menu list-title">
+                                            [[destination.displayName]]
+                                        </div>
+                                        
+                                        <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
+                                                    on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
+                                        
+                                    </paper-item>
+                                </template>
+                            </template>
+                                <!-- <vaadin-grid id="destinationsList" items="[[newMessage.destinations]]">
+                                    <vaadin-grid-column width="10%">
+                                        <template class="header">
+                                            <div>Type</div>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.type]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column>
+                                        <template class="header">
+                                            <div>Name</div>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.displayName]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="10%">
+                                        <template>
+                                            <div class="cell frozen">
+                                                <paper-button class="remove-destinations-btn" on-tap="_removeDestinations" indexed$='[[index]]'>Remove</paper-button>
+                                            </div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid> -->
+                            
+                        </div>
                 </div>
-                <div>
-                    <template is="dom-if" if="[[newMessage.destinations.length]]">
-                        <vaadin-grid id="destinationsList" items="[[newMessage.destinations]]">
-                            <vaadin-grid-column width="10%">
+                
+                <div class="field horizontal">
+                    <div class="modal-subtitle">Options</div>
+                    <div>
+                        <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                        <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                    </div>
+                </div>
+                <div class="field horizontal">
+                    <div class="modal-subtitle">Accused</div>
+                    <div>
+                        <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                        <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                        <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="modal-subtitle">Message</div>
+                    <div>
+                        <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.documentTitle}}" always-float-label></paper-input>
+                        <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
+                                    on-change="msgBodyFileInputSelected"></paper-input>
+                        <paper-input-container alway-float-label="true">
+                            <iron-autogrow-textarea slot="input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]" 
+                                                value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
+                        </paper-input-container>
+                    </div>
+                    <div>
+                        <div class="modal-subtitle">Annexes</div>
+                        <paper-input id="newMsg-addAnnexe" type="file" multiple="true" on-change="_addAnnexe"></paper-input>
+                        <vaadin-grid id="annexeList" items="[[newMessage.annex]]">
+                            <vaadin-grid-column>
                                 <template class="header">
-                                    <div>Type</div>
+                                    <div>Files</div>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.type]]</div>
+                                    <div class="cell frozen">[[item.filename]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">
-                                    <div>Name</div>
+                                    <div>Size</div>
                                 </template>
                                 <template>
-                                    <div class="cell frozen">[[item.displayName]]</div>
+                                    <div class="cell frozen">[[item.size]]</div>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="10%">
+                            <vaadin-grid-column>
                                 <template>
                                     <div class="cell frozen">
-                                        <paper-button class="remove-destinations-btn" on-tap="_removeDestinations" indexed$='[[index]]'>Remove</paper-button>
+                                        <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' >Remove</paper-button>
                                     </div>
                                 </template>
                             </vaadin-grid-column>
                         </vaadin-grid>
-                    </template>
+                        <!--<vaadin-upload id="vaadin-upload" files="{{files}}" on-upload-success="_fileUploaded" max-file-size="10000000"></vaadin-upload>-->
+                    </div>
                 </div>
-                <div class="modal-subtitle">Options</div>
-                <div>
-                    <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                    <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
-                </div>
-                <div class="modal-subtitle">Accused</div>
-                <div>
-                    <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                    <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                    <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
-                </div>
-                <div class="modal-subtitle">Message</div>
-                <div>
-                    <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.document.title}}"></paper-input>
-                    <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
-                                 on-change="msgBodyFileInputSelected"></paper-input>
-                    <iron-autogrow-textarea id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"
-                                            value="{{newMessage.document.textContent}}" disabled="[[newMessage.document.content]]"></iron-autogrow-textarea>
-                </div>
-                <div>
-                    <div class="modal-subtitle">Annexes</div>
-                    <paper-input id="newMsg-addAnnexe" type="file" multiple="true" on-change="_addAnnexe"></paper-input>
-                    <vaadin-grid id="annexeList" items="[[newMessage.annex]]">
-                        <vaadin-grid-column>
-                            <template class="header">
-                                <div>Files</div>
-                            </template>
-                            <template>
-                                <div class="cell frozen">[[item.filename]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                <div>Size</div>
-                            </template>
-                            <template>
-                                <div class="cell frozen">[[item.size]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template>
-                                <div class="cell frozen">
-                                    <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' >Remove</paper-button>
-                                </div>
-                            </template>
-                        </vaadin-grid-column>
-                    </vaadin-grid>
-                    <!--<vaadin-upload id="vaadin-upload" files="{{files}}" on-upload-success="_fileUploaded" max-file-size="10000000"></vaadin-upload>-->
-                </div>
-                <div>
+                <div class="field">
                     <div class="modal-subtitle">Patient</div>
                     <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"
-                                      allow-custom-value on-change="_AddSSIN">
+                                    allow-custom-value on-change="_AddSSIN">
                         <template>[[item.displayName]]</template>
                     </vaadin-combo-box>
                 </div>
-                <div class="buttons">
+                <div class="field">
                     <div class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</div>
                     <paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>
                 </div>
-                <div class="buttons">
-                    <div class="fright">
-                        <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
-                        <paper-button class="modal-button--save" on-tap="_SendNewMessage">[[localize('send','Send',language)]]</paper-button>
-                    </div>
+            </div>
+            <div class="buttons">
+                <div class="fright">
+                    <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_SendNewMessage">[[localize('send','Send',language)]]</paper-button>
                 </div>
             </div>
         </paper-dialog>
