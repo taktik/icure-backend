@@ -877,7 +877,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-
     scheduleSave(patient) {
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
@@ -1044,8 +1043,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$['add-person-to-care-team'].close()
         this.$['add-new-person-to-care-team'].open()
     }
-
-
 
     addNewExternalPersonToCareTeam() {
         const careProvider = this.newHcpCareTeam
