@@ -134,6 +134,11 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
+	public List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactToBeCorrected(hcParty, fromDate, toDate);
+	}
+
+	@Override
 	public List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate) {
 		return invoiceDAO.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
 	}
