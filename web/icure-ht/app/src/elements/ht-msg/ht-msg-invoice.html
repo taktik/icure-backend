@@ -820,7 +820,7 @@
                     invUnsent.forEach(inv =>{
                         if(inv.printedDate && inv.printedDate !== "" && inv.sentMediumType === "efact"){
                             this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
-                                .then(patId => treatPendingInvoice(patId, inv))
+                                .then(patIds => treatPendingInvoice(patIds[0], inv))
                         }
                     }
                     ))
