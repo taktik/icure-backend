@@ -14,6 +14,8 @@ import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.properties.CouchDbProperties;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,7 +87,15 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 		});
 
 		if (initialReplication != null) {
-			initialReplication.setDatabaseSynchronizations(initialReplication.getDatabaseSynchronizations().stream().filter(ds -> paths.stream().anyMatch(p -> ds.getTarget().startsWith(couchDbProperties.getUrl().replaceAll("/+$", "") + "/" + p))).collect(Collectors.toList()));
+			initialReplication.setDatabaseSynchronizations(initialReplication.getDatabaseSynchronizations().stream().filter(ds -> {
+				try {
+					URI couch = new URI(couchDbProperties.getUrl());
+					URI dest = new URI(ds.getTarget());
+					return (dest.getPort() == 443 || dest.getPort() == 5984 || dest.getPort() == -1 && dest.getScheme().equals("https")) && (dest.getHost().equals(couch.getHost())) && (paths.stream().anyMatch(p->dest.getPath().startsWith("/"+p)));
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException("Cannot start replication: invalid target");
+				}
+			}).collect(Collectors.toList()));
 			replicationLogic.startDatabaseSynchronisations(initialReplication, false);
 		}
 

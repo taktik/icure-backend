@@ -7,16 +7,12 @@ import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.client.api.Response
 import org.eclipse.jetty.client.api.Result
 import org.eclipse.jetty.client.util.BufferingResponseListener
-import org.eclipse.jetty.http.HttpField
 import org.eclipse.jetty.http.HttpHeader
-import org.eclipse.jetty.util.Callback
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.AsyncDeserializerImpl
 import org.taktik.couchdb.parser.PartialJsonParser
-import org.taktik.icure.dao.replicator.AbstractReplicator
 import java.net.URI
-import java.nio.ByteBuffer
-import java.util.*
+import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
