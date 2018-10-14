@@ -29,7 +29,7 @@
                 }
 
                 vaadin-grid {
-                    height: calc(100% - 16px - 32px);
+                    height: calc(100% - 41px - 32px - 32px);
                     width: 100%;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
@@ -946,14 +946,15 @@
             }
 
             sendInvoices(){
-
-                this.invoices.pending.forEach(fact => {
-                    const oa = fact.insurance.code == "306" ? fact.insurance.code : fact.insurance.code.charAt(0)+"00"
-
-
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
+                    let prom = Promise.resolve()
+                    _.chain(this.invoices.pending)
+                        .groupBy(fact => fact.insurance.parent)
+                        .toPairs().value()
+                        .forEach(([fedId,invoices]) => {
+                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
+                        })
                 })
-
-                console.log(invoiceByInsurance)
 
             }
 

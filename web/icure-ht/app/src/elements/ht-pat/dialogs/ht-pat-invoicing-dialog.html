@@ -1611,7 +1611,7 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
                     this.isSelected=false;
                 })
             }
@@ -1622,7 +1622,7 @@
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
 
-                    const invoiceOfDay = invoices.find( i=> i.invoiceDate == moment().format("YYYYMMDD") )
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate === moment().format("YYYYMMDD") && !i.sentDate )
 
                     if(!invoiceOfDay){
                         const newInvoice = {}

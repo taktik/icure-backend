@@ -60,7 +60,7 @@ onmessage = e => {
                     let newMessage = {
                         created:                createdDate,
                         fromAddress:            fullMessage.sender.lastName+' '+fullMessage.sender.firstName,
-                        subject:                fullMessage.document.title,
+                        subject:                fullMessage.document && fullMessage.document.title || fullMessage.errorCode,
                         metas:                  fullMessage.customMetas,
                         toAddresses:            [boxId],
                         fromHealthcarePartyId:  "",

@@ -355,7 +355,7 @@
                 margin-right: 8px;
             }
 
-            
+
 
             .contact-card-container {
                 position: relative;
@@ -488,10 +488,10 @@
                                         <div class="one-line-menu list-title">
                                             [[destination.displayName]]
                                         </div>
-                                        
+
                                         <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
                                                     on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
-                                        
+
                                     </paper-item>
                                 </template>
                             </template>
@@ -520,10 +520,10 @@
                                         </template>
                                     </vaadin-grid-column>
                                 </vaadin-grid> -->
-                            
+
                         </div>
                 </div>
-                
+
                 <div class="field horizontal">
                     <div class="modal-subtitle">Options</div>
                     <div>
@@ -546,7 +546,7 @@
                         <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
                                     on-change="msgBodyFileInputSelected"></paper-input>
                         <paper-input-container alway-float-label="true">
-                            <iron-autogrow-textarea slot="input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]" 
+                            <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"
                                                 value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
                         </paper-input-container>
                     </div>
@@ -726,7 +726,7 @@
 					this.set("hcpList",filtredHcps)
 				})
             }
-            
+
             filterHcp(hcp,type){
 				switch (type) {
                     case "CBE":
