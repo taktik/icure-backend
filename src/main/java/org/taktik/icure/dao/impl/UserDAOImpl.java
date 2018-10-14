@@ -122,8 +122,13 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Override
 	@View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
-	public List<User> getUsersByPartialId(String id) {
-		return queryView("by_id", id);
+	public List<User> getUsersByPartialIdOnFallback(String id) {
+		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_id").includeDocs(true).key(id), type);
+	}
+
+	@Override
+	public List<User> findByUsernameOnFallback(String login) {
+		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_username").includeDocs(true).key(login), type);
 	}
 
 	@Override

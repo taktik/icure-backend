@@ -77,7 +77,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		boolean isFullToken = username.matches("(.+/)[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
 		boolean isPartialToken = username.matches("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
 
-		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUser(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialId(username) : userLogic.getUsersByLogin(username) ).stream().filter(u ->
+		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUserOnFallbackDb(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialIdOnFallbackDb(username) : userLogic.findUsersByLoginOnFallbackDb(username) ).stream().filter(u ->
 				u != null && this.isPasswordValid(u, auth.getCredentials().toString())
 		).sorted(Comparator.comparing(User::getId)).collect(Collectors.toList());
 
@@ -85,10 +85,18 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		String groupId = null;
 
 		for (User u : users) {
-			user = userLogic.getUserOnUserDb(users.get(0).getId().contains(":") ? users.get(0).getId().split(":")[1] : users.get(0).getId(), users.get(0).getGroupId());
-			if (user != null) {
-				groupId = u.getGroupId();
-				break;
+			String userId = u.getId().contains(":") ? u.getId().split(":")[1] : u.getId();
+			String gId = u.getGroupId();
+			if (gId != null) {
+				user = userLogic.findUserOnUserDb(userId, gId);
+				if (user != null) {
+					groupId = u.getGroupId();
+					break;
+				} else {
+					logger.warn("No match for " + u.getId() + ":" + gId);
+				}
+			} else {
+				logger.warn("No group for " + u.getId() );
 			}
 		}
 		if ((user == null)) {

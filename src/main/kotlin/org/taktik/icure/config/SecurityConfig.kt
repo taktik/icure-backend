@@ -22,7 +22,6 @@ package org.taktik.icure.config
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.encoding.PasswordEncoder
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -39,10 +38,8 @@ import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.security.AuthenticationFailureHandler
 import org.taktik.icure.security.AuthenticationSuccessHandler
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
-import org.taktik.icure.security.database.ApplicationTokensUserDetailsAuthenticationProvider
 import org.taktik.icure.security.database.CustomAuthenticationProvider
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
-import org.taktik.icure.security.database.UserDetailsService
 import org.taktik.icure.security.web.BasicAuthenticationFilter
 import org.taktik.icure.security.web.LoginUrlAuthenticationEntryPoint
 import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
@@ -82,12 +79,14 @@ class SecurityConfig {
             basicAuthenticationFilter: BasicAuthenticationFilter,
             usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
             exceptionTranslationFilter: ExceptionTranslationFilter,
-            remotingExceptionTranslationFilter: ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
+            remotingExceptionTranslationFilter: ExceptionTranslationFilter)
+        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
 
     @Bean
     fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
         setPasswordEncoder(passwordEncoder)
     }
+
 }
 
 @Configuration

@@ -38,6 +38,7 @@ import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.PropertyType;
 import org.taktik.icure.entities.Role;
 import org.taktik.icure.entities.User;
+import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Permission;
 import org.taktik.icure.entities.embed.TypedValue;
 import org.taktik.icure.exceptions.CreationException;
@@ -55,7 +56,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -73,11 +73,8 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	private static final PropertyUtilsBean pub = new PropertyUtilsBean();
 
-	private static final String defaultUserName = "admin@icure.com";
-	private static final String defaultUserPassword = "admin";
 
 	private static final Duration CHECK_USERS_EXPIRATION_TIME_RANGE = Duration.ofDays(1);
-	private static final Duration LOST_PASSWORD_TOKEN_EXPIRATION_DELAY = Duration.ofDays(3);
 
 	private UserDAO userDAO;
 
@@ -88,7 +85,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	private PasswordEncoder passwordEncoder;
 
 
-	private Set<UserLogicListener> listeners = new HashSet<UserLogicListener>();
+	private Set<UserLogicListener> listeners = new HashSet<>();
 
 	private UUIDGenerator uuidGenerator;
 
@@ -107,8 +104,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public void removeListener(UserLogicListener listener) {
 		listeners.remove(listener);
 	}
-
-
+	
 	@Override
 	public User getUser(String id) {
 		return userDAO.get(id);
@@ -248,6 +244,17 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		// Create user
 		user = newUser(type, Users.Status.ACTIVE, email, Instant.now());
 
+		setHealthcarePartyIdIfExists(healthcarePartyId, user);
+
+		// Set password if any
+		if (password != null) {
+			user.setPasswordHash(encodePassword(password));
+		}
+
+		return userDAO.create(user);
+	}
+
+	private void setHealthcarePartyIdIfExists(String healthcarePartyId, User user) {
 		if (healthcarePartyId != null) {
 			HealthcareParty healthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyId);
 			if (healthcareParty != null) {
@@ -256,13 +263,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 				log.error("newUser: healthcare party " + healthcarePartyId + "does not exist. But, user is created with Null healthcare party.");
 			}
 		}
-
-		// Set password if any
-		if (password != null) {
-			user.setPasswordHash(encodePassword(password));
-		}
-
-		return userDAO.create(user);
 	}
 
 	@Override
@@ -338,14 +338,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			user.setEmail(email);
 			user.setName(name);
 
-			if (healthcarePartyId != null) {
-				HealthcareParty healthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyId);
-				if (healthcareParty != null) {
-					user.setHealthcarePartyId(healthcarePartyId);
-				} else {
-					log.error("newUser: healthcare party " + healthcarePartyId + "does not exist. But, user is created with Null healthcare party.");
-				}
-			}
+			setHealthcarePartyIdIfExists(healthcarePartyId, user);
 
 			return registerUser(user,password);
 		}
@@ -363,11 +356,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			}
 
 			// Check expirationDate
-			if (user.getExpirationDate() != null && user.getExpirationDate().isBefore(Instant.now())) {
-				return false;
-			}
-
-			return true;
+			return user.getExpirationDate() == null || !user.getExpirationDate().isBefore(Instant.now());
 		}
 
 		return false;
@@ -379,9 +368,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		if (user != null) {
 			if (user.getPasswordToken() != null && token != null) {
 				if (user.getPasswordToken().equals(token)) {
-					if (user.getPasswordTokenExpirationDate() == null || user.getPasswordTokenExpirationDate().isAfter(Instant.now())) {
-						return true;
-					}
+					return user.getPasswordTokenExpirationDate() == null || user.getPasswordTokenExpirationDate().isAfter(Instant.now());
 				}
 			}
 		}
@@ -395,9 +382,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			User user = getUser(userId);
 			if (user != null) {
 				if (user.getActivationToken() != null && user.getActivationToken().equals(token)) {
-					if (user.getActivationTokenExpirationDate() == null || user.getActivationTokenExpirationDate().isAfter(Instant.now())) {
-						return true;
-					}
+					return user.getActivationTokenExpirationDate() == null || user.getActivationTokenExpirationDate().isAfter(Instant.now());
 				}
 			}
 		}
@@ -511,21 +496,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		}
 
 		return true;
-	}
-
-	private Map<String, Object> buildMailBaseModel(User user) {
-		Map<String, Object> model = new HashMap<String, Object>();
-
-		// User related
-		model.put("login", user.getLogin());
-		model.put("name", user.getName());
-		model.put("email", user.getEmail());
-
-		// System related
-		model.put("icureName", propertyLogic.<String>getSystemPropertyValue(PropertyTypes.System.NAME.getIdentifier()));
-		model.put("icureUrl", propertyLogic.<String>getSystemPropertyValue(PropertyTypes.System.URL.getIdentifier()));
-
-		return model;
 	}
 
 	@Override
@@ -659,7 +629,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public boolean createEntities(Collection<User> users, Collection<User> createdUsers) throws Exception {
+	public boolean createEntities(Collection<User> users, Collection<User> createdUsers) {
 		for (User user : users) {
 			fillDefaultProperties(user);
 			if (user.getPasswordHash() != null && !user.getPasswordHash().matches("^[0-9a-zA-Z]{64}$")) {
@@ -671,19 +641,19 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public List<User> updateEntities(Collection<User> users) throws Exception {
+	public List<User> updateEntities(Collection<User> users) {
 		return users.stream().map(this::modifyUser).collect(Collectors.toList());
 	}
 
 	@Override
-	public void deleteEntities(Collection<String> userIds) throws Exception {
+	public void deleteEntities(Collection<String> userIds) {
 		for (String userId : userIds) {
 			deleteUser(userId);
 		}
 	}
 
 	@Override
-	public void undeleteEntities(Collection<String> userIds) throws Exception {
+	public void undeleteEntities(Collection<String> userIds) {
 		for (String userId : userIds) {
 			undeleteUser(userId);
 		}
@@ -696,7 +666,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public List<String> getAllEntityIds() {
-		return userDAO.getAll().stream().map(e->e.getId()).collect(Collectors.toList());
+		return userDAO.getAll().stream().map(StoredDocument::getId).collect(Collectors.toList());
 	}
 
 	@Override
@@ -787,8 +757,20 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public List<User> getUsersByPartialId(String id) {
-		return userDAO.getUsersByPartialId(id);
+	public User findUserOnUserDb(String userId, String groupId) {
+		return userDAO.findUserOnUserDb(userId, groupId, false);
+	}
+
+	@Override
+	public List<User> getUsersByPartialIdOnFallbackDb(String id) {
+		return userDAO.getUsersByPartialIdOnFallback(id);
+	}
+
+	@Override
+	public List<User> findUsersByLoginOnFallbackDb(String login) {
+		// Format login
+		login = formatLogin(login);
+		return  userDAO.findByUsernameOnFallback(login);
 	}
 
 	@Autowired

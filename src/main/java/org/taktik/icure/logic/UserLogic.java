@@ -29,7 +29,6 @@ import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.exceptions.UserRegistrationException;
 import org.taktik.icure.logic.listeners.UserLogicListener;
-import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -144,5 +143,9 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 
 	User getUserOnUserDb(String userId, String groupId);
 
-	List<User> getUsersByPartialId(String id);
+	User findUserOnUserDb(String userId, String groupId);
+
+	List<User> getUsersByPartialIdOnFallbackDb(String id);
+
+	List<User> findUsersByLoginOnFallbackDb(String username);
 }

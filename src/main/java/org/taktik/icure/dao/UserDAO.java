@@ -49,5 +49,7 @@ public interface UserDAO extends GenericDAO<User> {
 
 	User saveOnFallback(User user);
 
-	List<User> getUsersByPartialId(String id);
+	List<User> getUsersByPartialIdOnFallback(String id);
+
+	List<User> findByUsernameOnFallback(String login);
 }

@@ -49,6 +49,7 @@ import io.swagger.annotations.Tag;
 				@Tag(name = "be_drugs", description = "API for belgian Drugs service"),
 				@Tag(name = "be_mikrono", description = "API for belgian Mikrono service"),
 				@Tag(name = "be_progenda", description = "API for belgian Progenda service"),
+				@Tag(name = "be_kmehr", description = "API for belgian Kmehr service"),
 				@Tag(name = "be_result_import", description = "API for belgian Result_import service"),
 				@Tag(name = "be_result_export", description = "API for belgian Result_export service")
 		})
