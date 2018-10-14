@@ -714,16 +714,16 @@
                         <div class="flex-container">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>
+                                    <vaadin-checkbox checked="{{selectedInvoice.creditNote}}"></vaadin-checkbox>
                                     [[localize('inv_cr_no','Credit note',language)]]<br/>
 
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>
+                                    <vaadin-checkbox checked="{{selectedInvoice.longDelayJustification}}"></vaadin-checkbox>
                                     [[localize('inv_llp','Lifting limitation period',language)]]
                                 </template>
 
                                 <template is="dom-if" if="[[isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
+                                    <vaadin-checkbox disabled checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
+                                    <vaadin-checkbox checked="[[selectedInvoice.longDelayJustification]]" disabled>[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
 
 
@@ -1423,7 +1423,7 @@
                         newInvoice.invoiceType = "mutualfund"
                         newInvoice.sentMediumType = "efact"
                         newInvoice.invoicePeriod = 0
-                        newInvoice.longDelayJustification = 0
+                        newInvoice.longDelayJustification = false
                         newInvoice.gnotionNihii = ""
                         newInvoice.internshipNihii = ""
                         newInvoice.creditNote = false
@@ -1467,14 +1467,6 @@
                     })
                 }
 
-            }
-
-            _isCreditNote(e) {
-                this.set('selectedInvoice.creditNote', e.target.checked)
-            }
-
-            _isLiftingLimitationPeriod(e) {
-                this.set('selectedInvoice.longDelayJustification', e.target.checked)
             }
 
             analyzeMediumType(e) {
@@ -2210,11 +2202,12 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
+                    this.isSelected=true;
                     const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
                     //console.log(invoice)
+                    invoice.longDelayJustification=invoice.longDelayJustification ? 1 : 0
                     this.api.invoice().modifyInvoice(invoice).then(response => {
                         this.set("invoices."+this.invoices.indexOf(invoice),response)
-                        this.isSelected=true;
                         this.set("selectedInvoice",response)
                         this.isSelected=false;
                     })
@@ -2231,6 +2224,10 @@
                 if(e.keyCode==13){
                     this._addNmcl(e);
                 }
+            }
+
+            isLongDelay(){
+                return this.selectedInvoice.longDelayJustification ? true : false
             }
 
         }
