@@ -1611,7 +1611,7 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', (this.selectedInvoice.printedDate && this.selectedInvoice.printedDate != "") ? true : false)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
                     this.isSelected=false;
                 })
             }
@@ -1622,7 +1622,7 @@
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
 
-                    const invoiceOfDay = invoices.find( i=> i.invoiceDate == moment().format("YYYYMMDD") )
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate === moment().format("YYYYMMDD") && !i.sentDate )
 
                     if(!invoiceOfDay){
                         const newInvoice = {}
@@ -1904,15 +1904,16 @@
             }
 
             _verifyTarification() {
-                let nmclCode = []
-
-                this.selectedInvoice.invoicingCodes.map(nmcl => nmclCode.push(nmcl.code))
-
                 if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "") {
-
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-
-                        this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword, hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin, nmclCode, this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii, this.selectedInvoice.thirdPartyReference == "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp =>
+                            this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                                this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+                                hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
+                                this.selectedInvoice.invoicingCodes.map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii,
+                                this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference)
+                        )
+                        .then(r => {
                             console.log(r)
                             this.set('isDetailNmcl', false)
                             this.set("tarificationError", null)
@@ -1932,28 +1933,28 @@
                                 this.set("isNmclVerified", true)
                                 this.set("isTarificationMcnError", false)
 
-                                r.codes.forEach(c => {
-                                    const cind = r.codes.indexOf(c)
-                                    let item = this.selectedInvoice.invoicingCodes.find(item => item.code === c)
-                                    let itemInd = this.selectedInvoice.invoicingCodes.indexOf(item)
+                                r.codeResults.forEach((c,idx) => {
+                                    let invCode = this.selectedInvoice.invoicingCodes[idx]
+                                    if (c.code !== invCode.code) {
+                                        //Desperate measure
+                                        invCode = this.selectedInvoice.invoicingCodes.find(invCode => invCode.code === c.code)
+                                        idx = this.selectedInvoice.invoicingCodes.indexOf(invCode)
+                                    }
 
-                                    item.reimbursement = r.reimbursements[cind].amount
-                                    item.patientIntervention = r.patientFees[cind].amount
-                                    item.totalAmount = r.fees[cind].amount
-                                    item.contract = r.financialContracts[cind]
-                                    item.valid = true
-                                    item.override3rdPayerCode = r.justification
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.reimbursement`, c.reimbursement.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.patientIntervention`, c.patientFee.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.totalAmount`, c.fee.amount)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.contract`, c.contract)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.valid`, true)
+                                    this.set(`selectedInvoice.invoicingCodes.${idx}.override3rdPayerCode`, c.justification)
 
-                                    this.set('selectedInvoice.invoicingCodes[itemInd]', item)
-                                    this.$['nmclGrid'].clearCache()
-
+                                    //this.$['nmclGrid'].clearCache()
                                 })
                                 this.calculateTotalOfInvoice()
                                 console.log(this.selectedInvoice)
                             }
                         }).catch((e) => {
-                            console.log("Exception", e)
-                        })
+                        console.log("Exception", e)
                     })
 
                 } else {

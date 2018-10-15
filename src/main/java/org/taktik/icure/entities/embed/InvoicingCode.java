@@ -30,7 +30,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	public static final long STATUS_PRINTED = 2;
 	public static final long STATUS_PAIDPRINTED = 3;
 
-	public static final long STATUS_TO_BE_SENT = 0;
 	public static final long STATUS_PENDING = 4;
 	public static final long STATUS_CANCELED = 8;
 	public static final long STATUS_ACCEPTED = 16;
@@ -66,6 +65,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
     protected String error;
 	//TODO... Might want to encrypt this as it could be used to identify the patient
     protected String contract;
+	protected Long contractDate;
     protected Integer units;
     protected Integer side;
     protected Integer timeOfDay;
@@ -319,8 +319,15 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
         this.override3rdPayerReason = override3rdPayerReason;
     }
 
+	public Long getContractDate() {
+		return contractDate;
+	}
 
-    public Integer getPrescriberNorm() {
+	public void setContractDate(Long contractDate) {
+		this.contractDate = contractDate;
+	}
+
+	public Integer getPrescriberNorm() {
         return prescriberNorm;
     }
 
@@ -514,6 +521,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.vat = this.vat == null ? other.vat : this.vat;
 		this.error = this.error == null ? other.error : this.error;
 		this.contract = this.contract == null ? other.contract : this.contract;
+		this.contractDate = this.contractDate == null ? other.contractDate : this.contractDate;
 		this.units = this.units == null ? other.units : this.units;
 		this.side = this.side == null ? other.side : this.side;
 		this.timeOfDay = this.timeOfDay == null ? other.timeOfDay : this.timeOfDay;
