@@ -19,6 +19,8 @@
 package org.taktik.icure.security.database;
 
 import org.jboss.aerogear.security.otp.Totp;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,10 +28,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.PermissionLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.properties.AuthenticationProperties;
 import org.taktik.icure.security.PermissionSet;
 import org.taktik.icure.security.PermissionSetIdentifier;
 
@@ -43,6 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
+	private AuthenticationProperties authenticationProperties;
 
 	public CustomAuthenticationProvider(UserLogic userLogic, PermissionLogic permissionLogic) {
 		this.userLogic = userLogic;
@@ -63,6 +68,11 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		}
 	}
 
+	/**
+	 * Authenticate users from global user db
+	 * @param auth
+	 * @return
+	 */
 	@Override
 	public Authentication authenticate(Authentication auth) {
 		if (auth.getPrincipal() == null) { throw new BadCredentialsException("Invalid username or password"); }
@@ -84,25 +94,26 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		User user = null;
 		String groupId = null;
 
-		for (User u : users) {
-			String userId = u.getId().contains(":") ? u.getId().split(":")[1] : u.getId();
-			String gId = u.getGroupId();
-			if (gId != null) {
+		for (User userOnFallbackDb : users) {
+			String userId = userOnFallbackDb.getId().contains(":") ? userOnFallbackDb.getId().split(":")[1] : userOnFallbackDb.getId();
+			String gId = userOnFallbackDb.getGroupId();
+
+			if (gId != null || authenticationProperties.getLocal()) {
 				user = userLogic.findUserOnUserDb(userId, gId);
 				if (user != null) {
-					groupId = u.getGroupId();
+					if (gId != null) { groupId = gId; }
 					break;
 				} else {
-					logger.warn("No match for " + u.getId() + ":" + gId);
+					logger.warn("No match for " + userOnFallbackDb.getId() + ":" + gId);
 				}
 			} else {
-				logger.warn("No group for " + u.getId() );
+				logger.warn("No group for " + userOnFallbackDb.getId() );
 			}
 		}
 		if ((user == null)) {
 			throw new BadCredentialsException("Invalid username or password");
 		}
-		if (user.isUse2fa() != null && user.isUse2fa() && !user.isSecretEmpty()) {
+		if (user.isUse2fa() != null && (user.isUse2fa() != null && user.isUse2fa()) && !user.isSecretEmpty()) {
 			String[] splittedPassword = auth.getCredentials().toString().split("\\|");
 			if (splittedPassword.length<2) {
 				throw new BadCredentialsException("Missing verfication code");
@@ -164,5 +175,10 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return authentication.equals(UsernamePasswordAuthenticationToken.class);
+	}
+
+	@Autowired
+	public void setAuthenticationProperties(AuthenticationProperties authenticationProperties) {
+		this.authenticationProperties = authenticationProperties;
 	}
 }
