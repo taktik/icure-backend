@@ -56,6 +56,7 @@ class QrcodeCapture extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	constructor() {
 		super();
+        this.requestAnimationFrameBuffer = false;
 	}
 
 	ready() {
@@ -75,7 +76,7 @@ class QrcodeCapture extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const ofWidth = parseInt(ofCanvas.style.width);
 		const ofHeight = parseInt(ofCanvas.style.height);
 
-		requestAnimationFrame(this.tick.bind(this));
+        if (!this.stopAnimation) { requestAnimationFrame(this.tick.bind(this)); }
 
 		if (video.readyState === video.HAVE_ENOUGH_DATA) {
 			// Load the video onto the canvas
@@ -132,11 +133,13 @@ class QrcodeCapture extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		} else {
 			console.log("getUserMedia not supported");
 		}
-		requestAnimationFrame(this.tick.bind(this));
+        this.stopAnimation = false
+        this.requestAnimationFrameBuffer = requestAnimationFrame(this.tick.bind(this));
 	}
 
 	stop() {
-		cancelAnimationFrame(this.tick.bind(this));
+        //cancelAnimationFrame( this.requestAnimationFrameBuffer );
+		this.stopAnimation = true
 		this.stream && (this.stream.getTracks() || []).forEach(t => t.stop())
     }
 

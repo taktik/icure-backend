@@ -32,7 +32,6 @@ import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Contact;
-import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Service;
 
 import java.io.Serializable;
@@ -234,7 +233,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
     }
 
     @Override
-    @View(name = "service_by_hcparty_code", map = "classpath:js/contact/Service_by_hcparty_code.js")
+    @View(name = "service_by_hcparty_code", map = "classpath:js/contact/Service_by_hcparty_code.js", reduce = "_count")
     public List<String> findServicesByCode(String hcPartyId, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
 		if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
 		if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
@@ -254,13 +253,31 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
         ViewQuery viewQuery = createQuery("service_by_hcparty_code")
                 .startKey(from)
                 .endKey(to)
+		        .reduce(false)
                 .includeDocs(false);
 
         List<String> ids = db.queryView(viewQuery, String.class);
         return ids;
     }
 
-    @Override
+	@Override
+	public List<CouchKeyValue<Long>> listCodesFrequencies(String hcPartyId, String codeType) {
+		ComplexKey from = ComplexKey.of(
+				hcPartyId,
+				codeType,
+				null
+		);
+		ComplexKey to = ComplexKey.of(
+				hcPartyId,
+				codeType,
+				ComplexKey.emptyObject()
+		);
+
+		return ((CouchDbICureConnector) db).queryViewWithKeys(createQuery("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3), Long.class);
+    }
+
+
+	@Override
     @View(name = "service_by_hcparty_patient_code", map = "classpath:js/contact/Service_by_hcparty_patient_code.js")
     public List<String> findServicesByPatientCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
     	if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }

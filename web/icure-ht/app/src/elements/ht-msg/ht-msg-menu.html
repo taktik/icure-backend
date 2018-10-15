@@ -77,7 +77,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				grid-column: 1 / 1;
     			grid-row: 1 / 1;
 				background:var(--app-background-color-dark);
-				float:left;
 				@apply --shadow-elevation-3dp;
 				padding:20px;
 				display:flex;
@@ -94,10 +93,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-button: {
 					background: var(--app-secondary-color);
 					color: var(--app-text-color);
-					width: 80%;
+					width: 100%;
 					margin: 0 auto;
-					font-size: 12px;
+					font-size: 14px;
 					font-weight: bold;
+					text-transform: capitalize;
 				};
 				--paper-button-ink-color: var(--app-secondary-color-dark);
 			}
@@ -373,14 +373,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			paper-checkbox{
 				--paper-checkbox-unchecked-color: var(--app-text-color);
-				--paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
-				--paper-checkbox-checkmark-color: var(--app-secondary-color);
-				--paper-checkbox-checked-color: var(--app-primary-color);
+				--paper-checkbox-label-color: var(--app-text-color);
+				--paper-checkbox-checked-color: var(--app-secondary-color);
+				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
 			}
 
 			.trash{
 				align-self: flex-start;
 				width:100%;
+				padding: 0;
 			}
 
 			iron-icon{
@@ -390,6 +391,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			paper-item{
 				cursor: pointer;
+			}
+			.menu-trigger{
+				padding: 0;
 			}
 		</style>
 		<div class="col-left">

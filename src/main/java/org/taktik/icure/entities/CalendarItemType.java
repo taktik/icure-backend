@@ -16,8 +16,6 @@ public class CalendarItemType extends StoredDocument implements Serializable {
 
     private int duration;
 
-    private boolean visit;
-
     public String getName() {
         return name;
     }
@@ -40,13 +38,5 @@ public class CalendarItemType extends StoredDocument implements Serializable {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public boolean isVisit() {
-        return visit;
-    }
-
-    public void setVisit(boolean visit) {
-        this.visit = visit;
     }
 }

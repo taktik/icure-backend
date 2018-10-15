@@ -42,7 +42,9 @@ public interface ContactDAO extends GenericDAO<Contact> {
 
     List<String> findServicesByCode(String hcPartyId, String codeType, String codeCode, Long startValueDate, Long endValueDate);
 
-    List<String> findServicesByPatientCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate);
+	List<CouchKeyValue<Long>> listCodesFrequencies(String hcPartyId, String codeType);
+
+	List<String> findServicesByPatientCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate);
 
 	List<CouchKeyValue<Long>> listServicesByLabel(String hcPartyId, String label);
 
