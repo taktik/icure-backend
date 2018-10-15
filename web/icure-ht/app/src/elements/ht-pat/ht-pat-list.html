@@ -782,15 +782,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </page>
                 <page>
                     <!--Medical houses-->
+
+
+
+
+
+
+
                     <div class="horizontal">
-                        <paper-input label="Medical house ID" value="{{mhUid}}" always-float-label></paper-input>
-                        <paper-checkbox value="{{mhHasDoctorSubscription}}" label="Has doctor subscription" always-float-label>Has doctor subscription?</paper-checkbox>
-                        <paper-checkbox value="{{mhHasPhysiotherapistSubscription}}" label="Has physiotherapist subscription" always-float-label>Has physiotherapist subscription?</paper-checkbox>
-                        <paper-checkbox value="{{mhHasNurseSubscription}}" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
-                        <vaadin-date-picker label="Subscription date" i18n="[[i18n]]" value="{{mhSubscriptionDate}}" always-float-label></vaadin-date-picker>
-                        <vaadin-date-picker label="Subscription start" i18n="[[i18n]]" value="{{mhSubscriptionStartDate}}" always-float-label></vaadin-date-picker>
-                        <vaadin-date-picker label="Subscription end" i18n="[[i18n]]" value="{{mhSubscriptionEndDate}}" always-float-label></vaadin-date-picker>
-                        <vaadin-date-picker label="Unsubscription date" i18n="[[i18n]]" value="{{mhUnsubscriptionDate}}" always-float-label></vaadin-date-picker>
+                        <paper-input label="Medical house ID" value="{{mmNihii}}" always-float-label></paper-input>
+
+                        <paper-checkbox value="{{kine}}" label="Has doctor subscription" always-float-label>Has doctor subscription?</paper-checkbox>
+                        <paper-checkbox value="{{kine}}" label="Has physiotherapist subscription" always-float-label>Has physiotherapist subscription?</paper-checkbox>
+                        <paper-checkbox value="{{nurse}}" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
+                        <vaadin-date-picker label="Subscription date" i18n="[[i18n]]" value="{{startOfContract}}" always-float-label></vaadin-date-picker>
+                        <vaadin-date-picker label="Subscription start" i18n="[[i18n]]" value="{{startOfCoverage}}" always-float-label></vaadin-date-picker>
+                        <vaadin-date-picker label="Unsubscription date" i18n="[[i18n]]" value="{{endOfContract}}" always-float-label></vaadin-date-picker>
+                        <vaadin-date-picker label="Subscription end" i18n="[[i18n]]" value="{{endOfCoverage}}" always-float-label></vaadin-date-picker>
                         <paper-input label="Subscription evaluation months" i18n="[[i18n]]" value="{{mhSubscriptionEvalutationMonths}}" type="number" always-float-label min="0" max="12" style="min-width: 200px"></paper-input>
                     </div>
                 </page>
