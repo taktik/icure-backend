@@ -716,6 +716,12 @@
             }
 
             _searchInGrid(str) {
+                let grid = this.shadowRoot.getElementById("gridContainer")
+                console.log("#gridContainer",grid)
+                this.getSearchType(str)
+            }
+
+            getSearchType(str) {
                 let searchType = "invoice.patient.firstName"
                 let output = str
                 if (!(str.length == 0 || str == "")) {
