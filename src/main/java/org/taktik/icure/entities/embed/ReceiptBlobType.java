@@ -1,5 +1,5 @@
 package org.taktik.icure.entities.embed;
 
 public enum ReceiptBlobType {
-	xades,kmehrRequest,kmehrResponse,soapRequest,soapResponse
+	xades,kmehrRequest,kmehrResponse,soapRequest,soapResponse,tack
 }

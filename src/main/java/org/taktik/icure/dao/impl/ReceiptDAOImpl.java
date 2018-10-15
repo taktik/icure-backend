@@ -13,7 +13,7 @@ import org.taktik.icure.entities.Receipt;
 import java.util.List;
 
 @Repository("receiptDAO")
-@View(name = "all", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.EntityReference' && !doc.deleted) emit(doc._id)}")
+@View(name = "all", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc._id)}")
 public class ReceiptDAOImpl extends GenericIcureDAOImpl<Receipt> implements ReceiptDAO {
 	public ReceiptDAOImpl(@Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
 		super(Receipt.class, db, idGenerator);
