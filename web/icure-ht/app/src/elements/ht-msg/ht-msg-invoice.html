@@ -711,17 +711,35 @@
 
             refreshFilter(){
                 setTimeout(function () {
-                    this._searchInGrid(this.filterInput)
+                    this.executeSearch(this.filterInput)
                 }.bind(this), 500)
             }
 
-            _searchInGrid(str) {
-                let grid = this.shadowRoot.getElementById("gridContainer")
+            executeSearch(str) {
+                let grid = this.shadowRoot.getElementById("gridContainer"), gridToDisplay = [], rowsToDisplay = []
                 console.log("#gridContainer",grid)
-                this.getSearchType(str)
+                this.setSearchProps(str)
+                grid.map(row=>{ // set the rows we must display
+                    let mustAdd = false
+                    let thisRow
+                    row.map(cell=>{ // search if search is contained in this cell
+                        if (str.toString() === cell.value) {
+                            mustAdd = true
+                            thisRow = row
+                        }
+                    })
+                    if (mustAdd && thisRow) {
+                        rowsToDisplay.push(thisRow)
+                    }
+                    mustAdd = false
+                    rowsToDisplay = null
+                })
+                rowsTodisplay.map(addMe=>{
+                    gridToDisplay.push(addMe)
+                })
             }
 
-            getSearchType(str) {
+            setSearchProps(str) { // will set the path type for vaadin filter and format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
                 if (!(str.length == 0 || str == "")) {
