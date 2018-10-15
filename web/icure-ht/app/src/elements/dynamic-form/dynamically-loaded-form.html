@@ -185,7 +185,7 @@
                 const ctc = this.currentContact
                 ;(he.id ? Promise.resolve(he) : this.promoteServiceToHealthElement(he)).then(he => {
                         this.dataProvider.getServicesInContact(e.detail.representedObject).forEach(svcStruc => svcStruc && svcStruc[0] && svcStruc[0].svc && !!svcStruc[0].svc.endOfLife && this.api.contact().promoteServiceInContact(ctc, this.user, this._allContacts(), svcStruc[0].svc, this.form.id, null, [he.id]))
-                        this.scheduleSave(ctc)
+                        this.scanServicesAndScheduleSave(ctc)
                     }
 				)
             }
@@ -205,7 +205,7 @@
                                 ctc.subContacts.push({formId: this.formId, healthElementId: he.id, services: []})
                             }
 
-                            this.scheduleSave(ctc);
+                            this.scanServicesAndScheduleSave(ctc);
                         }
                     });
                 } else if (!this._selectedHes().includes(he.id)) {
@@ -215,7 +215,7 @@
                         ctc.subContacts.push({formId: this.formId, healthElementId: he.id, services: []})
                     }
 
-                    this.scheduleSave(ctc);
+                    this.scanServicesAndScheduleSave(ctc);
                 }
             }
 
@@ -277,10 +277,38 @@
                 }
             }
 
-            scheduleSave(ctc) {
+            scanServicesAndScheduleSave(ctc) {
                 if (!ctc) {
                     return;
                 }
+
+                //Make sure that healthElements contain new potential linkables
+                const idLinkables = this.healthElements.map(he=>he.idService)
+
+                ctc.services.map(s => s.tags.filter(t => t.type === 'CD-ITEM' && t.code === 'diagnosis'))
+					.forEach(svc => {
+                        if (!idLinkables.includes(svc.id)) {
+                            this.splice('healthElements', 0, 0, [{
+                                created: svc.created,
+                                modified: svc.modified,
+                                endOfLife: svc.endOfLife,
+                                author: svc.author,
+                                responsible: svc.responsible,
+                                codes: svc.codes,
+                                tags: svc.tags,
+                                valueDate: svc.valueDate,
+                                openingDate: svc.openingDate,
+                                closingDate: svc.closingDate,
+                                descr: this.shortServiceDescription(svc, this.language),
+                                idService: svc.id,
+                                status: svc.status,
+                                svc: svc,
+                                plansOfAction: []
+                            }])
+                        }
+                    })
+
+
                 this.dispatchEvent(new CustomEvent('data-change', {detail: ctc, bubbles: true, composed: true})); //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
                 if (this.saveTimeout) {
                     clearTimeout(this.saveTimeout);
@@ -446,7 +474,7 @@
                             }
                         });
                         if (isModified || currentValueContainers.length) {
-                            this.scheduleSave(this.currentContact);
+                            this.scanServicesAndScheduleSave(this.currentContact);
                         }
                     },
                     getStringValue: (label, original) => {
@@ -487,7 +515,7 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.stringValue !== value) {
                                 c.stringValue = value;
-                                this.scheduleSave(this.currentContact);
+                                this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
@@ -500,7 +528,7 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.numberValue !== value) {
                                 c.numberValue = value;
-                                this.scheduleSave(this.currentContact);
+                                this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
@@ -515,7 +543,7 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.measureValue !== value) {
                                 c.measureValue = value;
-                                this.scheduleSave(this.currentContact);
+                                this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
@@ -528,7 +556,7 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.fuzzyDateValue !== value) {
                                 c.fuzzyDateValue = value;
-                                this.scheduleSave(this.currentContact);
+                                this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
@@ -541,7 +569,7 @@
                             let c = self.getOrCreateContent(svc, this.language);
                             if (c && c.booleanValue !== value) {
                                 c.booleanValue = value;
-                                this.scheduleSave(this.currentContact);
+                                this.scanServicesAndScheduleSave(this.currentContact);
                             }
                             return svc;
                         });
@@ -562,7 +590,7 @@
                                         c.booleanValue = value;
                                     }
                                 }
-                                this.scheduleSave(this.currentContact);
+                                this.scanServicesAndScheduleSave(this.currentContact);
                             } else if (setBooleanValue) {
                                 self.setBooleanValue(!!value);
                             }
@@ -636,7 +664,7 @@
 
                         this.api.form().modifyForm(_.extend(ff, {deletionDate: +new Date() * 1000})).then(f => {
                             this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
-                            this.scheduleSave(this.currentContact);
+                            this.scanServicesAndScheduleSave(this.currentContact);
                         });
                     },
                     addSubForm: (key, guid) => {
@@ -658,7 +686,7 @@
                                     this.currentContact.subContacts.push({formId: f.id, descr: key, services: []});
 
                                     this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
-                                    this.scheduleSave(this.currentContact);
+                                    this.scanServicesAndScheduleSave(this.currentContact);
                                 });
                             }
                         });
@@ -715,7 +743,7 @@
                     .forEach(svc => {
                         this.promoteServiceInCurrentContact(svc.svc, this.form.id, null, [he.id], null);
                     });
-                this.scheduleSave(this.currentContact);
+                this.scanServicesAndScheduleSave(this.currentContact);
             }
 
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
@@ -760,7 +788,7 @@
                 return this.api.helement().serviceToHealthElement(this.user, this.patient, heSvc.svc,
                     this.api.contact().shortServiceDescription(heSvc.svc, language)).then(he => {
                     this.promoteServiceInCurrentContact(heSvc.svc, this.form.id, null, [he.id], null);
-                    this.scheduleSave(this.currentContact);
+                    this.scanServicesAndScheduleSave(this.currentContact);
                     this.dispatchEvent(new CustomEvent('health-elements-change', {detail: {hes: [he]}, bubbles: true, composed: true}));
 
                     return he;

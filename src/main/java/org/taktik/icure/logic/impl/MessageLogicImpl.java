@@ -81,6 +81,11 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	}
 
 	@Override
+	public PaginatedList<Message> findByTransportGuidReceived(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset) {
+		return messageDAO.findByTransportGuidReceived(partyId, transportGuid, paginationOffset);
+	}
+
+	@Override
 	public PaginatedList<Message> findByTransportGuid(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset) {
 		return messageDAO.findByTransportGuid(partyId, transportGuid, paginationOffset);
 	}

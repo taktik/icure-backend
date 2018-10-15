@@ -123,16 +123,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 vaadin-grid.material .cell {
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    padding-right: 56px;
+                    padding-right: 0;
                 }
 
                 vaadin-grid.material .cell.last {
                     padding-right: 24px;
                 }
 
-                vaadin-grid.material .cell.numeric {
-                    text-align: right;
-                }
 
                 vaadin-grid.material paper-checkbox {
                     --primary-color: var(--paper-indigo-500);
@@ -272,9 +269,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container {
                     width: 100%;
                     height: calc(100vh - 64px);
-                    /*display: grid;*/
-                    /*grid-template-columns: 20% 30% 50%;*/
-                    /*grid-template-rows: 100%;*/
                     position: fixed;
                     top: 64px;
                     left: 0;
@@ -283,11 +277,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .first-filter-panel {
-                    /*width:20%;
-                    height:calc(100% - 64px);*/
                     height: 100%;
                     background: var(--app-background-color-dark);
-                    /*position:fixed;*/
                     top: 64px;
                     left: 0;
                     @apply --shadow-elevation-3dp;
@@ -384,7 +375,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     border-left: 1px solid rgba(0,0,0,.05);
                     border-right: 1px solid rgba(0,0,0,.05);
 
-                }ht-hcp-list
+                }
 
                 #selectPatientOption_back {
                     min-width: 80px;
@@ -459,6 +450,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 40px;
                     min-width: 100px;
                     padding: 10px 1.2em;
+                    text-transform: capitalize;
                 }
 
                 .modal-button--save{
@@ -543,7 +535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         z-index: 99;
                         padding: 8px 0;
 
-                        transition: .25s ease-out;
+                        transition: .25s cubic-bezier(0.075, 0.82, 0.165, 1);
                         transform: scaleY(0);
                         transform-origin: bottom;
                     }
@@ -606,6 +598,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon class="del-filter" icon="clear" id="[[filter.name]]"
                                                on-tap="deleteFilter"></iron-icon>
                                 </div>
+                            </paper-button>
                         </template>
                     </div>
                 </template>
@@ -614,7 +607,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="click">
-                    <vaadin-grid-column width="32px">
+                    <vaadin-grid-column width="48px">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
@@ -1367,10 +1360,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return dateOfBirth ? ("" + dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
             }
 
-
-
-
-
             refresh() {
                 //Give the gui the time to update the field
                 setTimeout(function () {
@@ -1448,8 +1437,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
 
             }
-
-
 
             _exportListToCsv() {
                 // Data mapping
@@ -1547,22 +1534,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 )
             }
 
-
-
             _exportListToXls() {
-
                 this.getAllPatients().then(
                     pl => ({
-                    rows: this.generateXlsFile( pl ),
-                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                    done:!pl.nextKeyPair
-                })
-            )
-
+                        rows: this.generateXlsFile(pl),
+                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                        done: !pl.nextKeyPair
+                    })
+                )
             }
-
-
 
             generateXlsFile( data ) {
 
@@ -1599,17 +1580,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 xlsWorkBookOutput = false;
 
                 return;
-
             }
-
-
 
             confirm() {
                 this.api.patient().newInstance(this.user, {
                     lastName: this.lastName,
                     firstName: this.firstName,
                     active: true,
-                    dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')),
+                    dateOfBirth: this.dateAsString && this.dateAsString.length && parseInt(this.dateAsString.replace(/-/g, '')) || null,
                     ssin : this.ssin,
                     gender : this.valueGender,
                 }).then(p => this.api.patient().createPatient(p)).then(p => this.api.register(p,'patient')).then(p => this.set('selectedPatient', p))

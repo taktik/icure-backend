@@ -22,7 +22,6 @@ package org.taktik.icure.config
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.encoding.PasswordEncoder
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -34,13 +33,13 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.taktik.icure.logic.ICureSessionLogic
+import org.taktik.icure.logic.PermissionLogic
+import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.security.AuthenticationFailureHandler
 import org.taktik.icure.security.AuthenticationSuccessHandler
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
-import org.taktik.icure.security.database.ApplicationTokensUserDetailsAuthenticationProvider
 import org.taktik.icure.security.database.CustomAuthenticationProvider
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
-import org.taktik.icure.security.database.UserDetailsService
 import org.taktik.icure.security.web.BasicAuthenticationFilter
 import org.taktik.icure.security.web.LoginUrlAuthenticationEntryPoint
 import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
@@ -77,28 +76,21 @@ class SecurityConfig {
     @Bean
     fun securityConfigAdapter(
             daoAuthenticationProvider: CustomAuthenticationProvider,
-            applicationTokensAuthenticationProvider: ApplicationTokensUserDetailsAuthenticationProvider,
             basicAuthenticationFilter: BasicAuthenticationFilter,
             usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
             exceptionTranslationFilter: ExceptionTranslationFilter,
-            remotingExceptionTranslationFilter: ExceptionTranslationFilter) = SecurityConfigAdapter(daoAuthenticationProvider, applicationTokensAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
+            remotingExceptionTranslationFilter: ExceptionTranslationFilter)
+        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter)
 
     @Bean
-    fun daoAuthenticationProvider(userDetailsService: UserDetailsService, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider().apply {
+    fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
         setPasswordEncoder(passwordEncoder)
-        setUserDetailsService(userDetailsService)
     }
 
-    @Bean
-    fun applicationTokensAuthenticationProvider() = ApplicationTokensUserDetailsAuthenticationProvider()
-
-    @Bean
-    fun userDetailsService() = UserDetailsService()
 }
 
 @Configuration
 class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
-                            private val applicationTokensAuthenticationProvider: ApplicationTokensUserDetailsAuthenticationProvider,
                             private val basicAuthenticationFilter: Filter,
                             private val usernamePasswordAuthenticationFilter: Filter,
                             private val exceptionTranslationFilter: Filter,
@@ -106,7 +98,6 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
     @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder?) {
         auth!!.authenticationProvider(daoAuthenticationProvider)
-                .authenticationProvider(applicationTokensAuthenticationProvider)
     }
 
     override fun configure(http: HttpSecurity?) {
