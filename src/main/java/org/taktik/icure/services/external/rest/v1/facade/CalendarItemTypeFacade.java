@@ -131,7 +131,7 @@ public class CalendarItemTypeFacade implements OpenApiFacade {
     @ApiOperation(response = CalendarItemTypeDto.class, value = "Gets all calendarItemTypes")
     @GET
     @Path("/includeDeleted")
-    public Response getCalendarItemTypesIncludeDelete() {
+    public Response getCalendarItemTypesIncludeDeleted() {
         Response response;
         List<CalendarItemType> calendarItemTypes = calendarItemTypeLogic.getAllEntitiesIncludeDelete();
         if (calendarItemTypes != null) {

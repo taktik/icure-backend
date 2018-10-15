@@ -172,7 +172,7 @@ public class TimeTableFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndAgendaId")
-    public Response getTimeTableByPeriodAnAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
+    public Response getTimeTableByPeriodAndAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
         if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
