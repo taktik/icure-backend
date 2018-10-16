@@ -419,7 +419,7 @@
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputSending}}" on-keyup="refreshFilter" param="sendingGrid"></paper-input>
                     <div class="invoiceContainer">
                         <div id="sendingGridContainer" class="invoiceSubContainerMiddle">
-                            <vaadin-grid id="sendingGrid" items="[[sendingByStatus]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                            <vaadin-grid id="sendingGrid" items="[[sendingByStatus(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
                                 <vaadin-grid-column class="recipient-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
@@ -536,47 +536,69 @@
                                 <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputDetail}}" on-keyup="refreshFilter" param="invoiceGridDetail"></paper-input>
                                 <vaadin-grid id="invoiceGridDetail" items="[[invoicesFromBatch]]" active-item="{{activeDetailGridItem}}" on-tap="">
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">N° facture</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="invoiceReference">N° facture</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.invoiceReference]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Patient</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="patient">Patient</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.patient]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">N° niss</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="ssin">N° niss</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.ssin]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Nomenclature</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="invoicingCode">Nomenclature</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.invoicingCode]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Date de la prestation</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="invoiceDate">Date de la prestation</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.invoiceDate]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Montant facturé</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="invoicedAmount">Montant facturé</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.invoicedAmount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Montant accepté</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="acceptedAmount">Montant accepté</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.acceptedAmount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Montant refusé</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="refusedAmount">Montant refusé</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.refusedAmount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Motif de rejet</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="rejectionReason">Motif de rejet</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.rejectionReason]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Payé</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.paid]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template class="header">Statut</template>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
+                                        </template>
                                         <template>[[item.status]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
@@ -814,10 +836,6 @@
                         type : Boolean,
                         value : true
                     },
-                    sendingByStatus:{
-                        type: Boolean,
-                        value : () => ({})
-                    },
                     invoicesFromBatch:{
                         type: Object,
                         value: function () {
@@ -942,7 +960,12 @@
                                 }) : Promise.resolve(null)
                             }))
                     ))
-                    .then( msgsInfos => this.set("sendingByStatus", _.compact(msgsInfos)))
+                    .then( msgsStructs => {
+                        const compact = _.compact(msgsStructs)
+                        this.set("sendingProcessed", compact.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
+                        this.set("sendingAccepted", compact.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
+                        this.set("sendingRejected", compact.filter( m => (m.message.status & (1 << 17)) !== 0))
+                    })
             }
 
 
@@ -973,6 +996,12 @@
 
             _invoicesStatusChanged(){
                 this.invoicesStatus === "pending" ? this.set('statusPending', true) : this.set('statusPending', false)
+            }
+
+            sendingByStatus() {
+                return this.invoicesStatus === "process" ? this.sendingProcessed :
+                    this.invoicesStatus === "accept" ? this.sendingAccepted :
+                        this.invoicesStatus === "reject" ? this.sendingRejected : []
             }
 
             _displayInvoiceStatus(status){
