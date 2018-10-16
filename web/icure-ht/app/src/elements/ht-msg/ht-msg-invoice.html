@@ -413,7 +413,7 @@
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputSending}}" on-keyup="refreshFilter" param="sendingGrid"></paper-input>
                     <div class="invoiceContainer">
                         <div id="sendingGridContainer" class="invoiceSubContainerMiddle">
-                            <vaadin-grid id="sendingGrid" items="" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                            <vaadin-grid id="sendingGrid" items="[[sendingByStatus]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
                                 <vaadin-grid-column class="recipient-col">
                                     <template class="header">Prestataire</template>
                                     <template></template>
@@ -428,7 +428,7 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invoice-col">
                                     <template class="header">N° envoi</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.invoiceNumber]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="month-col">
                                     <template class="header">Mois fact.</template>
@@ -436,7 +436,7 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invoiceDate-col">
                                     <template class="header">Date d'envoi</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.invoiceDate]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invAmount-col">
                                     <template class="header">Montant facturé</template>
@@ -719,7 +719,7 @@
                         type: Boolean,
                         value: true
                     },
-                    selectedInvoicesByStatus:{
+                    selectedPendingInvoices:{
                         type: Object,
                         value : () => ({})
                     },
@@ -765,6 +765,10 @@
                     expanded : {
                         type : Boolean,
                         value : true
+                    },
+                    sendingByStatus:{
+                        type: Boolean,
+                        value : () => ({})
                     }
                 };
             }
@@ -787,36 +791,36 @@
             }
 
             getPendingInvoices(){
-                this.set('selectedInvoicesByStatus', [])
+                this.set('selectedPendingInvoices', [])
 
                 const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
                     .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
-                    .then(insurance => {
+                        .then(insurance => {
 
-                        const invPen = {
-                            invoice: invoice,
-                            patient: patient,
-                            insurance: insurance,
-                            totalInvoice: {
-                                patientIntervention:    Number(0.00),
-                                reimbursement:          Number(0.00),
-                                totalAmount:            Number(0.00),
-                                doctorSupplement:       Number(0.00)
-                            },
-                            hasChildren : false,
-                            uuid : invoice.id,
-                            parentUuid : insurance.code.charAt(0)
-                        }
+                            const invPen = {
+                                invoice: invoice,
+                                patient: patient,
+                                insurance: insurance,
+                                totalInvoice: {
+                                    patientIntervention:    Number(0.00),
+                                    reimbursement:          Number(0.00),
+                                    totalAmount:            Number(0.00),
+                                    doctorSupplement:       Number(0.00)
+                                },
+                                hasChildren : false,
+                                uuid : invoice.id,
+                                parentUuid : insurance.code.charAt(0)
+                            }
 
-                        invoice.invoicingCodes.map(code => {
-                            invPen.totalInvoice.patientIntervention += Number(code.patientIntervention)
-                            invPen.totalInvoice.reimbursement += Number(code.reimbursement)
-                            invPen.totalInvoice.totalAmount += Number(code.totalAmount)
-                            invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
-                        })
+                            invoice.invoicingCodes.map(code => {
+                                invPen.totalInvoice.patientIntervention += Number(code.patientIntervention)
+                                invPen.totalInvoice.reimbursement += Number(code.reimbursement)
+                                invPen.totalInvoice.totalAmount += Number(code.totalAmount)
+                                invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
+                            })
 
-                        this.push('selectedInvoicesByStatus', invPen)
-                    }))
+                            this.push('selectedPendingInvoices', invPen)
+                        }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
                     invUnsent.forEach(inv =>{
@@ -828,37 +832,58 @@
                     ))
             }
 
-            getProcessedSending(){
-                this.set('selectedSendingByStatus', [])
+            getSending(){
+                this.set('sendingByStatus', [])
 
-                this.api.invoice().listByHcPartySentMediumTypeInvoiceTypeSentDate(this.user.healthcarePartyId, 'efact', 'mutualfund', true)
-                    .then(invoices => this.api.message().listMessagesByInvoiceIds(new models.ListOfIdsDto({ids: invoices.map(inv => inv.id)}))
-                    .then(messages => {
-                        const filterMessage = messages.filter(m => m.status >> 8 === 1)
+                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages => messages.rows.map(message => {
+                    this.api.document().findByMessage(this.user.healthcarePartyId, message)
+                    .then(docs => {
+                        if(docs.length && docs.find(d => d.mainUti === "public.json")){
 
-                        this.set('selectedSendingByStatus', filterMessage)
-                    }))
-            }
+                            const jsonDoc = docs.find(d => d.mainUti === "public.json")
 
-            getRejectedSending(){
-                this.set('selectedInvoicesByStatus', [])
+                            this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then( a => {
 
-                this.api.invoice().listByHcPartyEfactToBeCorrected(this.user.healthcarePartyId).then(invoices => {
-                    console.log(invoices)
-                })
+                                const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
 
-            }
+                                if(zone200 && zone300){
 
-            getAcceptedSending(){
-                this.set('selectedInvoicesByStatus', [])
+                                    const mess = {
+                                        message: message,
+                                        messageInfo: {
+                                            type: zone200.zones.find(z=>z.zone === "200").value,
+                                            mutual: "",
+                                            invoiceNumber: zone300.zones.find(z=>z.zone === "301").value,
+                                            patient: "",
+                                            inss: "",
+                                            invoiceDate: zone300.zones.find(z=>z.zone === "302").value,
+                                            reimbursement: "",
+                                            patientIntervention: "",
+                                            totalAmount: "",
+                                            status: ""
 
+                                        }
+                                    }
+
+                                    this.push('sendingByStatus', mess)
+                                }
+
+                            })
+
+
+
+                        }
+                    })
+                }))
             }
 
 
             getMessage(){
                 this.getPendingInvoices()
-                this.getProcessedSending()
-                this.getRejectedSending()
+                this.getSending()
             }
 
             calculateTotalPendingInvoices(){
@@ -870,7 +895,7 @@
                     totalDoctorSupplement :       Number(0.00),
                 }
 
-                this.invoices.pending.map(invoice => {
+                this.selectedPendingInvoices.map(invoice => {
                     total.totalReimbursement          += Number(invoice.totalInvoice.reimbursement)
                     total.totalAmount                 += Number(invoice.totalInvoice.totalAmount)
                     total.totalPatientIntervention    += Number(invoice.totalInvoice.patientIntervention)
@@ -997,7 +1022,7 @@
             sendInvoices(){
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
                     let prom = Promise.resolve()
-                    _.chain(this.invoices.pending)
+                    _.chain(this.selectedPendingInvoices)
                         .groupBy(fact => fact.insurance.parent)
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
