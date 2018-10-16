@@ -140,7 +140,6 @@ public class TimeTableFacade implements OpenApiFacade {
         return response;
     }
 
-
     @ApiOperation(response = TimeTableDto.class, value = "Modifies an timeTable")
     @PUT
     public Response modifyTimeTable(TimeTableDto timeTableDto) {
@@ -162,9 +161,8 @@ public class TimeTableFacade implements OpenApiFacade {
         return response;
     }
 
-
     @ApiOperation(
-            value = "Get TimeTables by Period and UserId",
+            value = "Get TimeTables by Period and AgendaId",
             response = TimeTableDto.class,
             responseContainer = "Array",
             httpMethod = "POST",
@@ -172,12 +170,12 @@ public class TimeTableFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndAgendaId")
-    public Response getTimeTableByPeriodAndAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
+    public Response getTimeTablesByPeriodAndAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
         if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByPeriodAndAgendaId(startDate, endDate, agendaId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {
@@ -189,7 +187,7 @@ public class TimeTableFacade implements OpenApiFacade {
 
 
     @ApiOperation(
-            value = "Get TimeTables by UserId",
+            value = "Get TimeTables by AgendaId",
             response = TimeTableDto.class,
             responseContainer = "Array",
             httpMethod = "POST",
@@ -197,12 +195,12 @@ public class TimeTableFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byAgendaId")
-    public Response getTimeTableByAgendaId(@QueryParam("agendaId") String agendaId) {
+    public Response getTimeTablesByAgendaId(@QueryParam("agendaId") String agendaId) {
         if (agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        List<TimeTable> timeTables = timeTableLogic.getTimeTableByAgendaId(agendaId);
+        List<TimeTable> timeTables = timeTableLogic.getTimeTablesByAgendaId(agendaId);
 
         boolean succeed = (timeTables != null);
         if (succeed) {

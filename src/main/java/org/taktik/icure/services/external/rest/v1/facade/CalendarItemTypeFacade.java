@@ -114,21 +114,32 @@ public class CalendarItemTypeFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(response = CalendarItemTypeDto.class, value = "Gets all calendarItemTypes")
+    @ApiOperation(
+            value = "Gets all calendarItemTypes",
+            response = CalendarItemTypeDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     public Response getCalendarItemTypes() {
         Response response;
         List<CalendarItemType> calendarItemTypes = calendarItemTypeLogic.getAllEntities();
         if (calendarItemTypes != null) {
             response = Response.ok().entity(calendarItemTypes.stream().map(c -> mapper.map(c, CalendarItemTypeDto.class)).collect(Collectors.toList())).build();
-
         } else {
             response = ResponseUtils.internalServerError("CalendarItemTypes fetching failed");
         }
         return response;
     }
 
-    @ApiOperation(response = CalendarItemTypeDto.class, value = "Gets all calendarItemTypes")
+    @ApiOperation(
+            value = "Gets all calendarItemTypes include deleted",
+            response = CalendarItemTypeDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     @Path("/includeDeleted")
     public Response getCalendarItemTypesIncludeDeleted() {
