@@ -1452,7 +1452,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <template is="dom-if" if="{{_hasErrors(curGenInsResp.errors)}}">
                         <p><b>[[localize('err','Error',language)]]:</b><br/>
                         <template is="dom-repeat" items="[[curGenInsResp.errors]]" as="error">
-                            <b>[[error.code]]</b>: [[_formatError(error)]]<br/>
+                            <b>[[error.code]]</b> [[_formatError(error)]]<br/>
                         </template>
                         </p>
                     </template>
@@ -2198,7 +2198,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
             _formatError(error){
-                return(this.language === 'nl' ? error.locNl : error.locFr) +  ' : ' + error.value + ' : ' + (this.language === 'nl' ? error.msgNl : error.msgFr);
+                return "[" + (this.language === 'nl' ? error.locNl : error.locFr) +  '] ' + (error.value?error.value + ' : ':"") + (this.language === 'nl' ? error.msgNl : error.msgFr);
             }
 
     _hasTransfers(genins){
