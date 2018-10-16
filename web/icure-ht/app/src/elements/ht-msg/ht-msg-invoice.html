@@ -741,6 +741,15 @@
                     expanded : {
                         type : Boolean,
                         value : true
+                    },
+                    sendingByStatus:{
+                        type: Boolean,
+                        value : () => ({
+                            processed : [],
+                            rejected: [],
+                            accepted: [],
+                            archived: []
+                        })
                     }
                 };
             }
@@ -799,37 +808,20 @@
                     ))
             }
 
-            getProcessedSending(){
-                this.set('selectedSendingByStatus', [])
+            getSending(){
 
-                this.api.invoice().listByHcPartySentMediumTypeInvoiceTypeSentDate(this.user.healthcarePartyId, 'efact', 'mutualfund', true)
-                    .then(invoices => this.api.message().listMessagesByInvoiceIds(new models.ListOfIdsDto({ids: invoices.map(inv => inv.id)}))
-                    .then(messages => {
-                        const filterMessage = messages.filter(m => m.status >> 8 === 1)
+                this.set('sendingByStatus.processed', [])
+                this.set('sendingByStatus.rejected', [])
+                this.set('sendingByStatus.accepted', [])
+                this.set('sendingByStatus.archived', [])
 
-                        this.set('selectedSendingByStatus', filterMessage)
-                    }))
-            }
-
-            getRejectedSending(){
-                this.set('selectedInvoicesByStatus', [])
-
-                this.api.invoice().listByHcPartyEfactToBeCorrected(this.user.healthcarePartyId).then(invoices => {
-                    console.log(invoices)
-                })
-
-            }
-
-            getAcceptedSending(){
-                this.set('selectedInvoicesByStatus', [])
-
+                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages => this.set('sendingByStatus.processed', messages))
             }
 
 
             getMessage(){
                 this.getPendingInvoices()
-                this.getProcessedSending()
-                this.getRejectedSending()
+                this.getSending()
             }
 
             calculateTotalPendingInvoices(){
