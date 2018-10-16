@@ -281,6 +281,10 @@
                     height: 400px;
                     width: 300px;
                 }
+                
+                tr.hidden {
+                    display: none !important;
+                }
 
             </style>
         </custom-style>
@@ -875,11 +879,83 @@
 
             refreshFilter(){
                 setTimeout(function () {
-                    this._searchInGrid(this.filterInput)
+                    this.executeSearch(this.filterInput)
                 }.bind(this), 500)
             }
 
-            _searchInGrid(str) {
+            executeSearch(str) {
+                let grid = this.shadowRoot.getElementById("invoiceGrid")
+                let tbody = grid.shadowRoot.querySelector("#scroller #table tbody")
+                let trs = tbody.querySelectorAll("tr")
+
+                let protectList = []
+
+                Array.prototype.slice.call(trs).map(row=>{
+                    let cells = row.querySelectorAll("td")
+                    let toHide = true
+                    cells.forEach(that=>{
+                        let test = that._content.innerText
+                        if (test.includes(str.toString())) {
+                            toHide = false
+                        }
+                    })
+                    if (toHide) {
+                        row.hidden = true
+                    } else {
+                        protectList.push(row)
+                        row.hidden = false
+                    }
+                    // for (let i = 0;lnt;i++) {
+                    //     console.log(i)
+                    // }
+                    // for (let i = 0;cells.length;i++) {
+                    //     console.log("cell",cells[i])
+                    // }
+                })
+                let showCount = 0
+                console.log("protectList",protectList)
+                protectList.map(showMe=>{
+                    showMe.style.transform = "translateY("+ (showCount*48) +"px)"
+                    showCount++
+                })
+                
+                // this.setSearchProps(str)
+
+                // grid.lastParams = null //Used to prevent double calls
+                // grid.dataProvider = function(params,callback) {
+                //     // const thisParams = this.setSearchProps(str)
+                //
+                //     let latestSearchValue = this.filterValue
+                //     this.latestSearchValue = latestSearchValue
+                //
+                //     if (!latestSearchValue || latestSearchValue.length < 2) {
+                //         console.log("Cancelling empty search")
+                //         callback([])
+                //         return
+                //     }
+                // }
+                // (Array.grid).map(row=>{ // set the rows we must display
+                //     console.log("row",row)
+                //     let mustAdd = false
+                //     let thisRow
+                //     row.map(cell=>{ // search if search is contained in this cell
+                //         if (str.toString() === cell.value) {
+                //             mustAdd = true
+                //             thisRow = row
+                //         }
+                //     })
+                //     if (mustAdd && thisRow) {
+                //         rowsToDisplay.push(thisRow)
+                //     }
+                //     mustAdd = false
+                //     rowsToDisplay = null
+                // })
+                // rowsTodisplay.map(addMe=>{
+                //     gridToDisplay.push(addMe)
+                // })
+            }
+
+            setSearchProps(str) { // will set the path type for vaadin filter and format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
                 if (!(str.length == 0 || str == "")) {
