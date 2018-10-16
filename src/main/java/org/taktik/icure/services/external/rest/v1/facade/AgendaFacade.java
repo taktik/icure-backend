@@ -113,21 +113,31 @@ public class AgendaFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(response = AgendaDto.class, value = "Gets all agendas")
+    @ApiOperation(
+            value = "Gets all agendas",
+            response = AgendaDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     public Response getAgendas() {
         Response response;
         List<Agenda> agendas = agendaLogic.getAllEntities();
         if (agendas != null) {
             response = Response.ok().entity(agendas.stream().map(c -> mapper.map(c, AgendaDto.class)).collect(Collectors.toList())).build();
-
         } else {
             response = ResponseUtils.internalServerError("Agendas fetching failed");
         }
         return response;
     }
 
-    @ApiOperation(response = AgendaDto.class, value = "Gets all agendas")
+    @ApiOperation(
+            value = "Gets all agendas for user",
+            response = AgendaDto.class,
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     @Path("/byUser")
     public Response getAgendasForUser(@QueryParam("userId") String userId) {
@@ -135,15 +145,19 @@ public class AgendaFacade implements OpenApiFacade {
         List<Agenda> agendas = agendaLogic.getAllAgendaForUser(userId);
         if (agendas != null && agendas.size() > 0) {
             response = Response.ok().entity(mapper.map(agendas.get(0), AgendaDto.class)).build();
-        } else if(agendas != null && agendas.size() == 0){
-            response = Response.noContent().build();
         } else {
             response = ResponseUtils.internalServerError("Agendas fetching failed");
         }
         return response;
     }
 
-    @ApiOperation(response = AgendaDto.class, value = "Gets all agendas")
+    @ApiOperation(
+            value = "Gets readable agendas for user",
+            response = AgendaDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     @Path("/readableForUser")
     public Response getReadableAgendasForUser(@QueryParam("userId") String userId) {
