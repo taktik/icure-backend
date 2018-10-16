@@ -1,7 +1,7 @@
 function isInvoiceUnsent(doc) {
   if(!!doc.sentDate) return false;
   doc.invoicingCodes.forEach(function(code){
-    if(code.status >= 4) return false;
+    if(code.pending || code.canceled || code.accepted || code.resent) return false;
   });
   return true;
 }
