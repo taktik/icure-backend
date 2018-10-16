@@ -143,7 +143,12 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		return invoiceDAO.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
 	}
 
-	@Override
+    @Override
+    public List<Invoice> listByHcPartyGroupId(String hcParty, String groupId) {
+        return invoiceDAO.listByHcPartyGroupId(hcParty, groupId);
+    }
+
+    @Override
 	public List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds) {
 		return invoiceDAO.listByHcPartyRecipientIdsUnsent(hcParty, recipientIds);
 	}

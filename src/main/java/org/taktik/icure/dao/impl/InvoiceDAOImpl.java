@@ -88,6 +88,13 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	}
 
 	@Override
+	@View(name = "by_hcparty_groupid", map = "classpath:js/invoice/By_hcparty_groupid_map.js")
+	public List<Invoice> listByHcPartyGroupId(String hcParty, String groupId) {
+		ComplexKey startKey = ComplexKey.of(hcParty, groupId);
+		return queryResults(createQuery("by_hcparty_groupid").startKey(startKey).endKey(startKey).includeDocs(true));
+	}
+
+	@Override
 	@View(name = "by_hcparty_recipient", map = "classpath:js/invoice/By_hcparty_recipient_map.js")
 	public List<Invoice> listByHcPartyRecipientIds(String hcParty, Set<String> recipientIds) {
 		return queryResults(createQuery("by_hcparty_recipient").includeDocs(true).keys(recipientIds.stream().map(id->ComplexKey.of(hcParty,id)).collect(Collectors.toList())));

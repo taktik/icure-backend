@@ -50,6 +50,8 @@ public interface InvoiceLogic {
 	List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate);
 	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
 
+	List<Invoice> listByHcPartyGroupId(String hcParty, String groupId);
+
 	List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds);
 
 	List<Invoice> listByHcPartyPatientSksUnsent(String hcParty, Set<String> secretPatientKeys);
@@ -69,5 +71,6 @@ public interface InvoiceLogic {
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
 
 	void solveConflicts();
+
 
 }

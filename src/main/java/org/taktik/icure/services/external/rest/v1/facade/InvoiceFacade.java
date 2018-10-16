@@ -373,6 +373,21 @@ public class InvoiceFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "List invoices by groupId",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcPartyGroupId/{hcPartyId}/{groupId}")
+	public Response listByHcPartyGroupId(@PathParam("hcPartyId") String hcParty, @PathParam("groupId") String groupId) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyGroupId(hcParty, groupId);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
 			value = "List invoices by type, sent or unsent",
 			response = InvoiceDto.class,
 			responseContainer = "Array",
