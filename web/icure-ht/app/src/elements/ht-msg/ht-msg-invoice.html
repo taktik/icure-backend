@@ -782,7 +782,7 @@
                         value : true
                     },
                     sendingByStatus:{
-                        type: Boolean,
+                        type: Object,
                         value : () => ({})
                     },
                     invoicesFromBatch:{
@@ -923,7 +923,20 @@
                                 }) : Promise.resolve(null)
                             }))
                     ))
-                    .then( msgsInfos => this.set("sendingByStatus", _.compact(msgsInfos)))
+                    .then( msgsInfos => {
+                        this.set("sendingByStatus", _.compact(msgsInfos))
+                        let invoicedAmount=0.00;
+                        let acceptedAmount=0.00;
+                        let refusedAmount=0.00;
+                        this.sendingByStatus.map(send =>{
+                            invoicedAmount+=parseFloat(send.messageInfo.invoicedAmount)
+                            acceptedAmount+=parseFloat(send.messageInfo.acceptedAmount)
+                            refusedAmount+=parseFloat(send.messageInfo.refusedAmount)
+                        })
+                        this.set("totalInvoices.invoicedAmount",invoicedAmount.toFixed(2))
+                        this.set("totalInvoices.acceptedAmount",acceptedAmount.toFixed(2))
+                        this.set("totalInvoices.refusedAmount",refusedAmount.toFixed(2))
+                    })
             }
 
 
