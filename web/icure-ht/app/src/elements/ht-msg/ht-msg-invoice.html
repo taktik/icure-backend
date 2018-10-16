@@ -270,11 +270,24 @@
                 }
 
                 .invoiceSubContainerMiddle{
-                    height: 50%;
+                    /*height: 50%;*/
+                    height: calc(100vh - 185px);
+                    transition: all .5s ease;
+                }
+                .invoiceSubContainerMiddle vaadin-grid {
+                    height: 100%;
+                }
+                .invoiceSubContainerMiddle.half {
+                    height: 65%;
                 }
 
                 .invoiceDetailContainer{
-                    height: 50%;
+                    height: 40%;
+                    opacity: 0;
+                    transition: all .75s ease-out;
+                }
+                .invoiceDetailContainer.open {
+                    opacity: 1;
                 }
 
                 #helpdeskInfoDialog{
@@ -296,11 +309,6 @@
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
                     <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
-
-                        <vaadin-grid-filter class="hidden" aria-label="" path="{{filterPath}}" value="[[filterValue]]">
-                            <vaadin-text-field slot="filter" placeholder="" value="{{filterValue}}"></vaadin-text-field>
-                        </vaadin-grid-filter>
-
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
@@ -396,7 +404,7 @@
 
                 <template is="dom-if" if="[[!statusPending]]">
                     <div class="invoiceContainer">
-                        <div class="invoiceSubContainerMiddle">
+                        <div id="sendingGridContainer" class="invoiceSubContainerMiddle">
                             <vaadin-grid id="sendingGrid" items="" active-item="{{activeGridItem}}" on-tap="_showDetail">
                                 <vaadin-grid-column class="recipient-col">
                                     <template class="header">Prestataire</template>
@@ -471,7 +479,7 @@
                             </vaadin-grid>
                         </div>
                         <template is="dom-if" if="[[ifInvoiceSelected]]">
-                            <div class="invoiceDetailContainer">
+                            <div id="invoiceDetailContainer" class="invoiceDetailContainer">
                                 <h4>Détail des envois selectionnés</h4>
                                 <vaadin-grid id="invoiceGridDetail" items="" active-item="{{activeDetailGridItem}}" on-tap="">
                                     <vaadin-grid-column class="recipient-col">
@@ -815,7 +823,6 @@
                         })
 
                         this.push('invoices.pending', invPen)
-                        console.log(this.invoices.pending)
                     }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
@@ -868,46 +875,52 @@
                 return this.findAndReplace(((Number(amount).toFixed(2)).toString()),'.',',')
             }
 
+            findAndReplace(string, target, replacement) {
+                for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
+                return string;
+            }
+
             refreshFilter(){
                 setTimeout(function () {
-                    this.executeSearch(this.filterInput)
+                    this.executeSearch(this.filterInput,"invoiceGrid")
                 }.bind(this), 500)
             }
 
-            executeSearch(str) {
-                let grid = this.shadowRoot.getElementById("invoiceGrid")
-                let tbody = grid.shadowRoot.querySelector("#scroller #table tbody")
-                let trs = tbody.querySelectorAll("tr")
-
-                let protectList = []
-
-                Array.prototype.slice.call(trs).map(row=>{
-                    let cells = row.querySelectorAll("td")
-                    let toHide = true
-                    cells.forEach(that=>{
-                        let test = that._content.innerText
-                        if (test.includes(str.toString())) {
-                            toHide = false
+            executeSearch(str,param) {
+                const grid = this.shadowRoot.getElementById(param)
+                const tbody = grid.shadowRoot.querySelector("#scroller #table tbody")
+                const trs = tbody.querySelectorAll("tr")
+                let input = (str.includes(":") ) ? this.treatQuery(str) : str
+                input = (this.checkFilters(input)).toString().toLowerCase()
+                if (trs.length){
+                    let keepList = []
+                    Array.prototype.slice.call(trs).map(row=>{
+                        let cells = row.querySelectorAll("td"), toHide = true
+                        cells.forEach(that=>{
+                            const test = (that._content.innerText).toString().toLowerCase()
+                            if (test.includes(input)) {
+                                toHide = false
+                            }
+                        })
+                        if (toHide) {
+                            row.hidden = true
+                        } else {
+                            keepList.push(row)
+                            row.hidden = false
                         }
                     })
-                    if (toHide) {
-                        row.hidden = true
-                    } else {
-                        protectList.push(row)
-                        row.hidden = false
-                    }
-                })
-                let showCount = 0
-                protectList.map(showMe=>{
-                    showMe.style.transform = "translateY("+ (showCount*48) +"px)"
-                    showCount++
-                })
+                    let showCount = 0
+                    keepList.map(showMe=>{
+                        showMe.style.transform = "translateY("+ (showCount*48) +"px)"
+                        showCount++
+                    })
+                } // endif
             }
 
-            setSearchProps(str) { // will set the path type for vaadin filter and format search output
+            checkFilters(str) { // will set the path type for vaadin filter and format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
-                if (!(str.length == 0 || str == "")) {
+                if (str.length) {
                     if (!isNaN(str)) { // is a number
                         searchType =
                             (str.toString().length == 11) ? "patient.ssin" : // NISS (length must be 11)
@@ -917,62 +930,35 @@
                             (str.length == 3 && (100 <= str && str <= 999) ) ? "patient.insurance.code" : // Insurance code
                             "invoice.invoiceReference"
                         // format output ->
-                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); output = parseInt(output); output = output.toString() }
-                        if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
+                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); }
+                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output.toString(),'.',',') }
                     } else { // is a string
                         searchType =
-                            (str.includes(":")) ? "QUERY" :
                             (/(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
                             (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.ssin" :
                             (str.includes(" ") ) ? "invoice.patient.firstName" :
                             (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
                             "invoice.patient.firstName"
                         // format output ->
-                        if (searchType == "QUERY") { this.treatQuery(str); return } // if user searches for something in particular
-                        if (searchType == "invoice.totalAmount") { output = parseFloat(this.findAndReplace(output,'€','').replace(',','.')) }
-                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); output = output.toString() }
-                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(this.convertDateToUS(str)).format(this.isUS(str)) }
+                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€',''); output = this.findAndReplace(output,'.',','); }
+                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,' ',''); output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); }
+                        if (searchType == "invoice.invoiceDate") { output = this.fourNumYears(output) }
                     }
                 }
-                this.set('filterValue',output)
-                this.set('filterPath',searchType)
-                console.log("inputField:["+str+"("+(isNaN(str)?"string":"number")+")]","output:["+this.filterValue+"("+typeof this.filterValue+")]","filterPath:\""+this.filterPath+"\"")
+                return output
             }
-            findAndReplace(string, target, replacement) {
-                for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
-                return string;
+            fourNumYears(input) {
+                const aa = input.slice(0,2),bb = input.slice(3,5)
+                let cccc = input.slice(6,11)
+                if (cccc.toString().length == 2) {
+                    cccc = "20"+cccc
+                }
+                return `${aa}/${bb}/${cccc}`
             }
-            convertDateToUS(input) {
-                const aa = input.slice(0,2),bb = input.slice(3,5),cccc = input.slice(6,11)
-                return (parseInt(aa) > 12) ? `${bb}/${aa}/${cccc}` : `${aa}/${bb}/${cccc}`
-            }
-            isUS(input) { return (parseInt(input.slice(0,2)) > 12) ? "YYYYMMDD" : "YYYYDDMM" }
             treatQuery(query) { // mainly used for numbers
-                const queryType = (query.substr(0, query.indexOf(":")) ).toLowerCase()
                 let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
-                if (search == "*") {search = ""}
                 if (search.includes(':')) { search = this.findAndReplace(search,':',' ') }
-                let searchType =
-                    (queryType.includes("date") && search <= (new Date().getFullYear() + 100)) ? "yearOnly" : // year (from 1930 to now +100yr)
-                    (queryType == "oa" || queryType.includes("remb") || queryType.includes("reimb") || queryType.includes("verg")) ? "invoice.reimbursement" :
-                    (queryType.includes("pat") && (queryType.includes("name") || queryType.includes("nom") || queryType.includes("naam") ) ) ? "invoice.patient.firstName" :
-                    (queryType.includes("pat") ) ? "invoice.patientIntervention" :
-                    (queryType.includes("suppl") ) ? "invoice.doctorSupplement" :
-                    (queryType.includes("tot") ) ? "invoice.totalAmount" :
-                    (queryType == "niss" || queryType == "ssin" ) ? "patient.ssin" :
-                    ((queryType.includes("fact") || queryType.includes("bill") || queryType.includes("ref")) || queryType.includes("num") &&(!queryType.includes("dat")) ) ? "invoice.invoiceReference" :
-                    ((queryType.includes("fact") || queryType.includes("bill")) && (!queryType.includes("ref")) && (queryType.includes("dat")) && (!queryType.includes("num")) ) ? "invoice.invoiceDate" :
-                    (queryType.includes("date")) ? "invoice.invoiceDate" :
-                    (queryType.includes("mut") || queryType.includes("insur") || queryType.includes("wederz") ) ? "patient.insurance.code" :
-                    "invoice.patient.firstName"
-                // format output ->
-                if (searchType == "invoice.totalAmount" || searchType == "invoice.patientIntervention" || searchType == "invoice.doctorSupplement" || searchType == "invoice.reimbursement") { search = parseFloat(this.findAndReplace(search,'€','').replace(',','.')) }
-                if (searchType == "patient.ssin") { search = this.findAndReplace(search,'-',''); search = this.findAndReplace(search,'/',''); search = this.findAndReplace(search,'.',''); search = search.toString() }
-                if (searchType == "invoice.invoiceDate") { search = this.api.moment(this.convertDateToUS(search)).format(this.isUS(search)) }
-                if (searchType == "yearOnly") { searchType = "invoice.invoiceDate" }
-                this.set('filterValue',search)
-                this.set('filterPath',searchType)
-                console.log("inputField:["+query+"("+(isNaN(query)?"string":"number")+")]","output:["+this.filterValue+"("+typeof this.filterValue+")]","filterPath:\""+this.filterPath+"\"")
+                return search
             }
 
             _invoicesChange(){
@@ -1008,7 +994,8 @@
             }
 
             _showDetail(){
-
+                this.shadowRoot.getElementById("sendingGridContainer").classList.toggle("half")
+                this.shadowRoot.getElementById("invoiceDetailContainer").classList.toggle("open")
             }
 
             _openHelpDeskDialog(){
