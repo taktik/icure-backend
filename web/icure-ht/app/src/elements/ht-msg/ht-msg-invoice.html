@@ -825,7 +825,10 @@
 
             getPendingInvoices(){
                 this.set('selectedPendingInvoices', [])
-
+                let patientI=0.00;
+                let doctorS=0.00;
+                let reimbou=0.00;
+                let totalAm=0.00;
                 const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
                     .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
                         .then(insurance => {
@@ -853,6 +856,17 @@
                             })
 
                             this.push('selectedPendingInvoices', invPen)
+                            console.log(invPen)
+                            patientI+=parseFloat(invPen.totalInvoice.patientIntervention)
+                            doctorS+=parseFloat(invPen.totalInvoice.doctorSupplement)
+                            reimbou+=parseFloat(invPen.totalInvoice.reimbursement)
+                            totalAm+=parseFloat(invPen.totalInvoice.totalAmount)
+
+                            this.set("totalPendingInvoices.totalPatientIntervention",patientI)
+                            this.set("totalPendingInvoices.totalDoctorSupplement",doctorS)
+                            this.set("totalPendingInvoices.totalReimbursement",reimbou)
+                            this.set("totalPendingInvoices.totalAmount",totalAm)
+                            console.log(this.totalPendingInvoices)
                         }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
