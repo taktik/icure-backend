@@ -1150,11 +1150,31 @@
                 this.$["helpdeskInfoDialog"].open()
             }
 
-            receiveInvoices(){
-                console.log(this.user)
-                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii,this.language,this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then(response =>{
-                    console.log(response)
-                    //this.api.processEfactMessage()
+            receiveInvoices() {
+                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then(response => {
+                    let prom = Promise.resolve()
+                    response.map(message => {
+                        console.log(message)
+                        prom = prom.then(() =>
+                            new Promise((resolve) => {
+                                if (message.detail) {
+                                    this.api.message().processEfactMessage(this.user, this.hcp, message, this.api.document())
+                                        .then(r => resolve(r))
+                                        .catch(e => {
+                                            console.log(e)
+                                            resolve()
+                                        })
+                                } else if (message.tack) {
+                                    this.api.message().processTack(this.user, this.hcp, message)
+                                        .then(r => resolve(r))
+                                        .catch(e => {
+                                            console.log(e)
+                                            resolve()
+                                        })
+                                }
+                            })
+                        )
+                    })
                 })
             }
         }
