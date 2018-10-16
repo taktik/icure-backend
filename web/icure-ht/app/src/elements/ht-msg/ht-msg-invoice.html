@@ -295,6 +295,7 @@
                 #helpdeskInfoDialog{
                     height: 400px;
                     width: 300px;
+                    overflow-y: auto;
                 }
 
                 tr.hidden {
@@ -492,7 +493,7 @@
                                     <vaadin-grid-column class="payPaid-col">
                                         <template class="header"></template>
                                         <template>
-                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" on-tap="_openHelpDeskDialog"></iron-icon>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
                                         </template>
                                     </vaadin-grid-column>
                                 </vaadin-grid-column-group>
@@ -550,7 +551,7 @@
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Info helpdesk</template>
                                         <template>
-                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" on-tap="_openHelpDeskDialog"></iron-icon>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogDet"></iron-icon>
                                         </template>
                                     </vaadin-grid-column>
                                 </vaadin-grid>
@@ -619,28 +620,26 @@
         </div>
 
         <paper-dialog id="helpdeskInfoDialog">
-            <paper-input class="flex-container-nmcl-row" label="OA" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Inami tiers facturant" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="N° envoi" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Mois et année de facturation" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Date d'envoi du fichier" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="OA" value="[[infoHelpdesk.messageInfo.oa]]" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Inami tiers facturant" value="[[hcp.nihii]]" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="N° envoi" value="[[infoHelpdesk.messageInfo.invoiceNumber]]" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Mois et année de facturation" value="[[infoHelpdesk.messageInfo.invoiceMonth]]" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Date d'envoi du fichier" value="[[_dateFormat(infoHelpdesk.message.sent)]]" class="" readOnly></paper-input>
             <paper-input class="flex-container-nmcl-row" label="Date dernière réponse OA" value="" class="" readOnly></paper-input>
             <paper-input class="flex-container-nmcl-row" label="Type dernière réponse OA" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Nom du soft" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="N° de tél de contact médecin" value="" class="" readOnly></paper-input>
-
-
-
-
-            <paper-input class="flex-container-nmcl-row" label="Patient" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Niss" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Prestation" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Date de la prestation" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Montant accepté" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Montant refusé" value="" class="" readOnly></paper-input>
-            <paper-input class="flex-container-nmcl-row" label="Motif(s) de rejet" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="[[infoHelpdesk.messageInfo.invoicedAmount]]" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Nom du soft" value="TOPAZ" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="N° de tél de contact médecin" value="[[mobile]]" class="" readOnly></paper-input>
+            <template is="dom-if" if="[[isCompleteHelpDesk]]">
+                <paper-input class="flex-container-nmcl-row" label="Patient" value="[[infoHelpdeskDet.patient]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Niss" value="[[infoHelpdeskDet.ssin]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Prestation" value="[[infoHelpdeskDet.invoiceDate]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Date de la prestation" value="[[_dateFormat(infoHelpdeskDet.invoiceDate)]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="[[infoHelpdeskDet.invoicedAmount]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Montant accepté" value="[[infoHelpdeskDet.acceptedAmount]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Montant refusé" value="[[infoHelpdeskDet.refusedAmount]]" class="" readOnly></paper-input>
+                <paper-input class="flex-container-nmcl-row" label="Motif(s) de rejet" value="[[infoHelpdeskDet.rejectionReason]]" class="" readOnly></paper-input>
+            </template>
         </paper-dialog>
     </template>
 
@@ -791,6 +790,18 @@
                         value: function () {
                             return [];
                         }
+                    },
+                    infoHelpdesk:{
+                        type : Object
+                    },
+                    isCompleteHelpDesk:{
+                        type: Boolean
+                    },
+                    infoHelpdeskDet:{
+                        type: Object
+                    },
+                    mobile :{
+                        type: String
                     }
                 };
             }
@@ -1117,7 +1128,22 @@
                 }
             }
 
-            _openHelpDeskDialog(){
+            _openHelpDeskDialogSupp(e){
+                e.stopPropagation();
+                this.set("infoHelpdesk",JSON.parse(e.target.dataset.item))
+                this.set("isCompleteHelpDesk",false)
+                this.set("mobile",this.hcp.addresses[0].telecoms.find(tel => tel.telecomType==='mobile').telecomNumber)
+
+                this.$["helpdeskInfoDialog"].open()
+            }
+
+            _openHelpDeskDialogDet(e){
+                e.stopPropagation();
+                this.set("infoHelpdesk", this.activeGridItem)
+                this.set("isCompleteHelpDesk",true)
+                this.set("infoHelpdeskDet",JSON.parse(e.target.dataset.item))
+                this.set("mobile",this.hcp.addresses[0].telecoms.find(tel => tel.telecomType==='mobile').telecomNumber)
+
                 this.$["helpdeskInfoDialog"].open()
             }
 
@@ -1128,6 +1154,10 @@
                         this.api.message().processEfactMessage(this.user,this.hcp,message,this.api.document())
                     })
                 })
+            }
+
+            _dateFormat(date) {
+                return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
             }
         }
 
