@@ -35,6 +35,8 @@ public class MeasureDto implements Serializable {
 
 	Set<CodeDto> unitCodes;
 
+	String comment;
+
 	public Double getValue() {
 		return value;
 	}
@@ -81,5 +83,13 @@ public class MeasureDto implements Serializable {
 
 	public void setUnitCodes(Set<CodeDto> unitCodes) {
 		this.unitCodes = unitCodes;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 }

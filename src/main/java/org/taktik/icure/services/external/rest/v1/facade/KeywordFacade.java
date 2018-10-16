@@ -26,10 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.Keyword;
-import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.KeywordLogic;
 import org.taktik.icure.services.external.rest.v1.dto.KeywordDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
@@ -100,20 +98,21 @@ public class KeywordFacade implements OpenApiFacade{
 
 
 	@ApiOperation(
-			value = "Get a keyword by user",
+			value = "Get keywords by user",
 			response = KeywordDto.class,
+			responseContainer = "Array",
 			httpMethod = "GET",
 			notes = ""
 	)
 	@GET
 	@Path("/byUser/{userId}")
-	public Response getKeywordByUser(@PathParam("userId") String userId) {
+	public Response getKeywordsByUser(@PathParam("userId") String userId) {
 		if (userId == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 
 		Response response;
-		List<Keyword> keywords = keywordLogic.getKeywordByUser(userId);
+		List<Keyword> keywords = keywordLogic.getKeywordsByUser(userId);
 
 		if (keywords != null) {
 			response = Response.ok().entity(keywords.stream().map(c -> mapper.map(c, KeywordDto.class)).collect(Collectors.toList())).build();
@@ -124,8 +123,14 @@ public class KeywordFacade implements OpenApiFacade{
 		return response;
 	}
 
-    @ApiOperation(response = KeywordDto.class, value = "Gets all keywords")
-    @GET
+	@ApiOperation(
+			value = "Gets all keywords",
+			response = KeywordDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = ""
+	)
+	@GET
     public Response getKeywords() {
         Response response;
         List<Keyword> keywords = keywordLogic.getAllEntities();
@@ -137,7 +142,6 @@ public class KeywordFacade implements OpenApiFacade{
         }
         return response;
     }
-
 
 	@ApiOperation(
 			value = "Delete keywords.",

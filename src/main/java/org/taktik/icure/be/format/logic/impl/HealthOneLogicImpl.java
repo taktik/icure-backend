@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.format.logic.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,38 +205,59 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		List<Service> result = new ArrayList<>();
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
-			String label = lrl.analysisType;
-			if ((lrl.analysisType == null) || (lrl.analysisType.trim().length() == 0)) {
-				label = "untitled";
+			String comment = null;
+			if (labResults.size() > 2 && tryToGetValueAsNumber(lrl.value) != null) {
+				LaboResultLine lrl2 = (LaboResultLine) labResults.get(1);
+				comment = lrl2.value;
+				for (int i = 2; i < labResults.size(); i++) {
+					lrl = (LaboResultLine) labResults.get(i);
+					if (StringUtils.isNotEmpty(lrl.value)) {
+						comment += "\n" + lrl.value;
+					}
+				}
+
+				result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, comment);
+			} else {
+				String label = lrl.analysisType;
+				if ((lrl.analysisType == null) || (lrl.analysisType.trim().length() == 0)) {
+					label = "untitled";
+				}
+
+				String value = lrl.value;
+				for (int i = 1; i < labResults.size(); i++) {
+					lrl = (LaboResultLine) labResults.get(i);
+					if (StringUtils.isNotEmpty(lrl.value)) {
+						value += "\n" + lrl.value;
+					}
+				}
+
+				Service s = new Service();
+				s.setId(uuidGen.newGUID().toString());
+				s.getContent().put(language, new Content(value));
+				s.setLabel(label);
+				s.setIndex((long) position);
+				s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
+
+				result.add(s);
 			}
-
-			String value = lrl.value;
-			for (int i = 1; i < labResults.size(); i++) {
-				lrl = (LaboResultLine) labResults.get(i);
-				value += "\n" + lrl.value;
-			}
-
-			Service s = new Service();
-			s.setId(uuidGen.newGUID().toString());
-			s.getContent().put(language, new Content(value));
-			s.setLabel(label);
-			s.setIndex((long) position);
-			s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
-
-			result.add(s);
 		} else {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
-			Double d = tryToGetValueAsNumber(lrl.value);
-			if (d != null) {
-				//We import as a Measure
-				result.add(importNumericLaboResult(language, d, lrl, position, ril));
-			} else {
-				result.add(importPlainStringLaboResult(language, lrl, position, ril));
-			}
+			result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, null);
 		}
 		return result;
 	}
 
+	private List<Service> addLaboResult(LaboResultLine lrl, String language, int position, ResultsInfosLine ril, String comment) {
+		List<Service> result = new ArrayList<>();
+		Double d = tryToGetValueAsNumber(lrl.value);
+		if (d != null) {
+			//We import as a Measure
+			result.add(importNumericLaboResult(language, d, lrl, position, ril, comment));
+		} else {
+			result.add(importPlainStringLaboResult(language, lrl, position, ril));
+		}
+		return result;
+	}
 
 	private Service importPlainStringLaboResult(String language, LaboResultLine lrl, int position, ResultsInfosLine ril) {
 		String value = lrl.value + " " + lrl.unit;
@@ -254,10 +276,13 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, int position, ResultsInfosLine ril) {
+	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, int position, ResultsInfosLine ril, String comment) {
 		Measure m = new Measure();
 
 		m.setValue(d);
+		if (comment != null) {
+			m.setComment(comment);
+		}
 		m.setUnit(lrl.unit);
 		Reference r = tryToGetReferenceValues(lrl.referenceValues);
 		if (r != null) {
