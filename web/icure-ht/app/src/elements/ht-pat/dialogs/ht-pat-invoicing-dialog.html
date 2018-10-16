@@ -886,7 +886,9 @@
                                             </template>
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
                                                 <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
-                                                  <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
+                                                <template id="dom-if" if="[[!!isInvoiceClosed]]">
+                                                    <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
+                                                </template>
                                                   [[item.relatedCode]]
                                             </template>
 
@@ -989,6 +991,19 @@
                                              value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             </template>
                         </div>
+                        <template is="dom-if" if="[[isTravellingExpenses]]">
+                            <div class="flex-container-nmcl">
+                                <paper-input class="flex-container-nmcl-row"
+                                             label="[[localize('fraisDepAll','frais de déplacement - aller',language)]]"
+                                             value="{{activeNmclItem.qteAll}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                <paper-input class="flex-container-nmcl-row"
+                                             label="[[localize('fraisDepAllRet','frais de déplacement - aller & retour',language)]]"
+                                             value="[[quantityAllHasChanged(activeNmclItem.qteAll.*)]]" readOnly></paper-input>
+                                <paper-input class="flex-container-nmcl-row"
+                                             label="[[localize('fraisDepRemb','frais de déplacement - rembourser',language)]]"
+                                             value="{{activeNmclItem.units}}" readOnly></paper-input>
+                            </div>
+                        </template>
                         <div class="flex-container-nmcl">
                             <paper-input class="flex-container-nmcl-row"
                                          label="[[localize('valid','Validation',language)]]"
@@ -1638,7 +1653,7 @@
                         newInvoice.longDelayJustification = 0
                         newInvoice.gnotionNihii = ""
                         newInvoice.internshipNihii = ""
-                        newInvoice.creditNote = false
+                        newInvoice.creditNote = 0
                         newInvoice.careProviderType = "persphysician"
 
                         this.push('invoices',newInvoice)
@@ -1679,14 +1694,6 @@
                     })
                 }
 
-            }
-
-            _isCreditNote(e) {
-                this.set('selectedInvoice.creditNote', e.target.checked)
-            }
-
-            _isLiftingLimitationPeriod(e) {
-                this.set('selectedInvoice.longDelayJustification', e.target.checked)
             }
 
             analyzeMediumType(e) {
@@ -1806,6 +1813,7 @@
 
                         const patientKeys = secretForeignKeys.join(",")
 
+                        console.log(this.selectedInvoice)
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
@@ -1910,7 +1918,7 @@
                             this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
-                                this.selectedInvoice.invoicingCodes.map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii,
+                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii,
                                 this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference)
                         )
                         .then(r => {
@@ -1988,7 +1996,11 @@
             _showDetail() {
                 if (this.activeNmclItem) {
                     const selected = this.activeNmclItem
+                    if(selected.code==="109955"){
+                        this.set('activeNmclItem.qteAll',(this.activeNmclItem.units+6)/2)
+                    }
                     this.set('isDetailNmcl', true)
+                    console.log(this.activeNmclItem)
                 } else {
                     this.set('isDetailNmcl', false)
                 }
@@ -2443,10 +2455,11 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
+                    this.isSelected=true;
                     const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
                     //console.log(invoice)
+                    //invoice.longDelayJustification=invoice.longDelayJustification ? 1 : 0
                     this.api.invoice().modifyInvoice(invoice).then(response => {
-
                         this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                             nmcls.map(nmcl =>{
                                 const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
@@ -2461,7 +2474,6 @@
                             this.set("selectedInvoice",response)
                             this.isSelected=false;
                         })
-
                     })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
@@ -2477,6 +2489,10 @@
                     this._addNmcl(e);
                 }
             }
+
+            /*isLongDelay() {
+                return this.selectedInvoice.longDelayJustification ? true : false
+            }*/
 
             _openEidDialog(){
                 this.$["eidDialog"].open()
@@ -2503,6 +2519,33 @@
                 this.$['manualEncodingDialog'].close()
             }
 
+            _isCreditNote(e) {
+                this.set('selectedInvoice.creditNote', e.target.checked)
+            }
+
+            _isLiftingLimitationPeriod(e) {
+                this.set('selectedInvoice.longDelayJustification', e.target.checked)
+            }
+
+            isTravellingExpenses(){
+                return this.activeNmclItem.code==="109955"
+            }
+
+            quantityAllHasChanged(){
+                this.set("activeNmclItem.units",Math.round(this.activeNmclItem.qteAll*2)-6)
+                if(this.activeNmclItem.units<0)this.set("activeNmclItem.units",0)
+                if(this.activeNmclItem.qteAll>20)this.set("activeNmclItem.units",34)
+
+                const total = Math.round(this.activeNmclItem.units*0.92*100)/100
+                //entre 1.103 et 1.10 ils ont super mal calculé leur éléments et ils donnent pas la formule.
+
+                const remb = [0.84,1.67,2.51,3.34,4.17,5.01,5.84,6.67,7.51,8.34,9.17,10.01,10.84,11.68,12.51,13.34,14.18,15.01,15.84,16.68,17.51,18.35,19.18,20.01,20.84,21.68,22.51,23.35,24.18,25.01,25.85,26.68,27.51,28.35]
+
+                this.set("activeNmclItem.patientIntervention",(total-remb[this.activeNmclItem.units-1]).toFixed(2))
+                this.set("activeNmclItem.reimbursement",remb[this.activeNmclItem.units-1])
+
+                return Math.round(this.activeNmclItem.qteAll*2)
+            }
         }
 
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
