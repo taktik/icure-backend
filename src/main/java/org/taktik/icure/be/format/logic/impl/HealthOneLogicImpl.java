@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.format.logic.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,15 +206,40 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
 			String comment = null;
-			if (labResults.size() > 2) {
+			if (labResults.size() > 2 && tryToGetValueAsNumber(lrl.value) != null) {
 				LaboResultLine lrl2 = (LaboResultLine) labResults.get(1);
 				comment = lrl2.value;
 				for (int i = 2; i < labResults.size(); i++) {
 					lrl = (LaboResultLine) labResults.get(i);
-					comment += "\n" + lrl.value;
+					if (StringUtils.isNotEmpty(lrl.value)) {
+						comment += "\n" + lrl.value;
+					}
 				}
+
+				result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, comment);
+			} else {
+				String label = lrl.analysisType;
+				if ((lrl.analysisType == null) || (lrl.analysisType.trim().length() == 0)) {
+					label = "untitled";
+				}
+
+				String value = lrl.value;
+				for (int i = 1; i < labResults.size(); i++) {
+					lrl = (LaboResultLine) labResults.get(i);
+					if (StringUtils.isNotEmpty(lrl.value)) {
+						value += "\n" + lrl.value;
+					}
+				}
+
+				Service s = new Service();
+				s.setId(uuidGen.newGUID().toString());
+				s.getContent().put(language, new Content(value));
+				s.setLabel(label);
+				s.setIndex((long) position);
+				s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
+
+				result.add(s);
 			}
-			result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, comment);
 		} else {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
 			result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, null);
