@@ -626,6 +626,9 @@
                     user: {
                         type: Object
                     },
+                    hcp: {
+                        type : Object
+                    },
                     selectedMessages: {
                         type: Object,
                         notify: true
@@ -757,7 +760,10 @@
 
             ready() {
                 super.ready();
-                this.getMessage()
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
+                    this.set("hcp",response)
+                    this.getMessage()
+                })
             }
 
             getMessage(){
@@ -980,6 +986,13 @@
 
             _openHelpDeskDialog(){
                 this.$["helpdeskInfoDialog"].open()
+            }
+
+            receiveInvoices(){
+                console.log(this.user)
+                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii,this.language,this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then(response =>{
+                    console.log(response)
+                })
             }
         }
 
