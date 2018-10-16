@@ -2114,10 +2114,20 @@
             }
 
             _invoiceDateAsStringChanged(invoiceDateAsString) {
+                const dateNow = parseInt(this.api.moment(Date.now()).format('YYYYMMDD'));
                 const dateInt = parseInt(invoiceDateAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                 if (this.selectedInvoice && (this.selectedInvoice.invoiceDate !== dateInt)) {
-                    this.set('selectedInvoice.invoiceDate', dateInt)
+                    if (dateInt <= dateNow) {
+                        this.set('selectedInvoice.invoiceDate', dateInt)
+                    } else {
+                        this.$['invoice-date'].set(Date.now())
+                    }
+
                 }
+            }
+            findAndReplace(string, target, replacement) {
+                for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
+                return string;
             }
 
             getInvoiceType(invoiceType){

@@ -203,10 +203,7 @@
                     </paper-dropdown-menu>
                 </div>
                 <div class="regimen-line">
-                    <p>
-                        Préremplir :
-                    </p>
-                    <paper-input id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_setFrequencyList">
+                    <paper-input label="Nombre de prises diff" id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_setFrequencyList">
                         <div slot="suffix">X</div>
                     </paper-input>
                     <paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
@@ -261,7 +258,7 @@
                         <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
                                      class="regimen--quantity" min="0"></paper-input>
                         <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen&#45;&#45;units"-->
-                        <paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnitThen}}" class="regimen--units"></paper-input>
+                        <paper-input class="quantity-paper" id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnitThen}}" class="regimen--units" on-change="_selectQuantity"></paper-input>
                         <paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
                     </div>
                 </template>
@@ -464,6 +461,14 @@
             _valueChanged() {
                 this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
                 console.log("_valueChanged()")
+            }
+
+            _selectQuantity() {
+                let papers = this.shadowRoot.querySelectorAll(".quantity-paper")
+                console.log("papers",papers)
+                Array.prototype.slice.call(papers).map(that=>{
+                    that.value = this.bufferUnit
+                })
             }
 
             _setFrequencyList() {
