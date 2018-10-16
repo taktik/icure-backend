@@ -629,6 +629,10 @@
             <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="" class="" readOnly></paper-input>
             <paper-input class="flex-container-nmcl-row" label="Nom du soft" value="" class="" readOnly></paper-input>
             <paper-input class="flex-container-nmcl-row" label="N° de tél de contact médecin" value="" class="" readOnly></paper-input>
+
+
+
+
             <paper-input class="flex-container-nmcl-row" label="Patient" value="" class="" readOnly></paper-input>
             <paper-input class="flex-container-nmcl-row" label="Niss" value="" class="" readOnly></paper-input>
             <paper-input class="flex-container-nmcl-row" label="Prestation" value="" class="" readOnly></paper-input>
@@ -865,23 +869,38 @@
                                     const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
                                     const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
+                                    let invoiceStatus
+                                    if(zone200 && zone300){
+                                        const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
+
+                                        switch(invoiceType){
+                                            case '920999' : invoiceStatus = "Rejected"; break;
+                                            case '920099' : invoiceStatus = "Rejected"; break;
+                                            case '931000' : invoiceStatus = "Pending"; break;
+                                            case '920098' : invoiceStatus = "Accepted"; break;
+                                            case '920900' : invoiceStatus = "Accepted"; break;
+                                            default : invoiceStatus = ""; break;
+                                        }
+                                    }
+
+
                                     return (zone200 && zone300) ?
                                         ({
                                             message: message,
                                             messageInfo: {
-                                                messageType: zone200.zones.find(z => z.zone === "200").value,
+                                                messageType: zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
                                                 hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                                oa: (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00",
-                                                hcpReference: enr10.zones.find(z => z.zone === "28").value,
-                                                invoiceNumber: zone300.zones.find(z => z.zone === "301").value,
-                                                invoiceMonth: zone300.zones.find(z => z.zone === "300").value,
-                                                invoiceDate: zone300.zones.find(z => z.zone === "302").value,
-                                                invoicedAmount: (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2),
-                                                acceptedAmount: "0.00",
-                                                refusedAmount: "0.00",
-                                                invoiceStatus: "",
+                                                oa: zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
+                                                hcpReference: enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
+                                                invoiceNumber: zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
+                                                invoiceMonth: zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
+                                                invoiceDate: zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
+                                                invoicedAmount: zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
+                                                acceptedAmount: zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
+                                                refusedAmount: zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
+                                                invoiceStatus: invoiceStatus,
                                                 rejectionReason: "",
-                                                paymentReference: "",
+                                                paymentReference: zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
                                                 paymentDate: "",
                                                 amountPaid: "0.00",
                                                 paymentAccount: this.hcp.bankAccount,
