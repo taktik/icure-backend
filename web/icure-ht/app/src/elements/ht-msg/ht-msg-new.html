@@ -39,6 +39,10 @@
 <dom-module id="ht-msg-new">
     <template>
         <style>
+            h2{
+                margin-block-start:0;
+            }
+
             .notification-panel {
                 position: fixed;
                 top: 50%;
@@ -89,7 +93,7 @@
 
             .details-panel {
                 box-sizing: border-box;
-                padding: 16px;
+                padding: 0 16px;
                 height: 100%;
                 width: 100%;
             }
@@ -142,6 +146,10 @@
 
             paper-dialog {
                 margin: 0;
+                min-width: 30%;
+                width: 80%;
+                max-height: 80vh;
+                overflow-y: auto;
             }
 
             .contact-card-container {
@@ -149,10 +157,6 @@
                 overflow-y: auto;
                 height: calc(100% - 48px);
                 padding-bottom: 32px;
-            }
-
-            paper-dialog {
-                min-width: 30%;
             }
 
             .extra-info {
@@ -164,6 +168,7 @@
             vaadin-upload {
                 margin: 16px 0;
                 min-height: 280px;
+                min-height: 0;
                 background: var(--app-background-color);
                 --vaadin-upload-buttons-primary: {
                     padding: 16px;
@@ -350,7 +355,7 @@
                 margin-right: 8px;
             }
 
-            
+
 
             .contact-card-container {
                 position: relative;
@@ -374,10 +379,6 @@
 
             vaadin-combo-box {
                 width: 100%;
-            }
-
-            vaadin-upload {
-                min-height: 0;
             }
 
             iron-autogrow-textarea {
@@ -454,6 +455,11 @@
 				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
             }
 
+            /*#new-msg {*/
+                /*max-height: 80vh;*/
+                /*overflow-y: auto;*/
+            /*}*/
+
         </style>
 
         <paper-dialog id="new-msg" >
@@ -482,10 +488,10 @@
                                         <div class="one-line-menu list-title">
                                             [[destination.displayName]]
                                         </div>
-                                        
+
                                         <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
                                                     on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
-                                        
+
                                     </paper-item>
                                 </template>
                             </template>
@@ -514,10 +520,10 @@
                                         </template>
                                     </vaadin-grid-column>
                                 </vaadin-grid> -->
-                            
+
                         </div>
                 </div>
-                
+
                 <div class="field horizontal">
                     <div class="modal-subtitle">Options</div>
                     <div>
@@ -540,14 +546,39 @@
                         <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
                                     on-change="msgBodyFileInputSelected"></paper-input>
                         <paper-input-container alway-float-label="true">
-                            <iron-autogrow-textarea slot="input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]" 
+                            <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"
                                                 value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
                         </paper-input-container>
                     </div>
                     <div>
                         <div class="modal-subtitle">Annexes</div>
-                        <vaadin-upload id="vaadin-upload" no-auto files="{{files}}" target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
-                                    form-data-name="attachment" on-upload-success="_fileUploaded" max-file-size="10000000"></vaadin-upload>
+                        <paper-input id="newMsg-addAnnexe" type="file" multiple="true" on-change="_addAnnexe"></paper-input>
+                        <vaadin-grid id="annexeList" items="[[newMessage.annex]]">
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <div>Files</div>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.filename]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <div>Size</div>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.size]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template>
+                                    <div class="cell frozen">
+                                        <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' >Remove</paper-button>
+                                    </div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                        <!--<vaadin-upload id="vaadin-upload" files="{{files}}" on-upload-success="_fileUploaded" max-file-size="10000000"></vaadin-upload>-->
                     </div>
                 </div>
                 <div class="field">
@@ -578,7 +609,7 @@
                 <paper-button class="modal-button fright" on-tap="addMetadata">[[localize('add','Add',language)]]</paper-button>
             </div>
 
-            <vaadin-grid id="customMetasList" class="clearb" items="[[newMessage.customMetas]]">
+            <vaadin-grid id="customMetasList" class="clearb" items="[[customMetas]]">
                 <vaadin-grid-column>
                     <template class="header">
                         <div>Key</div>
@@ -598,7 +629,7 @@
                 <vaadin-grid-column>
                     <template>
                         <div class="cell frozen">
-                            <paper-button class="remove-customMetas-btn" on-tap="_removeCustomMetas" indexed$='[[index]]'>Remove</paper-button>
+                            <paper-button class="remove-customMetas-btn" on-tap="_removeCustomMetas" indexed$='[[item.0]]'>Remove</paper-button>
                         </div>
                     </template>
                 </vaadin-grid-column>
@@ -616,7 +647,7 @@
         // import XML from 'parse-xml/dist/parse-xml';
         import XML from 'xml-parse'
 
-        class HtMsgNew extends Polymer.TkLocalizerMixin(Polymer.Element) {
+		class HtMsgNew extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
                 return 'ht-msg-new'
             }
@@ -632,17 +663,13 @@
                     credentials: {
                         type: Object
                     },
-                    newMessage: {
-                        type: Object,
-                        value: {document: {}}
-                    },
-                    msgAnnexes: {
-                        type: Array,
-                        value: []
-                    },
-                    test: {
-                        type: Array,
-                        value: []
+					newMessage:{
+						type:Object,
+                        value: {
+							customMetas:{},
+							document:{},
+                            annex: []
+						}
                     },
                     type: {
                         type: [],
@@ -654,11 +681,9 @@
                     patientList: {
                         type: []
                     },
-                    msgBodyFile: {
-                        type: Object
-                    },
-                    files: {
-                        type: Array
+					customMetas:{
+                    	type:[],
+                        value: []
                     }
                 }
             }
@@ -671,29 +696,13 @@
                 super()
             }
 
-            ready() {
-                super.ready()
+			ready() {
+				super.ready()
 
-                this.LoadHcpList("NIHII")
-                this.LoadPatients()
-                this.set("newMessage.destinations", [])
-
-                // const vaadinUpload = this.$['vaadin-upload'];
-                // vaadinUpload.addEventListener('upload-before', function(event) {
-                // 	console.log("this.files");
-                // 	console.log(this.files);
-                // })
-                // vaadinUpload.addEventListener('upload-request', function(event) {
-                // 	// console.log('upload xhr after open: ', event.detail.xhr);
-                //     //
-                // 	// event.detail.xhr.setRequestHeader('X-File-Name', event.detail.file.name);
-                // 	// event.detail.formData.append('documentId', 1234);
-                // });
-                //
-                // vaadinUpload.addEventListener('upload-start', function(event) {
-                // 	// console.log('upload xhr after send: ', event.detail.xhr);
-                // });
-            }
+				this.LoadHcpList("NIHII")
+				this.LoadPatients()
+				this.set("newMessage.destinations", [])
+			}
 
             open() {
                 this.$['new-msg'].open()
@@ -701,25 +710,25 @@
 
             _cancel() {
                 this.$['new-msg'].close()
-            }
+			}
 
             refreshHcpList() {
                 let typeTo = this.shadowRoot.querySelector('#type-To')
                 this.LoadHcpList(typeTo.value || "")
             }
 
-            LoadHcpList(type) {
-                this.api.hcparty().listHealthcareParties().then(hcps => {
-                    let filtredHcps = hcps.rows
-                        .filter(hcp => (hcp.lastName || hcp.firstName) && this.filterHcp(hcp, type))
-                        .map(hcp => this.cleanHcp(hcp, type))
+			LoadHcpList(type){
+				this.api.hcparty().listHealthcareParties().then(hcps => {
+					let filtredHcps = hcps.rows
+						.filter(hcp=> (hcp.lastName || hcp.firstName) && this.filterHcp(hcp,type))
+						.map(hcp => this.cleanHcp(hcp,type))
                         .sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName))
-                    this.set("hcpList", filtredHcps)
-                })
+					this.set("hcpList",filtredHcps)
+				})
             }
 
-            filterHcp(hcp, type) {
-                switch (type) {
+            filterHcp(hcp,type){
+				switch (type) {
                     case "CBE":
                         return hcp.cbe && !isNaN(parseInt(hcp.cbe))
                     case "EHP":
@@ -727,14 +736,14 @@
                     case "INSS":
                         return hcp.ssin && !isNaN(parseInt(hcp.ssin))
                     case "NIHII":
-                    case "NIHII-HOSPITAL":
-                    case "NIHII-PHARMACY":
+					case "NIHII-HOSPITAL":
+					case "NIHII-PHARMACY":
                         return hcp.nihii && !isNaN(parseInt(hcp.nihii))
-                }
+				}
                 return false
             }
 
-            cleanHcp(hcp, type) {
+			cleanHcp(hcp,type){
                 hcp.nihii = hcp.nihii ? parseInt(hcp.nihii) : ""
                 hcp.cbe = hcp.cbe ? parseInt(hcp.cbe) : ""
                 hcp.lastName = hcp.lastName ? hcp.lastName.toLowerCase().trim() : ""
@@ -743,210 +752,269 @@
                 return hcp
             }
 
-            getTypeValue(hcp, type) {
-                switch (type) {
-                    case "CBE":
+            getTypeValue(hcp, type){
+				switch (type) {
+					case "CBE":
                         return hcp.cbe.toString()
-                    case "INSS":
+					case "INSS":
                         return hcp.ssin.toString()
-                    case "NIHII":
-                    case "NIHII-HOSPITAL":
-                    case "NIHII-PHARMACY":
+					case "NIHII":
+					case "NIHII-HOSPITAL":
+					case "NIHII-PHARMACY":
                         return hcp.nihii.toString()
-                }
+				}
             }
 
-            LoadPatients() {
-                this.api.patient().listPatients(this.user.healthcarePartyId).then(patients => {
-                    let filtredpatients = patients.rows.filter(pat => pat.ssin).map(pat => {
-                        pat.displayName = pat.firstName + " " + pat.lastName + " " + pat.ssin
+			LoadPatients(){
+				this.api.patient().listPatients(this.user.healthcarePartyId).then(patients =>{
+					let filtredpatients = patients.rows.filter(pat => pat.ssin).map(pat =>{
+						pat.displayName = pat.firstName + " " + pat.lastName + " " + pat.ssin
                         return pat
                     })
-                    this.set("patientList", filtredpatients)
-                })
-            }
+					this.set("patientList",filtredpatients)
+				})
+			}
 
-            _fileUploaded(e) {
-                // if (!this.currentContact) {
-                // 	return;
-                // }
-                // const vaadinUpload = this.$['vaadin-upload'];
-                // const f = e.detail.file;
-                // const d = f.doc;
+			_fileUploaded(e) {
+				// if (!this.currentContact) {
+				// 	return;
+				// }
+				// const vaadinUpload = this.$['vaadin-upload'];
+				// const f = e.detail.file;
+				// const d = f.doc;
                 //
-                // let sc = this.currentContact.subContacts.find(sbc => (sbc.status || 0) & 64);
-                // if (!sc) {
-                // 	sc = { status: 64, services: [] };
-                // 	this.currentContact.subContacts.push(sc);
-                // }
-                // const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
-                // this.currentContact.services.push(svc);
-                // sc.services.push({ serviceId: svc.id });
-                // if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
-                // 	this.saveCurrentContact().then(c => this._contactsChanged());
-                // }
+				// let sc = this.currentContact.subContacts.find(sbc => (sbc.status || 0) & 64);
+				// if (!sc) {
+				// 	sc = { status: 64, services: [] };
+				// 	this.currentContact.subContacts.push(sc);
+				// }
+				// const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
+				// this.currentContact.services.push(svc);
+				// sc.services.push({ serviceId: svc.id });
+				// if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
+				// 	this.saveCurrentContact().then(c => this._contactsChanged());
+				// }
+
+			}
+
+			_addAnnexe(){
+
+				let newMsgaddAnnexe = this.shadowRoot.querySelector('#newMsg-addAnnexe');
+
+				if( newMsgaddAnnexe.inputElement && newMsgaddAnnexe.inputElement.inputElement){
+					Object.values(newMsgaddAnnexe.inputElement.inputElement.files).forEach( file =>{
+						const fr = new FileReader();
+						fr.onload = function (e) {
+							let fileByteArray = [];
+							new Uint8Array(e.target.result).forEach(int8 => fileByteArray.push(int8));
+
+							this.push('newMessage.annex',{
+								"content": fileByteArray,
+								"filename": file.name,
+								"mimeType": file.type,
+								"title": file.name,
+                                "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
+							});
+
+						}.bind(this);
+						fr.readAsArrayBuffer(file);
+                    })
+				}
+
+				//Clear control
+				newMsgaddAnnexe.value = '';
 
             }
 
-            _AddDestinations() {
+
+			_removeAnnexe(e){
+				let index = e.target.getAttribute('indexed');
+				this.newMessage.annex.splice(index,1);
+				let annexeList = this.shadowRoot.querySelector('#annexeList');
+				annexeList.clearCache();
+			}
+
+			_AddDestinations(){
                 let newMsgTo = this.shadowRoot.querySelector('#newMsg-To')
                 let typeTo = this.shadowRoot.querySelector('#type-To')
-                console.log(typeTo.value)
-                if (newMsgTo.selectedItem || (!newMsgTo.selectedItem && parseInt(newMsgTo.value))) {
+				if(newMsgTo.selectedItem || (!newMsgTo.selectedItem && parseInt(newMsgTo.value))) {
                     let hcp = {}
-                    if (newMsgTo.selectedItem) {
-                        hcp = newMsgTo.selectedItem
-                    }
+                    if(newMsgTo.selectedItem) {
+                    	hcp = newMsgTo.selectedItem
+					}
                     else {
                         hcp.displayName = newMsgTo.value
                         hcp.nihii = typeTo.value.includes("NIHII") ? newMsgTo.value : undefined
                         hcp.cbe = typeTo.value === "CBE" ? newMsgTo.value : undefined
                         hcp.ssin = typeTo.value === "INSS" ? newMsgTo.value : undefined
-                    }
+					}
                     hcp.type = typeTo.value
                     this.push('newMessage.destinations', hcp)
-                    newMsgTo.value = ""
-                }
+					newMsgTo.value = ""
+				}
             }
 
-            _removeDestinations(e) {
+			_removeDestinations(e){
                 let index = e.target.getAttribute('indexed')
                 this.newMessage.destinations.splice(index, 1)
                 let destinationsList = this.shadowRoot.querySelector('#destinationsList')
                 destinationsList.clearCache()
             }
 
-            _AddSSIN(e) {
+			_AddSSIN(e){
                 let newMsgSSIN = this.shadowRoot.querySelector("#newMsg-SSIN")
-                if (newMsgSSIN && newMsgSSIN.selectedItem) {
+				if( newMsgSSIN && newMsgSSIN.selectedItem){
                     let ssin = newMsgSSIN.selectedItem.ssin
                     this.set("newMessage.patientInss", ssin)
-                }
-                else {
+				}
+				else{
                     this.set("newMessage.patientInss", undefined)
                 }
             }
 
-            manageMetadata() {
+			manageMetadata(){
                 this.$.metadataDialog.open()
             }
 
-            addMetadata() {
+			addMetadata(){
 
-                if (!this.newMessage.customMetas) this.set("newMessage.customMetas", [])
-                // this.newMessage.customMetas.set(this.$.newMsgMetadataKey.value, this.$.newMsgMetadataValue.value);
-                this.push("newMessage.customMetas", [this.$.newMsgMetadataKey.value, this.$.newMsgMetadataValue.value])
-                console.log(this.newMessage.customMetas)
+                let customMetas = this.newMessage.customMetas;
+				customMetas[this.$.newMsgMetadataKey.value] = this.$.newMsgMetadataValue.value;
+                this.set("newMessage.customMetas", customMetas);
+				this.set("customMetas",Object.keys(customMetas).map(key => [key,customMetas[key]]));
             }
 
-            _removeCustomMetas(e) {
-                let index = e.target.getAttribute('indexed')
-                this.newMessage.customMetas.splice(index, 1)
-                let customMetasList = this.shadowRoot.querySelector('#customMetasList')
+			_removeCustomMetas(e){
+                let index = e.target.getAttribute('indexed');
+				delete this.newMessage.customMetas[index];
+				this.set("customMetas",Object.keys(this.newMessage.customMetas).map(key => [key,this.newMessage.customMetas[key]]));
+                let customMetasList = this.shadowRoot.querySelector('#customMetasList');
                 customMetasList.clearCache()
             }
 
-            _SendNewMessage() {
+			_SendNewMessage(){
 
-                this.api.hcparty().getCurrentHealthcareParty().then(currentHcp => {
-                    let message = {}
+				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
+                    let message = {};
 
-                    // message.annex = [];
-                    message.annexList = [] //Mandatory in DocumentMessage.kt
-                    message.copyMailTo = [] //Mandatory in DocumentMessage.kt
-                    // message.customMetas = {}
-                    message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp))
-                    message.Important = this.newMessage.Important //Mandatory in DocumentMessage.kt
-                    message.Encrypted = this.newMessage.Encrypted //Mandatory in DocumentMessage.kt
-                    message.UsePublicationReceipt = this.newMessage.UsePublicationReceipt //Mandatory in DocumentMessage.kt
-                    message.UseReceivedReceipt = this.newMessage.UseReceivedReceipt //Mandatory in DocumentMessage.kt
-                    message.UseReadReceipt = this.newMessage.UseReadReceipt //Mandatory in DocumentMessage.kt
-                    message.HasAnnex = false //Mandatory in DocumentMessage.kt
-                    message.HasFreeInformations = false //Mandatory in DocumentMessage.kt
-                    message.document = this.newMessage.document
-                    message.documentTitle = this.newMessage.documentTitle
-                    // message.expirationDateTime
-                    message.freeInformationTableRows = { //Mandatory in DocumentMessage.kt
-                        additionalProp1: "",
-                        additionalProp2: "",
-                        additionalProp3: ""
-                    }
-                    // message.freeInformationTableTitle = "";
-                    // message.freeText = "";
-                    //message.id = "";
-                    //message.mandatee = {};
-                    message.patientInss = this.newMessage.patientInss
-                    message.publicationDateTime = Date.now()
-                    // message.publicationId = "";
-                    message.sender = this.setSenderAddressee(currentHcp)
-                    // message.size = "";
+                    message.id = null;
+					message.publicationId = null;
+					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
+					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
+					message.customMetas = this.newMessage.customMetas;
+					message.document = this.newMessage.document;
+					if(this.newMessage.document.textContent){
+						message.document.filename = "MainDocument.txt";
+						message.document.mimeType = "text/plain";
+						message.document.textContent = this.newMessage.document.textContent;
+						// message.document.content = this.api.crypto().utils.text2ua(this.newMessage.document.textContent);
+						message.document.signing = null;
+					}
+					message.freeText = null;
+					message.freeInformationTableTitle = null;
+					message.freeInformationTableRows = {};
+					message.patientInss = this.newMessage.patientInss
+					message.annex = this.newMessage.annex;
+					message.copyMailTo = [];
+					message.documentTitle = null;
+                    message.annexList = [];
+					message.useReceivedReceipt = !!this.newMessage.UseReceivedReceipt;
+					message.useReadReceipt = !!this.newMessage.UseReadReceipt;
+					message.hasAnnex = message.annex && message.annex.length > 0;
+					message.hasFreeInformations = false;
+					message.important = !!this.newMessage.Important;
+					message.encrypted = !!this.newMessage.crypted;
+					message.usePublicationReceipt = !!this.newMessage.UsePublicationReceipt;
+					message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp));
+					message.sender = this.setSenderAddressee(currentHcp);
 
-                    this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId, this.api.tokenId, this.credentials.ehpassword, message,
-                        this.newMessage.UsePublicationReceipt, this.newMessage.UseReceivedReceipt, this.newMessage.UseReadReceipt)
+                    // console.log(JSON.stringify(message));
 
-                })
-            }
+                    this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
+						!!this.newMessage.UsePublicationReceipt,!!this.newMessage.UseReceivedReceipt,!!this.newMessage.UseReadReceipt)
+                        .then(response => {
+                        	console.log(response);
+                        	if(response) {
+                        		this.set("newMessage",{customMetas:{},document:{},annex: []})
+								let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
+								newMsgSSIN.value = "";
+								this.$['new-msg'].close()
+							}
+                        })
+                        .catch(ex =>{
+							console.log(ex);
+						})
 
-            msgBodyFileInputSelected() {
+				})
+			}
 
-                let messageBodyFile = this.shadowRoot.querySelector('#messageBodyFile')
-                let messageBodyText = this.shadowRoot.querySelector('#messageBodyText')
+			msgBodyFileInputSelected() {
 
-                messageBodyText.value = ""
-                messageBodyText.disabled = false
-                messageBodyText.classList.remove("form-disabled")
+                let messageBodyFile = this.shadowRoot.querySelector('#messageBodyFile');
+                let messageBodyText = this.shadowRoot.querySelector('#messageBodyText');
 
-                if (messageBodyFile.inputElement && messageBodyFile.inputElement.inputElement) {
-                    let file = messageBodyFile.inputElement.inputElement.files[0]
+                messageBodyText.value = undefined;
+                messageBodyText.disabled = false;
+                messageBodyText.classList.remove("form-disabled");
 
-                    const fr = new FileReader()
-                    fr.onload = function (e) {
-                        // let binfile = btoa(new Uint8Array(e.target.result).reduce((data, byte) => data + String.fromCharCode(byte), ""));
-                        let fileByteArray = []
-                        new Uint8Array(e.target.result).forEach(int8 => fileByteArray.push(int8))
+				if( messageBodyFile.inputElement && messageBodyFile.inputElement.inputElement &&
+                    messageBodyFile.inputElement.inputElement.files.length > 0){
+                    let file = messageBodyFile.inputElement.inputElement.files[0];
 
-                        this.set('newMessage.document.content', fileByteArray)
-                        console.log(this.newMessage.document.content)
+                    const fr = new FileReader();
+					fr.onload = function (e) {
+						// let binfile = btoa(new Uint8Array(e.target.result).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+                        let fileByteArray = [];
+                        new Uint8Array(e.target.result).forEach(int8 => fileByteArray.push(int8));
+
+                        this.set('newMessage.document.content', fileByteArray);
                     }.bind(this)
                     fr.readAsArrayBuffer(file)
 
-                    this.set('newMessage.document.filename', file.name)
-                    this.set('newMessage.document.mimeType', file.type)
-                    this.set('newMessage.document.title', file.name)
+                    this.set('newMessage.document.filename', file.name);
+                    this.set('newMessage.document.mimeType', file.type);
 
-                    messageBodyText.value = file.name
-                    messageBodyText.disabled = true
-                    messageBodyText.classList.add("form-disabled")
+                    messageBodyText.disabled = true;
+                    messageBodyText.classList.add("form-disabled");
+				}
+				else{
+					this.set('newMessage.document.content', null);
+					this.set('newMessage.document.filename', null);
+					this.set('newMessage.document.mimeType', null);
                 }
+			}
+
+			setSenderAddressee(hcp){
+                let Addressee = {};
+				Addressee.identifierType = {type: hcp.type ? hcp.type : "NIHII"};
+				Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII");
+				Addressee.quality = hcp.quality?hcp.quality.toUpper(): "DOCTOR";
+                Addressee.applicationId = hcp.applicationID || null;
+				Addressee.lastName = null;//hcp.lastName || "";
+                Addressee.firstName = null;//hcp.firstName || "";
+				Addressee.organizationName = null;
+				Addressee.personInOrganisation = null;
+                // if(hcp.quality) Addressee.quality = hcp.quality;
+
+                return Addressee;
             }
 
-            setSenderAddressee(hcp) {
-                let Addressee = {}
-                if (hcp.applicationID) Addressee.applicationId = hcp.applicationID
-                Addressee.firstName = hcp.firstName || ""
-                Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII")
-                Addressee.identifierType = {type: hcp.type ? hcp.type : "NIHII"}
-                Addressee.lastName = hcp.lastName || ""
-                // if(hcp.companyName) Addressee.organizationName = hcp.companyName;
-                //Addressee.personInOrganisation ="";
-                if (hcp.quality) Addressee.quality = hcp.quality
-                return Addressee
+			setAddressee(hcp){
+                let Addressee = {};
+				Addressee.identifierType = {type: hcp.type};
+                Addressee.id = this.getTypeValue(hcp, hcp.type);
+				Addressee.quality = hcp.quality?hcp.quality.toUpper():"DOCTOR";
+                Addressee.applicationId = hcp.applicationID || null;
+				Addressee.lastName = null;//hcp.lastName || "";
+                Addressee.firstName = null;//hcp.firstName || "";
+				Addressee.organizationName = null;
+				Addressee.personInOrganisation = null;
+                // if(hcp.quality) Addressee.quality = hcp.quality;
+
+                return Addressee;
             }
 
-            setAddressee(hcp) {
-                let Addressee = {}
-                if (hcp.applicationID) Addressee.applicationId = hcp.applicationID
-                Addressee.firstName = hcp.firstName || ""
-                if (hcp.type) Addressee.id = this.getTypeValue(hcp, hcp.type)
-                if (hcp.type) Addressee.identifierType = {type: hcp.type}
-                Addressee.lastName = hcp.lastName || ""
-                // if(hcp.companyName) Addressee.organizationName = hcp.companyName;
-                //Addressee.personInOrganisation ="";
-                if (hcp.quality) Addressee.quality = hcp.quality
-                return Addressee
-            }
-
-        }
+		}
 
         customElements.define(HtMsgNew.is, HtMsgNew)
     </script>

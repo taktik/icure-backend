@@ -103,16 +103,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             iron-pages {
                 padding: 32px 0 0;
                 width: 100%;
-                height: calc(100% - 140px);
+                height: 100%;
                 box-sizing: border-box;
             }
 
-            page>dynamic-form{
-                width: 100%;
+            .page-container {
+                height: 100%;
+                overflow-y: auto;
             }
-
-
-
 
             :host #institution-list {
                 height: calc(100% - 140px);
@@ -273,6 +271,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .administrative-panel {
+                height:100%;
                 background: var(--app-background-color);
                 margin: 0;
                 grid-column: 2 / 4;
@@ -435,94 +434,103 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <iron-pages selected="[[tabs]]" class="">
                 <page>
-                    <dynamic-form id="dynamic-form-administrative" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
-                </page>
-                <page>
-                    <dynamic-form id="dynamic-form-partnerships" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
-                </page>
-                <page>
-                    <div>
-                        <h4 class="subtitle">[[localize('icp','Internal care provider',language)]]</h4>
-                        <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.lastName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.firstName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.speciality]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
+                    <div class="page-container">
+                        <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
+                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
                     </div>
-
-                    <div>
-                        <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
-                        <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalPatientCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
-                            <vaadin-grid-column width="240px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="name">[[localize('nam','Name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[getHcpName(item)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.speciality]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    <vaadin-grid-sorter path="beginDate">[[localize('sta_dat','Start date',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[getStartDate(item)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    <vaadin-grid-sorter path="endDate">[[localize('end_dat','End date',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[getEndDate(item)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
+                </page>
+                <page>
+                    <div class="page-container">
+                        <dynamic-form id="dynamic-form-partnerships" class="page-content" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]"
+                                      data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    </div>
+                </page>
+                <page>
+                    <div class="page-container">
+                            <div>
+                                <h4 class="subtitle">[[localize('icp','Internal care provider',language)]]</h4>
+                                <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]]
+                                             active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
+                                    <vaadin-grid-column width="120px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.lastName]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="120px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.firstName]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.speciality]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
+                            <div>
+                                <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
+                                <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalPatientCareTeam]]"
+                                             active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
+                                    <vaadin-grid-column width="240px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="name">[[localize('nam','Name',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[getHcpName(item)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.speciality]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="beginDate">[[localize('sta_dat','Start date',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[getStartDate(item)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="endDate">[[localize('end_dat','End date',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[getEndDate(item)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
                     </div>
                 </page>
             </iron-pages>
@@ -870,7 +878,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-
     scheduleSave(patient) {
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
@@ -908,6 +915,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
             this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => {
+                this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
                 this.patient && (this.patient.rev = p.rev)
             }).catch(e =>
                 this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
@@ -1036,8 +1044,6 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$['add-person-to-care-team'].close()
         this.$['add-new-person-to-care-team'].open()
     }
-
-
 
     addNewExternalPersonToCareTeam() {
         const careProvider = this.newHcpCareTeam

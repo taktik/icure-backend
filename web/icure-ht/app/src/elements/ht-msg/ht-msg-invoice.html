@@ -29,7 +29,7 @@
                 }
 
                 vaadin-grid {
-                    height: calc(100% - 16px - 32px);
+                    height: calc(100% - 41px - 32px - 32px);
                     width: 100%;
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
@@ -213,11 +213,12 @@
                     line-height: 25px;
                 }
 
+                /*
                 vaadin-grid#sendingGrid,
                 vaadin-grid#invoiceGrid {
                     height: calc(100vh - 185px);
                 }
-
+                */
                 @media screen and (max-width:1025px){
                     .invoice-panel {
                         left: 0;
@@ -243,7 +244,8 @@
                 }
 
                 #pendingGridDetail{
-                    height: 500px;
+                    height: calc(100% - 185px);
+                    padding: 0;
                 }
 
                 .invoice-status {
@@ -252,8 +254,58 @@
                     padding-top: 5px;
                 }
 
+                .unlockBtn {
+                    height: 12px;
+                    width: 12px;
+                }
+
                 .hidden {
                     display: none;
+                }
+
+                .invoiceContainer{
+                    height: calc(100vh - 185px);
+                }
+                .invoiceSubContainerBig{
+                   height: 100%;
+                }
+
+                .invoiceSubContainerMiddle{
+                    /*height: 50%;*/
+                    height: calc(100vh - 185px);
+                    transition: all .5s ease;
+                }
+                .invoiceSubContainerMiddle vaadin-grid {
+                    height: 100%;
+                }
+                .invoiceSubContainerMiddle.half {
+                    height: 49%;
+                }
+
+                .invoiceDetailContainer{
+                    height: 50%;
+                    opacity: 0;
+                    transition: all 1.25s ease-out;
+                }
+                .invoiceDetailContainer.open {
+                    opacity: 1;
+                }
+
+                #helpdeskInfoDialog{
+                    height: 400px;
+                    width: 300px;
+                }
+
+                tr.hidden {
+                    display: none !important;
+                }
+
+                .mb0 {
+                    margin-bottom: 0;
+                }
+
+                #pendingDetailDialog {
+                    max-height: 80vh;
                 }
 
             </style>
@@ -262,15 +314,10 @@
             <div class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
             </div>
-            <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keydown="refreshFilter"></paper-input>
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid"></paper-input>
                     <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
-
-                        <vaadin-grid-filter class="hidden" aria-label="" path="{{filterPath}}" value="[[filterValue]]">
-                            <vaadin-text-field slot="filter" placeholder="" value="{{filterValue}}" focus-target></vaadin-text-field>
-                        </vaadin-grid-filter>
-
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
@@ -280,9 +327,10 @@
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
-
                             </template>
-                            <template>[[item.insurance.code]]</template>
+                            <template>
+                                [[item.insurance.code]]
+                            </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
@@ -304,17 +352,17 @@
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="invoice.invoiceDate" direction="desc">Date facture</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="invoice.invoiceDate">Date facture</vaadin-grid-sorter>
                             </template>
                             <template>[[returnDate(item.invoice.invoiceDate)]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column-group>
-                            <template class="header">Montants</template>
+                            <template class="header hasBorder">Montants</template>
                             <vaadin-grid-column class="recipient-col">
-                                <template class="header">
+                                <template class="header border-left">
                                     <vaadin-grid-sorter path="invoice.reimbursement">OA</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
+                                <template class="border-left">[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
@@ -331,11 +379,11 @@
                                 <template>[[_formatAmount(item.totalInvoice.doctorSupplement)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
-                                <template class="header">
+                            <vaadin-grid-column class="recipient-col border-right">
+                                <template class="header border-right">
                                     <vaadin-grid-sorter path="invoice.totalAmount">Total</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
+                                <template class="border-right">[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
@@ -348,82 +396,155 @@
                                 [[item.invoice.statut]]
                             </template>
                         </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header"></template>
+                            <template>
+                                <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
+                            </template>
+                        </vaadin-grid-column>
                     </vaadin-grid>
+                    <div class="button">
+                        <paper-button on-tap="sendInvoices">Envoyer</paper-button>
+                        <paper-button on-tap="receiveInvoices">Recevoir</paper-button>
+                    </div>
                 </template>
 
                 <template is="dom-if" if="[[!statusPending]]">
-                    <vaadin-grid id="sendingGrid" items="">
-                        <vaadin-grid-column class="recipient-col">
-                            <template class="header">Prestataire</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="oa-col">
-                            <template class="header">OA</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="ref-col">
-                            <template class="header">Réf. du médecin</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="invoice-col">
-                            <template class="header">N° envoi</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="month-col">
-                            <template class="header">Mois fact.</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="invoiceDate-col">
-                            <template class="header">Date d'envoi</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="invAmount-col">
-                            <template class="header">Montant facturé</template>
-                            <template></template>
-                            <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="accAmount-col">
-                            <template class="header">Montant accepté</template>
-                            <template></template>
-                            <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="refAmount-col">
-                            <template class="header">Montant refusé</template>
-                            <template></template>
-                            <template class="footer">[[totalInvoices.refusedAmount]]€</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="stat-col">
-                            <template class="header">Statut</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column class="reject-col">
-                            <template class="header">Motif rejet</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column-group>
-                            <template class="header">Informations de paiement</template>
-                            <vaadin-grid-column class="payRef-col">
-                                <template class="header">Réf</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column class="payDate-col">
-                                <template class="header">Date</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column class="payTot-col">
-                                <template class="header">Montant</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column class="payBank-col">
-                                <template class="header">Compte bancaire</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column class="payPaid-col">
-                                <template class="header">Payé</template>
-                                <template></template>
-                            </vaadin-grid-column>
-                        </vaadin-grid-column-group>
-                    </vaadin-grid>
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputSending}}" on-keyup="refreshFilter" param="sendingGrid"></paper-input>
+                    <div class="invoiceContainer">
+                        <div id="sendingGridContainer" class="invoiceSubContainerMiddle">
+                            <vaadin-grid id="sendingGrid" items="[[sendingByStatus]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                                <vaadin-grid-column class="recipient-col">
+                                    <template class="header">Prestataire</template>
+                                    <template></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="oa-col">
+                                    <template class="header">OA</template>
+                                    <template></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="ref-col">
+                                    <template class="header">Réf. du médecin</template>
+                                    <template></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="invoice-col">
+                                    <template class="header">N° envoi</template>
+                                    <template>[[item.messageInfo.invoiceNumber]]</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="month-col">
+                                    <template class="header">Mois fact.</template>
+                                    <template></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="invoiceDate-col">
+                                    <template class="header">Date d'envoi</template>
+                                    <template>[[item.messageInfo.invoiceDate]]</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="invAmount-col">
+                                    <template class="header">Montant facturé</template>
+                                    <template></template>
+                                    <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="accAmount-col">
+                                    <template class="header">Montant accepté</template>
+                                    <template></template>
+                                    <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="refAmount-col">
+                                    <template class="header">Montant refusé</template>
+                                    <template></template>
+                                    <template class="footer">[[totalInvoices.refusedAmount]]€</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="stat-col">
+                                    <template class="header">Statut</template>
+                                    <template>Pending</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column class="reject-col">
+                                    <template class="header">Motif rejet</template>
+                                    <template></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column-group class="hasBorder">
+                                    <template class="header hasBorder">Informations de paiement</template>
+                                    <vaadin-grid-column class="payRef-col">
+                                        <template class="header">Réf</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="payDate-col">
+                                        <template class="header">Date</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="payTot-col">
+                                        <template class="header">Montant</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="payBank-col">
+                                        <template class="header">Compte bancaire</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="payPaid-col">
+                                        <template class="header">Payé</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid-column-group>
+                            </vaadin-grid>
+                        </div>
+                        <template is="dom-if" if="[[ifInvoiceSelected]]">
+                            <div id="invoiceDetailContainer" class="invoiceDetailContainer">
+                                <h4 class="mb0">Détail des envois selectionnés</h4>
+                                <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputDetail}}" on-keyup="refreshFilter" param="invoiceGridDetail"></paper-input>
+                                <vaadin-grid id="invoiceGridDetail" items="" active-item="{{activeDetailGridItem}}" on-tap="">
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">N° facture</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Patient</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">N° niss</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Nomenclature</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Date de la prestation</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Montant facturé</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Montant accepté</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Montant refusé</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Motif de rejet</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Payé</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Statut</template>
+                                        <template></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">Info helpdesk</template>
+                                        <template>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" on-tap="_openHelpDeskDialog"></iron-icon>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
+                        </template>
+                    </div>
                 </template>
             </div>
 
@@ -458,7 +579,7 @@
                             <template class="header">N° engagement</template>
                             <template>[[item.contract]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column-group>
+                        <vaadin-grid-column-group class="hasBorder">
                             <template class="header">Montants</template>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">OA</template>
@@ -482,17 +603,36 @@
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
                     </vaadin-grid>
-                <div class="button">
-                    <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                </div>
             </paper-dialog>
         </div>
+
+        <paper-dialog id="helpdeskInfoDialog">
+            <paper-input class="flex-container-nmcl-row" label="OA" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Inami tiers facturant" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="N° envoi" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Mois et année de facturation" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Date d'envoi du fichier" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Date dernière réponse OA" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Type dernière réponse OA" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Nom du soft" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="N° de tél de contact médecin" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Patient" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Niss" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Prestation" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Date de la prestation" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Montant facturé" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Montant accepté" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Montant refusé" value="" class="" readOnly></paper-input>
+            <paper-input class="flex-container-nmcl-row" label="Motif(s) de rejet" value="" class="" readOnly></paper-input>
+        </paper-dialog>
     </template>
 
     <script>
 
         import moment from 'moment/src/moment';
         import _ from 'lodash/lodash';
+        import * as models from 'icc-api/dist/icc-api/model/models'
 
         class HtMsgInvoice extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -506,6 +646,9 @@
                     },
                     user: {
                         type: Object
+                    },
+                    hcp: {
+                        type : Object
                     },
                     selectedMessages: {
                         type: Object,
@@ -576,15 +719,13 @@
                         type: Boolean,
                         value: true
                     },
-                    invoices:{
+                    selectedPendingInvoices:{
                         type: Object,
-                        value : () => ({
-                            pending:            [],
-                            processed:          [],
-                            rejected:           [],
-                            accepted:           [],
-                            archived:           []
-                        })
+                        value : () => ({})
+                    },
+                    selectedSendingByStatus:{
+                        type: Object,
+                        value : () => ({})
                     },
                     multiSort:{
                         type: Boolean,
@@ -612,6 +753,22 @@
                     showInactive: {
                         type: Boolean,
                         value: false
+                    },
+                    ifInvoiceSelected: {
+                        type: Boolean,
+                        value: true
+                    },
+                    level :{
+                        type : Number,
+                        value : 0
+                    },
+                    expanded : {
+                        type : Boolean,
+                        value : true
+                    },
+                    sendingByStatus:{
+                        type: Boolean,
+                        value : () => ({})
                     }
                 };
             }
@@ -626,45 +783,107 @@
 
             ready() {
                 super.ready();
-                this.getMessage()
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
+                    this.set("hcp",response)
+                    this.getMessage()
+                })
+
             }
 
-            getMessage(){
+            getPendingInvoices(){
+                this.set('selectedPendingInvoices', [])
 
                 const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
                     .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
-                    .then(insurance => {
+                        .then(insurance => {
 
-                        const invPen = {
-                            invoice: invoice,
-                            patient: patient,
-                            insurance: insurance,
-                            totalInvoice: {
-                                patientIntervention:    Number(0.00),
-                                reimbursement:          Number(0.00),
-                                totalAmount:            Number(0.00),
-                                doctorSupplement:       Number(0.00)
+                            const invPen = {
+                                invoice: invoice,
+                                patient: patient,
+                                insurance: insurance,
+                                totalInvoice: {
+                                    patientIntervention:    Number(0.00),
+                                    reimbursement:          Number(0.00),
+                                    totalAmount:            Number(0.00),
+                                    doctorSupplement:       Number(0.00)
+                                },
+                                hasChildren : false,
+                                uuid : invoice.id,
+                                parentUuid : insurance.code.charAt(0)
                             }
-                        }
 
-                        invoice.invoicingCodes.map(code => {
-                            invPen.totalInvoice.patientIntervention += Number(code.patientIntervention)
-                            invPen.totalInvoice.reimbursement += Number(code.reimbursement)
-                            invPen.totalInvoice.totalAmount += Number(code.totalAmount)
-                            invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
-                        })
+                            invoice.invoicingCodes.map(code => {
+                                invPen.totalInvoice.patientIntervention += Number(code.patientIntervention)
+                                invPen.totalInvoice.reimbursement += Number(code.reimbursement)
+                                invPen.totalInvoice.totalAmount += Number(code.totalAmount)
+                                invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
+                            })
 
-                        this.push('invoices.pending', invPen)
-                    }))
+                            this.push('selectedPendingInvoices', invPen)
+                        }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
                     invUnsent.forEach(inv =>{
-                        if(inv.printedDate && inv.printedDate !== "" && inv.sentMediumType === "efact"){
-                            this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
-                                .then(patId => treatPendingInvoice(patId, inv))
+                            if(inv.printedDate && inv.printedDate !== "" && inv.sentMediumType === "efact"){
+                                this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
+                                    .then(patIds => treatPendingInvoice(patIds[0], inv))
+                            }
                         }
-                    }
                     ))
+            }
+
+            getSending(){
+                this.set('sendingByStatus', [])
+
+                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages => messages.rows.map(message => {
+                    this.api.document().findByMessage(this.user.healthcarePartyId, message)
+                    .then(docs => {
+                        if(docs.length && docs.find(d => d.mainUti === "public.json")){
+
+                            const jsonDoc = docs.find(d => d.mainUti === "public.json")
+
+                            this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then( a => {
+
+                                const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+
+                                if(zone200 && zone300){
+
+                                    const mess = {
+                                        message: message,
+                                        messageInfo: {
+                                            type: zone200.zones.find(z=>z.zone === "200").value,
+                                            mutual: "",
+                                            invoiceNumber: zone300.zones.find(z=>z.zone === "301").value,
+                                            patient: "",
+                                            inss: "",
+                                            invoiceDate: zone300.zones.find(z=>z.zone === "302").value,
+                                            reimbursement: "",
+                                            patientIntervention: "",
+                                            totalAmount: "",
+                                            status: ""
+
+                                        }
+                                    }
+
+                                    this.push('sendingByStatus', mess)
+                                }
+
+                            })
+
+
+
+                        }
+                    })
+                }))
+            }
+
+
+            getMessage(){
+                this.getPendingInvoices()
+                this.getSending()
             }
 
             calculateTotalPendingInvoices(){
@@ -676,7 +895,7 @@
                     totalDoctorSupplement :       Number(0.00),
                 }
 
-                this.invoices.pending.map(invoice => {
+                this.selectedPendingInvoices.map(invoice => {
                     total.totalReimbursement          += Number(invoice.totalInvoice.reimbursement)
                     total.totalAmount                 += Number(invoice.totalInvoice.totalAmount)
                     total.totalPatientIntervention    += Number(invoice.totalInvoice.patientIntervention)
@@ -693,7 +912,7 @@
 
             _displayInvoiceStatus(status){
 
-               // envoye => findMessagesByTransportGuid efactBatch
+               // envoyé => findMessagesByTransportGuid efactBatch
 
 
                 return status
@@ -704,65 +923,112 @@
             }
 
             _formatAmount(amount){
-                return Number(amount).toFixed(2)
+                return this.findAndReplace(((Number(amount).toFixed(2)).toString()),'.',',')
             }
 
-            refreshFilter(){
+            findAndReplace(string, target, replacement) {
+                for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
+                return string;
+            }
+
+            refreshFilter(e){
+                const param = e.target.getAttribute('param')
+                const str =
+                    (param == "invoiceGrid") ? this.filterInput:
+                    (param == "sendingGrid") ? this.filterInputSending :
+                    this.filterInputDetail
                 setTimeout(function () {
-                    this._searchInGrid(this.filterInput)
+                    this.executeSearch(str,param)
                 }.bind(this), 500)
             }
 
-            _searchInGrid(str) {
+            executeSearch(str,param) {
+                const grid = this.shadowRoot.getElementById(param)
+                const tbody = grid.shadowRoot.querySelector("#scroller #table tbody")
+                const trs = tbody.querySelectorAll("tr")
+                let input = (str.includes(":") ) ? this.treatQuery(str) : str
+                input = (this.checkFilters(input)).toString().toLowerCase()
+                if (trs.length){
+                    let keepList = []
+                    Array.prototype.slice.call(trs).map(row=>{
+                        let cells = row.querySelectorAll("td"), toHide = true
+                        cells.forEach(that=>{
+                            const test = (that._content.innerText).toString().toLowerCase()
+                            if (test.includes(input)) {
+                                toHide = false
+                            }
+                        })
+                        if (toHide) {
+                            row.hidden = true
+                        } else {
+                            keepList.push(row)
+                            row.hidden = false
+                        }
+                    })
+                    let showCount = 0
+                    keepList.map(showMe=>{
+                        showMe.style.transform = "translateY("+ (showCount*48) +"px)"
+                        showCount++
+                    })
+                } // endif
+            }
+
+            checkFilters(str) { // will set the path type for vaadin filter and format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
-                console.log("---------------------------------------")
-                if (!(str.length == 0 || str == "")) {
+                if (str.length) {
                     if (!isNaN(str)) { // is a number
-                        console.log("number !")
                         searchType =
-                            (str.toString().length == 11) ? "patient.niss" : // NISS (length must be 11)
+                            (str.toString().length == 11) ? "patient.ssin" : // NISS (length must be 11)
                             (str.length == 8) ? "invoice.invoiceReference" : // bill number
                             (str >= 1930 && str <= (new Date().getFullYear() + 100)) ? "invoice.invoiceDate" : // year (from 1930 to now +100yr)
-                            // ((str <= ((new Date()).getFullYear() + 100)) && str.length == 4) ? "invoice.invoiceDate" : // year (from 1930 to now +100yr)
-                            (typeof str == "float") ? "invoice.totalAmount" : // float amount
-                            (str.includes(".")) ? "invoice.totalAmount" :
+                            ((typeof str == "float") || str.includes(".")) ? "invoice.totalAmount" : // float amount
                             (str.length == 3 && (100 <= str && str <= 999) ) ? "patient.insurance.code" : // Insurance code
                             "invoice.invoiceReference"
                         // format output ->
-                        if (searchType == "patient.niss") { output = output.replace('.',''); output = parseInt(output); output = output.toString() }
-                        if (searchType == "invoice.totalAmount") { output = parseFloat(str) }
+                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,'.',''); }
+                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output.toString(),'.',',') }
                     } else { // is a string
-                        console.log("NaN !")
                         searchType =
-                            (/(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)/.test(str)) ? "invoice.invoiceDate" :
-                            (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.niss" :
+                            (/(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{4}$)/.test(str) || /(^([0-2][0-9]|(3)[0-1])[.\- /](((0)[0-9])|((1)[0-2]))[.\- /]\d{2}$)/.test(str) ) ? "invoice.invoiceDate" :
+                            (/(^[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{2}[.\- /]{0,1}[0-9]{3}[.\- /]{0,1}[0-9]{2}$)/.test(str)) ? "patient.ssin" :
                             (str.includes(" ") ) ? "invoice.patient.firstName" :
-                            // ((str.length == 15 || str.length == 13) && (str.includes("-") || str.includes("/") || str.includes(".")) ) ? "patient.niss" :
                             (str.includes("€") || str.includes(".") || str.includes(",")) ? "invoice.totalAmount" :
                             "invoice.patient.firstName"
                         // format output ->
-                        if (searchType == "invoice.totalAmount") { output = str.replace('€','').replace(',','.'); output = parseFloat(output) }
-                        if (searchType == "patient.niss") { output = str.replace('-',''); output = output.replace('/',''); output = output.replace('.',''); output = output.toString() }
-                        if (searchType == "invoice.invoiceDate") { output = this.api.moment(str).format('YYYYDDMM') }
+                        if (searchType == "invoice.totalAmount") { output = this.findAndReplace(output,'€',''); output = this.findAndReplace(output,'.',','); }
+                        if (searchType == "patient.ssin") { output = this.findAndReplace(output,' ',''); output = this.findAndReplace(output,'-',''); output = this.findAndReplace(output,'/',''); output = this.findAndReplace(output,'.',''); }
+                        if (searchType == "invoice.invoiceDate") { output = this.fourNumYears(output) }
                     }
                 }
-                this.set('filterValue',output)
-                this.set('filterPath',searchType)
-                console.log("inputField:["+str+":"+(isNaN(str)?"string":"number")+"]")
-                console.log("output:["+this.filterValue+":"+typeof this.filterValue+"]")
-                console.log("filterPath:"+this.filterPath)
+                return output
             }
-            // findAndReplace(string, target, replacement) {
-            //     for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
-            //     return string;
-            // }
+            fourNumYears(input) {
+                const aa = input.slice(0,2),bb = input.slice(3,5)
+                let cccc = input.slice(6,11)
+                cccc = (cccc.toString().length == 2) ? cccc = "20"+cccc : cccc
+                return `${aa}/${bb}/${cccc}`
+            }
+            treatQuery(query) { // mainly used for numbers
+                let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
+                search =(search.includes(':')) ? this.findAndReplace(search,':',' ') : search
+                return search
+            }
 
             _invoicesChange(){
                 this.calculateTotalPendingInvoices()
             }
 
-            createInvoice(){
+            sendInvoices(){
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
+                    let prom = Promise.resolve()
+                    _.chain(this.selectedPendingInvoices)
+                        .groupBy(fact => fact.insurance.parent)
+                        .toPairs().value()
+                        .forEach(([fedId,invoices]) => {
+                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
+                        })
+                })
 
             }
 
@@ -770,7 +1036,33 @@
                 this.$.pendingDetailDialog.open()
             }
 
+            _unlockInvoice(e){
+                e.stopPropagation()
 
+                if(e.target.dataset.item){
+                    const invoice = JSON.parse(e.target.dataset.item)
+                    delete(invoice.printedDate)
+
+                    this.api.invoice().modifyInvoice(invoice).then(() => this.getMessage())
+                }
+            }
+
+            _showDetail(){
+                this.shadowRoot.getElementById("sendingGridContainer").classList.toggle("half")
+                this.shadowRoot.getElementById("invoiceDetailContainer").classList.toggle("open")
+            }
+
+            _openHelpDeskDialog(){
+                this.$["helpdeskInfoDialog"].open()
+            }
+
+            receiveInvoices(){
+                console.log(this.user)
+                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii,this.language,this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then(response =>{
+                    console.log(response)
+                    //this.api.processEfactMessage()
+                })
+            }
         }
 
         customElements.define(HtMsgInvoice.is, HtMsgInvoice);

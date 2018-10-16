@@ -31,6 +31,7 @@ import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.entities.embed.FinancialInstitutionInformation;
 import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.entities.embed.Insurability;
+import org.taktik.icure.entities.embed.MedicalHouseContract;
 import org.taktik.icure.entities.embed.Partnership;
 import org.taktik.icure.entities.embed.PatientHealthCareParty;
 import org.taktik.icure.entities.embed.PersonalStatus;
@@ -90,6 +91,7 @@ public class Patient extends StoredICureDocument implements Person {
     protected List<Partnership> partnerships = new ArrayList<>();
 	protected List<PatientHealthCareParty> patientHealthCareParties = new ArrayList<>();
     protected List<FinancialInstitutionInformation> financialInstitutionInformation = new ArrayList<>();
+	protected List<MedicalHouseContract> medicalHouseContracts = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
 
