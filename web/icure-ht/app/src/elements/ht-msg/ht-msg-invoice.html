@@ -295,7 +295,7 @@
             <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keydown="refreshFilter"></paper-input>
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
-                    <vaadin-grid id="invoiceGrid" items="[[selectedInvoicesByStatus]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
+                    <vaadin-grid id="invoiceGrid" items="[[selectedPendingInvoices]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
 
                         <vaadin-grid-filter class="hidden" aria-label="" path="{{filterPath}}" value="[[filterValue]]">
                             <vaadin-text-field slot="filter" placeholder="" value="{{filterValue}}"></vaadin-text-field>
@@ -398,7 +398,7 @@
                 <template is="dom-if" if="[[!statusPending]]">
                     <div class="invoiceContainer">
                         <div class="invoiceSubContainerMiddle">
-                            <vaadin-grid id="sendingGrid" items="[[selectedSendingByStatus]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                            <vaadin-grid id="sendingGrid" items="[[sendingByStatus]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
                                 <vaadin-grid-column class="recipient-col">
                                     <template class="header">Prestataire</template>
                                     <template></template>
@@ -413,7 +413,7 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invoice-col">
                                     <template class="header">N° envoi</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.invoiceNumber]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="month-col">
                                     <template class="header">Mois fact.</template>
@@ -421,7 +421,7 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invoiceDate-col">
                                     <template class="header">Date d'envoi</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.invoiceDate]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invAmount-col">
                                     <template class="header">Montant facturé</template>
@@ -700,7 +700,7 @@
                         type: Boolean,
                         value: true
                     },
-                    selectedInvoicesByStatus:{
+                    selectedPendingInvoices:{
                         type: Object,
                         value : () => ({})
                     },
@@ -749,12 +749,7 @@
                     },
                     sendingByStatus:{
                         type: Boolean,
-                        value : () => ({
-                            processed : [],
-                            rejected: [],
-                            accepted: [],
-                            archived: []
-                        })
+                        value : () => ({})
                     }
                 };
             }
@@ -772,7 +767,7 @@
             }
 
             getPendingInvoices(){
-                this.set('selectedInvoicesByStatus', [])
+                this.set('selectedPendingInvoices', [])
 
                 const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
                     .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
@@ -800,7 +795,7 @@
                                 invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
                             })
 
-                            this.push('selectedInvoicesByStatus', invPen)
+                            this.push('selectedPendingInvoices', invPen)
                         }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
@@ -814,13 +809,51 @@
             }
 
             getSending(){
+                this.set('sendingByStatus', [])
 
-                this.set('sendingByStatus.processed', [])
-                this.set('sendingByStatus.rejected', [])
-                this.set('sendingByStatus.accepted', [])
-                this.set('sendingByStatus.archived', [])
+                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages => messages.rows.map(message => {
+                    this.api.document().findByMessage(this.user.healthcarePartyId, message)
+                    .then(docs => {
+                        if(docs.length && docs.find(d => d.mainUti === "public.json")){
 
-                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages => this.set('sendingByStatus.processed', messages))
+                            const jsonDoc = docs.find(d => d.mainUti === "public.json")
+
+                            this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then( a => {
+
+                                const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+
+                                if(zone200 && zone300){
+
+                                    const mess = {
+                                        message: message,
+                                        messageInfo: {
+                                            type: zone200.zones.find(z=>z.zone === "200").value,
+                                            mutual: "",
+                                            invoiceNumber: zone300.zones.find(z=>z.zone === "301").value,
+                                            patient: "",
+                                            inss: "",
+                                            invoiceDate: zone300.zones.find(z=>z.zone === "302").value,
+                                            reimbursement: "",
+                                            patientIntervention: "",
+                                            totalAmount: "",
+                                            status: ""
+
+                                        }
+                                    }
+
+                                    this.push('sendingByStatus', mess)
+                                }
+
+                            })
+
+
+
+                        }
+                    })
+                }))
             }
 
 
@@ -838,7 +871,7 @@
                     totalDoctorSupplement :       Number(0.00),
                 }
 
-                this.invoices.pending.map(invoice => {
+                this.selectedPendingInvoices.map(invoice => {
                     total.totalReimbursement          += Number(invoice.totalInvoice.reimbursement)
                     total.totalAmount                 += Number(invoice.totalInvoice.totalAmount)
                     total.totalPatientIntervention    += Number(invoice.totalInvoice.patientIntervention)
@@ -1025,7 +1058,7 @@
             sendInvoices(){
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
                     let prom = Promise.resolve()
-                    _.chain(this.invoices.pending)
+                    _.chain(this.selectedPendingInvoices)
                         .groupBy(fact => fact.insurance.parent)
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
