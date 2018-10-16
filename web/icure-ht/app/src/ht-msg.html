@@ -122,7 +122,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
 
             <template is="dom-if" if="[[invoicesLayout]]">
-                    <ht-msg-invoice api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
+                    <ht-msg-invoice id="msg-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                                  user="[[user]]"
                                  select-list="[[selectList]]"
                                  invoices-status="[[invoicesStatus]]"
@@ -179,6 +179,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (e.detail && e.detail.selection.item === 'e_invOut') {
                     this.set('invoicesLayout', true)
                     this.set('invoicesStatus', e.detail.selection.status)
+                    setTimeout(() => this.shadowRoot.querySelector("#msg-invoice").getMessage(),0)
+
                 } else {
                     this.set('invoicesLayout', false)
                 }
