@@ -264,6 +264,7 @@
                 }
 
                 .invoiceContainer{
+                    overflow: auto;
                     height: calc(100vh - 185px);
                 }
                 .invoiceSubContainerBig{
@@ -308,6 +309,11 @@
                     max-height: 80vh;
                 }
 
+                .helpdeskIcon{
+                    height: 12px;
+                    width: 12px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -317,7 +323,7 @@
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid"></paper-input>
-                    <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
+                    <vaadin-grid id="invoiceGrid" items="[[selectedPendingInvoices]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
@@ -440,7 +446,7 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invAmount-col">
                                     <template class="header">Montant facturé</template>
-                                    <template>[[item.messageInfo.askAmount]]</template>
+                                    <template>[[item.messageInfo.invoicedAmount]]</template>
                                     <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="accAmount-col">
@@ -483,6 +489,12 @@
                                         <template class="header">Payé</template>
                                         <template>[[item.messageInfo.paidAmount]]</template>
                                     </vaadin-grid-column>
+                                    <vaadin-grid-column class="payPaid-col">
+                                        <template class="header"></template>
+                                        <template>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" on-tap="_openHelpDeskDialog"></iron-icon>
+                                        </template>
+                                    </vaadin-grid-column>
                                 </vaadin-grid-column-group>
                             </vaadin-grid>
                         </div>
@@ -490,55 +502,55 @@
                             <div id="invoiceDetailContainer" class="invoiceDetailContainer">
                                 <h4 class="mb0">Détail des envois selectionnés</h4>
                                 <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputDetail}}" on-keyup="refreshFilter" param="invoiceGridDetail"></paper-input>
-                                <vaadin-grid id="invoiceGridDetail" items="" active-item="{{activeDetailGridItem}}" on-tap="">
+                                <vaadin-grid id="invoiceGridDetail" items="[[invoicesFromBatch]]" active-item="{{activeDetailGridItem}}" on-tap="">
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">N° facture</template>
-                                        <template></template>
+                                        <template>[[item.invoiceReference]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Patient</template>
-                                        <template></template>
+                                        <template>[[item.patient]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">N° niss</template>
-                                        <template></template>
+                                        <template>[[item.ssin]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Nomenclature</template>
-                                        <template></template>
+                                        <template>[[item.invoicingCode]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Date de la prestation</template>
-                                        <template></template>
+                                        <template>[[item.invoiceDate]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Montant facturé</template>
-                                        <template></template>
+                                        <template>[[item.invoicedAmount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Montant accepté</template>
-                                        <template></template>
+                                        <template>[[item.acceptedAmount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Montant refusé</template>
-                                        <template></template>
+                                        <template>[[item.refusedAmount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Motif de rejet</template>
-                                        <template></template>
+                                        <template>[[item.rejectionReason]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Payé</template>
-                                        <template></template>
+                                        <template>[[item.paid]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Statut</template>
-                                        <template></template>
+                                        <template>[[item.status]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">Info helpdesk</template>
                                         <template>
-                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" on-tap="_openHelpDeskDialog"></iron-icon>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" on-tap="_openHelpDeskDialog"></iron-icon>
                                         </template>
                                     </vaadin-grid-column>
                                 </vaadin-grid>
@@ -769,6 +781,12 @@
                     sendingByStatus:{
                         type: Boolean,
                         value : () => ({})
+                    },
+                    invoicesFromBatch:{
+                        type: Object,
+                        value: function () {
+                            return [];
+                        }
                     }
                 };
             }
@@ -833,58 +851,49 @@
             }
 
             getSending(){
-                this.set('sendingByStatus', [])
+                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages =>
+                    Promise.all(messages.rows.map(message =>
+                        this.api.document().findByMessage(this.user.healthcarePartyId, message)
+                            .then(docs => {
+                                const jsonDoc = docs.find(d => d.mainUti === "public.json")
 
-                this.api.message().findMessagesByTransportGuid("efact:batch:*").then(messages => messages.rows.map(message => {
-                    this.api.document().findByMessage(this.user.healthcarePartyId, message)
-                    .then(docs => {
-                        if(docs.length && docs.find(d => d.mainUti === "public.json")){
+                                return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 
-                            const jsonDoc = docs.find(d => d.mainUti === "public.json")
+                                    const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                    const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                    const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                    const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                    const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
-                            this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then( a => {
+                                    return (zone200 && zone300) ?
+                                        ({
+                                            message: message,
+                                            messageInfo: {
+                                                messageType: zone200.zones.find(z => z.zone === "200").value,
+                                                hcp: this.hcp.firstName + " " + this.hcp.lastName,
+                                                oa: (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00",
+                                                hcpReference: enr10.zones.find(z => z.zone === "28").value,
+                                                invoiceNumber: zone300.zones.find(z => z.zone === "301").value,
+                                                invoiceMonth: zone300.zones.find(z => z.zone === "300").value,
+                                                invoiceDate: zone300.zones.find(z => z.zone === "302").value,
+                                                invoicedAmount: (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2),
+                                                acceptedAmount: "0.00",
+                                                refusedAmount: "0.00",
+                                                invoiceStatus: "",
+                                                rejectionReason: "",
+                                                paymentReference: "",
+                                                paymentDate: "",
+                                                amountPaid: "0.00",
+                                                paymentAccount: this.hcp.bankAccount,
+                                                paidAmount: ""
 
-                                const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                            }
+                                        }) : null
 
-                                if(zone200 && zone300){
-
-                                    const mess = {
-                                        message: message,
-                                        messageInfo: {
-                                            messageType: zone200.zones.find(z=>z.zone === "200").value,
-                                            hcp: "",
-                                            oa: "",
-                                            hcpReference: "",
-                                            invoiceNumber: zone300.zones.find(z=>z.zone === "301").value,
-                                            invoiceMonth: zone300.zones.find(z=>z.zone === "300").value,
-                                            invoiceDate: zone300.zones.find(z=>z.zone === "302").value,
-                                            invoicedAmount: zone500.zones.find(z=>z.zone === "503").value,
-                                            acceptedAmount: 0.00,
-                                            refusedAmount: 0.00,
-                                            invoiceStatus: "",
-                                            rejectionReason: "",
-                                            paymentReference: "",
-                                            paymentDate: "",
-                                            amountPaid: 0.00,
-                                            paymentAccount: "",
-                                            paidAmount: ""
-
-                                        }
-                                    }
-
-                                    this.push('sendingByStatus', mess)
-                                }
-
-                            })
-
-
-
-                        }
-                    })
-                }))
+                                }) : Promise.resolve(null)
+                            }))
+                    ))
+                    .then( msgsInfos => this.set("sendingByStatus", _.compact(msgsInfos)))
             }
 
 
@@ -1054,9 +1063,39 @@
                 }
             }
 
-            _showDetail(){
-                this.shadowRoot.getElementById("sendingGridContainer").classList.toggle("half")
-                this.shadowRoot.getElementById("invoiceDetailContainer").classList.toggle("open")
+            _showDetail() {
+                console.log(this.activeGridItem)
+
+                if (this.activeGridItem) {
+                    this.shadowRoot.getElementById("sendingGridContainer").classList.add("half")
+                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
+
+                    const invoiceIds = this.activeGridItem.message.invoiceIds
+
+                    this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: invoiceIds.map(i => i)}))
+                        .then(invoices => Promise.all(invoices.map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids[0]]))))
+                        .then(invAndIdsPat =>
+                            this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                        )
+                        .then(invAndPats => _.flatMap(invAndPats, ([inv, pat]) => inv.invoicingCodes.map(code => ({
+                                invoiceReference: inv.invoiceReference,
+                                patient: pat.lastName + " " + pat.firstName,
+                                ssin: pat.ssin,
+                                invoicingCode: code.code,
+                                invoiceDate: inv.invoiceDate,
+                                invoicedAmount: code.reimbursement,
+                                acceptedAmount: "0.00",
+                                refusedAmount: "0.00",
+                                rejectionReason: "",
+                                paid: false,
+                                status: "pending"
+                            })))
+                        )
+                        .then(infos => this.set('invoicesFromBatch', _.flatten(infos)))
+                } else {
+                    this.shadowRoot.getElementById("sendingGridContainer").classList.remove("half")
+                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
+                }
             }
 
             _openHelpDeskDialog(){
