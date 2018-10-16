@@ -886,7 +886,9 @@
                                             </template>
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
                                                 <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
-                                                  <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
+                                                <template id="dom-if" if="[[!!isInvoiceClosed]]">
+                                                    <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
+                                                </template>
                                                   [[item.relatedCode]]
                                             </template>
 
