@@ -244,7 +244,8 @@
                 }
 
                 #pendingGridDetail{
-                    height: 500px;
+                    height: calc(100% - 185px);
+                    padding: 0;
                 }
 
                 .invoice-status {
@@ -278,13 +279,13 @@
                     height: 100%;
                 }
                 .invoiceSubContainerMiddle.half {
-                    height: 65%;
+                    height: 49%;
                 }
 
                 .invoiceDetailContainer{
-                    height: 40%;
+                    height: 50%;
                     opacity: 0;
-                    transition: all .75s ease-out;
+                    transition: all 1.25s ease-out;
                 }
                 .invoiceDetailContainer.open {
                     opacity: 1;
@@ -299,15 +300,23 @@
                     display: none !important;
                 }
 
+                .mb0 {
+                    margin-bottom: 0;
+                }
+
+                #pendingDetailDialog {
+                    max-height: 80vh;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
             <div class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
             </div>
-            <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keydown="refreshFilter"></paper-input>
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid"></paper-input>
                     <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
@@ -320,9 +329,6 @@
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
                             </template>
                             <template>
-                                <!--<vaadin-grid-tree-toggle leaf="[[!item.hasChildren]]" toggle="vaadin:angle-down">
-                                    [[item.insurance.code]]-[[!item.hasChildren]]-[[item.parentUuid]]-[[item.uuid]]
-                                </vaadin-grid-tree-toggle>-->
                                 [[item.insurance.code]]
                             </template>
                         </vaadin-grid-column>
@@ -351,12 +357,12 @@
                             <template>[[returnDate(item.invoice.invoiceDate)]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column-group>
-                            <template class="header">Montants</template>
+                            <template class="header hasBorder">Montants</template>
                             <vaadin-grid-column class="recipient-col">
-                                <template class="header">
+                                <template class="header border-left">
                                     <vaadin-grid-sorter path="invoice.reimbursement">OA</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
+                                <template class="border-left">[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
@@ -373,11 +379,11 @@
                                 <template>[[_formatAmount(item.totalInvoice.doctorSupplement)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
-                                <template class="header">
+                            <vaadin-grid-column class="recipient-col border-right">
+                                <template class="header border-right">
                                     <vaadin-grid-sorter path="invoice.totalAmount">Total</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
+                                <template class="border-right">[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
                                 <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
@@ -403,6 +409,7 @@
                 </template>
 
                 <template is="dom-if" if="[[!statusPending]]">
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputSending}}" on-keyup="refreshFilter" param="sendingGrid"></paper-input>
                     <div class="invoiceContainer">
                         <div id="sendingGridContainer" class="invoiceSubContainerMiddle">
                             <vaadin-grid id="sendingGrid" items="" active-item="{{activeGridItem}}" on-tap="_showDetail">
@@ -453,8 +460,8 @@
                                     <template class="header">Motif rejet</template>
                                     <template></template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column-group>
-                                    <template class="header">Informations de paiement</template>
+                                <vaadin-grid-column-group class="hasBorder">
+                                    <template class="header hasBorder">Informations de paiement</template>
                                     <vaadin-grid-column class="payRef-col">
                                         <template class="header">Réf</template>
                                         <template></template>
@@ -480,7 +487,8 @@
                         </div>
                         <template is="dom-if" if="[[ifInvoiceSelected]]">
                             <div id="invoiceDetailContainer" class="invoiceDetailContainer">
-                                <h4>Détail des envois selectionnés</h4>
+                                <h4 class="mb0">Détail des envois selectionnés</h4>
+                                <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputDetail}}" on-keyup="refreshFilter" param="invoiceGridDetail"></paper-input>
                                 <vaadin-grid id="invoiceGridDetail" items="" active-item="{{activeDetailGridItem}}" on-tap="">
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">N° facture</template>
@@ -570,7 +578,7 @@
                             <template class="header">N° engagement</template>
                             <template>[[item.contract]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column-group>
+                        <vaadin-grid-column-group class="hasBorder">
                             <template class="header">Montants</template>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">OA</template>
@@ -880,9 +888,14 @@
                 return string;
             }
 
-            refreshFilter(){
+            refreshFilter(e){
+                const param = e.target.getAttribute('param')
+                const str =
+                    (param == "invoiceGrid") ? this.filterInput:
+                    (param == "sendingGrid") ? this.filterInputSending :
+                    this.filterInputDetail
                 setTimeout(function () {
-                    this.executeSearch(this.filterInput,"invoiceGrid")
+                    this.executeSearch(str,param)
                 }.bind(this), 500)
             }
 
@@ -950,14 +963,12 @@
             fourNumYears(input) {
                 const aa = input.slice(0,2),bb = input.slice(3,5)
                 let cccc = input.slice(6,11)
-                if (cccc.toString().length == 2) {
-                    cccc = "20"+cccc
-                }
+                cccc = (cccc.toString().length == 2) ? cccc = "20"+cccc : cccc
                 return `${aa}/${bb}/${cccc}`
             }
             treatQuery(query) { // mainly used for numbers
                 let search = (query.substr(query.indexOf(':')+1, query.length) ).toString()
-                if (search.includes(':')) { search = this.findAndReplace(search,':',' ') }
+                search =(search.includes(':')) ? this.findAndReplace(search,':',' ') : search
                 return search
             }
 
