@@ -1044,7 +1044,7 @@
                                              value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             </template>
                         </div>
-                        <template is="dom-if" if="[[isTravellingExpenses]]">
+                        <template is="dom-if" if="[[isTravellingExpenses(activeNmclItem.*)]]">
                             <div class="flex-container-nmcl">
                                 <paper-input class="flex-container-nmcl-row"
                                              label="[[localize('fraisDepAll','frais de déplacement - aller',language)]]"
@@ -2159,7 +2159,7 @@
             }
 
             _formatInvoiceDate(date) {
-                return date ? ("" + date).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
+                return date ? this.api.moment(date).format("DD/MM/YYYY") : 'N/A'
             }
 
             datePickerChanged() {
