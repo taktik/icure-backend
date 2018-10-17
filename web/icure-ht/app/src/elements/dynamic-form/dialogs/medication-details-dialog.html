@@ -163,7 +163,7 @@
                 right: 12px;
             }
 
-            .middlebtn {
+            .posology-btn {
                 left: 100%;
                 transform: translateX(-100%);
                 padding-right: 3px;
@@ -195,19 +195,20 @@
                                         class="regimen--datepicker"></vaadin-date-picker>
 
                     <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
-                        <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}">
+                        <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}" on-iron-select="_selectFrequency">
                             <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
                             <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
                             <paper-item id="high">[[localize('high','High',language)]]</paper-item>
                         </paper-listbox>
                     </paper-dropdown-menu>
                 </div>
+                <h4>[[localize('prefill','Préremplir les détails',language)]]</h4>
                 <div class="regimen-line">
                     <paper-input label="Nombre de prises diff" id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_setFrequencyList">
                         <div slot="suffix">X</div>
                     </paper-input>
                     <paper-dropdown-menu id="generalFrequency" label="Frequency" class="regimen--frequency">
-                        <paper-listbox slot="dropdown-content" selected="{{bufferGeneralFrequency}}">
+                        <paper-listbox slot="dropdown-content" selected="{{bufferGeneralFrequency}}" on-change="_setFrequencyList">
                             <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
                             <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
                             <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
@@ -215,14 +216,13 @@
                     </paper-dropdown-menu>
                     <paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" on-change="_setFrequencyList"
                                  min="0"></paper-input>
-                    <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units" on-change="_setFrequencyList"></paper-input>
-
+                    <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units" on-keyup="_setUnits"></paper-input>
                 </div>
-                <hr>
+                <h4>[[localize('med_det','Détails',language)]]</h4>
                 <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
-                    <div class="regimen-line">
+                    <div class="regimen-line regimen-details">
                         <paper-dropdown-menu label="Frequency" class="regimen--frequency">
-                            <paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-iron-select="_selectFrequency">
+                            <paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]">
                                 <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
                                 <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
                                 <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
@@ -258,22 +258,30 @@
                         <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
                                      class="regimen--quantity" min="0"></paper-input>
                         <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen&#45;&#45;units"-->
-                        <paper-input class="quantity-paper" id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnitThen}}" class="regimen--units" on-change="_selectQuantity"></paper-input>
+                        <paper-input class="quantity-paper" id="quantity" label="[[localize('uni', 'Units', language)]]" value="" class="regimen--units" on-change="_selectQuantity"></paper-input>
                         <paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
                     </div>
                 </template>
-                <paper-button class="middlebtn" on-tap="addPosologyRegimen">
+                <paper-button class="posology-btn" on-tap="addPosologyRegimen">
                     [[localize('add_pos_reg','Add posology regimen',language)]]
                     <iron-icon icon="add"></iron-icon>
                 </paper-button>
             </div>
 
             <div class="regimen-line save-line">
-                <div class="buttons force-left">
-                    <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('cancel','Cancel',language)]]</paper-button>
-                </div>
+                <template is="dom-if" if="[[!existingMedicine]]">
+                    <div class="buttons force-left">
+                        <paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button--cancel">[[localize('cancel','Cancel',language)]]</paper-button>
+                    </div>
+                </template>
+                <template is="dom-if" if="[[existingMedicine]]">
+                    <div class="buttons force-left">
+                        <paper-button dialog-confirm autofocus on-tap="removeMedic" class="modal-button modal-button--delete">[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button--save">[[localize('cancel','Cancel',language)]]</paper-button>
+                    </div>
+                </template>
                 <div class="buttons force-right">
-                    <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>
+                    <paper-button dialog-confirm autofocus on-tap="closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>
                     <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
                 </div>
             </div>
@@ -476,6 +484,7 @@
                 if (this.bufferNumberByFrequency == 0) {
                     this.set('bufferNumberByFrequency',1)
                 }
+                this._setUnits()
 
                 for (let cpt = 0; cpt < this.$.numberByFrequency.value; cpt++) {
                     bufferTable.push({
@@ -491,6 +500,15 @@
                 this.set("customFrequencyTable", true)
                 this.set("selectedMedicationContentWithId.medicationValue.regimen", bufferTable)
                 this.set("flagTableFrequency", true)
+            }
+            _setUnits() {
+                const str = this.bufferUnit
+                let lines = this.shadowRoot.querySelectorAll('.regimen-details')
+                Array.prototype.slice.call(lines).map(line=>{
+                    let field = line.querySelector(".quantity-paper")
+                    let input = field.shadowRoot.querySelector("#container > iron-input.input-element > input")
+                    input.value = str
+                })
             }
 
             _addFrequency() {

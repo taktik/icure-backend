@@ -264,8 +264,10 @@
                 }
 
                 .invoiceContainer{
-                    overflow: auto;
+                    overflow-x: auto;
+                    overflow-y: hidden;
                     height: calc(100vh - 185px);
+                    box-shadow: var(--app-shadow-elevation-1);
                 }
                 .invoiceSubContainerBig{
                    height: 100%;
@@ -1152,7 +1154,7 @@
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
                         })
                 })
-
+                this.set('selectedPendingInvoices',this.getPendingInvoices())
             }
 
             _showPendingDetail(){

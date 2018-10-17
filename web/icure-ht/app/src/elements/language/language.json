@@ -539,6 +539,7 @@
     "pos": "Posologie",
     "postalCode" : "Code postal",
     "pre": "Prescrire",
+    "prefill": "Préremplir les détails",
     "prescriber" : "Prescripteur",
     "prescriber_nihii" : "INAMI prescripteur",
     "pre_thi_but_to_pre": "Presser pour éditer la prescription",
