@@ -206,7 +206,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
 			String comment = null;
-			if (labResults.size() > 2 && tryToGetValueAsNumber(lrl.value) != null) {
+			if (tryToGetValueAsNumber(lrl.value) != null) {
 				LaboResultLine lrl2 = (LaboResultLine) labResults.get(1);
 				comment = lrl2.value;
 				for (int i = 2; i < labResults.size(); i++) {
