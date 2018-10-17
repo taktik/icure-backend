@@ -498,7 +498,7 @@
 
             confirm() {
                 this.set('filterValue','')
-                this.set('medicationType','')
+                this.set('medicationType','medicinalProduct')
                 if (this.compoundPrescriptionText) {
                     this.select({name: this.compoundPrescriptionText})
                 } else if (this.selectedMedicationFromList) {
@@ -508,6 +508,7 @@
 
             skip() {
                 this.set('filterValue','')
+                this.set('medicationType','medicinalProduct')
                 this.$['entities-list'].clearCache();
             }
 

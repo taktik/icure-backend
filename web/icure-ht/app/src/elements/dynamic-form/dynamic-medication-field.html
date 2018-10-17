@@ -313,8 +313,10 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	constructor() {
 		super();
 	}
+
 	ready() {
 		super.ready();
+        // this.addEventListener('newMedicFromChild', this.addMedication);
     }
 
 
@@ -369,6 +371,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	addMedication() {
+        // console.log("add medic",this)
 		const id = this.api.crypto().randomUuid();
 		const newMedication =  {
 		    id: id,

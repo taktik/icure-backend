@@ -288,15 +288,22 @@
                 .invoiceDetailContainer{
                     height: 50%;
                     opacity: 0;
-                    transition: all 1.25s ease-out;
+                    transition: all .75s ease-out;
                 }
                 .invoiceDetailContainer.open {
                     opacity: 1;
                 }
 
                 #helpdeskInfoDialog{
-                    height: 400px;
-                    width: 300px;
+                    position: fixed;
+                    display: block;
+                    top: 50vh;
+                    left: 50%;
+                    transform: translate(-50%,-50%);
+                    height: 80vh;
+                    width: 40vw;
+                    max-width: none !important;
+                    max-height: none !important;
                     overflow-y: auto;
                 }
 
@@ -864,7 +871,6 @@
                     this.set("hcp",response)
                     this.getMessage()
                 })
-
             }
 
             getPendingInvoices(){
