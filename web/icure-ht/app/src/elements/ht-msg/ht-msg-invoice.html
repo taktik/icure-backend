@@ -923,10 +923,10 @@
 
             getSending(){
                 this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*").then(messages =>
-                    Promise.all(messages.rows.map(message =>
+                    Promise.all(messages.rows.filter(msg => msg.transportGuid && msg.transportGuid.startsWith("EFACT:BATCH:2018") ).map(message =>
                         this.api.document().findByMessage(this.user.healthcarePartyId, message)
                             .then(docs => {
-                                const jsonDoc = docs.find(d => d.mainUti === "public.json")
+                                const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name,'_records'))
 
                                 return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 
