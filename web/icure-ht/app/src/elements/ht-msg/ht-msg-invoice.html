@@ -1154,7 +1154,7 @@
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
                         })
                 })
-                this.set('selectedPendingInvoices',this.getPendingInvoices())
+                this.getPendingInvoices()
             }
 
             _showPendingDetail(){
