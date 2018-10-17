@@ -462,21 +462,21 @@
                                         <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                     </template>
                                     <template>[[item.messageInfo.invoicedAmount]]</template>
-                                    <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
+                                    <template class="footer">[[_invoicedAmount(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="accAmount-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                     </template>
                                     <template>[[item.messageInfo.acceptedAmount]]</template>
-                                    <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
+                                    <template class="footer">[[_acceptedAmount(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="refAmount-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                     </template>
                                     <template>[[item.messageInfo.refusedAmount]]</template>
-                                    <template class="footer">[[totalInvoices.refusedAmount]]€</template>
+                                    <template class="footer">[[_refusedAmount(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="stat-col">
                                     <template class="header">
@@ -763,14 +763,6 @@
                             return res;
                         }
                     },
-                    totalInvoices:{
-                        type: Object,
-                        value : () => ({
-                            invoicedAmount:     Number(0.00).toFixed(2),
-                            acceptedAmount:     Number(0.00).toFixed(2),
-                            refusedAmount:      Number(0.00).toFixed(2)
-                        })
-                    },
                     totalPendingInvoices:{
                         type: Object,
                         value : () => ({
@@ -1029,6 +1021,18 @@
                         this.invoicesStatus === "reject" ? this.sendingRejected : []
             }
 
+            _invoicedAmount() {
+                return this.sendingByStatus().reduce((tot, m)=>tot+m.messageInfo.invoicedAmount,0).toFixed(2)
+            }
+
+            _acceptedAmount() {
+                return this.sendingByStatus().reduce((tot, m)=>tot+m.messageInfo.acceptedAmount,0).toFixed(2)
+            }
+
+            _refusedAmount() {
+                return this.sendingByStatus().reduce((tot, m)=>tot+m.messageInfo.refusedAmount,0).toFixed(2)
+            }
+
             _displayInvoiceStatus(status){
 
                // envoyé => findMessagesByTransportGuid efactBatch
@@ -1222,20 +1226,21 @@
             receiveInvoices() {
                 this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then(response => {
                     let prom = Promise.resolve()
-                    response.map(message => {
+                    response.forEach(message => {
                         console.log(message)
+
                         prom = prom.then(() =>
                             new Promise((resolve) => {
                                 if (message.detail) {
                                     this.api.message().processEfactMessage(this.user, this.hcp, message, this.api.document())
-                                        .then(r => resolve(r))
+                                        .then(msg => msg ? resolve(message) : resolve())
                                         .catch(e => {
                                             console.log(e)
                                             resolve()
                                         })
                                 } else if (message.tack) {
                                     this.api.message().processTack(this.user, this.hcp, message)
-                                        .then(r => resolve(r))
+                                        .then(rcpt => rcpt ? resolve(message) : resolve())
                                         .catch(e => {
                                             console.log(e)
                                             resolve()
@@ -1243,6 +1248,19 @@
                                 }
                             })
                         )
+                    })
+
+                    prom = prom.then(treatedMessages => {
+                        let sprom = Promise.resolve()
+                        _.chunk(treatedMessages, 20).forEach(chunk => {
+                            const tacks = chunk.filter(x => x && x.tack)
+                            const responses = chunk.filter(x => x && x.detail)
+
+                            sprom = sprom
+                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
+                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                        })
+                        return sprom
                     })
                 })
             }
