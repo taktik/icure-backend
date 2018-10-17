@@ -58,7 +58,11 @@
                 height: 90px;
                 width: auto;
                 box-shadow: var(--shadow-elevation-3dp_-_box-shadow);
-                margin-top: 10px;
+                margin-top: 12px;
+            }
+
+            .invoice-item:first-child{
+                margin-top: 0;
             }
 
             .invoice-item-title {
@@ -82,55 +86,76 @@
             }
 
             .invoice-panel {
+                height: 100%;
                 background: var(--app-background-color-dark);
-                top: 64px;
-                left: 0;
                 box-shadow: var(--shadow-elevation-3dp_-_box-shadow);
                 grid-column: 1/1;
                 grid-row: 1/1;
                 z-index: 3;
                 overflow-y: auto;
                 margin-top: 0px;
+                padding: 24px;
+                box-sizing: border-box;
             }
 
             .detail-panel {
                 height: 100%;
                 background: var(--app-background-color);
-                top: 64px;
-                left: 20%;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 margin: 0;
                 grid-column: 2/2;
                 grid-row: 1/1;
                 z-index: 2;
                 overflow-y: auto;
+                padding: 24px;
+                box-sizing: border-box;
             }
 
             .invoice-header {
-                height: 140px;
+                height: auto;
                 width: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                margin-top: 5px;
             }
 
             .invoice-nomenclature-code {
-                height: 320px;
+                height: auto;
                 overflow-y: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                margin-top: 10px;
+                margin-top: 24px;
             }
 
             .invoice-detail {
-                height: 230px;
+                min-height: 200px;
+                height: auto;
                 width: auto;
                 overflow-y: auto;
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                margin-top: 10px;
-                margin-bottom: 10px;
+                margin-top: 12px;
+                margin-bottom: 12px;
             }
 
             .buttons {
-                float: right;
+                position: absolute;
+                bottom: 24px;
+                right: 22px;
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
             }
 
             paper-input {
@@ -142,15 +167,13 @@
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: space-between;
-                align-items: flex-end;
-                height: 55px;
+                align-items: flex-start;
             }
 
             .flex-container-nmcl {
                 display: flex;
                 flex-flow: row nowrap;
                 align-items: flex-end;
-                height: 55px;
             }
 
             .flex-container-nmcl-row {
@@ -161,6 +184,10 @@
             .flex-container-descr-nmcl-row {
                 flex: 8;
                 padding: 4px;
+            }
+
+            vaadin-text-field{
+                padding: 0;
             }
 
             #invoice-type {
@@ -177,13 +204,17 @@
 
             #invoice-number {
                 flex: 1;
-                margin: auto;
+                margin: 0;
+                padding-top: 3px;
+                --paper-input-container-underline: {
+                    opacity: 0.42;
+                }
             }
 
             #invoice-date {
                 flex: 1;
-                margin: auto;
-                padding: 0 8px 0 8px;
+                margin: 0;
+                padding: 8px 8px 0;
             }
 
             #invoice-period {
@@ -212,8 +243,11 @@
 
             #invoice-dmg {
                 flex: 1;
-                margin: auto;
-                padding: 0 8px 0 8px;
+                margin: 0;
+                padding: 3px 8px 0 8px;
+                --paper-input-container-underline: {
+                    opacity: 0.42;
+                }
             }
 
             #invoice-creditNote {
@@ -239,7 +273,6 @@
             }
 
             .invoice-nomenclature-code-container {
-                height: 225px
             }
 
             .nmcl-descr {
@@ -253,9 +286,16 @@
                 padding: 5px;
             }
 
+            .nmcl-favorite span{
+                margin-right: 8px;
+            }
+
             .invoice-nomenclature-code-option {
-                height: 58px;
                 display: flex;
+                padding: 0 8px;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-around;
             }
 
             .nmcl-list {
@@ -311,6 +351,7 @@
                 flex-flow: row wrap;
                 justify-content: flex-start;
                 align-items: center;
+                font-size: 14px;
                 @apply --padding-right-left-16;
             }
 
@@ -615,7 +656,7 @@
             }
 
             .tarificationBtnEnable {
-                background-color: var(--app-status-color-ok);
+                background: var(--app-secondary-color);
             }
 
             .tarificationBtnDisable {
@@ -631,21 +672,29 @@
             }
 
             .invoiceBtnEnable {
-                background-color: var(--app-status-color-ok);
+                background: var(--app-secondary-color);
             }
 
             .infoDmg {
-                height: 16px;
-                width: 16px;
+                height: 18px;
+                width: 18px;
             }
 
             .invoiceDateInfo{
-                font-size: 10px;
+                font-size: 12px;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            .invoiceDateInfo span{
+                margin-left: 4px;
             }
 
             .invoiceDateInfoIcon{
-                height: 10px;
-                width: 10px;
+                height: 14px;
+                width: 14px;
             }
 
             #relativeCodeDialog{
@@ -715,10 +764,10 @@
                                     </p>
                                     <div class="invoiceDateInfo">
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.printedDate)]]">
-                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon> [[_formatInvoiceDate(item.printedDate)]]
+                                            <iron-icon icon="vaadin:print" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.printedDate)]]</span>
                                         </template>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
-                                            <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> [[_formatInvoiceDate(item.sentDate)]]
+                                            <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
                                         </template>
                                     </div>
                                 </div>
@@ -752,7 +801,7 @@
                                           value="{{selectedInvoice.sentMediumType}}"
                                           on-value-changed="analyzeMediumType" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                         <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]"
-                                     value="{{selectedInvoice.invoiceReference}}" readonly></paper-input>
+                                     value="{{selectedInvoice.invoiceReference}}" readonly always-float-label="true"></paper-input>
                         <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]"
                                             value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker>
                         <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]"
@@ -796,9 +845,13 @@
                                               value="{{selectedInvoice.thirdPartyReference}}"
                                               on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
-                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
-                            <iron-icon icon="vaadin:info-circle" title="[[localize('gnotion','Gnotion',language)]]"
-                                       class="infoDmg"></iron-icon>
+                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
+                                         <div slot="suffix">
+                                             <iron-icon icon="info" id="invoice-dmg-icon"
+                                            class="infoDmg"></iron-icon>
+                                        </div>
+                            </paper-input>
+                            <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
                         </div>
                     </template>
                 </div>
@@ -921,7 +974,7 @@
                     </div>
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <div class="nmcl-favorite">
-                            [[localize('fav','Favorites code',language)]]:
+                            <span>[[localize('fav','Favorites code',language)]]:</span>
                             <template is="dom-repeat" items="[[favoriteCode]]">
                                 <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
                                     [[item.code]]
@@ -1019,17 +1072,17 @@
 
                 </div>
                 <div class="buttons">
-                    <paper-button on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <paper-button on-tap="_verifyTarification" class="tarificationBtnEnable">
+                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification">
                                     [[localize('eTarif','Validation eTarif',language)]]
                                 </paper-button>
                             </template>
                             <template is="dom-if" if="[[!npi]]">
-                                <paper-button on-tap="" class="tarificationBtnDisable">[[localize('eTarif','Validation
+                                <paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation
                                     eTarif',language)]]
                                 </paper-button>
                             </template>
@@ -1042,18 +1095,18 @@
                         </template>
 
                         <template is="dom-if" if="[[isNmclVerified]]">
-                            <paper-button on-tap="_createInvoice" class="invoiceBtnEnable">
+                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
                         <template is="dom-if" if="[[!isNmclVerified]]">
-                            <paper-button on-tap="" class="invoiceBtnDisable">[[localize('val_invoice','Justificatory +
+                            <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
                                 create invoice',language)]]
                             </paper-button>
                         </template>
                     </template>
                     <template is="dom-if" if="[[isInvoiceClosed]]">
-                        <paper-button on-tap="_createInvoice" class="invoiceBtnEnable">
+                        <paper-button on-tap="_createInvoice" class="modal-button invoiceBtnEnable">
                             [[localize('val_justificatory','Justificatory',language)]]
                         </paper-button>
                     </template>
