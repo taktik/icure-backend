@@ -317,7 +317,7 @@
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid"></paper-input>
-                    <vaadin-grid id="invoiceGrid" items="[[invoices.pending]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
+                    <vaadin-grid id="invoiceGrid" items="[[selectedPendingInvoices]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
@@ -416,15 +416,15 @@
                             <vaadin-grid id="sendingGrid" items="[[sendingByStatus]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
                                 <vaadin-grid-column class="recipient-col">
                                     <template class="header">Prestataire</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.hcp]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="oa-col">
                                     <template class="header">OA</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.oa]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="ref-col">
                                     <template class="header">Réf. du médecin</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.hcpReference]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invoice-col">
                                     <template class="header">N° envoi</template>
@@ -432,7 +432,7 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="month-col">
                                     <template class="header">Mois fact.</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.invoiceMonth]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invoiceDate-col">
                                     <template class="header">Date d'envoi</template>
@@ -440,17 +440,17 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="invAmount-col">
                                     <template class="header">Montant facturé</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.askAmount]]</template>
                                     <template class="footer">[[totalInvoices.invoicedAmount]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="accAmount-col">
                                     <template class="header">Montant accepté</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.acceptedAmount]]</template>
                                     <template class="footer">[[totalInvoices.acceptedAmount]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="refAmount-col">
                                     <template class="header">Montant refusé</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.refusedAmount]]</template>
                                     <template class="footer">[[totalInvoices.refusedAmount]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="stat-col">
@@ -459,29 +459,29 @@
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="reject-col">
                                     <template class="header">Motif rejet</template>
-                                    <template></template>
+                                    <template>[[item.messageInfo.rejectionReason]]</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column-group class="hasBorder">
                                     <template class="header hasBorder">Informations de paiement</template>
                                     <vaadin-grid-column class="payRef-col">
                                         <template class="header">Réf</template>
-                                        <template></template>
+                                        <template>[[item.messageInfo.paymentReference]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="payDate-col">
                                         <template class="header">Date</template>
-                                        <template></template>
+                                        <template>[[item.messageInfo.paymentDate]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="payTot-col">
                                         <template class="header">Montant</template>
-                                        <template></template>
+                                        <template>[[item.messageInfo.amountPaid]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="payBank-col">
                                         <template class="header">Compte bancaire</template>
-                                        <template></template>
+                                        <template>[[item.messageInfo.paymentAccount]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="payPaid-col">
                                         <template class="header">Payé</template>
-                                        <template></template>
+                                        <template>[[item.messageInfo.paidAmount]]</template>
                                     </vaadin-grid-column>
                                 </vaadin-grid-column-group>
                             </vaadin-grid>
@@ -854,16 +854,23 @@
                                     const mess = {
                                         message: message,
                                         messageInfo: {
-                                            type: zone200.zones.find(z=>z.zone === "200").value,
-                                            mutual: "",
+                                            messageType: zone200.zones.find(z=>z.zone === "200").value,
+                                            hcp: "",
+                                            oa: "",
+                                            hcpReference: "",
                                             invoiceNumber: zone300.zones.find(z=>z.zone === "301").value,
-                                            patient: "",
-                                            inss: "",
+                                            invoiceMonth: zone300.zones.find(z=>z.zone === "300").value,
                                             invoiceDate: zone300.zones.find(z=>z.zone === "302").value,
-                                            reimbursement: "",
-                                            patientIntervention: "",
-                                            totalAmount: "",
-                                            status: ""
+                                            invoicedAmount: zone500.zones.find(z=>z.zone === "503").value,
+                                            acceptedAmount: 0.00,
+                                            refusedAmount: 0.00,
+                                            invoiceStatus: "",
+                                            rejectionReason: "",
+                                            paymentReference: "",
+                                            paymentDate: "",
+                                            amountPaid: 0.00,
+                                            paymentAccount: "",
+                                            paidAmount: ""
 
                                         }
                                     }
@@ -973,7 +980,7 @@
                 } // endif
             }
 
-            checkFilters(str) { // will set the path type for vaadin filter and format search output
+            checkFilters(str) { // will (set the path type for vaadin filter and) format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
                 if (str.length) {
