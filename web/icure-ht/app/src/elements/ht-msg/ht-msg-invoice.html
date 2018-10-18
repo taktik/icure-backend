@@ -214,7 +214,7 @@
                 }
 
                 /*
-                vaadin-grid#sendingGrid,
+                vaadin-grid#messagesGrid,
                 vaadin-grid#invoiceGrid {
                     height: calc(100vh - 185px);
                 }
@@ -417,10 +417,10 @@
                 </template>
 
                 <template is="dom-if" if="[[!statusPending]]">
-                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputSending}}" on-keyup="refreshFilter" param="sendingGrid"></paper-input>
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>
                     <div class="invoiceContainer">
-                        <div id="sendingGridContainer" class="invoiceSubContainerMiddle">
-                            <vaadin-grid id="sendingGrid" items="[[sendingByStatus(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                        <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
+                            <vaadin-grid id="messagesGrid" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
                                 <vaadin-grid-column class="recipient-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
@@ -462,21 +462,21 @@
                                         <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                     </template>
                                     <template>[[item.messageInfo.invoicedAmount]]</template>
-                                    <template class="footer">[[_invoicedAmount(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]€</template>
+                                    <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="accAmount-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                     </template>
                                     <template>[[item.messageInfo.acceptedAmount]]</template>
-                                    <template class="footer">[[_acceptedAmount(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]€</template>
+                                    <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="refAmount-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                     </template>
                                     <template>[[item.messageInfo.refusedAmount]]</template>
-                                    <template class="footer">[[_refusedAmount(invoicesStatus,sendingProcessed,sendingRejected,sendingAccepted)]]€</template>
+                                    <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                 </vaadin-grid-column>
                                 <vaadin-grid-column class="stat-col">
                                     <template class="header">
@@ -784,7 +784,7 @@
                         type: Object,
                         value : () => ({})
                     },
-                    selectedSendingByStatus:{
+                    selectedInvoicesByStatus:{
                         type: Object,
                         value : () => ({})
                     },
@@ -844,6 +844,10 @@
                     },
                     mobile :{
                         type: String
+                    },
+                    displayedYear: {
+                        type: Number,
+                        value: () => Number(moment().format('YYYY'))
                     }
                 };
             }
@@ -921,74 +925,115 @@
                     ))
             }
 
-            getSending(){
-                this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*").then(messages =>
-                    Promise.all(messages.rows.map(message =>
-                        this.api.document().findByMessage(this.user.healthcarePartyId, message)
-                            .then(docs => {
-                                const jsonDoc = docs.find(d => d.mainUti === "public.json")
+            dispatchMessages() {
+                this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
+                this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
+                this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
+            }
 
-                                return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
+            fetchMessages() {
+                this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*")
+                    .then(messages => {
+                        const filteredMessages = messages.rows.filter(msg => msg.transportGuid && msg.responsible === this.hcp.id && msg.transportGuid.startsWith("EFACT:BATCH:" + this.displayedYear))
+                        this.api.insurance().getInsurances(new models.ListOfIdsDto({ids: _.uniq(filteredMessages.map(m => m.recipients[0]))})).then(insurances => {
+                            this.set('allMessages', filteredMessages.map(m => ({
+                                message: m,
+                                messageInfo: {
+                                    messageType: m.subject,
+                                    hcp: this.hcp.firstName + " " + this.hcp.lastName,
+                                    oa: insurances.find(i => i.id === m.recipients[0]).code,
+                                    hcpReference: "",
+                                    invoiceNumber: m.externalRef,
+                                    invoiceMonth: "",
+                                    invoiceDate: "",
+                                    invoicedAmount: "0",
+                                    acceptedAmount: "0",
+                                    refusedAmount: "0",
+                                    invoiceStatus: "",
+                                    rejectionReason: "",
+                                    paymentReference: "",
+                                    paymentDate: "",
+                                    amountPaid: "0",
+                                    paymentAccount: "",
+                                    paidAmount: "0"
+                                }
+                            })))
 
-                                    const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                    const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                    const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                    const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
-                                    const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
+                            Promise.all(this.allMessages.map(mm =>
+                                this.api.document().findByMessage(this.user.healthcarePartyId, mm.message)
+                                    .then(docs => {
+                                        const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
 
-                                    let invoiceStatus
-                                    if(zone200 && zone300){
-                                        const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
+                                        return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
+                                            const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                            const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                            const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                            const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                            const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
-                                        switch(invoiceType){
-                                            case '920999' : invoiceStatus = "Rejected"; break;
-                                            case '920099' : invoiceStatus = "Rejected"; break;
-                                            case '931000' : invoiceStatus = "Pending"; break;
-                                            case '920098' : invoiceStatus = "Accepted"; break;
-                                            case '920900' : invoiceStatus = "Accepted"; break;
-                                            default : invoiceStatus = ""; break;
-                                        }
-                                    }
+                                            let invoiceStatus
+                                            if (zone200 && zone300) {
+                                                const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
 
-                                    return (zone200 && zone300) ?
-                                        ({
-                                            message: message,
-                                            messageInfo: {
-                                                messageType: zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
-                                                hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                                oa: zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
-                                                hcpReference: enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
-                                                invoiceNumber: zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
-                                                invoiceMonth: zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
-                                                invoiceDate: zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                invoicedAmount: zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
-                                                acceptedAmount: zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
-                                                refusedAmount: zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
-                                                invoiceStatus: invoiceStatus,
-                                                rejectionReason: "",
-                                                paymentReference: zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
-                                                paymentDate: "",
-                                                amountPaid: "0.00",
-                                                paymentAccount: enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                paidAmount: ""
+                                                switch (invoiceType) {
+                                                    case '920999' :
+                                                        invoiceStatus = "Rejected"
+                                                        break
+                                                    case '920099' :
+                                                        invoiceStatus = "Rejected"
+                                                        break
+                                                    case '931000' :
+                                                        invoiceStatus = "Pending"
+                                                        break
+                                                    case '920098' :
+                                                        invoiceStatus = "Accepted"
+                                                        break
+                                                    case '920900' :
+                                                        invoiceStatus = "Accepted"
+                                                        break
+                                                    default :
+                                                        invoiceStatus = ""
+                                                        break
+                                                }
                                             }
-                                        }) : null
 
-                                }) : Promise.resolve(null)
-                            }))
-                    ))
-                    .then( msgsStructs => {
-                        const compact = _.compact(msgsStructs)
-                        this.set("sendingProcessed", compact.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
-                        this.set("sendingAccepted", compact.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
-                        this.set("sendingRejected", compact.filter( m => (m.message.status & (1 << 17)) !== 0))
+                                            return (zone200 && zone300) ?
+                                                ({
+                                                    message: mm.message,
+                                                    messageInfo: {
+                                                        messageType: zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
+                                                        hcp: this.hcp.firstName + " " + this.hcp.lastName,
+                                                        oa: zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
+                                                        hcpReference: enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
+                                                        invoiceNumber: zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
+                                                        invoiceMonth: zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
+                                                        invoiceDate: zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
+                                                        invoicedAmount: zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
+                                                        acceptedAmount: zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
+                                                        refusedAmount: zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
+                                                        invoiceStatus: invoiceStatus,
+                                                        rejectionReason: "",
+                                                        paymentReference: zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
+                                                        paymentDate: "",
+                                                        amountPaid: "0.00",
+                                                        paymentAccount: enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
+                                                        paidAmount: ""
+                                                    }
+                                                }) : mm
+                                        }) : mm
+                                    }))).then(msgsStructs => {
+                                this.set('allMessages', msgsStructs)
+                                this.dispatchMessages()
+                            })
+
+                        })
                     })
             }
 
 
             getMessage(){
                 this.getPendingInvoices()
-                this.getSending()
+                this.fetchMessages()
             }
 
             calculateTotalPendingInvoices(){
@@ -1015,22 +1060,22 @@
                 this.invoicesStatus === "pending" ? this.set('statusPending', true) : this.set('statusPending', false)
             }
 
-            sendingByStatus() {
-                return this.invoicesStatus === "process" ? this.sendingProcessed :
-                    this.invoicesStatus === "accept" ? this.sendingAccepted :
-                        this.invoicesStatus === "reject" ? this.sendingRejected : []
+            messagesByStatus() {
+                return this.invoicesStatus === "process" ? this.messagesProcessed :
+                    this.invoicesStatus === "accept" ? this.messagesAccepted :
+                        this.invoicesStatus === "reject" ? this.messagesRejected : []
             }
 
             _invoicedAmount() {
-                return this.sendingByStatus().reduce((tot, m)=>tot+m.messageInfo.invoicedAmount,0).toFixed(2)
+                return this.messagesByStatus() ? this.messagesByStatus().reduce((tot, m) => tot + Number(m.messageInfo.invoicedAmount), 0).toFixed(2) :0
             }
 
             _acceptedAmount() {
-                return this.sendingByStatus().reduce((tot, m)=>tot+m.messageInfo.acceptedAmount,0).toFixed(2)
+                return this.messagesByStatus() ? this.messagesByStatus().reduce((tot, m) => tot + Number(m.messageInfo.acceptedAmount), 0).toFixed(2) : 0
             }
 
             _refusedAmount() {
-                return this.sendingByStatus().reduce((tot, m)=>tot+m.messageInfo.refusedAmount,0).toFixed(2)
+                return this.messagesByStatus() ? this.messagesByStatus().reduce((tot, m) => tot + Number(m.messageInfo.refusedAmount), 0).toFixed(2) : 0
             }
 
             _displayInvoiceStatus(status){
@@ -1058,7 +1103,7 @@
                 const param = e.target.getAttribute('param')
                 const str =
                     (param == "invoiceGrid") ? this.filterInput:
-                    (param == "sendingGrid") ? this.filterInputSending :
+                    (param == "messagesGrid") ? this.filterInputInvoices :
                     this.filterInputDetail
                 setTimeout(function () {
                     this.executeSearch(str,param)
@@ -1173,7 +1218,7 @@
             _showDetail() {
 
                 if (this.activeGridItem && this.activeGridItem.message){
-                    this.shadowRoot.getElementById("sendingGridContainer").classList.add("half")
+                    this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
                     this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
 
                     const invoiceIds = this.activeGridItem.message.invoiceIds
@@ -1199,7 +1244,7 @@
                         )
                         .then(infos => this.set('invoicesFromBatch', _.flatten(infos)))
                 } else {
-                    this.shadowRoot.getElementById("sendingGridContainer").classList.remove("half")
+                    this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
                     this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
                 }
             }
