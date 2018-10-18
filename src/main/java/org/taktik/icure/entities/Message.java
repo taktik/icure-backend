@@ -102,6 +102,8 @@ public class Message extends StoredICureDocument implements Serializable {
 	private String parentId; //ID of parent in a message conversation
 	private String externalRef;
 
+	private Map<String,String> senderReferences;
+
 	public Message solveConflictWith(Message other) {
 		super.solveConflictsWith(other);
 
@@ -293,5 +295,13 @@ public class Message extends StoredICureDocument implements Serializable {
 	@Override
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+	public Map<String, String> getSenderReferences() {
+		return senderReferences;
+	}
+
+	public void setSenderReferences(Map<String, String> senderReferences) {
+		this.senderReferences = senderReferences;
 	}
 }
