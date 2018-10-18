@@ -722,6 +722,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return require('./rsrc/PatientAddressForm.json');
                 }
             },
+            medicalHouseContractsForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientMedicalHouseContractsForm.json');
+                }
+            },
             telecomForm: {
                 type: Object,
                 value: function () {
@@ -973,7 +979,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return {
                         dataMap: a,
                         dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
-                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'partnerships' ? this.partnershipsForm : this.insuranceForm
+                        template:
+                            key === 'addresses' ?
+                                this.addressForm :
+                                key === 'telecoms' ?
+                                    this.telecomForm :
+                                    key === 'partnerships' ?
+                                        this.partnershipsForm :
+                                        key === 'medicalHouseContracts' ?
+                                            this.medicalHouseContractsForm :
+                                            this.insuranceForm
                     };
                 });
             },
