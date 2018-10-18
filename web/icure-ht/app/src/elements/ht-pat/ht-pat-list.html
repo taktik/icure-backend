@@ -1,4 +1,4 @@
-<!--
+medicalHouseContractstartOfCoverage<!--
 @license
 Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
@@ -782,29 +782,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </page>
                 <page>
                     <!--Medical houses-->
-
-
-
-
-
-
-
                     <div class="horizontal">
-                        <paper-input label="Medical house ID" value="{{mmNihii}}" always-float-label></paper-input>
-
-                        <paper-checkbox value="{{kine}}" label="Has doctor subscription" always-float-label>Has doctor subscription?</paper-checkbox>
-                        <paper-checkbox value="{{kine}}" label="Has physiotherapist subscription" always-float-label>Has physiotherapist subscription?</paper-checkbox>
-                        <paper-checkbox value="{{nurse}}" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
-                        <vaadin-date-picker label="Subscription date" i18n="[[i18n]]" value="{{startOfContract}}" always-float-label></vaadin-date-picker>
-                        <vaadin-date-picker label="Subscription start" i18n="[[i18n]]" value="{{startOfCoverage}}" always-float-label></vaadin-date-picker>
-                        <vaadin-date-picker label="Unsubscription date" i18n="[[i18n]]" value="{{endOfContract}}" always-float-label></vaadin-date-picker>
-                        <vaadin-date-picker label="Subscription end" i18n="[[i18n]]" value="{{endOfCoverage}}" always-float-label></vaadin-date-picker>
-                        <paper-input label="Subscription evaluation months" i18n="[[i18n]]" value="{{mhSubscriptionEvalutationMonths}}" type="number" always-float-label min="0" max="12" style="min-width: 200px"></paper-input>
+                        <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label></paper-input>
+                        <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label style="margin-right:20px">Has doctor subscription?</paper-checkbox>
+                        <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label style="margin-right:20px">Has physiotherapist subscription?</paper-checkbox>
+                        <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
+                    </div>
+                    <div class="horizontal">
+                        <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract" always-float-label on-value-changed="updateStartOfCoverage"></vaadin-date-picker>
+                        <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage" type="number" always-float-label min="0" max="12" style="min-width: 200px"></paper-input>
+                        <vaadin-date-picker label="Subscription start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly></vaadin-date-picker>
                     </div>
                 </page>
             </iron-pages>
-
-
 
 
             <div>
@@ -1199,7 +1189,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     tabs: {
                         type: Number,
                         value: 0
-                    }
+                    },
+                    medicalHouseContract: {
+                        type: Object,
+                        value: () => ({
+                            mmNihii: '',
+                            startOfContract: '',
+                            startOfCoverage: '',
+                            endOfContract: '',
+                            endOfCoverage: '',
+                            kine: '',
+                            gp: '',
+                            nurse: '',
+                        })
+                    },
                 }
             }
 
@@ -1217,6 +1220,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+
+                this.medicalHouseContractShadowObject = {
+                    mmNihii : null,
+                    startOfContract : null,
+                    startOfCoverage : null,
+                    kine : false,
+                    gp : false,
+                    nurse : false
+                }
 
                 var grid = this.$['patients-list']
 
@@ -1598,7 +1610,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     dateOfBirth: this.dateAsString && this.dateAsString.length && parseInt(this.dateAsString.replace(/-/g, '')) || null,
                     ssin : this.ssin,
                     gender : this.valueGender,
-                }).then(p => this.api.patient().createPatient(p)).then(p => this.api.register(p,'patient')).then(p => this.set('selectedPatient', p))
+                    medicalHouseContracts: [this.medicalHouseContractShadowObject]
+                }).then(
+                    p => this.api.patient().createPatient(p)
+                ).then(
+                    p => this.api.register(p,'patient')
+                ).then(
+                    p => {
+                        this.set('selectedPatient', p)
+                    }
+                )
             }
 
             confirmFilter() {
@@ -2140,8 +2161,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _isPatientsSelected(){
                 return this.patientSelected.filter( x => x.check==true).length;
             }
+
+
+
+
+            updateStartOfCoverage( event, object ) {
+
+                // Busy status
+                this.updateStartOfCoverageBusy = this.updateStartOfCoverageBusy || false;
+
+                // Already busy ?
+                if( this.updateStartOfCoverageBusy ) return;
+
+                // Set to busy
+                this.updateStartOfCoverageBusy = true;
+
+                // Grab final object
+                let startOfContractObject = this.$['startOfContract'];
+                let startOfCoverageObject = this.$['startOfCoverage'];
+                let evalutationMonthsObject = this.$['evalutationMonths'];
+
+                // No value defined yet (first call), set to today
+                if( object.value == "" ) startOfContractObject.value = moment().format('YYYY-MM-DD');
+
+                // By default, start of coverage date = 1st day of next month
+                startOfCoverageObject.value = moment( startOfContractObject.value ).add( ( 1 + parseInt( evalutationMonthsObject.value || 0 ) ), 'months').startOf('month').format('YYYY-MM-DD');
+
+                // Cast values
+                this.medicalHouseContractShadowObject = {
+                    mmNihii : this.medicalHouseContract.mmNihii,
+                    startOfContract : this.medicalHouseContract.startOfContract.replace(/-/g, ''),
+                    startOfCoverage : this.medicalHouseContract.startOfCoverage.replace(/-/g, ''),
+                    kine : this.$['medicalHouseContractKineCheckBox'].checked,
+                    gp : this.$['medicalHouseContractGpCheckBox'].checked,
+                    nurse : this.$['medicalHouseContractNurseCheckBox'].checked
+                }
+
+                // We're finished
+                this.updateStartOfCoverageBusy = false;
+
+            }
+
+
+
+
+
+
         }
 
         customElements.define(HtPatList.is, HtPatList)
+
+
+
+
+
     </script>
 </dom-module>
