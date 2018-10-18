@@ -791,7 +791,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div class="horizontal">
                         <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract" always-float-label on-value-changed="updateStartOfCoverage"></vaadin-date-picker>
                         <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage" type="number" always-float-label min="0" max="12" style="min-width: 200px"></paper-input>
-                        <vaadin-date-picker label="Subscription start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly></vaadin-date-picker>
+                        <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly></vaadin-date-picker>
                     </div>
                 </page>
             </iron-pages>
