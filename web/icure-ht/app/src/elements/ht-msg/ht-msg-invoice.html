@@ -474,43 +474,43 @@
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template>
-                                            [[item.insurance.code]]
+                                            [[item.insuranceCode]]
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template>[[item.invoice.invoiceReference]]</template>
+                                        <template>[[item.invoiceReference]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template>[[item.patient.firstName]] [[item.patient.lastName]]</template>
+                                        <template>[[item.patient]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template>[[item.patient.ssin]]</template>
+                                        <template>[[item.ssin]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
-                                        <template>[[returnDate(item.invoice.invoiceDate)]]</template>
+                                        <template>[[returnDate(item.invoiceDate)]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column-group>
                                         <vaadin-grid-column class="recipient-col">
-                                            <template class="border-left">[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
+                                            <template class="border-left">[[_formatAmount(item.reimbursement)]]</template>
                                             <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>-->
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col">
-                                            <template>[[_formatAmount(item.totalInvoice.patientIntervention)]]</template>
+                                            <template>[[_formatAmount(item.patientIntervention)]]</template>
                                             <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>-->
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col">
-                                            <template>[[_formatAmount(item.totalInvoice.doctorSupplement)]]</template>
+                                            <template>[[_formatAmount(item.doctorSupplement)]]</template>
                                             <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>-->
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col border-right">
-                                            <template class="border-right">[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
+                                            <template class="border-right">[[_formatAmount(item.totalAmount)]]</template>
                                             <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>-->
                                         </vaadin-grid-column>
                                     </vaadin-grid-column-group>
                                     <vaadin-grid-column class="recipient-col">
                                         <template>
                                             <iron-icon icon="vaadin:circle" class="pendingStatus"></iron-icon>
-                                            [[item.invoice.statut]]
+                                            [[item.statut]]
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
@@ -1205,61 +1205,43 @@
                 })
             }
 
-            getPendingInvoices(){
-                this.set('selectedPendingInvoices', [])
-                let patientI=0.00;
-                let doctorS=0.00;
-                let reimbou=0.00;
-                let totalAm=0.00;
-                const treatPendingInvoice = (patientId, invoice) => this.api.patient().getPatient(patientId)
-                    .then(patient => this.api.insurance().getInsurance(patient.insurabilities[0].insuranceId)
-                        .then(insurance => {
+            fetchPendingMessages(){
 
-                            const invPen = {
-                                invoice: invoice,
-                                patient: patient,
-                                insurance: insurance,
-                                totalInvoice: {
-                                    patientIntervention:    Number(0.00),
-                                    reimbursement:          Number(0.00),
-                                    totalAmount:            Number(0.00),
-                                    doctorSupplement:       Number(0.00)
-                                },
-                                hasChildren : false,
-                                uuid : invoice.id,
-                                parentUuid : insurance.code.charAt(0)
-                            }
+                this.api.invoice().listToInsurancesUnsent(this.user.id)
+                    .then(invoices => Promise.all(invoices.filter(i => i.printedDate && i.sentMediumType === "efact").map(inv => this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId).then(ids => [inv, ids[0]]))))
+                    .then(invAndIdsPat =>
+                        this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
+                    ).then(invAndPats =>
+                        this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
+                    ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
+                        return ({
+                            patient: pat.lastName+" "+pat.firstName,
+                            invoiceId: inv.id,
+                            sentMediumType: inv.sentMediumType,
+                            insuranceCode: ins.code,
+                            invoiceReference: inv.invoiceReference,
+                            patientSsin: pat.ssin,
+                            invoiceDate: inv.invoiceDate,
+                            reimbursement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.reimbursement), 0).toFixed(2) : 0.00,
+                            patientIntervention: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00,
+                            totalAmount: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00 ,
+                            doctorSupplement: inv.invoicingCodes ? inv.invoicingCodes.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00,
+                            statut : "Pending",
+                            hasChildren : false,
+                            uuid : inv.id,
+                            parentUuid : ins.code.charAt(0)
+                    })
+                }))
+                .then(invoiceStruct => {
+                    this.set('selectedPendingInvoices', invoiceStruct)
+                    this.set("totalPendingInvoices.totalPatientIntervention",this.selectedPendingInvoices ? this.selectedPendingInvoices.reduce((tot, m) => tot + Number(m.patientIntervention), 0).toFixed(2) : 0.00)
+                    this.set("totalPendingInvoices.totalDoctorSupplement",this.selectedPendingInvoices ? this.selectedPendingInvoices.reduce((tot, m) => tot + Number(m.doctorSupplement), 0).toFixed(2) : 0.00)
+                    this.set("totalPendingInvoices.totalReimbursement",this.selectedPendingInvoices ? this.selectedPendingInvoices.reduce((tot, m) => tot + Number(m.reimbursement), 0).toFixed(2) : 0.00)
+                    this.set("totalPendingInvoices.totalAmount",this.selectedPendingInvoices ? this.selectedPendingInvoices.reduce((tot, m) => tot + Number(m.totalAmount), 0).toFixed(2) : 0.00)
+                    this._toggleDataProvider(this.selectedPendingInvoices)
+                })
 
-                            invoice.invoicingCodes.map(code => {
-                                invPen.totalInvoice.patientIntervention += Number(code.patientIntervention)
-                                invPen.totalInvoice.reimbursement += Number(code.reimbursement)
-                                invPen.totalInvoice.totalAmount += Number(code.totalAmount)
-                                invPen.totalInvoice.doctorSupplement += Number(code.doctorSupplement)
-                            })
 
-                            this.push('selectedPendingInvoices', invPen)
-                            this._toggleDataProvider(this.selectedPendingInvoices)
-                            // console.log(invPen)
-                            patientI+=parseFloat(invPen.totalInvoice.patientIntervention)
-                            doctorS+=parseFloat(invPen.totalInvoice.doctorSupplement)
-                            reimbou+=parseFloat(invPen.totalInvoice.reimbursement)
-                            totalAm+=parseFloat(invPen.totalInvoice.totalAmount)
-
-                            this.set("totalPendingInvoices.totalPatientIntervention",patientI)
-                            this.set("totalPendingInvoices.totalDoctorSupplement",doctorS)
-                            this.set("totalPendingInvoices.totalReimbursement",reimbou)
-                            this.set("totalPendingInvoices.totalAmount",totalAm)
-                            // console.log(this.totalPendingInvoices)
-                        }))
-
-                this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
-                    invUnsent.forEach(inv =>{
-                            if(inv.printedDate && inv.printedDate !== "" && inv.sentMediumType === "efact"){
-                                this.api.crypto().extractCryptedFKs(inv, this.user.healthcarePartyId)
-                                    .then(patIds => treatPendingInvoice(patIds[0], inv))
-                            }
-                        }
-                    ))
             }
 
             dispatchMessages() {
@@ -1369,23 +1351,24 @@
 
 
             getMessage(){
-                this.getPendingInvoices()
+                //this.getPendingInvoices()
+                this.fetchPendingMessages()
                 this.fetchMessages()
             }
 
 
 
             _toggleDataProvider(input) {
-                let inputList = _.flattenDeep(input)
+                let inputList = input
                 let mutGroups = []
                 inputList.map(patient => {
                     const thisMutGrp = // set this pat insurance code grp
-                        (patient.insurance.code < 200) ? "100" :
-                        (patient.insurance.code < 300) ? "200" :
-                        (patient.insurance.code < 400) ? "300" :
-                        (patient.insurance.code < 500) ? "400" :
-                        (patient.insurance.code < 600) ? "500" :
-                        (patient.insurance.code < 700) ? "600" :
+                        (patient.insuranceCode < 200) ? "100" :
+                        (patient.insuranceCode < 300) ? "200" :
+                        (patient.insuranceCode < 400) ? "300" :
+                        (patient.insuranceCode < 500) ? "400" :
+                        (patient.insuranceCode < 600) ? "500" :
+                        (patient.insuranceCode < 700) ? "600" :
                         "900"
                     let grpExists = false
                     mutGroups.map(grp=> { if (grp.code === thisMutGrp) { // check if grp exists
@@ -1406,10 +1389,10 @@
                     let totPat = 0
                     for (let pat of grp.pat){
                         console.log(">pat",pat)
-                        grp.sum.oa += pat.totalInvoice.reimbursement
-                        grp.sum.pat += pat.totalInvoice.patientIntervention
-                        grp.sum.sup += pat.totalInvoice.doctorSupplement
-                        grp.sum.tot += pat.totalInvoice.totalAmount
+                        grp.sum.oa += Number(pat.reimbursement)
+                        grp.sum.pat += Number(pat.patientIntervention)
+                        grp.sum.sup += Number(pat.doctorSupplement)
+                        grp.sum.tot += Number(pat.totalAmount)
                         totPat++
                     }
                     // const totEntr = this.localize('entr','Entries',language)
