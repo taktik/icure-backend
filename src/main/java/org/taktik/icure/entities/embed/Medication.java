@@ -55,7 +55,7 @@ public class Medication implements Serializable {
 
 	List<RegimenItem> regimen;
 
-	Map<String, Content> options;
+	Map<String, Content> options; //ioRequestReference -> String, ioDecisionReference -> String, ioDecisionEndOfValidity -> Date
 
 	public Map<String, Content> getOptions() {
 		return options;
