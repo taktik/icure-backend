@@ -1,0 +1,342 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../../bower_components/vaadin-icons/vaadin-icons.html">
+
+<link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-date-picker.html">
+<link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
+<link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
+
+<link rel="import" href="../../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
+<link rel="import" href="../../../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../../../../../bower_components/vaadin-text-field/vaadin-text-area.html">
+<link rel="import" href="../../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+
+
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<dom-module id="ht-pat-mcn-chapteriv-agreement">
+    <template>
+        <style>
+            #dialog{
+                min-height: 480px;
+                min-width: 800px;
+            }
+
+            .links {
+                position: absolute;
+                right: 0;
+            }
+
+            .pills {
+                float: right;
+            }
+
+            dynamic-link {
+                float: right;
+                top:4px;
+            }
+
+            vaadin-combo-box {
+                width: 100%;
+            }
+
+            vaadin-text-area {
+                width: 100%;
+            }
+
+            .list-panel {
+                height: 100%;
+                background: var(--app-background-color-dark);
+                box-shadow: var(--shadow-elevation-3dp_-_box-shadow);
+                grid-column: 1/2;
+                grid-row: 1/1;
+                z-index: 3;
+                overflow-y: auto;
+                margin-top: 0px;
+                padding: 24px;
+                box-sizing: border-box;
+            }
+
+            .detail-panel {
+                height: 100%;
+                background: var(--app-background-color);
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                margin: 0;
+                grid-column: 2/2;
+                grid-row: 1/1;
+                z-index: 2;
+                overflow-y: auto;
+                padding: 24px;
+                box-sizing: border-box;
+            }
+
+            .chapterDateInfo{
+                font-size: 12px;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            .chapterDateInfo span{
+                margin-left: 4px;
+            }
+
+            .chapterDateInfoIcon{
+                height: 14px;
+                width: 14px;
+            }
+
+            .chapter-text {
+                background: transparent;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: flex-start;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+            }
+
+            .chapter-text:focus::before, .chapter-text:focus::after {
+                background: transparent;
+            }
+
+            .chapter-text-row p {
+                width: 100%;
+                text-overflow: ellipsis;
+                overflow-x: hidden;
+                white-space: nowrap;
+            }
+
+            .chapter-text-date {
+                justify-content: space-between !important;
+                position: relative;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: rgba(0, 0, 0, .1);
+                @apply --padding-right-left-16;
+                color: var(--app-text-color-disabled);
+                height: 24px;
+            }
+
+            .chapter--big {
+                min-height: 96px;
+                /*@apply --padding-16;*/
+                /*border-bottom: 1px solid var(--app-background-color-dark);*/
+            }
+
+            .chapter--small {
+                min-height: 32px;
+                /*@apply --padding-right-left-16;*/
+                padding-bottom: 8px;
+            }
+
+            .chapter--small .chapter-text-row:nth-child(2) {
+                justify-content: space-between;
+            }
+
+            .chapter--small .chapter-text-row:last-child {
+                display: none;
+            }
+
+            .chapter--small .he-dots-container {
+                display: none;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+            <h2>[[localize('chap-iv','Chapter IV',language)]]</h2>
+            <div class="container">
+                <div class="list-panel">
+                    <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
+                        <template is="dom-repeat" items="[[chapters]]">
+                            <paper-material class="layout vertical chapter-item chapter--big" on-tap="_selectInvoice"
+                                            id="[[item.id]]">
+                                <paper-item class="chapter-text">
+                                    <div class="chapter-text-row chapter-text-date">
+                                        <label>[[item.chapter]]</label>
+                                        <label>[[item.ioDecisionReference]][[item.ioRequestReference]]</label>
+                                    </div>
+                                    <div class="chapter-text-row grey">
+                                        <p>
+                                            <template is="dom-repeat" items="[[item.medications]]">
+                                                [[item]],
+                                            </template>
+                                        </p>
+                                        <div class="chapterDateInfo">
+                                            <iron-icon icon="vaadin:calendar-clock" class="chapterDateInfoIcon"></iron-icon> <span>[[_formatDate(item.validityDate)]]</span>
+                                        </div>
+                                    </div>
+                                </paper-item>
+                            </paper-material>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="detail-panel"><vaadin-combo-box id="entities-list" filtered-items="[[searchResults]]" on-filter-changed="_filterChanged" item-label-path="descr" selected-item="{{selectedItem}}" item-value-path="id" label="[[localize('sea_for_hea_ele','Search for health element',language)]]"></vaadin-combo-box>
+                    <div>
+                        <h2>Chapter [[paragraph.chapterName]], paragraph [[paragraph.paragraphName]]</h2>
+                        <p><template is="dom-if" if="[[_isFrench(language)]]">[[paragraph.keyStringFr]]</template><template is="dom-if" if="[[_isDutch(language)]]">[[paragraph.keyStringNl]]</template></p>
+                        <p><template is="dom-if" if="[[_isFrench(language)]]">[[paragraph.headerVerse.textFr]]</template><template is="dom-if" if="[[_isDutch(language)]]">[[paragraph.headerVerse.textNl]]</template></p>
+                        <ul>
+                            <template is="dom-repeat" items="[[paragraph.verses]]" as="v">
+                                <li style$="background-color: [[_ynToColor(v.checkBoxInd)]]">
+                                    <template is="dom-if" if="[[_isY(v.checkBoxInd)]]"><paper-checkbox id="[[v.verseNum]]" on-tap="updateVerses"></paper-checkbox></template>
+                                    <template is="dom-if" if="[[_isFrench(language)]]">[[v.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[v.textNl]]</template> [[[v.verseNum]]]
+                                    <template is="dom-if" if="[[(v.minCheckNum)]]"><span style="background-color: #fb9">[Veuillez cocher au minimum [[v.minCheckNum]] case(s) ci-dessous]</span></template>
+                                </li>
+                            </template>
+
+                        </ul>
+                    </div></div>
+            </div>
+            <div>
+            </div>
+            <div class="buttons">
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--save" dialog-confirm autofocus on-tap="planAction">[[localize('req-agr','Request agreement',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
+
+    </template>
+    <script>
+        class HtPatMcnChapterIVAgreement extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+            static get is() {
+                return 'ht-pat-mcn-chapteriv-agreement';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        value: null
+                    },
+                    user: {
+                        type: Object,
+                        value: null
+                    },
+                    language: {
+                        type: String
+                    },
+                    opened: {
+                        type: Boolean,
+                        value: false
+                    },
+                    paragraph: {
+                        type: Object,
+                        value: () => null
+                    },
+                    searchResults: {
+                        type: Array,
+                        value: () => []
+                    }
+                };
+            }
+
+            static get observers() {
+                return ['apiReady(api,user,opened)'];
+            }
+
+            ready() {
+                super.ready();
+                this.addEventListener('iron-resize', () => this.onWidthChange());
+            }
+
+            apiReady() {
+                if (!this.api || !this.user || !this.user.id || !this.opened) return;
+
+                try {
+                    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
+                    this.api.cacheRowsUsingPagination(
+                        'CD-HCPARTY-pers',
+                        (key,docId) =>
+                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
+                                .then(pl => ({
+                                    rows:pl.rows,
+                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                    done:!pl.nextKeyPair
+                                }))
+                    ).then(rows => {
+                        this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc']))
+                        this.set('plannedAction.ProfessionId',this.professionId)
+                    })
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+
+            attached() {
+                super.attached();
+                this.async(this.notifyResize, 1);
+            }
+
+            _filterChanged(text) {
+                this.api.fhc().Chaptercontroller().findParagraphsUsingGET(text, this.language).then((paragraphs) => {
+                    this.set('searchResults', paragraphs.map(p => ({id: p.paragraphName+'/'+p.paragraphVersion, descr:p.keyStringFr})))
+                })
+            }
+
+            _ynToColour(yn) {
+                return yn === 'Y'?'#ffa':'transparent';
+            }
+
+            _isY(yn) {
+                return yn === 'Y'
+            }
+
+            _isFrench(language) {
+                return language === 'fr'
+            }
+
+            _isDutch(language) {
+                return language === 'nl'
+            }
+
+            _gtThan0(val) {
+                return val>0
+            }
+
+            _drugsDataProvider(){
+                return {
+                    filter: function (drugsFilterValue) {
+                        let count = 15;
+                        return Promise.all([this.api.bedrugs().getMedecinePackages(drugsFilterValue, this.language, null, 0, count)]).then(results => {
+                            const drugsList = results[0];
+                            const filtered = _.flatten(drugsList.map(drugs => ({name: drugs.name, id: drugs.id.id}) ));
+                            return { totalSize: filtered.length, rows: filtered };
+                        });
+
+                    }.bind(this)
+                };
+            }
+
+
+
+            onWidthChange() {
+                const offsetWidth = this.$.dialog.offsetWidth;
+                const offsetHeight = this.$.dialog.offsetHeight;
+                if (!offsetWidth || !offsetHeight) {
+                    return;
+                }
+                this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
+            }
+
+            close() {
+                this.set('opened', false);
+            }
+
+            open() {
+                this.set('opened', true);
+            }
+
+        }
+        customElements.define(HtPatMcnChapterIVAgreement.is, HtPatMcnChapterIVAgreement);
+    </script>
+</dom-module>
+
