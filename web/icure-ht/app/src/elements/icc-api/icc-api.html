@@ -395,6 +395,16 @@
             return current
         }
 
+        pdfReport(html) {
+            return fetch("https://report.icure.cloud/pdf", {
+                method: "POST",
+                mode: "cors", // no-cors, cors, *same-origin
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: { "Content-Type": "text/html; charset=utf-8", },
+                redirect: "follow",
+                body: html,
+            }).then(response => response.arrayBuffer())
+        }
     }
 
     customElements.define(IccApi.is, IccApi)
