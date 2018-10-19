@@ -1,8 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
-
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
@@ -32,8 +31,8 @@
                 vaadin-grid {
                     /*height: calc(100% - 41px - 32px - 32px);*/
                     height: auto;
-                    /*width: 100%;*/
-                    width: calc(100vw - 16%);
+                    width: 100vw;
+                    /*width: calc(100vw - 16%);*/
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
                     box-sizing: border-box;
@@ -334,7 +333,7 @@
                 iron-collapse-button {
                     height: 45px;
                     line-height: 45px;
-                    border-bottom: 1px solid var(--app-background-color-dark);
+                    background: var(--app-background-color-dark);
                     display: initial;
                 }
 
@@ -345,22 +344,11 @@
                     overflow-y: auto;
                 }
 
-                #noscroll .h-table-mymodel .h-scrollable {
-                    overflow: hidden;
+                h3.header {
+                    margin: 0 auto
                 }
-
-                :host([theme~="force-sizer"]) {
-                    display: block;
-                    height: auto;
-                }
-
-                :host([theme~="force-sizer"]) #fixedsizer,
-                :host([theme~="force-sizer"]) #outerscroller {
-                    display: none;
-                }
-
-                :host([theme~="force-sizer"]) #table {
-                    overflow: hidden;
+                #collapse-grid .recipient-col {
+                    background: grey;
                 }
 
             </style>
@@ -442,11 +430,47 @@
                     </vaadin-grid>
                     <template is="dom-repeat" items="[[toggledDatas]]">
                         <iron-collapse-button>
-                            <div slot="collapse-trigger" class="flex header">OA : [[item.code]]</div>
+                            <div slot="collapse-trigger" class="flex header">
+                                <vaadin-grid id="collapse-grid">
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">[[localize('grp','Groupe',language)]] <iron-icon icon="unfold-more"></iron-icon></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header"><h3 class="header">OA: [[item.code]]</h3></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <!--<template class="header">[[localize('tot_sub','Sous-total',language)]] :</template>-->
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column-group>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header"><small>[[item.sum.oa]]€</small></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header"><small>[[item.sum.pat]]€</small></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header"><small>[[item.sum.sup]]€</small></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col border-right">
+                                            <template class="header"><small>[[item.sum.tot]]€</small></template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid-column-group>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
                             <div slot="collapse-content">
                                 <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
                                     <vaadin-grid-column class="recipient-col">
-                                        <template>[[item.invoice.sentMediumType]]</template>
+                                        <!--<template>[[item.invoice.sentMediumType]]</template>-->
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template>
@@ -511,16 +535,16 @@
                                     </vaadin-grid-column>
                                     <vaadin-grid-column-group>
                                         <vaadin-grid-column class="recipient-col">
-                                            <template class="footer">[[item.sum.oa]]€</template>
+                                            <template class="footer"><b>[[item.sum.oa]]€</b></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col">
-                                            <template class="footer">[[item.sum.pat]]€</template>
+                                            <template class="footer"><b>[[item.sum.pat]]€</b></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col">
-                                            <template class="footer">[[item.sum.sup]]€</template>
+                                            <template class="footer"><b>[[item.sum.sup]]€</b></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col border-right">
-                                            <template class="footer">[[item.sum.tot]]€</template>
+                                            <template class="footer"><b>[[item.sum.tot]]€</b></template>
                                         </vaadin-grid-column>
                                     </vaadin-grid-column-group>
                                     <vaadin-grid-column class="recipient-col">
@@ -1388,9 +1412,9 @@
                         grp.sum.tot += pat.totalInvoice.totalAmount
                         totPat++
                     }
-                    const totEntr = this.localize('entr','Entries',language)
-                    const totWord = this.localize('tot','Total',language)
-                    grp.code = `${grp.code} (${totPat} ${totEntr}), OA : ${grp.sum.oa}€ - Patient : ${grp.sum.pat}€ - Sup : ${grp.sum.sup}€ - ${totWord} : ${grp.sum.tot}€`
+                    // const totEntr = this.localize('entr','Entries',language)
+                    // const totWord = this.localize('tot','Total',language)
+                    // grp.code = `${grp.code} (${totPat} ${totEntr}), OA : ${grp.sum.oa}€ - Patient : ${grp.sum.pat}€ - Sup : ${grp.sum.sup}€ - ${totWord} : ${grp.sum.tot}€`
                 }
             } // provider end
 
