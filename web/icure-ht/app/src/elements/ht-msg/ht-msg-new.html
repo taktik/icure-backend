@@ -467,7 +467,7 @@
             <div class="scrollbox">
                 <div class="field horizontal">
                     <div class="modal-subtitle">[[localize('from','From',language)]]</div>
-                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float></paper-input>
+                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>
 
                 </div>
                 <div class="field">
@@ -542,7 +542,7 @@
                 <div class="field">
                     <div class="modal-subtitle">Message</div>
                     <div>
-                        <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.documentTitle}}" always-float-label></paper-input>
+                        <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.document.title}}" always-float-label></paper-input>
                         <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
                                     on-change="msgBodyFileInputSelected"></paper-input>
                         <paper-input-container alway-float-label="true">
@@ -709,6 +709,7 @@
             }
 
             _cancel() {
+				this.clearField();
                 this.$['new-msg'].close()
 			}
 
@@ -857,7 +858,7 @@
 			_removeDestinations(e){
                 let index = e.target.getAttribute('indexed')
                 this.newMessage.destinations.splice(index, 1)
-                let destinationsList = this.shadowRoot.querySelector('#destinationsList')
+				let destinationsList = this.shadowRoot.querySelector('#destinationsList')
                 destinationsList.clearCache()
             }
 
@@ -898,7 +899,7 @@
                     let message = {};
 
                     message.id = null;
-					message.publicationId = null;
+					message.publicationId = (new Date).getTime();
 					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
 					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
 					message.customMetas = this.newMessage.customMetas;
@@ -907,17 +908,22 @@
 						message.document.filename = "MainDocument.txt";
 						message.document.mimeType = "text/plain";
 						message.document.textContent = this.newMessage.document.textContent;
-						// message.document.content = this.api.crypto().utils.text2ua(this.newMessage.document.textContent);
 						message.document.signing = null;
-					}
+					}else if(!this.newMessage.document.content){
+						message.document.filename = "MainDocument.txt";
+						message.document.mimeType = "text/plain";
+						message.document.textContent = "";
+						message.document.signing = null;
+                    }
+					if(!this.newMessage.document.title) message.document.title = "";
 					message.freeText = null;
 					message.freeInformationTableTitle = null;
 					message.freeInformationTableRows = {};
-					message.patientInss = this.newMessage.patientInss
-					message.annex = this.newMessage.annex;
+					message.patientInss = this.newMessage.patientInss;
+					message.annex = [];
 					message.copyMailTo = [];
 					message.documentTitle = null;
-                    message.annexList = [];
+                    message.annexList = this.newMessage.annex;
 					message.useReceivedReceipt = !!this.newMessage.UseReceivedReceipt;
 					message.useReadReceipt = !!this.newMessage.UseReadReceipt;
 					message.hasAnnex = message.annex && message.annex.length > 0;
@@ -931,13 +937,13 @@
                     // console.log(JSON.stringify(message));
 
                     this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
-						!!this.newMessage.UsePublicationReceipt,!!this.newMessage.UseReceivedReceipt,!!this.newMessage.UseReadReceipt)
+						!!this.newMessage.UsePublicationReceipt?!!this.newMessage.UsePublicationReceipt:"false",
+                        !!this.newMessage.UseReceivedReceipt?!!this.newMessage.UseReceivedReceipt:"false",
+                        !!this.newMessage.UseReadReceipt?!!this.newMessage.UseReadReceipt:"false")
                         .then(response => {
                         	console.log(response);
                         	if(response) {
-                        		this.set("newMessage",{customMetas:{},document:{},annex: []})
-								let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
-								newMsgSSIN.value = "";
+								this.clearField();
 								this.$['new-msg'].close()
 							}
                         })
@@ -1012,6 +1018,12 @@
                 // if(hcp.quality) Addressee.quality = hcp.quality;
 
                 return Addressee;
+            }
+
+            clearField(){
+				this.set("newMessage",{customMetas:{},document:{},annex: []})
+				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
+				newMsgSSIN.value = "";
             }
 
 		}
