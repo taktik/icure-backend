@@ -59,9 +59,9 @@ onmessage = e => {
 
                     let newMessage = {
                         created:                createdDate,
-                        fromAddress:            fullMessage.sender.lastName+' '+fullMessage.sender.firstName,
-                        subject:                fullMessage.document && fullMessage.document.title || fullMessage.errorCode,
-                        metas:                  fullMessage.customMetas,
+                        fromAddress:            getFromAddress(fullMessage.sender),
+                        subject:                (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
+						metas:                  fullMessage.customMetas,
                         toAddresses:            [boxId],
                         fromHealthcarePartyId:  "",
                         transportGuid:          boxId+":"+fullMessage.id,
@@ -74,19 +74,20 @@ onmessage = e => {
                         .then(createdMessage => {
                             console.log(createdMessage)
                             Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
-                                docxApi.newInstance(user, createdMessage, {
-                                    documentLocation:   (fullMessage.document && a === fullMessage.document.content) ? 'body' : 'annex',
-                                    documentType:       'result', //Todo identify message and set type accordingly
-                                    mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
-                                    name:               a.title
-                                })
-                                    .then(d => docApi.createDocument(d))
-                                    .then(createdDocument => {
-                                        let byteContent = iccUtils.base64toArrayBuffer(a.content)
-                                        return [createdDocument, byteContent]
-                                    })
-                                    .then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
-                            ))
+									docxApi.newInstance(user, createdMessage, {
+										documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
+										documentType:       'result', //Todo identify message and set type accordingly
+										mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
+										name:               a.title
+									})
+										.then(d => docApi.createDocument(d))
+										.then(createdDocument => {
+											let byteContent = iccUtils.base64toArrayBuffer(a.content)
+											return [createdDocument, byteContent]
+										})
+										.then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
+								)
+                            )
                         })
                         .then(() => null) //DO NOT RETURN A MESSAGE ID TO BE DELETED
                 }
@@ -99,8 +100,15 @@ onmessage = e => {
             })
             return p
         }).then(toBeDeletedIds =>
-            Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BININBOX")))
+            Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN"+boxId)))
         )
     }
 };
 
+function getFromAddress(sender){
+	return (sender.lastName ? sender.lastName : "") +
+        (sender.firstName ? ' '+sender.firstName : "") +
+        (sender.organizationName ? ' '+sender.organizationName : "") +
+        (' ' + sender.identifierType.type + ':' + sender.id)
+
+}
