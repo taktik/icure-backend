@@ -1,8 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
-
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
@@ -10,6 +9,7 @@
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
@@ -29,8 +29,10 @@
                 }
 
                 vaadin-grid {
-                    height: calc(100% - 41px - 32px - 32px);
-                    width: 100%;
+                    /*height: calc(100% - 41px - 32px - 32px);*/
+                    height: auto;
+                    width: 100vw;
+                    /*width: calc(100vw - 16%);*/
                     box-shadow: var(--app-shadow-elevation-1);
                     border: none;
                     box-sizing: border-box;
@@ -226,7 +228,10 @@
                     }
                 }
                 .gridContainer{
-                    height: calc(100% - 16px - 32px);
+                    height: calc(100vh - 190px);
+                    overflow-y: auto;
+                    overflow-x: auto;
+                    box-shadow: var(--app-shadow-elevation-1);
                 }
 
                 .pendingStatus{
@@ -246,6 +251,7 @@
                 #pendingGridDetail{
                     height: calc(100% - 185px);
                     padding: 0;
+                    width: 100%;
                 }
 
                 .invoice-status {
@@ -264,8 +270,10 @@
                 }
 
                 .invoiceContainer{
-                    overflow: auto;
+                    overflow-x: auto;
+                    overflow-y: hidden;
                     height: calc(100vh - 185px);
+                    box-shadow: var(--app-shadow-elevation-1);
                 }
                 .invoiceSubContainerBig{
                    height: 100%;
@@ -286,15 +294,22 @@
                 .invoiceDetailContainer{
                     height: 50%;
                     opacity: 0;
-                    transition: all 1.25s ease-out;
+                    transition: all .75s ease-out;
                 }
                 .invoiceDetailContainer.open {
                     opacity: 1;
                 }
 
                 #helpdeskInfoDialog{
-                    height: 400px;
-                    width: 300px;
+                    position: fixed;
+                    display: block;
+                    top: 50vh;
+                    left: 50%;
+                    transform: translate(-50%,-50%);
+                    height: 80vh;
+                    width: 40vw;
+                    max-width: none !important;
+                    max-height: none !important;
                     overflow-y: auto;
                 }
 
@@ -315,53 +330,71 @@
                     width: 12px;
                 }
 
+                iron-collapse-button {
+                    height: 45px;
+                    line-height: 45px;
+                    background: var(--app-background-color-dark);
+                    display: initial;
+                }
+
+                #invoiceCollapser {
+                    display: block;
+                    background: white;
+                    height: calc(100% - 75px);
+                    overflow-y: auto;
+                }
+
+                h3.header {
+                    margin: 0 auto
+                }
+                #collapse-grid .recipient-col {
+                    background: grey;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
             <div class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
             </div>
+            <template is="dom-if" if="[[statusPending]]">
+                <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid"></paper-input>
+            </template>
+            <template is="dom-if" if="[[!statusPending]]">
+                <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputDetails}}" on-keyup="refreshFilter" param="messageGrid"></paper-input>
+            </template>
             <div class="gridContainer">
                 <template is="dom-if" if="[[statusPending]]">
-                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid"></paper-input>
-                    <vaadin-grid id="invoiceGrid" items="[[selectedPendingInvoices]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
+                    <vaadin-grid id="noscroll" class="force-sizer" theme="force-sizer">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.invoice.sentMediumType]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
-                            </template>
-                            <template>
-                                [[item.insurance.code]]
                             </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.invoiceReference">N° facture</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.invoice.invoiceReference]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.patient.firstName">Patient</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.patient.firstName]] [[item.patient.lastName]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="patient.ssin">Niss</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.patient.ssin]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.invoiceDate">Date facture</vaadin-grid-sorter>
                             </template>
-                            <template>[[returnDate(item.invoice.invoiceDate)]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column-group>
                             <template class="header hasBorder">Montants</template>
@@ -369,55 +402,196 @@
                                 <template class="header border-left">
                                     <vaadin-grid-sorter path="invoice.reimbursement">OA</vaadin-grid-sorter>
                                 </template>
-                                <template class="border-left">[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
-                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.patientIntervention">Patient</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.totalInvoice.patientIntervention)]]</template>
-                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.doctorSupplement">Supplément</vaadin-grid-sorter>
                                 </template>
-                                <template>[[_formatAmount(item.totalInvoice.doctorSupplement)]]</template>
-                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col border-right">
                                 <template class="header border-right">
                                     <vaadin-grid-sorter path="invoice.totalAmount">Total</vaadin-grid-sorter>
                                 </template>
-                                <template class="border-right">[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
-                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="invoice.statut">Statut</vaadin-grid-sorter>
                             </template>
-                            <template>
-                                <iron-icon icon="vaadin:circle" class="pendingStatus"></iron-icon>
-                                [[item.invoice.statut]]
-                            </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header"></template>
-                            <template>
-                                <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
-                            </template>
                         </vaadin-grid-column>
                     </vaadin-grid>
-                    <div class="button">
-                        <paper-button on-tap="sendInvoices">Envoyer</paper-button>
-                        <paper-button on-tap="receiveInvoices">Recevoir</paper-button>
-                    </div>
+                    <template is="dom-repeat" items="[[toggledDatas]]">
+                        <iron-collapse-button>
+                            <div slot="collapse-trigger" class="flex header">
+                                <vaadin-grid id="collapse-grid">
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">[[localize('grp','Groupe',language)]] <iron-icon icon="unfold-more"></iron-icon></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header"><h3 class="header">OA: [[item.code]]</h3></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <!--<template class="header">[[localize('tot_sub','Sous-total',language)]] :</template>-->
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column-group>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header"><small>[[item.sum.oa]]€</small></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header"><small>[[item.sum.pat]]€</small></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header"><small>[[item.sum.sup]]€</small></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col border-right">
+                                            <template class="header"><small>[[item.sum.tot]]€</small></template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid-column-group>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
+                            <div slot="collapse-content">
+                                <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
+                                    <vaadin-grid-column class="recipient-col">
+                                        <!--<template>[[item.invoice.sentMediumType]]</template>-->
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>
+                                            [[item.insurance.code]]
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>[[item.invoice.invoiceReference]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>[[item.patient.firstName]] [[item.patient.lastName]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>[[item.patient.ssin]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>[[returnDate(item.invoice.invoiceDate)]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column-group>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="border-left">[[_formatAmount(item.totalInvoice.reimbursement)]]</template>
+                                            <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>-->
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template>[[_formatAmount(item.totalInvoice.patientIntervention)]]</template>
+                                            <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>-->
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template>[[_formatAmount(item.totalInvoice.doctorSupplement)]]</template>
+                                            <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>-->
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col border-right">
+                                            <template class="border-right">[[_formatAmount(item.totalInvoice.totalAmount)]]</template>
+                                            <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>-->
+                                        </vaadin-grid-column>
+                                    </vaadin-grid-column-group>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>
+                                            <iron-icon icon="vaadin:circle" class="pendingStatus"></iron-icon>
+                                            [[item.invoice.statut]]
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template>
+                                            <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                                <vaadin-grid items="toggledDatas">
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="footer">[[localize('tot_sub','Sous-total',language)]] :</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column-group>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="footer"><b>[[item.sum.oa]]€</b></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="footer"><b>[[item.sum.pat]]€</b></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="footer"><b>[[item.sum.sup]]€</b></template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col border-right">
+                                            <template class="footer"><b>[[item.sum.tot]]€</b></template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid-column-group>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="recipient-col">
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
+                        </iron-collapse-button>
+                    </template>
+                    <vaadin-grid>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="footer">[[localize('tot_global','Total',language)]] :</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column-group>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col">
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column class="recipient-col border-right">
+                                <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="recipient-col">
+                        </vaadin-grid-column>
+                    </vaadin-grid>
                 </template>
 
                 <template is="dom-if" if="[[!statusPending]]">
-                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>
+                    <!--<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>-->
                     <div class="invoiceContainer">
                         <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
                             <template is="dom-if" if="[[isProcess(invoicesStatus.*)]]">
@@ -1029,7 +1203,6 @@
                     this.set("hcp",response)
                     this.getMessage()
                 })
-
             }
 
             getPendingInvoices(){
@@ -1065,7 +1238,8 @@
                             })
 
                             this.push('selectedPendingInvoices', invPen)
-                            console.log(invPen)
+                            this._toggleDataProvider(this.selectedPendingInvoices)
+                            // console.log(invPen)
                             patientI+=parseFloat(invPen.totalInvoice.patientIntervention)
                             doctorS+=parseFloat(invPen.totalInvoice.doctorSupplement)
                             reimbou+=parseFloat(invPen.totalInvoice.reimbursement)
@@ -1075,7 +1249,7 @@
                             this.set("totalPendingInvoices.totalDoctorSupplement",doctorS)
                             this.set("totalPendingInvoices.totalReimbursement",reimbou)
                             this.set("totalPendingInvoices.totalAmount",totalAm)
-                            console.log(this.totalPendingInvoices)
+                            // console.log(this.totalPendingInvoices)
                         }))
 
                 this.api.invoice().listToInsurancesUnsent(this.user.id).then(invUnsent =>
@@ -1199,6 +1373,51 @@
                 this.fetchMessages()
             }
 
+
+
+            _toggleDataProvider(input) {
+                let inputList = _.flattenDeep(input)
+                let mutGroups = []
+                inputList.map(patient => {
+                    const thisMutGrp = // set this pat insurance code grp
+                        (patient.insurance.code < 200) ? "100" :
+                        (patient.insurance.code < 300) ? "200" :
+                        (patient.insurance.code < 400) ? "300" :
+                        (patient.insurance.code < 500) ? "400" :
+                        (patient.insurance.code < 600) ? "500" :
+                        (patient.insurance.code < 700) ? "600" :
+                        "900"
+                    let grpExists = false
+                    mutGroups.map(grp=> { if (grp.code === thisMutGrp) { // check if grp exists
+                        grpExists = true
+                    }})
+                    if (!grpExists) { mutGroups.push({ // else create object
+                        code: thisMutGrp,pat: [],sum:{oa:0,pat:0,sup:0,tot:0}
+                    })}
+                    mutGroups.map(grp=>{ if (grp.code === thisMutGrp) { // get into this grp
+                        (grp.pat).push(patient) // add the patient
+                    }})
+                }) // inputList map end
+
+                mutGroups.sort((a, b)=>{return a.code-b.code})
+                this.set('toggledDatas', mutGroups ) // this.set end
+                for (let grp of mutGroups) {
+                    console.log("grp",grp)
+                    let totPat = 0
+                    for (let pat of grp.pat){
+                        console.log(">pat",pat)
+                        grp.sum.oa += pat.totalInvoice.reimbursement
+                        grp.sum.pat += pat.totalInvoice.patientIntervention
+                        grp.sum.sup += pat.totalInvoice.doctorSupplement
+                        grp.sum.tot += pat.totalInvoice.totalAmount
+                        totPat++
+                    }
+                    // const totEntr = this.localize('entr','Entries',language)
+                    // const totWord = this.localize('tot','Total',language)
+                    // grp.code = `${grp.code} (${totPat} ${totEntr}), OA : ${grp.sum.oa}€ - Patient : ${grp.sum.pat}€ - Sup : ${grp.sum.sup}€ - ${totWord} : ${grp.sum.tot}€`
+                }
+            } // provider end
+
             calculateTotalPendingInvoices(){
 
                 let total = {
@@ -1271,12 +1490,17 @@
                     (param == "messagesGrid") ? this.filterInputInvoices :
                     this.filterInputDetail
                 setTimeout(function () {
-                    this.executeSearch(str,param)
+                    const arrList = this.shadowRoot.querySelectorAll("."+param)
+                    console.log("arrList",arrList)
+                    Array.prototype.slice.call(arrList).map(table=>{
+                        this.executeSearch(str,table)
+                    })
                 }.bind(this), 500)
             }
 
             executeSearch(str,param) {
-                const grid = this.shadowRoot.getElementById(param)
+                // const grid = this.shadowRoot.getElementById(param)
+                const grid = param
                 const tbody = grid.shadowRoot.querySelector("#scroller #table tbody")
                 const trs = tbody.querySelectorAll("tr")
                 let input = (str.includes(":") ) ? this.treatQuery(str) : str
@@ -1301,12 +1525,14 @@
                     let showCount = 0
                     keepList.map(showMe=>{
                         showMe.style.transform = "translateY("+ (showCount*48) +"px)"
+                        showMe.style.height = "48px"
+                        showMe.style.lineHeight = "24px"
                         showCount++
                     })
                 } // endif
             }
 
-            checkFilters(str) { // will set the path type for vaadin filter and format search output
+            checkFilters(str) { // will (set the path type for vaadin filter and) format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
                 if (str.length) {
@@ -1362,7 +1588,7 @@
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
                         })
                 })
-
+                this.getPendingInvoices()
             }
 
             _showPendingDetail(){
@@ -1896,7 +2122,7 @@
                 this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then(response => {
                     let prom = Promise.resolve()
                     response.forEach(message => {
-                        console.log(message)
+                        // console.log(message)
 
                         prom = prom.then(() =>
                             new Promise((resolve) => {
@@ -1904,14 +2130,14 @@
                                     this.api.message().processEfactMessage(this.user, this.hcp, message, this.api.document())
                                         .then(msg => msg ? resolve(message) : resolve())
                                         .catch(e => {
-                                            console.log(e)
+                                            // console.log(e)
                                             resolve()
                                         })
                                 } else if (message.tack) {
                                     this.api.message().processTack(this.user, this.hcp, message)
                                         .then(rcpt => rcpt ? resolve(message) : resolve())
                                         .catch(e => {
-                                            console.log(e)
+                                            // console.log(e)
                                             resolve()
                                         })
                                 }
