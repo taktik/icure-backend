@@ -420,107 +420,70 @@
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>
                     <div class="invoiceContainer">
                         <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
-                            <vaadin-grid id="messagesGrid" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
-                                <vaadin-grid-column class="recipient-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.hcp]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="oa-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.oa">OA</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.oa]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="ref-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
-                                       </template>
-                                    <template>[[item.messageInfo.hcpReference]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="invoice-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.invoiceNumber]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="month-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.invoiceMonth]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="invoiceDate-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.invoiceDate]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="invAmount-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.invoicedAmount]]</template>
-                                    <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="accAmount-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.acceptedAmount]]</template>
-                                    <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="refAmount-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.refusedAmount]]</template>
-                                    <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="stat-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.invoiceStatus]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column class="reject-col">
-                                    <template class="header">
-                                        <vaadin-grid-sorter path="messageInfo.rejectionReason">Motif rejet</vaadin-grid-sorter>
-                                    </template>
-                                    <template>[[item.messageInfo.rejectionReason]]</template>
-                                </vaadin-grid-column>
-                                <vaadin-grid-column-group class="hasBorder">
-                                    <template class="header hasBorder">Informations de paiement</template>
-                                    <vaadin-grid-column class="payRef-col">
+                            <template is="dom-if" if="[[isProcess(invoicesStatus.*)]]">
+                                <vaadin-grid id="messagesGrid" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                                    <vaadin-grid-column class="recipient-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.paymentReference">Réf</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
                                         </template>
-                                        <template>[[item.messageInfo.paymentReference]]</template>
+                                        <template>[[item.messageInfo.hcp]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column class="payDate-col">
+                                    <vaadin-grid-column class="oa-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.paymentDate">Date</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="messageInfo.oa">OA</vaadin-grid-sorter>
                                         </template>
-                                        <template>[[item.messageInfo.paymentDate]]</template>
+                                        <template>[[item.messageInfo.oa]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column class="payTot-col">
+                                    <vaadin-grid-column class="ref-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.amountPaid">Montant</vaadin-grid-sorter>
-                                        </template>
-                                        <template>[[item.messageInfo.amountPaid]]</template>
+                                            <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
+                                           </template>
+                                        <template>[[item.messageInfo.hcpReference]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column class="payBank-col">
+                                    <vaadin-grid-column class="invoice-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.paymentAccount">Compte bancaire</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
                                         </template>
-                                        <template>[[item.messageInfo.paymentAccount]]</template>
+                                        <template>[[item.messageInfo.invoiceNumber]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column class="payPaid-col">
+                                    <vaadin-grid-column class="month-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.paidAmount">Payé</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
                                         </template>
-                                        <template>[[item.messageInfo.paidAmount]]</template>
+                                        <template>[[item.messageInfo.invoiceMonth]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invoiceDate-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceDate]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoicedAmount]]</template>
+                                        <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="accAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.acceptedAmount]]</template>
+                                        <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="refAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.refusedAmount]]</template>
+                                        <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="stat-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceStatus]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="payPaid-col">
                                         <template class="header"></template>
@@ -528,8 +491,199 @@
                                             <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
                                         </template>
                                     </vaadin-grid-column>
-                                </vaadin-grid-column-group>
-                            </vaadin-grid>
+                                </vaadin-grid>
+                            </template>
+                            <template is="dom-if" if="[[isArchOrAcc(invoicesStatus.*)]]">
+                                <vaadin-grid id="messagesGrid" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.hcp]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="oa-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.oa">OA</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.oa]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="ref-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.hcpReference]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invoice-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceNumber]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="month-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceMonth]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invoiceDate-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceDate]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoicedAmount]]</template>
+                                        <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="accAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.acceptedAmount]]</template>
+                                        <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="refAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.refusedAmount]]</template>
+                                        <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="stat-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceStatus]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="reject-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.rejectionReason">Motif rejet</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.rejectionReason]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column-group class="hasBorder">
+                                        <template class="header hasBorder">Informations de paiement</template>
+                                        <vaadin-grid-column class="payRef-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="messageInfo.paymentReference">Réf</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.messageInfo.paymentReference]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="payDate-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="messageInfo.paymentDate">Date</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.messageInfo.paymentDate]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="payTot-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="messageInfo.amountPaid">Montant</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.messageInfo.amountPaid]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="payBank-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="messageInfo.paymentAccount">Compte bancaire</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.messageInfo.paymentAccount]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="payPaid-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="messageInfo.paidAmount">Payé</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.messageInfo.paidAmount]]</template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid-column-group>
+                                    <vaadin-grid-column class="payPaid-col">
+                                        <template class="header"></template>
+                                        <template>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </template>
+                            <template is="dom-if" if="[[isReject(invoicesStatus.*)]]">
+                                <vaadin-grid id="messagesGrid" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
+                                    <vaadin-grid-column class="recipient-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.hcp]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="oa-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.oa">OA</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.oa]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="ref-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.hcpReference]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invoice-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceNumber]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="month-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceMonth]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invoiceDate-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceDate]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="invAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoicedAmount]]</template>
+                                        <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="accAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.acceptedAmount]]</template>
+                                        <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="refAmount-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.refusedAmount]]</template>
+                                        <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="stat-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.invoiceStatus]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="reject-col">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="messageInfo.rejectionReason">Motif rejet</vaadin-grid-sorter>
+                                        </template>
+                                        <template>[[item.messageInfo.rejectionReason]]</template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column class="payPaid-col">
+                                        <template class="header"></template>
+                                        <template>
+                                            <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </template>
                         </div>
                         <template is="dom-if" if="[[ifInvoiceSelected]]">
                             <div id="invoiceDetailContainer" class="invoiceDetailContainer">
@@ -613,6 +767,7 @@
                         </template>
                     </div>
                 </template>
+
             </div>
 
             <paper-dialog id="pendingDetailDialog">
@@ -848,6 +1003,14 @@
                     displayedYear: {
                         type: Number,
                         value: () => Number(moment().format('YYYY'))
+                    },
+                    processing:{
+                        type: Boolean,
+                        value: false
+                    },
+                    archOrAcc:{
+                        type: Boolean,
+                        value:false
                     }
                 };
             }
@@ -1058,6 +1221,8 @@
 
             _invoicesStatusChanged(){
                 this.invoicesStatus === "pending" ? this.set('statusPending', true) : this.set('statusPending', false)
+                this.set('processing',this.isProcess())
+                this.set('archOrAcc',!(this.isProcess()||this.isReject()))
             }
 
             messagesByStatus() {
@@ -1312,6 +1477,19 @@
 
             _dateFormat(date) {
                 return date ? this.api.moment(date).format('DD/MM/YYYY') : '';
+            }
+
+            isProcess(){
+                return this.invoicesStatus === "process"
+            }
+
+            isReject(){
+                return this.invoicesStatus === "reject"
+            }
+
+            isArchOrAcc(){
+                return !(this.invoicesStatus === "reject" || this.invoicesStatus === "process")
+
             }
         }
 
