@@ -1041,7 +1041,7 @@
                                              value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             </template>
                         </div>
-                        <template is="dom-if" if="[[isTravellingExpenses]]">
+                        <template is="dom-if" if="[[isTravellingExpenses(activeNmclItem.*)]]">
                             <div class="flex-container-nmcl">
                                 <paper-input class="flex-container-nmcl-row"
                                              label="[[localize('fraisDepAll','frais de déplacement - aller',language)]]"
@@ -1696,8 +1696,8 @@
                         newInvoice.invoiceDate = moment().format("YYYYMMDD")
                         newInvoice.invoiceReference = null
                         newInvoice.thirdPartyReference = "0"
-                        newInvoice.invoiceType = "mutualfund"
-                        newInvoice.sentMediumType = "efact"
+                        newInvoice.invoiceType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient"
+                        newInvoice.sentMediumType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest"
                         newInvoice.invoicePeriod = 0
                         newInvoice.longDelayJustification = 0
                         newInvoice.gnotionNihii = null
@@ -1879,7 +1879,9 @@
                                     invoice.careProviderType = this.selectedInvoice.careProviderType
 
                                     this.api.invoice().newInstance(this.user, this.patient, invoice)
+                                        .then(invoice => this.api.register(invoice,'invoice'))
                                         .then(invoice => this.api.invoice().createInvoice(invoice))
+                                        .then(invoice => this.api.register(invoice,'invoice'))
                                         .then(invoice => {
                                             this.$['nmclGrid'].clearCache()
                                             console.log(this.selectedInvoice)
@@ -1923,7 +1925,9 @@
 
                             console.log(this.user)
 
-                            this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
+                            this.api.user().modifyUser(this.user)
+                                .then(user => this.api.register(user,"user"))
+                                .then(user => this.dispatchEvent(new CustomEvent('user-saved', {
                                 detail: user,
                                 bubbles: true,
                                 composed: true
@@ -1949,7 +1953,9 @@
 
                     this.set('user.properties', this.user.properties.map(x => x))
 
-                    this.api.user().modifyUser(this.user).then(user => this.dispatchEvent(new CustomEvent('user-saved', {
+                    this.api.user().modifyUser(this.user)
+                        .then(user => this.api.register(user,'user'))
+                        .then(user => this.dispatchEvent(new CustomEvent('user-saved', {
                         detail: user,
                         bubbles: true,
                         composed: true
@@ -2079,10 +2085,12 @@
 
                     this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
 
-                    this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
-                        console.log(invoice)
-                        this.set('selectedInvoice', invoice)
-                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                    this.api.invoice().modifyInvoice(this.selectedInvoice)
+                        .then(invoice => this.api.register(invoice,'invoice'))
+                        .then(invoice => {
+                            console.log(invoice)
+                            this.set('selectedInvoice', invoice)
+                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
                     })
 
                     this.$['nmclGrid'].clearCache()
@@ -2121,6 +2129,7 @@
 
                     this.set("selectedInvoice.invoiceReference", newReference)
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
+                        .then(invoice => this.api.register(invoice,'invoice'))
                         .then(invoice => this.api.entityRef().createEntityReference({docId: invoice.id, id: "Invoice::"+newReference})
                         .then( () => {
                             console.log(invoice)
@@ -2155,7 +2164,7 @@
             }
 
             _formatInvoiceDate(date) {
-                return date ? ("" + date).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : 'N/A'
+                return date ? this.api.moment(date).format("DD/MM/YYYY") : 'N/A'
             }
 
             datePickerChanged() {
@@ -2418,7 +2427,9 @@
                                     invoice.careProviderType = this.selectedInvoice.careProviderType
 
                                     this.api.invoice().newInstance(this.user, this.patient, invoice)
+                                        .then(invoice => this.api.register(invoice,'invoice'))
                                         .then(invoice => this.api.invoice().createInvoice(invoice))
+                                        .then(invoice => this.api.register(invoice,'invoice'))
                                         .then(invoice => {
                                             this.$['nmclGrid'].clearCache()
                                             this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
@@ -2449,9 +2460,11 @@
 
                             this.set("selectedInvoice.invoicingCodes", this.selectedInvoice.invoicingCodes.map(x => x))
 
-                            this.api.invoice().modifyInvoice(this.selectedInvoice).then(invoice => {
-                                this.set('selectedInvoice', invoice)
-                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                            this.api.invoice().modifyInvoice(this.selectedInvoice)
+                                .then(invoice => this.api.register(invoice,'invoice'))
+                                .then(invoice => {
+                                    this.set('selectedInvoice', invoice)
+                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
                             })
 
                             this.$['nmclGrid'].clearCache()
@@ -2508,21 +2521,23 @@
                     const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
                     //console.log(invoice)
                     //invoice.longDelayJustification=invoice.longDelayJustification ? 1 : 0
-                    this.api.invoice().modifyInvoice(invoice).then(response => {
-                        this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
-                            nmcls.map(nmcl =>{
-                                const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
-                                if(sn){
-                                    sn.prescriberNeeded = nmcl.needsPrescriber
-                                    sn.isRelativePrestation = nmcl.hasRelatedCode
-                                }
+                    this.api.invoice().modifyInvoice(invoice)
+                        .then(invoice => this.api.register(invoice,'invoice'))
+                        .then(response => {
+                            this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                                nmcls.map(nmcl =>{
+                                    const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                    if(sn){
+                                        sn.prescriberNeeded = nmcl.needsPrescriber
+                                        sn.isRelativePrestation = nmcl.hasRelatedCode
+                                    }
+                                })
+                            ).finally(()=>{
+                                this.set("invoices."+this.invoices.indexOf(invoice),response)
+                                this.isSelected=true;
+                                this.set("selectedInvoice",response)
+                                this.isSelected=false;
                             })
-                        ).finally(()=>{
-                            this.set("invoices."+this.invoices.indexOf(invoice),response)
-                            this.isSelected=true;
-                            this.set("selectedInvoice",response)
-                            this.isSelected=false;
-                        })
                     })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);

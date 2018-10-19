@@ -291,6 +291,11 @@
             return e[lng] || e.fr || e.en || e.nl;
         }
 
+        iban(){
+            let iban = require('iban')
+            return iban;
+        }
+
         //Convenience methods for dates management
         after(d1, d2) {
             return d1 === null || d2 === null || d1 === undefined || d2 === undefined || this.moment(d1).isAfter(this.moment(d2));
@@ -389,6 +394,7 @@
             }
             return current
         }
+
     }
 
     customElements.define(IccApi.is, IccApi)
