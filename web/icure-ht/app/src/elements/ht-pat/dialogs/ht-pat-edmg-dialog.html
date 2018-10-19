@@ -1,0 +1,389 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/vaadin-icons/vaadin-icons.html">
+
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-date-picker.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
+<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
+
+<link rel="import" href="../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
+<link rel="import" href="../../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../../../../bower_components/vaadin-text-field/vaadin-text-area.html">
+<link rel="import" href="../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+
+
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../dynamic-form/dynamic-link.html">
+<link rel="import" href="../../dynamic-form/dynamic-pills.html">
+
+<dom-module id="ht-pat-edmg-dialog">
+    <template>
+        <style>
+
+            #dialog .ch4-cons{
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            #dialog .edmg-cons paper-button.action {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                font-weight: 400;
+                font-size: 12px;
+                height: 32px;
+                padding: 10px 1.2em;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                justify-self: flex-end;
+            }
+
+            #dialog .edmg-cons .buttons {
+                right: 24px;
+                position: absolute;
+            }
+
+            #dialog .edmg-cons vaadin-date-picker {
+                margin-right: 8px;
+            }
+
+            #dialog a {
+                text-decoration: none;
+                color:	var(--app-secondary-color);
+            }
+
+            #dialog{
+                min-height: 480px;
+                min-width: 800px;
+            }
+
+            .links {
+                position: absolute;
+                right: 0;
+            }
+
+            .pills {
+                float: right;
+            }
+
+            dynamic-link {
+                float: right;
+                top:4px;
+            }
+
+            vaadin-combo-box {
+                width: 100%;
+            }
+
+            vaadin-text-area {
+                width: 100%;
+            }
+
+            .containerCH4Cons {
+                height: 58px;
+                display: flex;
+            }
+
+            #par-search {
+                flex: 1;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+            <h3>[[localize('edmg-con','eDmg Consultation',language)]]</h3>
+            <div>
+                <!--TODO: Show patient info -->
+                <!--TODO: Show hcp info -->
+            </div>
+
+            <div class="edmg-cons">
+                <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
+                <vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>
+                <paper-button class="action" on-tap="_requestGenins">[[localize('refresh','Refresh',language)]]</paper-button>
+                <!-- TODO: Show consultation result/errors -->
+
+                <!-- TODO: Notification input -->
+                <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
+                <vaadin-date-picker label="[[localize('prest-dat','Prestation date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
+                <!-- TODO: Notification result/errors -->
+
+                <div class="buttons">
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                </div>
+
+            </div>
+
+
+
+            <!--<div class="buttons">-->
+            <!--<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>-->
+            <!--<paper-button class="modal-button&#45;&#45;save" dialog-confirm autofocus on-tap="planAction">[[localize('save','Save',language)]]</paper-button>-->
+            <!--</div>-->
+        </paper-dialog>
+
+
+    </template>
+    <script>
+        class HtPatEdmgDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+            static get is() {
+                return 'ht-pat-edmg-dialog';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        value: null
+                    },
+                    parListItem: {
+                        type: Array,
+                        value: () => []
+                    },
+                    parFilterValue: {
+                        type: String
+                    },
+                    user: {
+                        type: Object,
+                        value: null
+                    },
+                    language: {
+                        type: String
+                    },
+                    currentContact: {
+                        type: Object,
+                        value: null
+                    },
+                    linkables: {
+                        type: Array
+                    },
+                    linkedHes: {
+                        type: Array,
+                        value: () => []
+                    },
+                    plannedAction: {
+                        type: Object,
+                        value : () => ({Status : "pending", Deadline: "", HcpId : "", ProcedureId : "", ProfessionId : "", ReasonOfRef : "", isSendMail : false, isDeadline: false, isSurgical: false, isVaccineProcedure: false, VaccineCommercialNameId : "", DoseNumber : "", BatchNumber : "", ProcedureInfo: {}, Description: "", ProfessionInfo : {}, VaccineInfo: {}})
+                    },
+                    comboStatus: {
+                        type: Array,
+                        value : () => [
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Contre-indiqué", "nl": "Verlaten / Niet aangegeven", "en": "Abandoned / Against indicated"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Décès", "nl": "Verlaten / ", "en": "Abandoned / Death"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Désabonné", "nl": "Verlaten / Afgemeld", "en": "Abandoned / Unsubscribed"}
+                            },
+                            {
+                                "id"       : "error",
+                                "label": {"fr": "Abandonné / Erreur", "nl": "Verlaten /", "en": "Abandoned / Error"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Non pertient", "nl": "Verlaten / Irrelevant", "en": "Abandoned / Not relevant"}
+                            },
+                            {
+                                "id"       : "refused",
+                                "label": {"fr": "Abandonné / Refus patient", "nl": "Verlaten / Weigering van de patiënt", "en": "Abandoned / Patient refusal"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné / Trop tard", "nl": "Verlaten / ", "en": "Abandoned / Too late"}
+                            },
+                            {
+                                "id"       : "aborted",
+                                "label": {"fr": "Abandonné par le patient", "nl": "Verlaten / erwachting", "en": "Abandoned by patient"}
+                            },
+                            {
+                                "id"       : "pending",
+                                "label": {"fr": "En attente", "nl": "Verwachting", "en": "Waiting"}
+                            },
+                            {
+                                "id"       : "planned",
+                                "label": {"fr": "En attente planifié", "nl": "Gepland wachten", "en": "Scheduled waiting"}
+                            },
+                            {
+                                "id"       : "completed",
+                                "label": {"fr": "Fait", "nl": "Geëxecuteerd", "en": "Done"}
+                            },
+                            {
+                                "id"       : "proposed",
+                                "label": {"fr": "Rappel envoyé", "nl": "Herinnering verzonden", "en": "Reminder sent"}
+                            }
+                        ]
+                    },
+                    proceduresFilterValue: {
+                        type: String
+                    },
+                    selectedItem: {
+                        type: Object,
+                        value: null
+                    },
+                    contact:{
+                        type: Object,
+                        value: null
+                    },
+                    opened: {
+                        type: Boolean,
+                        value: false
+                    },
+                    professionId: {
+                        type : String,
+                        value : ""
+                    },
+                    consultDmgResp:{
+                        type: Object,
+                        value: null
+                    },
+                    consultStart:{
+                        type: Date,
+                        value: null
+                    },
+                    consultEnd:{
+                        type: Date,
+                        value: null
+                    },
+                    nomenclature:{
+                        type: String,
+                        value: null
+                    },
+                    encounterDate:{
+                        type: Date,
+                        value: null
+                    }
+                };
+            }
+
+            static get observers() {
+                return ['apiReady(api,user,opened)'];
+            }
+
+            ready() {
+                super.ready();
+                this.addEventListener('iron-resize', () => this.onWidthChange());
+            }
+
+            onWidthChange() {
+                const offsetWidth = this.$.dialog.offsetWidth;
+                const offsetHeight = this.$.dialog.offsetHeight;
+                if (!offsetWidth || !offsetHeight) {
+                    return;
+                }
+                // this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
+            }
+
+            _consultDmg(){
+
+            }
+
+            isEnterPressed(e){
+                if(e.keyCode==13){
+                    this._addPar(e);
+                }
+            }
+
+            _parSearch(e) {
+                let latestSearchValue = e && e.detail.value
+                this.latestSearchValue = latestSearchValue
+                if (!latestSearchValue || latestSearchValue.length < 2) {
+                    console.log("Cancelling empty search")
+                    this.set('parListItem', [])
+                    return
+                }
+                this._parDataProvider() && this._parDataProvider().filter(latestSearchValue).then(res => {
+                    if (latestSearchValue !== this.latestSearchValue) {
+                        console.log("Cancelling obsolete search")
+                        return
+                    }
+                    this.set('parListItem', res.rows)
+                })
+            }
+
+            _parDataProvider() {
+                return {
+                    filter: function (parFilterValue) {
+                        let count = 10
+                        return Promise.all([this.api.fhc().Chaptercontroller().findParagraphsUsingGET(parFilterValue, 'fr')]).then(results => {
+                            const parList = results[0];
+                            const filtered = parList.map(par => ({
+                                id: par.id,
+                                chapterName: par.chapterName,
+                                descr: par.paragraphName + ': ' + par.keyStringFr,
+                                paragraphName: par.paragraphName,
+                                label: par.keyStringFr,
+                                paragraphVersion: par.paragraphVersion
+                            }))
+                            return {totalSize: filtered.length, rows: filtered}
+                        })
+
+                    }.bind(this)
+                }
+
+            }
+
+            apiReady() {
+                if (!this.api || !this.user || !this.user.id || !this.opened) return;
+
+                try {
+                    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
+                    // this.api.cacheRowsUsingPagination(
+                    //     'CD-HCPARTY-pers',
+                    //     (key,docId) =>
+                    //         this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
+                    //             .then(pl => ({
+                    //                 rows:pl.rows,
+                    //                 nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                    //                 nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                    //                 done:!pl.nextKeyPair
+                    //             }))
+                    // ).then(rows => {
+                    //     this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc']))
+                    //     this.set('plannedAction.ProfessionId',this.professionId)
+                    // })
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+
+            attached() {
+                super.attached();
+                this.async(this.notifyResize, 1);
+            }
+
+            _checkIsDeadline(){
+                if(this.plannedAction.Deadline !== ""){
+                    this.set('plannedAction.isDeadline', true)
+                }else{
+                    this.set('plannedAction.isDeadline', false)
+                }
+
+            }
+
+
+
+            open() {
+
+                this.$.dialog.open();
+            }
+
+            close() {
+                this.$.dialog.close();
+            }
+
+
+        }
+        customElements.define(HtPatEdmgDialog.is, HtPatEdmgDialog);
+    </script>
+</dom-module>
