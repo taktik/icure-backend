@@ -679,7 +679,8 @@
     "nam" : "Nom",
     "faultMessage":"Message d'erreur",
     "faultSource":"Source d'erreur",
-    "faultCode":"Code d'erreur"
+    "faultCode":"Code d'erreur",
+    "del" : "Supprimer"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
