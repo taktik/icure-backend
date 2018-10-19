@@ -1248,6 +1248,8 @@
                 this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
                 this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
                 this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
+
+                this.initializeBatchCounter(this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
             }
 
             fetchMessages() {
@@ -1351,7 +1353,6 @@
 
 
             getMessage(){
-                //this.getPendingInvoices()
                 this.fetchPendingMessages()
                 this.fetchMessages()
             }
@@ -2159,6 +2160,11 @@
                 return !(this.invoicesStatus === "reject" || this.invoicesStatus === "process")
 
             }
+
+            initializeBatchCounter(processedCounter, accpetedCounter, rejectedCounter){
+                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { pending: 0, processing: processedCounter, rejected: rejectedCounter, accepted: accpetedCounter, archived: 0} }));
+            }
+
         }
 
         customElements.define(HtMsgInvoice.is, HtMsgInvoice);
