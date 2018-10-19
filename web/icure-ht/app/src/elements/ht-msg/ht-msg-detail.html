@@ -97,6 +97,7 @@
 				background: var(--app-background-color-light);
 				padding: 5px;
 				display: flex;
+				overflow: auto;
 				flex-flow: column nowrap;
 				align-items: flex-start;
 				z-index: 0;
@@ -373,9 +374,13 @@
 				margin-bottom: 15px;
 			}
 
+			.img-container img{
+				max-width: 100%;
+			}
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
-			<div class="details-panel" on-dragover="_onDrag">
+			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
 					<template is="dom-repeat" items="[[messages]]" as="msg">
 							<paper-card class="pat-details-card" >
 								<paper-input readonly value="From : [[msg.fromAddress]]"></paper-input>
@@ -389,9 +394,9 @@
 
 								<template is="dom-repeat" items="[[selectedDocuments]]">
 									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-									<paper-card class="annexe-card">
+										<paper-card class="annexe-card">
 											<span>[[item.name]]</span>
-											<a href="[[item.dataUrl]]" target="_blank"><iron-icon icon="file-download"></iron-icon></a>
+											<iron-icon icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></iron-icon>
 											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
 												<div class="img-container">
 													<img src$="[[item.dataUrl]]">
@@ -401,27 +406,18 @@
 												<pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
 											</template>
 											<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-												<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[item.name]] [[mimeType(item.mainUti)]] [[type]]</span>
-												<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
-												<vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+												<div>
+													<span>[[mimeType(item.mainUti)]] [[type]]</span>
+													<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
+													<vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+												</div>
+												<template is="dom-if" if="[[showDetail]]">
+													[[documentAttachment]]
+												</template>
 											</template>
-									</paper-card>
+										</paper-card>
 									</template>
 								</template>
-
-								<!--<template is="dom-if" if="[[msg.annex.length]]">-->
-									<!--<vaadin-grid id="msgAnnexesList" items="[[msg.annex]]">-->
-										<!--<vaadin-grid-column>-->
-											<!--<template class="header">-->
-												<!--<div>Name</div>-->
-											<!--</template>-->
-											<!--<template>-->
-												<!--<div class="cell frozen">[[item.name]]</div>-->
-											<!--</template>-->
-										<!--</vaadin-grid-column>-->
-									<!--</vaadin-grid>-->
-								<!--</template>-->
-
 								<div class="del-button">
 									<div>
 										<paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
@@ -476,6 +472,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			selectedDocuments:{
 				type: Object
+			},
+			documentAttachment:{
+				type: String,
+				value: null
+			},
+			showDetail:{
+				type: Boolean,
+				value: false
 			}
 		};
 	}
@@ -497,30 +501,31 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
         	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
-				.then(docs => {
-				if(docs.length) {
-					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys).map(doc =>
-						this.api.document().getAttachment(doc.id, doc.attachmentId, doc.secretForeignKeys).then(a =>
-							this.getDataUrls(doc)
+				.then(docs => { if(docs.length) {
+					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+						.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, doc.secretForeignKeys)
+							.then(a =>
+								this.getDataUrls(doc)
 								.then(dataUrl => {
 									doc.dataUrl = dataUrl;
 									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
+									else this.set('documentAttachment', a);
 									return doc
 								})
-						)
+							)
 					)
 				}
 
 	    	}).then(docs =>{
 	    		if(docs && docs.length){
                     Promise.all(docs).then(docs=>{
-                        this.set('messages', [tempSelect])
+                        this.set('messages', [tempSelect]);
                         this.set("selectedDocuments", docs);
                         this.getChildren(tempSelect.id)
                     })
 				}
 				else{
-					this.set('messages', [tempSelect])
+					this.set('messages', [tempSelect]);
 					this.set("selectedDocuments", []);
 					this.getChildren(tempSelect.id)
                 }
@@ -555,7 +560,14 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 								this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
 									this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
 										let xml = XML.parseXml(att);
-										if(xml.kmehrmessage){this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);}else{this.set("type","Non Valid Type")}
+										if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+											xml.kmehrmessage.header.standard.specialisation &&
+											xml.kmehrmessage.header.standard.specialisation.cd &&
+											xml.kmehrmessage.header.standard.specialisation.cd.S){
+											this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+										}else{
+											this.set("type","Non Valid Type")
+										}
 									})
 									: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
 							);
@@ -597,6 +609,48 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_timeFormat(date) {
 		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
+	}
+
+	_download(e){
+		let dataUrl = e.target.getAttribute('dataUrl');
+		let name = e.target.getAttribute('name');
+
+		if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+
+		console.log("annexe data");
+		console.log(dataUrl);
+		console.log(name);
+
+		var a = document.createElement('a');
+		a.href = dataUrl;
+		a.target = '_parent';
+		a.download = decodeURIComponent(name);
+
+
+		let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
+
+		htMsgDetail.appendChild(a);
+		a.click();
+		a.parentNode.removeChild(a);
+
+	}
+
+	_getAttachment(){
+		this.showDetail = !this.showDetail
+	}
+
+	importPatient(){
+		this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
+			contacts => {
+				contacts.forEach(contact => {
+					contact.ctcs.forEach(ctc => {
+						this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+							console.log(c)
+							return c
+						});
+					})
+				})
+			})
 	}
 }
 
