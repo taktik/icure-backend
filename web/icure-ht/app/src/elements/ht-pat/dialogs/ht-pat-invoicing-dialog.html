@@ -1682,7 +1682,6 @@
             }
 
             open() {
-
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
@@ -1697,8 +1696,8 @@
                         newInvoice.invoiceDate = moment().format("YYYYMMDD")
                         newInvoice.invoiceReference = ""
                         newInvoice.thirdPartyReference = "0"
-                        newInvoice.invoiceType = "mutualfund"
-                        newInvoice.sentMediumType = "efact"
+                        newInvoice.invoiceType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient"
+                        newInvoice.sentMediumType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest"
                         newInvoice.invoicePeriod = 0
                         newInvoice.longDelayJustification = 0
                         newInvoice.gnotionNihii = ""
