@@ -53,6 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
 <link rel="import" href="../../icpc-styles.html">
+<link rel="import" href="../../scrollbar-style.html">
 
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
@@ -65,7 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<style include="iron-flex iron-flex-alignment"></style>
 		<!--suppress CssUnusedSymbol -->
-		<style include="icpc-styles">
+		<style include="icpc-styles scrollbar-style">
 			:host {
 				height: 100%;
 			}
@@ -86,7 +87,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.zone {
 				height: 100%;
 			}
-
 
 			.padding-0{
 				padding:0;
@@ -115,11 +115,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.first-panel{
-				/*width:20%;
-				height:calc(100% - 64px);*/
 				height:100%;
 				background: var(--app-background-color-dark);
-				/*position:fixed;*/
 				top:64px;
 				left:0;
 				@apply --shadow-elevation-3dp;
@@ -397,7 +394,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.submenus-container{
-				overflow-y: auto;
+				overflow-y: overlay;
 				height: calc(100% - 215px);
 				margin-bottom:16px;
 				border-top: 1px solid rgba(0,0,0,.1);
@@ -683,7 +680,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.contacts-container{
-				overflow-y: auto;
+				overflow-y: overlay;
 				height: calc(100% - 80px);
 				padding-bottom: 32px;
 			}
