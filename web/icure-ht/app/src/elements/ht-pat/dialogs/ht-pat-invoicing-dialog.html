@@ -1682,7 +1682,6 @@
             }
 
             open() {
-
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
@@ -1695,14 +1694,14 @@
                         newInvoice.id = ""
                         newInvoice.invoicingCodes = []
                         newInvoice.invoiceDate = moment().format("YYYYMMDD")
-                        newInvoice.invoiceReference = ""
+                        newInvoice.invoiceReference = null
                         newInvoice.thirdPartyReference = "0"
                         newInvoice.invoiceType = "mutualfund"
                         newInvoice.sentMediumType = "efact"
                         newInvoice.invoicePeriod = 0
                         newInvoice.longDelayJustification = 0
-                        newInvoice.gnotionNihii = ""
-                        newInvoice.internshipNihii = ""
+                        newInvoice.gnotionNihii = null
+                        newInvoice.internshipNihii = null
                         newInvoice.creditNote = 0
                         newInvoice.careProviderType = "persphysician"
 
@@ -1874,8 +1873,8 @@
                                     invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
                                     invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
                                     invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
-                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii
-                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii
+                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
+                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
                                     invoice.creditNote = this.selectedInvoice.creditNote
                                     invoice.careProviderType = this.selectedInvoice.careProviderType
 
@@ -1968,7 +1967,7 @@
                             this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
-                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii,
+                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
                                 this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference)
                         )
                         .then(r => {
@@ -2413,8 +2412,8 @@
                                     invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
                                     invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
                                     invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
-                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii
-                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii
+                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
+                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
                                     invoice.creditNote = this.selectedInvoice.creditNote
                                     invoice.careProviderType = this.selectedInvoice.careProviderType
 
@@ -2587,7 +2586,7 @@
                 if(this.activeNmclItem.qteAll>20)this.set("activeNmclItem.units",34)
 
                 const total = Math.round(this.activeNmclItem.units*0.92*100)/100
-                //entre 1.103 et 1.10 ils ont super mal calculé leur éléments et ils donnent pas la formule.
+                //entre 1.103 et 1.10 ils ont super mal calculé leurs éléments et ils donnent pas la formule.
 
                 const remb = [0.84,1.67,2.51,3.34,4.17,5.01,5.84,6.67,7.51,8.34,9.17,10.01,10.84,11.68,12.51,13.34,14.18,15.01,15.84,16.68,17.51,18.35,19.18,20.01,20.84,21.68,22.51,23.35,24.18,25.01,25.85,26.68,27.51,28.35]
 
@@ -2596,6 +2595,8 @@
 
                 return Math.round(this.activeNmclItem.qteAll*2)
             }
+
+
         }
 
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
