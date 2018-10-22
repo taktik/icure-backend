@@ -107,7 +107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
         <div class="container">
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
-            <ht-msg-menu api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
+            <ht-msg-menu id="msg-menu" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"
                          on-selection-change="handleMenuChange" on-new-msg="_newMsg"></ht-msg-menu>
             <template is="dom-if" if="[[!invoicesLayout]]">
                 <div class="sub-container">
@@ -126,7 +126,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  user="[[user]]"
                                  select-list="[[selectList]]"
                                  invoices-status="[[invoicesStatus]]"
-                                 on-selection-messages-change="handleMessageChange"></ht-msg-invoice>
+                                 on-selection-messages-change="handleMessageChange"
+                                 on-initialize-batch-counter="callInitializeBatchCounter"></ht-msg-invoice>
             </template>
 
         </div>
@@ -212,6 +213,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _newMsg() {
                 this.$['new-msg'].open()
             }
+
+            callInitializeBatchCounter(e){
+                this.shadowRoot.querySelector("#msg-menu").initializeBatchCounter(e)
+            }
+
         }
 
         customElements.define(HtMsg.is, HtMsg)

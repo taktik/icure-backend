@@ -278,7 +278,7 @@
 
             .nmcl-descr {
                 overflow-y: auto;
-                height: 225px
+                height: 332px;
             }
 
             .nmcl-favorite {
@@ -855,30 +855,6 @@
                     </template>
                 </div>
                 <div class="invoice-nomenclature-code">
-                    <template is="dom-if" if="[[!isInvoiceClosed]]">
-                        <div class="nmcl-favorite">
-                            <span>[[localize('fav','Favorites code',language)]]:</span>
-                            <template is="dom-repeat" items="[[favoriteCode]]">
-                                <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
-                                    [[item.code]]
-                                    <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
-                                               on-tap="_deleteFavoriteCode"></iron-icon>
-                                </paper-button>
-                            </template>
-                        </div>
-                        <div class="invoice-nomenclature-code-option">
-                            <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
-                                              item-value-path="id" on-filter-changed="_nmclSearch" on-keydown="isEnterPressed"
-                                              label="[[localize('nmcl','Nomenclature',language)]]"
-                                              value="{{nmcl-value}}" autofocus></vaadin-combo-box>
-                            <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
-                                              item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
-                                              label="[[localize('code_type','Code type',language)]]"
-                                              value="{{selectedMediumCodeType}}"></vaadin-combo-box>
-                            <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
-                            <paper-icon-button icon="icons:star" on-tap="_addFavoriteCode"></paper-icon-button>
-                        </div>
-                    </template>
                     <div class="invoice-nomenclature-code-container">
                         <div class="nmcl-descr">
                             <div class="title">
@@ -993,6 +969,30 @@
                                     </vaadin-grid-column>
                                 </vaadin-grid>
                             </div>
+                            <template is="dom-if" if="[[!isInvoiceClosed]]">
+                                <div class="nmcl-favorite">
+                                    <span>[[localize('fav','Favorites code',language)]]:</span>
+                                    <template is="dom-repeat" items="[[favoriteCode]]">
+                                        <paper-button on-tap="_addNmcl" data-item$="[[item]]" class="nmclFavoriteCode">
+                                            [[item.code]]
+                                            <iron-icon icon="clear" class="clearBtn" data-item$="[[item.id]]"
+                                                       on-tap="_deleteFavoriteCode"></iron-icon>
+                                        </paper-button>
+                                    </template>
+                                </div>
+                                <div class="invoice-nomenclature-code-option">
+                                    <vaadin-combo-box id="nmcl-search" filtered-items="[[nmclListItem]]" item-label-path="descr"
+                                                      item-value-path="id" on-filter-changed="_nmclSearch" on-keydown="isEnterPressed"
+                                                      label="[[localize('nmcl','Nomenclature',language)]]"
+                                                      value="{{nmcl-value}}" autofocus></vaadin-combo-box>
+                                    <vaadin-combo-box id="code-type" filtered-items="[[sentMediumType]]"
+                                                      item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
+                                                      label="[[localize('code_type','Code type',language)]]"
+                                                      value="{{selectedMediumCodeType}}"></vaadin-combo-box>
+                                    <paper-icon-button icon="icons:add-circle-outline" on-tap="_addNmcl"></paper-icon-button>
+                                    <paper-icon-button icon="icons:star" on-tap="_addFavoriteCode"></paper-icon-button>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
