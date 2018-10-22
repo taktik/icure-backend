@@ -60,7 +60,7 @@
             }
 
             #dialog{
-                min-height: 480px;
+                min-height: 600px;
                 min-width: 800px;
             }
 
@@ -117,17 +117,33 @@
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <h3>[[localize('edmg-con','eDmg Consultation',language)]]</h3>
-            <div>
-                <!--TODO: Show patient info -->
-                <!--TODO: Show hcp info -->
-            </div>
+            <h3>[[localize('edmg-con','Dmg Consultation',language)]]</h3>
 
             <div class="edmg-cons">
-                <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
-                <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
-                <paper-button class="action" on-tap="_consultDmg">[[localize('refresh','Refresh',language)]]</paper-button>
-                <!-- TODO: Show consultation result/errors -->
+                <div class="edmg-info">
+                    <template is="dom-if" if="{{!_eDmgRegComplete()}}">
+                        <p>
+                            <template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">
+                                [[_getOARegStatus(reg)]]
+                            </template>
+                        </p>
+                        <!--
+                        <paper-input label="BIC" value="{{userBIC}}"></paper-input>
+                        <paper-input label="IBAN" value="{{userIBAN}}"></paper-input>
+                        <paper-button class="action" on-tap="_registerToEDMG">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button>
+                        -->
+                    </template>
+
+                    <template is="dom-if" if="{{_eDmgRegComplete()}}">
+                        <p>localize('dmg_reg_cpl','e-Dmg registration completed',language)</p>
+                    </template>
+                </div>
+                <div>
+                    <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
+                    <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
+                    <paper-button class="action" on-tap="_consultDmg">[[localize('refresh','Refresh',language)]]</paper-button>
+                </div>
+                <!-- Show consultation result/errors -->
                 <div class="edmg-info">
                     <template is="dom-if" if="{{consultDmgResp}}">
                         <template is="dom-if" if="{{_hasErrors(consultDmgResp.errors)}}">
@@ -143,7 +159,7 @@
                             <template is="dom-if" if="{{consultDmgResp.faultCode}}"><p><b>[[localize('faultCode','faultCode',language)]]:</b>[[consultDmgResp.faultCode]]</p></template>
                         </template>
 
-                        <template is="dom-if" if="{{!_hasDmg(consultDmgResp)}}">
+                        <template is="dom-if" if="{{_hasNoDmg(consultDmgResp)}}">
                             <p><b>[[localize('nam','Name',language)]]:</b> [[patient.firstName]] [[patient.lastName]]</p>
                             <p><b>[[localize('no_dmg','No Dmg',language)]]</b></p>
                         </template>
@@ -165,37 +181,39 @@
                             <p><b>[[_getHcpTypeDesc(consultDmgResp)]]:</b> [[_getHcpNihii(consultDmgResp)]]</p>
                             <p><b>[[localize('from','From',language)]]:</b> [[_dateFormat(consultDmgResp.from, 'DD/MM/YYYY')]]
                                 <b>[[localize('to','To',language)]]:</b> [[_dateFormat(consultDmgResp.to, 'DD/MM/YYYY')]]</p>
-                            <!--_yesOrNo(b)-->
                             <p><b>[[localize('pay','Payment',language)]]:</b> [[_yesOrNo(consultDmgResp.payment)]]</p>
                             <p><b>[[localize('cpl','Complete',language)]]:</b> [[_yesOrNo(consultDmgResp.complete)]]</p>
                         </div>
                         </template>
                     </template>
                 </div>
-                <!-- TODO: Notification input -->
-                <p>[[localize('dmg_not','Dmg Notification',language)]]</p>
-                <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
-                <vaadin-date-picker label="[[localize('prest-dat','Prestation date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
-                <paper-button class="action" on-tap="_dmgNotify">[[localize('dmg_not','Notify',language)]]</paper-button>
-                <!-- TODO: Notification result/errors -->
-                <template is="dom-if" if="{{notifyDmgResp}}">
-                    <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
-                        <p><b>[[localize('err','Error',language)]]:</b><br/>
-                            <template is="dom-repeat" items="[[notifyDmgResp.errors]]" as="error">
-                                <b>[[error.code]]</b> [[_formatError(error)]]<br/>
-                            </template>
-                        </p>
+
+                <!-- Notification input -->
+                <!--<template is="dom-if" if="{{_eDmgRegComplete()}}">-->
+                    <h3>[[localize('dmg_not','Dmg Notification',language)]]</h3>
+                    <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
+                    <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
+                    <paper-button class="action" on-tap="_dmgNotify">[[localize('dmg_not','Notify',language)]]</paper-button>
+                    <!-- TODO: Notification result/errors -->
+                    <template is="dom-if" if="{{notifyDmgResp}}">
+                        <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
+                            <p><b>[[localize('err','Error',language)]]:</b><br/>
+                                <template is="dom-repeat" items="[[notifyDmgResp.errors]]" as="error">
+                                    <b>[[error.code]]</b> [[_formatError(error)]]<br/>
+                                </template>
+                            </p>
+                        </template>
+                        <template is="dom-if" if="{{!_hasErrors(notifyDmgResp.errors)}}">
+                            <template is="dom-if" if="{{notifyDmgResp.hcParty.familyname}}"><p><b>[[localize('nam','Name',language)]]:</b>[[notifyDmgResp.hcParty.firstname]] [[notifyDmgResp.hcParty.familyname]]</p></template>
+                            <template is="dom-if" if="{{notifyDmgResp.hcParty.name}}"><p><b>[[localize('nam','Name',language)]]:</b>[[notifyDmgResp.hcParty.name]]</p></template>
+                            <p><b>[[localize('ssin','SSIN',language)]]:</b> [[_getHcpSinn(notifyDmgResp)]]</p>
+                            <p><b>[[_getHcpTypeDesc(consultDmgResp)]]:</b> [[_getHcpNihii(notifyDmgResp)]]</p>
+                            <p><b>[[localize('from','From',language)]]:</b> [[_dateFormat(notifyDmgResp.from, 'DD/MM/YYYY')]]</p>
+                            <p><b>[[localize('pay','Payment',language)]]:</b> [[_yesOrNo(notifyDmgResp.payment)]]</p>
+                            <p><b>[[localize('cpl','Complete',language)]]:</b> [[_yesOrNo(notifyDmgResp.complete)]]</p>
+                        </template>
                     </template>
-                    <template is="dom-if" if="{{!_hasErrors(notifyDmgResp.errors)}}">
-                        <template is="dom-if" if="{{notifyDmgResp.hcParty.familyname}}"><p><b>[[localize('nam','Name',language)]]:</b>[[notifyDmgResp.hcParty.firstname]] [[notifyDmgResp.hcParty.familyname]]</p></template>
-                        <template is="dom-if" if="{{notifyDmgResp.hcParty.name}}"><p><b>[[localize('nam','Name',language)]]:</b>[[notifyDmgResp.hcParty.name]]</p></template>
-                        <p><b>[[localize('ssin','SSIN',language)]]:</b> [[_getHcpSinn(notifyDmgResp)]]</p>
-                        <p><b>[[_getHcpTypeDesc(consultDmgResp)]]:</b> [[_getHcpNihii(notifyDmgResp)]]</p>
-                        <p><b>[[localize('from','From',language)]]:</b> [[_dateFormat(notifyDmgResp.from, 'DD/MM/YYYY')]]</p>
-                        <p><b>[[localize('pay','Payment',language)]]:</b> [[_yesOrNo(notifyDmgResp.payment)]]</p>
-                        <p><b>[[localize('cpl','Complete',language)]]:</b> [[_yesOrNo(notifyDmgResp.complete)]]</p>
-                    </template>
-                </template>
+                <!--</template>-->
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
                 </div>
@@ -212,6 +230,8 @@
 
     </template>
     <script>
+        import * as models from 'icc-api/dist/icc-api/model/models';
+
         class HtPatEdmgDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
                 return 'ht-pat-edmg-dialog';
@@ -333,6 +353,30 @@
                     edmgAFF:{
                         type: String,
                         value: null
+                    },
+                    listOAs: {
+                        type: Array,
+                        value: ['100','200','300','400','500','600','900']
+                    },
+                    regStatus:{
+                        type: Object,
+                        value: null
+                    },
+                    allEDmgRegistered:{
+                        type: Boolean,
+                        value: false
+                    },
+                    currentRegs:{
+                        type: Object,
+                        value : null
+                    },
+                    userIBAN: {
+                        type: String,
+                        value: null
+                    },
+                    userBIC: {
+                        type: String,
+                        value: null
                     }
                 };
             }
@@ -359,6 +403,23 @@
                 // this.set('qrCodeWidth', Math.min(offsetWidth - 32, offsetHeight - 160));
             }
 
+            getBankInfo()
+            {
+                const propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC') ||
+                    (this.user.properties[this.user.properties.length] = {
+                        type: {identifier: 'org.taktik.icure.user.BIC'},
+                        typedValue: {type: 'STRING', stringValue: ''}
+                    });
+                this.set('userBIC', propBIC.typedValue.stringValue);
+
+                const propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN') ||
+                    (this.user.properties[this.user.properties.length] = {
+                        type: {identifier: 'org.taktik.icure.user.IBAN'},
+                        typedValue: {type: 'STRING', stringValue: ''}
+                    });
+                this.set('userIBAN', propIBAN.typedValue.stringValue);
+            }
+
             _hasErrors(errs){
                 return errs && errs.length > 0;
                 //return true;
@@ -371,6 +432,11 @@
             _hasDmg(edmgConsult){
                 return edmgConsult && edmgConsult.from
             }
+
+            _hasNoDmg(edmgConsult){
+                return !this._hasDmg(edmgConsult) && !this._hasErrors(edmgConsult.errors)
+            }
+
 
             _yesOrNo(b){
                 return b ? this.localize('yes','yes',this.language) : this.localize('no','no',this.language)
@@ -404,8 +470,101 @@
                 }
             }
 
-            _dmgNotify(){
-                this.getDmgNotifyResult().then(edmgresp => this.set('notifyDmgResp', edmgresp))
+            _getOARegStatus(reg){
+                if (reg) {
+                    return reg.Registered ? reg.OA + ':OK ' : reg.OA + ':NOK ';
+                } else {
+                    return ''
+                }
+            }
+
+            _registerToEDMG(){
+                //100,200,300,400,500,600,900
+                let regs = this.getRegistrationStatus();
+                regs.rs.map(reg =>{
+                    if(!reg.Registered) {
+                        this.registerToEDMGbyOA(reg).then(reg =>{
+                            const idx = regs.rs.findIndex(r => r.OA === reg.OA);
+                            if(idx >= 0){
+                                regs.rs.splice(idx, 1, reg);
+                            } else {
+                                regs.rs.push(reg);
+                            }
+                            this.set('regStatus',JSON.stringify(regs));
+                        })
+                    }
+                })
+            }
+
+            getRegistrationStatus(){
+
+                const propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus') ||
+                    (this.user.properties[this.user.properties.length] = {
+                        type: {identifier: 'org.taktik.icure.user.eDMG.RegistrationStatus'},
+                        typedValue: {type: 'JSON', stringValue: '{\"rs\":[]}'}
+                    });
+                //'{"rs":[{"OA":"100","Comment":"","ErrorCode":""}]}'
+
+                let OAStatus = {};
+                if(propRegStatus && propRegStatus.typedValue) {
+                    OAStatus = JSON.parse(propRegStatus.typedValue.stringValue);
+                }
+                let regs = new models.ListOfIdsDto({rs: OAStatus.rs.map(r => r)}) || [];
+                this.listOAs.map(itOA => {
+                    let reg = regs.rs.find(r => r.OA === itOA) || {OA : itOA, Registered: false, lastExecution: null, Comment : '', ErrorCode :  ''};
+                    const idx = regs.rs.findIndex(r => r.OA === itOA);
+                    if(idx >= 0){
+                        regs.rs.splice(idx, 1, reg);
+                    } else {
+                        regs.rs.push(reg);
+                    }
+                })
+                const unreg = regs.rs.find(r => r.Registered === false);
+                this.set('allEDmgRegistered', unreg ? false : true);
+                this.set('currentRegs', regs);
+                let mytest = JSON.stringify(regs);
+                return regs;
+            }
+
+            registerToEDMGbyOA(reg){
+                if (this.api.tokenId) {
+
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
+                                    this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, this.userBIC, this.userIBAN);
+                            }
+                        ).then(regResp => {
+                                if (regResp) {
+                                    reg.Registered = true;
+                                    reg.lastExecution = (new Date).getTime();
+                                    reg.response = JSON.stringify(regResp);
+                                    return reg;
+                                } else {
+                                    reg.Registered = true;
+                                    reg.lastExecution = (new Date).getTime();
+                                    reg.response = 'empty';
+                                    return reg;
+                                }
+                            }
+                        ).catch(function(error) {
+                                reg.Comment = 'exception caugh:' + error;
+                                reg.response = JSON.stringify(error);
+                                reg.lastExecution = (new Date).getTime();
+                                return reg;
+                            }
+                        )
+                } else {
+                    reg.Comment = 'err: no tokenid';
+                    return reg;
+                }
+            }
+
+
+            _eDmgRegComplete(){
+                //TODO: detect if eDMG registration succeeded for al OA
+                return false//this.allEDmgRegistered;
             }
 
             isEven(n) {
@@ -427,6 +586,10 @@
                     return '';
                 }
 
+            }
+
+            _dmgNotify(){
+                this.getDmgNotifyResult().then(edmgresp => this.set('notifyDmgResp', edmgresp))
             }
 
             //xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
@@ -577,9 +740,10 @@
                 this.set('consultEnd', null);
                 this.set('consultDmgResp', null);
                 this.set('notifyDmgResp', null);
-
+                this.getRegistrationStatus();
                 this.$.dialog.open();
-                _this._consultDmg();
+                this.getBankInfo();
+                this._consultDmg();
             }
 
             close() {
