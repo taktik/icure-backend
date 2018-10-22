@@ -139,7 +139,12 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
         return patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId);
     }
 
-	@Override
+    @Override
+    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth) {
+        return patientDAO.listByHcPartyNameOrBirthday(searchString, healthcarePartyId, dateOfBirth);
+    }
+
+    @Override
 	public List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId) {
 		return patientDAO.listIdsByHcPartyAndExternalId(externalId, healthcarePartyId);
 	}

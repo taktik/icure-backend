@@ -389,4 +389,12 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	public List<String> listIdsByHcPartyAndSsins(Collection<String> ssins, String healthcarePartyId) {
 		return listIdsForSsins(ssins, healthcarePartyId, "by_hcparty_ssin");
 	}
+
+    @Override
+    @View(name = "by_hcparty_contains_name_or_birthday", map = "classpath:js/patient/By_hcparty_contains_name_or_birthday_map.js")
+    public List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth) {
+        String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
+        ViewQuery viewQuery = createQuery("by_hcparty_contains_name_or_birthday").startKey(ComplexKey.of(healthcarePartyId, name, dateOfBirth)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0", dateOfBirth == null ? 0 : dateOfBirth)).includeDocs(false);
+        return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
+    }
 }

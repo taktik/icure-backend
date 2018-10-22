@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao;
 
+import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Patient;
@@ -74,4 +75,6 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, PaginationOffset<Long> paginationOffset);
 
 	List<String> listIdsByHcPartyAndSsins(Collection<String> ssins, String healthcarePartyId);
+
+    List<String> listByHcPartyNameOrBirthday(String searchString, String healthcarePartyId, Integer dateOfBirth);
 }
