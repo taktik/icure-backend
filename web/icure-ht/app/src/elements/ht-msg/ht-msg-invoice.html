@@ -295,6 +295,7 @@
                     height: 50%;
                     opacity: 0;
                     transition: all .75s ease-out;
+                    overflow-y: scroll;
                 }
                 .invoiceDetailContainer.open {
                     opacity: 1;
@@ -351,10 +352,17 @@
                     background: grey;
                 }
 
+                .rejectionReason-col{
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    max-width: 100%;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <div class="invoice-status">
+            <div id="batchStatus" class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
             </div>
             <template is="dom-if" if="[[statusPending]]">
@@ -866,7 +874,7 @@
                                 <vaadin-grid id="invoiceGridDetail" items="[[invoicesFromBatch]]" active-item="{{activeDetailGridItem}}" on-tap="">
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="invoiceReference">N° facture</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="invoiceReference">N° fact.</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.invoiceReference]]</template>
                                     </vaadin-grid-column>
@@ -878,41 +886,44 @@
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="ssin">N° niss</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="ssin">Niss</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.ssin]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="invoicingCode">Nomenclature</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="invoicingCode">Nmcl</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.invoicingCode]]</template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column class="recipient-col">
                                         <template class="header">
-                                            <vaadin-grid-sorter path="invoiceDate">Date de la prestation</vaadin-grid-sorter>
+                                            <vaadin-grid-sorter path="invoiceDate">Date presta.</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.invoiceDate]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column class="recipient-col">
-                                        <template class="header">
-                                            <vaadin-grid-sorter path="invoicedAmount">Montant facturé</vaadin-grid-sorter>
-                                        </template>
-                                        <template>[[item.invoicedAmount]]</template>
-                                    </vaadin-grid-column>
-                                    <vaadin-grid-column class="recipient-col">
-                                        <template class="header">
-                                            <vaadin-grid-sorter path="acceptedAmount">Montant accepté</vaadin-grid-sorter>
-                                        </template>
-                                        <template>[[item.acceptedAmount]]</template>
-                                    </vaadin-grid-column>
-                                    <vaadin-grid-column class="recipient-col">
-                                        <template class="header">
-                                            <vaadin-grid-sorter path="refusedAmount">Montant refusé</vaadin-grid-sorter>
-                                        </template>
-                                        <template>[[item.refusedAmount]]</template>
-                                    </vaadin-grid-column>
-                                    <vaadin-grid-column class="recipient-col">
+                                    <vaadin-grid-column-group>
+                                        <template class="header hasBorder">Montant</template>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="invoicedAmount">Facturé</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.invoicedAmount]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="acceptedAmount">Accepté</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.acceptedAmount]]</template>
+                                        </vaadin-grid-column>
+                                        <vaadin-grid-column class="recipient-col">
+                                            <template class="header">
+                                                <vaadin-grid-sorter path="refusedAmount">Refusé</vaadin-grid-sorter>
+                                            </template>
+                                            <template>[[item.refusedAmount]]</template>
+                                        </vaadin-grid-column>
+                                    </vaadin-grid-column-group>
+                                    <vaadin-grid-column class="rejectionReason-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="rejectionReason">Motif de rejet</vaadin-grid-sorter>
                                         </template>
@@ -1292,25 +1303,45 @@
                                             const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
                                             const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
+
+                                            // STATUS_SUBMITTED 				= 1 << 8; envoyé
+                                            // STATUS_RECEIVED 				    = 1 << 9; ta ck reçu
+                                            // STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; 93100
+                                            // STATUS_ACCEPTED 				    = 1 << 11; 92098 / 920900
+                                            // STATUS_REJECTED 				    = 1 << 12; 920999 / 920909
+
+                                            // STATUS_TACK 					    = 1 << 13;
+                                            // STATUS_MASKED 					= 1 << 14;
+
+                                            // STATUS_SUCCESS 					= 1 << 15;
+                                            // STATUS_WARNING 					= 1 << 16; Partiellement accepte
+                                            // STATUS_ERROR 					= 1 << 17;
+
                                             let invoiceStatus
+                                            let rejectionReason
                                             if (zone200 && zone300) {
                                                 const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
 
                                                 switch (invoiceType) {
-                                                    case '920999' :
-                                                        invoiceStatus = "Rejected"
+                                                    case "920999" :
+                                                        invoiceStatus = "Rejected";
+                                                        rejectionReason = "Blocking error";
                                                         break
                                                     case '920099' :
-                                                        invoiceStatus = "Rejected"
+                                                        invoiceStatus = "Rejected";
+                                                        invoiceStatus = "More than 5% error";
                                                         break
                                                     case '931000' :
-                                                        invoiceStatus = "Pending"
+                                                        invoiceStatus = "Pending";
+                                                        invoiceStatus = "Acknowledgment of receipt";
                                                         break
                                                     case '920098' :
-                                                        invoiceStatus = "Accepted"
+                                                        invoiceStatus = "Accepted";
+                                                        rejectionReason = "";
                                                         break
                                                     case '920900' :
-                                                        invoiceStatus = "Accepted"
+                                                        invoiceStatus = "Accepted";
+                                                        rejectionReason = "";
                                                         break
                                                     default :
                                                         invoiceStatus = ""
@@ -1333,7 +1364,7 @@
                                                         acceptedAmount: zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
                                                         refusedAmount: zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
                                                         invoiceStatus: invoiceStatus,
-                                                        rejectionReason: "",
+                                                        rejectionReason: rejectionReason,
                                                         paymentReference: zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
                                                         paymentDate: "",
                                                         amountPaid: "0.00",
@@ -1448,10 +1479,9 @@
 
             _displayInvoiceStatus(status){
 
-               // envoyé => findMessagesByTransportGuid efactBatch
+               return this.localize(status, this.language)
 
-
-                return status
+                //this.shadowRoot.getElementById("batchStatus").classList.add("")
             }
 
             returnDate(dateAsLong){
@@ -1990,11 +2020,11 @@
             extractErrorMessage(errorDetail) {
                 const e = errorDetail
                 return e &&
-                (e.rejectionCode1 ||
+                ((e.rejectionCode1 && e.rejectionCode1 !== "000000") ||
                     e.rejectionDescr1 ||
-                    e.rejectionCode2 ||
+                    (e.rejectionCode2 && e.rejectionCode2 !== "000000") ||
                     e.rejectionDescr2 ||
-                    e.rejectionCode3 ||
+                    (e.rejectionCode3 && e.rejectionCode3 !== "000000") ||
                     e.rejectionDescr3)
                     ? _.compact([
                         e.rejectionCode1 || (e.rejectionDescr1 && e.rejectionDescr1.trim().length)
@@ -2006,7 +2036,7 @@
                         e.rejectionCode3 || (e.rejectionDescr3 && e.rejectionDescr3.trim().length)
                             ? `${e.rejectionCode3 || "XXXXXX"}: ${e.rejectionDescr3 || "-"}`
                             : null
-                    ]).join(",") : null
+                    ]) : null
             }
 
 
@@ -2043,7 +2073,13 @@
                         .then((docs) => Promise.all(_.flatMap(docs).filter(d => !_.endsWith(d.name, '_parsed_records') && _.endsWith(d.name, '_records') && d.mainUti === "public.json").map(d => this.api.document().getAttachment(d.id, d.attachmentId))))
                         .then((attachs) => {
                             attachs.forEach( a => {
-                                if (typeof a === "string") { try { a = JSON.parse(a) } catch (ignored) {}; return }
+                                if (typeof a === "string"){
+                                    try {
+                                        let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
+                                        readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
+                                        a = JSON.parse(readyToParse)
+                                    } catch (ignored) {}
+                                }
 
                                 const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
                                 const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
@@ -2067,12 +2103,15 @@
                                 let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones),
                                     zone400 && this.SEG_getErrSegment_400(zone400.zones),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones)].concat(a.map(r=>r.errorDetail && this.extractErrorMessage(r.errorDetail))).filter(x => x && x.length)).join(";")
+                                    zone500 && this.SEG_getErrSegment_500(zone500.zones)]
+                                    .concat(a.map(r=> r.errorDetail && this.extractErrorMessage(r.errorDetail))).filter(x => x && x.length))
 
                                 this.set('invoicesFromBatch', _.clone(this.invoicesFromBatch.map(i=>{
-                                    i.rejectionReason = i.rejectionReason && i.rejectionReason.length ? i.rejectionReason : globalError;
+                                    i.rejectionReason = i.rejectionReason && i.rejectionReason.length ? i.rejectionReason : _.flatten(globalError);
                                     return i
                                 })))
+
+                                console.log(this.invoicesFromBatch)
 
                             })
                         })
@@ -2136,8 +2175,8 @@
                             const responses = chunk.filter(x => x && x.detail)
 
                             sprom = sprom
-                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
-                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                                //.then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
+                                //.then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
                         })
                         return sprom
                     })
@@ -2162,7 +2201,7 @@
             }
 
             initializeBatchCounter(processedCounter, accpetedCounter, rejectedCounter){
-                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { pending: 0, processing: processedCounter, rejected: rejectedCounter, accepted: accpetedCounter, archived: 0} }));
+                this.dispatchEvent(new CustomEvent('initialize-batch-counter', { bubbles: true, composed: true, detail: { pending: this.selectedPendingInvoices.length ? this.selectedPendingInvoices.length : 0, processing: processedCounter, rejected: rejectedCounter, accepted: accpetedCounter, archived: 0} }));
             }
 
         }
