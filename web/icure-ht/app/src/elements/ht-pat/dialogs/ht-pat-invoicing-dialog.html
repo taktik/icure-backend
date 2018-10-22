@@ -2108,39 +2108,67 @@
             }
 
             _createInvoice() {
-
-                this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
-
-                if(this.selectedInvoice.creditNote){
+                if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
-                    this.selectedInvoice.invoicingCodes.map(invoiceCode =>{
-                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".reimbursement",0-invoiceCode.reimbursement)
-                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".patientIntervention",0-invoiceCode.patientIntervention)
-                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".doctorSupplement",0-invoiceCode.doctorSupplement)
-                        this.set("selectedInvoice.invoicingCodes."+this.selectedInvoice.invoicingCodes.indexOf(invoiceCode)+".totalAmount",0-invoiceCode.totalAmount)
+                    this.selectedInvoice.invoicingCodes.map(invoiceCode => {
+                        this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".reimbursement", 0 - invoiceCode.reimbursement)
+                        this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".patientIntervention", 0 - invoiceCode.patientIntervention)
+                        this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".doctorSupplement", 0 - invoiceCode.doctorSupplement)
+                        this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".totalAmount", 0 - invoiceCode.totalAmount)
 
                     })
                 }
-                //return;
-                this.api.entityRef().getLatest("Invoice::").then(latest => {
-                    console.log(latest)
-                    const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
-                    const newReference = Number(lastReference) + 1
+                this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
+                let eattest={};
+                if(this.selectedInvoice.sentMediumType==="efact"){
+                    this.api.entityRef().getLatest("Invoice::").then(latest => {
+                        console.log(latest)
+                        const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
+                        const newReference = Number(lastReference) + 1
 
-                    this.set("selectedInvoice.invoiceReference", newReference)
-                    this.api.invoice().modifyInvoice(this.selectedInvoice)
-                        .then(invoice => this.api.register(invoice,'invoice'))
-                        .then(invoice => this.api.entityRef().createEntityReference({docId: invoice.id, id: "Invoice::"+newReference})
-                        .then( () => {
-                            console.log(invoice)
-                            this.set('selectedInvoice', invoice)
-                            this._selectInvoice(invoice.id)
-                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                this.set('invoices', invoices)
-                                this.generateJustificatory()
+                        this.set("selectedInvoice.invoiceReference", newReference)
+                        this.api.invoice().modifyInvoice(this.selectedInvoice)
+                            .then(invoice => this.api.register(invoice, 'invoice'))
+                            .then(invoice => this.api.entityRef().createEntityReference({
+                                docId: invoice.id,
+                                id: "Invoice::" + newReference
                             })
-                        }))
-                })
+                            .then(() => {
+                                console.log(invoice)
+                                this.set('selectedInvoice', invoice)
+                                this._selectInvoice(invoice.id)
+                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                    this.set('invoices', invoices)
+                                    this.generateJustificatory()
+                                })
+                            }))
+                    })
+                }else if(this.selectedInvoice.sentMediumType==="eattest"){
+                    eattest = {codes : []};
+                    this.selectedInvoice.invoicingCodes.map(code =>{
+                        eattest.codes.push({
+                            cardReading : models.EattestCardReading,
+                            date : code.dateCode,
+                            doctorSupplement : code.doctorSupplement,
+                            fee : number,
+                            gmdManager : models.EattestHcParty,
+                            internship : models.EattestHcParty,
+                            location : models.EattestHcParty,
+                            norm : code.prescriberNorm,
+                            quantity : code.units,
+                            reglementarySupplement : code.patientIntervention,
+                            reimbursement: code.reimbursement,
+                            relativeService : string,
+                            requestor : models.EattestRequestor,
+                            riziv : code.code
+                        })
+                    })
+                    console.log(this.selectedInvoice)
+                    /*this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,this.selectedInvoice.printedDate)
+                    .then(response =>{
+
+                    })*/
+                }
             }
 
             _invoicingCodeChange() {
