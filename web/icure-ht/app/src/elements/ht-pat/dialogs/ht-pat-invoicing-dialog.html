@@ -740,6 +740,80 @@
                 flex: auto;
             }
 
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+
+            .he-edit-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                color: var(--app-text-color-light);
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .he-edit-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
 
         </style>
 
@@ -767,6 +841,16 @@
                                         </template>
                                         <template is="dom-if" if="[[_ifStatusDateExist(item.sentDate)]]">
                                             <iron-icon icon="vaadin:paperplane" class="invoiceDateInfoIcon"></iron-icon> <span>[[_formatInvoiceDate(item.sentDate)]]</span>
+                                        </template>
+                                        <template is="dom-if" if="[[_ifEattestSaved(item)]]">
+                                            <div class="he-edit-btn-container">
+                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-right" on-tap="_toggleEditHE"></paper-icon-button>
+                                                <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog"></paper-icon-button>
+                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicateEattest"></paper-icon-button>
+                                                <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
@@ -2689,6 +2773,33 @@
                     .then(response =>{
                         console.log(response)
                     })
+            }
+
+            _ifEattestSaved(item){
+                return item.printedDate && item.sentMediumType==="eattest"
+            }
+
+            _toggleEditHE(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                let parentElement = e.target.parentElement;
+                if (parentElement.classList.contains('open')) {
+                    parentElement.classList.remove('open')
+                } else {
+                    parentElement.classList.add('open');
+                    setTimeout(() => parentElement.classList.remove('open'), 4000);
+                }
+            }
+
+            openXmlDialog(e){
+                e.stopPropagation();
+                e.preventDefault();
+            }
+
+            duplicateEattest(e){
+                e.stopPropagation();
+                e.preventDefault();
             }
         }
 
