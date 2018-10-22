@@ -1,9 +1,10 @@
 function isInvoiceUnsent(doc) {
-  if(!!doc.sentDate) return false;
-  doc.invoicingCodes.forEach(function(code){
-    if(code.pending || code.canceled || code.accepted || code.resent) return false;
-  });
-  return true;
+    if(!!doc.sentDate) return false;
+    var result = true;
+    doc.invoicingCodes.forEach(function(code){
+        if(code.pending || code.canceled || code.accepted || code.resent) result = false;
+    });
+    return result;
 }
 
 map = function (doc) {
