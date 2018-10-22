@@ -2128,56 +2128,34 @@
                 }
 
                 this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
-                let eattest={};
-                if(this.selectedInvoice.sentMediumType==="efact"){
-                    this.api.entityRef().getLatest("Invoice::").then(latest => {
-                        console.log(latest)
-                        const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
-                        const newReference = Number(lastReference) + 1
 
-                        this.set("selectedInvoice.invoiceReference", newReference)
-                        this.api.invoice().modifyInvoice(this.selectedInvoice)
-                            .then(invoice => this.api.register(invoice, 'invoice'))
-                            .then(invoice => this.api.entityRef().createEntityReference({
-                                docId: invoice.id,
-                                id: "Invoice::" + newReference
-                            })
-                            .then(() => {
-                                console.log(invoice)
-                                this.set('selectedInvoice', invoice)
-                                this._selectInvoice(invoice.id)
-                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                    this.set('invoices', invoices)
-                                    this.generateJustificatory()
-                                })
-                            }))
-                    })
-                }else if(this.selectedInvoice.sentMediumType==="eattest"){
-                    eattest = {codes : []};
-                    this.selectedInvoice.invoicingCodes.map(code =>{
-                        eattest.codes.push({
-                            cardReading : models.EattestCardReading,
-                            date : code.dateCode,
-                            doctorSupplement : code.doctorSupplement,
-                            fee : number,
-                            gmdManager : models.EattestHcParty,
-                            internship : models.EattestHcParty,
-                            location : models.EattestHcParty,
-                            norm : code.prescriberNorm,
-                            quantity : code.units,
-                            reglementarySupplement : code.patientIntervention,
-                            reimbursement: code.reimbursement,
-                            relativeService : string,
-                            requestor : models.EattestRequestor,
-                            riziv : code.code
+                this.api.entityRef().getLatest("Invoice::").then(latest => {
+                    console.log(latest)
+                    const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
+                    const newReference = Number(lastReference) + 1
+
+                    this.set("selectedInvoice.invoiceReference", newReference)
+                    this.api.invoice().modifyInvoice(this.selectedInvoice)
+                        .then(invoice => this.api.register(invoice, 'invoice'))
+                        .then(invoice => this.api.entityRef().createEntityReference({
+                            docId: invoice.id,
+                            id: "Invoice::" + newReference
                         })
-                    })
-                    console.log(this.selectedInvoice)
-                    /*this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,this.selectedInvoice.printedDate)
-                    .then(response =>{
+                        .then(() => {
+                            console.log(invoice)
+                            this.set('selectedInvoice', invoice)
+                            this._selectInvoice(invoice.id)
+                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                this.set('invoices', invoices)
 
-                    })*/
-                }
+                                if(this.selectedInvoice.sentMediumType==="efact"){
+                                    this.generateJustificatory()
+                                }else if(this.selectedInvoice.sentMediumType==="eattest"){
+                                    this.sendEattest();
+                                }
+                            })
+                        }))
+                })
             }
 
             _invoicingCodeChange() {
@@ -2658,7 +2636,60 @@
                 return Math.round(this.activeNmclItem.qteAll*2)
             }
 
+            sendEattest(){
+                let eattest = {codes : []};
+                this.selectedInvoice.invoicingCodes.map(code =>{
+                    let newCode = {
+                        date : code.dateCode,
+                        doctorSupplement : code.doctorSupplement,
+                        fee : parseFloat(code.totalAmount),
+                        quantity : code.units,
+                        reglementarySupplement : code.patientIntervention,
+                        reimbursement: code.reimbursement,
+                        requestor : {
+                            date: this.selectedInvoice.invoiceDate ,
+                            hcp: {
+                                cdHcParty: "persphysician",
+                                firstName: this.hcp[0].firstName,
+                                idHcParty: this.hcp[0].nihii,
+                                idSsin: this.hcp[0].ssin,
+                                lastName: this.hcp[0].lastName
+                            }
+                        },
+                        riziv : code.code
+                    }
 
+                    if(code.relatedCode){
+                        newCode.relativeService = code.relatedCode;
+                    }
+                    if(this.selectedInvoice.gnotionNihii){
+                        newCode.gmdManager={
+                            cdHcParty: null,
+                            firstName: null,
+                            idHcParty: this.selectedInvoice.gnotionNihii,
+                            idSsin: null,
+                            lastName: null
+                        }
+                    }
+
+                    if(this.selectedInvoice.internshipNihii){
+                        newCode.internship={
+                            cdHcParty: "traineeDoctor",
+                            firstName: null,
+                            idHcParty: this.selectedInvoice.internshipNihii,
+                            idSsin: null,
+                            lastName: null
+                        }
+                    }
+
+                    eattest.codes.push(newCode)
+                })
+                console.log(eattest)
+                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
+                    .then(response =>{
+                        console.log(response)
+                    })
+            }
         }
 
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
