@@ -727,11 +727,18 @@
 
             _requestChapter4() {
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
-                        "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                        this.checkedVerses.join(','), this.appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
+                    Promise.all(this.appendicesTokens.map(ap =>
+                        this.api.document().getDocument(ap.id)
+                            .then(doc => {
+                                return this.api.document().getAttachment(doc.id, doc.attachmentId).then(a => ({verseSeq: ap.verseSeq, documentSeq: ap.documentSeq, data:a, mimeType:'application/pdf', path:a.name}))
+                        }))
+                    ).then(appendices => {
+                        this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                            this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
+                            "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
+                            this.checkedVerses.join(','), appendices, this.incomplete, this.api.moment(fromAsString).valueOf())
+                    })
                 ).then(res => {
                     this.set('agreementResponse',res)
                     this.set('tabs',1)
@@ -742,6 +749,10 @@
                 })
             }
 
+            _annexBaseName(addedDoc) {
+                return `${this.paragraph.paragraphName}_${this.paragraph.paragraphVersion}_${addedDoc.verseSeq}_${addedDoc.documentSeq}_${this.localizeObjectKey(addedDoc, 'descr')}`
+            }
+
             _downloadAnnex(e) {
                 if (e && e.detail && e.detail.value) {
                     const tpl = this.root.querySelector('#annexesDr').modelForElement(e.detail.value)
@@ -750,7 +761,7 @@
                         var a = document.createElement('a')
                         a.href = url
                         a.target = "_blank"
-                        a.download = `${tpl.item.descrFr}.pdf`
+                        a.download = `${this._annexBaseName(tpl.item)}.pdf`
                         document.body.appendChild(a) // we need to append the element to the dom -> otherwise it will not work in firefox
                         a.click()
                         a.remove()  //afterwards we remove the element again
@@ -778,7 +789,8 @@
                 })).then(files => {
                     if (files.length) {
                         vaadinUpload.uploadFiles(files)
-                        files.forEach(f => this.appendicesTokens.map(x=>x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {descr:f.name.replace(/^(.{5})...+(.{5})$/,'$1…$2'), id:f.doc.id}))
+                        const regAnnex = this.annexes.find(a=>f.name.startsWith(this._annexBaseName(a))) || {}
+                        files.forEach(f => this.appendicesTokens.map(x=>x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {descr:f.name.replace(/^(.{5})...+(.{5})$/,'$1…$2'), id:f.doc.id, name:f.name, docSeq: regAnnex.documentSeq, verseSeq: regAnnex.verseSeq}))
                     }
                 });
             }
