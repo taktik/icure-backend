@@ -416,6 +416,8 @@
                                 </div>
                             </page>
                             <page>
+                                <div class="paragraph-content">
+
                                 <template is="dom-if" if="[[agreementResponse]]">
                                 <template is="dom-if" if="[[agreementResponse.acknowledge]]">
                                     <h3>[[localize('the_req_was_suc', 'The request was successfully transmitted to the IO', language)]]</h3>
@@ -478,6 +480,7 @@
                                     <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
                                     <p>commonOutput: [[agreementResponse.commonOutput.commonOutput]]</p>
                                 </template>
+                                </div>
                             </page>
                         </iron-pages>
                         <div class="tool-container">
@@ -645,7 +648,7 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    
+                    this.set('checkedVerses', [])
                     const paragraph = this.selectedParagraph.id.split('/')[0]
                     this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
                         .then(pi => {
@@ -684,11 +687,11 @@
             }
 
             _formatDate(d) {
-                return this.api.moment(d).format('DD/MM/YYYY')
+                return d && this.api.moment(d).format('DD/MM/YYYY')
             }
 
             _formatDateTime(d) {
-                return this.api.moment(d).format('DD/MM/YYYY HH:mm:ss')
+                return d && this.api.moment(d).format('DD/MM/YYYY HH:mm:ss')
             }
 
             _isFrench(language) {
@@ -704,7 +707,7 @@
             }
 
             _mpps(p) {
-                const mpps = this.agreementMpps.find(mpps=>mpps.paragraph===p)
+                const mpps = this.agreementMpps && this.agreementMpps.find(mpps=>mpps.paragraph===p)
                 return mpps && mpps.mpps
             }
 
@@ -721,6 +724,7 @@
                             this.set('errors', agreements.errors.map(w => w.msgFr).join(', '))
                         }
                         console.log(agreements)
+                    
                     }
                 )
             }
@@ -729,23 +733,31 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     Promise.all(this.appendicesTokens.map(ap =>
                         this.api.document().getDocument(ap.id)
-                            .then(doc => {
-                                return this.api.document().getAttachment(doc.id, doc.attachmentId).then(a => ({verseSeq: ap.verseSeq, documentSeq: ap.documentSeq, data:a, mimeType:'application/pdf', path:a.name}))
-                        }))
-                    ).then(appendices => {
+                            .then(doc =>
+                                this.api.document().getAttachment(doc.id, doc.attachmentId)
+                            ).then(a => ({
+                                verseSeq: ap.verseSeq,
+                                documentSeq: ap.documentSeq,
+                                data: a,
+                                mimeType: 'application/pdf',
+                                path: a.name
+                            })
+                        ))
+                    ).then(appendices =>
                         this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                             this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
                             "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
                             this.checkedVerses.join(','), appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
-                    })
+                    )
                 ).then(res => {
                     this.set('agreementResponse',res)
                     this.set('tabs',1)
 
-                    return Promise.all((res.transactions||[]).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({paragraph: t.paragraph, mpps: it})))).then( links =>
+                        /*
+                    return Promise.all(((res||{}) && res.transactions||[]).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({paragraph: t.paragraph, mpps: it})))).then( links =>
                         this.set('agreementMpps', links)
-                    )
+                    )*/
                 })
             }
 
