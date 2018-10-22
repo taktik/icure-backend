@@ -291,6 +291,11 @@
             return e[lng] || e.fr || e.en || e.nl;
         }
 
+        iban(){
+            let iban = require('iban')
+            return iban;
+        }
+
         //Convenience methods for dates management
         after(d1, d2) {
             return d1 === null || d2 === null || d1 === undefined || d2 === undefined || this.moment(d1).isAfter(this.moment(d2));
@@ -388,6 +393,17 @@
                 current = (reg.entities[entity.id] = entity)
             }
             return current
+        }
+
+        pdfReport(html) {
+            return fetch("https://report.icure.cloud/pdf", {
+                method: "POST",
+                mode: "cors", // no-cors, cors, *same-origin
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: { "Content-Type": "text/html; charset=utf-8", },
+                redirect: "follow",
+                body: html,
+            }).then(response => response.arrayBuffer())
         }
     }
 

@@ -181,8 +181,7 @@
                 </paper-input-container>
             </template>
             <div class$="grid-container [[_noGridClass(medicationType)]]">
-                <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-
+                <paper-input id="filter" label="Search a medicine" value="{{filterValue}}" on-keydown="refresh"></paper-input>
                 <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                         <vaadin-grid-column width="[[_columnWidth(column)]]">
@@ -259,7 +258,10 @@
                         value: null,
                         notify: true
                     },
-
+                    filterValue: {
+                        type: String,
+                        value: ''
+                    }
                 }
             }
 
@@ -495,6 +497,8 @@
             }
 
             confirm() {
+                this.set('filterValue','')
+                this.set('medicationType','medicinalProduct')
                 if (this.compoundPrescriptionText) {
                     this.select({name: this.compoundPrescriptionText})
                 } else if (this.selectedMedicationFromList) {
@@ -503,13 +507,17 @@
             }
 
             skip() {
+                this.set('filterValue','')
+                this.set('medicationType','medicinalProduct')
+                this.$['entities-list'].clearCache();
             }
 
             close() {
                 if (!this.customFrequencyTable) {
                     this._setFrequencyList()
                 }
-
+                this.set('filterValue','')
+                this.$['entities-list'].clearCache();
                 this.set('customFrequencyTable', false)
                 this.set('selectedMedicationContentWithId', null)
                 this.set('flagTableFrequency', false)
@@ -518,6 +526,8 @@
             select(item) {
                 if (item) {
                     this.selectMedicationFromList(item);
+                    this.set('filterValue','')
+                    this.$['entities-list'].clearCache();
                     this.$['medication-selection'].close();
                 }
             }
