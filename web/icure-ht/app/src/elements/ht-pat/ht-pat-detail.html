@@ -1233,7 +1233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
-									<paper-icon-button class="extra-button" icon="vaadin:thumbs-up" on-tap="_chapter4"></paper-icon-button>
+									<paper-icon-button class="extra-button" icon="vaadin:medal" on-tap="_chapter4"></paper-icon-button>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
@@ -1757,7 +1757,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
 		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
-		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-mcn-chapteriv-agreement>
+		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></ht-pat-mcn-chapteriv-agreement>
 	</template>
 	<script>
 
