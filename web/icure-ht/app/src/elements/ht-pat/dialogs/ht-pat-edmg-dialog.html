@@ -129,59 +129,76 @@
                 <paper-button class="action" on-tap="_consultDmg">[[localize('refresh','Refresh',language)]]</paper-button>
                 <!-- TODO: Show consultation result/errors -->
                 <div class="edmg-info">
-                    <template is="dom-if" if="{{_hasErrors(consultDmgResp.errors)}}">
-                        <p><b>[[localize('err','Error',language)]]:</b><br/>
-                            <template is="dom-repeat" items="[[consultDmgResp.errors]]" as="error">
-                                <b>[[error.code]]</b> [[_formatError(error)]]<br/>
-                            </template>
-                        </p>
-                    </template>
-                    <template is="dom-if" if="{{!_hasErrors(curGenInsResp.errors)}}">
-                        <p>llmlml</p>
-                        <template is="dom-if" if="{{consultDmgResp.faultMessage}}"><p><b>[[localize('faultMessage','faultMessage',language)]]:</b>[[consultDmgResp.faultMessage]]</p></template>
-                        <template is="dom-if" if="{{consultDmgResp.faultSource}}"><p><b>[[localize('faultSource','faultSource',language)]]:</b>[[consultDmgResp.faultSource]]</p></template>
-                        <template is="dom-if" if="{{consultDmgResp.faultCode}}"><p><b>[[localize('faultCode','faultCode',language)]]:</b>[[consultDmgResp.faultCode]]</p></template>
+                    <template is="dom-if" if="{{consultDmgResp}}">
+                        <template is="dom-if" if="{{_hasErrors(consultDmgResp.errors)}}">
+                            <p><b>[[localize('err','Error',language)]]:</b><br/>
+                                <template is="dom-repeat" items="[[consultDmgResp.errors]]" as="error">
+                                    <b>[[error.code]]</b> [[_formatError(error)]]<br/>
+                                </template>
+                            </p>
+                        </template>
+                        <template is="dom-if" if="{{!_hasErrors(curGenInsResp.errors)}}">
+                            <template is="dom-if" if="{{consultDmgResp.faultMessage}}"><p><b>[[localize('faultMessage','faultMessage',language)]]:</b>[[consultDmgResp.faultMessage]]</p></template>
+                            <template is="dom-if" if="{{consultDmgResp.faultSource}}"><p><b>[[localize('faultSource','faultSource',language)]]:</b>[[consultDmgResp.faultSource]]</p></template>
+                            <template is="dom-if" if="{{consultDmgResp.faultCode}}"><p><b>[[localize('faultCode','faultCode',language)]]:</b>[[consultDmgResp.faultCode]]</p></template>
+                        </template>
 
-                    </template>
+                        <template is="dom-if" if="{{!_hasDmg(consultDmgResp)}}">
+                            <p><b>[[localize('nam','Name',language)]]:</b> [[patient.firstName]] [[patient.lastName]]</p>
+                            <p><b>[[localize('no_dmg','No Dmg',language)]]</b></p>
+                        </template>
 
-                    <template is="dom-if" if="{{!_hasDmg(consultDmgResp)}}">
-                        <p><b>[[localize('nam','Name',language)]]:</b> [[patient.firstName]] [[patient.lastName]]</p>
-                        <p><b>[[localize('no_dmg','No Dmg',language)]]</b></p>
-                    </template>
-
-                    <template is="dom-if" if="{{_hasDmg(consultDmgResp)}}">
-                    <div>
-                        <p><b>[[localize('nam','Name',language)]]:</b> [[consultDmgResp.firstName]] [[consultDmgResp.lastName]]</p>
-                        <p><b>[[localize('sex','Gender',language)]]:</b> [[localize(consultDmgResp.sex,consultDmgResp.sex,language)]]</p>
-                        <p><b>[[localize('dat_of_bir','Birthdate',language)]]:</b> [[_dateFormat(consultDmgResp.birthday,'DD/MM/YYYY')]]</p>
-                        <template is="dom-if" if="{{consultDmgResp.deceased}}"><p><b>[[localize('deceased','Deceased',language)]]:</b>[[_dateFormat(consultDmgResp.deceased,'DD/MM/YYYY')]]</p></template>
-                        <p><b>[[localize('ssin','SSIN',language)]]:</b> [[consultDmgResp.inss]]</p>
-                        <p><b>[[localize('mut','Mut',language)]]:</b> [[consultDmgResp.mutuality]]</p>
-                        <p><b>[[localize('regNrWithMut','Membership',language)]]:</b> [[consultDmgResp.regNrWithMut]]</p>
-                    </div>
-                    <div>
-                        <p><b>[[localize('dmg_holder','Dmg Holder',language)]]:</b></p>
-                        <template is="dom-if" if="{{consultDmgResp.hcParty.familyname}}"><p><b>[[localize('nam','Name',language)]]:</b>[[consultDmgResp.hcParty.firstname]] [[consultDmgResp.hcParty.familyname]]</p></template>
-                        <template is="dom-if" if="{{consultDmgResp.hcParty.name}}"><p><b>[[localize('nam','Name',language)]]:</b>[[consultDmgResp.hcParty.name]]</p></template>
-                        <p><b>[[_getHcpTypeDesc(consultDmgResp)]]:</b> [[_getHcpNihii(consultDmgResp)]]</p>
-                        <p><b>[[localize('from','From',language)]]:</b> [[_dateFormat(consultDmgResp.from, 'DD/MM/YYYY')]]
-                            <b>[[localize('to','To',language)]]:</b> [[_dateFormat(consultDmgResp.to, 'DD/MM/YYYY')]]</p>
-                        <!--_yesOrNo(b)-->
-                        <p><b>[[localize('pay','Payment',language)]]:</b> [[_yesOrNo(consultDmgResp.payment)]]</p>
-                        <p><b>[[localize('cpl','Complete',language)]]:</b> [[_yesOrNo(consultDmgResp.complete)]]</p>
-                    </div>
+                        <template is="dom-if" if="{{_hasDmg(consultDmgResp)}}">
+                        <div>
+                            <p><b>[[localize('nam','Name',language)]]:</b> [[consultDmgResp.firstName]] [[consultDmgResp.lastName]]</p>
+                            <p><b>[[localize('sex','Gender',language)]]:</b> [[localize(consultDmgResp.sex,consultDmgResp.sex,language)]]</p>
+                            <p><b>[[localize('dat_of_bir','Birthdate',language)]]:</b> [[_dateFormat(consultDmgResp.birthday,'DD/MM/YYYY')]]</p>
+                            <template is="dom-if" if="{{consultDmgResp.deceased}}"><p><b>[[localize('deceased','Deceased',language)]]:</b>[[_dateFormat(consultDmgResp.deceased,'DD/MM/YYYY')]]</p></template>
+                            <p><b>[[localize('ssin','SSIN',language)]]:</b> [[consultDmgResp.inss]]</p>
+                            <p><b>[[localize('mut','Mut',language)]]:</b> [[consultDmgResp.mutuality]]</p>
+                            <p><b>[[localize('regNrWithMut','Membership',language)]]:</b> [[consultDmgResp.regNrWithMut]]</p>
+                        </div>
+                        <div>
+                            <p><b>[[localize('dmg_holder','Dmg Holder',language)]]:</b></p>
+                            <template is="dom-if" if="{{consultDmgResp.hcParty.familyname}}"><p><b>[[localize('nam','Name',language)]]:</b>[[consultDmgResp.hcParty.firstname]] [[consultDmgResp.hcParty.familyname]]</p></template>
+                            <template is="dom-if" if="{{consultDmgResp.hcParty.name}}"><p><b>[[localize('nam','Name',language)]]:</b>[[consultDmgResp.hcParty.name]]</p></template>
+                            <p><b>[[_getHcpTypeDesc(consultDmgResp)]]:</b> [[_getHcpNihii(consultDmgResp)]]</p>
+                            <p><b>[[localize('from','From',language)]]:</b> [[_dateFormat(consultDmgResp.from, 'DD/MM/YYYY')]]
+                                <b>[[localize('to','To',language)]]:</b> [[_dateFormat(consultDmgResp.to, 'DD/MM/YYYY')]]</p>
+                            <!--_yesOrNo(b)-->
+                            <p><b>[[localize('pay','Payment',language)]]:</b> [[_yesOrNo(consultDmgResp.payment)]]</p>
+                            <p><b>[[localize('cpl','Complete',language)]]:</b> [[_yesOrNo(consultDmgResp.complete)]]</p>
+                        </div>
+                        </template>
                     </template>
                 </div>
                 <!-- TODO: Notification input -->
+                <p>[[localize('dmg_not','Dmg Notification',language)]]</p>
                 <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
                 <vaadin-date-picker label="[[localize('prest-dat','Prestation date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
                 <paper-button class="action" on-tap="_dmgNotify">[[localize('dmg_not','Notify',language)]]</paper-button>
                 <!-- TODO: Notification result/errors -->
-
+                <template is="dom-if" if="{{notifyDmgResp}}">
+                    <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
+                        <p><b>[[localize('err','Error',language)]]:</b><br/>
+                            <template is="dom-repeat" items="[[notifyDmgResp.errors]]" as="error">
+                                <b>[[error.code]]</b> [[_formatError(error)]]<br/>
+                            </template>
+                        </p>
+                    </template>
+                    <template is="dom-if" if="{{!_hasErrors(notifyDmgResp.errors)}}">
+                        <template is="dom-if" if="{{notifyDmgResp.hcParty.familyname}}"><p><b>[[localize('nam','Name',language)]]:</b>[[notifyDmgResp.hcParty.firstname]] [[notifyDmgResp.hcParty.familyname]]</p></template>
+                        <template is="dom-if" if="{{notifyDmgResp.hcParty.name}}"><p><b>[[localize('nam','Name',language)]]:</b>[[notifyDmgResp.hcParty.name]]</p></template>
+                        <p><b>[[localize('ssin','SSIN',language)]]:</b> [[_getHcpSinn(notifyDmgResp)]]</p>
+                        <p><b>[[_getHcpTypeDesc(consultDmgResp)]]:</b> [[_getHcpNihii(notifyDmgResp)]]</p>
+                        <p><b>[[localize('from','From',language)]]:</b> [[_dateFormat(notifyDmgResp.from, 'DD/MM/YYYY')]]</p>
+                        <p><b>[[localize('pay','Payment',language)]]:</b> [[_yesOrNo(notifyDmgResp.payment)]]</p>
+                        <p><b>[[localize('cpl','Complete',language)]]:</b> [[_yesOrNo(notifyDmgResp.complete)]]</p>
+                    </template>
+                </template>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
                 </div>
-
             </div>
 
 
@@ -285,6 +302,10 @@
                         type: Object,
                         value: null
                     },
+                    notifyDmgResp:{
+                        type: Object,
+                        value: null
+                    },
                     consultStart:{
                         type: Date,
                         value: null
@@ -369,10 +390,103 @@
 
             _getHcpNihii(edmgConsult){
                 if(edmgConsult && edmgConsult.hcParty && edmgConsult.hcParty.ids && edmgConsult.hcParty.ids[0]) {
-                    return edmgConsult.hcParty.ids[0].value;
+                    return  edmgConsult.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? edmgConsult.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : '';
                 } else {
                     return '';
                 }
+            }
+
+            _getHcpSinn(edmgConsult){
+                if(edmgConsult && edmgConsult.hcParty && edmgConsult.hcParty.ids && edmgConsult.hcParty.ids[0]) {
+                    return  edmgConsult.hcParty.ids.find(id => id.s === 'INSS') ? edmgConsult.hcParty.ids.find(id => id.s === 'INSS').value : '';
+                } else {
+                    return '';
+                }
+            }
+
+            _dmgNotify(){
+                this.getDmgNotifyResult().then(edmgresp => this.set('notifyDmgResp', edmgresp))
+            }
+
+            isEven(n) {
+                return n % 2 == 0;
+            }
+
+            getGender(niss){
+                if(niss && niss.length === 11){
+                    const c9 = niss.substring(8,9);
+                    const even = this.isEven(parseInt(c9));
+                    if(even){
+                        return 'female';
+                    }
+                    else{
+                        return 'male';
+                    }
+                }
+                else{
+                    return '';
+                }
+
+            }
+
+            //xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+            // hcpNihii: string, hcpSsin: string, hcpFirstName: string, hcpLastName: string,
+            // nomenclature: string,
+            // patientSsin?: string, oa?: string, regNrWithMut?: string, patientFirstName?: string, patientLastName?: string, patientGender?:
+            // string, requestDate?: number
+            getDmgNotifyResult(){
+                const requestDate = Date.parse(this.encounterDate);
+                if (this.api.tokenId) {
+                    //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
+                    if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
+                        return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                            .then(hcp => {
+                                    return this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
+                                        this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
+                                        this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
+                                        this.patient.firstName, this.patient.lastName,
+                                        this.getGender(this.patient.ssin),
+                                        requestDate)
+                                }
+                            ).then(edmgResp => {
+                                    if (edmgResp) {
+                                        return edmgResp;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            )
+                    }else{
+                        //return Promise.resolve(null)
+                        //there is no niss
+                        let oa = this.genInsOA;
+                        let aff = this.genInsAFF;
+                        const pi = this.patient.insurabilities && _.assign({}, this.patient.insurabilities[0] || {});
+                        this.api.insurance().getInsurance(pi.insuranceId).then(insu => {
+                            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                                .then(hcp => {
+                                        return this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
+                                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                            null, null, (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
+                                            (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
+                                            requestDate)
+                                    }
+                                ).then(edmgResp => {
+                                        if (edmgResp) {
+                                            return edmgResp;
+                                        } else {
+                                            return null;
+                                        }
+                                    }
+                                )
+                        });
+                    }
+                } else {
+                    return Promise.resolve(null)
+                }
+
             }
 
             _consultDmg(){
@@ -438,70 +552,12 @@
                 }
             }
 
-            isEnterPressed(e){
-                if(e.keyCode==13){
-                    this._addPar(e);
-                }
-            }
 
-            _parSearch(e) {
-                let latestSearchValue = e && e.detail.value
-                this.latestSearchValue = latestSearchValue
-                if (!latestSearchValue || latestSearchValue.length < 2) {
-                    console.log("Cancelling empty search")
-                    this.set('parListItem', [])
-                    return
-                }
-                this._parDataProvider() && this._parDataProvider().filter(latestSearchValue).then(res => {
-                    if (latestSearchValue !== this.latestSearchValue) {
-                        console.log("Cancelling obsolete search")
-                        return
-                    }
-                    this.set('parListItem', res.rows)
-                })
-            }
-
-            _parDataProvider() {
-                return {
-                    filter: function (parFilterValue) {
-                        let count = 10
-                        return Promise.all([this.api.fhc().Chaptercontroller().findParagraphsUsingGET(parFilterValue, 'fr')]).then(results => {
-                            const parList = results[0];
-                            const filtered = parList.map(par => ({
-                                id: par.id,
-                                chapterName: par.chapterName,
-                                descr: par.paragraphName + ': ' + par.keyStringFr,
-                                paragraphName: par.paragraphName,
-                                label: par.keyStringFr,
-                                paragraphVersion: par.paragraphVersion
-                            }))
-                            return {totalSize: filtered.length, rows: filtered}
-                        })
-
-                    }.bind(this)
-                }
-
-            }
 
             apiReady() {
                 if (!this.api || !this.user || !this.user.id || !this.opened) return;
 
                 try {
-                    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
-                    // this.api.cacheRowsUsingPagination(
-                    //     'CD-HCPARTY-pers',
-                    //     (key,docId) =>
-                    //         this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
-                    //             .then(pl => ({
-                    //                 rows:pl.rows,
-                    //                 nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                    //                 nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                    //                 done:!pl.nextKeyPair
-                    //             }))
-                    // ).then(rows => {
-                    //     this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc']))
-                    //     this.set('plannedAction.ProfessionId',this.professionId)
-                    // })
                 } catch (e) {
                     console.log(e);
                 }
@@ -512,16 +568,6 @@
                 this.async(this.notifyResize, 1);
             }
 
-            _checkIsDeadline(){
-                if(this.plannedAction.Deadline !== ""){
-                    this.set('plannedAction.isDeadline', true)
-                }else{
-                    this.set('plannedAction.isDeadline', false)
-                }
-
-            }
-
-
 
             open() {
                 this.set('edmgNiss', null);
@@ -529,6 +575,9 @@
                 this.set('edmgAFF', null);
                 this.set('consultStart', null);
                 this.set('consultEnd', null);
+                this.set('consultDmgResp', null);
+                this.set('notifyDmgResp', null);
+
                 this.$.dialog.open();
                 _this._consultDmg();
             }
