@@ -13,7 +13,7 @@
 
         <li style$="background-color: [[_ynToColour(verse.checkBoxInd, parentIncomplete)]]">
             <template is="dom-if" if="[[_isY(verse.checkBoxInd)]]"><vaadin-checkbox id="[[verse.verseNum]]" on-checked-changed="_checkChanged"></vaadin-checkbox></template>
-            <template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template>
+            <template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template> [ [[verse.verseNum]] ]
             <template is="dom-if" if="[[_isIncomplete(verse.minCheckNum, checkedVerses.*)]]"><span style="background-color: #fb9">[Veuillez cocher au minimum [[verse.minCheckNum]] case(s) ci-dessous]</span></template>
             <ul>
               <template is="dom-repeat" items="[[verse.verses]]" as="v">

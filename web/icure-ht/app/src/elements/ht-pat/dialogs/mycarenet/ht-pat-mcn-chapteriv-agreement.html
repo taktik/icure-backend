@@ -426,13 +426,13 @@
                                     <template is="dom-if" if="[[agreementResponse.errors.length]]">
                                         <h4>Error(s)</h4>
                                         <template is="dom-repeat" items="[[agreementResponse.errors]]" as="e">
-                                            <p class="error">[[localizeObjectKey(e,'msg',language)]] [ code : [[e.code]] ]</p>
+                                            <p class="error">[[localizeObjectKey(e,'msg',language)]] [ code : [[e.code]], path: [[e.path]] ]</p>
                                         </template>
                                     </template>
                                     <template is="dom-if" if="[[agreementResponse.warnings.length]]">
                                         <h4>Warning(s)</h4>
                                         <template is="dom-repeat" items="[[agreementResponse.warnings]]" as="e">
-                                            <p class="warning">[[localizeObjectKey(e,'msg',language)]] [ code : [[e.code]] ]</p>
+                                            <p class="warning">[[localizeObjectKey(e,'msg',language)]] [ code : [[e.code]], path: [[e.path]] ]</p>
                                         </template>
                                     </template>
                                     <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
@@ -532,10 +532,6 @@
                         value: () => []
                     },
                     appendicesTokens: {
-                        type: Array,
-                        value: () => []
-                    },
-                    medications: {
                         type: Array,
                         value: () => []
                     },
@@ -649,6 +645,7 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
+                    
                     const paragraph = this.selectedParagraph.id.split('/')[0]
                     this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
                         .then(pi => {
@@ -734,7 +731,7 @@
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
                         "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                        this.checkedVerses.join(','), this.appendices, this.incomplete, this.startDate)
+                        this.checkedVerses.join(','), this.appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
                 ).then(res => {
                     this.set('agreementResponse',res)
                     this.set('tabs',1)
