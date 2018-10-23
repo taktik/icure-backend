@@ -59,6 +59,8 @@ public class HealthcareParty extends StoredDocument implements Person {
 	protected String invoiceHeader;
 	protected String cbe;
 
+	protected String userId;
+
 	protected Integer convention; //0,1,2,9
 
 	protected String nihii; //institution, person
@@ -322,4 +324,8 @@ public class HealthcareParty extends StoredDocument implements Person {
 
 		return full;
 	}
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
 }

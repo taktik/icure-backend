@@ -56,6 +56,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected String ssin;
 	protected String cbe;
 	protected Integer convention; //0,1,2,9
+    protected String userId;
 
     protected String notes;
 
@@ -307,4 +308,8 @@ public class HealthcarePartyDto extends StoredDto {
 	public void setOptions(Map<String, String> options) {
 		this.options = options;
 	}
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
 }
