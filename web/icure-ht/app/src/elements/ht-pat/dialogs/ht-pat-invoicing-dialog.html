@@ -49,6 +49,7 @@
 
 <link rel="import" href="related-code-link.html">
 
+
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
         <style>
@@ -848,7 +849,7 @@
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicateEattest" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="eattest" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -1271,6 +1272,7 @@
         import jsPDF from 'jspdf/dist/jspdf.min';
         import moment from 'moment/src/moment'
         import * as evaljs from "evaljs"
+        import mustache from "mustache/mustache.js";
 
         class HtPatInvoicingDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
@@ -2807,21 +2809,373 @@
                 this.$['xml_dialog'].open()
             }
 
-            duplicateEattest(e){
+            eattest(e){
                 e.stopPropagation();
                 e.preventDefault();
 
                 const invoice = JSON.parse(e.target.dataset.item)
 
                 console.log(invoice)
+                console.log(this.hcp)
 
-                this.api.pdfReport("<html>" +
-                    "   HELLO WORLD" +
-                    "</html>")
-                    .then(response =>{
-                        console.log(response)
-                        response.autoPrint();
+                const template = {
+                    "invoice" : invoice,
+                    "patient" : this.patient,
+                    "hcp" : this.hcp,
+                    "formatDate" : function(){
+                        return function(date,render){
+                            let format =render(date)
+                            return moment(format).format("DD/MM/YYYY")
+                        }
+                    },
+                    "formatNumber" : function(){
+                        return function(calcul,render){
+                            let termes = render(calcul).split(" ")
+                            while(termes.length>2){
+                                let first = parseFloat(termes.shift())
+                                let operateur = termes.shift()
+                                let second = parseFloat(termes.shift())
+
+                                if(operateur=="+"){
+                                    termes.unshift(first+second);
+                                }
+                                else if(operateur==="-"){
+                                    termes.unshift(first-second);
+                                }
+                                else return "erreur dans le calcul"
+
+                            }
+                            return parseFloat(termes[0]).toFixed(2)+" €";
+                        }
+                    },
+                    "totalACharge" : invoice.invoicingCodes.reduce((tot,code)=>{
+                        if(!tot)tot=0;
+                        return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention);
+                    }),
+                    "totalSuppl" : invoice.invoicingCodes.reduce((tot,code)=>{
+                        if(!tot)tot=0;
+                        return parseFloat(tot)+parseFloat(code.doctorSupplement);
+                    }),
+                    "totalRemb" : invoice.invoicingCodes.reduce((tot,code)=>{
+                        if(!tot)tot=0;
+                        return parseFloat(tot)+parseFloat(code.reimbursement);
+                    }),
+                    "totalConv" : invoice.invoicingCodes.reduce((tot,code)=>{
+                        if(!tot)tot=0;
+                        return parseFloat(tot)+parseFloat(code.conventionAmount);
+                    }),
+                    "totalDelta" : invoice.invoicingCodes.reduce((tot,code)=>{
+                        if(!tot)tot=0;
+                        return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement);
+                    })
+                }
+
+                const html = `
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <title></title>
+                <style>
+                    .invoice-box {
+                        max-width: 800px;
+                        min-height:880px;
+                        margin: auto;
+                        padding: 30px;
+                        border: 1px solid #eee;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+                        font-size: 16px;
+                        line-height: 24px;
+                        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+                        color: #555;
+                    }
+
+                    .invoice-box table {
+                        width: 100%;
+                        line-height: inherit;
+                        text-align: left;
+                    }
+
+                    .p12 {
+                        width:12%;
+                    }
+
+                    .p50 {
+                        width:50%;
+                    }
+
+                    .bold {
+                        font-weight: bold;
+                    }
+
+                    .invoice-box table td {
+                        padding: 5px;
+                        vertical-align: top;
+                    }
+
+                    .invoice-box table tr td.right {
+                        text-align: right;
+                    }
+
+                    .invoice-box table tr.top table td {
+                    }
+
+                    .invoice-box table tr.top table td.title {
+                        font-size: 45px;
+                        line-height: 45px;
+                        color: #333;
+                    }
+
+                    .invoice-box table tr.information table td {
+                        padding-bottom: 40px;
+                    }
+
+                    .invoice-box table tr.heading td {
+                        background: #eee;
+                        border-bottom: 1px solid #ddd;
+                        font-weight: bold;
+                    }
+
+                    .invoice-box table tr.details td {
+                        padding-bottom: 20px;
+                    }
+
+                    .invoice-box table tr.item td{
+                        border-bottom: 1px solid #eee;
+                    }
+
+                    .invoice-box table tr.item.last td {
+                        border-bottom: none;
+                        font-weight: bold;
+                    }
+
+                    .invoice-box table tr.total td {
+                        font-weight: bold;
+                    }
+
+                    .invoice-box table tr.total td:nth-child(2) {
+                        border-top: 2px solid #eee;
+                    }
+
+                    @media only screen and (max-width: 600px) {
+                        .invoice-box table tr.top table td {
+                            width: 100%;
+                            display: block;
+                            text-align: center;
+                        }
+
+                        .invoice-box table tr.information table td {
+                            width: 100%;
+                            display: block;
+                            text-align: center;
+                        }
+                    }
+
+                    /** RTL **/
+                    .rtl {
+                        direction: rtl;
+                        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+                    }
+
+                    .rtl table {
+                        text-align: right;
+                    }
+
+                    .rtl table tr td:nth-child(2) {
+                        text-align: left;
+                    }
+	            </style>
+            </head>
+            <body>
+            <div class="invoice-box">
+                <table cellpadding="0" cellspacing="0">
+                    <tr class="top">
+                        <td class="p50">
+                            Justificatif #: {{invoice.invoiceReference}}<br>
+                            Date:
+                            {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
+                            <br>
+                        </td>
+                        <td class="p50" style="text-align: center;">
+                            <svg id="barcode"></svg>
+                            <br>
+                            <span>{{invoice.thirdPartyReference}}</span><br>
+                            {{#invoice.printedDate}}<span style="color: red">DUPLICATA</span>{{/invoice.printedDate}}
+                        </td>
+                    </tr>
+
+                    <tr class="information">
+                        <td colspan="2">
+                            <table>
+                                <tr>
+                                    <td>
+                                        {{#hcp}}
+                                            {{name}}<br>
+                                            {{speciality}}<br>
+                                            {{#addresses}}
+                                                {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
+                                                {{postalCode}} {{city}}<br>
+                                                {{#telecoms}}
+                                                    {{telecomType}}: {{telecomNumber}}<br>
+                                                {{/telecoms}}
+                                            {{/addresses}}
+                                            TVA/CBE: {{cbe}}<br>
+                                            IBAN: {{bankAccount}}<br>
+                                        {{/hcp}}
+                                    </td>
+                                    <td>
+                                    {{#patient}}
+                                        {{gender}}
+                                        {{firstName}} {{#toUpperCase}}{{lastName}}{{/toUpperCase}}<br>
+                                        {{#addresses}}
+                                            {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
+                                            {{postalCode}} {{city}}<br>
+                                            {{#telecoms}}
+                                                {{telecomType}}: {{telecomNumber}}<br>
+                                            {{/telecoms}}
+                                        {{/addresses}}
+                                    {{/patient}}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr class="heading">
+                        <td>Prestations remboursables</td>
+                        <td class="p12">Honoraire porté en compte</td>
+                        <td class="p12">Intervention mutuelle</td>
+                        <td class="p12">Honoraire convention</td>
+                        <td class="p12">∆ et Suppléments</td>
+                    </tr>
+                    {{#invoice.invoicingCodes}}
+                        <tr class="item">
+                            <td> {{unit}} {{code}} : {{label}}</td>
+                            <td class="right">
+                                {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
+                            </td>
+                            <td class="right">
+                                {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
+                            </td>
+                            <td class="right">
+                                {{#conventionAmount}}
+                                    {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
+                                {{/conventionAmount}}
+                                {{^conventionAmount}}na{{/conventionAmount}}
+                            </td>
+                            <td class="right">
+                                {{#conventionAmount}}
+                                    {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
+                                {{/conventionAmount}}
+                                {{^conventionAmount}}na{{/conventionAmount}}
+                            </td>
+                        </tr>
+                    {{/invoice.invoicingCodes}}
+                    <tr class="item bold">
+                        <td>Sous-totaux :</td>
+                        <td class="right">
+                            {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
+                        </td>
+                        <td class="right">
+                            {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
+                        </td>
+                        <td class="right">
+                            {{#totalConv}}
+                                {{#formatNumber}}{{totalConv}}{{/formatNumber}}
+                            {{/totalConv}}
+                            {{^totalConv}}na{{/totalConv}}
+                        </td>
+                        <td class="right">
+                            {{#totalDelta}}
+                                {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
+                            {{/totalDelta}}
+                            {{^totalDelta}}na{{/totalDelta}}
+                        </td>
+                    </tr>
+                    <tr class="item last">
+                        <td>Totaux Suppléments / Totaux ∆ / Totaux ∆ et suppl.</td>
+                        <td class="right">
+                            {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
+                        </td>
+                        <td></td>
+                        <td class="right">
+                            {{#totalConv}}
+                                {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+                            {{/totalConv}}
+                            {{^totalConv}}na{{/totalConv}}
+                        </td>
+                        <td class="right">
+                            {{#totalDelta}}
+                                {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
+                            {{/totalDelta}}
+                            {{^totalDelta}}na{{/totalDelta}}
+                        </td>
+                    </tr>
+
+                    <tr class="total">
+                        <td>Total porté en compte</td>
+                        <td class="right">
+                            {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
+                        </td>
+                        <td class="right"></td>
+                        <td class="right"></td>
+                        <td class="right"></td>
+                    </tr>
+                </table>
+            </div>
+            </body>
+        </html>`;
+
+                this.api.pdfReport(mustache.render(html, template))
+                    .then(data =>{
+                        let blob = new Blob([data],{type :'application/pdf'});
+
+                        let url = window.URL.createObjectURL(blob)
+
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+
+                        a.href = url;
+                        a.download = invoice.id+moment()+".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
                 })
+
+                /*this.api.pdfReport("<html>" +
+                    "" +
+                    "</html>")
+                    .then(data =>{
+                        let blob = new Blob([data],{type :'application/pdf'});
+
+                        let url = window.URL.createObjectURL(blob)
+
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+
+                        a.href = url;
+                        a.download = invoice.id+this.api.moment()+".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                this.api.pdfReport("<html>" +
+                    "" +
+                    "</html>")
+                    .then(data =>{
+                        let blob = new Blob([data],{type :'application/pdf'});
+
+                        let url = window.URL.createObjectURL(blob)
+
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+
+                        a.href = url;
+                        a.download = invoice.id+this.api.moment()+".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })*/
             }
         }
 
