@@ -645,7 +645,7 @@
                                         this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
                                         this.patient.firstName, this.patient.lastName,
                                         this.getGender(this.patient.ssin),
-                                        requestDate)
+                                        requestDate).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id))
                                 }
                             ).then(edmgResp => {
                                     if (edmgResp) {
@@ -669,7 +669,7 @@
                                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                             null, null, (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
                                             (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
-                                            requestDate)
+                                            requestDate).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id))
                                     }
                                 ).then(edmgResp => {
                                         if (edmgResp) {
@@ -709,7 +709,7 @@
                                         this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                         this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null, null,
-                                        requestDate)
+                                        requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.patient.id))
                                 }
                             ).then(edmgResp => {
                                     if (edmgResp) {
@@ -733,7 +733,7 @@
                                             hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                             null, null, (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
                                             (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
-                                            requestDate)
+                                            requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.patient.id))
                                     }
                                 ).then(edmgResp => {
                                         if (edmgResp) {

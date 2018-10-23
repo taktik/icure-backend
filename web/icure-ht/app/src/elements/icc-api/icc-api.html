@@ -439,6 +439,11 @@
 
         }
 
+        logMcn(obj, user, docId) {
+            this.receipticc().logSCReceipt(obj, user, docId).catch(e => console.log(e))
+            return obj
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)
