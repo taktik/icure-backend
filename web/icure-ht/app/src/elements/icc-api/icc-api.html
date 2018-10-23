@@ -441,7 +441,7 @@
         }
 
         logMcn(obj, user, docId) {
-            this.receipticc().logSCReceipt(obj, user, docId).catch(e => console.log(e))
+            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
             return obj
         }
 
