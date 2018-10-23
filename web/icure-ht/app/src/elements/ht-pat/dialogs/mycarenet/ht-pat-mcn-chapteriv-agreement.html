@@ -138,6 +138,16 @@
                 white-space: nowrap;
             }
 
+            .chapter-item .chapter-text-row {
+                width: calc(100% - 32px);
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: flex-start;
+                align-items: center;
+                font-size: 14px;
+                @apply --padding-right-left-16;
+            }
+
             .chapter-text-date {
                 justify-content: space-between !important;
                 position: relative;
@@ -148,6 +158,10 @@
                 @apply --padding-right-left-16;
                 color: var(--app-text-color-disabled);
                 height: 24px;
+            }
+
+            paper-material.iron-selected > .chapter-text > .chapter-text-date {
+                color: var(--app-text-color-light) !important;
             }
 
             .chapter--big {
@@ -338,6 +352,106 @@
                 background: var(--app-primary-color);
             }
 
+            .chapter-item{
+                height: 90px;
+                width: auto;
+                box-shadow: var(--shadow-elevation-3dp_-_box-shadow);
+                margin-top: 12px;
+            }
+
+            .chapter-item h4 {
+                font-size: 14px;
+                font-weight: 600;
+                margin: 0;
+                -webkit-user-select: none; /* Chrome/Safari */
+                -moz-user-select: none; /* Firefox */
+                -ms-user-select: none; /* IE10+ */
+
+                /* Rules below not implemented in browsers yet */
+                -o-user-select: none;
+                user-select: none;
+
+            }
+
+            .ichapter-item .label-container {
+                display: flex;
+                flex-flow: row nowrap;
+            }
+
+            .chapter-item.iron-selected {
+                background: var(--app-primary-color);
+                color: var(--app-light-color);
+                @apply --text-shadow;
+            }
+
+            .chapter-item:first-child{
+                margin-top: 0;
+            }
+
+            .chapter-item:nth-of-type(1) .chapter-text-row p {
+                padding-right: 32px;
+            }
+
+            .chapter-item .colour-code:not(:first-child) {
+                margin-left: 4px;
+            }
+
+            .chapter-item p {
+                @apply --paper-font-body1;
+                margin: 0;
+                -webkit-user-select: none; /* Chrome/Safari */
+                -moz-user-select: none; /* Firefox */
+                -ms-user-select: none; /* IE10+ */
+
+                /* Rules below not implemented in browsers yet */
+                -o-user-select: none;
+                user-select: none;
+            }
+
+            .chapter-item-title {
+                height: 20px;
+                width: auto;
+                background: rgba(0, 0, 0, .1);
+            }
+
+            #_chapter_listbox.paper-listbox {
+                outline: 0;
+                --paper-listbox-selected-item: {
+                    color: var(--app-text-color-light);
+                    background: var(--app-primary-color);
+                };
+                --paper-listbox-disabled-color: {
+                    color: red;
+                };
+
+                background: transparent;
+                padding: 0;
+            }
+
+            #_chapter_listbox {
+                padding: 0;
+            }
+
+            .layout.vertical {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: nowrap;
+            }
+
+            .ch4AcceptedStatus{
+                height: 10px;
+                width: 10px;
+                color: var(--app-status-color-ok);
+            }
+
+            .ch4PendingStatus{
+                height: 10px;
+                width: 10px;
+                color: var(--app-status-color-pending);
+            }
+
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -345,24 +459,45 @@
             <div class="container">
                 <div class="list-panel">
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
-                        <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*]]">
-                            <paper-material class="layout vertical chapter-item chapter--big" on-tap="_selectInvoice"
-                                            id="[[item.id]]">
+                        <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
+                            <paper-material class="layout vertical chapter-item chapter--big" id="[[item.ioDecisionReference]]" on-tap="_selectedItem">
                                 <paper-item class="chapter-text">
                                     <div class="chapter-text-row chapter-text-date">
-                                        <label>[[item.chapter]]</label>
-                                        <label>[[item.ioDecisionReference]][[item.ioRequestReference]]</label>
+                                        <label>
+                                            <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
+                                            [[item.paragraph]]
+                                        </label>
+                                        <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
                                     </div>
                                     <div class="chapter-text-row grey">
                                         <p>
-                                            <template is="dom-repeat" items="[[item.medications]]">
-                                                [[item]],
+                                            <template is="dom-if" if="[[item.accepted]]">
+                                                <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
+                                                [[localize('ch4Accept','Accepted',language)]]
                                             </template>
+                                            <template is="dom-if" if="[[item.inTreatment]]">
+                                                <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
+                                                [[localize('ch4Pending','Pending',language)]]
+                                            </template>
+                                        </p>
+                                        <p>
+                                            <h4>
+                                                [[item.strength]] [[item.strengthUnit]]
+                                                <template is="dom-repeat" items="[[item.medications]]">
+                                                    [[item]],
+                                                </template>
+                                            </h4>
                                         </p>
                                         <div class="chapterDateInfo">
                                             <iron-icon icon="vaadin:calendar-clock" class="chapterDateInfoIcon"></iron-icon>
-                                            <span>[[_formatDate(item.validityDate)]]</span>
+                                            <span>[[_formatDate(item.start)]]</span>
+                                            &nbsp;
+                                            <iron-icon icon="vaadin:calendar-clock" class="chapterDateInfoIcon"></iron-icon>
+                                            <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
                                         </div>
+                                        <iron-icon icon="vaadin:close" class="chapterDateInfoIcon" on-tap="_cancelChapter" data-item$="[[item]]">Annuler</iron-icon>
+                                        <iron-icon icon="vaadin:archive" class="chapterDateInfoIcon" on-tap="_closeChapter" data-item$="[[item]]">Cloturer</iron-icon>
+                                        <iron-icon icon="vaadin:angle-double-right" class="chapterDateInfoIcon" on-tap="_extendChapter">Prolonger</iron-icon>
                                     </div>
                                 </paper-item>
                             </paper-material>
@@ -589,6 +724,10 @@
                     },
                     toAsString: {
                         type: String
+                    },
+                    selectValue:{
+                        type: Object,
+                        value: () => null
                     }
 
                 }
@@ -716,8 +855,9 @@
                         verses: content.medicationValue.options.ioChapter4Verses,
                         ioRequestReference: content.medicationValue.options.ioRequestReference,
                         ioDecisionReference: content.medicationValue.options.ioDecisionReference,
-                        ioDecisionEndOfValidity: content.medicationValue.options.ioDecisionEndOfValidity
-                }})
+                        ioDecisionEndOfValidity: content.medicationValue.options.ioDecisionEndOfValidity,
+                        medication: this.api.contact().shortServiceDescription(svc, this.language)
+                }}).concat(this.orphanAgreements)
             }
 
             _agreements() {
@@ -745,12 +885,27 @@
                     const medications = this._convertedMedications()
                     const ioRequestReferences = medications.map(x => x.ioRequestReference)
                     const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
-                    this.set('orphanAgreements', agreements.transactions().filter(t => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference)))).map(t => ({
-                        paragraph: t.paragraph,
-                        ioRequestReference: t.ioRequestReference,
-                        ioDecisionReference: t.decisionReference,
-                        ioDecisionEndOfValidity: t.end
-                    })))
+                    Promise.all(
+                        agreements.transactions.map(t => this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language).then(vtm => [t, vtm]))
+                    ).then((transactions) => {
+                        this.set('orphanAgreements', transactions.filter(t => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
+                            .map(t => ({
+                                    paragraph: t[0].paragraph,
+                                    ioRequestReference: t[0].ioRequestReference,
+                                    ioDecisionReference: t[0].decisionReference,
+                                    ioDecisionEndOfValidity: t[0].end,
+                                    restStrength: t[0].restStrength,
+                                    restStrengthUnit: t[0].restStrengthUnit,
+                                    restUnitNumber: t[0].restUnitNumber,
+                                    start: t[0].start,
+                                    strength: t[0].strength,
+                                    strengthUnit: t[0].strengthUnit,
+                                    accepted: t[0].accepted,
+                                    inTreatment: t[0].inTreatment,
+                                    medications: t[1]
+                        })))
+                    })
+
                 })
             }
 
@@ -838,6 +993,37 @@
 
             _onDrag() {
                 this.$['appendix-upload-container'].style.display = 'block'
+            }
+
+            _selectedItem(e){
+                if(e.currentTarget){
+                    const id = e.currentTarget.id
+                    const selectedAgreement = this.orphanAgreements.filter(t => !((t.ioRequestReference === id || t.decisionReference === id)))
+
+                    this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph).then(par => {
+                        this.set('selectedParagraph', {descr: "", id: par.paragraph})
+                        this._selectedParagraphChanged()
+                    })
+                }
+            }
+
+            _closeChapter(e){
+                if(e.target.dataset){
+                    const item = JSON.parse(e.target.dataset.item)
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                        this.patient.ssin, this.patient.dateOfBirth,this.patient.firstName, this.patient.lastName, this.patient.gender, item.ioDecisionReference, item.ioRequestReference))
+                        .then(response => {})
+                }
+
+            }
+
+            _cancelChapter(e){
+                if(e.target.dataset){
+                    const item = JSON.parse(e.target.dataset.item)
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                        this.patient.ssin, this.patient.dateOfBirth,this.patient.firstName, this.patient.lastName, this.patient.gender, item.ioDecisionReference))
+                        .then(response=>{})
+                }
             }
         }
 
