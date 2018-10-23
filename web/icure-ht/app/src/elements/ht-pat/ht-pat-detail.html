@@ -818,7 +818,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow: hidden;
 			}
 
-			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus  {
+			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus  {
 				--paper-fab-background: var(--app-background-color-dark);
 				--paper-fab-keyboard-focus-background: var(--app-background-color);
 				color: var(--app-primary-color-dark);
@@ -1123,7 +1123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-tooltip for="tlStatus">[[localize('tl','insurance',language)]]</paper-tooltip>
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
 									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
-									<paper-fab id="edmgStatus" mini icon="vaadin:folder-open-o" on-tap="_openEdmgDialog"></paper-fab>
+									<paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
 									<paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]</paper-tooltip>
 								</div>
 							</div>
@@ -1236,7 +1236,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
-									<paper-icon-button class="extra-button" icon="vaadin:medal" on-tap="_chapter4"></paper-icon-button>
+									<paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">

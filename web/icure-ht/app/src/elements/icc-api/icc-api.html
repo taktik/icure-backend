@@ -290,11 +290,6 @@
             return e[lng] || e.fr || e.en || e.nl;
         }
 
-        iban(){
-            let iban = require('iban')
-            return iban;
-        }
-
         //Convenience methods for dates management
         after(d1, d2) {
             return d1 === null || d2 === null || d1 === undefined || d2 === undefined || this.moment(d1).isAfter(this.moment(d2));
@@ -424,7 +419,7 @@
             this.loadBicData();
 
             // Make sure we've got a string
-            inputString = inputString + '';
+            inputString = ( inputString || '' ) + '';
 
             // No Iban ?
             if(!parseInt( inputString.length ) ) return;
@@ -435,13 +430,13 @@
             // Do we have a candidate ? (3 digits are to be between start & end values)
             var foundResult = _.filter( this.bicsData, o => parseInt( o.startValue ) <= parseInt( bicCodeToMatchOn ) && parseInt( o.endValue ) >= parseInt( bicCodeToMatchOn ) );
 
-            // Up with results
-            return foundResult[0].bicCode || '';
+            // Up with results, if any
+            return foundResult.length ? foundResult[0].bicCode : '';
 
         }
 
         logMcn(obj, user, docId) {
-            this.receipticc().logSCReceipt(obj, user, docId).catch(e => console.log(e))
+            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
             return obj
         }
 

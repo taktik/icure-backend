@@ -54,6 +54,7 @@
 								"multiline" : false,
 								"left" : 308,
 								"top" : 33,
+								"pattern": ":ssin",
 								"key" : "StringEditor"
 							},
 							"sortOrder" : 1465333559,
