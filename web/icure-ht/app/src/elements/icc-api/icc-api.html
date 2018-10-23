@@ -98,23 +98,21 @@
             this.tarificationicc = new api.iccTarificationApi(this.host, this.headers)
             this.usericc = new api.iccUserApi(this.host, this.headers)
             this.entityreficc = new api.iccEntityrefApi(this.host, this.headers)
-            this.receipticc = new api.iccReceiptApi(this.host, this.headers)
 
-            this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
             this.codeicc = new IccCodeXApi(this.host, this.headers)
+            this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
 
+            this.receipticc = new IccReceiptXApi(this.host, this.headers, this.cryptoicc)
             this.contacticc = new IccContactXApi(this.host, this.headers, this.cryptoicc)
             this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
-
             this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc)
-
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
