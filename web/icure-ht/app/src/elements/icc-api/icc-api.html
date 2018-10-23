@@ -424,7 +424,7 @@
             this.loadBicData();
 
             // Make sure we've got a string
-            inputString = inputString + '';
+            inputString = ( inputString || '' ) + '';
 
             // No Iban ?
             if(!parseInt( inputString.length ) ) return;
@@ -435,8 +435,8 @@
             // Do we have a candidate ? (3 digits are to be between start & end values)
             var foundResult = _.filter( this.bicsData, o => parseInt( o.startValue ) <= parseInt( bicCodeToMatchOn ) && parseInt( o.endValue ) >= parseInt( bicCodeToMatchOn ) );
 
-            // Up with results
-            return foundResult[0].bicCode || '';
+            // Up with results, if any
+            return foundResult.length ? foundResult[0].bicCode : '';
 
         }
 
