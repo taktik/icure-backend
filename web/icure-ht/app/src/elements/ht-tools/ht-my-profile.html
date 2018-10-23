@@ -1,4 +1,4 @@
-bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -6,6 +6,7 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -20,7 +21,7 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 	<template>
 		<style>
 			paper-dialog {
-				width: 60%;
+				width: 80%;
 				display:flex;
 				flex-flow: row wrap;
 				justify-content: space-between;
@@ -37,6 +38,8 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 			.buttons{
 				width:100%;
+				text-align:center;
+				margin-top:10px
 			}
 
 			.modal-button{
@@ -61,7 +64,16 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 				flex-grow: 1;
 				width: 50%;
 				box-sizing: border-box;
+				float:left
 			}
+			.row { display:block; width:100% }
+			.col-10 { flex-grow: 1; width: 10%; box-sizing: border-box; float:left }
+			.col-15 { flex-grow: 1; width: 15%; box-sizing: border-box; float:left }
+			.col-25 { flex-grow: 1; width: 25%; box-sizing: border-box; float:left }
+			.col-20 { flex-grow: 1; width: 20%; box-sizing: border-box; float:left }
+			.col-30 { flex-grow: 1; width: 30%; box-sizing: border-box; float:left }
+			.col-35 { flex-grow: 1; width: 35%; box-sizing: border-box; float:left }
+			.col-40 { flex-grow: 1; width: 40%; box-sizing: border-box; float:left }
 			#dialog{
 				overflow: auto;
 			}
@@ -78,62 +90,259 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 				}
 			}
 
+			paper-tabs {
+				background: var(--app-secondary-color);
+				--paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+				--paper-tabs: {
+					color: var(--app-text-color);
+				};
+			}
+
+			paper-tab {
+				--paper-tab-ink: var(--app-text-color);
+			}
+
+			paper-tab.iron-selected {
+				font-weight: bold;
+			}
+
+			paper-tab.iron-selected iron-icon{
+				opacity: 1;
+			}
+
+			paper-tab iron-icon{
+				opacity: 0.5;
+				color: var(--app-text-color);
+			}
+
+			.administrative-panel {
+				height:100%;
+				background: var(--app-background-color);
+				margin: 0;
+				width:100%;
+				grid-column: 2 / 4;
+				/*grid-template-columns: 40px 200px 200px 40px;*/
+				grid-row: 1 / 1;
+			}
+
+			.horizontal {
+				display: grid;
+				flex-direction: row;
+				flex-wrap: wrap;
+				flex-basis: 100%;
+				align-items: center;
+			}
+
+			.horizontal paper-input {
+				@apply --padding-right-left-16
+			}
+
+			.horizontal paper-input-container {
+				@apply --padding-right-left-16;
+				padding:0;
+			}
+
+			.horizontal paper-menu-button{
+				padding:0;
+			}
+
+			.horizontal vaadin-date-picker {
+				@apply --padding-right-left-16;
+				padding-top: 4px;
+				height: 48px;
+			}
+
+			.statusBulletContainer { height:60px; display:flex; align-items: center; }
+
+			.statusBullet {
+				display:block;
+				width:16px;
+				height:16px;
+				border:1px solid var(--app-status-color-nok);
+				background-color: var(--app-status-color-nok);
+				-webkit-border-radius: 12px;
+				-moz-border-radius: 12px;
+				border-radius: 12px;
+				margin:0 auto;
+			}
+
+			.statusBullet.ok {
+				border:1px solid var(--app-status-color-ok);
+				background-color: var(--app-status-color-ok);
+			}
+
+			.textAlignCenter { text-align: center; }
+
+			.headerField {
+				background-color: #EEEEEE;
+				--paper-input-container-underline: {
+					display: none
+				};
+				--paper-input-container-underline-focus: {
+					display: none
+				};
+				--paper-input-container-underline-disabled: {
+					display: none
+				};
+				font-weight: 700;
+				color: var(--app-primary-color);
+			}
+
+			.borderTop { border-top:1px solid var(--app-primary-color); }
+			.borderLeft { border-left:1px solid var(--app-primary-color); }
+			.borderRight { border-right:1px solid var(--app-primary-color); }
+			.borderBottom { border-bottom:1px solid var(--app-primary-color); }
+
 		</style>
 
+
+
+
+
 		<paper-dialog id="dialog" opened="{{opened}}">
-			<div class="left-col">
-				<vaadin-form-layout>
-					<paper-input colspan="2" label="Full name" value="{{user.name}}"></paper-input>
-					<paper-input colspan="2" label="Group ID" value="{{user.groupId}}"></paper-input>
-					<paper-input label="Login" value="{{user.login}}"></paper-input>
-					<paper-input label="Email" value="{{user.email}}"></paper-input>
-					<paper-input label="MedicalHouse" value="{{userMedicalHouseNihii}}"></paper-input>
-					<paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
-					<paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
-						<paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
-							<paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
-							<paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-							<paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
-						</paper-listbox>
-					</paper-dropdown-menu>
-					<paper-radio-group selected="{{userEHealthEnv}}">
-						<paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
-						<paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
-					</paper-radio-group>
-					<template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">
-						[[_getOARegStatus(reg)]]
-					</template>
-                    <template is="dom-if" if="[[allEDmgRegistered]]">
-                        <p>eDMG Registration Complete</p>
-                    </template>
-                    <template is="dom-if" if="[[!allEDmgRegistered]]">
-					    <paper-input label="BIC" value="{{userBIC}}" on-tap="_evalBic" readonly></paper-input>
-					    <paper-input label="IBAN" value="{{userIBAN}}" id="userIban" on-value-changed="_evalBic" on-tap="_evalBic"></paper-input>
-                    </template>
-					<paper-button on-tap="_registerToEDMG">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button>
-				</vaadin-form-layout>
+
+
+			<div class="administrative-panel">
+
+				<paper-tabs selected="{{tabs}}">
+					<paper-tab class="adm-tab"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-tab>
+					<paper-tab class="adm-tab"><iron-icon icon="icons:account-balance"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
+				</paper-tabs>
+
+
+				<iron-pages selected="[[tabs]]" class="">
+					<page>
+
+						<div class="horizontal">&nbsp;</div>
+
+						<div class="horizontal">
+							<vaadin-form-layout>
+								<div class="col-lg-6">
+									<paper-input label="Full name" value="{{user.name}}"></paper-input>
+									<paper-input label="Login" value="{{user.login}}"></paper-input>
+									<paper-input label="Email" value="{{user.email}}"></paper-input>
+									<paper-input label="MedicalHouse" value="{{userMedicalHouseNihii}}"></paper-input>
+									<paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+										<paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+											<paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+											<paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+											<paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+										</paper-listbox>
+									</paper-dropdown-menu>
+									<paper-radio-group selected="{{userEHealthEnv}}">
+										<paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+										<paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+									</paper-radio-group>
+									<paper-radio-group selected="{{hcp.languages.0}}">
+										<paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
+										<paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
+										<paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
+									</paper-radio-group>
+								</div>
+								<div class="col-lg-6">
+									<paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
+									<paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
+									<paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
+									<paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
+
+									<div id="printable">
+										<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
+										<qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+									</div>
+
+								</div>
+							</vaadin-form-layout>
+
+							<template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">Passwords do not match</div></template>
+							<template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">Passwords must be at least 8 characters</div></template>
+
+						</div>
+					</page>
+
+
+					<page>
+
+						<div class="horizontal">
+
+							<!--<template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">-->
+								<!--[[_getOARegStatus(reg)]]-->
+							<!--</template>-->
+
+							<template is="dom-if" if="[[allEDmgRegistered]]">
+								<p>eDMG Registration Complete</p>
+							</template>
+
+							<template is="dom-if" if="[[!allEDmgRegistered]]">
+
+								<div class="horizontal">&nbsp;</div>
+
+								<div class="row">
+									<div class="col-20">
+										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
+										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 300" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 400" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 500" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
+									</div>
+									<div class="col-40">
+										<paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon><paper-icon-button slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></paper-icon-button></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_300}}" id="userIBAN_300" rel="300" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_400}}" id="userIBAN_400" rel="400" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_500}}" id="userIBAN_500" rel="500" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_600}}" id="userIBAN_600" rel="600" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_900}}" id="userIBAN_900" rel="900" on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-30">
+										<paper-input label="BIC" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="BIC" value="{{userBIC_100}}" id="userBIC_100" rel="100" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_200}}" id="userBIC_200" rel="200" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_300}}" id="userBIC_300" rel="300" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_400}}" id="userBIC_400" rel="400" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_500}}" id="userBIC_500" rel="500" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_600}}" id="userBIC_600" rel="600" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_900}}" id="userBIC_900" rel="900" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-10">
+										<paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_100_cssClass)]]" rel="100" id="statusBullet_100"></div></div>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_200_cssClass)]]" rel="200" id="statusBullet_200"></div></div>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_300_cssClass)]]" rel="300" id="statusBullet_300"></div></div>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_400_cssClass)]]" rel="400" id="statusBullet_400"></div></div>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_500_cssClass)]]" rel="500" id="statusBullet_500"></div></div>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_600_cssClass)]]" rel="600" id="statusBullet_600"></div></div>
+										<div class="statusBulletContainer"><div class$="[[_dynamicCssClassForRegStatus(statusBullet_900_cssClass)]]" rel="900" id="statusBullet_900"></div></div>
+									</div>
+								</div>
+							</template>
+
+							<div class="horizontal">&nbsp;</div>
+
+							<template is="dom-if" if="[[!allEDmgRegistered]]">
+								<div class="horizontal">
+									<div class="row">
+										<div class="col-35">&nbsp;</div>
+										<div class="col-30 textAlignCenter"><paper-button on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
+										<div class="col-35">&nbsp;</div>
+									</div>
+								</div>
+								<div class="horizontal">&nbsp;</div>
+							</template>
+
+						</div>
+
+					</page>
+
+
+				</iron-pages>
 			</div>
-			<div class="right-col">
-				<vaadin-form-layout>
-					<paper-radio-group selected="{{hcp.languages.0}}">
-						<paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
-						<paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
-						<paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
-					</paper-radio-group>
-					<paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
-					<paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
-					<template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]">
-						<div class="error">Passwords do not match</div>
-					</template>
-					<template is="dom-if" if="[[_tooShort(userPassword)]]">
-						<div class="error">Passwords must be at least 8 characters</div>
-					</template>
-					<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
-				</vaadin-form-layout>
-				<div id="printable">
-					<qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
-				</div>
-			</div>
+
+
+
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button modal-button--save" autofocus on-tap="confirm">[[localize('save','Save',language)]]</paper-button>
@@ -218,7 +427,36 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
             currentRegs:{
 			    type: Object,
 				value : null
-			}
+			},
+            tabs: {
+			    type: Number,
+				value: 0
+			},
+
+            userIBAN_100: { type: String, value: '' },
+            userIBAN_200: { type: String, value: '' },
+            userIBAN_300: { type: String, value: '' },
+            userIBAN_400: { type: String, value: '' },
+            userIBAN_500: { type: String, value: '' },
+            userIBAN_600: { type: String, value: '' },
+            userIBAN_900: { type: String, value: '' },
+
+			userBIC_100: { type: String, value: '' },
+            userBIC_200: { type: String, value: '' },
+            userBIC_300: { type: String, value: '' },
+            userBIC_400: { type: String, value: '' },
+            userBIC_500: { type: String, value: '' },
+            userBIC_600: { type: String, value: '' },
+            userBIC_900: { type: String, value: '' },
+
+            statusBullet_100_cssClass: { type: String, value: '' },
+            statusBullet_200_cssClass: { type: String, value: '' },
+            statusBullet_300_cssClass: { type: String, value: '' },
+            statusBullet_400_cssClass: { type: String, value: '' },
+            statusBullet_500_cssClass: { type: String, value: '' },
+            statusBullet_600_cssClass: { type: String, value: '' },
+            statusBullet_900_cssClass: { type: String, value: '' },
+
         };
 	}
 
@@ -310,7 +548,7 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
         }
         let regs = new models.ListOfIdsDto({rs: OAStatus.rs.map(r => r)}) || [];
         this.listOAs.map(itOA => {
-            let reg = regs.rs.find(r => r.OA === itOA) || {OA : itOA, Registered: false, lastExecution: null, Comment : '', ErrorCode :  ''};
+            let reg = regs.rs.find(r => r.OA === itOA) || {OA : itOA, Registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' };
             const idx = regs.rs.findIndex(r => r.OA === itOA);
             if(idx >= 0){
                 regs.rs.splice(idx, 1, reg);
@@ -322,6 +560,7 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
         this.set('allEDmgRegistered', unreg ? false : true);
         this.set('currentRegs', regs);
         let mytest = JSON.stringify(regs);
+        this.visualUpdateRegStatus();
         return regs;
 	}
 
@@ -442,7 +681,65 @@ bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 
 	// Resolve and assign BIC based on IBAN
-	_evalBic() { this.userBIC = this.api.getBicByIban( this.userIBAN ); }
+	_evalBic( event, fieldObject ) {
+
+	    // Could be a click event / we wouldn't have any value here
+	    if( typeof fieldObject.value === 'undefined' ) return;
+
+	    // target & save
+	    var ibanFieldObject = event.path[0];
+
+	    // Target (100,200,300,400,500,600,900)
+	    var oaValue = parseInt( ibanFieldObject.getAttribute('rel') );
+
+	    // Get bic based on iban
+	    var bicValue = this.api.getBicByIban( fieldObject.value || '' );
+
+        // Assign bic value back, should we have any
+	    if( ( bicValue+'').length ) {
+
+			if(oaValue==100) this.userBIC_100 = bicValue;
+			if(oaValue==200) this.userBIC_200 = bicValue;
+			if(oaValue==300) this.userBIC_300 = bicValue;
+			if(oaValue==400) this.userBIC_400 = bicValue;
+			if(oaValue==500) this.userBIC_500 = bicValue;
+			if(oaValue==600) this.userBIC_600 = bicValue;
+			if(oaValue==900) this.userBIC_900 = bicValue;
+
+		}
+
+	}
+
+
+
+	visualUpdateRegStatus() {
+
+		// Loop statuses and visual update accordingly (green / red bullet)
+	    _.forIn( this.currentRegs.rs, function(v,k){
+
+            if( v.OA == 100 && v.Registered ) this.statusBullet_100_cssClass = 'ok';
+            if( v.OA == 200 && v.Registered ) this.statusBullet_200_cssClass = 'ok';
+            if( v.OA == 300 && v.Registered ) this.statusBullet_300_cssClass = 'ok';
+            if( v.OA == 400 && v.Registered ) this.statusBullet_400_cssClass = 'ok';
+            if( v.OA == 500 && v.Registered ) this.statusBullet_500_cssClass = 'ok';
+            if( v.OA == 600 && v.Registered ) this.statusBullet_600_cssClass = 'ok';
+            if( v.OA == 900 && v.Registered ) this.statusBullet_900_cssClass = 'ok';
+
+		})
+
+	}
+
+
+
+	_dynamicCssClassForRegStatus( propertyValue ) { return ' statusBullet ' + ( propertyValue || '' ); }
+
+	replicateIbanValueToAllFields( a,b,c ) {
+
+	    console.log(a)
+	    console.log(b)
+	    console.log(c)
+
+	}
 
 
 
