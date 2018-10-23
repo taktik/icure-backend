@@ -143,6 +143,7 @@
             <paper-tabs selected="{{tabs}}" >
                 <paper-tab>[[localize('dmg-con','Dmg Consultation',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_not','Dmg Notification',language)]]</paper-tab>
+                <paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>
             </paper-tabs>
             <iron-pages selected="[[tabs]]" class="">
                 <page>
@@ -231,6 +232,12 @@
                             </template>
                         </template>
                     </div>
+                </page>
+                <page>
+                    <p>Experimental</p>
+                    <vaadin-date-picker label="[[localize('start-date','Start date',language)]]" value="{{listRequestDate}}" i18n="[[i18n]]"></vaadin-date-picker>
+                    <paper-input label="[[localize('io','IO',language)]]" value="{{listIO}}" ></paper-input>
+                    <paper-button class="action" on-tap="_dmgListRequest">[[localize('dmg_lst','Get List',language)]]</paper-button>
                 </page>
             </iron-pages>
             <div class="buttons">
@@ -399,6 +406,18 @@
                     tabs: {
                         type:  Number,
                         value: 0
+                    },
+                    listRequestDate: {
+                        type: Date,
+                        value:null
+                    },
+                    listIO:{
+                        type: String,
+                        value: null
+                    },
+                    getListResp:{
+                        type: Object,
+                        vale: null
                     }
                 };
             }
@@ -702,7 +721,38 @@
                 }
             }
 
+            _dmgListRequest(){
+                this.getDmgListRequest().then(edmgResp => this.set('getListResp', edmgResp));
+            }
 
+            //postDmgsListRequestUsingPOST(
+            // keystoreId: string, tokenId: string, passPhrase: string,
+            // hcpNihii: string, hcpSsin: string, hcpFirstName: string, hcpLastName: string,
+            // oa?: string, requestDate?: number)
+            getDmgListRequest(){
+                const requestDate = Date.parse(this.listRequestDate);
+                if (this.api.tokenId) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
+                                    this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                    hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                    this.listIO,
+                                    requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.user.id))
+                            }
+                        ).then(edmgResp => {
+                                if (edmgResp) {
+                                    return edmgResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                }
+                else {
+                    return Promise.resolve(null);
+                }
+            }
 
             apiReady() {
                 if (!this.api || !this.user || !this.user.id || !this.opened) return;
