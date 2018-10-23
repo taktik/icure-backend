@@ -166,6 +166,20 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
     }
 
     @Override
+	@View(name = "by_hcparty_efact_status", map = "classpath:js/invoice/By_hcparty_efact_status_map.js")
+	public List<Invoice> listByHcPartyEfactStatus(String hcParty, Boolean pending, Boolean canceled, Boolean accepted, Boolean resent, Boolean archived, Long fromDate, Long toDate) {
+        ComplexKey startKey = ComplexKey.of(hcParty, pending, canceled, accepted, resent, archived);
+		ComplexKey endKey = ComplexKey.of(hcParty, pending, canceled, accepted, resent, archived, "{}");
+		if(fromDate != null){
+			startKey = ComplexKey.of(hcParty, pending, canceled, accepted, resent, archived, fromDate);
+			if(toDate != null){
+				endKey = ComplexKey.of(hcParty, pending, canceled, accepted, resent, archived, toDate);
+			}
+		}
+		return queryResults(createQuery("by_hcparty_efact_status").includeDocs(true).startKey(startKey).endKey(endKey));
+    }
+
+    @Override
 	@View(name = "by_serviceid", map = "classpath:js/invoice/By_serviceid_map.js")
 	public List<Invoice> listByServiceIds(Set<String> serviceIds) {
 		return queryResults(createQuery("by_serviceid").includeDocs(true).keys(serviceIds));

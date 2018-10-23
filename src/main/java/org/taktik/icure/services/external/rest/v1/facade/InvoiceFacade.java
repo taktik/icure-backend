@@ -20,15 +20,7 @@ package org.taktik.icure.services.external.rest.v1.facade;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -368,6 +360,29 @@ public class InvoiceFacade implements OpenApiFacade{
 	@Path("/byHcParty/{hcPartyId}/efact/tobecorrected")
 	public Response listByHcPartyEfactToBeCorrected(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
 		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactToBeCorrected(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List efact invoices to be corrected by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/status")
+	public Response listByHcPartyEfactStatus(
+			@PathParam("hcPartyId") String hcParty,
+			@DefaultValue("false") @QueryParam("pending") Boolean pending,
+			@DefaultValue("false") @QueryParam("canceled") Boolean canceled,
+			@DefaultValue("false") @QueryParam("accepted") Boolean accepted,
+			@DefaultValue("false") @QueryParam("resent") Boolean resent,
+			@DefaultValue("false") @QueryParam("archived") Boolean archived,
+			@QueryParam("from") Long fromDate,
+			@QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactStatus(hcParty, pending, canceled, accepted, resent, archived, fromDate, toDate);
 		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
 		return Response.ok().entity(invoicesDto).build();
 	}
