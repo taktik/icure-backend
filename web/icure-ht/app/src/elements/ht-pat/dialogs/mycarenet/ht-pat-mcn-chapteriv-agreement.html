@@ -345,7 +345,7 @@
             <div class="container">
                 <div class="list-panel">
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
-                        <template is="dom-repeat" items="[[_agreements(medications]]">
+                        <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*]]">
                             <paper-material class="layout vertical chapter-item chapter--big" on-tap="_selectInvoice"
                                             id="[[item.id]]">
                                 <paper-item class="chapter-text">
@@ -535,10 +535,6 @@
                         type: Array,
                         value: () => []
                     },
-                    medications: {
-                        type: Array,
-                        value: () => []
-                    },
                     errors: {
                         type: String,
                         value: null
@@ -564,9 +560,14 @@
                         observer: "_selectedParagraphChanged"
                     },
                     medications: {
-                        type: Object,
-                        observer: "_selectedParagraphChanged"
+                        type: Array,
+                        value: () => []
                     },
+                    orphanAgreements: {
+                        type: Array,
+                        value: () => []
+                    },
+
                     tabs: {
                         type: Number,
                         value: 0
@@ -667,11 +668,11 @@
 
 
             onWidthChange() {
-                const offsetWidth = this.$.dialog.offsetWidth
+                /*const offsetWidth = this.$.dialog.offsetWidth
                 const offsetHeight = this.$.dialog.offsetHeight
                 if (!offsetWidth || !offsetHeight) {
                     return
-                }
+                }*/
             }
 
             close() {
@@ -702,8 +703,21 @@
                 return this.language === 'nl'
             }
 
-            _agreements(medications) {
-                return medications && medications.filter(svc => Object.values(svc.content).some(c => c.medicationValue.options.ioChapter4Paragraph)).map(x=>x)
+            _convertedMedications() {
+                return (this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.options && c.medicationValue.options.ioChapter4Paragraph)).map(svc => {
+                    const content = svc.content.find(c => !!c.medicationValue.options.ioChapter4Paragraph)
+                    return {
+                        id: svc.id,
+                        paragraph: content.medicationValue.options.ioChapter4Paragraph,
+                        verses: content.medicationValue.options.ioChapter4Verses,
+                        ioRequestReference: content.medicationValue.options.ioRequestReference,
+                        ioDecisionReference: content.medicationValue.options.ioDecisionReference,
+                        ioDecisionEndOfValidity: content.medicationValue.options.ioDecisionEndOfValidity
+                }})
+            }
+
+            _agreements() {
+                return (this._convertedMedications()).concat(this.orphanAgreements)
             }
 
             _mpps(p) {
@@ -717,24 +731,39 @@
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, null, +moment().subtract(6, 'months'))
                 ).then(agreements => {
-                        if (agreements.warnings.length) {
-                            this.set('warnings', agreements.warnings.map(w => w.msgFr).join(', '))
-                        }
-                        if (agreements.errors.length) {
-                            this.set('errors', agreements.errors.map(w => w.msgFr).join(', '))
-                        }
-                        console.log(agreements)
+                    if (agreements.warnings.length) {
+                        this.set('warnings', agreements.warnings.map(w => w.msgFr).join(', '))
                     }
-                )
+                    if (agreements.errors.length) {
+                        this.set('errors', agreements.errors.map(w => w.msgFr).join(', '))
+                    }
+                    console.log(agreements)
+                    const medications = this._convertedMedications()
+                    const ioRequestReferences = medications.map(x => x.ioRequestReference)
+                    const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
+                    this.set('orphanAgreements', agreements.transactions().filter(t => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference)))).map(t => ({
+                        paragraph: t.paragraph,
+                        ioRequestReference: t.ioRequestReference,
+                        ioDecisionReference: t.decisionReference,
+                        ioDecisionEndOfValidity: t.end
+                    })))
+                })
             }
 
             _requestChapter4() {
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
-                        "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                        this.checkedVerses.join(','), this.appendices, this.incomplete, this.startDate)
+                    Promise.all(this.appendicesTokens.map(ap =>
+                        this.api.document().getDocument(ap.id)
+                            .then(doc => {
+                                return this.api.document().getAttachment(doc.id, doc.attachmentId).then(a => ({verseSeq: ap.verseSeq, documentSeq: ap.documentSeq, data:a, mimeType:'application/pdf', path:a.name}))
+                        }))
+                    ).then(appendices => {
+                        this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                            this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
+                            "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
+                            this.checkedVerses.join(','), appendices, this.incomplete, this.startDate)
+                    })
                 ).then(res => {
                     this.set('agreementResponse',res)
                     this.set('tabs',1)
@@ -745,6 +774,10 @@
                 })
             }
 
+            _annexBaseName(addedDoc) {
+                return `${this.paragraph.paragraphName}_${this.paragraph.paragraphVersion}_${addedDoc.verseSeq}_${addedDoc.documentSeq}_${this.localizeObjectKey(addedDoc, 'descr')}`
+            }
+
             _downloadAnnex(e) {
                 if (e && e.detail && e.detail.value) {
                     const tpl = this.root.querySelector('#annexesDr').modelForElement(e.detail.value)
@@ -753,7 +786,7 @@
                         var a = document.createElement('a')
                         a.href = url
                         a.target = "_blank"
-                        a.download = `${tpl.item.descrFr}.pdf`
+                        a.download = `${this._annexBaseName(tpl.item)}.pdf`
                         document.body.appendChild(a) // we need to append the element to the dom -> otherwise it will not work in firefox
                         a.click()
                         a.remove()  //afterwards we remove the element again
@@ -781,7 +814,8 @@
                 })).then(files => {
                     if (files.length) {
                         vaadinUpload.uploadFiles(files)
-                        files.forEach(f => this.appendicesTokens.map(x=>x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {descr:f.name.replace(/^(.{5})...+(.{5})$/,'$1…$2'), id:f.doc.id}))
+                        const regAnnex = this.annexes.find(a=>f.name.startsWith(this._annexBaseName(a))) || {}
+                        files.forEach(f => this.appendicesTokens.map(x=>x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {descr:f.name.replace(/^(.{5})...+(.{5})$/,'$1…$2'), id:f.doc.id, name:f.name, docSeq: regAnnex.documentSeq, verseSeq: regAnnex.verseSeq}))
                     }
                 });
             }

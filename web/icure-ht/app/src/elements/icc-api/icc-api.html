@@ -405,6 +405,42 @@
                 body: html,
             }).then(response => response.arrayBuffer())
         }
+
+
+
+        loadBicData() {
+
+            // Already existing, take no action
+            if( typeof this.bicsData !== 'undefined' ) return;
+
+            // Doesn't exist yet, require it
+            this.bicsData = require('../bic/bics-list.json') || {};
+        }
+
+
+
+        getBicByIban( inputString ){
+
+            // Get from json file -> casted in this.bicsData
+            this.loadBicData();
+
+            // Make sure we've got a string
+            inputString = inputString + '';
+
+            // No Iban ?
+            if(!parseInt( inputString.length ) ) return;
+
+            // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
+            var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );
+
+            // Do we have a candidate ? (3 digits are to be between start & end values)
+            var foundResult = _.filter( this.bicsData, o => parseInt( o.startValue ) <= parseInt( bicCodeToMatchOn ) && parseInt( o.endValue ) >= parseInt( bicCodeToMatchOn ) );
+
+            // Up with results
+            return foundResult[0].bicCode || '';
+
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)
