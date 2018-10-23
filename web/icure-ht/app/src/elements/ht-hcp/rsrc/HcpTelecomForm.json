@@ -25,7 +25,7 @@
 							"label" : "Type",
 							"type" : "TKString",
 							"subForm" : false,
-							"name" : "type",
+							"name" : "telecomType",
 							"irrelevant" : true
 						},
 						{

@@ -1,4 +1,4 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+bthi<link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
@@ -107,8 +107,8 @@
                         <p>eDMG Registration Complete</p>
                     </template>
                     <template is="dom-if" if="[[!allEDmgRegistered]]">
-					    <paper-input label="BIC" value="{{userBIC}}"></paper-input>
-					    <paper-input label="IBAN" value="{{userIBAN}}"></paper-input>
+					    <paper-input label="BIC" value="{{userBIC}}" on-tap="_evalBic" readonly></paper-input>
+					    <paper-input label="IBAN" value="{{userIBAN}}" id="userIban" on-value-changed="_evalBic" on-tap="_evalBic"></paper-input>
                     </template>
 					<paper-button on-tap="_registerToEDMG">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button>
 				</vaadin-form-layout>
@@ -437,6 +437,15 @@
 			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
         }
 	}
+
+
+
+
+	// Resolve and assign BIC based on IBAN
+	_evalBic() { this.userBIC = this.api.getBicByIban( this.userIBAN ); }
+
+
+
 }
 
 customElements.define(HtExportKey.is, HtExportKey);
