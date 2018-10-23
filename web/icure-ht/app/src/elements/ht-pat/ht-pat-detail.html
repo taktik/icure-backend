@@ -59,6 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
+<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -98,6 +99,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				white-space: nowrap;
 				font-weight: 400;
 				padding-left:0;
+				width: calc(100% - 48px)
+			}
+
+			.extra-button {
+				width: 24px;
+				height: 24px;
+				margin: 0;
+				padding: 4px;
 			}
 
 			#first {
@@ -181,6 +190,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			collapse-button {
 				outline:0;
+				align-items: flex-start;
 				--paper-listbox-selected-item: {
 					color:var(--app-text-color-light);
 					background:var(--app-primary-color);
@@ -200,19 +210,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 			.opened{
 				color:var(--app-text-color);
-				/*background:var(--app-text-color-light);*/
-				border-radius:2px 2px 0 0;
-				box-shadow: 0 4px 0 0 white,
-							0 -2px 0 0 white,
-							0 2px 2px 0 rgba(0, 0, 0, 0.14),
-							0 1px 5px 0 rgba(0, 0, 0, 0.12),
-							0 3px 1px -2px rgba(0, 0, 0, 0.2);
-
 			}
 
 			.opened.iron-selected{
-				box-shadow: 0 4px 0 0 white,
-							0 -2px 0 0 var(--app-primary-color),
+				box-shadow: 0 -2px 0 0 var(--app-primary-color),
 							0 2px 2px 0 rgba(0, 0, 0, 0.14),
 							0 1px 5px 0 rgba(0, 0, 0, 0.12),
 							0 3px 1px -2px rgba(0, 0, 0, 0.2);
@@ -222,9 +223,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background:var(--app-light-color);
 				margin:0 0 8px -30px;
 				padding:0;
-				padding-bottom:4px;
-				border-radius:0 0 2px 2px;
-				/* @apply --shadow-elevation-2dp; */
 			}
 
 			paper-item.sublist-footer {
@@ -1235,6 +1233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
+									<paper-icon-button class="extra-button" icon="vaadin:medal" on-tap="_chapter4"></paper-icon-button>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
@@ -1452,7 +1451,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <template is="dom-if" if="{{_hasErrors(curGenInsResp.errors)}}">
                         <p><b>[[localize('err','Error',language)]]:</b><br/>
                         <template is="dom-repeat" items="[[curGenInsResp.errors]]" as="error">
-                            <b>[[error.code]]</b>: [[_formatError(error)]]<br/>
+                            <b>[[error.code]]</b> [[_formatError(error)]]<br/>
                         </template>
                         </p>
                     </template>
@@ -1758,7 +1757,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
 		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
-
+		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></ht-pat-mcn-chapteriv-agreement>
 	</template>
 	<script>
 
@@ -2198,7 +2197,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             }
 
             _formatError(error){
-                return(this.language === 'nl' ? error.locNl : error.locFr) +  ' : ' + error.value + ' : ' + (this.language === 'nl' ? error.msgNl : error.msgFr);
+                return "[" + (this.language === 'nl' ? error.locNl : error.locFr) +  '] ' + (error.value?error.value + ' : ':"") + (this.language === 'nl' ? error.msgNl : error.msgFr);
             }
 
     _hasTransfers(genins){
@@ -3986,6 +3985,13 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    if(gender==="male")return "M.";
 	    if(gender==="female")return "Mme";
 	    else return "";
+	}
+
+    _chapter4(e) {
+	    e.stopPropagation()
+		e.preventDefault()
+
+        this.$['chapterivdialog'].open()
 	}
 }
 
