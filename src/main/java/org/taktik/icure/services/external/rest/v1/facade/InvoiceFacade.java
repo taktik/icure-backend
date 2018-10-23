@@ -373,6 +373,29 @@ public class InvoiceFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "List efact invoices to be corrected by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/status")
+	public Response listByHcPartyEfactStatus(
+			@PathParam("hcPartyId") String hcParty,
+			@QueryParam("pending") Boolean pending,
+			@QueryParam("canceled") Boolean canceled,
+			@QueryParam("accepted") Boolean accepted,
+			@QueryParam("resent") Boolean resent,
+			@QueryParam("archived") Boolean archived,
+			@QueryParam("from") Long fromDate,
+			@QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactStatus(hcParty, pending, canceled, accepted, resent, archived, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
 			value = "List invoices by groupId",
 			response = InvoiceDto.class,
 			responseContainer = "Array",
