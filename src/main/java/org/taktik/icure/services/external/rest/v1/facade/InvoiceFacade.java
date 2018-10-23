@@ -20,15 +20,7 @@ package org.taktik.icure.services.external.rest.v1.facade;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -383,11 +375,11 @@ public class InvoiceFacade implements OpenApiFacade{
 	@Path("/byHcParty/{hcPartyId}/efact/status")
 	public Response listByHcPartyEfactStatus(
 			@PathParam("hcPartyId") String hcParty,
-			@QueryParam("pending") Boolean pending,
-			@QueryParam("canceled") Boolean canceled,
-			@QueryParam("accepted") Boolean accepted,
-			@QueryParam("resent") Boolean resent,
-			@QueryParam("archived") Boolean archived,
+			@DefaultValue("false") @QueryParam("pending") Boolean pending,
+			@DefaultValue("false") @QueryParam("canceled") Boolean canceled,
+			@DefaultValue("false") @QueryParam("accepted") Boolean accepted,
+			@DefaultValue("false") @QueryParam("resent") Boolean resent,
+			@DefaultValue("false") @QueryParam("archived") Boolean archived,
 			@QueryParam("from") Long fromDate,
 			@QueryParam("to") Long toDate) {
 		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactStatus(hcParty, pending, canceled, accepted, resent, archived, fromDate, toDate);
