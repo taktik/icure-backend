@@ -846,9 +846,9 @@
                                             <div class="he-edit-btn-container">
                                                 <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-right" on-tap="_toggleEditHE"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicateEattest"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicateEattest" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -1256,6 +1256,12 @@
             <div class="buttons">
                 <paper-button on-tap="_closeManualEncodingDialog">[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button on-tap="_closeManualEncodingDialog">[[localize('add','Add',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="xml_dialog">
+            <div>
+
             </div>
         </paper-dialog>
 
@@ -2795,11 +2801,27 @@
             openXmlDialog(e){
                 e.stopPropagation();
                 e.preventDefault();
+
+                const invoice = JSON.parse(e.target.dataset.item)
+
+                this.$['xml_dialog'].open()
             }
 
             duplicateEattest(e){
                 e.stopPropagation();
                 e.preventDefault();
+
+                const invoice = JSON.parse(e.target.dataset.item)
+
+                console.log(invoice)
+
+                this.api.pdfReport("<html>" +
+                    "   HELLO WORLD" +
+                    "</html>")
+                    .then(response =>{
+                        console.log(response)
+                        response.autoPrint();
+                })
             }
         }
 
