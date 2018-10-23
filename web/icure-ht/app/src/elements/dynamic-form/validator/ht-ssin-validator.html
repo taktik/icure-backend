@@ -23,7 +23,7 @@
             }
 
             validate(value) {
-                return this.isValidSsin(value)
+                return !value || this.isValidSsin(value)
             }
 
             isValidSsin(ssin) {

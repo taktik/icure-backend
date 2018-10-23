@@ -400,7 +400,7 @@
 								<div class="horizontal" style="margin-top:10px">
 									<div class="row">
 										<div class="col-35">&nbsp;</div>
-										<div class="col-30 textAlignCenter"><paper-button on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
+										<div class="col-30 textAlignCenter"><paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
 										<div class="col-35">&nbsp;</div>
 									</div>
 								</div>
@@ -506,7 +506,10 @@
 			    type: Number,
 				value: 0
 			},
-
+            registerEnabled: {
+			  	type: Boolean,
+				value: true
+			},
             userIBAN_100: { type: String, value: '' },
             userIBAN_200: { type: String, value: '' },
             userIBAN_300: { type: String, value: '' },
@@ -594,20 +597,32 @@
     _registerToEDMG(){
 		//100,200,300,400,500,600,900
 		let regs = this.getRegistrationStatus();
-		regs.rs.map(reg =>{
-            if(!reg.registered) {
-                this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
-                    this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
-                    const idx = regs.rs.findIndex(r => r.OA === reg.OA);
-                    if(idx >= 0){
-                        regs.rs.splice(idx, 1, reg);
-                    } else {
-                        regs.rs.push(reg);
-                    }
-                    this.set('regStatus',JSON.stringify(regs));
+        this.set('registerEnabled', false);
+		Promise.all(regs.rs.filter(reg => !reg.registered).map(reg =>
+			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
+				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
+				const idx = regs.rs.findIndex(r => r.OA === reg.OA);
+				if(idx >= 0){
+					regs.rs.splice(idx, 1, reg);
+				} else {
+					regs.rs.push(reg);
+				}
+
+				this.set('regStatus',JSON.stringify(regs));
+
+				let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
+                propRegStatus.typedValue.stringValue = this.regStatus;
+
+				return reg
+			})
+        )).then( regs => {
+            this.set('allEDmgregistered', regs.every(r => !!r.registered))
+            return this.api.user().modifyUser(this.user).then(
+                user => {
+                    this.user = user
+                    this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
                 })
-            }
-        })
+        }).finally(() => this.set('registerEnabled', true))
 	}
 
 	getRegistrationStatus(){
@@ -632,8 +647,7 @@
                 regs.rs.push(reg);
 			}
         })
-        const unreg = regs.rs.find(r => r.registered === false);
-        this.set('allEDmgregistered', unreg ? false : true);
+        this.set('allEDmgregistered', regs.rs.every(r => !!r.registered));
         this.set('currentRegs', regs);
 
         return regs;
@@ -647,7 +661,7 @@
 				.then(hcp => {
 						return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
 							this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-							hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.iban.replace(/ /g, '').toUpperCase(), reg.bic.replace(/ /g, '').toUpperCase())
+							hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.bic.replace(/ /g, '').toUpperCase(), reg.iban.replace(/ /g, '').toUpperCase())
                             .then(r => this.api.logMcn(r, this.user, hcp.id))
 					}
 				).then(regResp => {
@@ -760,11 +774,7 @@
             let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
             propBIC.typedValue.stringValue = this.userBIC;
 
-            if(this.regStatus) {
-                let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
-                propRegStatus.typedValue.stringValue = this.regStatus;
-            }
-            this.api.user().modifyUser(this.user).then(
+           this.api.user().modifyUser(this.user).then(
                 user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
 			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
         }
