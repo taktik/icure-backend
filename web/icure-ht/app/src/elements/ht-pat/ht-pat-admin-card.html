@@ -722,6 +722,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return require('./rsrc/PatientAddressForm.json');
                 }
             },
+            medicalHouseContractsForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientMedicalHouseContractsForm.json');
+                }
+            },
             telecomForm: {
                 type: Object,
                 value: function () {
@@ -906,25 +912,43 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         })
                     } else {
                         //patient present
-                        this.api.patient().modifyPatient(partner.partnerInfo).then(p => this.api.register(p,'patient')).then(partner => {
-                            this.set('patient.partnerships.' + index + '.partnerInfo', partner)
-                        })
-
+                        this.api.patient().modifyPatient(partner.partnerInfo)
+                            .then(
+                                p => this.api.register(p,'patient')
+                            )
+                            .then(
+                                partner => { this.set('patient.partnerships.' + index + '.partnerInfo', partner) }
+                            )
                     }
                 })
             }
 
-            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => {
-                this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                this.patient && (this.patient.rev = p.rev)
-            }).catch(e =>
-                this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
-                    this.patient = p;
-                    this.saveTimeout = undefined;
-                    this.saveAction = undefined;
-                }));
-        }.bind(this);
-        this.saveTimeout = setTimeout(this.saveAction, 10000);
+            this.api.patient().modifyPatient(patient)
+                .then(
+                    p => {
+                        this.api.register(p,'patient')
+                        // console.log(patient);
+                        // console.log(p);
+                    }
+                )
+                .then(
+                    p => {
+                        this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
+                        this.patient && (this.patient.rev = p.rev)
+                    }
+                ).catch(
+                    e => this.patient && this.api.patient().getPatient(this.patient.id)
+                        .then(
+                            p => {
+                                this.patient = p;
+                                this.saveTimeout = undefined;
+                                this.saveAction = undefined;
+                            }
+                        )
+                );
+            }
+            .bind(this);
+            this.saveTimeout = setTimeout(this.saveAction, 10000);
     }
 
     flushSave() {
@@ -973,7 +997,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return {
                         dataMap: a,
                         dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
-                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'partnerships' ? this.partnershipsForm : this.insuranceForm
+                        template:
+                            key === 'addresses' ?
+                                this.addressForm :
+                                key === 'telecoms' ?
+                                    this.telecomForm :
+                                    key === 'partnerships' ?
+                                        this.partnershipsForm :
+                                        key === 'medicalHouseContracts' ?
+                                            this.medicalHouseContractsForm :
+                                            this.insuranceForm
                     };
                 });
             },
