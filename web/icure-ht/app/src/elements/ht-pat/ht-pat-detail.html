@@ -60,6 +60,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
+<link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -833,7 +834,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-fab-background: var(--app-status-color-pending);
 			}
 
-			#insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent {
+			#insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent, #edmgStatus {
 				--paper-fab-background: var(--app-status-color-nok);
 			}
 
@@ -1122,6 +1123,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-tooltip for="tlStatus">[[localize('tl','insurance',language)]]</paper-tooltip>
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
 									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
+									<paper-fab id="edmgStatus" mini icon="vaadin:folder-open-o" on-tap="_openEdmgDialog"></paper-fab>
+									<paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]</paper-tooltip>
 								</div>
 							</div>
 						</paper-item>
@@ -1758,6 +1761,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
 		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></ht-pat-mcn-chapteriv-agreement>
+		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
 	</template>
 	<script>
 
@@ -2173,6 +2177,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._getHubTherapeuticLinks();
         this._getHubTransactionList();
         this.$.hubDialog.open();
+    }
+
+    _openEdmgDialog(e){
+        e.stopPropagation();
+
+        this.$.edmgDialog.open();
     }
 
     _trueOrUnknown(b){

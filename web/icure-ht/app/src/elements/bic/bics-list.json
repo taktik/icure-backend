@@ -1,0 +1,2326 @@
+[
+  {
+    "id": "1",
+    "bicCode": "BPOT BE B1",
+    "startValue": "000",
+    "endValue": "000",
+    "description_nl": "bpost bank",
+    "description_fr": "bpost bank"
+  },
+  {
+    "id": "2",
+    "bicCode": "GEBA BE BB",
+    "startValue": "001",
+    "endValue": "049",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "3",
+    "bicCode": "GKCC BE BB",
+    "startValue": "050",
+    "endValue": "099",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "4",
+    "bicCode": "NBBE BE BB 203",
+    "startValue": "100",
+    "endValue": "101",
+    "description_nl": "Nationale Bank van België",
+    "description_fr": "Banque Nationale de Belgique"
+  },
+  {
+    "id": "5",
+    "bicCode": "nav",
+    "startValue": "102",
+    "endValue": "102",
+    "description_nl": "Uitwisselingscentrum en Verrekening (U.C.V.)",
+    "description_fr": "Centre d'Echange et de Compensation (C.E.C.)"
+  },
+  {
+    "id": "6",
+    "bicCode": "NICA BE BB",
+    "startValue": "103",
+    "endValue": "108",
+    "description_nl": "Crelan",
+    "description_fr": "Crelan"
+  },
+  {
+    "id": "7",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "109",
+    "endValue": "109",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "8",
+    "bicCode": "BKCP BE BB",
+    "startValue": "110",
+    "endValue": "110",
+    "description_nl": "Beroepskrediet",
+    "description_fr": "Crédit Professionnel"
+  },
+  {
+    "id": "9",
+    "bicCode": "ABER BE 21",
+    "startValue": "111",
+    "endValue": "111",
+    "description_nl": "ABK Bank",
+    "description_fr": "ABK Bank"
+  },
+  {
+    "id": "10",
+    "bicCode": "VRIJ",
+    "startValue": "112",
+    "endValue": "112",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "11",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "113",
+    "endValue": "114",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "12",
+    "bicCode": "VRIJ",
+    "startValue": "115",
+    "endValue": "115",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "13",
+    "bicCode": "VRIJ",
+    "startValue": "116",
+    "endValue": "116",
+    "description_nl": "Beleggings- en Kredietkantoor voor de Middenstand (in verreffening)",
+    "description_fr": "Comptoir de Dépôts et de Crédit aux Classes Moyennes (en liquidation)"
+  },
+  {
+    "id": "14",
+    "bicCode": "VRIJ",
+    "startValue": "117",
+    "endValue": "118",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "15",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "119",
+    "endValue": "121",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "16",
+    "bicCode": "OBKB BE 99",
+    "startValue": "122",
+    "endValue": "123",
+    "description_nl": "O.B.K. Bank",
+    "description_fr": "O.B.K. Bank"
+  },
+  {
+    "id": "17",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "124",
+    "endValue": "124",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "18",
+    "bicCode": "CPHB BE 75",
+    "startValue": "125",
+    "endValue": "126",
+    "description_nl": "Banque CPH",
+    "description_fr": "Banque CPH"
+  },
+  {
+    "id": "19",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "127",
+    "endValue": "127",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "20",
+    "bicCode": "VRIJ",
+    "startValue": "128",
+    "endValue": "128",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "21",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "129",
+    "endValue": "129",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "22",
+    "bicCode": "VRIJ",
+    "startValue": "130",
+    "endValue": "130",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "23",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "131",
+    "endValue": "131",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "24",
+    "bicCode": "BNAG BE BB",
+    "startValue": "132",
+    "endValue": "132",
+    "description_nl": "Delta Lloyd Bank",
+    "description_fr": "Delta Lloyd Bank"
+  },
+  {
+    "id": "25",
+    "bicCode": "BKCP BE B1 BKB",
+    "startValue": "133",
+    "endValue": "134",
+    "description_nl": "BKCP",
+    "description_fr": "BKCP"
+  },
+  {
+    "id": "26",
+    "bicCode": "VRIJ",
+    "startValue": "135",
+    "endValue": "136",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "27",
+    "bicCode": "GEBA BE BB",
+    "startValue": "137",
+    "endValue": "137",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "28",
+    "bicCode": "NAP",
+    "startValue": "138",
+    "endValue": "138",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "29",
+    "bicCode": "nav",
+    "startValue": "139",
+    "endValue": "139",
+    "description_nl": "Nationale Investeringsmaatschappij (N.I.M.)",
+    "description_fr": "Société Nationale d'Investissement (S.N.I.)"
+  },
+  {
+    "id": "30",
+    "bicCode": "GEBA BE BB",
+    "startValue": "140",
+    "endValue": "149",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "31",
+    "bicCode": "BCMC BE BB",
+    "startValue": "150",
+    "endValue": "150",
+    "description_nl": "Bancontact - Mister Cash NV/SA",
+    "description_fr": "Bancontact - Mister Cash NV/SA"
+  },
+  {
+    "id": "32",
+    "bicCode": "VRIJ",
+    "startValue": "151",
+    "endValue": "165",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "33",
+    "bicCode": "nav",
+    "startValue": "166",
+    "endValue": "166",
+    "description_nl": "Fédérale de Crédit Artisanal de Liège (in vereffening-en liquidation)",
+    "description_fr": "Fédérale de Crédit Artisanal de Liège (in vereffening-en liquidation)"
+  },
+  {
+    "id": "34",
+    "bicCode": "VRIJ",
+    "startValue": "167",
+    "endValue": "170",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "35",
+    "bicCode": "CPHB BE 75",
+    "startValue": "171",
+    "endValue": "171",
+    "description_nl": "Banque CPH",
+    "description_fr": "Banque CPH"
+  },
+  {
+    "id": "36",
+    "bicCode": "RABO BE 23",
+    "startValue": "172",
+    "endValue": "172",
+    "description_nl": "Rabobank International Antwerp Branch",
+    "description_fr": "Rabobank International Antwerp Branch"
+  },
+  {
+    "id": "37",
+    "bicCode": "RABO BE 23",
+    "startValue": "173",
+    "endValue": "173",
+    "description_nl": "Rabobank International Antwerp Branch",
+    "description_fr": "Rabobank International Antwerp Branch"
+  },
+  {
+    "id": "38",
+    "bicCode": "VRIJ",
+    "startValue": "174",
+    "endValue": "174",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "39",
+    "bicCode": "NAV",
+    "startValue": "175",
+    "endValue": "175",
+    "description_fr": [
+      "Systèmes Technologiques d'Echange et de Traitement - STET",
+      "Systèmes Technologiques d'Echange et de Traitement - STET"
+    ]
+  },
+  {
+    "id": "40",
+    "bicCode": "BSCH BE BR",
+    "startValue": "176",
+    "endValue": "177",
+    "description_nl": "Banco Santander",
+    "description_fr": "Banco Santander"
+  },
+  {
+    "id": "41",
+    "bicCode": "COBA BE BX",
+    "startValue": "178",
+    "endValue": "179",
+    "description_nl": "Commerzbank",
+    "description_fr": "Commerzbank"
+  },
+  {
+    "id": "42",
+    "bicCode": "VRIJ",
+    "startValue": "180",
+    "endValue": "182",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "43",
+    "bicCode": "BARB BE BB",
+    "startValue": "183",
+    "endValue": "183",
+    "description_nl": "Bank of Baroda",
+    "description_fr": "Bank of Baroda"
+  },
+  {
+    "id": "44",
+    "bicCode": "VRIJ",
+    "startValue": "184",
+    "endValue": "184",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "45",
+    "bicCode": "HBKA BE 22",
+    "startValue": "185",
+    "endValue": "185",
+    "description_nl": "Record Bank",
+    "description_fr": "Record Bank"
+  },
+  {
+    "id": "46",
+    "bicCode": "VRIJ",
+    "startValue": "186",
+    "endValue": "188",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "47",
+    "bicCode": "SMBC BE BB",
+    "startValue": "189",
+    "endValue": "189",
+    "description_nl": "Sumitomo Mitsui Banking Corporation (SMBC)",
+    "description_fr": "Sumitomo Mitsui Banking Corporation (SMBC)"
+  },
+  {
+    "id": "48",
+    "bicCode": "CREG BE BB",
+    "startValue": "190",
+    "endValue": "199",
+    "description_fr": [
+      "CBC Banque et Assurances",
+      "CBC Banque et Assurances"
+    ]
+  },
+  {
+    "id": "49",
+    "bicCode": "GEBA BE BB",
+    "startValue": "200",
+    "endValue": "214",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "50",
+    "bicCode": "VRIJ",
+    "startValue": "215",
+    "endValue": "219",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "51",
+    "bicCode": "GEBA BE BB",
+    "startValue": "220",
+    "endValue": "251",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "52",
+    "bicCode": "VRIJ",
+    "startValue": "252",
+    "endValue": "256",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "53",
+    "bicCode": "GEBA BE BB",
+    "startValue": "257",
+    "endValue": "257",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "54",
+    "bicCode": "VRIJ",
+    "startValue": "258",
+    "endValue": "258",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "55",
+    "bicCode": "GEBA BE BB",
+    "startValue": "259",
+    "endValue": "298",
+    "description_nl": "BNP Paribas Fortis",
+    "description_fr": "BNP Paribas Fortis"
+  },
+  {
+    "id": "56",
+    "bicCode": "BPOT BE B1",
+    "startValue": "299",
+    "endValue": "299",
+    "description_nl": "bpost bank",
+    "description_fr": "bpost bank"
+  },
+  {
+    "id": "57",
+    "bicCode": "BBRU BE BB",
+    "startValue": "300",
+    "endValue": "399",
+    "description_nl": "ING België",
+    "description_fr": "ING Belgique"
+  },
+  {
+    "id": "58",
+    "bicCode": "KRED BE BB",
+    "startValue": "400",
+    "endValue": "499",
+    "description_nl": "KBC Bank",
+    "description_fr": "KBC Bank"
+  },
+  {
+    "id": "59",
+    "bicCode": "VRIJ",
+    "startValue": "500",
+    "endValue": "500",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "60",
+    "bicCode": "DHBN BE BB",
+    "startValue": "501",
+    "endValue": "501",
+    "description_nl": "Demir-Halk Bank (Nederland) (DHB)",
+    "description_fr": "Demir-Halk Bank (Nederland) (DHB)"
+  },
+  {
+    "id": "61",
+    "bicCode": "VRIJ",
+    "startValue": "502",
+    "endValue": "504",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "62",
+    "bicCode": "NAP",
+    "startValue": "505",
+    "endValue": "506",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "63",
+    "bicCode": "DIER BE 21",
+    "startValue": "507",
+    "endValue": "507",
+    "description_nl": "Dierickx, Leys & Cie Effectenbank",
+    "description_fr": "Dierickx, Leys & Cie Effectenbank"
+  },
+  {
+    "id": "64",
+    "bicCode": "PARB BE BZ MDC",
+    "startValue": "508",
+    "endValue": "508",
+    "description_nl": "BNP Paribas Securities Services",
+    "description_fr": "BNP Paribas Securities Services"
+  },
+  {
+    "id": "65",
+    "bicCode": "ABNA BE 2A IPC",
+    "startValue": "509",
+    "endValue": "509",
+    "description_nl": "ABN AMRO Bank N.V.",
+    "description_fr": "ABN AMRO Bank N.V."
+  },
+  {
+    "id": "66",
+    "bicCode": "VAPE BE 21",
+    "startValue": "510",
+    "endValue": "510",
+    "description_nl": "van de Put & Co Effectenbank",
+    "description_fr": "van de Put & Co Effectenbank"
+  },
+  {
+    "id": "67",
+    "bicCode": "NAP",
+    "startValue": "511",
+    "endValue": "511",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "68",
+    "bicCode": "DNIB BE 21",
+    "startValue": "512",
+    "endValue": "512",
+    "description_nl": "NIBC BANK",
+    "description_fr": "NIBC BANK"
+  },
+  {
+    "id": "69",
+    "bicCode": "SGPB BE 99",
+    "startValue": "513",
+    "endValue": "513",
+    "description_fr": [
+      "Société Générale Private Banking",
+      "Société Générale Private Banking"
+    ]
+  },
+  {
+    "id": "70",
+    "bicCode": "PUIL BE BB",
+    "startValue": "514",
+    "endValue": "514",
+    "description_nl": "Puilaetco Dewaay Private Bankers",
+    "description_fr": "Puilaetco Dewaay Private Bankers"
+  },
+  {
+    "id": "71",
+    "bicCode": "IRVT BE BB",
+    "startValue": "515",
+    "endValue": "515",
+    "description_nl": "The Bank of New York Mellon NV/SA",
+    "description_fr": "The Bank of New York Mellon NV/SA"
+  },
+  {
+    "id": "72",
+    "bicCode": "VRIJ",
+    "startValue": "516",
+    "endValue": "516",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "73",
+    "bicCode": "FORD BE 21",
+    "startValue": "517",
+    "endValue": "517",
+    "description_nl": "FCE Bank",
+    "description_fr": "FCE Bank"
+  },
+  {
+    "id": "74",
+    "bicCode": "NAP",
+    "startValue": "518",
+    "endValue": "518",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "75",
+    "bicCode": "BNYM BE BB",
+    "startValue": "519",
+    "endValue": "519",
+    "description_nl": "The Bank of New York Mellon",
+    "description_fr": "The Bank of New York Mellon"
+  },
+  {
+    "id": "76",
+    "bicCode": "VRIJ",
+    "startValue": "520",
+    "endValue": "520",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "77",
+    "bicCode": "FVLB BE 22",
+    "startValue": "521",
+    "endValue": "521",
+    "description_nl": "F. van Lanschot Bankiers",
+    "description_fr": "F. van Lanschot Bankiers"
+  },
+  {
+    "id": "78",
+    "bicCode": "UTWB BE BB",
+    "startValue": "522",
+    "endValue": "522",
+    "description_nl": "United Taiwan Bank",
+    "description_fr": "United Taiwan Bank"
+  },
+  {
+    "id": "79",
+    "bicCode": "TRIO BE BB",
+    "startValue": "523",
+    "endValue": "523",
+    "description_nl": "Triodos Bank",
+    "description_fr": "Banque Triodos"
+  },
+  {
+    "id": "80",
+    "bicCode": "WAFA BE BB",
+    "startValue": "524",
+    "endValue": "524",
+    "description_nl": "Attijariwafa bank Europe",
+    "description_fr": "Attijariwafa bank Europe"
+  },
+  {
+    "id": "81",
+    "bicCode": "FVLB BE 2E",
+    "startValue": "525",
+    "endValue": "525",
+    "description_nl": "F. van Lanschot Bankiers",
+    "description_fr": "F. van Lanschot Bankiers"
+  },
+  {
+    "id": "82",
+    "bicCode": "VRIJ",
+    "startValue": "526",
+    "endValue": "529",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "83",
+    "bicCode": "SHIZ BE BB",
+    "startValue": "530",
+    "endValue": "530",
+    "description_nl": "Shizuoka Bank (Europe)",
+    "description_fr": "Shizuoka Bank (Europe)"
+  },
+  {
+    "id": "84",
+    "bicCode": "NAP",
+    "startValue": "531",
+    "endValue": "531",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "85",
+    "bicCode": "VRIJ",
+    "startValue": "532",
+    "endValue": "534",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "86",
+    "bicCode": "FBHL BE 22",
+    "startValue": "535",
+    "endValue": "535",
+    "description_nl": "CREDIT EUROPE BANK NV",
+    "description_fr": "CREDIT EUROPE BANK NV"
+  },
+  {
+    "id": "87",
+    "bicCode": "VRIJ",
+    "startValue": "536",
+    "endValue": "537",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "88",
+    "bicCode": "nav",
+    "startValue": "538",
+    "endValue": "538",
+    "description_nl": "Hoist Finance",
+    "description_fr": "Hoist Finance"
+  },
+  {
+    "id": "89",
+    "bicCode": "NAP",
+    "startValue": "539",
+    "endValue": "539",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "90",
+    "bicCode": "UBIN BE 22",
+    "startValue": "540",
+    "endValue": "540",
+    "description_nl": "Union Bank of India",
+    "description_fr": "Union Bank of India"
+  },
+  {
+    "id": "91",
+    "bicCode": "BKID BE 22",
+    "startValue": "541",
+    "endValue": "541",
+    "description_nl": "BANK OF INDIA",
+    "description_fr": "BANK OF INDIA"
+  },
+  {
+    "id": "92",
+    "bicCode": "VRIJ",
+    "startValue": "542",
+    "endValue": "544",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "93",
+    "bicCode": "NAP",
+    "startValue": "545",
+    "endValue": "545",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "94",
+    "bicCode": "WAFA BE BB",
+    "startValue": "546",
+    "endValue": "546",
+    "description_nl": "Attijariwafa bank Europe",
+    "description_fr": "Attijariwafa bank Europe"
+  },
+  {
+    "id": "95",
+    "bicCode": "VRIJ",
+    "startValue": "547",
+    "endValue": "547",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "96",
+    "bicCode": "LOCY BE BB",
+    "startValue": "548",
+    "endValue": "548",
+    "description_nl": "Lombard Odier (Europe)",
+    "description_fr": "Lombard Odier (Europe)"
+  },
+  {
+    "id": "97",
+    "bicCode": "CHAS BE BX",
+    "startValue": "549",
+    "endValue": "549",
+    "description_nl": "JP Morgan Chase Bank",
+    "description_fr": "JP Morgan Chase Bank"
+  },
+  {
+    "id": "98",
+    "bicCode": "GKCC BE BB",
+    "startValue": "550",
+    "endValue": "560",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "99",
+    "bicCode": "FTNO BE B1",
+    "startValue": "561",
+    "endValue": "561",
+    "description_nl": "FORTUNEO BELGIUM",
+    "description_fr": "FORTUNEO BELGIUM"
+  },
+  {
+    "id": "100",
+    "bicCode": "GKCC BE BB",
+    "startValue": "562",
+    "endValue": "569",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "101",
+    "bicCode": "CITI BE BX",
+    "startValue": "570",
+    "endValue": "579",
+    "description_fr": "Citibank International PLC",
+    "description_nl": "Citibank International PLC"
+  },
+  {
+    "id": "102",
+    "bicCode": "VRIJ",
+    "startValue": "580",
+    "endValue": "580",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "103",
+    "bicCode": "MHCB BE BB",
+    "startValue": "581",
+    "endValue": "581",
+    "description_nl": "Mizuho Bank Nederland N.V. Brussels Branch",
+    "description_fr": "Mizuho Bank Nederland N.V. Brussels Branch"
+  },
+  {
+    "id": "104",
+    "bicCode": "VRIJ",
+    "startValue": "582",
+    "endValue": "582",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "105",
+    "bicCode": "DEGR BE BB",
+    "startValue": "583",
+    "endValue": "583",
+    "description_fr": [
+      "Banque Degroof Luxembourg",
+      "Banque Degroof Luxembourg"
+    ]
+  },
+  {
+    "id": "106",
+    "bicCode": "ICIC GB 2L",
+    "startValue": "584",
+    "endValue": "584",
+    "description_fr": "ICICI Bank UK Limited",
+    "description_nl": "ICICI Bank UK Limited"
+  },
+  {
+    "id": "107",
+    "bicCode": "RCBP BE BB",
+    "startValue": "585",
+    "endValue": "585",
+    "description_fr": "Rothschild & Cie Banque GCV",
+    "description_nl": "Rothschild & Cie Banque GCV"
+  },
+  {
+    "id": "108",
+    "bicCode": "CFFR BE B1",
+    "startValue": "586",
+    "endValue": "586",
+    "description_fr": "Crédit Foncier de France",
+    "description_nl": "Crédit Foncier de France"
+  },
+  {
+    "id": "109",
+    "bicCode": "BIBL BE 21",
+    "startValue": "587",
+    "endValue": "587",
+    "description_fr": "BinckBank",
+    "description_nl": "BinckBank"
+  },
+  {
+    "id": "110",
+    "bicCode": "CMCI BE B1",
+    "startValue": "588",
+    "endValue": "588",
+    "description_fr": "Banque Transatlantique Belgium",
+    "description_nl": "Banque Transatlantique Belgium"
+  },
+  {
+    "id": "111",
+    "bicCode": "VRIJ",
+    "startValue": "589",
+    "endValue": "589",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "112",
+    "bicCode": "BSCH BE BB",
+    "startValue": "590",
+    "endValue": "594",
+    "description_fr": "Santander Benelux",
+    "description_nl": "Santander Benelux"
+  },
+  {
+    "id": "113",
+    "bicCode": "CTBK BE BX",
+    "startValue": "595",
+    "endValue": "601",
+    "description_fr": "Beobank",
+    "description_nl": "Beobank"
+  },
+  {
+    "id": "114",
+    "bicCode": "NAP",
+    "startValue": "602",
+    "endValue": "602",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "115",
+    "bicCode": "VRIJ",
+    "startValue": "603",
+    "endValue": "604",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "116",
+    "bicCode": "BKCH BE BB",
+    "startValue": "605",
+    "endValue": "605",
+    "description_fr": "Bank of China (Luxembourg) S.A., Brussels Branch",
+    "description_nl": "Bank of China (Luxembourg) S.A., Brussels Branch"
+  },
+  {
+    "id": "117",
+    "bicCode": "VRIJ",
+    "startValue": "606",
+    "endValue": "606",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "118",
+    "bicCode": "ICBK BE BB",
+    "startValue": "607",
+    "endValue": "607",
+    "description_fr": "Industrial and Commercial Bank of China (Europe)",
+    "description_nl": "Industrial and Commercial Bank of China (Europe)"
+  },
+  {
+    "id": "119",
+    "bicCode": "VRIJ",
+    "startValue": "608",
+    "endValue": "608",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "120",
+    "bicCode": "NAV",
+    "startValue": "609",
+    "endValue": "609",
+    "description_fr": [
+      "Elavon Financial Services Limited Belgian Branch",
+      "Elavon Financial Services Limited Belgian Branch"
+    ]
+  },
+  {
+    "id": "121",
+    "bicCode": "DEUT BE BE",
+    "startValue": "610",
+    "endValue": "613",
+    "description_fr": "Deutsche Bank AG",
+    "description_nl": "Deutsche Bank AG"
+  },
+  {
+    "id": "122",
+    "bicCode": "VRIJ",
+    "startValue": "614",
+    "endValue": "623",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "123",
+    "bicCode": "GKCC BE BB",
+    "startValue": "624",
+    "endValue": "625",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "124",
+    "bicCode": "CPBI FRPP",
+    "startValue": "626",
+    "endValue": "626",
+    "description_fr": "CP OR Devises S.A.",
+    "description_nl": "CP OR Devises S.A."
+  },
+  {
+    "id": "125",
+    "bicCode": "VRIJ",
+    "startValue": "627",
+    "endValue": "629",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "126",
+    "bicCode": "BBRU BE BB",
+    "startValue": "630",
+    "endValue": "631",
+    "description_nl": "ING België",
+    "description_fr": "ING Belgique"
+  },
+  {
+    "id": "127",
+    "bicCode": "VRIJ",
+    "startValue": "632",
+    "endValue": "633",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "128",
+    "bicCode": "BNAG BE BB",
+    "startValue": "634",
+    "endValue": "636",
+    "description_fr": "Delta Lloyd Bank",
+    "description_nl": "Delta Lloyd Bank"
+  },
+  {
+    "id": "129",
+    "bicCode": "VRIJ",
+    "startValue": "637",
+    "endValue": "637",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "130",
+    "bicCode": "GKCC BE BB",
+    "startValue": "638",
+    "endValue": "638",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "131",
+    "bicCode": "ABNA BE 2A MYO",
+    "startValue": "639",
+    "endValue": "639",
+    "description_fr": "ABN AMRO Bank N.V.",
+    "description_nl": "ABN AMRO Bank N.V."
+  },
+  {
+    "id": "132",
+    "bicCode": "ADIA BE 22",
+    "startValue": "640",
+    "endValue": "640",
+    "description_nl": "Antwerpse Diamantbank",
+    "description_fr": "Banque Diamantaire Anversoise"
+  },
+  {
+    "id": "133",
+    "bicCode": "VRIJ",
+    "startValue": "641",
+    "endValue": "641",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "134",
+    "bicCode": "BBVA BE BB",
+    "startValue": "642",
+    "endValue": "642",
+    "description_fr": "Banco Bilbao Vizcaya Argentaria",
+    "description_nl": "Banco Bilbao Vizcaya Argentaria"
+  },
+  {
+    "id": "135",
+    "bicCode": "BMPB BE BB",
+    "startValue": "643",
+    "endValue": "643",
+    "description_fr": "Banca Monte Paschi Belgio",
+    "description_nl": "Banca Monte Paschi Belgio"
+  },
+  {
+    "id": "136",
+    "bicCode": "VRIJ",
+    "startValue": "644",
+    "endValue": "644",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "137",
+    "bicCode": "JVBA BE 22",
+    "startValue": "645",
+    "endValue": "645",
+    "description_fr": "Bank J. Van Breda & C°",
+    "description_nl": "Bank J. Van Breda & C°"
+  },
+  {
+    "id": "138",
+    "bicCode": "BNAG BE BB",
+    "startValue": "646",
+    "endValue": "647",
+    "description_fr": "Delta Lloyd Bank",
+    "description_nl": "Delta Lloyd Bank"
+  },
+  {
+    "id": "139",
+    "bicCode": "VRIJ",
+    "startValue": "648",
+    "endValue": "648",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "140",
+    "bicCode": "nav",
+    "startValue": "649",
+    "endValue": "649",
+    "description_fr": [
+      "Caisse d'Epargne Nord France Europe",
+      "Caisse d'Epargne Nord France Europe"
+    ]
+  },
+  {
+    "id": "141",
+    "bicCode": "VRIJ",
+    "startValue": "650",
+    "endValue": "650",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "142",
+    "bicCode": "KEYT BE BB",
+    "startValue": "651",
+    "endValue": "651",
+    "description_nl": "Keytrade Bank",
+    "description_fr": "Keytrade Bank"
+  },
+  {
+    "id": "143",
+    "bicCode": "HBKA BE 22",
+    "startValue": "652",
+    "endValue": "652",
+    "description_nl": "Record Bank",
+    "description_fr": "Record Bank"
+  },
+  {
+    "id": "144",
+    "bicCode": "VRIJ",
+    "startValue": "653",
+    "endValue": "655",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "145",
+    "bicCode": "ETHI BE BB",
+    "startValue": "656",
+    "endValue": "656",
+    "description_fr": "OPTIMA BANK",
+    "description_nl": "OPTIMA BANK"
+  },
+  {
+    "id": "146",
+    "bicCode": "GKCC BE BB",
+    "startValue": "657",
+    "endValue": "657",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "147",
+    "bicCode": "HABB BE BB",
+    "startValue": "658",
+    "endValue": "658",
+    "description_fr": "Habib Bank",
+    "description_nl": "Habib Bank"
+  },
+  {
+    "id": "148",
+    "bicCode": "VRIJ",
+    "startValue": "659",
+    "endValue": "662",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "149",
+    "bicCode": "NAP",
+    "startValue": "663",
+    "endValue": "663",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "150",
+    "bicCode": "BCDM BE BB",
+    "startValue": "664",
+    "endValue": "664",
+    "description_fr": "Banque Chaabi du Maroc",
+    "description_nl": "Banque Chaabi du Maroc"
+  },
+  {
+    "id": "151",
+    "bicCode": "SPAA BE 22",
+    "startValue": "665",
+    "endValue": "665",
+    "description_fr": "Crelan",
+    "description_nl": "Crelan"
+  },
+  {
+    "id": "152",
+    "bicCode": "nav",
+    "startValue": "666",
+    "endValue": "666",
+    "description_nl": "ATOS WORLDLINE NV",
+    "description_fr": "ATOS WORLDLINE SA"
+  },
+  {
+    "id": "153",
+    "bicCode": "VRIJ",
+    "startValue": "667",
+    "endValue": "667",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "154",
+    "bicCode": "SBIN BE 2X",
+    "startValue": "668",
+    "endValue": "668",
+    "description_fr": "State Bank of India",
+    "description_nl": "State Bank of India"
+  },
+  {
+    "id": "155",
+    "bicCode": "nav",
+    "startValue": "669",
+    "endValue": "669",
+    "description_nl": "ATOS WORLDLINE NV",
+    "description_fr": "ATOS WORLDLINE SA"
+  },
+  {
+    "id": "156",
+    "bicCode": "NYA",
+    "startValue": "670",
+    "endValue": "670",
+    "description_fr": "CNH Industrial Capital EUROPE",
+    "description_nl": "CNH Industrial Capital EUROPE"
+  },
+  {
+    "id": "157",
+    "bicCode": "EURB BE 99",
+    "startValue": "671",
+    "endValue": "671",
+    "description_fr": "Europabank",
+    "description_nl": "Europabank"
+  },
+  {
+    "id": "158",
+    "bicCode": "GKCC BE BB",
+    "startValue": "672",
+    "endValue": "672",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "159",
+    "bicCode": "HBKA BE 22",
+    "startValue": "673",
+    "endValue": "673",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "160",
+    "bicCode": "ABNA BE 2A IDJ",
+    "startValue": "674",
+    "endValue": "674",
+    "description_fr": "ABN AMRO Bank N.V.",
+    "description_nl": "ABN AMRO Bank N.V."
+  },
+  {
+    "id": "161",
+    "bicCode": "BYBB BE BB",
+    "startValue": "675",
+    "endValue": "675",
+    "description_fr": "Byblos Bank Europe",
+    "description_nl": "Byblos Bank Europe"
+  },
+  {
+    "id": "162",
+    "bicCode": "DEGR BE BB",
+    "startValue": "676",
+    "endValue": "676",
+    "description_nl": "Bank Degroof",
+    "description_fr": "Banque Degroof"
+  },
+  {
+    "id": "163",
+    "bicCode": "VRIJ",
+    "startValue": "677",
+    "endValue": "677",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "164",
+    "bicCode": "DELE BE 22",
+    "startValue": "678",
+    "endValue": "678",
+    "description_nl": "Bank Delen",
+    "description_fr": "Banque Delen"
+  },
+  {
+    "id": "165",
+    "bicCode": "PCHQ BE BB",
+    "startValue": "679",
+    "endValue": "679",
+    "description_nl": "bpost",
+    "description_fr": "bpost"
+  },
+  {
+    "id": "166",
+    "bicCode": "GKCC BE BB",
+    "startValue": "680",
+    "endValue": "680",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "167",
+    "bicCode": "VRIJ",
+    "startValue": "681",
+    "endValue": "681",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "168",
+    "bicCode": "GKCC BE BB",
+    "startValue": "682",
+    "endValue": "683",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "169",
+    "bicCode": "VRIJ",
+    "startValue": "684",
+    "endValue": "684",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "170",
+    "bicCode": "BOFA BE 3X",
+    "startValue": "685",
+    "endValue": "686",
+    "description_fr": "Bank of America, National Association",
+    "description_nl": "Bank of America, National Association"
+  },
+  {
+    "id": "171",
+    "bicCode": "MGTC BE BE",
+    "startValue": "687",
+    "endValue": "687",
+    "description_fr": "Euroclear Bank",
+    "description_nl": "Euroclear Bank"
+  },
+  {
+    "id": "172",
+    "bicCode": "SGAB BE B2",
+    "startValue": "688",
+    "endValue": "688",
+    "description_fr": "Société Générale (Paris)",
+    "description_nl": "Société Générale (Paris)"
+  },
+  {
+    "id": "173",
+    "bicCode": "VRIJ",
+    "startValue": "689",
+    "endValue": "689",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "174",
+    "bicCode": "BNPA BE BB",
+    "startValue": "690",
+    "endValue": "690",
+    "description_fr": "BNP Paribas",
+    "description_nl": "BNP Paribas"
+  },
+  {
+    "id": "175",
+    "bicCode": "VRIJ",
+    "startValue": "691",
+    "endValue": "691",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "176",
+    "bicCode": "nav",
+    "startValue": "692",
+    "endValue": "692",
+    "description_fr": "INTERNATIONAL CARD SERVICES",
+    "description_nl": "INTERNATIONAL CARD SERVICES"
+  },
+  {
+    "id": "177",
+    "bicCode": "BOTK BE BX",
+    "startValue": "693",
+    "endValue": "693",
+    "description_fr": "The Bank of Tokyo-Mitsubishi",
+    "description_nl": "The Bank of Tokyo-Mitsubishi"
+  },
+  {
+    "id": "178",
+    "bicCode": "DEUT BE BE",
+    "startValue": "694",
+    "endValue": "694",
+    "description_fr": "Deutsche Bank AG",
+    "description_nl": "Deutsche Bank AG"
+  },
+  {
+    "id": "179",
+    "bicCode": "VRIJ",
+    "startValue": "695",
+    "endValue": "695",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "180",
+    "bicCode": "CRLY BE BB",
+    "startValue": "696",
+    "endValue": "696",
+    "description_fr": "Crédit Agricole Corporate & Investment Bank",
+    "description_nl": "Crédit Agricole Corporate & Investment Bank"
+  },
+  {
+    "id": "181",
+    "bicCode": "VRIJ",
+    "startValue": "697",
+    "endValue": "697",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "182",
+    "bicCode": "NAV",
+    "startValue": "698",
+    "endValue": "698",
+    "description_fr": "Natixis Bank",
+    "description_nl": "Natixis Bank"
+  },
+  {
+    "id": "183",
+    "bicCode": "VRIJ",
+    "startValue": "699",
+    "endValue": "699",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "184",
+    "bicCode": "AXAB BE 22",
+    "startValue": "700",
+    "endValue": "709",
+    "description_fr": "AXA Bank Europe",
+    "description_nl": "AXA Bank Europe"
+  },
+  {
+    "id": "185",
+    "bicCode": "NAP",
+    "startValue": "710",
+    "endValue": "718",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "186",
+    "bicCode": "FTSB BE 22",
+    "startValue": "719",
+    "endValue": "719",
+    "description_fr": "ABN AMRO Bank N.V.",
+    "description_nl": "ABN AMRO Bank N.V."
+  },
+  {
+    "id": "187",
+    "bicCode": "ABNA BE BR",
+    "startValue": "720",
+    "endValue": "721",
+    "description_fr": "The Royal Bank of Scotland Plc, Belgium branch",
+    "description_nl": "The Royal Bank of Scotland Plc, Belgium branch"
+  },
+  {
+    "id": "188",
+    "bicCode": "ABNA BE 2A IPC",
+    "startValue": "722",
+    "endValue": "722",
+    "description_fr": "ABN AMRO Bank N.V.",
+    "description_nl": "ABN AMRO Bank N.V."
+  },
+  {
+    "id": "189",
+    "bicCode": "ABNA BE BR",
+    "startValue": "723",
+    "endValue": "724",
+    "description_fr": "The Royal Bank of Scotland Plc, Belgium branch",
+    "description_nl": "The Royal Bank of Scotland Plc, Belgium branch"
+  },
+  {
+    "id": "190",
+    "bicCode": "KRED BE BB",
+    "startValue": "725",
+    "endValue": "727",
+    "description_fr": "KBC Bank",
+    "description_nl": "KBC Bank"
+  },
+  {
+    "id": "191",
+    "bicCode": "CREG BE BB",
+    "startValue": "728",
+    "endValue": "729",
+    "description_fr": [
+      "CBC Banque et Assurances",
+      "CBC Banque et Assurances"
+    ]
+  },
+  {
+    "id": "192",
+    "bicCode": "KRED BE BB",
+    "startValue": "730",
+    "endValue": "731",
+    "description_fr": "KBC Bank",
+    "description_nl": "KBC Bank"
+  },
+  {
+    "id": "193",
+    "bicCode": "CREG BE BB",
+    "startValue": "732",
+    "endValue": "732",
+    "description_fr": [
+      "CBC Banque et Assurances",
+      "CBC Banque et Assurances"
+    ]
+  },
+  {
+    "id": "194",
+    "bicCode": "KRED BE BB",
+    "startValue": "733",
+    "endValue": "741",
+    "description_fr": "KBC Bank",
+    "description_nl": "KBC Bank"
+  },
+  {
+    "id": "195",
+    "bicCode": "CREG BE BB",
+    "startValue": "742",
+    "endValue": "742",
+    "description_fr": [
+      "CBC Banque et Assurances",
+      "CBC Banque et Assurances"
+    ]
+  },
+  {
+    "id": "196",
+    "bicCode": "KRED BE BB",
+    "startValue": "743",
+    "endValue": "749",
+    "description_fr": "KBC Bank",
+    "description_nl": "KBC Bank"
+  },
+  {
+    "id": "197",
+    "bicCode": "AXAB BE 22",
+    "startValue": "750",
+    "endValue": "774",
+    "description_fr": "AXA Bank Europe",
+    "description_nl": "AXA Bank Europe"
+  },
+  {
+    "id": "198",
+    "bicCode": "GKCC BE BB",
+    "startValue": "775",
+    "endValue": "799",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "199",
+    "bicCode": "AXAB BE 22",
+    "startValue": "800",
+    "endValue": "816",
+    "description_fr": "AXA Bank Europe",
+    "description_nl": "AXA Bank Europe"
+  },
+  {
+    "id": "200",
+    "bicCode": "-",
+    "startValue": "817",
+    "endValue": "817",
+    "description_fr": "CACEIS Bank Luxembourg",
+    "description_nl": "CACEIS Bank Luxembourg"
+  },
+  {
+    "id": "201",
+    "bicCode": "VRIJ",
+    "startValue": "818",
+    "endValue": "822",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "202",
+    "bicCode": "BLUX BE 41",
+    "startValue": "823",
+    "endValue": "823",
+    "description_fr": "Banque de Luxembourg",
+    "description_nl": "Banque de Luxembourg"
+  },
+  {
+    "id": "203",
+    "bicCode": "NAV",
+    "startValue": "824",
+    "endValue": "824",
+    "description_fr": "ING Bank",
+    "description_nl": "ING Bank"
+  },
+  {
+    "id": "204",
+    "bicCode": "DEUT BE BE",
+    "startValue": "825",
+    "endValue": "826",
+    "description_fr": "Deutsche Bank AG",
+    "description_nl": "Deutsche Bank AG"
+  },
+  {
+    "id": "205",
+    "bicCode": "ETHI BE BB",
+    "startValue": "827",
+    "endValue": "827",
+    "description_fr": "OPTIMA BANK",
+    "description_nl": "OPTIMA BANK"
+  },
+  {
+    "id": "206",
+    "bicCode": "HBKA BE 22",
+    "startValue": "828",
+    "endValue": "828",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "207",
+    "bicCode": "VRIJ",
+    "startValue": "829",
+    "endValue": "829",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "208",
+    "bicCode": "GKCC BE BB",
+    "startValue": "830",
+    "endValue": "839",
+    "description_nl": "BELFIUS BANK",
+    "description_fr": "BELFIUS BANQUE"
+  },
+  {
+    "id": "209",
+    "bicCode": "PRIB BE BB",
+    "startValue": "840",
+    "endValue": "840",
+    "description_fr": "Edmond de Rothschild (Europe)",
+    "description_nl": "Edmond de Rothschild (Europe)"
+  },
+  {
+    "id": "210",
+    "bicCode": "VRIJ",
+    "startValue": "841",
+    "endValue": "841",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "211",
+    "bicCode": "UBSW BE BB",
+    "startValue": "842",
+    "endValue": "842",
+    "description_fr": "UBS (Luxembourg)",
+    "description_nl": "UBS (Luxembourg)"
+  },
+  {
+    "id": "212",
+    "bicCode": "FTNO BE B1",
+    "startValue": "843",
+    "endValue": "843",
+    "description_fr": "FORTUNEO BELGIUM",
+    "description_nl": "FORTUNEO BELGIUM"
+  },
+  {
+    "id": "213",
+    "bicCode": "RABO BE 22",
+    "startValue": "844",
+    "endValue": "844",
+    "description_fr": "Rabobank.be",
+    "description_nl": "Rabobank.be"
+  },
+  {
+    "id": "214",
+    "bicCode": "DEGR BE BB",
+    "startValue": "845",
+    "endValue": "845",
+    "description_nl": "Bank Degroof",
+    "description_fr": "Banque Degroof"
+  },
+  {
+    "id": "215",
+    "bicCode": "VRIJ",
+    "startValue": "846",
+    "endValue": "846",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "216",
+    "bicCode": "nav",
+    "startValue": "847",
+    "endValue": "847",
+    "description_nl": "Saxo Bank (Frankrijk)",
+    "description_fr": "Saxo Bank (France)"
+  },
+  {
+    "id": "217",
+    "bicCode": "VRIJ",
+    "startValue": "848",
+    "endValue": "849",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "218",
+    "bicCode": "SPAA BE 22",
+    "startValue": "850",
+    "endValue": "853",
+    "description_fr": "Crelan",
+    "description_nl": "Crelan"
+  },
+  {
+    "id": "219",
+    "bicCode": "VRIJ",
+    "startValue": "854",
+    "endValue": "857",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "220",
+    "bicCode": "PSAB BE B1",
+    "startValue": "858",
+    "endValue": "858",
+    "description_fr": "PSA Finance",
+    "description_nl": "PSA Finance"
+  },
+  {
+    "id": "221",
+    "bicCode": "SPAA BE 22",
+    "startValue": "859",
+    "endValue": "863",
+    "description_fr": "Crelan",
+    "description_nl": "Crelan"
+  },
+  {
+    "id": "222",
+    "bicCode": "VRIJ",
+    "startValue": "864",
+    "endValue": "864",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "223",
+    "bicCode": "SPAA BE 22",
+    "startValue": "865",
+    "endValue": "866",
+    "description_fr": "Crelan",
+    "description_nl": "Crelan"
+  },
+  {
+    "id": "224",
+    "bicCode": "VRIJ",
+    "startValue": "867",
+    "endValue": "867",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "225",
+    "bicCode": "KRED BE BB",
+    "startValue": "868",
+    "endValue": "868",
+    "description_fr": "KBC Bank",
+    "description_nl": "KBC Bank"
+  },
+  {
+    "id": "226",
+    "bicCode": "NAP",
+    "startValue": "869",
+    "endValue": "869",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "227",
+    "bicCode": "BNAG BE BB",
+    "startValue": "870",
+    "endValue": "872",
+    "description_fr": "Delta Lloyd Bank",
+    "description_nl": "Delta Lloyd Bank"
+  },
+  {
+    "id": "228",
+    "bicCode": "PCHQ BE BB",
+    "startValue": "873",
+    "endValue": "873",
+    "description_nl": "bpost",
+    "description_fr": "bpost"
+  },
+  {
+    "id": "229",
+    "bicCode": "BNAG BE BB",
+    "startValue": "874",
+    "endValue": "874",
+    "description_fr": "Delta Lloyd Bank",
+    "description_nl": "Delta Lloyd Bank"
+  },
+  {
+    "id": "230",
+    "bicCode": "nav",
+    "startValue": "875",
+    "endValue": "875",
+    "description_fr": "Union Bancaire Privée (Europe)",
+    "description_nl": "Union Bancaire Privée (Europe)"
+  },
+  {
+    "id": "231",
+    "bicCode": "MBWM BE BB",
+    "startValue": "876",
+    "endValue": "876",
+    "description_fr": "Mediterranean Bank (Malta)",
+    "description_nl": "Mediterranean Bank (Malta)"
+  },
+  {
+    "id": "232",
+    "bicCode": "BNAG BE BB",
+    "startValue": "877",
+    "endValue": "879",
+    "description_fr": "Delta Lloyd Bank",
+    "description_nl": "Delta Lloyd Bank"
+  },
+  {
+    "id": "233",
+    "bicCode": "HBKA BE 22",
+    "startValue": "880",
+    "endValue": "889",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "234",
+    "bicCode": "VDSP BE 91",
+    "startValue": "890",
+    "endValue": "899",
+    "description_fr": "Volksdepositokas Spaarbank (VDK Spaarbank)",
+    "description_nl": "Volksdepositokas Spaarbank (VDK Spaarbank)"
+  },
+  {
+    "id": "235",
+    "bicCode": "NAP",
+    "startValue": "900",
+    "endValue": "902",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "236",
+    "bicCode": "VRIJ",
+    "startValue": "903",
+    "endValue": "905",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "237",
+    "bicCode": "CEKV BE 81",
+    "startValue": "906",
+    "endValue": "906",
+    "description_fr": "Centrale Kredietverlening (C.K.V.)",
+    "description_nl": "Centrale Kredietverlening (C.K.V.)"
+  },
+  {
+    "id": "238",
+    "bicCode": "SPAA BE 22",
+    "startValue": "907",
+    "endValue": "907",
+    "description_fr": "Crelan",
+    "description_nl": "Crelan"
+  },
+  {
+    "id": "239",
+    "bicCode": "CEKV BE 81",
+    "startValue": "908",
+    "endValue": "908",
+    "description_fr": "Centrale Kredietverlening (C.K.V.)",
+    "description_nl": "Centrale Kredietverlening (C.K.V.)"
+  },
+  {
+    "id": "240",
+    "bicCode": "FTNO BE B1",
+    "startValue": "909",
+    "endValue": "909",
+    "description_fr": "FORTUNEO BELGIUM",
+    "description_nl": "FORTUNEO BELGIUM"
+  },
+  {
+    "id": "241",
+    "bicCode": "HBKA BE 22",
+    "startValue": "910",
+    "endValue": "910",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "242",
+    "bicCode": "TUNZ BE B1",
+    "startValue": "911",
+    "endValue": "911",
+    "description_fr": "TUNZ.COM",
+    "description_nl": "TUNZ.COM"
+  },
+  {
+    "id": "243",
+    "bicCode": "nav",
+    "startValue": "912",
+    "endValue": "912",
+    "description_fr": "Hi - Media Porte Monnaie Electronique",
+    "description_nl": "Hi - Media Porte Monnaie Electronique"
+  },
+  {
+    "id": "244",
+    "bicCode": "EPBF BE BB",
+    "startValue": "913",
+    "endValue": "913",
+    "description_fr": "EPBF",
+    "description_nl": "EPBF"
+  },
+  {
+    "id": "245",
+    "bicCode": "FXBBBEBB",
+    "startValue": "914",
+    "endValue": "914",
+    "description_fr": "FX4BIZ",
+    "description_nl": "FX4BIZ"
+  },
+  {
+    "id": "246",
+    "bicCode": "VRIJ",
+    "startValue": "915",
+    "endValue": "917",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "247",
+    "bicCode": "BILL BE BB",
+    "startValue": "918",
+    "endValue": "918",
+    "description_fr": "Banque Internationale à Luxembourg",
+    "description_nl": "Banque Internationale à Luxembourg"
+  },
+  {
+    "id": "248",
+    "bicCode": "NAP",
+    "startValue": "919",
+    "endValue": "919",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "249",
+    "bicCode": "HBKA BE 22",
+    "startValue": "920",
+    "endValue": "923",
+    "description_nl": "Record Bank",
+    "description_fr": "Record Bank"
+  },
+  {
+    "id": "250",
+    "bicCode": "VRIJ",
+    "startValue": "924",
+    "endValue": "924",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "251",
+    "bicCode": "HBKA BE 22",
+    "startValue": "925",
+    "endValue": "925",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "252",
+    "bicCode": "VRIJ",
+    "startValue": "926",
+    "endValue": "926",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "253",
+    "bicCode": "FETA LU LL BEL",
+    "startValue": "927",
+    "endValue": "927",
+    "description_fr": "RBC Investor Services Bank",
+    "description_nl": "RBC Investor Services Bank"
+  },
+  {
+    "id": "254",
+    "bicCode": "VRIJ",
+    "startValue": "928",
+    "endValue": "928",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "255",
+    "bicCode": "HBKA BE 22",
+    "startValue": "929",
+    "endValue": "939",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "256",
+    "bicCode": "CLIQ BE B1",
+    "startValue": "940",
+    "endValue": "940",
+    "description_fr": "Banque Centrale de Compensation (Clearnet)",
+    "description_nl": "Banque Centrale de Compensation (Clearnet)"
+  },
+  {
+    "id": "257",
+    "bicCode": "CVMC BE BB",
+    "startValue": "941",
+    "endValue": "941",
+    "description_fr": [
+      "Crédit Agricole Luxembourg, succursale en Belgique / Bijbank in België",
+      "Crédit Agricole Luxembourg, succursale en Belgique / Bijbank in België"
+    ]
+  },
+  {
+    "id": "258",
+    "bicCode": "PUIL BE BB",
+    "startValue": "942",
+    "endValue": "942",
+    "description_fr": "Puilaetco Dewaay Private Bankers",
+    "description_nl": "Puilaetco Dewaay Private Bankers"
+  },
+  {
+    "id": "259",
+    "bicCode": "nav",
+    "startValue": "943",
+    "endValue": "943",
+    "description_fr": "CNH Financial Services SAS",
+    "description_nl": "CNH Financial Services SAS"
+  },
+  {
+    "id": "260",
+    "bicCode": "NYA",
+    "startValue": "944",
+    "endValue": "944",
+    "description_fr": "J.P. Morgan Europe Ltd .",
+    "description_nl": "J.P. Morgan Europe Ltd ."
+  },
+  {
+    "id": "261",
+    "bicCode": "JPMG BE BB",
+    "startValue": "945",
+    "endValue": "945",
+    "description_fr": "J.P. Morgan International Bank Limited",
+    "description_nl": "J.P. Morgan International Bank Limited"
+  },
+  {
+    "id": "262",
+    "bicCode": "VRIJ",
+    "startValue": "946",
+    "endValue": "946",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "263",
+    "bicCode": "AARB BE B1",
+    "startValue": "947",
+    "endValue": "947",
+    "description_fr": "Aareal Bank - Brussels Branch",
+    "description_nl": "Aareal Bank - Brussels Branch"
+  },
+  {
+    "id": "264",
+    "bicCode": "VRIJ",
+    "startValue": "948",
+    "endValue": "948",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "265",
+    "bicCode": "HSBC BE BB",
+    "startValue": "949",
+    "endValue": "949",
+    "description_fr": "HSBC Bank",
+    "description_nl": "HSBC Bank"
+  },
+  {
+    "id": "266",
+    "bicCode": "CTBK BE BX",
+    "startValue": "950",
+    "endValue": "959",
+    "description_fr": "Beobank",
+    "description_nl": "Beobank"
+  },
+  {
+    "id": "267",
+    "bicCode": "ABNA BE 2A IPC",
+    "startValue": "960",
+    "endValue": "960",
+    "description_fr": "ABN AMRO Bank N.V.",
+    "description_nl": "ABN AMRO Bank N.V."
+  },
+  {
+    "id": "268",
+    "bicCode": "HBKA BE 22",
+    "startValue": "961",
+    "endValue": "961",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "269",
+    "bicCode": "ETHI BE BB",
+    "startValue": "962",
+    "endValue": "962",
+    "description_fr": "OPTIMA BANK",
+    "description_nl": "OPTIMA BANK"
+  },
+  {
+    "id": "270",
+    "bicCode": "AXAB BE 22",
+    "startValue": "963",
+    "endValue": "963",
+    "description_fr": "AXA Bank Europe",
+    "description_nl": "AXA Bank Europe"
+  },
+  {
+    "id": "271",
+    "bicCode": "NAP",
+    "startValue": "964",
+    "endValue": "964",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "272",
+    "bicCode": "ETHI BE BB",
+    "startValue": "965",
+    "endValue": "965",
+    "description_fr": "OPTIMA BANK",
+    "description_nl": "OPTIMA BANK"
+  },
+  {
+    "id": "273",
+    "bicCode": "NAP",
+    "startValue": "966",
+    "endValue": "966",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "274",
+    "bicCode": "VRIJ",
+    "startValue": "967",
+    "endValue": "967",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "275",
+    "bicCode": "ENIB BE BB",
+    "startValue": "968",
+    "endValue": "968",
+    "description_fr": "Banque Eni",
+    "description_nl": "Banque Eni"
+  },
+  {
+    "id": "276",
+    "bicCode": "PUIL BE BB",
+    "startValue": "969",
+    "endValue": "969",
+    "description_fr": "Puilaetco Dewaay Private Bankers",
+    "description_nl": "Puilaetco Dewaay Private Bankers"
+  },
+  {
+    "id": "277",
+    "bicCode": "HBKA BE 22",
+    "startValue": "970",
+    "endValue": "971",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "278",
+    "bicCode": "NAP",
+    "startValue": "972",
+    "endValue": "972",
+    "description_nl": "Onbeschikbaar",
+    "description_fr": "Indisponible"
+  },
+  {
+    "id": "279",
+    "bicCode": "ARSP BE 22",
+    "startValue": "973",
+    "endValue": "973",
+    "description_nl": "Argenta Spaarbank (ASPA)",
+    "description_fr": "Argenta Banque d'Epargne (ASPA)"
+  },
+  {
+    "id": "280",
+    "bicCode": "VRIJ",
+    "startValue": "974",
+    "endValue": "974",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "281",
+    "bicCode": "AXAB BE 22",
+    "startValue": "975",
+    "endValue": "975",
+    "description_fr": "AXA Bank Europe",
+    "description_nl": "AXA Bank Europe"
+  },
+  {
+    "id": "282",
+    "bicCode": "HBKA BE 22",
+    "startValue": "976",
+    "endValue": "976",
+    "description_fr": "Record Bank",
+    "description_nl": "Record Bank"
+  },
+  {
+    "id": "283",
+    "bicCode": "VRIJ",
+    "startValue": "977",
+    "endValue": "977",
+    "description_nl": "VRIJ",
+    "description_fr": "LIBRE"
+  },
+  {
+    "id": "284",
+    "bicCode": "ARSP BE 22",
+    "startValue": "978",
+    "endValue": "980",
+    "description_nl": "Argenta Spaarbank (ASPA)",
+    "description_fr": "Argenta Banque d'Epargne (ASPA)"
+  },
+  {
+    "id": "285",
+    "bicCode": "PCHQ BE BB",
+    "startValue": "981",
+    "endValue": "984",
+    "description_nl": "bpost",
+    "description_fr": "bpost"
+  },
+  {
+    "id": "286",
+    "bicCode": "BPOT BE B1",
+    "startValue": "985",
+    "endValue": "988",
+    "description_fr": "bpost bank",
+    "description_nl": "bpost bank"
+  },
+  {
+    "id": "287",
+    "bicCode": "nav",
+    "startValue": "989",
+    "endValue": "989",
+    "description_nl": "bpost",
+    "description_fr": "bpost"
+  },
+  {
+    "id": "288",
+    "bicCode": "nav",
+    "startValue": "990",
+    "endValue": "999",
+    "description_nl": "Gereserveerde nummers voor betalingen via circulaire cheques of assignaties",
+    "description_fr": "Numéros réservés aux paiements par chèques circulaires et assignations"
+  }
+]
