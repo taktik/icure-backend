@@ -51,7 +51,7 @@ public class ReplicationDAOImpl extends GenericDAOImpl<Replication> implements R
 	private CouchDbInstance couchdbInstance;
 
 	@Autowired
-    public ReplicationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, @Qualifier("couchdbInstance") CouchDbInstance couchdbInstance, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+    public ReplicationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, @Qualifier("couchdbInstance") CouchDbInstance couchdbInstance, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(Replication.class, couchdb, idGenerator);
 
         this.couchdbInstance = couchdbInstance;

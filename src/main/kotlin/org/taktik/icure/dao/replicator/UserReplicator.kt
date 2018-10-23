@@ -1,6 +1,7 @@
 package org.taktik.icure.dao.replicator
 
 import com.hazelcast.core.HazelcastInstance
+import org.slf4j.LoggerFactory
 import org.taktik.icure.dao.UserDAO
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.User
@@ -11,6 +12,7 @@ import javax.ws.rs.core.Context
  * @author Bernard Paulus - 13/03/2017
  */
 class UserReplicator(hazelcast: HazelcastInstance, private var userDAO: UserDAO?) : AbstractReplicator<User>(hazelcast) {
+    private val log = LoggerFactory.getLogger(AbstractReplicator::class.java)
 
     override val entityType: Class<User>
         get() = User::class.java
@@ -26,11 +28,12 @@ class UserReplicator(hazelcast: HazelcastInstance, private var userDAO: UserDAO?
     override fun replicate(group: Group, entityIds: List<String>): List<String> {
         return entityIds.map { id ->
             val from = userDAO!!.getUserOnUserDb(id, group.id, true)
-            var to: User? = userDAO!!.findOnFallback(group.id+":"+id)
+            var to: User? = userDAO!!.findOnFallback(group.id+":"+id, true)
 
             if (to == null) {
                 to = User()
                 to.id = group.id+":"+from.id
+                log.warn("User {} not found on fallback: Creating !", to.id)
             }
             if (
                 to.status != from.status ||

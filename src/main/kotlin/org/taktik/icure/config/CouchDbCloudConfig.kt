@@ -20,11 +20,13 @@
 package org.taktik.icure.config
 
 import com.hazelcast.core.HazelcastInstance
+import com.hazelcast.spring.cache.HazelcastCacheManager
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.taktik.icure.dao.GenericDAO
@@ -54,6 +56,8 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
     @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-base", couchdbInstance, true)
     @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-patient", couchdbInstance, true)
     @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-healthdata", couchdbInstance, true)
+
+    @Bean fun entitiesCacheManager(hazelcastInstance: HazelcastInstance) = HazelcastCacheManager(hazelcastInstance)
 
     @Bean fun sslContextFactory() = SslContextFactory()
     @Bean fun userReplicator(hazelcastInstance: HazelcastInstance, userDAO: UserDAO) = UserReplicator(hazelcastInstance, userDAO)

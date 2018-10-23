@@ -35,9 +35,9 @@ public interface UserDAO extends GenericDAO<User> {
 
 	PaginatedList<User> listUsers(PaginationOffset pagination);
 
-	User getOnFallback(String userId);
+	User getOnFallback(String userId, boolean bypassCache);
 
-	User findOnFallback(String userId);
+	User findOnFallback(String userId, boolean bypassCache);
 
 	User getUserOnUserDb(String userId, String groupId, boolean bypassCache);
 

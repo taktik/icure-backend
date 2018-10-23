@@ -45,7 +45,7 @@ import java.util.List;
 public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Autowired
-	public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+	public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(User.class, couchdb, idGenerator, cacheManager);
 		initStandardDesignDocument();
 	}
@@ -93,8 +93,8 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User getOnFallback(String userId) {
-		Cache.ValueWrapper valueWrapper = cache.get(userId);
+	public User getOnFallback(String userId, boolean bypassCache) {
+		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
 		if (valueWrapper == null) {
 			User user = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
 			cache.put(userId, user);
@@ -110,8 +110,8 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User findOnFallback(String userId) {
-		Cache.ValueWrapper valueWrapper = cache.get(userId);
+	public User findOnFallback(String userId, boolean bypassCache) {
+		Cache.ValueWrapper valueWrapper = bypassCache ? null : cache.get(userId);
 		if (valueWrapper == null) {
 			User res = ((CouchDbICureConnector) db).getFallbackConnector().find(User.class, userId);
 			cache.put(userId, res);
