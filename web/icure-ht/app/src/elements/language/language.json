@@ -347,7 +347,11 @@
     "you_hav_bee_log_out": "You have been logged out.",
     "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe",
     "join_write": "Write a message or select a file below",
-    "join_asmsg": "Join a file as message"
+    "join_asmsg": "Join a file as message",
+    "can_agr" : "Cancel agreement",
+    "clos_agr": "Close agreement",
+    "ext_agr": "Extend agreement",
+    "req_agr" : "Request agreemnt"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -741,7 +745,11 @@
     "nam" : "Nom",
     "faultMessage":"Message d'erreur",
     "faultSource":"Source d'erreur",
-    "faultCode":"Code d'erreur"
+    "faultCode":"Code d'erreur",
+    "can_agr" : "Annuler l'agrément",
+    "clos_agr": "Clôturer l'agrément",
+    "ext_agr": "Renouveller l'agrément",
+    "req_agr" : "Demander un agrément"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1182,6 +1190,11 @@
     "join_asmsg": "Een bestand toevoegen als bericht",
     "faultMessage":"Foutboodschap",
     "faultSource":"Foutbron",
-    "faultCode":"Foutcode"
+    "faultCode":"Foutcode",
+    "can_agr" : "Annuler l'agrément",
+    "clos_agr": "Clôturer l'agrément",
+    "ext_agr": "Renouveller l'agrément",
+    "req_agr" : "Request agreement"
+
   }
 }

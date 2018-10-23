@@ -495,9 +495,6 @@
                                             <iron-icon icon="vaadin:calendar-clock" class="chapterDateInfoIcon"></iron-icon>
                                             <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
                                         </div>
-                                        <iron-icon icon="vaadin:close" class="chapterDateInfoIcon" on-tap="_cancelChapter" data-item$="[[item]]">Annuler</iron-icon>
-                                        <iron-icon icon="vaadin:archive" class="chapterDateInfoIcon" on-tap="_closeChapter" data-item$="[[item]]">Cloturer</iron-icon>
-                                        <iron-icon icon="vaadin:angle-double-right" class="chapterDateInfoIcon" on-tap="_extendChapter">Prolonger</iron-icon>
                                     </div>
                                 </paper-item>
                             </paper-material>
@@ -625,7 +622,15 @@
                             <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request', 'incomplete request', language)]]</vaadin-checkbox>
                         </div>
                         <div class="bottom-btn-container">
-                            <paper-button class="bottom-btn" on-tap="_requestChapter4">[[localize('req_agr','Request agreement',language)]]</paper-button>
+                            <template is="dom-if" if="[[isAgreementSelected]]">
+                                <paper-button class="bottom-btn" on-tap="_cancelChapter">[[localize('can_agr','Cancel agreement',language)]]</paper-button>
+                                <paper-button class="bottom-btn" on-tap="_closeChapter">[[localize('clos_agr','Close agreement',language)]]</paper-button>
+                                <paper-button class="bottom-btn" on-tap="_extendChapter">[[localize('ext_agr','Extend agreement',language)]]</paper-button>
+                            </template>
+
+                            <template is="dom-if" if="[[!isAgreementSelected]]">
+                                <paper-button class="bottom-btn" on-tap="_requestChapter4">[[localize('req_agr','Request agreement',language)]]</paper-button>
+                            </template>
                         </div>
                     </template>
                     <div id="appendix-upload-container">
@@ -728,6 +733,10 @@
                     selectValue:{
                         type: Object,
                         value: () => null
+                    },
+                    isAgreementSelected: {
+                        type: Boolean,
+                        value: false
                     }
 
                 }
@@ -792,6 +801,9 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
+
+                    (this.selectedParagraph.ioRequestReference || this.selectedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
+
                     this.set('checkedVerses', [])
                     const paragraph = this.selectedParagraph.id.split('/')[0]
                     this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
@@ -861,7 +873,7 @@
             }
 
             _agreements() {
-                return (this._convertedMedications()).concat(this.orphanAgreements)
+                return this._convertedMedications()
             }
 
             _mpps(p) {
@@ -888,21 +900,21 @@
                     Promise.all(
                         agreements.transactions.map(t => this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language).then(vtm => [t, vtm]))
                     ).then((transactions) => {
-                        this.set('orphanAgreements', transactions.filter(t => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
-                            .map(t => ({
-                                    paragraph: t[0].paragraph,
-                                    ioRequestReference: t[0].ioRequestReference,
-                                    ioDecisionReference: t[0].decisionReference,
-                                    ioDecisionEndOfValidity: t[0].end,
-                                    restStrength: t[0].restStrength,
-                                    restStrengthUnit: t[0].restStrengthUnit,
-                                    restUnitNumber: t[0].restUnitNumber,
-                                    start: t[0].start,
-                                    strength: t[0].strength,
-                                    strengthUnit: t[0].strengthUnit,
-                                    accepted: t[0].accepted,
-                                    inTreatment: t[0].inTreatment,
-                                    medications: t[1]
+                        this.set('orphanAgreements', transactions.filter(([t, vtm]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
+                            .map(([t, vtm]) => ({
+                                    paragraph: t.paragraph,
+                                    ioRequestReference: t.ioRequestReference,
+                                    ioDecisionReference: t.decisionReference,
+                                    ioDecisionEndOfValidity: t.end,
+                                    restStrength: t.restStrength,
+                                    restStrengthUnit: t.restStrengthUnit,
+                                    restUnitNumber: t.restUnitNumber,
+                                    start: t.start,
+                                    strength: t.strength,
+                                    strengthUnit: t.strengthUnit,
+                                    accepted: t.accepted,
+                                    inTreatment: t.inTreatment,
+                                    medications: vtm
                         })))
                     })
 
@@ -910,6 +922,7 @@
             }
 
             _requestChapter4() {
+
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     Promise.all(this.appendicesTokens.map(ap =>
                         this.api.document().getDocument(ap.id)
@@ -998,30 +1011,28 @@
             _selectedItem(e){
                 if(e.currentTarget){
                     const id = e.currentTarget.id
-                    const selectedAgreement = this.orphanAgreements.filter(t => !((t.ioRequestReference === id || t.decisionReference === id)))
+                    const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference == id || t.ioDecisionReference == id)))
 
                     this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph).then(par => {
-                        this.set('selectedParagraph', {descr: "", id: par.paragraph})
-                        this._selectedParagraphChanged()
+                        this.set('isAgreementSelected', true)
+                        this.set('selectedParagraph', {descr: par.headerVerse.textFr, id: par.paragraphName, ioRequestReference: selectedAgreement.ioRequestReference, ioDecisionReference: selectedAgreement.ioDecisionReference})
                     })
                 }
             }
 
             _closeChapter(e){
-                if(e.target.dataset){
-                    const item = JSON.parse(e.target.dataset.item)
+                if(this.selectedParagraph){
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth,this.patient.firstName, this.patient.lastName, this.patient.gender, item.ioDecisionReference, item.ioRequestReference))
+                        this.patient.ssin, this.patient.dateOfBirth,this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference, this.selectedParagraph.ioRequestReference))
                         .then(response => {})
                 }
 
             }
 
             _cancelChapter(e){
-                if(e.target.dataset){
-                    const item = JSON.parse(e.target.dataset.item)
+                if(this.selectedParagraph){
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth,this.patient.firstName, this.patient.lastName, this.patient.gender, item.ioDecisionReference))
+                        this.patient.ssin, this.patient.dateOfBirth,this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference))
                         .then(response=>{})
                 }
             }
