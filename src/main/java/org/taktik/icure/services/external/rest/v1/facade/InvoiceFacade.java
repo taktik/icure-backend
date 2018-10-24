@@ -365,6 +365,36 @@ public class InvoiceFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "List treated efact invoices by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/treated")
+	public Response listByHcPartyEfactTreated(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactTreated(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List archived efact invoices by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/archived")
+	public Response listByHcPartyEfactArchived(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactArchived(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
 			value = "List efact invoices to be corrected by hcp",
 			response = InvoiceDto.class,
 			responseContainer = "Array",
