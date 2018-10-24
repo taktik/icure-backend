@@ -458,6 +458,16 @@
             <h2>[[localize('chap-iv','Chapter IV',language)]]</h2>
             <div class="container">
                 <div class="list-panel">
+                    <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                        label="[[localize('From','From',language)]]"
+                                        value="{{fromConsultAsString}}"></vaadin-date-picker>
+                    <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                        label="[[localize('To','To',language)]]"
+                                        value="{{toConsultAsString}}"></vaadin-date-picker>
+                    <vaadin-combo-box id="entities-list" filtered-items="[[consultationType]]"
+                                      on-filter-changed="" item-label-path="label.[[language]]"
+                                      selected-item="{{selectedConsultationType}}" item-value-path="id"
+                                      label="[[localize('ch4_request_type','Request type',language)]]"></vaadin-combo-box>
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
                                    selected="{{selectValue}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
@@ -795,6 +805,31 @@
                     isAgreementSelected: {
                         type: Boolean,
                         value: false
+                    },
+                    consultationType:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: 1,
+                                label: {
+                                    "fr": "Générale",
+                                    "nl": "General",
+                                    "en": "General"
+                                }
+                            },
+                            {
+                                id: 2,
+                                label: {
+                                    "fr": "Paragraphe",
+                                    "nl": "Paragraph",
+                                    "en": "Paragraph"
+                                }
+                            }
+                        ]
+                    },
+                    selectedConsultationType:{
+                        type: Object,
+                        value: () => {}
                     }
 
                 }
