@@ -815,6 +815,10 @@
                 --paper-ink-color:var(--app-text-color);
             }
 
+            #barCode{
+                visibility: hidden;
+            }
+
 
         </style>
 
@@ -1196,6 +1200,7 @@
                     </template>
                 </div>
             </div>
+            <canvas id="barCode"></canvas>
         </paper-dialog>
 
         <paper-dialog id="transferDialog">
@@ -2818,6 +2823,13 @@
                 console.log(invoice)
                 console.log(this.hcp)
 
+                //generate jpeg
+                const element = this.root.querySelector("#barCode");
+                JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
+                const jpegUrl = element.toDataURL("image/jpeg");
+
+                console.log(jpegUrl)
+
                 const template = {
                     "invoice" : invoice,
                     "patient" : this.patient,
@@ -2867,7 +2879,8 @@
                     "totalDelta" : invoice.invoicingCodes.reduce((tot,code)=>{
                         if(!tot)tot=0;
                         return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement);
-                    })
+                    }),
+                    "jpegUrl" : jpegUrl
                 }
 
                 const html = `
@@ -2996,7 +3009,7 @@
                             <br>
                         </td>
                         <td class="p50" style="text-align: center;">
-                            <svg id="barcode"></svg>
+                            <img src="{{jpegUrl}}" alt="barcode" />
                             <br>
                             <span>{{invoice.thirdPartyReference}}</span><br>
                             {{#invoice.printedDate}}<span style="color: red">DUPLICATA</span>{{/invoice.printedDate}}
