@@ -2827,7 +2827,20 @@
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
 
-                console.log(jpegUrl)
+                //totaux
+                let totalACharge=0.00;
+                let totalSuppl=0.00;
+                let totalRemb=0.00;
+                let totalConv=0.00;
+                let totalDelta=0.00;
+
+                invoice.invoicingCodes.map((code)=>{
+                    totalACharge+=code.reimbursement+code.patientIntervention;
+                    totalSuppl+=parseFloat(code.doctorSupplement)
+                    totalRemb+=parseFloat(code.reimbursement)
+                    totalConv+=parseFloat(code.conventionAmount)
+                    totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
+                })
 
                 const template = {
                     "invoice" : invoice,
@@ -2859,26 +2872,11 @@
                             return parseFloat(termes[0]).toFixed(2)+" €";
                         }
                     },
-                    "totalACharge" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention);
-                    }),
-                    "totalSuppl" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.doctorSupplement);
-                    }),
-                    "totalRemb" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.reimbursement);
-                    }),
-                    "totalConv" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.conventionAmount);
-                    }),
-                    "totalDelta" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement);
-                    }),
+                    "totalACharge" : totalACharge,
+                    "totalSuppl" : totalSuppl,
+                    "totalRemb" : totalRemb,
+                    "totalConv" : totalConv,
+                    "totalDelta" : totalDelta,
                     "jpegUrl" : jpegUrl
                 }
 
@@ -3153,41 +3151,6 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                 })
-
-                /*this.api.pdfReport("<html>" +
-                    "" +
-                    "</html>")
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
-
-                        let url = window.URL.createObjectURL(blob)
-
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
-
-                        a.href = url;
-                        a.download = invoice.id+this.api.moment()+".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    })
-                this.api.pdfReport("<html>" +
-                    "" +
-                    "</html>")
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
-
-                        let url = window.URL.createObjectURL(blob)
-
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
-
-                        a.href = url;
-                        a.download = invoice.id+this.api.moment()+".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    })*/
             }
         }
 
