@@ -767,8 +767,9 @@
     "persphysician" : "Médecin généraliste",
     "orgprimaryhealthcarecenter" : "Maison médicale",
     "dmg_reg_incpl" : "Inscription e-DMG incomplète",
-    "edmg_completed": "Inscription e-DMG complétée",
-    "cpl" : "Complète"
+    "edmg_completed": "Inscription e-DMG complète",
+    "cpl" : "Complète",
+    "no_dmg" : " Patient n'a pas de DMG"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1226,6 +1227,7 @@
     "orgprimaryhealthcarecenter" : "Medisch huis",
     "dmg_reg_incpl" : "Inschrijving e-GMD onvolledig",
     "edmg_completed": "Inschrijving e-GMD klaar",
-    "cpl" : "Volledig"
+    "cpl" : "Volledig",
+    "no_dmg" : " Patiënt heeft geen GMD"
   }
 }
