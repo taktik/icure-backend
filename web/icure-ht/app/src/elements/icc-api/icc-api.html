@@ -360,8 +360,8 @@
                     acc[u.id] = u
                     return acc
                 }, {}))
-                return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => !!id))
-            }).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) => {
+                return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id))))
+            }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
             }, {})))

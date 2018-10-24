@@ -461,8 +461,7 @@
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
                                    selected="{{selectValue}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
-                            <paper-material class="layout vertical chapter-item chapter--big"
-                                            id="[[item.ioDecisionReference]]" on-tap="_selectedItem">
+                            <paper-material class="layout vertical chapter-item chapter--big" id="[[item.ioDecisionReference]]" on-tap="_selectItem">
                                 <paper-item class="chapter-text">
                                     <div class="chapter-text-row chapter-text-date">
                                         <label>
@@ -1082,10 +1081,10 @@
                 this.$['appendix-upload-container'].style.display = 'block'
             }
 
-            _selectedItem(e) {
-                if (e.currentTarget) {
+            _selectItem(e){
+                if(e.currentTarget){
                     const id = e.currentTarget.id
-                    const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference == id || t.ioDecisionReference == id)))
+                    const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
 
                     this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph).then(par => {
                         this.set('isAgreementSelected', true)

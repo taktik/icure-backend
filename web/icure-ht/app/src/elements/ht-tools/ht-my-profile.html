@@ -199,6 +199,33 @@
 			.icon-button {
 				cursor: pointer;
 			}
+
+			#edmgRegistrationComplete {
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.1);
+				position: absolute;
+				z-index: 10;
+				font-size: 3em;
+				text-align: center;
+				color: var(--app-background-color);
+				-webkit-text-stroke-width: 1px;
+				-webkit-text-stroke-color: #666;
+			}
+
+			#edmgRegistrationComplete p {
+				-ms-transform: rotate(-25deg);
+				-webkit-transform: rotate(-25deg);
+				transform: rotate(-25deg);
+				width:80%;
+				line-height: 2em;
+				margin-left:10%;
+				font-weight: 700;
+				margin-top:5em;
+				text-transform:uppercase;
+			}
+
+
 		</style>
 
 
@@ -219,9 +246,7 @@
 				<iron-pages selected="[[tabs]]" class="">
 					<page>
 
-						<div class="horizontal">&nbsp;</div>
-
-						<div class="horizontal">
+						<div class="horizontal" style="margin-top:10px">
 							<vaadin-form-layout>
 								<div class="col-lg-6">
 									<paper-input label="Full name" value="{{user.name}}"></paper-input>
@@ -268,22 +293,16 @@
 
 					<page>
 
-						<div class="horizontal">
+						<div class="horizontal" style="padding-top:10px;">
 
 							<!--<template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">-->
 								<!--[[_getOARegStatus(reg)]]-->
 							<!--</template>-->
 
 							<template is="dom-if" if="[[allEDmgregistered]]">
-								<p>eDMG Registration Complete</p>
-							</template>
-
-							<template is="dom-if" if="[[!allEDmgregistered]]">
-
-								<div class="horizontal">&nbsp;</div>
-
 								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
-								<div class="row">
+								<div class="row" style="position:relative">
+									<div id="edmgRegistrationComplete"><p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p></div>
 									<div class="col-20">
 										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
 										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
@@ -296,13 +315,13 @@
 									</div>
 									<div class="col-40">
 										<paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_300}}" id="userIBAN_300" rel="300" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_400}}" id="userIBAN_400" rel="400" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_500}}" id="userIBAN_500" rel="500" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_600}}" id="userIBAN_600" rel="600" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
-										<paper-input label="IBAN" value="{{userIBAN_900}}" id="userIBAN_900" rel="900" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_300}}" id="userIBAN_300" rel="300" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_400}}" id="userIBAN_400" rel="400" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_500}}" id="userIBAN_500" rel="500" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_600}}" id="userIBAN_600" rel="600" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_900}}" id="userIBAN_900" rel="900" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
 									</div>
 									<div class="col-30">
 										<paper-input label="BIC" readonly disabled class="headerField borderTop borderBottom"></paper-input>
@@ -327,13 +346,61 @@
 								</div>
 							</template>
 
-							<div class="horizontal">&nbsp;</div>
+							<template is="dom-if" if="[[!allEDmgregistered]]">
+
+								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
+								<div class="row" style="position:relative">
+
+									<div class="col-20">
+										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
+										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 300" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 400" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 500" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
+									</div>
+									<div class="col-40">
+										<paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_300}}" id="userIBAN_300" rel="300" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_400}}" id="userIBAN_400" rel="400" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_500}}" id="userIBAN_500" rel="500" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_600}}" id="userIBAN_600" rel="600" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_900}}" id="userIBAN_900" rel="900" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-30">
+										<paper-input label="BIC" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="BIC" value="{{userBIC_100}}" id="userBIC_100" rel="100" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_200}}" id="userBIC_200" rel="200" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_300}}" id="userBIC_300" rel="300" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_400}}" id="userBIC_400" rel="400" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_500}}" id="userBIC_500" rel="500" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_600}}" id="userBIC_600" rel="600" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_900}}" id="userBIC_900" rel="900" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-10">
+										<paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_100_cssClass]]" rel="100" id="statusBullet_100"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_200_cssClass]]" rel="200" id="statusBullet_200"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_300_cssClass]]" rel="300" id="statusBullet_300"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_400_cssClass]]" rel="400" id="statusBullet_400"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_500_cssClass]]" rel="500" id="statusBullet_500"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_600_cssClass]]" rel="600" id="statusBullet_600"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_900_cssClass]]" rel="900" id="statusBullet_900"></div></div>
+									</div>
+								</div>
+							</template>
+
+
 
 							<template is="dom-if" if="[[!allEDmgregistered]]">
-								<div class="horizontal">
+								<div class="horizontal" style="margin-top:10px">
 									<div class="row">
 										<div class="col-35">&nbsp;</div>
-										<div class="col-30 textAlignCenter"><paper-button on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
+										<div class="col-30 textAlignCenter"><paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
 										<div class="col-35">&nbsp;</div>
 									</div>
 								</div>
@@ -439,7 +506,10 @@
 			    type: Number,
 				value: 0
 			},
-
+            registerEnabled: {
+			  	type: Boolean,
+				value: true
+			},
             userIBAN_100: { type: String, value: '' },
             userIBAN_200: { type: String, value: '' },
             userIBAN_300: { type: String, value: '' },
@@ -463,6 +533,8 @@
             statusBullet_500_cssClass: { type: String, value: '' },
             statusBullet_600_cssClass: { type: String, value: '' },
             statusBullet_900_cssClass: { type: String, value: '' },
+
+            allEDmgregisteredReadAttribute: { type: String, value: '' },
 
         };
 	}
@@ -525,20 +597,32 @@
     _registerToEDMG(){
 		//100,200,300,400,500,600,900
 		let regs = this.getRegistrationStatus();
-		regs.rs.map(reg =>{
-            if(!reg.registered) {
-                this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
-                    this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
-                    const idx = regs.rs.findIndex(r => r.OA === reg.OA);
-                    if(idx >= 0){
-                        regs.rs.splice(idx, 1, reg);
-                    } else {
-                        regs.rs.push(reg);
-                    }
-                    this.set('regStatus',JSON.stringify(regs));
+        this.set('registerEnabled', false);
+		Promise.all(regs.rs.filter(reg => !reg.registered).map(reg =>
+			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
+				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
+				const idx = regs.rs.findIndex(r => r.OA === reg.OA);
+				if(idx >= 0){
+					regs.rs.splice(idx, 1, reg);
+				} else {
+					regs.rs.push(reg);
+				}
+
+				this.set('regStatus',JSON.stringify(regs));
+
+				let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
+                propRegStatus.typedValue.stringValue = this.regStatus;
+
+				return reg
+			})
+        )).then( regs => {
+            this.set('allEDmgregistered', regs.every(r => !!r.registered))
+            return this.api.user().modifyUser(this.user).then(
+                user => {
+                    this.user = user
+                    this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
                 })
-            }
-        })
+        }).finally(() => this.set('registerEnabled', true))
 	}
 
 	getRegistrationStatus(){
@@ -563,8 +647,7 @@
                 regs.rs.push(reg);
 			}
         })
-        const unreg = regs.rs.find(r => r.registered === false);
-        this.set('allEDmgregistered', unreg ? false : true);
+        this.set('allEDmgregistered', regs.rs.every(r => !!r.registered));
         this.set('currentRegs', regs);
 
         return regs;
@@ -578,7 +661,7 @@
 				.then(hcp => {
 						return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
 							this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-							hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.iban.replace(/ /g, '').toUpperCase(), reg.bic.replace(/ /g, '').toUpperCase())
+							hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.bic.replace(/ /g, '').toUpperCase(), reg.iban.replace(/ /g, '').toUpperCase())
                             .then(r => this.api.logMcn(r, this.user, hcp.id))
 					}
 				).then(regResp => {
@@ -691,11 +774,7 @@
             let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
             propBIC.typedValue.stringValue = this.userBIC;
 
-            if(this.regStatus) {
-                let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
-                propRegStatus.typedValue.stringValue = this.regStatus;
-            }
-            this.api.user().modifyUser(this.user).then(
+           this.api.user().modifyUser(this.user).then(
                 user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
 			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
         }
@@ -736,8 +815,12 @@
 
 
 	replicateIbanValueToAllFields() {
-        this.listOAs.forEach( io => this.set(`userIBAN_${io}`, this.userIBAN_100))
+        // Copy iban values to all fields (including us)
+	    this.listOAs.forEach( io => this.set(`userIBAN_${io}`, this.userIBAN_100))
+        // Same goes for BIC values (including us)
+        this.listOAs.forEach( io => this.set(`userBIC_${io}`, this.userBIC_100))
 	}
+
 }
 
 customElements.define(HtExportKey.is, HtExportKey);
