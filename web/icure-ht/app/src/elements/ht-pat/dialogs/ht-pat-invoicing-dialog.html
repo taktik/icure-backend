@@ -2007,7 +2007,6 @@
                 this.shadowRoot.querySelector("#nmcl-search").focus()
             }
 
-
             _addFavoriteCode() {
                 if (this.shadowRoot.querySelector("#nmcl-search").selectedItem) {
 
@@ -2072,7 +2071,7 @@
             }
 
             _verifyTarification() {
-                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.isValidSsin(this.patient.ssin)) {
+                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
                             this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
@@ -2301,13 +2300,13 @@
             }
 
             getInvoiceType(invoiceType){
-               const type = this.invoiceType.find(type => type.id == invoiceType)
-               return type.label[this.language]
+               const type = this.invoiceType.find(type => type.id === invoiceType)
+               return type && type.label && type.label[this.language]
             }
 
             getSentMediumType(sentMediumType){
-                const type = this.sentMediumType.find(type => type.id == sentMediumType)
-                return type.label[this.language]
+                const type = this.sentMediumType.find(type => type.id === sentMediumType)
+                return type && type.label && type.label[this.language]
             }
 
             generateJustificatory(){
