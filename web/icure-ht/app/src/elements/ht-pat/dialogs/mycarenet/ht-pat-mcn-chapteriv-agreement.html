@@ -461,7 +461,8 @@
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
                                    selected="{{selectValue}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
-                            <paper-material class="layout vertical chapter-item chapter--big" id="[[item.ioDecisionReference]]" on-tap="_selectItem">
+                            <paper-material class="layout vertical chapter-item chapter--big"
+                                            id="[[item.ioDecisionReference]]" on-tap="_selectItem">
                                 <paper-item class="chapter-text">
                                     <div class="chapter-text-row chapter-text-date">
                                         <label>
@@ -646,60 +647,64 @@
                                     <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
                                     <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
                                     <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
-                    </template>
-                </div>
-                </page>
-                </iron-pages>
-                <div class="tool-container">
-                    <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                        label="[[localize('From','From',language)]]"
-                                        value="{{fromAsString}}"></vaadin-date-picker>
-                    <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                        label="[[localize('To','To',language)]]"
-                                        value="{{toAsString}}"></vaadin-date-picker>
-                    <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
-                                    on-value-splices-change="_localizedValueChanged" data-value-path="id"
-                                    data-label-path="descr" always-float-label></tk-token-field>
-                    <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request', 'incomplete
-                        request', language)]]
-                    </vaadin-checkbox>
-                </div>
-                <div class="bottom-btn-container">
-                    <template is="dom-if" if="[[isAgreementSelected]]">
-                        <paper-button class="bottom-btn" on-tap="_cancelChapter">[[localize('can_agr','Cancel
-                            agreement',language)]]
-                        </paper-button>
-                        <paper-button class="bottom-btn" on-tap="_closeChapter">[[localize('clos_agr','Close
-                            agreement',language)]]
-                        </paper-button>
-                        <paper-button class="bottom-btn" on-tap="_extendChapter">[[localize('ext_agr','Extend
-                            agreement',language)]]
-                        </paper-button>
-                    </template>
+                                </div>
+                            </page>
+                        </iron-pages>
+                        <div class="tool-container">
+                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                                label="[[localize('From','From',language)]]"
+                                                value="{{fromAsString}}"></vaadin-date-picker>
+                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                                label="[[localize('To','To',language)]]"
+                                                value="{{toAsString}}"></vaadin-date-picker>
+                            <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
+                                            on-value-splices-change="_localizedValueChanged" data-value-path="id"
+                                            data-label-path="descr" always-float-label></tk-token-field>
+                            <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
+                                'incomplete
+                                request', language)]]
+                            </vaadin-checkbox>
+                        </div>
+                        <div class="bottom-btn-container">
+                            <template is="dom-if" if="[[isAgreementSelected]]">
+                                <paper-button class="bottom-btn" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                    agreement',language)]]
+                                </paper-button>
+                                <paper-button class="bottom-btn" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                    agreement',language)]]
+                                </paper-button>
+                                <paper-button class="bottom-btn" on-tap="_extendChapter">[[localize('ext_agr','Extend
+                                    agreement',language)]]
+                                </paper-button>
+                            </template>
 
-                    <template is="dom-if" if="[[!isAgreementSelected]]">
-                        <paper-button class="bottom-btn" on-tap="_requestChapter4">[[localize('req_agr','Request
-                            agreement',language)]]
-                        </paper-button>
+                            <template is="dom-if" if="[[!isAgreementSelected]]">
+                                <paper-button class="bottom-btn" on-tap="_requestChapter4">[[localize('req_agr','Request
+                                    agreement',language)]]
+                                </paper-button>
+                            </template>
+                        </div>
+
+                        <div id="appendix-upload-container">
+                            <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
+                                           accept="image/jpeg,application/pdf"
+                                           target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                                           form-data-name="attachment"
+                                           on-upload-success="_fileUploaded"></vaadin-upload>
+                            <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
+                        </div>
                     </template>
                 </div>
-    </template>
-    <div id="appendix-upload-container">
-        <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}" accept="image/jpeg,application/pdf"
-                       target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
-                       form-data-name="attachment" on-upload-success="_fileUploaded"></vaadin-upload>
-        <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
-    </div>
-    </div>
-    </div>
-    <div class="message">
-        <div class="warning">[[warnings]]</div>
-        <div class="error">[[errors]]</div>
-    </div>
-    <div class="buttons">
-        <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
-    </div>
-    </paper-dialog>
+                <div class="message">
+                    <div class="warning">[[warnings]]</div>
+                    <div class="error">[[errors]]</div>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
+                    </paper-button>
+                </div>
+            </div>
+        </paper-dialog>
 
     </template>
     <script>
@@ -1081,8 +1086,8 @@
                 this.$['appendix-upload-container'].style.display = 'block'
             }
 
-            _selectItem(e){
-                if(e.currentTarget){
+            _selectItem(e) {
+                if (e.currentTarget) {
                     const id = e.currentTarget.id
                     const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
 
