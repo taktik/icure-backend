@@ -1108,6 +1108,9 @@
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference, this.selectedParagraph.ioRequestReference))
                         .then(response => {
+                            this.set('agreementResponse', response)
+                            this.set('tabs', 1)
+                            console.log(response)
                         })
                 }
 
@@ -1118,6 +1121,9 @@
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference))
                         .then(response => {
+                            this.set('agreementResponse', response)
+                            this.set('tabs', 1)
+                            console.log(response)
                         })
                 }
             }
