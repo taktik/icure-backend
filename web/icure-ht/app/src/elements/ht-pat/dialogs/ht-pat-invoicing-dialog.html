@@ -1975,14 +1975,14 @@
             }
 
             _verifyTarification() {
-                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "") {
+                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.isValidSsin(this.patient.ssin)) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
                             this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                 this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
-                                this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference)
+                                this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
                         )
                         .then(r => {
                             console.log(r)
