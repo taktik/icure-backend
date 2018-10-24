@@ -206,7 +206,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
 			String comment = null;
-			if (labResults.size() > 2 && tryToGetValueAsNumber(lrl.value) != null) {
+			if (tryToGetValueAsNumber(lrl.value) != null) {
 				LaboResultLine lrl2 = (LaboResultLine) labResults.get(1);
 				comment = lrl2.value;
 				for (int i = 2; i < labResults.size(); i++) {
@@ -407,6 +407,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 							ri.setComplete(r.complete);
 							ri.setDemandDate(r.demandDate.toEpochMilli());
 						}
+					} else if (isPatientSSINLine(line)) {
+						PatientSSINLine p = getPatientSSINLine(line);
+						if (p != null) {
+							ri.setSsin(p.ssin);
+						}
 					} else if (isProtocolLine(line)) {
 						ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1"));
 						break;
@@ -440,6 +445,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
 	private boolean isResultsInfosLine(String line) {
 		return line.startsWith("A4") || line.matches(headerPattern + "S5.*");
+	}
+
+	private boolean isPatientSSINLine(String line) {
+		return line.startsWith("A5");
 	}
 
 	private boolean isLaboLine(String line) {
@@ -604,6 +613,24 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				}
 			}
 			return ril;
+		} catch (Exception e) {
+			System.out.println("------------Line = " + line);
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private PatientSSINLine getPatientSSINLine(String line) {
+		try {
+			String[] parts = splitLine(line);
+			PatientSSINLine psl = new PatientSSINLine();
+			if (parts.length > 1) {
+				psl.protocol = parts[1];
+			}
+			if (parts.length > 3) {
+				psl.ssin = parts[3];
+			}
+			return psl;
 		} catch (Exception e) {
 			System.out.println("------------Line = " + line);
 			e.printStackTrace();

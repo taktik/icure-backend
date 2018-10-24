@@ -42,11 +42,16 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 	List<Invoice> listByHcPartyPatientFkUnsent(String hcParty, Set<String> secretPatientKeys);
 
 	List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactPending(String hcParty, Long fromDate, Long toDate);
 	List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactTreated(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactArchived(String hcParty, Long fromDate, Long toDate);
  	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactStatus(String hcParty, Boolean pending, Boolean canceled, Boolean accepted, Boolean resent, Boolean archived, Long fromDate, Long toDate);
 
 	List<Invoice> listByServiceIds(Set<String> serviceIds);
 
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
 	List<Invoice> listConflicts();
+
 }
