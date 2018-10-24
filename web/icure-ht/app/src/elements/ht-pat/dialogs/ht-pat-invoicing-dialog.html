@@ -819,6 +819,89 @@
                 visibility: hidden;
             }
 
+            paper-item:hover .he-edit-btn-container {
+                position: absolute;
+                right: 5px;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                /*display:inline-flex;*/
+                flex-flow: row-reverse nowrap;
+                position: absolute;
+                right: 5px;
+            }
+
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+
+            .he-edit-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                color: var(--app-text-color-light);
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .he-edit-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
+            .he-edit-btn-container > paper-icon-button.he-edit-btn:first-child {
+                transition: .5s ease;
+            }
+            .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
+                transform: rotate(180deg)
+            }
 
         </style>
 
@@ -2842,9 +2925,13 @@
                     totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
                 })
 
+                let templatePat = _.clone(this.patient)
+                templatePat.gender = (this.patient.gender === "male") ? "Mr" : "Mme"
+                console.log("pat",templatePat)
+
                 const template = {
                     "invoice" : invoice,
-                    "patient" : this.patient,
+                    "patient" : templatePat,
                     "hcp" : this.hcp,
                     "formatDate" : function(){
                         return function(date,render){
@@ -2922,6 +3009,10 @@
                         vertical-align: top;
                     }
 
+                    td.first-col {
+                    min-width: 33%;
+                    }
+
                     .invoice-box table tr td.right {
                         text-align: right;
                     }
@@ -2966,6 +3057,7 @@
                         border-top: 2px solid #eee;
                     }
 
+
                     @media only screen and (max-width: 600px) {
                         .invoice-box table tr.top table td {
                             width: 100%;
@@ -2993,6 +3085,19 @@
                     .rtl table tr td:nth-child(2) {
                         text-align: left;
                     }
+
+                    table.underline tr td:first-child {
+                        border-bottom: 1px dotted lightgrey;
+                    }
+
+                    table.fact-details {
+                        border: .5px solid lightgrey;
+                        margin-top: 35px;
+                    }
+
+                    table.fact-details * {
+                        font-size: 12px
+                    }
 	            </style>
             </head>
             <body>
@@ -3000,57 +3105,59 @@
                 <table cellpadding="0" cellspacing="0">
                     <tr class="top">
                         <td class="p50">
-                            Justificatif #: {{invoice.invoiceReference}}<br>
+                            Justificatif: # {{invoice.invoiceReference}}<br>
                             Date:
                             {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
-                            <br>
-                        </td>
-                        <td class="p50" style="text-align: center;">
-                            <img src="{{jpegUrl}}" alt="barcode" />
-                            <br>
-                            <span>{{invoice.thirdPartyReference}}</span><br>
+                       </td>
+                       <td class="p50" style="text-align: center;">
+                            <div style="center"><img src="{{jpegUrl}}" alt="barcode" height="100px" /></div>
+                            {{invoice.thirdPartyReference}}<br>
                             {{#invoice.printedDate}}<span style="color: red">DUPLICATA</span>{{/invoice.printedDate}}
                         </td>
                     </tr>
+                </table>
 
-                    <tr class="information">
-                        <td colspan="2">
-                            <table>
-                                <tr>
-                                    <td>
-                                        {{#hcp}}
-                                            {{name}}<br>
-                                            {{speciality}}<br>
-                                            {{#addresses}}
-                                                {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
-                                                {{postalCode}} {{city}}<br>
-                                                {{#telecoms}}
-                                                    {{telecomType}}: {{telecomNumber}}<br>
-                                                {{/telecoms}}
-                                            {{/addresses}}
-                                            TVA/CBE: {{cbe}}<br>
-                                            IBAN: {{bankAccount}}<br>
-                                        {{/hcp}}
-                                    </td>
-                                    <td>
-                                    {{#patient}}
-                                        {{gender}}
-                                        {{firstName}} {{#toUpperCase}}{{lastName}}{{/toUpperCase}}<br>
-                                        {{#addresses}}
-                                            {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
-                                            {{postalCode}} {{city}}<br>
-                                            {{#telecoms}}
-                                                {{telecomType}}: {{telecomNumber}}<br>
-                                            {{/telecoms}}
-                                        {{/addresses}}
-                                    {{/patient}}
-                                    </td>
-                                </tr>
-                            </table>
+                <table>
+                    <tr>
+                        <td class="p50">
+                            {{#hcp}}
+                                <b style="float:left;">{{name}}</b>
+                                <b style="float:left;clear:both;">{{speciality}}</b><br>
+                                {{#addresses}}
+                                    {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
+                                    {{postalCode}} {{city}}<br>
+                                    <table class="underline">
+
+
+                                    {{#telecoms}}
+                                        <tr><td><u style="text-transform: capitalize;">{{telecomType}}</u>:</td><td>{{telecomNumber}}</td></tr>
+                                    {{/telecoms}}
+                                {{/addresses}}
+                                <tr><td><u>TVA/CBE</u>:</td><td>{{cbe}}</td></tr>
+                                <tr><td><u>IBAN</u>:</td><td>{{bankAccount}}</td></tr>
+                                </table>
+                            {{/hcp}}
+                        </td>
+                        <td style="border-left: 1px solid lightgrey; padding-left: 10px;">
+                        <b>Patient :</b><br>
+                        {{#patient}}
+                            <div>{{gender}}. {{firstName}} <span style="text-transform: uppercase">{{lastName}}</span></div>
+                            <br>
+                            <div>
+                            {{#addresses}}
+                                {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
+                                {{postalCode}} {{city}}<br>
+                                {{#telecoms}}
+                                    <u>{{telecomType}}</u>: {{telecomNumber}}<br>
+                                {{/telecoms}}
+                            {{/addresses}}
+                            </div>
+                        {{/patient}}
                         </td>
                     </tr>
                 </table>
-                <table>
+
+                <table class="fact-details">
                     <tr class="heading">
                         <td>Prestations remboursables</td>
                         <td class="p12">Honoraire porté en compte</td>
@@ -3060,7 +3167,7 @@
                     </tr>
                     {{#invoice.invoicingCodes}}
                         <tr class="item">
-                            <td> {{unit}} {{code}} : {{label}}</td>
+                            <td class="first-col"> {{unit}} {{code}} : {{label}}</td>
                             <td class="right">
                                 {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
                             </td>
