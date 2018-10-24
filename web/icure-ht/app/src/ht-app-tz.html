@@ -383,8 +383,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            paper-dialog#ht-invite-hcp{
+                width: 50vw;
+                left: 0;
+                transform: translateX(50%);
+                margin: 0;
+            }
+
             .inviteHcpInput {
-                width: 400px;
+                width: 100%;
             }
 
             .formNewHcp {
@@ -1372,7 +1379,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             doRoute(e) {
-                this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')) + "/")
+                this.set('routeData.page', ( (e.target.getAttribute('name') || 'main' ) || e.target.parentElement.getAttribute('name')) + "/")
                 this._triggerMenu()
             }
 

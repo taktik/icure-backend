@@ -28,4 +28,22 @@ public class ReceiptDAOImpl extends GenericIcureDAOImpl<Receipt> implements Rece
 
 		return receipts;
 	}
+
+	@Override
+	@View(name = "by_date", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc.created)}")
+	public List<Receipt> listAfterDate(Long date) {
+		ViewQuery viewQuery = createQuery("by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(true);
+		List<Receipt> receipts = db.queryView(viewQuery, Receipt.class);
+
+		return receipts;
+	}
+
+	@Override
+	@View(name = "by_doc_id", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc.documentId)}")
+	public List<Receipt> listByDocId(Long date) {
+		ViewQuery viewQuery = createQuery("by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(true);
+		List<Receipt> receipts = db.queryView(viewQuery, Receipt.class);
+
+		return receipts;
+	}
 }

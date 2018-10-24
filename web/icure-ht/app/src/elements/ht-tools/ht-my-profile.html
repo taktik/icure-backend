@@ -226,12 +226,7 @@
 				text-transform:uppercase;
 			}
 
-
 		</style>
-
-
-
-
 
 		<paper-dialog id="dialog" opened="{{opened}}">
 
@@ -295,15 +290,32 @@
 					<page>
 
 						<div class="horizontal" style="padding-top:10px;">
-
-							<!--<template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">-->
-								<!--[[_getOARegStatus(reg)]]-->
-							<!--</template>-->
-
-							<template is="dom-if" if="[[allEDmgregistered]]">
+							<template is="dom-if" if="[[!anyEDmgregistered]]">
+							<div class="warning-message"><h3>AVIS IMPORTANT</h3>
+								<ul>
+								<li>Dès qu’il fait le choix d’utiliser MyCareNet pour la gestion des DMG, le prestataire de soins s’engage à :</li>
+								<li>Ne pas envoyer de notification pour un DMG qu’il a déjà attesté au patient (via 102771).</li>
+								<li>Ne plus attester de DMG via 102771 à partir du lendemain de la date d’inscription, ni pour les ouvertures, ni pour les prolongations.</li>
+								<li>Utiliser l’envoi des notifications MyCareNet pour toute ouverture d’un nouveau DMG.</li>
+								<li>Envoyer les notifications dans les 7 jours ouvrables maximum après la prestation (consultation ou visite) donnant droit au DMG.
+									Pour un prestataire de soins inscrit dans MyCareNet pour la gestion du DMG, l’OA s’engage à:</li>
+								<li>A partir de la date d’inscription à MyCareNet: payer dans les 30 jours toutes les prolongations administratives pour l’année en cours et l’année précédente, lorsque les conditions sont remplies.</li>
+								<li>Faire une prolongation automatique accélérée pour tous les DMG pour lesquels
+								les conditions sont remplies, dans les 30 jours à partir de la réception de
+									l’attestation de la prestation (consultation/visite).</li>
+								<li>Payer les ouvertures de DMG dans les 30 jours à partir de la réception de la notification si les conditions sont remplies.</li>
+								<li>Refuser les attestations DMG relatives à des prestations dont la date est ultérieure à la date d’inscription dans MyCareNet.</li>
+								<li>Envoyer les messages de clôture et de prolongation à bon escient</li>
+								</ul>
+							</div>
+							<vaadin-checkbox checked="{{canRegister}}">J'ai lu et j'approuve les conditions d'utilisation du DMG électronique</vaadin-checkbox>
+							</template>
+							<template is="dom-if" if="[[_cannotRegister(allEDmgregistered,canRegister)]]">
 								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
 								<div class="row" style="position:relative">
+									<template is="dom-if" if="[[allEDmgregistered]]">
 									<div id="edmgRegistrationComplete"><p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p></div>
+									</template>
 									<div class="col-20">
 										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
 										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
@@ -347,8 +359,7 @@
 								</div>
 							</template>
 
-							<template is="dom-if" if="[[!allEDmgregistered]]">
-
+							<template is="dom-if" if="[[_canRegister(allEDmgregistered,canRegister)]]">
 								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
 								<div class="row" style="position:relative">
 
@@ -402,9 +413,7 @@
 								</div>
 							</template>
 
-
-
-							<template is="dom-if" if="[[!allEDmgregistered]]">
+							<template is="dom-if" if="[[_canRegister(allEDmgregistered,canRegister)]]">
 								<div class="horizontal" style="margin-top:10px">
 									<div class="row">
 										<div class="col-35">&nbsp;</div>
@@ -498,18 +507,10 @@
 			    type: Array,
 				value: ['100','200','300','400','500','600','900']
 			},
-			regStatus:{
-			    type: Object,
-				value: null
-			},
             allEDmgregistered:{
 			    type: Boolean,
                 value: false
             },
-            currentRegs:{
-			    type: Object,
-				value : null
-			},
             tabs: {
 			    type: Number,
 				value: 0
@@ -614,28 +615,27 @@
 		//100,200,300,400,500,600,900
 		let regs = this.getRegistrationStatus();
         this.set('registerEnabled', false);
-		Promise.all(regs.rs.filter(reg => !reg.registered).map(reg =>
+		Promise.all(regs.filter(reg => !reg.registered).map(reg =>
 			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
 				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
 				if (reg.error) {
 				    this.set(`statusError_${reg.OA}`, reg.error && (this.language === 'nl' ? reg.error.msgNl : reg.error.msgFr))
 				}
-				const idx = regs.rs.findIndex(r => r.OA === reg.OA);
+				const idx = regs.findIndex(r => r.OA === reg.OA);
 				if(idx >= 0){
-					regs.rs.splice(idx, 1, reg);
+					regs.splice(idx, 1, reg);
 				} else {
-					regs.rs.push(reg);
+					regs.push(reg);
 				}
 
-				this.set('regStatus',JSON.stringify(regs));
-
 				let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
-                propRegStatus.typedValue.stringValue = this.regStatus;
+                propRegStatus.typedValue.stringValue = JSON.stringify({rs: regs});
 
 				return reg
 			})
         )).then( regs => {
             this.set('allEDmgregistered', regs.every(r => !!r.registered))
+            this.set('anyEDmgregistered', regs.some(r => !!r.registered))
             return this.api.user().modifyUser(this.user).then(
                 user => {
                     this.user = user
@@ -650,24 +650,12 @@
                 type: {identifier: 'org.taktik.icure.user.eDMG.RegistrationStatus'},
                 typedValue: {type: 'JSON', stringValue: '{\"rs\":[]}'}
             });
-		//'{"rs":[{"OA":"100","Comment":"","ErrorCode":""}]}'
 
-        let OAStatus = {};
-        if(propRegStatus && propRegStatus.typedValue) {
-           OAStatus = JSON.parse(propRegStatus.typedValue.stringValue);
-        }
-        let regs = {rs: (OAStatus.rs||[]).map(r => r)}
-        this.listOAs.map(itOA => {
-            let reg = regs.rs.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' };
-            const idx = regs.rs.findIndex(r => r.OA === itOA);
-            if(idx >= 0){
-                regs.rs.splice(idx, 1, reg);
-            } else {
-                regs.rs.push(reg);
-			}
-        })
-        this.set('allEDmgregistered', regs.rs.every(r => !!r.registered));
-        this.set('currentRegs', regs);
+        const OAStatus = propRegStatus && propRegStatus.typedValue && (JSON.parse(propRegStatus.typedValue.stringValue) || {}).rs || [];
+
+        const regs = this.listOAs.map(itOA => OAStatus.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' })
+        this.set('allEDmgregistered', regs.every(r => !!r.registered));
+        this.set('anyEDmgregistered', regs.some(r => !!r.registered))
 
         return regs;
 	}
@@ -769,7 +757,7 @@
 		this.$.dialog.open();
         this.showEHPreferrences(this.user);
         const regs = this.getRegistrationStatus()
-		regs.rs.forEach(reg => {
+		regs.forEach(reg => {
             this.set(`userIBAN_${reg.OA}`, reg.iban)
             this.set(`userBIC_${reg.OA}`, reg.bic)
 		    this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
@@ -803,8 +791,6 @@
 	}
 
 
-
-
 	// Resolve and assign BIC based on IBAN
 	_evalBic( event, fieldObject ) {
 
@@ -823,14 +809,13 @@
         // Assign bic value back, should we have any
 	    if( ( bicValue+'').length ) {
 
-			if(oaValue==100) this.userBIC_100 = bicValue;
-			if(oaValue==200) this.userBIC_200 = bicValue;
-			if(oaValue==300) this.userBIC_300 = bicValue;
-			if(oaValue==400) this.userBIC_400 = bicValue;
-			if(oaValue==500) this.userBIC_500 = bicValue;
-			if(oaValue==600) this.userBIC_600 = bicValue;
-			if(oaValue==900) this.userBIC_900 = bicValue;
-
+			if (oaValue===100) this.userBIC_100 = bicValue;
+			if (oaValue===200) this.userBIC_200 = bicValue;
+			if (oaValue===300) this.userBIC_300 = bicValue;
+			if (oaValue===400) this.userBIC_400 = bicValue;
+			if (oaValue===500) this.userBIC_500 = bicValue;
+			if (oaValue===600) this.userBIC_600 = bicValue;
+			if (oaValue===900) this.userBIC_900 = bicValue;
 		}
 
 	}
@@ -841,6 +826,13 @@
 	    this.listOAs.forEach( io => this.set(`userIBAN_${io}`, this.userIBAN_100))
         // Same goes for BIC values (including us)
         this.listOAs.forEach( io => this.set(`userBIC_${io}`, this.userBIC_100))
+	}
+
+	_cannotRegister() {
+        return !this.canRegister || this.allEDmgregistered
+    }
+	_canRegister() {
+        return this.canRegister && !this.allEDmgregistered
 	}
 
 }
