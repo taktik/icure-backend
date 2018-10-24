@@ -295,10 +295,6 @@
 
 						<div class="horizontal" style="padding-top:10px;">
 
-							<!--<template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">-->
-								<!--[[_getOARegStatus(reg)]]-->
-							<!--</template>-->
-
 							<template is="dom-if" if="[[allEDmgregistered]]">
 								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
 								<div class="row" style="position:relative">
@@ -490,18 +486,10 @@
 			    type: Array,
 				value: ['100','200','300','400','500','600','900']
 			},
-			regStatus:{
-			    type: Object,
-				value: null
-			},
             allEDmgregistered:{
 			    type: Boolean,
                 value: false
             },
-            currentRegs:{
-			    type: Object,
-				value : null
-			},
             tabs: {
 			    type: Number,
 				value: 0
@@ -598,20 +586,18 @@
 		//100,200,300,400,500,600,900
 		let regs = this.getRegistrationStatus();
         this.set('registerEnabled', false);
-		Promise.all(regs.rs.filter(reg => !reg.registered).map(reg =>
+		Promise.all(regs.filter(reg => !reg.registered).map(reg =>
 			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
 				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
-				const idx = regs.rs.findIndex(r => r.OA === reg.OA);
+				const idx = regs.findIndex(r => r.OA === reg.OA);
 				if(idx >= 0){
-					regs.rs.splice(idx, 1, reg);
+					regs.splice(idx, 1, reg);
 				} else {
-					regs.rs.push(reg);
+					regs.push(reg);
 				}
 
-				this.set('regStatus',JSON.stringify(regs));
-
 				let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
-                propRegStatus.typedValue.stringValue = this.regStatus;
+                propRegStatus.typedValue.stringValue = JSON.stringify({rs: regs});
 
 				return reg
 			})
@@ -631,24 +617,11 @@
                 type: {identifier: 'org.taktik.icure.user.eDMG.RegistrationStatus'},
                 typedValue: {type: 'JSON', stringValue: '{\"rs\":[]}'}
             });
-		//'{"rs":[{"OA":"100","Comment":"","ErrorCode":""}]}'
 
-        let OAStatus = {};
-        if(propRegStatus && propRegStatus.typedValue) {
-           OAStatus = JSON.parse(propRegStatus.typedValue.stringValue);
-        }
-        let regs = {rs: (OAStatus.rs||[]).map(r => r)}
-        this.listOAs.map(itOA => {
-            let reg = regs.rs.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' };
-            const idx = regs.rs.findIndex(r => r.OA === itOA);
-            if(idx >= 0){
-                regs.rs.splice(idx, 1, reg);
-            } else {
-                regs.rs.push(reg);
-			}
-        })
-        this.set('allEDmgregistered', regs.rs.every(r => !!r.registered));
-        this.set('currentRegs', regs);
+        const OAStatus = propRegStatus && propRegStatus.typedValue && (JSON.parse(propRegStatus.typedValue.stringValue) || {}).rs || [];
+
+        const regs = this.listOAs.map(itOA => OAStatus.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' })
+        this.set('allEDmgregistered', regs.every(r => !!r.registered));
 
         return regs;
 	}
@@ -747,7 +720,7 @@
 		this.$.dialog.open();
         this.showEHPreferrences(this.user);
         const regs = this.getRegistrationStatus()
-		regs.rs.forEach(reg => {
+		regs.forEach(reg => {
             this.set(`userIBAN_${reg.OA}`, reg.iban)
             this.set(`userBIC_${reg.OA}`, reg.bic)
 		    this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
@@ -779,8 +752,6 @@
 			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
         }
 	}
-
-
 
 
 	// Resolve and assign BIC based on IBAN
