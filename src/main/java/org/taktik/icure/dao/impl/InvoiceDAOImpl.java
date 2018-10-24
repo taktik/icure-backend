@@ -138,6 +138,20 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	}
 
 	@Override
+	@View(name = "by_hcparty_efact_pending", map = "classpath:js/invoice/By_hcparty_efact_pending_map.js")
+	public List<Invoice> listByHcPartyEfactPending(String hcParty, Long fromDate, Long toDate) {
+		ComplexKey startKey = ComplexKey.of(hcParty);
+		ComplexKey endKey = ComplexKey.of(hcParty, "{}");
+		if(fromDate != null){
+			startKey = ComplexKey.of(hcParty, fromDate);
+			if(toDate != null){
+				endKey = ComplexKey.of(hcParty, toDate);
+			}
+		}
+		return queryResults(createQuery("by_hcparty_efact_pending").includeDocs(true).startKey(startKey).endKey(endKey));
+	}
+
+	@Override
 	@View(name = "by_hcparty_efact_to_be_corrected", map = "classpath:js/invoice/By_hcparty_efact_to_be_corrected_map.js")
 	public List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate) {
 		ComplexKey startKey = ComplexKey.of(hcParty);
