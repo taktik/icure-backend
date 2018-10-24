@@ -799,8 +799,8 @@
                         type: String
                     },
                     selectValue: {
-                        type: Object,
-                        value: () => null
+                        type: Number,
+                        value: null
                     },
                     isAgreementSelected: {
                         type: Boolean,
@@ -897,7 +897,7 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-
+                    this.set('selectValue', null)
                     (this.selectedParagraph.ioRequestReference || this.selectedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
