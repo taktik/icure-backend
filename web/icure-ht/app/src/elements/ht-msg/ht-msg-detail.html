@@ -37,6 +37,8 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
+<link rel="import" href="../ht-lab/ht-lab-details.html">
+
 
 
 <dom-module id="ht-msg-detail">
@@ -383,10 +385,11 @@
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
 					<template is="dom-repeat" items="[[messages]]" as="msg">
 							<paper-card class="pat-details-card" >
-								<paper-input readonly value="From : [[msg.fromAddress]]"></paper-input>
-								<paper-input readonly value="To : [[msg.toAddresses]]"></paper-input>
-								<paper-input readonly value="Subject: [[msg.subject]]"></paper-input>
-                                <paper-input readonly value="Date: [[_timeFormat(msg.received)]]"></paper-input>
+								<paper-input readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
+								<paper-input readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
+								<paper-input readonly value="[[localize('sub','Subject',language)]] : [[msg.subject]]"></paper-input>
+								<paper-input readonly value="[[localize('dat','Date',language)]] : [[_timeFormat(msg.received)]]"></paper-input>
+
 
 								<template is="dom-if" if="[[msg.body]]">
 									<iron-autogrow-textarea style="min-height: 80px; width: 100%;" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
@@ -408,26 +411,28 @@
 											<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
 												<div>
 													<span>[[mimeType(item.mainUti)]] [[type]]</span>
-													<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
-													<vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+													<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+													<vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe">import</vaadin-button>
 												</div>
 												<template is="dom-if" if="[[showDetail]]">
-													[[documentAttachment]]
+													<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>
 												</template>
+											</template>
+											<template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
+												<ht-lab-details api="[[api]]" document="[[item]]"></ht-lab-details>
 											</template>
 										</paper-card>
 									</template>
 								</template>
 								<div class="del-button">
 									<div>
-										<paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+										<paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' transportGuid$="[[msg.transportGuid]]" ><iron-icon icon="delete"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
 									</div>
 								</div>
 							</paper-card>
 					</template>
 			</div>
 		</template>
-
 	</template>
 	<script>
 
@@ -518,7 +523,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 								{
 									doc.dataUrl = this.getDataUrls(doc)
 									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-									else this.set('documentAttachment', a);
 									return doc
 								}
 							)
@@ -603,14 +607,21 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_removeMsg(e){
 		let msgId = e.target.getAttribute('msgId');
-		console.log(msgId);
-
+		let transportGuid = e.target.getAttribute('transportGuid');
 		this.set('messages', null);
 
+		this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
+			.then(msg => {
+				let m = msg.rows[0];
+				if(m.transportGuid.startsWith("BIN")){
 		this.api.message().deleteMessages(msgId)
-			.then(x =>
-				this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
-			)
+						.then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
+				} else {
+					m.transportGuid = "BIN" + m.transportGuid;
+					this.api.message().modifyMessage(m)
+						.then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
+				}
+			})
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
@@ -624,6 +635,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_xmlMimeType(uti, utis) {
 		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+	}
+
+	_textType(uti, utis){
+		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
 	}
 
 	_isEqualTo(title, string) {
@@ -662,22 +677,25 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	}
 
-	_getAttachment(){
+	_getAttachment(e){
+		let id = e.target.getAttribute('id');
+		let attachmentId = e.target.getAttribute('attachmentId');
+		this.api.document().getAttachment(id, attachmentId, null).then(att => this.set("documentAttachment",att));
 		this.showDetail = !this.showDetail
 	}
 
-	importPatient(){
-		this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
-			contacts => {
-				contacts.forEach(contact => {
-					contact.ctcs.forEach(ctc => {
-						this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-							console.log(c)
-							return c
-						});
-					})
-				})
-			})
+	importAnnexe(){
+		// this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
+		// 	contacts => {
+		// 		contacts.forEach(contact => {
+		// 			contact.ctcs.forEach(ctc => {
+		// 				this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+		// 					console.log(c)
+		// 					return c
+		// 				});
+		// 			})
+		// 		})
+		// 	})
 	}
 }
 

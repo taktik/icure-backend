@@ -253,6 +253,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-weight: 700;
                 }
 
+                .modal-button{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-background-color-light);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+                }
+
+                #del-button {
+                    position: absolute;
+                    left: 51%;
+                    top: 30px;
+                    z-index: 1;
+                    height: 35px;
+                }
+
+                #restore-button {
+                    position: absolute;
+                    left: 53%;
+                    top: 30px;
+                    z-index: 1;
+                    height: 35px;
+                }
+
                 #mail-list {
                     padding-right: 0;
                     margin-right: 0;
@@ -261,23 +284,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     /* cascading compatibility */
                 }
 
-                .del-button{
-                    position: absolute;
-                    left: 52%;
-                    top: 30px;
-                    z-index: 1;
-                    height: 35px;
-                }
-
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
                 
-                <paper-icon-button icon="delete-forever" class="del-button" on-tap="_removeMsgs"></paper-icon-button>
-                    
+                <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
+
+
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
-                    <vaadin-grid-selection-column></vaadin-grid-selection-column>
+                    <vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
                         <vaadin-grid-column flex-grow="2">
                             <template class="header">
@@ -308,11 +325,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
                 </vaadin-grid>
-                <div class="del-button">
-                    <div>
-                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                    </div>
-                </div>
             </div>
         </template>
     </template>
@@ -506,6 +518,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEhealthMessages(){
+				// return this.findMessagesByTransportGUID('SENTBOX:*', null, null, 1000)
+                //     .then(messages => this.set('messages', messages || []));
+
 				this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
@@ -517,16 +532,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => this.set('messages', messages || []));
             }
 
+            getTrash(){
+				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
+					.then(messages => this.set('messages', messages || []));
+            }
+
             findMessagesByTransportGUID(guid){
                 return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
                     return this.sortByDatesAndGUID(messages.rows);
                 })
             }
 
+            findMessagesByTransportGUIDs(guids){
+				let p = []
+				guids.forEach(guid => {
+					p.push(this.findMessagesByTransportGUID(guid))
+				});
+                return Promise.all(p).then(items =>{
+                	let results = [];
+                	items.forEach(item => results = results.concat(item));
+                    return results;
+                });
+            }
+
             _refresh() {
                 if (this.selectList && this.selectList.selection) {
                 	let item = this.selectList.selection.item
-					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item)
+					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
+					let restoreButton = this.shadowRoot.querySelector('#restore-button');
+					restoreButton && (restoreButton.hidden = true);
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
@@ -566,6 +600,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             break;
                         case 'Chap4In' :
                         	this.getChap4In();
+                        	break;
                         case 'protIn' :
                             this.getProtIn();
                             break;
@@ -581,6 +616,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'GMD' :
                             this.getGMD();
                             break;
+                        case 'trash' :
+							restoreButton && (restoreButton.hidden = false);
+                        	this.getTrash();
+                        	break;
                         case 'Refresh':
                         	// Fake selection to refresh binding
                         	break;
@@ -618,13 +657,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
 			_removeMsgs(){
+				let mailListSelectionColumn = this.shadowRoot.querySelector('#mail-list-selection-column');
 				let mailList = this.shadowRoot.querySelector('#mail-list');
 				let msgs = mailList.selectedItems;
-				if(msgs) this.api.message().deleteMessages(msgs.map(msg => msg.id))
-                    .then(x=> {
-                    	this._refresh();
-					});
+				if(msgs) {
+                    msgs.forEach(msg =>{
+                            if(msg.transportGuid.startsWith("BIN")){
+                                this.api.message().deleteMessages(msg.id)
+                                    .then(() => {
+										this._refresh();
+                                    	this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+									});
+                            } else {
+								msg.transportGuid = "BIN" + msg.transportGuid;
+                                this.api.message().modifyMessage(msg)
+                                    .then(() => {
+										this._refresh();
+                                    	this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
+									});
+                            }
+                    });
+					mailListSelectionColumn.selectAll = false;
+				}
             }
+
+			_restoreMsgs(){
+				let mailList = this.shadowRoot.querySelector('#mail-list');
+				let msgs = mailList.selectedItems;
+				console.log(msgs);
+				if(msgs) {
+					msgs.forEach(msg =>{
+						while(msg.transportGuid.startsWith("BIN")){
+							msg.transportGuid = msg.transportGuid.substring(3);
+						}
+						this.api.message().modifyMessage(msg)
+                            .then(()=> this._refresh());
+                    })
+				}
+			}
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
@@ -637,6 +707,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             setListTitle(title){
             	this.set("listTitle",this.localize("boxtitle." + title,'List',this.language))
+            }
+
+            _displayRestoreButton(){
+                return (this.selectList.selection.item == 'trash')
             }
 
 		}
