@@ -7,6 +7,7 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -380,12 +381,19 @@
 									<div class="col-10">
 										<paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_100_cssClass]]" rel="100" id="statusBullet_100"></div></div>
+										<paper-tooltip for="statusBullet_100" offset="0">[[statusError_100]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_200_cssClass]]" rel="200" id="statusBullet_200"></div></div>
+										<paper-tooltip for="statusBullet_200" offset="0">[[statusError_200]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_300_cssClass]]" rel="300" id="statusBullet_300"></div></div>
+										<paper-tooltip for="statusBullet_300" offset="0">[[statusError_300]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_400_cssClass]]" rel="400" id="statusBullet_400"></div></div>
+										<paper-tooltip for="statusBullet_400" offset="0">[[statusError_400]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_500_cssClass]]" rel="500" id="statusBullet_500"></div></div>
+										<paper-tooltip for="statusBullet_500" offset="0">[[statusError_500]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_600_cssClass]]" rel="600" id="statusBullet_600"></div></div>
+										<paper-tooltip for="statusBullet_600" offset="0">[[statusError_600]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_900_cssClass]]" rel="900" id="statusBullet_900"></div></div>
+										<paper-tooltip for="statusBullet_900" offset="0">[[statusError_900]]</paper-tooltip>
 									</div>
 								</div>
 							</template>
@@ -397,7 +405,7 @@
 									<div class="row">
 										<div class="col-35">&nbsp;</div>
 										<div class="col-30 textAlignCenter"><paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
-										<div class="col-35">&nbsp;</div>
+										<div class="col-35"><template is="dom-if" if="[[!registerEnabled]]"><paper-progress indeterminate></paper-progress></template></div>
 									</div>
 								</div>
 								<div class="horizontal">&nbsp;</div>
@@ -522,6 +530,14 @@
             statusBullet_600_cssClass: { type: String, value: '' },
             statusBullet_900_cssClass: { type: String, value: '' },
 
+            statusError_100: { type: String, value: '' },
+            statusError_200: { type: String, value: '' },
+            statusError_300: { type: String, value: '' },
+            statusError_400: { type: String, value: '' },
+            statusError_500: { type: String, value: '' },
+            statusError_600: { type: String, value: '' },
+            statusError_900: { type: String, value: '' },
+
             allEDmgregisteredReadAttribute: { type: String, value: '' },
 
         };
@@ -559,19 +575,19 @@
             });
         this.set('userMedicalHouseNihii', propMHNihii.typedValue.stringValue);
 
-        const propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC') ||
-            (this.user.properties[this.user.properties.length] = {
-                type: {identifier: 'org.taktik.icure.user.BIC'},
-                typedValue: {type: 'STRING', stringValue: ''}
-            });
-        this.set('userBIC', propBIC.typedValue.stringValue);
+        // const propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC') ||
+        //     (this.user.properties[this.user.properties.length] = {
+        //         type: {identifier: 'org.taktik.icure.user.BIC'},
+        //         typedValue: {type: 'STRING', stringValue: ''}
+        //     });
+        // this.set('userBIC', propBIC.typedValue.stringValue);
 
-        const propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN') ||
-            (this.user.properties[this.user.properties.length] = {
-                type: {identifier: 'org.taktik.icure.user.IBAN'},
-                typedValue: {type: 'STRING', stringValue: ''}
-            });
-        this.set('userIBAN', propIBAN.typedValue.stringValue);
+        // const propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN') ||
+        //     (this.user.properties[this.user.properties.length] = {
+        //         type: {identifier: 'org.taktik.icure.user.IBAN'},
+        //         typedValue: {type: 'STRING', stringValue: ''}
+        //     });
+        // this.set('userIBAN', propIBAN.typedValue.stringValue);
 	}
 
 	_getOARegStatus(reg){
@@ -589,6 +605,9 @@
 		Promise.all(regs.filter(reg => !reg.registered).map(reg =>
 			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
 				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
+				if (reg.error) {
+				    this.set(`statusError_${reg.OA}`, reg.error && (this.language === 'nl' ? reg.error.msgNl : reg.error.msgFr))
+				}
 				const idx = regs.findIndex(r => r.OA === reg.OA);
 				if(idx >= 0){
 					regs.splice(idx, 1, reg);
@@ -650,6 +669,7 @@
 									reg.registered = regResp.success
 									reg.lastExecution = (new Date).getTime()
 									reg.response = JSON.stringify(regResp)
+									reg.error = err
 									return reg
 								}
 							} else {
@@ -660,6 +680,7 @@
 						} else {
 							reg.registered = false
 							reg.lastExecution = (new Date).getTime()
+							reg.error = {msgNl : "Onbekende fout", msgFr :"Erreur inconnue"}
 							return reg
 						}
 					}
@@ -667,7 +688,8 @@
 						reg.Comment = 'exception caugh:' + error
 						reg.response = JSON.stringify(error)
 						reg.lastExecution = (new Date).getTime()
-						return Promise.resolve(reg)
+                    	reg.error = {msgNl : "Verbinding met VI mislukt", msgFr :"La connexion avec l'OA a échoué"}
+                    	return Promise.resolve(reg)
 					}
 				)
 		} else {
@@ -742,10 +764,10 @@
             let propMHNihii = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.medicalHouse.nihii')
             propMHNihii.typedValue.stringValue = this.userMedicalHouseNihii;
 
-            let propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN')
-            propIBAN.typedValue.stringValue = this.userIBAN;
-            let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
-            propBIC.typedValue.stringValue = this.userBIC;
+            // let propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN')
+            // propIBAN.typedValue.stringValue = this.userIBAN;
+            // let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
+            // propBIC.typedValue.stringValue = this.userBIC;
 
            this.api.user().modifyUser(this.user).then(
                 user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
