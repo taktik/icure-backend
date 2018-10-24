@@ -37,7 +37,6 @@ public class HealthcarePartyDto extends StoredDto {
      */
     private static final long serialVersionUID = 1L;
 
-	protected Set<AddressDto> addressDtos;
     protected String name;
     protected String lastName;
     protected String firstName;
@@ -75,15 +74,6 @@ public class HealthcarePartyDto extends StoredDto {
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
 	protected Map<String, String> options = new HashMap<>();
-
-
-	public Set<AddressDto> getAddressDtoEmbeds() {
-		return addressDtos;
-	}
-
-	public void setAddressDtoEmbeds(Set<AddressDto> addressDtos) {
-		this.addressDtos = addressDtos;
-	}
 
 	public String getName() {
         return name;
@@ -211,14 +201,6 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setSsin(String ssin) {
         this.ssin = ssin;
-    }
-
-    public Set<AddressDto> getAddressDtos() {
-        return addressDtos;
-    }
-
-    public void setAddressDtos(Set<AddressDto> addressDtos) {
-        this.addressDtos = addressDtos;
     }
 
     public Gender getGender() {

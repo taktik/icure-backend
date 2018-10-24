@@ -54,6 +54,7 @@
 								"multiline" : false,
 								"left" : 308,
 								"top" : 33,
+								"pattern": ":ssin",
 								"key" : "StringEditor"
 							},
 							"sortOrder" : 1465333559,
@@ -443,6 +444,32 @@
 							"type" : "TKSubConsult",
 							"subForm" : true,
 							"name" : "insurabilities"
+						},
+						{
+							"editor" : {
+								"readOnly" : false,
+								"height" : 48,
+								"compulsoryFormGuids" : [
+
+								],
+								"labelPosition" : "Left",
+								"width" : 1162,
+								"multiline" : false,
+								"left" : 5,
+								"top" : 262,
+								"key" : "SubFormEditor",
+								"optionalFormGuids" : [
+									"2d6620d1-7ac6-4627-973c-cf06f361c570"
+								]
+							},
+							"sortOrder" : 1616336695,
+							"codeTypes" : [
+
+							],
+							"label" : "Medical House Contract",
+							"type" : "TKSubConsult",
+							"subForm" : true,
+							"name" : "medicalHouseContracts"
 						}
                       ]
 				}
