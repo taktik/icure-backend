@@ -100,6 +100,46 @@ public class KeywordFacade implements OpenApiFacade{
 
 
 	@ApiOperation(
+			value = "Get a keyword by user",
+			response = KeywordDto.class,
+			httpMethod = "GET",
+			notes = ""
+	)
+	@GET
+	@Path("/byUser/{userId}")
+	public Response getKeywordByUser(@PathParam("userId") String userId) {
+		if (userId == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		Response response;
+		List<Keyword> keywords = keywordLogic.getKeywordByUser(userId);
+
+		if (keywords != null) {
+			response = Response.ok().entity(keywords.stream().map(c -> mapper.map(c, KeywordDto.class)).collect(Collectors.toList())).build();
+
+		} else {
+			response = ResponseUtils.internalServerError("Keywords fetching failed");
+		}
+		return response;
+	}
+
+    @ApiOperation(response = KeywordDto.class, value = "Gets all keywords")
+    @GET
+    public Response getKeywords() {
+        Response response;
+        List<Keyword> keywords = keywordLogic.getAllEntities();
+        if (keywords != null) {
+            response = Response.ok().entity(keywords.stream().map(c -> mapper.map(c, KeywordDto.class)).collect(Collectors.toList())).build();
+
+        } else {
+            response = ResponseUtils.internalServerError("Keywords fetching failed");
+        }
+        return response;
+    }
+
+
+	@ApiOperation(
 			value = "Delete keywords.",
 			response = String.class,
             responseContainer = "Array",

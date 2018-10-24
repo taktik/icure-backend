@@ -34,6 +34,7 @@ public class DatabaseUserDetails extends AbstractUserDetails {
 	private String application;
 	private String secret;
 	private boolean use2fa;
+	private String groupId;
 
 	public DatabaseUserDetails(PermissionSetIdentifier permissionSetIdentifier, Set<GrantedAuthority> authorities, String passwordHash, String secret, Boolean use2fa) {
 		super(permissionSetIdentifier, authorities);
@@ -77,5 +78,13 @@ public class DatabaseUserDetails extends AbstractUserDetails {
 
 	public boolean isUse2fa() {
 		return use2fa;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getGroupId() {
+		return groupId;
 	}
 }

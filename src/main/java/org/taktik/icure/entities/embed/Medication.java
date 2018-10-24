@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Joiner;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -55,7 +55,7 @@ public class Medication implements Serializable {
 
 	List<RegimenItem> regimen;
 
-	Map<String, Content> options;
+	Map<String, Content> options; //ioRequestReference -> String, ioDecisionReference -> String, ioDecisionEndOfValidity -> Date, ioChapter4Paragraph : String, ioChapter4Verses: String
 
 	public Map<String, Content> getOptions() {
 		return options;

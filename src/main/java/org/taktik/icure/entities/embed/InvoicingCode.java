@@ -65,6 +65,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
     protected String error;
 	//TODO... Might want to encrypt this as it could be used to identify the patient
     protected String contract;
+	protected Long contractDate;
     protected Integer units;
     protected Integer side;
     protected Integer timeOfDay;
@@ -72,29 +73,21 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected String eidReadingValue;
     protected Integer override3rdPayerCode;
     protected String override3rdPayerReason;
-    protected String gnotionNihii;
+
 	protected Integer prescriberNorm;
 	protected Integer percentNorm;
     protected String prescriberNihii;
     protected String relatedCode;
 
-	protected String gnotionSsin;
-	protected String gnotionLastName;
-	protected String gnotionFirstName;
-	protected String gnotionCdHcParty;
+
 	protected String prescriberSsin;
 	protected String prescriberLastName;
 	protected String prescriberFirstName;
 	protected String prescriberCdHcParty;
-	protected String internshipNihii;
-	protected String internshipSsin;
-	protected String internshipLastName;
-	protected String internshipFirstName;
-	protected String internshipCdHcParty;
+
 	protected String locationNihii;
 	protected String locationCdHcParty;
 
-	protected Integer invoicePeriod;
 
 	protected Boolean canceled;
 	protected Boolean accepted;
@@ -102,7 +95,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Boolean resent;
 
     protected Integer insuranceJustification;
-	protected Integer longDelayJustification;
+
 	protected Integer cancelPatientInterventionReason;
 
 	protected Long status;
@@ -135,7 +128,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.eidReadingValue = this.eidReadingValue == null ? other.eidReadingValue : this.eidReadingValue;
 		this.override3rdPayerCode = this.override3rdPayerCode == null ? other.override3rdPayerCode : this.override3rdPayerCode;
 		this.override3rdPayerReason = this.override3rdPayerReason == null ? other.override3rdPayerReason : this.override3rdPayerReason;
-		this.gnotionNihii = this.gnotionNihii == null ? other.gnotionNihii : this.gnotionNihii;
 		this.prescriberNorm = this.prescriberNorm == null ? other.prescriberNorm : this.prescriberNorm;
 		this.percentNorm = this.percentNorm == null ? other.percentNorm : this.percentNorm;
 		this.prescriberNihii = this.prescriberNihii == null ? other.prescriberNihii : this.prescriberNihii;
@@ -145,22 +137,12 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.pending = this.pending == null ? other.pending : this.pending;
 		this.resent = this.resent == null ? other.resent : this.resent;
 		this.insuranceJustification = this.insuranceJustification == null ? other.insuranceJustification : this.insuranceJustification;
-		this.longDelayJustification = this.longDelayJustification == null ? other.longDelayJustification : this.longDelayJustification;
 		this.cancelPatientInterventionReason = this.cancelPatientInterventionReason == null ? other.cancelPatientInterventionReason : this.cancelPatientInterventionReason;
 		this.status = this.status == null ? other.status : this.status;
-		this.gnotionSsin = this.gnotionSsin == null ? other.gnotionSsin : this.gnotionSsin;
-		this.gnotionLastName = this.gnotionLastName == null ? other.gnotionLastName : this.gnotionLastName;
-		this.gnotionFirstName = this.gnotionFirstName == null ? other.gnotionFirstName : this.gnotionFirstName;
-		this.gnotionCdHcParty = this.gnotionCdHcParty == null ? other.gnotionCdHcParty : this.gnotionCdHcParty;
 		this.prescriberSsin = this.prescriberSsin == null ? other.prescriberSsin : this.prescriberSsin;
 		this.prescriberLastName = this.prescriberLastName == null ? other.prescriberLastName : this.prescriberLastName;
 		this.prescriberFirstName = this.prescriberFirstName == null ? other.prescriberFirstName : this.prescriberFirstName;
 		this.prescriberCdHcParty = this.prescriberCdHcParty == null ? other.prescriberCdHcParty : this.prescriberCdHcParty;
-		this.internshipNihii = this.internshipNihii == null ? other.internshipNihii : this.internshipNihii;
-		this.internshipSsin = this.internshipSsin == null ? other.internshipSsin : this.internshipSsin;
-		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
-		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
-		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
 		this.locationNihii = this.locationNihii == null ? other.locationNihii : this.locationNihii;
 		this.locationCdHcParty = this.locationCdHcParty == null ? other.locationCdHcParty : this.locationCdHcParty;
 	}
@@ -337,15 +319,15 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
         this.override3rdPayerReason = override3rdPayerReason;
     }
 
-    public String getGnotionNihii() {
-        return gnotionNihii;
-    }
+	public Long getContractDate() {
+		return contractDate;
+	}
 
-    public void setGnotionNihii(String gnotionNihii) {
-        this.gnotionNihii = gnotionNihii;
-    }
+	public void setContractDate(Long contractDate) {
+		this.contractDate = contractDate;
+	}
 
-    public Integer getPrescriberNorm() {
+	public Integer getPrescriberNorm() {
         return prescriberNorm;
     }
 
@@ -441,14 +423,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.resent = resent;
 	}
 
-	public Integer getLongDelayJustification() {
-		return longDelayJustification;
-	}
-
-	public void setLongDelayJustification(Integer longDelayJustification) {
-		this.longDelayJustification = longDelayJustification;
-	}
-
 	public Long getStatus() {
 		return status;
 	}
@@ -479,38 +453,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
 	public void setLogicalId(String logicalId) {
 		this.logicalId = logicalId;
-	}
-
-	public String getGnotionSsin() {
-		return gnotionSsin;
-	}
-
-	public void setGnotionSsin(String gnotionSsin) {
-		this.gnotionSsin = gnotionSsin;
-	}
-
-	public String getGnotionLastName() {
-		return gnotionLastName;
-	}
-
-	public void setGnotionLastName(String gnotionLastName) {
-		this.gnotionLastName = gnotionLastName;
-	}
-
-	public String getGnotionFirstName() {
-		return gnotionFirstName;
-	}
-
-	public void setGnotionFirstName(String gnotionFirstName) {
-		this.gnotionFirstName = gnotionFirstName;
-	}
-
-	public String getGnotionCdHcParty() {
-		return gnotionCdHcParty;
-	}
-
-	public void setGnotionCdHcParty(String gnotionCdHcParty) {
-		this.gnotionCdHcParty = gnotionCdHcParty;
 	}
 
 	public String getPrescriberSsin() {
@@ -545,46 +487,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.prescriberCdHcParty = prescriberCdHcParty;
 	}
 
-	public String getInternshipNihii() {
-		return internshipNihii;
-	}
-
-	public void setInternshipNihii(String internshipNihii) {
-		this.internshipNihii = internshipNihii;
-	}
-
-	public String getInternshipSsin() {
-		return internshipSsin;
-	}
-
-	public void setInternshipSsin(String internshipSsin) {
-		this.internshipSsin = internshipSsin;
-	}
-
-	public String getInternshipLastName() {
-		return internshipLastName;
-	}
-
-	public void setInternshipLastName(String internshipLastName) {
-		this.internshipLastName = internshipLastName;
-	}
-
-	public String getInternshipFirstName() {
-		return internshipFirstName;
-	}
-
-	public void setInternshipFirstName(String internshipFirstName) {
-		this.internshipFirstName = internshipFirstName;
-	}
-
-	public String getInternshipCdHcParty() {
-		return internshipCdHcParty;
-	}
-
-	public void setInternshipCdHcParty(String internshipCdHcParty) {
-		this.internshipCdHcParty = internshipCdHcParty;
-	}
-
 	public String getLocationNihii() {
 		return locationNihii;
 	}
@@ -600,10 +502,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	public void setLocationCdHcParty(String locationCdHcParty) {
 		this.locationCdHcParty = locationCdHcParty;
 	}
-
-	public Integer getInvoicePeriod() { return invoicePeriod; }
-
-	public void setInvoicePeriod(Integer invoicePeriod) { this.invoicePeriod = invoicePeriod; }
 
 	public InvoicingCode solveConflictWith(InvoicingCode other) {
 		this.dateCode = this.dateCode == null ? other.dateCode : this.dateCode;
@@ -623,6 +521,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.vat = this.vat == null ? other.vat : this.vat;
 		this.error = this.error == null ? other.error : this.error;
 		this.contract = this.contract == null ? other.contract : this.contract;
+		this.contractDate = this.contractDate == null ? other.contractDate : this.contractDate;
 		this.units = this.units == null ? other.units : this.units;
 		this.side = this.side == null ? other.side : this.side;
 		this.timeOfDay = this.timeOfDay == null ? other.timeOfDay : this.timeOfDay;
@@ -630,7 +529,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.eidReadingValue = this.eidReadingValue == null ? other.eidReadingValue : this.eidReadingValue;
 		this.override3rdPayerCode = this.override3rdPayerCode == null ? other.override3rdPayerCode : this.override3rdPayerCode;
 		this.override3rdPayerReason = this.override3rdPayerReason == null ? other.override3rdPayerReason : this.override3rdPayerReason;
-		this.gnotionNihii = this.gnotionNihii == null ? other.gnotionNihii : this.gnotionNihii;
 		this.prescriberNorm = this.prescriberNorm == null ? other.prescriberNorm : this.prescriberNorm;
 		this.prescriberNihii = this.prescriberNihii == null ? other.prescriberNihii : this.prescriberNihii;
 		this.relatedCode = this.relatedCode == null ? other.relatedCode : this.relatedCode;
@@ -639,22 +537,12 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.pending = this.pending == null ? other.pending : this.pending;
 		this.resent = this.resent == null ? other.resent : this.resent;
 		this.insuranceJustification = this.insuranceJustification == null ? other.insuranceJustification : this.insuranceJustification;
-		this.longDelayJustification = this.longDelayJustification == null ? other.longDelayJustification : this.longDelayJustification;
 		this.cancelPatientInterventionReason = this.cancelPatientInterventionReason == null ? other.cancelPatientInterventionReason : this.cancelPatientInterventionReason;
 		this.status = this.status == null ? other.status : this.status;
-		this.gnotionSsin = this.gnotionSsin == null ? other.gnotionSsin : this.gnotionSsin;
-		this.gnotionLastName = this.gnotionLastName == null ? other.gnotionLastName : this.gnotionLastName;
-		this.gnotionFirstName = this.gnotionFirstName == null ? other.gnotionFirstName : this.gnotionFirstName;
-		this.gnotionCdHcParty = this.gnotionCdHcParty == null ? other.gnotionCdHcParty : this.gnotionCdHcParty;
 		this.prescriberSsin = this.prescriberSsin == null ? other.prescriberSsin : this.prescriberSsin;
 		this.prescriberLastName = this.prescriberLastName == null ? other.prescriberLastName : this.prescriberLastName;
 		this.prescriberFirstName = this.prescriberFirstName == null ? other.prescriberFirstName : this.prescriberFirstName;
 		this.prescriberCdHcParty = this.prescriberCdHcParty == null ? other.prescriberCdHcParty : this.prescriberCdHcParty;
-		this.internshipNihii = this.internshipNihii == null ? other.internshipNihii : this.internshipNihii;
-		this.internshipSsin = this.internshipSsin == null ? other.internshipSsin : this.internshipSsin;
-		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
-		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
-		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
 		this.locationNihii = this.locationNihii == null ? other.locationNihii : this.locationNihii;
 		this.locationCdHcParty = this.locationCdHcParty == null ? other.locationCdHcParty : this.locationCdHcParty;
 		return this;

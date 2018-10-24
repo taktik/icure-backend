@@ -90,6 +90,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					return require('./rsrc/HcpTelecomForm.json');
 				}
 			},
+            medicalHouseContractsForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/HcpMedicalHouseContractFrom.json');
+                }
+            },
 			dataProvider: {
 				type: Object,
 				value: null
@@ -98,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	static get observers() {
-		return ['hcpChanged(api,user,hcp)', 'hcpFormChanged(hcpForm, addressForm, telecomForm)'];
+		return ['hcpChanged(api,user,hcp)', 'hcpFormChanged(hcpForm, addressForm, telecomForm, medicalHouseContractsForm)'];
 	}
 
 	constructor() {
@@ -110,7 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	hcpFormChanged() {
-		if (this.hcpForm && this.addressForm && this.telecomForm) {
+		if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
 			this.set('combinedForm', this.hcpForm);
 		}
 	}
@@ -183,7 +189,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}.bind(this),
 			getSubForms: function (key) {
 				return root[key].map(a => {
-					return { dataMap: a, dataProvider: this.hcpDataProvider(a), template: key === 'addresses' ? this.addressForm : this.telecomForm };
+					return {
+					    dataMap: a,
+						dataProvider: this.hcpDataProvider(a),
+                    	template: key === 'addresses' ? this.addressForm : key === 'medicalHouseContracts' ? this.medicalHouseContractsForm : this.telecomForm
+					};
 				});
 			}.bind(this)
 		};

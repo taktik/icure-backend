@@ -383,8 +383,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            paper-dialog#ht-invite-hcp{
+                width: 50vw;
+                left: 0;
+                transform: translateX(50%);
+                margin: 0;
+            }
+
             .inviteHcpInput {
-                width: 400px;
+                width: 100%;
             }
 
             .formNewHcp {
@@ -445,7 +452,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
         </style>
 
-        <icc-api id="api" host="/rest/v1" fhc-host="https://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
+        <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
         <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
             <iron-icon icon="icons:warning"></iron-icon>
@@ -1218,6 +1225,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     timeOutId: {
                         type: String
+                    },
+                    keyPairKeystore:{
+                    	type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -1232,16 +1243,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super()
             }
 
+
+            setUrls() {
+                const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
+
+                this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
+                this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+            }
+
             ready() {
                 super.ready()
-                if (!this.route.__queryParams.token && !this.route.__queryParams.userId) {
-                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/, '/#')
-                    let fullHref = newHref.endsWith('/') ? newHref : newHref + '/'
-                    if (fullHref !== window.location.href) {
-                        window.location.href = fullHref
+
+                const url = new URL(window.location.href)
+                if (!url.hash || !url.hash.startsWith('#/')) {
+                    url.hash = '#/'
+                    window.location.replace(url.toString())
                     }
-                }
+
                 window.app = this
+
+                if (!this.icureUrl) { this.setUrls() }
+
                 this.set('api', this.$.api)
 
                 document.onmousemove = this.resetTimer.bind(this)
@@ -1314,6 +1336,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('view', 'auth')
                 } else {
                     console.log("page is -> " + page)
+
+                    if (!this.icureUrl) { this.setUrls() }
+
                     if (!this.authenticated && (!page || !page.startsWith('auth'))) {
                         if (sessionStorage.getItem('auth') || (this.route.__queryParams.token && this.route.__queryParams.userId)) {
                             this.loginAndRedirect(page)
@@ -1354,7 +1379,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             doRoute(e) {
-                this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')) + "/")
+                this.set('routeData.page', ( (e.target.getAttribute('name') || 'main' ) || e.target.parentElement.getAttribute('name')) + "/")
                 this._triggerMenu()
             }
 
@@ -1419,7 +1444,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
                         const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
                         language && this.set('language', language)
-                    })
 
                     this.$.loginDialog.opened = false
 
@@ -1436,8 +1460,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (!this.authenticated) {
                         this.authenticated = true
 
-                        this.api.loadUsersAndHcParties()
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
+                                this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
+                                if (ok) {
+                                    this.api.loadUsersAndHcParties()
                             if (this.credentials.ehpassword) {
                                 const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
                                 if (ehKeychain) {
@@ -1463,22 +1489,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             } else {
                                 this._routePageChanged(destPage)
                             }
+                                } else {
+                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                    this.$.registerKeyPairDialog.opened = true
+                                }
+                            })
                         } else {
-                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
-
                                 if (hcp.publicKey) {
                                     this.registerKeyPairDialogMessage = ""
                                     this.$.registerKeyPairDialog.opened = true
                                 } else {
+                                    console.log("HCP public key is " + hcp.publicKey, hcp)
                                     this.$.firstConnectionDialog.opened = true
                                 }
-
-
-                            })
                         }
                     }
                     this._timeCheck()
                     this._inboxMessageCheck()
+                    })
                 }).catch(function (e) {
                     this.authenticated = false
                     sessionStorage.removeItem('auth')
@@ -1549,26 +1577,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.worker = new Worker()
 
-                this.worker.postMessage({
-                    action: "loadEhboxMessage",
-                    hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
-                    fhcHost: this.api.fhc().host,
-                    fhcHeaders: JSON.stringify(this.api.fhc().headers),
-                    iccHost: this.api.host,
-                    iccHeaders: JSON.stringify(this.api.headers),
-                    tokenId: this.api.tokenId,
-                    keystoreId: this.api.keystoreId,
-                    user: this.user,
-                    ehpassword: this.credentials.ehpassword,
-                    boxId: "INBOX",
-                    keyPair: keyPair
-                })
+				this.getAlternateKeystores().then(alternateKeystores => {
+					this.worker.postMessage({
+						action: "loadEhboxMessage",
+						hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+						fhcHost: this.api.fhc().host,
+						fhcHeaders: JSON.stringify(this.api.fhc().headers),
+						iccHost: this.api.host,
+						iccHeaders: JSON.stringify(this.api.headers),
+						tokenId: this.api.tokenId,
+						keystoreId: this.api.keystoreId,
+						user: this.user,
+						ehpassword: this.credentials.ehpassword,
+						boxId: "INBOX",
+						alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
+						keyPair: keyPair
+					})
+				})
 
                 this.worker.onmessage = e => {
                     this.set('ehboxWebWorkerMessage', e.data.message)
                     this.$.ehboxInboxMessage.classList.add('notificationEhbox')
                     console.log("Le worker à repondu " + e.data.message)
                 }
+
+            }
+
+			getAlternateKeystores(){
+				const healthcarePartyId = this.user.healthcarePartyId;
+
+                return Promise.all(
+				Object.keys(localStorage).filter(k => k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".") === true)
+                    .map(fk => this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
+					    .then( password =>
+							(this.keyPairKeystore[fk])?
+                                // Get fhc keystore UUID in cache
+								new Promise(x => x(({uuid: this.keyPairKeystore[fk], passPhrase: password}))):
+                                // Upload new keystore
+								this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(this.api.crypto().utils.base64toByteArray(localStorage.getItem(fk)))
+									.then(res => this.addUUIDKeystoresInCache(fk, res.uuid, password))
+
+						)
+                    )
+                )
+			}
+
+			addUUIDKeystoresInCache(key, uuid, password){
+            	return new Promise(x =>{
+					this.keyPairKeystore[key] = uuid;
+                    x(({uuid: uuid, passPhrase: password}))
+                })
+
+            }
+
+			getDecryptedValueFromLocalstorage(healthcarePartyId, key){
+				let item = localStorage.getItem(key);
+
+                return this.api.crypto().hcpartyBaseApi.getHcPartyKeysForDelegate(healthcarePartyId)
+                    .then(encryptedHcPartyKey =>
+                        this.api.crypto().decryptHcPartyKey(healthcarePartyId, healthcarePartyId, encryptedHcPartyKey[healthcarePartyId], true)
+                    )
+                    .then(importedAESHcPartyKey =>
+                        (item)?this.api.crypto().AES.decrypt(importedAESHcPartyKey.key, this.api.crypto().utils.text2ua(item)):null
+                    )
+                    .then(data =>
+                        (data)?this.api.crypto().utils.ua2text(data):null
+                    );
             }
 
             _logList() {

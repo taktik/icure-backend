@@ -53,9 +53,11 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.utils.FuzzyValues;
 
 @Service
 public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> implements InvoiceLogic {
@@ -127,6 +129,21 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
+	public List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactUnsent(hcParty, fromDate, toDate);
+	}
+
+	@Override
+	public List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartyEfactToBeCorrected(hcParty, fromDate, toDate);
+	}
+
+	@Override
+	public List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate) {
+		return invoiceDAO.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
+	}
+
+	@Override
 	public List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds) {
 		return invoiceDAO.listByHcPartyRecipientIdsUnsent(hcParty, recipientIds);
 	}
@@ -176,28 +193,31 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
-	public List<Invoice> appendCodes(String hcPartyId, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime) {
-		if (type == InvoiceType.efact) {
+	public List<Invoice> appendCodes(String hcPartyId, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, MediumType sentMediumType, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime) {
+		if (sentMediumType == MediumType.efact) {
 			invoicingCodes.forEach(c->c.setPending(true));
 		}
 		final int invoiceGraceTimeInDays = invoiceGraceTime == null ? 0 : invoiceGraceTime;
 		Invoice selectedInvoice = (invoiceId != null) ? this.getInvoice(invoiceId) : null;
+
 		List<Invoice> invoices = selectedInvoice != null ? new ArrayList<>() : this.listByHcPartyPatientSksUnsent(hcPartyId,secretPatientKeys).stream().filter(i->
-				i.getInvoiceType() == type && (insuranceId == null ? i.getRecipientId() == null  : insuranceId.equals(i.getRecipientId()))
+				i.getInvoiceType() == type && i.getSentMediumType() == sentMediumType && (insuranceId == null ? i.getRecipientId() == null  : insuranceId.equals(i.getRecipientId()))
 		).collect(Collectors.toList());
+
 		if (selectedInvoice == null &&  invoices.isEmpty()) {
 			invoices = this.listByHcPartyRecipientIdsUnsent(hcPartyId,Collections.singleton(insuranceId)).stream().filter(i->
-					i.getInvoiceType() == type && i.getSecretForeignKeys().equals(secretPatientKeys)
+					i.getInvoiceType() == type && i.getSentMediumType() == sentMediumType && i.getSecretForeignKeys().equals(secretPatientKeys)
 			).collect(Collectors.toList());
 		}
+
 		Set<Invoice> modifiedInvoices = new HashSet<>();
 		Set<Invoice> createdInvoices = new HashSet<>();
 
-		for (InvoicingCode invoicingCode : invoicingCodes) {
-			LocalDateTime icDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(invoicingCode.getDateCode()), ZoneId.systemDefault());
+		for (InvoicingCode invoicingCode : new ArrayList<>(invoicingCodes)) {
+			LocalDateTime icDateTime = FuzzyValues.getDateTime(invoicingCode.getDateCode());
 
 			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : invoices.stream().filter(i ->
-					i.getInvoiceDate() != null && Math.abs(LocalDateTime.ofInstant(Instant.ofEpochMilli(i.getInvoiceDate()), ZoneId.systemDefault()).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
+					i.getInvoiceDate() != null && Math.abs(FuzzyValues.getDateTime(i.getInvoiceDate()).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
 			).findAny();
 
 			if (unsentInvoice.isPresent()) {
@@ -209,8 +229,9 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				Invoice newInvoice = new Invoice();
 				newInvoice.setInvoiceDate(invoicingCode.getDateCode()!=null?invoicingCode.getDateCode():System.currentTimeMillis());
 				newInvoice.setInvoiceType(type);
+				newInvoice.setSentMediumType(sentMediumType);
 				newInvoice.setRecipientId(insuranceId);
-				newInvoice.setRecipientType(type == InvoiceType.other ? null : type == InvoiceType.patient ? Patient.class.getName() : Insurance.class.getName());
+				newInvoice.setRecipientType((type == InvoiceType.mutualfund || type == InvoiceType.payingagency) ? Insurance.class.getName() : Patient.class.getName());
 				newInvoice.setInvoicingCodes(invoicingCodes);
 				newInvoice.setAuthor(userId);
 				newInvoice.setResponsible(hcPartyId);

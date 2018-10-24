@@ -44,7 +44,6 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_ENCRYPTED 				= 1 << 3;
 	public final static int STATUS_HAS_ANNEX 				= 1 << 4;
 	public final static int STATUS_HAS_FREE_INFORMATION 	= 1 << 5;
-
 	public final static int STATUS_EFACT 					= 1 << 6;
 
 	public final static int STATUS_SUBMITTED 				= 1 << 8;
@@ -102,6 +101,8 @@ public class Message extends StoredICureDocument implements Serializable {
 	private List<String> invoiceIds = new ArrayList<>();
 	private String parentId; //ID of parent in a message conversation
 	private String externalRef;
+
+	private Map<String,String> senderReferences;
 
 	public Message solveConflictWith(Message other) {
 		super.solveConflictsWith(other);
@@ -294,5 +295,13 @@ public class Message extends StoredICureDocument implements Serializable {
 	@Override
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+	public Map<String, String> getSenderReferences() {
+		return senderReferences;
+	}
+
+	public void setSenderReferences(Map<String, String> senderReferences) {
+		this.senderReferences = senderReferences;
 	}
 }

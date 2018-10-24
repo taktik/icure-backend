@@ -6,6 +6,8 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -15,12 +17,14 @@
 <link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
+<link rel="import" href="../dynamic-form/validator/ht-iban-validator.html">
 
 <dom-module id="ht-my-profile">
 	<template>
 		<style>
 			paper-dialog {
-				width: 60%;
+				width: 80%;
+				min-height:320px;
 				display:flex;
 				flex-flow: row wrap;
 				justify-content: space-between;
@@ -37,6 +41,8 @@
 
 			.buttons{
 				width:100%;
+				text-align:center;
+				margin-top:10px
 			}
 
 			.modal-button{
@@ -47,6 +53,7 @@
 				height: 40px;
 				min-width: 100px;
 				padding: 10px 1.2em;
+				text-transform: capitalize;
 			}
 
 			.modal-button--save{
@@ -60,7 +67,16 @@
 				flex-grow: 1;
 				width: 50%;
 				box-sizing: border-box;
+				float:left
 			}
+			.row { display:block; width:100% }
+			.col-10 { flex-grow: 1; width: 10%; box-sizing: border-box; float:left }
+			.col-15 { flex-grow: 1; width: 15%; box-sizing: border-box; float:left }
+			.col-25 { flex-grow: 1; width: 25%; box-sizing: border-box; float:left }
+			.col-20 { flex-grow: 1; width: 20%; box-sizing: border-box; float:left }
+			.col-30 { flex-grow: 1; width: 30%; box-sizing: border-box; float:left }
+			.col-35 { flex-grow: 1; width: 35%; box-sizing: border-box; float:left }
+			.col-40 { flex-grow: 1; width: 40%; box-sizing: border-box; float:left }
 			#dialog{
 				overflow: auto;
 			}
@@ -68,50 +84,356 @@
 				width: fit-content;
 			}
 
+			@media screen and (max-width:650px) {
+				#dialog {
+					height: 80vh;
+				}
+				div.left-col, div.right-col {
+					width: 100%;
+				}
+			}
+
+			paper-tabs {
+				background: var(--app-secondary-color);
+				--paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+				--paper-tabs: {
+					color: var(--app-text-color);
+				};
+			}
+
+			paper-tab {
+				--paper-tab-ink: var(--app-text-color);
+			}
+
+			paper-tab.iron-selected {
+				font-weight: bold;
+			}
+
+			paper-tab.iron-selected iron-icon{
+				opacity: 1;
+			}
+
+			paper-tab iron-icon{
+				opacity: 0.5;
+				color: var(--app-text-color);
+			}
+
+			.administrative-panel {
+				height:100%;
+				background: var(--app-background-color);
+				margin: 0;
+				width:100%;
+				grid-column: 2 / 4;
+				/*grid-template-columns: 40px 200px 200px 40px;*/
+				grid-row: 1 / 1;
+			}
+
+			.horizontal {
+				display: grid;
+				flex-direction: row;
+				flex-wrap: wrap;
+				flex-basis: 100%;
+				align-items: center;
+			}
+
+			.horizontal paper-input {
+				@apply --padding-right-left-16;
+				height: 65px;
+			}
+
+			.horizontal paper-input-container {
+				@apply --padding-right-left-16;
+				padding:0;
+			}
+
+			.horizontal paper-menu-button{
+				padding:0;
+			}
+
+			.horizontal vaadin-date-picker {
+				@apply --padding-right-left-16;
+				padding-top: 4px;
+				height: 48px;
+			}
+
+			.statusBulletContainer { height:65px; display:flex; align-items: center; }
+
+			.statusBullet {
+				display:block;
+				width:16px;
+				height:16px;
+				border:1px solid var(--app-status-color-nok);
+				background-color: var(--app-status-color-nok);
+				-webkit-border-radius: 12px;
+				-moz-border-radius: 12px;
+				border-radius: 12px;
+				margin:0 auto;
+			}
+
+			.statusBullet.ok {
+				border:1px solid var(--app-status-color-ok);
+				background-color: var(--app-status-color-ok);
+			}
+
+			.textAlignCenter { text-align: center; }
+
+			.headerField {
+				background-color: #EEEEEE;
+				--paper-input-container-underline: {
+					display: none
+				};
+				--paper-input-container-underline-focus: {
+					display: none
+				};
+				--paper-input-container-underline-disabled: {
+					display: none
+				};
+				font-weight: 700;
+				color: var(--app-primary-color);
+			}
+
+			.borderTop { border-top:1px solid var(--app-primary-color); }
+			.borderLeft { border-left:1px solid var(--app-primary-color); }
+			.borderRight { border-right:1px solid var(--app-primary-color); }
+			.borderBottom { border-bottom:1px solid var(--app-primary-color); }
+
+			.icon-button {
+				cursor: pointer;
+			}
+
+			#edmgRegistrationComplete {
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.1);
+				position: absolute;
+				z-index: 10;
+				font-size: 3em;
+				text-align: center;
+				color: var(--app-background-color);
+				-webkit-text-stroke-width: 1px;
+				-webkit-text-stroke-color: #666;
+			}
+
+			#edmgRegistrationComplete p {
+				-ms-transform: rotate(-25deg);
+				-webkit-transform: rotate(-25deg);
+				transform: rotate(-25deg);
+				width:80%;
+				line-height: 2em;
+				margin-left:10%;
+				font-weight: 700;
+				margin-top:5em;
+				text-transform:uppercase;
+			}
+
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
-			<div class="left-col">
-				<vaadin-form-layout>
-					<paper-input colspan="2" label="Full name" value="{{user.name}}"></paper-input>
-					<paper-input colspan="2" label="Group ID" value="{{user.groupId}}"></paper-input>
-					<paper-input label="Login" value="{{user.login}}"></paper-input>
-					<paper-input label="Email" value="{{user.email}}"></paper-input>
-					<paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
-					<paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
-						<paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
-							<paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
-							<paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-							<paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
-						</paper-listbox>
-					</paper-dropdown-menu>
-					<paper-radio-group selected="{{userEHealthEnv}}">
-						<paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
-						<paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
-					</paper-radio-group>
-				</vaadin-form-layout>
+
+
+			<div class="administrative-panel">
+
+				<paper-tabs selected="{{tabs}}">
+					<paper-tab class="adm-tab"><iron-icon icon="icons:account-circle"></iron-icon>[[localize('my_pro','My profile',language)]]</paper-tab>
+					<paper-tab class="adm-tab"><iron-icon icon="icons:account-balance"></iron-icon>[[localize('edmg_subscription','EDMG',language)]]</paper-tab>
+				</paper-tabs>
+
+
+				<iron-pages selected="[[tabs]]" class="">
+					<page>
+
+						<div class="horizontal" style="margin-top:10px">
+							<vaadin-form-layout>
+								<div class="col-lg-6">
+									<paper-input label="Full name" value="{{user.name}}"></paper-input>
+									<paper-input label="Login" value="{{user.login}}"></paper-input>
+									<paper-input label="Email" value="{{user.email}}"></paper-input>
+									<paper-input label="MedicalHouse" value="{{userMedicalHouseNihii}}"></paper-input>
+									<paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+										<paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+											<paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+											<paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+											<paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+										</paper-listbox>
+									</paper-dropdown-menu>
+									<paper-radio-group selected="{{userEHealthEnv}}">
+										<paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+										<paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+									</paper-radio-group>
+									<paper-radio-group selected="{{hcp.languages.0}}">
+										<paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
+										<paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
+										<paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
+									</paper-radio-group>
+								</div>
+								<div class="col-lg-6">
+									<paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
+									<paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
+									<paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
+									<paper-input label="Auto logout delay (minute)" type="number" min="0" value=""></paper-input>
+
+									<div id="printable">
+										<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
+										<qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
+									</div>
+
+								</div>
+							</vaadin-form-layout>
+
+							<template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]"><div class="error">Passwords do not match</div></template>
+							<template is="dom-if" if="[[_tooShort(userPassword)]]"><div class="error">Passwords must be at least 8 characters</div></template>
+
+						</div>
+					</page>
+
+
+					<page>
+
+						<div class="horizontal" style="padding-top:10px;">
+							<template is="dom-if" if="[[!anyEDmgregistered]]">
+							<div class="warning-message"><h3>AVIS IMPORTANT</h3>
+								<ul>
+								<li>Dès qu’il fait le choix d’utiliser MyCareNet pour la gestion des DMG, le prestataire de soins s’engage à :</li>
+								<li>Ne pas envoyer de notification pour un DMG qu’il a déjà attesté au patient (via 102771).</li>
+								<li>Ne plus attester de DMG via 102771 à partir du lendemain de la date d’inscription, ni pour les ouvertures, ni pour les prolongations.</li>
+								<li>Utiliser l’envoi des notifications MyCareNet pour toute ouverture d’un nouveau DMG.</li>
+								<li>Envoyer les notifications dans les 7 jours ouvrables maximum après la prestation (consultation ou visite) donnant droit au DMG.
+									Pour un prestataire de soins inscrit dans MyCareNet pour la gestion du DMG, l’OA s’engage à:</li>
+								<li>A partir de la date d’inscription à MyCareNet: payer dans les 30 jours toutes les prolongations administratives pour l’année en cours et l’année précédente, lorsque les conditions sont remplies.</li>
+								<li>Faire une prolongation automatique accélérée pour tous les DMG pour lesquels
+								les conditions sont remplies, dans les 30 jours à partir de la réception de
+									l’attestation de la prestation (consultation/visite).</li>
+								<li>Payer les ouvertures de DMG dans les 30 jours à partir de la réception de la notification si les conditions sont remplies.</li>
+								<li>Refuser les attestations DMG relatives à des prestations dont la date est ultérieure à la date d’inscription dans MyCareNet.</li>
+								<li>Envoyer les messages de clôture et de prolongation à bon escient</li>
+								</ul>
+							</div>
+							<vaadin-checkbox checked="{{canRegister}}">J'ai lu et j'approuve les conditions d'utilisation du DMG électronique</vaadin-checkbox>
+							</template>
+							<template is="dom-if" if="[[_cannotRegister(allEDmgregistered,canRegister)]]">
+								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
+								<div class="row" style="position:relative">
+									<template is="dom-if" if="[[allEDmgregistered]]">
+									<div id="edmgRegistrationComplete"><p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p></div>
+									</template>
+									<div class="col-20">
+										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
+										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 300" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 400" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 500" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
+									</div>
+									<div class="col-40">
+										<paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_300}}" id="userIBAN_300" rel="300" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_400}}" id="userIBAN_400" rel="400" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_500}}" id="userIBAN_500" rel="500" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_600}}" id="userIBAN_600" rel="600" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_900}}" id="userIBAN_900" rel="900" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-30">
+										<paper-input label="BIC" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="BIC" value="{{userBIC_100}}" id="userBIC_100" rel="100" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_200}}" id="userBIC_200" rel="200" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_300}}" id="userBIC_300" rel="300" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_400}}" id="userBIC_400" rel="400" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_500}}" id="userBIC_500" rel="500" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_600}}" id="userBIC_600" rel="600" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_900}}" id="userBIC_900" rel="900" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-10">
+										<paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_100_cssClass]]" rel="100" id="statusBullet_100"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_200_cssClass]]" rel="200" id="statusBullet_200"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_300_cssClass]]" rel="300" id="statusBullet_300"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_400_cssClass]]" rel="400" id="statusBullet_400"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_500_cssClass]]" rel="500" id="statusBullet_500"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_600_cssClass]]" rel="600" id="statusBullet_600"></div></div>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_900_cssClass]]" rel="900" id="statusBullet_900"></div></div>
+									</div>
+								</div>
+							</template>
+
+							<template is="dom-if" if="[[_canRegister(allEDmgregistered,canRegister)]]">
+								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
+								<div class="row" style="position:relative">
+
+									<div class="col-20">
+										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
+										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 300" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 400" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 500" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
+										<paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
+									</div>
+									<div class="col-40">
+										<paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_300}}" id="userIBAN_300" rel="300" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_400}}" id="userIBAN_400" rel="400" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_500}}" id="userIBAN_500" rel="500" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_600}}" id="userIBAN_600" rel="600" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="IBAN" value="{{userIBAN_900}}" id="userIBAN_900" rel="900" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-30">
+										<paper-input label="BIC" readonly disabled class="headerField borderTop borderBottom"></paper-input>
+										<paper-input label="BIC" value="{{userBIC_100}}" id="userBIC_100" rel="100" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_200}}" id="userBIC_200" rel="200" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_300}}" id="userBIC_300" rel="300" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_400}}" id="userBIC_400" rel="400" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_500}}" id="userBIC_500" rel="500" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_600}}" id="userBIC_600" rel="600" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+										<paper-input label="BIC" value="{{userBIC_900}}" id="userBIC_900" rel="900" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
+									</div>
+									<div class="col-10">
+										<paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_100_cssClass]]" rel="100" id="statusBullet_100"></div></div>
+										<paper-tooltip for="statusBullet_100" offset="0">[[statusError_100]]</paper-tooltip>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_200_cssClass]]" rel="200" id="statusBullet_200"></div></div>
+										<paper-tooltip for="statusBullet_200" offset="0">[[statusError_200]]</paper-tooltip>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_300_cssClass]]" rel="300" id="statusBullet_300"></div></div>
+										<paper-tooltip for="statusBullet_300" offset="0">[[statusError_300]]</paper-tooltip>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_400_cssClass]]" rel="400" id="statusBullet_400"></div></div>
+										<paper-tooltip for="statusBullet_400" offset="0">[[statusError_400]]</paper-tooltip>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_500_cssClass]]" rel="500" id="statusBullet_500"></div></div>
+										<paper-tooltip for="statusBullet_500" offset="0">[[statusError_500]]</paper-tooltip>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_600_cssClass]]" rel="600" id="statusBullet_600"></div></div>
+										<paper-tooltip for="statusBullet_600" offset="0">[[statusError_600]]</paper-tooltip>
+										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_900_cssClass]]" rel="900" id="statusBullet_900"></div></div>
+										<paper-tooltip for="statusBullet_900" offset="0">[[statusError_900]]</paper-tooltip>
+									</div>
+								</div>
+							</template>
+
+							<template is="dom-if" if="[[_canRegister(allEDmgregistered,canRegister)]]">
+								<div class="horizontal" style="margin-top:10px">
+									<div class="row">
+										<div class="col-35">&nbsp;</div>
+										<div class="col-30 textAlignCenter"><paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
+										<div class="col-35"><template is="dom-if" if="[[!registerEnabled]]"><paper-progress indeterminate></paper-progress></template></div>
+									</div>
+								</div>
+								<div class="horizontal">&nbsp;</div>
+							</template>
+
+						</div>
+
+					</page>
+
+
+				</iron-pages>
 			</div>
-			<div class="right-col">
-				<vaadin-form-layout>
-					<paper-radio-group selected="{{hcp.languages.0}}">
-						<paper-radio-button name="en">[[localize('eng','English',language)]]</paper-radio-button>
-						<paper-radio-button name="fr">[[localize('fre','French',language)]]</paper-radio-button>
-						<paper-radio-button name="nl">[[localize('dut','Dutch',language)]]</paper-radio-button>
-					</paper-radio-group>
-					<paper-input label="Password" value="{{userPassword}}" type="password"></paper-input>
-					<paper-input label="Confirmation" value="{{userConfirmation}}" type="password"></paper-input>
-					<template is="dom-if" if="[[_mismatch(userPassword,userConfirmation)]]">
-						<div class="error">Passwords do not match</div>
-					</template>
-					<template is="dom-if" if="[[_tooShort(userPassword)]]">
-						<div class="error">Passwords must be at least 8 characters</div>
-					</template>
-					<vaadin-checkbox colspan="2" checked="{{user.use2fa}}">[[localize('use_two_fac_aut','Use two factors Authentication',language)]]</vaadin-checkbox>
-				</vaadin-form-layout>
-				<div id="printable">
-					<qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[qrCode(user.login,user.secret)]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer>
-				</div>
-			</div>
+
+
+
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
 				<paper-button class="modal-button modal-button--save" autofocus on-tap="confirm">[[localize('save','Save',language)]]</paper-button>
@@ -119,7 +441,9 @@
 		</paper-dialog>
 	</template>
 	<script>
-class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+        import * as models from 'icc-api/dist/icc-api/model/models';
+		import iban from 'iban'
+        class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 	static get is() {
 		return 'ht-my-profile';
 	}
@@ -165,7 +489,70 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
             userEHealthEnv: {
                 type: String,
                 value: null
-            }
+            },
+            userIBAN: {
+                type: String,
+                value: null
+            },
+            userBIC: {
+                type: String,
+                value: null
+            },
+			userMedicalHouseNihii: {
+			    type: String,
+				value:null
+
+			},
+			listOAs: {
+			    type: Array,
+				value: ['100','200','300','400','500','600','900']
+			},
+            allEDmgregistered:{
+			    type: Boolean,
+                value: false
+            },
+            tabs: {
+			    type: Number,
+				value: 0
+			},
+            registerEnabled: {
+			  	type: Boolean,
+				value: true
+			},
+            userIBAN_100: { type: String, value: '' },
+            userIBAN_200: { type: String, value: '' },
+            userIBAN_300: { type: String, value: '' },
+            userIBAN_400: { type: String, value: '' },
+            userIBAN_500: { type: String, value: '' },
+            userIBAN_600: { type: String, value: '' },
+            userIBAN_900: { type: String, value: '' },
+
+			userBIC_100: { type: String, value: '' },
+            userBIC_200: { type: String, value: '' },
+            userBIC_300: { type: String, value: '' },
+            userBIC_400: { type: String, value: '' },
+            userBIC_500: { type: String, value: '' },
+            userBIC_600: { type: String, value: '' },
+            userBIC_900: { type: String, value: '' },
+
+            statusBullet_100_cssClass: { type: String, value: '' },
+            statusBullet_200_cssClass: { type: String, value: '' },
+            statusBullet_300_cssClass: { type: String, value: '' },
+            statusBullet_400_cssClass: { type: String, value: '' },
+            statusBullet_500_cssClass: { type: String, value: '' },
+            statusBullet_600_cssClass: { type: String, value: '' },
+            statusBullet_900_cssClass: { type: String, value: '' },
+
+            statusError_100: { type: String, value: '' },
+            statusError_200: { type: String, value: '' },
+            statusError_300: { type: String, value: '' },
+            statusError_400: { type: String, value: '' },
+            statusError_500: { type: String, value: '' },
+            statusError_600: { type: String, value: '' },
+            statusError_900: { type: String, value: '' },
+
+            allEDmgregisteredReadAttribute: { type: String, value: '' },
+
         };
 	}
 
@@ -185,18 +572,148 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
                 type: {identifier: 'org.taktik.icure.user.preferredhub'},
                 typedValue: {type: 'STRING', stringValue: 'rsw'}
             });
+        this.set('userPreferredHub', propHub.typedValue.stringValue);
 
         const propEnv = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eHealthEnv') ||
             (this.user.properties[this.user.properties.length] = {
                 type: {identifier: 'org.taktik.icure.user.eHealthEnv'},
                 typedValue: {type: 'STRING', stringValue: 'prd'}
             });
-        this.set('userPreferredHub', propHub.typedValue.stringValue);
         this.set('userEHealthEnv', propEnv.typedValue.stringValue);
+
+        const propMHNihii = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.medicalHouse.nihii') ||
+            (this.user.properties[this.user.properties.length] = {
+                type: {identifier: 'org.taktik.icure.user.medicalHouse.nihii'},
+                typedValue: {type: 'STRING', stringValue: ''}
+            });
+        this.set('userMedicalHouseNihii', propMHNihii.typedValue.stringValue);
+
+        // const propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC') ||
+        //     (this.user.properties[this.user.properties.length] = {
+        //         type: {identifier: 'org.taktik.icure.user.BIC'},
+        //         typedValue: {type: 'STRING', stringValue: ''}
+        //     });
+        // this.set('userBIC', propBIC.typedValue.stringValue);
+
+        // const propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN') ||
+        //     (this.user.properties[this.user.properties.length] = {
+        //         type: {identifier: 'org.taktik.icure.user.IBAN'},
+        //         typedValue: {type: 'STRING', stringValue: ''}
+        //     });
+        // this.set('userIBAN', propIBAN.typedValue.stringValue);
+	}
+
+	_getOARegStatus(reg){
+	   if (reg) {
+			return reg.registered ? reg.OA + ':OK ' : reg.OA + ':NOK ';
+		} else {
+			return ''
+		}
+    }
+
+    _registerToEDMG(){
+		//100,200,300,400,500,600,900
+		let regs = this.getRegistrationStatus();
+        this.set('registerEnabled', false);
+		Promise.all(regs.filter(reg => !reg.registered).map(reg =>
+			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
+				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
+				if (reg.error) {
+				    this.set(`statusError_${reg.OA}`, reg.error && (this.language === 'nl' ? reg.error.msgNl : reg.error.msgFr))
+				}
+				const idx = regs.findIndex(r => r.OA === reg.OA);
+				if(idx >= 0){
+					regs.splice(idx, 1, reg);
+				} else {
+					regs.push(reg);
+				}
+
+				let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
+                propRegStatus.typedValue.stringValue = JSON.stringify({rs: regs});
+
+				return reg
+			})
+        )).then( regs => {
+            this.set('allEDmgregistered', regs.every(r => !!r.registered))
+            this.set('anyEDmgregistered', regs.some(r => !!r.registered))
+            return this.api.user().modifyUser(this.user).then(
+                user => {
+                    this.user = user
+                    this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
+                })
+        }).finally(() => this.set('registerEnabled', true))
+	}
+
+	getRegistrationStatus(){
+        const propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus') ||
+            (this.user.properties[this.user.properties.length] = {
+                type: {identifier: 'org.taktik.icure.user.eDMG.RegistrationStatus'},
+                typedValue: {type: 'JSON', stringValue: '{\"rs\":[]}'}
+            });
+
+        const OAStatus = propRegStatus && propRegStatus.typedValue && (JSON.parse(propRegStatus.typedValue.stringValue) || {}).rs || [];
+
+        const regs = this.listOAs.map(itOA => OAStatus.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' })
+        this.set('allEDmgregistered', regs.every(r => !!r.registered));
+        this.set('anyEDmgregistered', regs.some(r => !!r.registered))
+
+        return regs;
+	}
+
+
+	registerToEDMGbyOA(reg) {
+		if (this.api.tokenId) {
+			if (!iban.isValid(reg.iban)) { return Promise.resolve(reg) }
+			return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+				.then(hcp => {
+						return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
+							this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+							hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.bic.replace(/ /g, '').toUpperCase(), reg.iban.replace(/ /g, '').toUpperCase())
+                            .then(r => this.api.logMcn(r, this.user, hcp.id))
+					}
+				).then(regResp => {
+						if (regResp) {
+							if (regResp.errors && regResp.errors.length > 0) {
+								const err = regResp.errors.find(er => er.code === '168')
+								if (err && err.code === '168') {
+									reg.registered = true
+									reg.lastExecution = (new Date).getTime()
+									return reg
+								}
+								else {
+									reg.registered = regResp.success
+									reg.lastExecution = (new Date).getTime()
+									reg.response = JSON.stringify(regResp)
+									reg.error = err
+									return reg
+								}
+							} else {
+								reg.registered = regResp.success
+								reg.lastExecution = (new Date).getTime()
+								return reg
+							}
+						} else {
+							reg.registered = false
+							reg.lastExecution = (new Date).getTime()
+							reg.error = {msgNl : "Onbekende fout", msgFr :"Erreur inconnue"}
+							return reg
+						}
+					}
+				).catch(function (error) {
+						reg.Comment = 'exception caugh:' + error
+						reg.response = JSON.stringify(error)
+						reg.lastExecution = (new Date).getTime()
+                    	reg.error = {msgNl : "Verbinding met VI mislukt", msgFr :"La connexion avec l'OA a échoué"}
+                    	return Promise.resolve(reg)
+					}
+				)
+		} else {
+			reg.Comment = 'err: no tokenid'
+			return Promise.resolve(reg)
+		}
 	}
 
 	_userChanged(user) {
-
 	}
 
 	_mismatch(a, b) {
@@ -239,6 +756,12 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 	open() {
 		this.$.dialog.open();
         this.showEHPreferrences(this.user);
+        const regs = this.getRegistrationStatus()
+		regs.forEach(reg => {
+            this.set(`userIBAN_${reg.OA}`, reg.iban)
+            this.set(`userBIC_${reg.OA}`, reg.bic)
+		    this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
+		})
 	}
 
 	close() {
@@ -252,11 +775,66 @@ class HtExportKey extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 			propHub.typedValue.stringValue = this.userPreferredHub;
             let propEnv = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eHealthEnv')
             propEnv.typedValue.stringValue = this.userEHealthEnv;
-            this.api.user().modifyUser(this.user).then(
+
+            let propMHNihii = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.medicalHouse.nihii')
+            propMHNihii.typedValue.stringValue = this.userMedicalHouseNihii;
+
+            // let propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN')
+            // propIBAN.typedValue.stringValue = this.userIBAN;
+            // let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
+            // propBIC.typedValue.stringValue = this.userBIC;
+
+           this.api.user().modifyUser(this.user).then(
                 user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
 			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
         }
 	}
+
+
+	// Resolve and assign BIC based on IBAN
+	_evalBic( event, fieldObject ) {
+
+	    // Could be a click event / we wouldn't have any value here
+	    if( typeof fieldObject.value === 'undefined' ) return;
+
+	    // target & save
+	    var ibanFieldObject = event.path[0];
+
+	    // Target (100,200,300,400,500,600,900)
+	    var oaValue = parseInt( ibanFieldObject.getAttribute('rel') );
+
+	    // Get bic based on iban
+	    var bicValue = this.api.getBicByIban( fieldObject.value || '' );
+
+        // Assign bic value back, should we have any
+	    if( ( bicValue+'').length ) {
+
+			if (oaValue===100) this.userBIC_100 = bicValue;
+			if (oaValue===200) this.userBIC_200 = bicValue;
+			if (oaValue===300) this.userBIC_300 = bicValue;
+			if (oaValue===400) this.userBIC_400 = bicValue;
+			if (oaValue===500) this.userBIC_500 = bicValue;
+			if (oaValue===600) this.userBIC_600 = bicValue;
+			if (oaValue===900) this.userBIC_900 = bicValue;
+		}
+
+	}
+
+
+	replicateIbanValueToAllFields() {
+        // Copy iban values to all fields (including us)
+	    this.listOAs.forEach( io => this.set(`userIBAN_${io}`, this.userIBAN_100))
+        // Same goes for BIC values (including us)
+        this.listOAs.forEach( io => this.set(`userBIC_${io}`, this.userBIC_100))
+	}
+
+	_cannotRegister() {
+        return !this.canRegister || this.allEDmgregistered
+    }
+	_canRegister() {
+        return this.canRegister && !this.allEDmgregistered
+	}
+
 }
 
 customElements.define(HtExportKey.is, HtExportKey);

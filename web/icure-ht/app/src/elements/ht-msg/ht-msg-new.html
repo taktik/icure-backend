@@ -1,0 +1,1014 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
+
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+
+<link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+<link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+
+<link rel="import" href="../../vaadin-icure-theme.html">
+
+<link rel="import" href="../filter-panel/filter-panel.html">
+
+<link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
+<link rel="import" href="../dynamic-form/entity-selector.html">
+
+
+<dom-module id="ht-msg-new">
+    <template>
+        <style>
+            h2{
+                margin-block-start:0;
+            }
+
+            .notification-panel {
+                position: fixed;
+                top: 50%;
+                right: 0;
+                z-index: 1000;
+                color: white;
+                font-size: 13px;
+                background: rgba(255, 0, 0, 0.55);
+                height: 96px;
+                padding: 0 8px 0 12px;
+                border-radius: 3px 0 0 3px;
+                overflow: hidden;
+                white-space: nowrap;
+                width: 0;
+                opacity: 0;
+            }
+
+            .notification {
+                animation: notificationAnim 7.5s ease-in;
+            }
+
+            @keyframes notificationAnim {
+                0% {
+                    width: 0;
+                    opacity: 0;
+                }
+                5% {
+                    width: 440px;
+                    opacity: 1;
+                }
+                7% {
+                    width: 420px;
+                    opacity: 1;
+                }
+                95% {
+                    width: 420px;
+                    opacity: 1;
+                }
+                100% {
+                    width: 0;
+                    opacity: 0;
+                }
+            }
+
+            .prescription-progress-bar {
+                width: calc(100% - 40px);
+            }
+
+            .details-panel {
+                box-sizing: border-box;
+                padding: 0 16px;
+                height: 100%;
+                width: 100%;
+            }
+
+            .contact-title {
+                display: block;
+                @apply --paper-font-body2;
+                @apply --padding-32;
+                padding-bottom: 8px;
+                padding-top: 32px;
+            }
+
+            /*.contact-title:first-child{
+                padding-top:0;
+            }*/
+            .pat-details-card > .card-content {
+                padding: 16px 16px 32px !important;
+            }
+
+            .pat-details-card {
+                width: 100%;
+                padding: 10px 15px;
+            }
+
+            .horizontal {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                flex-basis: 100%;
+                align-items: center;
+            }
+
+            .horizontal--nowrap {
+                flex-flow: row nowrap;
+            }
+
+            .justified {
+                justify-content: space-between;
+            }
+
+            .pat-details-input {
+                flex-grow: 1;
+                margin: 16px;
+            }
+
+            input {
+                border: none;
+                width: 100%;
+            }
+
+            paper-dialog {
+                margin: 0;
+                min-width: 30%;
+                width: 80%;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .contact-card-container {
+                position: relative;
+                overflow-y: auto;
+                height: calc(100% - 48px);
+                padding-bottom: 32px;
+            }
+
+            .extra-info {
+                color: var(--app-text-color-disabled);
+                font-style: italic;
+                font-size: 80%;
+            }
+
+            vaadin-upload {
+                margin: 16px 0;
+                min-height: 280px;
+                min-height: 0;
+                background: var(--app-background-color);
+                --vaadin-upload-buttons-primary: {
+                    padding: 16px;
+                };
+                --vaadin-upload-button-add: {
+                    background: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                };
+                --vaadin-upload-file-progress: {
+                    --paper-progress-active-color: var(--app-secondary-color);
+                };
+                --vaadin-upload-file-commands: {
+                    color: var(--app-primary-color);
+                }
+
+            }
+
+            .close-button-icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+                margin: 0;
+                transform: translate(50%, -50%);
+                height: 32px;
+                width: 32px;
+                padding: 8px;
+                background: var(--app-primary-color);
+            }
+
+            paper-dialog {
+                width: 80%;
+                max-height: 80%;
+            }
+
+            vaadin-grid {
+                height: 100%;
+                --vaadin-grid-body-row-hover-cell: {
+                    /* background-color: var(--app-primary-color); */
+                    color: white;
+                };
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--app-primary-color);
+                    color: white;
+                };
+            }
+
+            paper-input, paper-input-container {
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            .modal-title {
+                background: var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .modal-subtitle {
+               margin-right: 12px;
+            }
+
+            .modal-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .modal-button--save {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+                text-transform: capitalize;
+            }
+
+            .modal-button--delete {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-status-color-nok);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+                text-transform: capitalize;
+            }
+
+            filter-panel {
+                flex-grow: 9;
+                /* --panel-width: 60%; */
+            }
+
+            .layout-bar {
+                flex-grow: 1;
+                display: inline-flex;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-around;
+                height: 48px;
+                background: var(--app-secondary-color);
+                border-left: 1px solid var(--app-secondary-color-dark);
+            }
+
+            .layout-bar .list, .layout-bar .graphique, .layout-bar .doc {
+                height: 32px;
+                width: 32px;
+                padding: 5px;
+                color: var(--app-primary-color-dark);
+            }
+
+            .layout-bar .table {
+                height: 30px;
+                width: 30px;
+                padding: 0;
+                color: var(--app-primary-color-dark);
+            }
+
+            .floating-action-bar {
+                display: flex;
+                position: absolute;
+                height: 40px;
+                bottom: 16px;
+                background: var(--app-secondary-color);
+                border-radius: 3px;
+                grid-column: 3/3;
+                grid-row: 1/1;
+                z-index: 1000;
+                left: 50%;
+                transform: translate(-50%, 0);
+                box-shadow: var(--app-shadow-elevation-2);
+            }
+
+            .add-forms-container {
+                position: absolute;
+                bottom: 48px;
+                left: 0;
+                background-color: var(--app-background-color-light);
+                opacity: .8;
+                padding: 8px 0;
+                border-radius: 2px;
+                max-width: 253px;
+            }
+
+            .floating-action-bar paper-fab-speed-dial-action {
+                --paper-fab-speed-dial-action-label-background: transparent;
+                --paper-fab-iron-icon: {
+                    transform: scale(0.8);
+
+                };
+                --paper-fab: {
+                    background: var(--app-primary-color-dark);
+                }
+            }
+
+            .floating-action-bar paper-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-weight: bold;
+                font-size: 12px;
+                height: 40px;
+                min-width: 130px;
+                padding: 10px 1.2em;
+                border-radius: 0;
+                margin: 0;
+            }
+
+            .floating-action-bar paper-button:hover {
+                background: var(--app-dark-color-faded);
+                transition: var(--transition_-_transition);
+            }
+
+            .floating-action-bar paper-button:not(:first-child) {
+                border-left: 1px solid var(--app-secondary-color-dark);
+            }
+
+            .close-add-forms-btn {
+                background: var(--app-secondary-color-dark) !important;
+            }
+
+            .floating-action-bar iron-icon {
+                box-sizing: border-box;
+                padding: 2px;
+                margin-right: 8px;
+            }
+
+
+
+            .contact-card-container {
+                position: relative;
+                overflow-y: auto;
+                height: calc(100% - 48px);
+                padding-bottom: 32px;
+            }
+
+            .two-col {
+                display: grid;
+                grid-template-columns: 50% 50%;
+            }
+
+            #metadataDialog {
+                width: 50%;
+            }
+
+            paper-checkbox {
+                margin-right: 16px;
+            }
+
+            vaadin-combo-box {
+                width: 100%;
+            }
+
+            iron-autogrow-textarea {
+                min-height: 80px;
+                width: 100%;
+                --paper-input-container-focus-color: var(--app-primary-color);
+            }
+
+            .form-disabled {
+                opacity: .5;
+                background: var(--app-background-color-darker);
+            }
+
+            iron-autogrow-textarea .floated-label-placeholder {
+                display: none;
+            }
+
+
+            .fright {
+                float: right;
+            }
+
+            .clearb {
+                clear: both
+            }
+
+            .scrollbox {
+                max-height: 50vh;
+                overflow-y: auto;
+                margin-top: 0;
+                border-bottom: 1px  solid rgba(0,0,0,0.1);
+            }
+
+            .field{
+                padding:12px 0;
+                box-shadow: inset 0 -1px 0 0 rgba(100,121,143,0.122);
+            }
+
+            .destination-tag {
+                background: rgba(0,0,0,.1);
+                color: var(--exm-token-input-badge-text-color,--text-primary-color);
+                height: 32px;
+                min-height: 32px;
+                font-size: 14px;
+                min-width: initial;
+                padding: 0;
+                margin: 0 8px 8px 0;
+                border-radius: 5px;
+                text-transform: capitalize;
+                overflow: hidden;
+            }
+            .destination-type{
+                background: var(--app-secondary-color);
+                color: var(--app-text-color);
+                display: flex;
+                height: 100%;
+                flex-flow: row wrap;
+                padding: 4px;
+                box-sizing: border-box;
+                align-items: center;
+                margin-right: 8px;
+            }
+            .del-destination {
+                height: 22px;
+                width: 22px;
+                margin: 0 4px 0 8px;
+                padding: 2px;
+            }
+
+            paper-checkbox {
+                --paper-checkbox-unchecked-color: var(--app-text-color);
+				--paper-checkbox-label-color: var(--app-text-color);
+				--paper-checkbox-checked-color: var(--app-secondary-color);
+				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
+            }
+
+            /*#new-msg {*/
+                /*max-height: 80vh;*/
+                /*overflow-y: auto;*/
+            /*}*/
+
+        </style>
+
+        <paper-dialog id="new-msg" >
+            <h2 class="modal-title">[[localize('new_mes','New message',language)]]</h2>
+            <div class="scrollbox">
+                <div class="field horizontal">
+                    <div class="modal-subtitle">[[localize('from','From',language)]]</div>
+                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>
+
+                </div>
+                <div class="field">
+                    <div class="horizontal horizontal--nowrap">
+                        <div class="modal-subtitle">[[localize('to','To',language)]]</div>
+                        <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
+                                        label="[[localize('sch_by', 'Search by', language)]]" on-change="refreshHcpList"></vaadin-combo-box>
+                        <vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[hcpList]]" item-label-path="displayName"
+                                        allow-custom-value on-change="_AddDestinations">
+                            <template>[[item.displayName]]</template>
+                        </vaadin-combo-box>
+                    </div>
+                    <div class="horizontal">
+                            <template is="dom-if" if="[[newMessage.destinations]]">
+                                <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
+                                    <paper-item class="destination-tag" id="[[destination.displayName]]">
+                                        <div class="destination-type">[[destination.type]]</div>
+                                        <div class="one-line-menu list-title">
+                                            [[destination.displayName]]
+                                        </div>
+
+                                        <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
+                                                    on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
+                                    </paper-item>
+                                </template>
+                            </template>
+                        </div>
+                </div>
+
+                <div class="field horizontal">
+                    <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
+                    <div>
+                        <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                        <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                    </div>
+                </div>
+                <div class="field horizontal">
+                    <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
+                    <div>
+                        <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                        <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                        <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="modal-subtitle">[[localize('msg','Message',language)]]</div>
+                    <div>
+                        <paper-input id="newMsg-Subject" label="[[localize('sub','Subject',language)]]" value="{{newMessage.document.title}}" always-float-label></paper-input>
+                        <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
+                                    on-change="msgBodyFileInputSelected"></paper-input>
+                        <paper-input-container alway-float-label="true">
+                            <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"
+                                                value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
+                        </paper-input-container>
+                    </div>
+                    <div>
+                        <div class="modal-subtitle">[[localize('attachments','Attachments',language)]]</div>
+                        <paper-input id="newMsg-addAnnexe" type="file" multiple="true" on-change="_addAnnexe"></paper-input>
+                        <vaadin-grid id="annexeList" items="[[newMessage.annex]]">
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <div>[[localize('files','Files',language)]]</div>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.filename]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <div>[[localize('size','Size',language)]]</div>
+                                </template>
+                                <template>
+                                    <div class="cell frozen">[[item.size]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template>
+                                    <div class="cell frozen">
+                                        <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' ><iron-icon icon="icons:clear" indexed$='[[index]]'></iron-icon></paper-button>
+                                    </div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"
+                                    allow-custom-value on-change="_AddSSIN">
+                        <template>[[item.displayName]]</template>
+                    </vaadin-combo-box>
+                </div>
+                <div class="field">
+                    <div class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</div>
+                    <paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>
+                </div>
+            </div>
+            <div class="buttons">
+                <div class="fright">
+                    <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button class="modal-button--save" on-tap="_SendNewMessage">[[localize('send','Send',language)]]</paper-button>
+                </div>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="metadataDialog">
+            <h3 class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</h3>
+            <div>
+                <paper-input id="newMsgMetadataKey" label="[[localize('key','Key',language)]]"></paper-input>
+                <paper-input id="newMsgMetadataValue" label="[[localize('value','Value',language)]]"></paper-input>
+                <paper-button class="modal-button fright" on-tap="addMetadata">[[localize('add','Add',language)]]</paper-button>
+            </div>
+
+            <vaadin-grid id="customMetasList" class="clearb" items="[[customMetas]]">
+                <vaadin-grid-column>
+                    <template class="header">
+                        <div>Key</div>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.0]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template class="header">
+                        <div>Value</div>
+                    </template>
+                    <template>
+                        <div class="cell frozen">[[item.1]]</div>
+                    </template>
+                </vaadin-grid-column>
+                <vaadin-grid-column>
+                    <template>
+                        <div class="cell frozen">
+                            <paper-button class="remove-customMetas-btn" indexed$='[[item.0]]'><iron-icon icon="icons:clear" on-tap="_removeCustomMetas" indexed$='[[item.0]]'></iron-icon></paper-button>
+                        </div>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+
+        </paper-dialog>
+
+    </template>
+    <script>
+
+        import jsPDF from 'jspdf/dist/jspdf.min'
+        import _ from 'lodash/lodash'
+        import JsBarcode from 'JsBarcode'
+        import moment from 'moment/src/moment'
+        // import XML from 'parse-xml/dist/parse-xml';
+        import XML from 'xml-parse'
+
+		class HtMsgNew extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-msg-new'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    credentials: {
+                        type: Object
+                    },
+					newMessage:{
+						type:Object,
+                        value: {
+							customMetas:{},
+							document:{},
+                            annex: [],
+                            destinations:[]
+						}
+                    },
+                    type: {
+                        type: [],
+                        value: ["CBE", "EHP", "INSS", "NIHII", "NIHII-HOSPITAL", "NIHII-PHARMACY"]
+                    },
+                    hcpList: {
+                        type: []
+                    },
+                    patientList: {
+                        type: []
+                    },
+					customMetas:{
+                    	type:[],
+                        value: []
+                    }
+                }
+            }
+
+            static get observers() {
+                // return ['_focusChanged(selectMessage, selectMessage.*)'];
+            }
+
+            constructor() {
+                super()
+            }
+
+			ready() {
+				super.ready()
+
+				this.LoadHcpList("NIHII")
+				this.LoadPatients()
+				this.set("newMessage.destinations", [])
+			}
+
+            open() {
+                this.$['new-msg'].open()
+            }
+
+            _cancel() {
+				this.clearField();
+                this.$['new-msg'].close()
+			}
+
+            refreshHcpList() {
+                let typeTo = this.shadowRoot.querySelector('#type-To')
+                this.LoadHcpList(typeTo.value || "")
+            }
+
+			LoadHcpList(type){
+				this.api.hcparty().listHealthcareParties().then(hcps => {
+					let filtredHcps = hcps.rows
+						.filter(hcp=> (hcp.lastName || hcp.firstName) && this.filterHcp(hcp,type))
+						.map(hcp => this.cleanHcp(hcp,type))
+                        .sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName))
+					this.set("hcpList",filtredHcps)
+				})
+            }
+
+            filterHcp(hcp,type){
+				switch (type) {
+                    case "CBE":
+                        return hcp.cbe && !isNaN(parseInt(hcp.cbe))
+                    case "EHP":
+                        return hcp.ehp != undefined
+                    case "INSS":
+                        return hcp.ssin && !isNaN(parseInt(hcp.ssin))
+                    case "NIHII":
+					case "NIHII-HOSPITAL":
+					case "NIHII-PHARMACY":
+                        return hcp.nihii && !isNaN(parseInt(hcp.nihii))
+				}
+                return false
+            }
+
+			cleanHcp(hcp,type){
+                hcp.nihii = hcp.nihii ? parseInt(hcp.nihii) : ""
+                hcp.cbe = hcp.cbe ? parseInt(hcp.cbe) : ""
+                hcp.lastName = hcp.lastName ? hcp.lastName.toLowerCase().trim() : ""
+                hcp.firstName = hcp.firstName ? hcp.firstName.toLowerCase().trim() : ""
+                hcp.displayName = hcp.lastName + " " + hcp.firstName + " [" + this.getTypeValue(hcp, type) + "]"
+                return hcp
+            }
+
+            getTypeValue(hcp, type){
+				switch (type) {
+					case "CBE":
+                        return hcp.cbe.toString()
+					case "INSS":
+                        return hcp.ssin.toString()
+					case "NIHII":
+					case "NIHII-HOSPITAL":
+					case "NIHII-PHARMACY":
+                        return hcp.nihii.toString()
+				}
+            }
+
+			LoadPatients(){
+				this.api.patient().listPatients(this.user.healthcarePartyId).then(patients =>{
+					let filtredpatients = patients.rows.filter(pat => pat.ssin).map(pat =>{
+						pat.displayName = pat.firstName + " " + pat.lastName + " " + pat.ssin
+                        return pat
+                    })
+					this.set("patientList",filtredpatients)
+				})
+			}
+
+			_fileUploaded(e) {
+				// if (!this.currentContact) {
+				// 	return;
+				// }
+				// const vaadinUpload = this.$['vaadin-upload'];
+				// const f = e.detail.file;
+				// const d = f.doc;
+                //
+				// let sc = this.currentContact.subContacts.find(sbc => (sbc.status || 0) & 64);
+				// if (!sc) {
+				// 	sc = { status: 64, services: [] };
+				// 	this.currentContact.subContacts.push(sc);
+				// }
+				// const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
+				// this.currentContact.services.push(svc);
+				// sc.services.push({ serviceId: svc.id });
+				// if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
+				// 	this.saveCurrentContact().then(c => this._contactsChanged());
+				// }
+
+			}
+
+			_addAnnexe(){
+
+				let newMsgaddAnnexe = this.shadowRoot.querySelector('#newMsg-addAnnexe');
+
+				if( newMsgaddAnnexe.inputElement && newMsgaddAnnexe.inputElement.inputElement){
+					Object.values(newMsgaddAnnexe.inputElement.inputElement.files).forEach( file =>{
+						const fr = new FileReader();
+						fr.onload = function (e) {
+							let fileByteArray = [];
+							new Uint8Array(e.target.result).forEach(int8 => fileByteArray.push(int8));
+
+							this.push('newMessage.annex',{
+								"content": fileByteArray,
+								"filename": file.name,
+								"mimeType": file.type,
+								"title": file.name,
+                                "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
+							});
+
+						}.bind(this);
+						fr.readAsArrayBuffer(file);
+                    })
+				}
+
+				//Clear control
+				newMsgaddAnnexe.value = '';
+
+            }
+
+
+			_removeAnnexe(e){
+				let index = e.target.getAttribute('indexed');
+				this.newMessage.annex.splice(index,1);
+				let annexeList = this.shadowRoot.querySelector('#annexeList');
+				annexeList.clearCache();
+			}
+
+			_AddDestinations(){
+                let newMsgTo = this.shadowRoot.querySelector('#newMsg-To')
+                let typeTo = this.shadowRoot.querySelector('#type-To')
+				if(newMsgTo.selectedItem || (!newMsgTo.selectedItem && parseInt(newMsgTo.value))) {
+                    let hcp = {}
+                    if(newMsgTo.selectedItem) {
+                    	hcp = newMsgTo.selectedItem
+					}
+                    else {
+                        hcp.displayName = newMsgTo.value
+                        hcp.nihii = typeTo.value.includes("NIHII") ? newMsgTo.value : undefined
+                        hcp.cbe = typeTo.value === "CBE" ? newMsgTo.value : undefined
+                        hcp.ssin = typeTo.value === "INSS" ? newMsgTo.value : undefined
+					}
+                    hcp.type = typeTo.value
+                    this.push('newMessage.destinations', hcp)
+					newMsgTo.value = ""
+				}
+            }
+
+			_removeDestinations(e){
+                let index = e.target.getAttribute('indexed');
+				this.newMessage.destinations.splice(index, 1);
+				let destinationsList = this.shadowRoot.querySelector('#destinationsList')
+				destinationsList.render();
+            }
+
+			_AddSSIN(e){
+                let newMsgSSIN = this.shadowRoot.querySelector("#newMsg-SSIN")
+				if( newMsgSSIN && newMsgSSIN.selectedItem){
+                    let ssin = newMsgSSIN.selectedItem.ssin
+                    this.set("newMessage.patientInss", ssin)
+				}
+				else{
+                    this.set("newMessage.patientInss", undefined)
+                }
+            }
+
+			manageMetadata(){
+                this.$.metadataDialog.open()
+            }
+
+			addMetadata(){
+
+                let customMetas = this.newMessage.customMetas;
+				customMetas[this.$.newMsgMetadataKey.value] = this.$.newMsgMetadataValue.value;
+                this.set("newMessage.customMetas", customMetas);
+				this.set("customMetas",Object.keys(customMetas).map(key => [key,customMetas[key]]));
+
+				let newMsgMetadataKey = this.shadowRoot.querySelector('#newMsgMetadataKey');
+				newMsgMetadataKey.value = "";
+				let newMsgMetadataValue = this.shadowRoot.querySelector('#newMsgMetadataValue');
+				newMsgMetadataValue.value = "";
+
+
+
+            }
+
+			_removeCustomMetas(e){
+                let index = e.target.getAttribute('indexed');
+				delete this.newMessage.customMetas[index];
+				this.set("customMetas",Object.keys(this.newMessage.customMetas).map(key => [key,this.newMessage.customMetas[key]]));
+                let customMetasList = this.shadowRoot.querySelector('#customMetasList');
+                customMetasList.clearCache()
+            }
+
+			_SendNewMessage(){
+
+				this.api.hcparty().getCurrentHealthcareParty().then(currentHcp =>{
+                    let message = {};
+
+                    message.id = null;
+					message.publicationId = (new Date).getTime();
+					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
+					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
+					message.customMetas = this.newMessage.customMetas;
+					message.document = this.newMessage.document;
+					if(this.newMessage.document.textContent){
+						message.document.filename = "MainDocument.txt";
+						message.document.mimeType = "text/plain";
+						message.document.textContent = this.newMessage.document.textContent;
+						message.document.signing = null;
+					}else if(!this.newMessage.document.content){
+						message.document.filename = "MainDocument.txt";
+						message.document.mimeType = "text/plain";
+						message.document.textContent = "";
+						message.document.signing = null;
+                    }
+					if(!this.newMessage.document.title) message.document.title = "";
+					message.freeText = null;
+					message.freeInformationTableTitle = null;
+					message.freeInformationTableRows = {};
+					message.patientInss = this.newMessage.patientInss;
+					message.annex = [];
+					message.copyMailTo = [];
+					message.documentTitle = null;
+                    message.annexList = this.newMessage.annex;
+					message.useReceivedReceipt = !!this.newMessage.UseReceivedReceipt;
+					message.useReadReceipt = !!this.newMessage.UseReadReceipt;
+					message.hasAnnex = message.annex && message.annex.length > 0;
+					message.hasFreeInformations = false;
+					message.important = !!this.newMessage.Important;
+					message.encrypted = !!this.newMessage.crypted;
+					message.usePublicationReceipt = !!this.newMessage.UsePublicationReceipt;
+					message.destinations = this.newMessage.destinations.map(hcp => this.setAddressee(hcp));
+					message.sender = this.setSenderAddressee(currentHcp);
+
+                    // console.log(JSON.stringify(message));
+
+                    this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
+						!!this.newMessage.UsePublicationReceipt?!!this.newMessage.UsePublicationReceipt:"false",
+                        !!this.newMessage.UseReceivedReceipt?!!this.newMessage.UseReceivedReceipt:"false",
+                        !!this.newMessage.UseReadReceipt?!!this.newMessage.UseReadReceipt:"false")
+                        .then(response => {
+                        	console.log(response);
+                        	if(response) {
+								this.clearField();
+								this.$['new-msg'].close()
+							}
+                        })
+                        .catch(ex =>{
+							console.log(ex);
+						})
+
+				})
+			}
+
+			msgBodyFileInputSelected() {
+
+                let messageBodyFile = this.shadowRoot.querySelector('#messageBodyFile');
+                let messageBodyText = this.shadowRoot.querySelector('#messageBodyText');
+
+                messageBodyText.value = undefined;
+                messageBodyText.disabled = false;
+                messageBodyText.classList.remove("form-disabled");
+
+				if( messageBodyFile.inputElement && messageBodyFile.inputElement.inputElement &&
+                    messageBodyFile.inputElement.inputElement.files.length > 0){
+                    let file = messageBodyFile.inputElement.inputElement.files[0];
+
+                    const fr = new FileReader();
+					fr.onload = function (e) {
+						// let binfile = btoa(new Uint8Array(e.target.result).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+                        let fileByteArray = [];
+                        new Uint8Array(e.target.result).forEach(int8 => fileByteArray.push(int8));
+
+                        this.set('newMessage.document.content', fileByteArray);
+                    }.bind(this)
+                    fr.readAsArrayBuffer(file)
+
+                    this.set('newMessage.document.filename', file.name);
+                    this.set('newMessage.document.mimeType', file.type);
+
+                    messageBodyText.disabled = true;
+                    messageBodyText.classList.add("form-disabled");
+				}
+				else{
+					this.set('newMessage.document.content', null);
+					this.set('newMessage.document.filename', null);
+					this.set('newMessage.document.mimeType', null);
+                }
+			}
+
+			setSenderAddressee(hcp){
+                let Addressee = {};
+				Addressee.identifierType = {type: hcp.type ? hcp.type : "NIHII"};
+				Addressee.id = this.getTypeValue(hcp, hcp.type ? hcp.type : "NIHII");
+				Addressee.quality = hcp.quality?hcp.quality.toUpper(): "DOCTOR";
+                Addressee.applicationId = hcp.applicationID || null;
+				Addressee.lastName = null;//hcp.lastName || "";
+                Addressee.firstName = null;//hcp.firstName || "";
+				Addressee.organizationName = null;
+				Addressee.personInOrganisation = null;
+                // if(hcp.quality) Addressee.quality = hcp.quality;
+
+                return Addressee;
+            }
+
+			setAddressee(hcp){
+                let Addressee = {};
+				Addressee.identifierType = {type: hcp.type};
+                Addressee.id = this.getTypeValue(hcp, hcp.type);
+				Addressee.quality = hcp.quality?hcp.quality.toUpper():"DOCTOR";
+                Addressee.applicationId = hcp.applicationID || null;
+				Addressee.lastName = null;//hcp.lastName || "";
+                Addressee.firstName = null;//hcp.firstName || "";
+				Addressee.organizationName = null;
+				Addressee.personInOrganisation = null;
+                // if(hcp.quality) Addressee.quality = hcp.quality;
+
+                return Addressee;
+            }
+
+            clearField(){
+				this.set("newMessage",{customMetas:{},document:{},annex: [],destinations:[]})
+				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
+				newMsgSSIN.value = "";
+            }
+
+		}
+
+        customElements.define(HtMsgNew.is, HtMsgNew)
+    </script>
+</dom-module>

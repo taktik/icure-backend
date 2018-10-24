@@ -50,6 +50,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
 import org.taktik.icure.logic.InsuranceLogic;
@@ -176,7 +177,6 @@ public class InvoiceFacade implements OpenApiFacade{
 			Invoice invoice = invoiceLogic.modifyInvoice(mapper.map(invoiceDto, Invoice.class));
 			if (invoice != null) {
 				response = ResponseUtils.ok(mapper.map(invoice, InvoiceDto.class));
-
 			} else {
 				response = ResponseUtils.internalServerError("Invoice modification failed");
 			}
@@ -243,10 +243,10 @@ public class InvoiceFacade implements OpenApiFacade{
 		return mapper.map(invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), invoiceLogic.getInvoice(invoiceId), scheme, forcedValue),InvoiceDto.class);
 	}
 
-	@Path("/byauthor/{userId}/append/{type}")
+	@Path("/byauthor/{userId}/append/{type}/{sentMediumType}")
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@POST
-	public Response appendCodes(@PathParam("userId") String userId, @PathParam("type") String type, @QueryParam("insuranceId") String insuranceId, @QueryParam("secretFKeys") String secretFKeys, @QueryParam("invoiceId") String invoiceId, @QueryParam("gracePriod") Integer gracePeriod, List<InvoicingCodeDto> invoicingCodes) {
+	public Response appendCodes(@PathParam("userId") String userId, @PathParam("type") String type, @PathParam("sentMediumType") String sentMediumType, @QueryParam("insuranceId") String insuranceId, @QueryParam("secretFKeys") String secretFKeys, @QueryParam("invoiceId") String invoiceId, @QueryParam("gracePriod") Integer gracePeriod, List<InvoicingCodeDto> invoicingCodes) {
 		Response response;
 
 		if (invoicingCodes == null) {
@@ -254,7 +254,7 @@ public class InvoiceFacade implements OpenApiFacade{
 		} else {
 			Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
 
-			List<Invoice> invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type),
+			List<Invoice> invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type), MediumType.valueOf(sentMediumType),
 					invoicingCodes.stream().map(ic->mapper.map(ic,InvoicingCode.class)).collect(Collectors.toList()), invoiceId, gracePeriod);
 			if (invoices != null) {
 				response = ResponseUtils.ok(invoices.stream().map(i->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList()));
@@ -340,6 +340,53 @@ public class InvoiceFacade implements OpenApiFacade{
 
 		Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
 		return Response.ok().entity(invoiceLogic.listByHcPartyPatientSks(hcPartyId, new HashSet<>(secretPatientKeys)).stream().map(contact -> mapper.map(contact, IcureStubDto.class)).collect(Collectors.toList())).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/unsent")
+	public Response listByHcPartyEfactUnsent(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactUnsent(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List efact invoices to be corrected by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/tobecorrected")
+	public Response listByHcPartyEfactToBeCorrected(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactToBeCorrected(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/mediumType/{sentMediumType}/invoiceType/{invoiceType}/sent/{sent}")
+	public Response listByHcPartySentMediumTypeInvoiceTypeSentDate(@PathParam("hcPartyId") String hcParty, @PathParam("sentMediumType") MediumType sentMediumType,
+																   @PathParam("invoiceType") InvoiceType invoiceType, @PathParam("sent") boolean sent,
+																   @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
 	}
 
 	@ApiOperation(

@@ -20,8 +20,10 @@ package org.taktik.icure.utils;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 
@@ -78,6 +80,9 @@ public class FuzzyValues {
 		boolean plusOne = false;
 
 		if (dateTime > 99991231l) {
+			if (dateTime < 18000101000000L) {
+				return Instant.ofEpochMilli(dateTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+			}
 			//Full date time format
 			long time = dateTime % 1000000l;
 			date = dateTime / 1000000l;

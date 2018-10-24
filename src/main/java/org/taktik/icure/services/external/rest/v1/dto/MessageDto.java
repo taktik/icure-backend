@@ -46,6 +46,7 @@ public class MessageDto extends IcureDto {
 	protected List<String> invoiceIds;
 	protected String parentId; //ID of parent in a message conversation
 	private String externalRef;
+	private Map<String,String> senderReferences;
 
 	public String getFormId() {
 		return formId;
@@ -190,5 +191,13 @@ public class MessageDto extends IcureDto {
 
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+	public Map<String, String> getSenderReferences() {
+		return senderReferences;
+	}
+
+	public void setSenderReferences(Map<String, String> senderReferences) {
+		this.senderReferences = senderReferences;
 	}
 }

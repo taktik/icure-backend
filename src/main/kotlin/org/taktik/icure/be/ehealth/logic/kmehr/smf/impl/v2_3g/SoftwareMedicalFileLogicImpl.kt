@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
+import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -33,6 +34,7 @@ import java.io.OutputStream
 /**
  * @author Bernard Paulus on 24/05/17.
  */
+@Service
 class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
                                    val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
 

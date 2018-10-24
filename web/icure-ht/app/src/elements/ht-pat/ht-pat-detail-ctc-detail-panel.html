@@ -35,6 +35,7 @@
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
 <link rel="import" href="dialogs/ht-pat-invoicing-dialog.html">
+<link rel="import" href="dialogs/ht-pat-ch4-cons-dialog.html">
 <link rel="import" href="ht-pat-detail-table.html">
 <link rel="import" href="ht-pat-detail-list.html">
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
@@ -152,7 +153,7 @@
 			.contact-card-container {
 				position: relative;
 				overflow-y: auto;
-				height: calc(100% - 48px);
+				height: calc(100% - 85px);
 				padding-bottom: 32px;
 			}
 
@@ -233,6 +234,7 @@
 				height: 40px;
 				min-width: 100px;
 				padding: 10px 1.2em;
+				text-transform: capitalize;
 			}
 
 			.modal-button--save{
@@ -283,6 +285,16 @@
 				transform: translate(-50%, 0);
 				box-shadow: var(--app-shadow-elevation-2);
 			}
+			/* // WIP Axel FIOLLE
+			@media screen and (max-width:1025px){*/
+				/*.floating-action-bar {*/
+					/*position: fixed;*/
+					/*left: 0;*/
+					/*bottom: 0;*/
+					/*width: 100vw;*/
+					/*transform: none;*/
+				/*}*/
+			/*}*/
 
 			.add-forms-container {
 				position: absolute;
@@ -402,8 +414,8 @@
 						<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon ic on="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
 					</template>
 					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
-						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
 						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
 						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
 					</div>
@@ -423,6 +435,12 @@
 						<paper-button id="invoicingBtn" class="invoicing-btn action-btn" on-tap="_invoicing">
 							<iron-icon icon="vaadin:invoice" ></iron-icon>
 							[[localize('inv','Invoice',language)]]
+						</paper-button>
+					</div>
+					<div id="ch4BtnCtnr">
+						<paper-button id="ch4Btn" class="ch4-btn action-btn" on-tap="_ch4">
+							<iron-icon icon="vaadin:check-square" ></iron-icon>
+							[[localize('ch4','Ch4',language)]]
 						</paper-button>
 					</div>
 				</template>
@@ -486,7 +504,7 @@
 			</div>
 		</paper-dialog>
 
-		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -643,7 +661,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	}
 
     _planAction() {
-        this.dispatchEvent(new CustomEvent("plan-action", {composed: true, bubbles: true}))
+        this.dispatchEvent(new CustomEvent("plan-action", {composed: true, bubbles: true,detail: this.currentContact.services.filter(svc => svc.label==="Actes")[0]}))
     }
 
     _filesChanged() {
@@ -688,6 +706,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 	_invoicing(){
 	    this.$.invoicingForm.open()
+	}
+
+	_ch4(){
+	    this.$.ch4Form.open()
 	}
 
 	addForm(templateGuid) {
@@ -1103,14 +1125,15 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			filter: function (filterValue, limit, offset, sortKey, descending) {
 				const regExp = filterValue && new RegExp(filterValue, "i");
 
-				return Promise.all([
+				const all = this.allTemplates || (this.allTemplates = Promise.all([
 				    this.api.form().findFormTemplates(),
                     this.api.form().findFormTemplatesBySpeciality(((this.api.hcParties[this.user.healthcarePartyId]||{}).specialityCodes||[])[0] || 'deptgeneralpractice')
-                ])
-                    .then(res=>_.uniqBy(_.flatMap(res),'id'))
+                ]).then( res => _.chain(res[0].concat(res[1])).uniqBy(x=>x.id).sortBy(['group','name']).value()))
+
+                return all
                     .then(fts => {
 					const filtered = fts.filter(ft => !regExp || ft.name && ft.name.match(regExp) || ft.group && ft.group.name && ft.group.name.match(regExp) || ft.guid && ft.guid.match(regExp));
-					return { totalSize: fts.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(offset, limit) };
+					return { totalSize: filtered.length, rows: (descending ? _.reverse(_.sortBy(filtered, sortKey)) : _.sortBy(filtered, sortKey)).slice(0, limit) };
 				});
 			}.bind(this)
 		};

@@ -38,8 +38,8 @@
     "vaadin-grid": "^4.1.7",
     "vaadin-combo-box": "^3.0.2",
     "vaadin-icons": "^4.1.0",
-    "vaadin-date-picker": "^2.0.2",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "vaadin-date-picker": "2.0.7",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.2.6",
     "promise-polyfill": "polymerlabs/promise-polyfill#^2.0.1",
     "iron-iconset": "^2.0.0",
     "simple-statistics": "^4.1.1",
@@ -71,10 +71,14 @@
     "gold-password-input": "^2.1.0",
     "polymer-password-strength": "^1.0.0",
     "vaadin-tabs": "vaadin/vaadin-tabs#^2.0.0",
-    "vaadin-progress-bar": "vaadin/vaadin-progress-bar#^1.1.0"
+    "vaadin-progress-bar": "vaadin/vaadin-progress-bar#^1.1.0",
+    "js-xlsx": "^0.14.0"
   },
   "resolutions": {
     "iron-selector": "1f6b245bbe94c7693180ff06064e5e1b0b801a90",
-    "highcharts": "^5.0.0"
+    "highcharts": "^5.0.0",
+    "vaadin-element-mixin": "2.1.2",
+    "vaadin-usage-statistics": "2.0.1",
+    "vaadin-development-mode-detector": "2.0.0"
   }
 }

@@ -28,6 +28,7 @@ import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
+import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
 
 public interface InvoiceLogic {
@@ -45,6 +46,10 @@ public interface InvoiceLogic {
 	List<Invoice> listByHcPartyRecipientIds(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientSks(String hcParty, Set<String> patientSks);
 
+	List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
+
 	List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds);
 
 	List<Invoice> listByHcPartyPatientSksUnsent(String hcParty, Set<String> secretPatientKeys);
@@ -55,7 +60,7 @@ public interface InvoiceLogic {
 
 	Invoice validateInvoice(String hcParty, Invoice invoice, String refScheme, String forceValue);
 
-	List<Invoice> appendCodes(String hcParty, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime);
+	List<Invoice> appendCodes(String hcParty, String userId, String insuranceId, Set<String> secretPatientKeys, InvoiceType type, MediumType sentMediumType, List<InvoicingCode> invoicingCodes, String invoiceId, Integer invoiceGraceTime);
 
 	Invoice addDelegations(String invoiceId, List<Delegation> delegations);
 

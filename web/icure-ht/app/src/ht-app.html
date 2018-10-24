@@ -120,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 margin-right: 24px;
             }
 
-            
+
 
             paper-menu-button {
                 --paper-menu-button-content: {
@@ -379,13 +379,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+            paper-dialog#ht-invite-hcp{
+                width: 50vw;
+                left: 0;
+                transform: translateX(50%);
+                margin: 0;
+            }
+
             .inviteHcpInput {
-                width: 400px;
+                width: 100%;
             }
 
             .formNewHcp {
                 height: 350px;
-                width: 450px;
             }
 
             .buttons {
@@ -419,9 +425,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         </style>
 
-
-        <icc-api id="api" host="/rest/v1" fhc-host="http://fhc.icure.cloud" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
-
+        <icc-api id="api" host="[[icureUrl]]" fhc-host="[[fhcUrl]]" headers="[[headers]]" credentials="[[credentials]]"></icc-api>
 
          <paper-item id="noehealth" class="notification-panel noehealth">[[localize('no_ehe_con','No Ehealth connection',language)]]
              <iron-icon icon="icons:warning"></iron-icon>
@@ -480,7 +484,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
                         </div>
                         <div style="display: flex; align-items: center;">
-                            <div>
+                            <div name="main" on-tap="doRoute" style="cursor:pointer">
                                 <svg version="1.1"
                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
                                     x="0px" y="0px" width="92px" height="64px" viewBox="0 0 92 64" style="enable-background:new 0 0 92 64;" xml:space="preserve" class="icure-logo">
@@ -556,15 +560,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </template>
                             </paper-tooltip>
                         </div>
-                        
-                           
+
+
                         <div style="display:flex; align-items: center; width: 120px;">
                             <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
                             <svg version="1.1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
                             x="0px" y="0px" width="100px" height="17.3px" viewBox="0 0 100 17.3" style="enable-background:new 0 0 100 17.3;"
                             xml:space="preserve" class="taktik-logo">
-                            
+
                             <defs>
                             </defs>
                             <polygon class="st1" points="0,8.3 6.9,8.3 6.9,17.2 10,17.2 10,8.3 16.9,8.3 16.9,5.3 0,5.3 "/>
@@ -584,8 +588,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             c0,0,0-0.1-0.1-0.1c-0.2-0.3-0.4-0.7-0.4-1.2v5.7h-3.1V5.4h3.1V11c0.1-0.6,0.3-1.2,0.7-1.6c0,0,0,0,0.1-0.1c0,0,0,0,0,0
                             c0.3-0.3,0.7-0.6,1.3-0.9l5.5-3.1h6.3l-8.7,4.9l-1.7,1L47.4,12.3z"/>
                             </svg>
-        
-                            
+
+
                             <paper-menu-button horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
                                 <paper-icon-button icon="icons:more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
                                 <paper-listbox class="extra-menu" slot="dropdown-content" stop-keyboard-event-propagation>
@@ -603,9 +607,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
-                           
+
                         </div>
-                       
+
                     </app-toolbar>
 
                 </app-header>
@@ -624,7 +628,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
                         <splash-screen></splash-screen>
                     </ht-hcp>
-                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen></splash-screen>
                     </ht-msg>
                     <ht-view404 name="view404"></ht-view404>
@@ -658,7 +662,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-item>
 
     </template>
-
     <script>
         import moment from 'moment/src/moment'
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
@@ -774,8 +777,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String
                     },
                     keyPairKeystore:{
-                    	type: [],
-                        value: []
+                    	type: Array,
+                        value: () => []
                     }
                 }
             }
@@ -790,16 +793,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super()
             }
 
+
+            setUrls() {
+                const params = this.route.__queryParams //_.fromPairs((this.route.path.split('?')[1] || "").split('&').map(p => p.split('=')))
+
+                this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
+                this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+            }
+
             ready() {
                 super.ready()
-                if (!this.route.__queryParams.token && !this.route.__queryParams.userId) {
-                    let newHref = window.location.href.includes('#/') ? window.location.href : window.location.href.replace(/\/?#?$/, '/#')
-                    let fullHref = newHref.endsWith('/') ? newHref : newHref + '/'
-                    if (fullHref !== window.location.href) {
-                        window.location.href = fullHref
-                    }
+
+                const url = new URL(window.location.href)
+                if (!url.hash || !url.hash.startsWith('#/')) {
+                    url.hash = '#/'
+                    window.location.replace(url.toString())
                 }
+
                 window.app = this
+
+                if (!this.icureUrl) { this.setUrls() }
+
                 this.set('api', this.$.api)
 
                 document.onmousemove = this.resetTimer.bind(this)
@@ -815,7 +829,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _userSaved(e) {
                 this.set('user', e.detail)
             }
-
 
             _startCheckInactiveTimer() {
                 clearInterval(this.interval)
@@ -873,6 +886,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('view', 'auth')
                 } else {
                     console.log("page is -> " + page)
+
+                    if (!this.icureUrl) { this.setUrls() }
+
                     if (!this.authenticated && (!page || !page.startsWith('auth'))) {
                         if (sessionStorage.getItem('auth') || (this.route.__queryParams.token && this.route.__queryParams.userId)) {
                             this.loginAndRedirect(page)
@@ -914,7 +930,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             doRoute(e) {
-                this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')) + "/")
+                this.set('routeData.page', ( (e.target.getAttribute('name') || 'main' ) || e.target.parentElement.getAttribute('name')) + "/")
                 this._triggerMenu()
             }
 
@@ -979,70 +995,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
                         const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2)
                         language && this.set('language', language)
-                    })
 
-                    this.$.loginDialog.opened = false
+                        this.$.loginDialog.opened = false
 
-                    this.set('credentials.twofa', null)
-                    this.set('credentials.userId', u.id)
-                    this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
+                        this.set('credentials.twofa', null)
+                        this.set('credentials.userId', u.id)
+                        this.set('credentials.appToken', u.applicationTokens && u.applicationTokens.ICC)
 
-                    if ((this.credentials.userId && this.credentials.appToken)) {
-                        this.set('credentials.password', null)
-                        this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
-                    }
-                    sessionStorage.setItem('auth', JSON.stringify(this.credentials))
+                        if ((this.credentials.userId && this.credentials.appToken)) {
+                            this.set('credentials.password', null)
+                            this.set('headers.Authorization', 'Basic ' + btoa(this.credentials.userId + ':' + this.credentials.appToken))
+                        }
+                        sessionStorage.setItem('auth', JSON.stringify(this.credentials))
 
-                    if (!this.authenticated) {
-                        this.authenticated = true
+                        if (!this.authenticated) {
+                            this.authenticated = true
 
-                        if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
-                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => this.$.api.crypto().checkPrivateKeyValidity(hcp)).then(ok => {
-                                if (ok) {
-                                    this.api.loadUsersAndHcParties()
-                                    if (this.credentials.ehpassword) {
-                                        const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
-                                        if (ehKeychain) {
-                                            this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
-                                                this.$.api.keystoreId = res.uuid
-                                                this._getToken()
-                                            })
+                            if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
+                                this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
+                                    if (ok) {
+                                        this.api.loadUsersAndHcParties()
+                                        if (this.credentials.ehpassword) {
+                                            const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+                                            if (ehKeychain) {
+                                                this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                                                    this.$.api.keystoreId = res.uuid
+                                                    this._getToken()
+                                                })
+                                            } else {
+                                                this.$.noehealth.classList.add("notification")
+
+                                                this.$.eHealthStatus.classList.remove('pending')
+                                                this.$.eHealthStatus.classList.remove('connected')
+                                                this.$.eHealthStatus.classList.add('disconnected')
+                                            }
                                         } else {
-                                            this.$.noehealth.classList.add("notification")
-
                                             this.$.eHealthStatus.classList.remove('pending')
                                             this.$.eHealthStatus.classList.remove('connected')
                                             this.$.eHealthStatus.classList.add('disconnected')
                                         }
+                                        const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                        if (!this.routeData || destPage !== this.routeData.page) {
+                                            this.set('routeData.page', destPage)
+                                        } else {
+                                            this._routePageChanged(destPage)
+                                        }
                                     } else {
-                                        this.$.eHealthStatus.classList.remove('pending')
-                                        this.$.eHealthStatus.classList.remove('connected')
-                                        this.$.eHealthStatus.classList.add('disconnected')
+                                        this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                        this.$.registerKeyPairDialog.opened = true
                                     }
-                                    const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                                    if (!this.routeData || destPage !== this.routeData.page) {
-                                        this.set('routeData.page', destPage)
-                                    } else {
-                                        this._routePageChanged(destPage)
-                                    }
-                                } else {
-                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
-                                    this.$.registerKeyPairDialog.opened = true
-                                }
-                            })
-                        } else {
-                            this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+                                })
+                            } else {
                                 if (hcp.publicKey) {
                                     this.registerKeyPairDialogMessage = ""
                                     this.$.registerKeyPairDialog.opened = true
                                 } else {
+                                    console.log("HCP public key is " + hcp.publicKey, hcp)
                                     this.$.firstConnectionDialog.opened = true
                                 }
-                            })
+                            }
                         }
-                    }
-                    this._timeCheck()
-                    this._inboxMessageCheck()
+                        this._timeCheck()
+                        this._inboxMessageCheck()
+                    })
                 }).catch(function (e) {
                     this.authenticated = false
                     sessionStorage.removeItem('auth')
@@ -1126,7 +1141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         user: this.user,
                         ehpassword: this.credentials.ehpassword,
                         boxId: "INBOX",
-                        alternateKeystores: ({keystore:alternateKeystores.filter(ak => ak.passPhrase)}),
+                        alternateKeystores: ({keystores:alternateKeystores.filter(ak => ak.passPhrase)}),
                         keyPair: keyPair
                     })
 
@@ -1141,11 +1156,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
 			getAlternateKeystores(){
-				const prefix = "org.taktik.icure.ehealth.keychain.";
 				const healthcarePartyId = this.user.healthcarePartyId;
 
                 return Promise.all(
-				Object.keys(localStorage).filter(k => k.includes(prefix + healthcarePartyId + ".") === true)
+				Object.keys(localStorage).filter(k => k.includes(this.api.crypto().keychainLocalStoreIdPrefix + healthcarePartyId + ".") === true)
                     .map(fk => this.getDecryptedValueFromLocalstorage(healthcarePartyId, fk.replace("keychain.","keychain.password."))
 					    .then( password =>
 							(this.keyPairKeystore[fk])?

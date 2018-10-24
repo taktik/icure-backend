@@ -103,16 +103,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             iron-pages {
                 padding: 32px 0 0;
                 width: 100%;
-                height: calc(100% - 140px);
+                height: 100%;
                 box-sizing: border-box;
             }
 
-            page>dynamic-form{
-                width: 100%;
+            .page-container {
+                height: 100%;
+                overflow-y: auto;
             }
-
-
-
 
             :host #institution-list {
                 height: calc(100% - 140px);
@@ -138,8 +136,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
                 margin: 0 32px 32px;
 
-               
-                   
+
+
 
                 --vaadin-grid-cell: {
                     padding: 8px;
@@ -261,6 +259,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: 40px;
                 min-width: 100px;
                 padding: 10px 1.2em;
+                text-transform: capitalize;
             }
 
             .modal-button--save{
@@ -272,6 +271,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .administrative-panel {
+                height:100%;
                 background: var(--app-background-color);
                 margin: 0;
                 grid-column: 2 / 4;
@@ -331,8 +331,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .hcpInfo{
                 max-height: calc(520px - 56px);
-                overflow: auto;  
-                padding: 0;             
+                overflow: auto;
+                padding: 0;
             }
 
             .iconHcpInfo{
@@ -359,7 +359,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 justify-content: flex-start;
                 align-items: center;
             }
-            
+
 
             .titleHcpInfo_Icon{
                 height: 24px;
@@ -401,7 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 10px 1.2em;
             }
 
-            
+
 
             iron-icon.smaller {
                 padding-right: 8px;
@@ -434,139 +434,109 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <iron-pages selected="[[tabs]]" class="">
                 <page>
-                    <dynamic-form id="dynamic-form-administrative" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    <div class="page-container">
+                        <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
+                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    </div>
                 </page>
                 <page>
-                    <dynamic-form id="dynamic-form-partnerships" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]" data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    <div class="page-container">
+                        <dynamic-form id="dynamic-form-partnerships" class="page-content" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]"
+                                      data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                    </div>
                 </page>
                 <page>
-                    <div>
-                        <h4 class="subtitle">[[localize('icp','Internal care provider',language)]]</h4>
-                        <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]] active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.lastName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.firstName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.speciality]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
-                    </div>
-                    <div>
-                        <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
-                        <vaadin-grid id="external-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalCareTeam]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.lastName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="120px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.firstName]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.speciality]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
-                    </div>
-                    <div>
-                        <h4 class="subtitle">[[localize('dmg-owner','DMG owner',language)]]</h4>
-                        <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentDMGOwner]]" active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
-                            <vaadin-grid-column width="240px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="name">[[localize('nam','Name',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[getHcpName(item)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="80px">
-                                <template class="header">
-                                    <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.speciality]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    <vaadin-grid-sorter path="beginDate">[[localize('sta_dat','Start date',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[getStartDate(item)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    <vaadin-grid-sorter path="endDate">[[localize('end_dat','End date',language)]]</vaadin-grid-sorter>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[getEndDate(item)]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
-                    </div>
-                    <div class="button_add_provider">
-                        <paper-button class="add-btn" on-tap="showAddPersonToCareTeam">[[localize('add_per','Add person',language)]]</paper-button>
+                    <div class="page-container">
+                            <div>
+                                <h4 class="subtitle">[[localize('icp','Internal care provider',language)]]</h4>
+                                <vaadin-grid id="internal-care-team-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items=[[currentInternalCareTeam]]
+                                             active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
+                                    <vaadin-grid-column width="120px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.lastName]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="120px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','Last name',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.firstName]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.speciality]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
+                            <div>
+                                <h4 class="subtitle">[[localize('ecp','External care provider',language)]]</h4>
+                                <vaadin-grid id="dmg-owner-list" class="material" overflow="bottom" multi-sort="[[multiSort]]" items="[[currentExternalPatientCareTeam]]"
+                                             active-item="{{selectedCareProvider}}" on-tap="showInfoSelectedHcp">
+                                    <vaadin-grid-column width="240px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="name">[[localize('nam','Name',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[getHcpName(item)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="nihii">[[localize('inami','Nihii',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[formatNihiiNumber(item.nihii)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column width="80px">
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="speciality">[[localize('speciality','Speciality',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[item.speciality]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="beginDate">[[localize('sta_dat','Start date',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[getStartDate(item)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column>
+                                        <template class="header">
+                                            <vaadin-grid-sorter path="endDate">[[localize('end_dat','End date',language)]]</vaadin-grid-sorter>
+                                        </template>
+                                        <template>
+                                            <div class="cell frozen">[[getEndDate(item)]]</div>
+                                        </template>
+                                    </vaadin-grid-column>
+                                </vaadin-grid>
+                            </div>
                     </div>
                 </page>
             </iron-pages>
         </div>
 
-        <paper-dialog id="add-person-to-care-team">    
+        <paper-dialog id="add-person-to-care-team">
             <h2 class="modal-title">[[localize('add_per_to_car_tea','Add person',language)]]</h2>
             <div>
                 <vaadin-grid id="hcp-list" class="material" overflow="bottom" items=[[currentHcp]] active-item="{{selectedHcp}}">
@@ -729,6 +699,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	<script>
 
+
 class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     static get is() {
         return 'ht-pat-admin-card';
@@ -749,6 +720,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 type: Object,
                 value: function () {
                     return require('./rsrc/PatientAddressForm.json');
+                }
+            },
+            medicalHouseContractsForm: {
+                type: Object,
+                value: function () {
+                    return require('./rsrc/PatientMedicalHouseContractsForm.json');
                 }
             },
             telecomForm: {
@@ -815,6 +792,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 notify: true
             },
 
+            currentExternalPatientCareTeam: {
+                type: Array,
+                value: [],
+                notify: true
+            },
+
             currentDMGOwner: {
                 type: Array,
                 value: [],
@@ -869,7 +852,8 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             this.initCurrentCareTeam();
 
-            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',')).then( codes => {
+
+            this.api.code().getCodes(this.patient.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 if (this.patient.partnerships && this.patient.partnerships.length) {
                     (this.patient.partnerships.length ? this.api.patient().getPatients({ids:this.patient.partnerships.map(ps => ps.partnerId)}) : Promise.resolve([])).then(ppss =>
                         ppss.map(pps => {
@@ -900,15 +884,13 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
-
     scheduleSave(patient) {
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
+            this.saveTimeout = undefined
         }
 
         this.saveAction = function () {
-
-
             if (this.patient.partnerships) {
                 const partnerships = this.patient.partnerships
 
@@ -930,29 +912,49 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         })
                     } else {
                         //patient present
-                        this.api.patient().modifyPatient(partner.partnerInfo).then(p => this.api.register(p,'patient')).then(partner => {
-                            this.set('patient.partnerships.' + index + '.partnerInfo', partner)
-                        })
-
+                        this.api.patient().modifyPatient(partner.partnerInfo)
+                            .then(
+                                p => this.api.register(p,'patient')
+                            )
+                            .then(
+                                partner => { this.set('patient.partnerships.' + index + '.partnerInfo', partner) }
+                            )
                     }
                 })
             }
 
-            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => {
-                this.patient && (this.patient.rev = p.rev)
-            }).catch(e =>
-                this.patient && this.api.patient().getPatient(this.patient.id).then(p => {
-                    this.patient = p;
-                    this.saveTimeout = undefined;
-                    this.saveAction = undefined;
-                }));
-        }.bind(this);
-        this.saveTimeout = setTimeout(this.saveAction, 10000);
+            this.api.patient().modifyPatient(patient)
+                .then(
+                    p => {
+                        this.api.register(p,'patient')
+                        // console.log(patient);
+                        // console.log(p);
+                    }
+                )
+                .then(
+                    p => {
+                        this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
+                        this.patient && (this.patient.rev = p.rev)
+                    }
+                ).catch(
+                    e => this.patient && this.api.patient().getPatient(this.patient.id)
+                        .then(
+                            p => {
+                                this.patient = p;
+                                this.saveTimeout = undefined;
+                                this.saveAction = undefined;
+                            }
+                        )
+                );
+            }
+            .bind(this);
+            this.saveTimeout = setTimeout(this.saveAction, 10000);
     }
 
     flushSave() {
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
+            this.saveTimeout = undefined
             this.saveAction();
         }
     }
@@ -961,12 +963,12 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const getValue = function (key) {
             return root ? _.get(root, key) : null;
         };
-        const setValue = function (key, value) {
-            if (root && _.get(root, key) !== value) {
+        const setValue = (key, value) => {
+            if (root && !_.isEqual( _.get(root, key) , value)) {
                 root === this.patient ? this.set('patient.' + key, value) : _.set(root, key, value);
                 this.scheduleSave(this.patient);
             }
-        }.bind(this);
+        };
         return {
             getStringValue: getValue,
             getNumberValue: getValue,
@@ -995,7 +997,16 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     return {
                         dataMap: a,
                         dataProvider: this.patientDataProvider(a, (rootPath.length ? rootPath + '.' : '') + key + '.' + idx, a.id || (a.id = this.api.crypto().randomUuid())),
-                        template: key === 'addresses' ? this.addressForm : key === 'telecoms' ? this.telecomForm : key === 'partnerships' ? this.partnershipsForm : this.insuranceForm
+                        template:
+                            key === 'addresses' ?
+                                this.addressForm :
+                                key === 'telecoms' ?
+                                    this.telecomForm :
+                                    key === 'partnerships' ?
+                                        this.partnershipsForm :
+                                        key === 'medicalHouseContracts' ?
+                                            this.medicalHouseContractsForm :
+                                            this.insuranceForm
                     };
                 });
             },
@@ -1111,57 +1122,213 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     initCurrentCareTeam() {
         var internalTeam = []
         var externalTeam = []
-        var dmgOwner = []
+        var externalPatientHcpTeam = []
+        //var dmgOwner = []
 
         this.api.patient().getPatient(this.patient.id).then(patient => {
 
             const internalHcp = patient.delegations
             const externalHcp = patient.patientHealthCareParties
 
-            //internal team
-            Promise.all(
-                _.keys(internalHcp).map(hcpId =>
-                    this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
-                        internalTeam.push(hcp)
+            Promise.all([
+                Promise.all(
+                    _.keys(internalHcp).map(hcpId =>
+                        this.api.hcparty().getHealthcareParty(hcpId).then(hcp =>
+                            internalTeam.push(hcp)
+                        )
+                    )
+                ),
+                Promise.all(
+                    externalHcp.map(patientHcp =>
+                        this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp => {
+                            patientHcp.firstName = hcp.firstName;
+                            patientHcp.lastName = hcp.lastName;
+                            patientHcp.name = hcp.name;
+                            patientHcp.nihii = hcp.nihii;
+                            patientHcp.ssin = hcp.ssin;
+                            patientHcp.isDmg = patientHcp.referral;
+                            externalTeam.push(hcp);
+                            externalPatientHcpTeam.push(patientHcp);
+                            }
+                        )
                     )
                 )
-            ).then(() => this.set('currentInternalCareTeam', internalTeam))
+                ]
 
-            //external team
-            Promise.all(
-                externalHcp.map(patientHcp =>
-                    this.api.hcparty().getHealthcareParty(patientHcp.healthcarePartyId).then(hcp =>
-                        externalTeam.push(hcp)
-                    )
-                )
-            ).then(() => this.set('currentExternalCareTeam', externalTeam))
+            ).then(([,]) => {
+                this.set('currentInternalCareTeam', internalTeam);
+                this.set('currentExternalCareTeam', externalTeam);
+                this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
+            }).then(
+                () => {
+                    //this.set('currentDMGOwner', dmgOwner);
+                    if (this.patient.ssin && this.api.tokenId) {
+                        Promise.all([
+                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                                .then(hcp =>
+                                    this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
+                                ).then(dmgConsultResp => {
+                                const dmgNihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : ''
+                                if(internalTeam.find(h => h.nihii === dmgNihii)){
+                                    // 3.1 Update user/party if exists
+                                    console.log('dmg owner in internal team')
+                                    let hcpI = internalTeam.find(h => h.nihii === dmgNihii)
+                                    //TODO: show status
+                                }else if (externalTeam.find(h => h.nihii === dmgNihii)){
+                                    // 3.1 Update user/party if exists
+                                    console.log('dmg owner in external team')
+                                    let hcpE = externalTeam.find(h => h.nihii === dmgNihii)
+                                    hcpE.name = (!dmgConsultResp.hcParty.name)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' + dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name;
+                                    hcpE.lastName = dmgConsultResp.hcParty.familyname;
+                                    hcpE.firstName = dmgConsultResp.hcParty.firstname;
+                                    hcpE.nihii = dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value;
 
-            //DMG owner
-            this.set('currentDMGOwner', dmgOwner)
-            if (this.patient.ssin && this.api.tokenId) {
-                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp =>
-                        this.api.fhc().Dmgcontroller().consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
-                    ).then(dmgConsultResp => {
-                        var hcp = {
-                            nihii: dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
-                            firstName: dmgConsultResp.hcParty.firstname,
-                            lastName: dmgConsultResp.hcParty.familyname,
-                            name: dmgConsultResp.hcParty.name,
-                            isDmg: true,
-                            referral: true,
-                            referralPeriods: [{
-                                startDate: dmgConsultResp.from,
-                                endDate: dmgConsultResp.to
-                            }]
-                        }
+                                    hcpE.addresses = [];
+                                    if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses){
+                                        dmgConsultResp.hcParty.addresses.map(addr =>{
 
-                        return hcp
-                    }).then(hcp  => {
-                        dmgOwner.push(hcp);
-                        this.set('currentDMGOwner', dmgOwner)
-                    })
-            }
+                                            let hcAddr  = {};
+                                            hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : '';
+                                            hcAddr.street = addr.street ? addr.street : '';
+                                            hcAddr.city = addr.city ? addr.city : '';
+                                            hcAddr.postalCode = addr.zip ? addr.zip : '';
+                                            hcAddr.houseNumber = addr.housenumber ? addr.housenumber : '';
+                                            hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : '';
+                                            hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : '';
+                                            hcpE.addresses.push(hcAddr);
+                                        });
+                                    }
+
+                                    if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                        const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                        if(cd){
+                                            hcpE.speciality = cd.value ? cd.value : '';
+                                        }
+                                    }
+                                    hcpE.referral = true;
+                                    hcpE.isDmg = true;
+                                    hcpE.referralPeriods = [{
+                                        startDate: dmgConsultResp.from,
+                                        endDate: dmgConsultResp.to
+                                    }];
+
+                                    this.api.hcparty().modifyHealthcareParty(hcpE).then(() => {})
+                                    this.api.patient().getPatient(this.patient.id).then(patient => {
+                                        const phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
+                                        if (phcpE) {
+                                            const currentReferralPeriod = phcpE.referralPeriods.find(rp => !rp.endDate)
+                                            let type = "other"
+                                            if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                                const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                                if(cd.value === 'orgprimaryhealthcarecenter'){
+                                                    type = "medicalhouse";
+                                                } else if(cd.value === 'persphysician'){
+                                                    type = "doctor";
+                                                }
+                                            }
+                                            if (!currentReferralPeriod || !phcpE.referral || phcpE.type !== type) {
+                                                phcpE.referralPeriods = [{
+                                                    startDate: dmgConsultResp.from,
+                                                    endDate: null
+                                                }];
+                                                phcpE.referral = true;
+                                                phcpE.isDmg = true;
+
+                                                this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => this.patientChanged())
+                                            }
+                                        }
+                                    })
+                                }else{
+                                    console.log('dmg owner not yet in patientHcParties')
+                                    this.api.hcparty().createHealthcareParty({
+                                        "name": (!dmgConsultResp.hcParty.name)&& dmgConsultResp.hcParty.name === '' ? dmgConsultResp.hcParty.familyname + ' ' +dmgConsultResp.hcParty.firstname : dmgConsultResp.hcParty.name,
+                                        "lastName": dmgConsultResp.hcParty.familyname,
+                                        "firstName": dmgConsultResp.hcParty.firstname,
+                                        "nihii": dmgConsultResp.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value,
+                                        "ssin": '' //TODO: get SSIN from dmgConsultResp
+                                    }).then( hcp2 => {
+                                        var newPhcp = {}
+                                        newPhcp.firstName = hcp2.firstName;
+                                        newPhcp.lastName = hcp2.lastName;
+                                        newPhcp.name = hcp2.name;
+                                        newPhcp.nihii = hcp2.nihii;
+                                        newPhcp.ssin = hcp2.ssin;
+                                        newPhcp.healthcarePartyId = hcp2.id;
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                            const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                            if(cd.value === 'orgprimaryhealthcarecenter'){
+                                                newPhcp.type = "medicalhouse";
+                                            } else if(cd.value === 'persphysician'){
+                                                newPhcp.type = "doctor";
+                                            } else{
+                                                newPhcp.type = "other";
+                                            }
+                                        }
+                                        newPhcp.isDmg = true;
+                                        newPhcp.referral = true;
+                                        newPhcp.referralPeriods = [{
+                                            startDate: dmgConsultResp.from,
+                                            endDate: dmgConsultResp.to
+                                        }];
+                                        hcp2.addresses = [];
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.addresses){
+                                            dmgConsultResp.hcParty.addresses.map(addr =>{
+
+                                                let hcAddr  = {};
+                                                hcAddr.addressType = addr.cds.find(cd => cd.s === 'CD_ADDRESS') ? addr.cds.find(cd => cd.s === 'CD_ADDRESS').value : '';
+                                                hcAddr.street = addr.street ? addr.street : '';
+                                                hcAddr.city = addr.city ? addr.city : '';
+                                                hcAddr.postalCode = addr.zip ? addr.zip : '';
+                                                hcAddr.houseNumber = addr.housenumber ? addr.housenumber : '';
+                                                hcAddr.postboxNumber = addr.postboxnumber ? addr.postboxnumber : '';
+                                                hcAddr.country = addr.country && addr.country.cd && addr.country.cd.value ? addr.country.cd.value : '';
+                                                hcp2.addresses.push(hcAddr);
+                                            });
+                                        }
+
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                            const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                            if(cd){
+                                                hcp2.speciality = cd.value ? cd.value : '';
+                                            }
+                                        }
+
+                                        hcp2.pphc = newPhcp;
+                                        hcp2.referral = true;
+                                        hcp2.referralPeriods = [{
+                                            startDate: dmgConsultResp.from,
+                                            endDate: dmgConsultResp.to
+                                        }];
+
+                                        console.log('dmg owner pushed to external team');
+                                        //externalTeam.push(hcp2);
+                                        externalPatientHcpTeam.push(hcp2);
+                                        this.api.patient().getPatient(this.patient.id).then(patient => {
+                                            var phcp = patient.patientHealthCareParties
+                                            phcp.push(newPhcp)
+                                            // 4 save data
+                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
+                                                this.set('patient.patientHealthCareParties', phcp)
+                                            })
+                                        })
+
+                                })}
+
+
+                            })]
+                        ).then(([]) => {
+                            this.set('currentInternalCareTeam', internalTeam);
+                            this.set('currentExternalCareTeam', externalTeam);
+                            this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
+                        }).catch(e => {
+                            console.log(e);
+                            this.set('currentInternalCareTeam', internalTeam);
+                            this.set('currentExternalCareTeam', externalTeam);
+                            this.set('currentExternalPatientCareTeam', externalPatientHcpTeam);
+
+                        });
+                    }
+                })
 
         })
     }
@@ -1205,27 +1372,30 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     showInfoSelectedHcp(e){
+        //TODO: catch the case no hcp is selected
 
-	    this.$['showHcpInfo'].open()
+        let tmp = this.selectedCareProvider;
 
-        const pphcTab = this.patient.patientHealthCareParties
-        const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedCareProvider.id)
+	    this.$['showHcpInfo'].open();
+
+        const pphcTab = this.patient.patientHealthCareParties;
+        const pphcTarget = pphcTab.find(pphc => pphc.healthcarePartyId === this.selectedCareProvider.id);
 
         //Comparer les dates pour le detenteur du dmg
         if(pphcTarget){
-            pphcTarget.referralPeriods.map(rp => rp)
+            pphcTarget.referralPeriods.map(rp => rp);
         }
 
-        if(this.selectedCareProvider.isDmg)
+        if(this.selectedCareProvider && this.selectedCareProvider.isDmg)
         {
 
             this.selectedCareProvider.pphc = _.cloneDeep(this.selectedCareProvider);
-            this.set('selectedPerson', this.selectedCareProvider)
+            this.set('selectedPerson', this.selectedCareProvider);
         }
         else
         {
-            this.selectedCareProvider.pphc = pphcTarget
-            this.set('selectedPerson', this.selectedCareProvider)
+            if(pphcTarget) this.selectedCareProvider.pphc = pphcTarget;
+            this.set('selectedPerson', this.selectedCareProvider);
         }
 
     }

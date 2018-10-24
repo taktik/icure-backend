@@ -38,6 +38,7 @@
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
 
+
 <dom-module id="ht-msg-detail">
 	<template>
 		<style>
@@ -93,13 +94,13 @@
 				box-sizing: border-box;
 				grid-column: 3 / span 1;
 				grid-row: 1 / span 1;
-				background:var(--app-background-color-light);
-				float:left;
-				padding:20px;
-				display:flex;
+				background: var(--app-background-color-light);
+				padding: 5px;
+				display: flex;
+				overflow: auto;
 				flex-flow: column nowrap;
 				align-items: flex-start;
-				z-index:0;
+				z-index: 0;
 				height: 100%;
 				width: 100%;
 			}
@@ -119,8 +120,8 @@
 			}
 
 			.pat-details-card {
-				width: calc(100% - 64px);
-				margin: 0 32px;
+				width: 100%;
+				padding: 10px 15px;
 			}
 
 			.horizontal {
@@ -223,6 +224,11 @@
 				padding: 16px 24px;
 			}
 
+			.modal-subtitle{
+				display: inline-flex;
+				margin-top: 16px;
+			}
+
 			.modal-button{
 				--paper-button-ink-color: var(--app-secondary-color-dark);
 				color: var(--app-text-color);
@@ -231,11 +237,19 @@
 				height: 40px;
 				min-width: 100px;
 				padding: 10px 1.2em;
+				text-transform: capitalize;
 			}
 
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
+				color: var(--app-primary-color-dark);
+				font-weight: 700;
+			}
+
+			.modal-button--delete{
+				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+				background: var(--app-background-color-light);
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
 			}
@@ -299,7 +313,7 @@
 				--paper-fab-speed-dial-action-label-background: transparent;
 				--paper-fab-iron-icon: {
 					transform: scale(0.8);
-					
+
 				};
 				--paper-fab: {
 					background: var(--app-primary-color-dark);
@@ -348,22 +362,72 @@
 				height: calc(100% - 48px);
 				padding-bottom: 32px;
 			}
+
+			.del-button {
+				height: 5vh;
+				margin-top: 15px;
+			}
+
+			.annexe-card{
+				padding: 5px;
+				width: 100%;
+				margin-bottom: 15px;
+			}
+
+			.img-container img{
+				max-width: 100%;
+			}
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
-		<div class="details-panel" on-dragover="_onDrag">
-			<div class="contact-card-container">
-				<template is="dom-repeat" items="[[messages]]" as="msg">
-				<div>From : [[msg.fromAddress]]</div>
-				<div>To : [[msg.toAddresses]]</div>
-				<div>Subject: [[msg.subject]]</div>
-				<div>Body: 
-					<template is="dom-repeat" items="[[msg.body]]" as="text">[[text]]</template>
-				</div>
-				</template>
-			</div>
-		</div>
+			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
+					<template is="dom-repeat" items="[[messages]]" as="msg">
+							<paper-card class="pat-details-card" >
+								<paper-input readonly value="From : [[msg.fromAddress]]"></paper-input>
+								<paper-input readonly value="To : [[msg.toAddresses]]"></paper-input>
+								<paper-input readonly value="Subject: [[msg.subject]]"></paper-input>
+                                <paper-input readonly value="Date: [[_timeFormat(msg.received)]]"></paper-input>
 
-	</template>
+								<template is="dom-if" if="[[msg.body]]">
+									<iron-autogrow-textarea style="min-height: 80px; width: 100%;" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+								</template>
+
+								<template is="dom-repeat" items="[[selectedDocuments]]">
+									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
+										<paper-card class="annexe-card">
+											<span>[[item.name]]</span>
+											<iron-icon icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></iron-icon>
+											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
+												<div class="img-container">
+													<img src$="[[item.dataUrl]]">
+												</div>
+											</template>
+											<template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
+												<pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
+											</template>
+											<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
+												<div>
+													<span>[[mimeType(item.mainUti)]] [[type]]</span>
+													<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
+													<vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+												</div>
+												<template is="dom-if" if="[[showDetail]]">
+													[[documentAttachment]]
+												</template>
+											</template>
+										</paper-card>
+									</template>
+								</template>
+								<div class="del-button">
+									<div>
+										<paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+									</div>
+								</div>
+							</paper-card>
+					</template>
+			</div>
+		</template>
+
 	</template>
 	<script>
 
@@ -371,6 +435,7 @@ import jsPDF from 'jspdf/dist/jspdf.min';
 import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
+import XML from 'parse-xml/dist/parse-xml';
 
 class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -391,6 +456,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			user: {
 				type: Object
 			},
+			credentials:{
+				type: Object
+			},
 			currentContact: {
 				type: Object,
 				value: null
@@ -399,7 +467,19 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			    type: Object
 			},
 			messages: {
-			    type: Object
+			    type: Object,
+				value: null
+			},
+			selectedDocuments:{
+				type: Object
+			},
+			documentAttachment:{
+				type: String,
+				value: null
+			},
+			showDetail:{
+				type: Boolean,
+				value: false
 			}
 		};
 	}
@@ -412,22 +492,56 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		super();
 	}
 
+	ready(){
+		super.ready();
+	}
+
     _focusChanged(){
 	    if(this.selectMessage.selection.item){
             this.selectMessage.selection.item.body = [];
 	        let tempSelect = this.selectMessage.selection.item;
-        	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect).then(docs => {
-				docs.length ?
-        	    docs.map(doc => this.api.document().getAttachment(doc.id,doc.attachmentId, doc.secretForeignKeys).then(a=> {
-                    console.log("on a un attachment !" + typeof a)
-                    tempSelect.body.push(a.toString())
-                    console.log(tempSelect.body)
-                    this.set('messages', [tempSelect]);
-                }))
-					: this.set('messages', [tempSelect]);
-                this.getChildren(tempSelect.id)
-	    	})
-	    }
+        	this.api.document().findByMessage(this.user.healthcarePartyId, tempSelect)
+				.then(docs => { if(docs.length) {
+					return docs.filter(doc => doc.id && doc.attachmentId && doc.secretForeignKeys)
+						.map(doc => this.api.document().getAttachment(doc.id, doc.attachmentId, null)
+							.then(a =>
+								// With encryption key
+								// this.getDataUrls(doc)
+								// .then(dataUrl => {
+								// 	doc.dataUrl = dataUrl;
+								// 	if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
+								// 	else this.set('documentAttachment', a);
+								// 	return doc
+								// })
+
+								//Without encryption key
+								{
+									doc.dataUrl = this.getDataUrls(doc)
+									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
+									else this.set('documentAttachment', a);
+									return doc
+								}
+							)
+					)
+				}
+
+	    	}).then(docs =>{
+	    		if(docs && docs.length){
+                    Promise.all(docs).then(docs=>{
+                        this.set('messages', [tempSelect]);
+                        this.set("selectedDocuments", docs);
+                        this.getChildren(tempSelect.id)
+                    })
+				}
+				else{
+					this.set('messages', [tempSelect]);
+					this.set("selectedDocuments", []);
+					this.getChildren(tempSelect.id)
+                }
+            })
+	    }else{
+			this.set('messages', null);
+		}
 	}
 
 	getChildren(item){
@@ -445,6 +559,126 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }.bind(this))
 	}
 
+	// With encryption key
+	// getDataUrls(doc){
+	// 	return this.api.crypto().decryptAndImportAesHcPartyKeysInDelegations(this.user.healthcarePartyId, doc.encryptionKeys && Object.keys(doc.encryptionKeys).length ? doc.encryptionKeys : doc.delegations)
+	// 				.then(decryptedAndImportedAesHcPartyKeys => {
+	// 					let collatedAesKeys = {};
+	// 					decryptedAndImportedAesHcPartyKeys.forEach(k => collatedAesKeys[k.delegatorId] = k.key);
+	// 					return this.api.crypto().decryptDelegationsSFKs((doc.encryptionKeys && Object.keys(doc.encryptionKeys).length? doc.encryptionKeys: doc.delegations)[this.user.healthcarePartyId], collatedAesKeys, doc.id)
+	// 						.then(enckeys =>
+	// 							this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+	// 								this.api.document().getAttachment(doc.id, doc.attachmentId, enckeys).then(att => {
+	// 									let xml = XML.parseXml(att);
+	// 									if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+	// 										xml.kmehrmessage.header.standard.specialisation &&
+	// 										xml.kmehrmessage.header.standard.specialisation.cd &&
+	// 										xml.kmehrmessage.header.standard.specialisation.cd.S){
+	// 										this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+	// 									}else{
+	// 										this.set("type","Non Valid Type")
+	// 									}
+	// 								})
+	// 								: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, enckeys))
+	// 						);
+	// 				})
+	// }
+
+	//Without encryption key
+	getDataUrls(doc){
+		return this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
+			this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+				let xml = XML.parseXml(att);
+				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+					xml.kmehrmessage.header.standard.specialisation &&
+					xml.kmehrmessage.header.standard.specialisation.cd &&
+					xml.kmehrmessage.header.standard.specialisation.cd.S){
+					this.set("type",xml.kmehrmessage.header.standard.specialisation.cd.S);
+				}else{
+					this.set("type","Non Valid Type")
+				}
+			})
+			: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null))
+	}
+
+	_removeMsg(e){
+		let msgId = e.target.getAttribute('msgId');
+		console.log(msgId);
+
+		this.set('messages', null);
+
+		this.api.message().deleteMessages(msgId)
+			.then(x =>
+				this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+			)
+	}
+
+	_imageMimeType(uti, utis, dataUrl) {
+		console.log(uti + " " + utis + " " + dataUrl);
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
+	}
+
+	_pdfMimeType(uti, utis, dataUrl) {
+		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'application/pdf');
+	}
+
+	_xmlMimeType(uti, utis) {
+		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+	}
+
+	_isEqualTo(title, string) {
+		return title == string;
+	}
+
+	mimeType(u){
+		return this.api.document().mimeType(u)
+	}
+
+	_timeFormat(date) {
+		return date && this.api.moment(date).format('DD/MM/YYYY') || '';
+	}
+
+	_download(e){
+		let dataUrl = e.target.getAttribute('dataUrl');
+		let name = e.target.getAttribute('name');
+
+		if(!dataUrl) dataUrl = "data:," + this.documentAttachment;
+
+		console.log("annexe data");
+		console.log(dataUrl);
+		console.log(name);
+
+		var a = document.createElement('a');
+		a.href = dataUrl;
+		a.target = '_parent';
+		a.download = decodeURIComponent(name);
+
+
+		let htMsgDetail = this.shadowRoot.querySelector('#main-details-panel');
+
+		htMsgDetail.appendChild(a);
+		a.click();
+		a.parentNode.removeChild(a);
+
+	}
+
+	_getAttachment(){
+		this.showDetail = !this.showDetail
+	}
+
+	importPatient(){
+		this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
+			contacts => {
+				contacts.forEach(contact => {
+					contact.ctcs.forEach(ctc => {
+						this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+							console.log(c)
+							return c
+						});
+					})
+				})
+			})
+	}
 }
 
 customElements.define(HtMsgDetail.is, HtMsgDetail);

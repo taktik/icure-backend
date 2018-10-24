@@ -72,12 +72,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				outline:0!important;
 			}
 
-			.col-left{	
+			.col-left{
 				box-sizing: border-box;
 				grid-column: 1 / 1;
     			grid-row: 1 / 1;
 				background:var(--app-background-color-dark);
-				float:left;
 				@apply --shadow-elevation-3dp;
 				padding:20px;
 				display:flex;
@@ -85,6 +84,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				align-items: center;
 				height: 100%;
 				width: 100%;
+				overflow-y: auto;
+				overflow-x: hidden;
 			}
 
 			.new-msg-btn{
@@ -92,10 +93,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-button: {
 					background: var(--app-secondary-color);
 					color: var(--app-text-color);
-					width: 80%;
+					width: 100%;
 					margin: 0 auto;
-					font-size: 12px;
+					font-size: 14px;
 					font-weight: bold;
+					text-transform: capitalize;
 				};
 				--paper-button-ink-color: var(--app-secondary-color-dark);
 			}
@@ -110,6 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				color: var(--app-text-color);
 				border-radius: 10px;
 			}
+
 			paper-listbox{
 				background:transparent;
 				padding: 0;
@@ -371,14 +374,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			paper-checkbox{
 				--paper-checkbox-unchecked-color: var(--app-text-color);
-				--paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
-				--paper-checkbox-checkmark-color: var(--app-secondary-color);
-				--paper-checkbox-checked-color: var(--app-primary-color);
+				--paper-checkbox-label-color: var(--app-text-color);
+				--paper-checkbox-checked-color: var(--app-secondary-color);
+				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
 			}
 
 			.trash{
 				align-self: flex-start;
 				width:100%;
+				padding: 0;
 			}
 
 			iron-icon{
@@ -389,9 +393,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			paper-item{
 				cursor: pointer;
 			}
+			.menu-trigger{
+				padding: 0;
+			}
+
+			.batchNumber{
+				padding: 1px 5px;
+				font-size: 11px;
+				color: var(--paper-grey-100);
+				border-radius: 10px;
+				right: 10%;
+				position: absolute;
+			}
+
+			.batchPending{
+				background-color: var(--paper-orange-400);
+			}
+
+			.batchProcessed{
+				background-color: var(--paper-blue-400);
+			}
+
+			.batchRejected{
+				background-color: var(--paper-red-400);
+			}
+
+			.batchAccepted{
+				background-color: var(--paper-green-400);
+			}
+
+			.batchArchived{
+				background-color: var(--paper-purple-300);
+			}
+
 		</style>
 		<div class="col-left">
-			<paper-button class="new-msg-btn">[[localize('new_mes','New Message',language)]]</paper-button>
+			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button>
 				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:inbox"></iron-icon>[[localize('inb','Inbox',language)]] <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
@@ -402,7 +439,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
 						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
 						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
-						<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
+						<!--<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 				</paper-listbox>
 			</collapse-button>
 			<collapse-button>
@@ -412,10 +449,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</paper-item>
 				<paper-listbox class="menu-content sublist" multi toggle-shift>
 						<paper-item on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
-						<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>
+						<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 						<paper-item on-tap="_ehealthMessages">[[localize('ehe_mes','Ehealth Messages',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
+            <collapse-button>
+                <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_e_inv" elevation="">
+                    <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon>[[localize('inv','Invoices',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
+                </paper-item>
+                <paper-listbox class="menu-content sublist" multi toggle-shift>
+                    <paper-item on-tap="_e_inv_pen">[[localize('_e_inv_pen','Pending',language)]] <span class="batchNumber batchPending">[[batchCounter.pending]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_pro">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_rej">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_acc">[[localize('_e_inv_acc','Accepted',language)]] <span class="batchNumber batchAccepted">[[batchCounter.accepted]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_arc">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
+                </paper-listbox>
+            </collapse-button>
 			<paper-item class="trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
 		</div>
 	</template>
@@ -443,7 +493,6 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				value: function () {
 					return [];
 				}
-
 			},
 			selectedLocalize: {
 				type: Array,
@@ -486,6 +535,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             unreadNumber: {
 			    type: Number
+			},
+			batchCounter: {
+			    type: Object,
+				value: () => ({
+					pending: 0,
+					processing: 0,
+					rejected: 0,
+					accepted: 0,
+					archived: 0
+				})
 			}
 		};
 	}
@@ -509,6 +568,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }).then(num => this.set('unreadNumber', num || 0));
     }
 
+	_newMsg(){
+		this.dispatchEvent(new CustomEvent('new-msg', { detail: {} }));
+	}
+
     _inbox(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
 	}
@@ -525,7 +588,27 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _e_inv(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut' } } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+    }
+
+    _e_inv_pen(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+    }
+
+    _e_inv_pro(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'process'} } }));
+    }
+
+    _e_inv_rej(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'reject'} } }));
+    }
+
+    _e_inv_acc(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'accept'} } }));
+    }
+
+    _e_inv_arc(){
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'archive'} } }));
     }
 
     _reportIn(){
@@ -652,6 +735,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const allModels = domRepeat.items || [];
 
         this.set('selectedMainElements', this.selectedMainElements.filter(he => !allModels.includes(he)).concat(selectedModels));
+    }
+
+    initializeBatchCounter(e){
+
+	    this.set("batchCounter.pending", e.detail.pending)
+        this.set("batchCounter.processing", e.detail.processing)
+        this.set("batchCounter.rejected", e.detail.rejected)
+        this.set("batchCounter.accepted", e.detail.accepted)
+        this.set("batchCounter.archived", e.detail.archived)
+
     }
 
 }
