@@ -452,7 +452,7 @@
                 color: var(--app-status-color-pending);
             }
 
-            .searchLoadContainer{
+            .searchLoadContainer {
                 display: flex;
             }
 
@@ -471,7 +471,8 @@
                                             label="[[localize('To','To',language)]]"
                                             value="{{consultationEndDateAsString}}"></vaadin-date-picker>
 
-                        <paper-input class="tool" label="[[localize('par','Paragraph',language)]]" value="{{selectedLoadParagraph}}"></paper-input>
+                        <paper-input class="tool" label="[[localize('par','Paragraph',language)]]"
+                                     value="{{selectedLoadParagraph}}"></paper-input>
                     </div>
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
                                    selected="{{selectValue}}">
@@ -607,56 +608,58 @@
                                         <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
                                             <h4>[[localize('agr_res','Agreement response',language)]],
                                                 [[_formatDateTime(t.timestamp)]]</h4>
-                                            <template is="dom-if" if="[[t.isAccepted]]">
+                                            <template is="dom-if" if="[[t.accepted]]">
                                                 <p>[[localize('status','Status',language)]]:
                                                     [[localize('agreed','Agreement conceded',language)]]</p>
                                             </template>
-                                            <template is="dom-if" if="[[t.isIntreatment]]">
+                                            <template is="dom-if" if="[[t.inTreatment]]">
                                                 <p>[[localize('status','Status',language)]]:
                                                     [[localize('req_in_tre','Request in treatment',language)]]</p>
                                                 <p>[[localize('ref_jus','Justification of refusal',language)]]:
                                                     [[t.refusalJustification]]</p>
                                             </template>
-                                            <template is="dom-if" if="[[_none(t.isAccepted, t.isIntreatment)]]">
+                                            <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
                                                 <p>[[localize('status','Status',language)]]:
                                                     [[localize('req_in_tre','Request rejected',language)]]</p>
                                             </template>
                                             <p class="error">[[t.refusalJustification.fr]]</p>
+                                            <p>[[localize('ref_io','Reference IO',language)]]:
+                                                [[t.decisionReference]]</p>
+                                            <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
+                                            <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
+                                            <h4>[[localize('tec_dat','Technical data',language)]]</h4>
+                                            <p>[[localize('req_ref_io','Request Reference IO',language)]]:
+                                                [[t.ioRequestReference]]</p>
+                                            <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
+                                            <h4>[[localize('medications','Medications',language)]]</h4>
+                                            <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
+                                                         items="[[_mpps(t.paragraph, agreementMpps.*)]]"
+                                                         active-item="{{selectedMedication}}">
+                                                <vaadin-grid-column>
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="mut">
+                                                            [[localize('medication','Medication',language)]]
+                                                        </vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>
+                                                        <div class="cell frozen">[[item.name]])</div>
+                                                    </template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column>
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="periodStart">
+                                                            [[localize('selected','Selected',language)]]
+                                                        </vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>
+                                                        <div class="cell frozen">
+                                                            <vaadincheckbox
+                                                                    checked="{{item.selected}}"></vaadincheckbox>
+                                                        </div>
+                                                    </template>
+                                                </vaadin-grid-column>
+                                            </vaadin-grid>
                                         </template>
-                                        <p>[[localize('ref_io','Reference IO',language)]]: [[t.decisionReference]]</p>
-                                        <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
-                                        <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
-                                        <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                        <p>[[localize('req_ref_io','Request Reference IO',language)]]:
-                                            [[t.ioRequestReference]]</p>
-                                        <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
-                                        <h4>[[localize('medications','Medications',language)]]</h4>
-                                        <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
-                                                     items="[[_mpps(t.paragraph, agreementMpps.*)]]"
-                                                     active-item="{{selectedMedication}}">
-                                            <vaadin-grid-column>
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="mut">
-                                                        [[localize('medication','Medication',language)]]
-                                                    </vaadin-grid-sorter>
-                                                </template>
-                                                <template>
-                                                    <div class="cell frozen">[[item.name]])</div>
-                                                </template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column>
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="periodStart">
-                                                        [[localize('selected','Selected',language)]]
-                                                    </vaadin-grid-sorter>
-                                                </template>
-                                                <template>
-                                                    <div class="cell frozen">
-                                                        <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
-                                                    </div>
-                                                </template>
-                                            </vaadin-grid-column>
-                                        </vaadin-grid>
                                     </template>
                                     <h4>[[localize('tec_dat','Technical data',language)]]</h4>
                                     <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
@@ -682,19 +685,23 @@
                         </div>
                         <div class="bottom-btn-container">
                             <template is="dom-if" if="[[isAgreementSelected]]">
-                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">
+                                    [[localize('can_agr','Cancel
                                     agreement',language)]]
                                 </paper-button>
-                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">
+                                    [[localize('clos_agr','Close
                                     agreement',language)]]
                                 </paper-button>
-                                <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
+                                <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">
+                                    [[localize('ext_agr','Extend
                                     agreement',language)]]
                                 </paper-button>
                             </template>
 
                             <template is="dom-if" if="[[!isAgreementSelected]]">
-                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">[[localize('req_agr','Request
+                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
+                                    [[localize('req_agr','Request
                                     agreement',language)]]
                                 </paper-button>
                             </template>
@@ -811,15 +818,15 @@
                         type: Boolean,
                         value: false
                     },
-                    consultationStartDateAsString:{
+                    consultationStartDateAsString: {
                         type: String,
                         value: () => moment().startOf('month').format('YYYY-MM-DD')
                     },
-                    consultationEndDateAsString:{
+                    consultationEndDateAsString: {
                         type: String,
                         value: () => moment().endOf('month').format('YYYY-MM-DD')
                     },
-                    selectedLoadParagraph:{
+                    selectedLoadParagraph: {
                         type: String
                     }
 
@@ -1012,41 +1019,44 @@
             _requestChapter4(e) {
 
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
-                                    (e.target && e.target.id === "extendChapter") ? "extension" :
-                                    (e.target && e.target.id === "extendChapter") ? "noncontinuousextension" :
-                                    null   //newrequest, extension, noncontinuousextension, complimentaryannex
+                    (e.target && e.target.id === "extendChapter") ? "extension" :
+                        (e.target && e.target.id === "extendChapter") ? "noncontinuousextension" :
+                            null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
+                if (requestType != null) {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        Promise.all(this.appendicesTokens.map(ap =>
+                            this.api.document().getDocument(ap.id)
+                                .then(doc =>
+                                    this.api.document().getAttachment(doc.id, doc.attachmentId)
+                                ).then(a => ({
+                                    verseSeq: ap.verseSeq,
+                                    documentSeq: ap.documentSeq,
+                                    data: a,
+                                    mimeType: 'application/pdf',
+                                    path: a.name
+                                })
+                            ))
+                        ).then(appendices =>
+                            this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+                                this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
+                                "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
+                                this.checkedVerses.join(','), appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
+                        )
+                    ).then(res => {
+                        console.log(res)
+                        this.set('agreementResponse', res)
+                        this.set('tabs', 1)
 
-                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    Promise.all(this.appendicesTokens.map(ap =>
-                        this.api.document().getDocument(ap.id)
-                            .then(doc =>
-                                this.api.document().getAttachment(doc.id, doc.attachmentId)
-                            ).then(a => ({
-                                verseSeq: ap.verseSeq,
-                                documentSeq: ap.documentSeq,
-                                data: a,
-                                mimeType: 'application/pdf',
-                                path: a.name
-                            })
-                        ))
-                    ).then(appendices =>
-                        this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                            this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
-                            "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                            this.checkedVerses.join(','), appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
-                    )
-                ).then(res => {
-                    console.log(res)
-                    this.set('agreementResponse', res)
-                    this.set('tabs', 1)
-
-                    /*
-                return Promise.all(((res||{}) && res.transactions||[]).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({paragraph: t.paragraph, mpps: it})))).then( links =>
-                    this.set('agreementMpps', links)
-                )*/
-                })
+                        return Promise.all(((res || {}) && res.transactions || []).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({
+                            paragraph: t.paragraph,
+                            mpps: it
+                        })))).then(links =>
+                            this.set('agreementMpps', links)
+                        )
+                    })
+                }
             }
 
             _annexBaseName(addedDoc) {
@@ -1121,19 +1131,19 @@
                 if (e.currentTarget) {
                     const id = e.currentTarget.id
                     const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
-
+                    
                     this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
-                     .then(par => {
-                        this.set('isAgreementSelected', true)
-                        this.set('selectedParagraph', {
-                            descr: par.headerVerse.textFr,
-                            id: par.paragraphName,
-                            ioRequestReference: selectedAgreement.ioRequestReference,
-                            ioDecisionReference: selectedAgreement.ioDecisionReference,
-                            start : selectedAgreement.start,
-                            end : selectedAgreement.ioDecisionEndOfValidity
+                        .then(par => {
+                            this.set('isAgreementSelected', true)
+                            this.set('selectedParagraph', {
+                                descr: par.headerVerse.textFr,
+                                id: par.paragraphName,
+                                ioRequestReference: selectedAgreement.ioRequestReference,
+                                ioDecisionReference: selectedAgreement.ioDecisionReference,
+                                start: selectedAgreement.start,
+                                end: selectedAgreement.ioDecisionEndOfValidity
+                            })
                         })
-                    })
                 }
             }
 
