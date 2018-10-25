@@ -808,36 +808,12 @@
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)']
+                return ['_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)']
             }
 
             ready() {
                 super.ready()
                 this.addEventListener('iron-resize', () => this.onWidthChange())
-            }
-
-            apiReady() {
-                if (!this.api || !this.user || !this.user.id || !this.opened) return
-
-                try {
-                    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
-                    this.api.cacheRowsUsingPagination(
-                        'CD-HCPARTY-pers',
-                        (key, docId) =>
-                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
-                                .then(pl => ({
-                                    rows: pl.rows,
-                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                                    done: !pl.nextKeyPair
-                                }))
-                    ).then(rows => {
-                        this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc']))
-                        this.set('plannedAction.ProfessionId', this.professionId)
-                    })
-                } catch (e) {
-                    console.log(e)
-                }
             }
 
             attached() {
