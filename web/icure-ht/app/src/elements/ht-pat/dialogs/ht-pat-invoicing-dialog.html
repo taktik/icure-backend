@@ -853,7 +853,7 @@
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="eattest" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -2781,7 +2781,11 @@
 
                     eattest.codes.push(newCode)
                 })
-                console.log(eattest)
+
+                let tempInvoice =this.selectedInvoice;
+                tempInvoice =_.omit(tempInvoice,["printedDate"])
+                this.eattest(tempInvoice)
+
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
                         console.log(response)
@@ -2814,14 +2818,13 @@
                 this.$['xml_dialog'].open()
             }
 
-            eattest(e){
+            duplicate(e){
                 e.stopPropagation();
                 e.preventDefault();
+                this.eattest(JSON.parse(e.target.dataset.item))
+            }
 
-                const invoice = JSON.parse(e.target.dataset.item)
-
-                console.log(invoice)
-                console.log(this.hcp)
+            eattest(invoice){
 
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
@@ -2878,7 +2881,8 @@
                     "totalRemb" : totalRemb,
                     "totalConv" : totalConv,
                     "totalDelta" : totalDelta,
-                    "jpegUrl" : jpegUrl
+                    "jpegUrl" : jpegUrl,
+                    "isDuplicata" : (invoice.printedDate) ? true : false
                 }
 
                 const html = `
@@ -3010,7 +3014,7 @@
                             <img src="{{jpegUrl}}" alt="barcode" />
                             <br>
                             <span>{{invoice.thirdPartyReference}}</span><br>
-                            {{#invoice.printedDate}}<span style="color: red">DUPLICATA</span>{{/invoice.printedDate}}
+                            {{#isDuplicata}}<span style="color: red">DUPLICATA</span>{{/isDuplicata}}
                         </td>
                     </tr>
 
