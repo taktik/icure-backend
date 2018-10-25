@@ -62,7 +62,7 @@
                 grid-template-rows: 100%;
             }
 
-            .list-panel {
+            .list-panel-container {
                 position: relative;
                 height: 100%;
                 background: var(--app-background-color-dark);
@@ -71,9 +71,14 @@
                 grid-row: 1/1;
                 z-index: 3;
                 overflow-y: auto;
-                margin-top: 0px;
+                margin-top: 0;
                 padding: 8px 24px;
                 box-sizing: border-box;
+            }
+
+            .list-panel {
+                position: relative;
+                height: 100%;
             }
 
             .detail-panel {
@@ -457,53 +462,55 @@
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2>[[localize('chap-iv','Chapter IV',language)]]</h2>
             <div class="container">
-                <div class="list-panel">
-                    <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
-                                   selected="{{selectValue}}">
-                        <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
-                            <paper-material class="layout vertical chapter-item chapter--big"
-                                            id="[[item.ioDecisionReference]]" on-tap="_selectItem">
-                                <paper-item class="chapter-text">
-                                    <div class="chapter-text-row chapter-text-date">
-                                        <label>
-                                            <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
-                                            [[item.paragraph]]
-                                        </label>
-                                        <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
-                                    </div>
-                                    <div class="chapter-text-row grey">
-                                        <p>
-                                            <template is="dom-if" if="[[item.accepted]]">
-                                                <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
-                                                [[localize('ch4Accept','Accepted',language)]]
-                                            </template>
-                                            <template is="dom-if" if="[[item.inTreatment]]">
-                                                <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
-                                                [[localize('ch4Pending','Pending',language)]]
-                                            </template>
-                                        </p>
-                                        <p>
-                                        <h4>
-                                            [[item.strength]] [[item.strengthUnit]]
-                                            <template is="dom-repeat" items="[[item.medications]]">
-                                                [[item]],
-                                            </template>
-                                        </h4>
-                                        </p>
-                                        <div class="chapterDateInfo">
-                                            <iron-icon icon="vaadin:calendar-clock"
-                                                       class="chapterDateInfoIcon"></iron-icon>
-                                            <span>[[_formatDate(item.start)]]</span>
-                                            &nbsp;
-                                            <iron-icon icon="vaadin:calendar-clock"
-                                                       class="chapterDateInfoIcon"></iron-icon>
-                                            <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                <div class="list-panel-container">
+                    <div class="list-panel">
+                        <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
+                                       selected="{{selectValue}}">
+                            <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
+                                <paper-material class="layout vertical chapter-item chapter--big"
+                                                id="[[item.ioDecisionReference]]" on-tap="_selectItem">
+                                    <paper-item class="chapter-text">
+                                        <div class="chapter-text-row chapter-text-date">
+                                            <label>
+                                                <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
+                                                [[item.paragraph]]
+                                            </label>
+                                            <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
                                         </div>
-                                    </div>
-                                </paper-item>
-                            </paper-material>
-                        </template>
-                    </paper-listbox>
+                                        <div class="chapter-text-row grey">
+                                            <p>
+                                                <template is="dom-if" if="[[item.accepted]]">
+                                                    <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
+                                                    [[localize('ch4Accept','Accepted',language)]]
+                                                </template>
+                                                <template is="dom-if" if="[[item.inTreatment]]">
+                                                    <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
+                                                    [[localize('ch4Pending','Pending',language)]]
+                                                </template>
+                                            </p>
+                                            <p>
+                                            <h4>
+                                                [[item.strength]] [[item.strengthUnit]]
+                                                <template is="dom-repeat" items="[[item.medications]]">
+                                                    [[item]],
+                                                </template>
+                                            </h4>
+                                            </p>
+                                            <div class="chapterDateInfo">
+                                                <iron-icon icon="vaadin:calendar-clock"
+                                                           class="chapterDateInfoIcon"></iron-icon>
+                                                <span>[[_formatDate(item.start)]]</span>
+                                                &nbsp;
+                                                <iron-icon icon="vaadin:calendar-clock"
+                                                           class="chapterDateInfoIcon"></iron-icon>
+                                                <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                                            </div>
+                                        </div>
+                                    </paper-item>
+                                </paper-material>
+                            </template>
+                        </paper-listbox>
+                    </div>
                     <div class="bottom-btn-container">
                         <paper-button class="bottom-btn" on-tap="_loadChapter4">[[localize('load_agr','Load
                             agr.',language)]]
@@ -862,7 +869,6 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    this.set('selectValue', null)
                     (this.selectedParagraph.ioRequestReference || this.selectedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
