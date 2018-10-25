@@ -101,7 +101,7 @@
 				flex-flow: column nowrap;
 				align-items: flex-start;
 				z-index: 0;
-				height: 100%;
+                height: calc(100vh - 27%);
 				width: 100%;
 			}
 
@@ -122,6 +122,7 @@
 			.pat-details-card {
 				width: 100%;
 				padding: 10px 15px;
+                height: calc(80vh - 20%);
 			}
 
 			.horizontal {
@@ -363,11 +364,6 @@
 				padding-bottom: 32px;
 			}
 
-			.del-button {
-				height: 5vh;
-				margin-top: 15px;
-			}
-
 			.annexe-card{
 				padding: 5px;
 				width: 100%;
@@ -378,54 +374,103 @@
 				max-width: 100%;
 			}
 
+            .action-buttons {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            .action-buttons > .buttons {
+                float: left;
+            }
+            .action-buttons > .del-button {
+                float: right;
+            }
+
+            .clearb {
+                clear: both;
+            }
+            .inlined {
+                float: left;
+                width: 30%;
+                margin: 0 1%;
+            }
+
+            .read-txt {
+                height: calc(80vh - 50%);
+                width: 100%;
+                overflow-y: scroll;
+            }
+
+            .attached {
+                height: 18%;
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                width: 42%;
+                padding: 10px;
+                overflow-y: auto;
+                border-top: 2px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+            }
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
+                <div class="action-buttons">
+                    <div class="buttons">
+                        <paper-button class="modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
+                        <paper-button class="modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <paper-button class="modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
+                    </div>
+                    <div class="del-button">
+                        <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                    </div>
+                </div>
 					<template is="dom-repeat" items="[[messages]]" as="msg">
 							<paper-card class="pat-details-card" >
-								<paper-input readonly value="From : [[msg.fromAddress]]"></paper-input>
-								<paper-input readonly value="To : [[msg.toAddresses]]"></paper-input>
-								<paper-input readonly value="Subject: [[msg.subject]]"></paper-input>
-                                <paper-input readonly value="Date: [[_timeFormat(msg.received)]]"></paper-input>
+                                <div>
+                                    <paper-input class="inlined" readonly value="From : [[msg.fromAddress]]"></paper-input>
+                                    <paper-input class="inlined" readonly value="To : [[msg.toAddresses]]"></paper-input>
+                                    <paper-input class="inlined" readonly value="Date: [[_timeFormat(msg.received)]]"></paper-input>
+                                </div>
+                                <paper-input class="clearb subject" readonly value="Subject: [[msg.subject]]"></paper-input>
 
 								<template is="dom-if" if="[[msg.body]]">
-									<iron-autogrow-textarea style="min-height: 80px; width: 100%;" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
-								</template>
+                                    <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+                                </template>
 
-								<template is="dom-repeat" items="[[selectedDocuments]]">
-									<template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
-										<paper-card class="annexe-card">
-											<span>[[item.name]]</span>
-											<iron-icon icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></iron-icon>
-											<template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
-												<div class="img-container">
-													<img src$="[[item.dataUrl]]">
-												</div>
-											</template>
-											<template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-												<pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
-											</template>
-											<template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
-												<div>
-													<span>[[mimeType(item.mainUti)]] [[type]]</span>
-													<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
-													<vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
-												</div>
-												<template is="dom-if" if="[[showDetail]]">
-													[[documentAttachment]]
-												</template>
-											</template>
-										</paper-card>
-									</template>
-								</template>
-								<div class="del-button">
-									<div>
-										<paper-button class="modal-button modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]'><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-									</div>
-								</div>
-							</paper-card>
-					</template>
-			</div>
+                            </paper-card>
+                    </template>
+            </div>
+
+            <div class="attached">
+                <h3>Pièces jointes</h3>
+                <template is="dom-repeat" items="[[selectedDocuments]]">
+                    <template is="dom-if" if="[[!_isEqualTo(item.documentLocation,'body')]]">
+                        <paper-card class="annexe-card">
+                            <span>[[item.name]]</span>
+                            <iron-icon icon="file-download" on-tap="_download" dataUrl$='[[item.dataUrl]]' name$='[[item.name]]'></iron-icon>
+                            <template is="dom-if" if="[[_imageMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]" >
+                                <div class="img-container">
+                                    <img src$="[[item.dataUrl]]">
+                                </div>
+                            </template>
+                            <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
+                                <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
+                            </template>
+                            <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
+                                <div>
+                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+                                </div>
+                                <template is="dom-if" if="[[showDetail]]">
+                                    [[documentAttachment]]
+                                </template>
+                            </template>
+                        </paper-card>
+                    </template>
+                </template>
+            </div>
 		</template>
 
 	</template>
