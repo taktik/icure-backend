@@ -106,6 +106,7 @@ onmessage = e => {
 };
 
 function getFromAddress(sender){
+    if (!sender) { return "" }
 	return (sender.lastName ? sender.lastName : "") +
         (sender.firstName ? ' '+sender.firstName : "") +
         (sender.organizationName ? ' '+sender.organizationName : "") +

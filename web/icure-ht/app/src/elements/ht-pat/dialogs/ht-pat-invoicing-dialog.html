@@ -819,6 +819,89 @@
                 visibility: hidden;
             }
 
+            paper-item:hover .he-edit-btn-container {
+                position: absolute;
+                right: 5px;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                /*display:inline-flex;*/
+                flex-flow: row-reverse nowrap;
+                position: absolute;
+                right: 5px;
+            }
+
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+
+            .he-edit-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                color: var(--app-text-color-light);
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .he-edit-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
+            .he-edit-btn-container > paper-icon-button.he-edit-btn:first-child {
+                transition: .5s ease;
+            }
+            .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
+                transform: rotate(180deg)
+            }
 
         </style>
 
@@ -2020,7 +2103,6 @@
                 this.shadowRoot.querySelector("#nmcl-search").focus()
             }
 
-
             _addFavoriteCode() {
                 if (this.shadowRoot.querySelector("#nmcl-search").selectedItem) {
 
@@ -2085,14 +2167,14 @@
             }
 
             _verifyTarification() {
-                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "") {
+                if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
                             this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                 this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
-                                this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference)
+                                this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
                         )
                         .then(r => {
                             console.log(r)
@@ -2314,13 +2396,13 @@
             }
 
             getInvoiceType(invoiceType){
-                const type = this.invoiceType.find(type => type.id == invoiceType)
-                return type.label[this.language]
+               const type = this.invoiceType.find(type => type.id === invoiceType)
+               return type && type.label && type.label[this.language]
             }
 
             getSentMediumType(sentMediumType){
-                const type = this.sentMediumType.find(type => type.id == sentMediumType)
-                return type.label[this.language]
+                const type = this.sentMediumType.find(type => type.id === sentMediumType)
+                return type && type.label && type.label[this.language]
             }
 
             generateJustificatory(){
@@ -2844,8 +2926,10 @@
             }
 
             eattest(invoice){
+                e.stopPropagation();
+                e.preventDefault();
 
-                //generate jpeg
+                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
@@ -2865,10 +2949,19 @@
                     totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
                 })
 
+                let templatePat = _.clone(this.patient), templateHcp = _.clone(this.hcp)
+                templatePat.gender = (this.patient.gender === "male") ? "Mr" : "Mme"
+                templatePat.addresses.map(addr=>{addr.telecoms.map(telcom=>{
+                    telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
+                })})
+                templateHcp.map(that=>{that.addresses.map(addr=>{addr.telecoms.map(telcom=>{
+                    telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
+                })})})
+
                 const template = {
                     "invoice" : invoice,
-                    "patient" : this.patient,
-                    "hcp" : this.hcp,
+                    "patient" : templatePat,
+                    "hcp" : templateHcp,
                     "formatDate" : function(){
                         return function(date,render){
                             let format =render(date)
@@ -2895,6 +2988,17 @@
                             return parseFloat(termes[0]).toFixed(2)+" €";
                         }
                     },
+                    "justif": this.localize('pdf_justif','justif',this.language),
+                    "date": this.localize('pdf_date','date',this.language),
+                    "patCord": this.localize('pdf_patCord','patCord',this.language),
+                    "remboursPrest": this.localize('pdf_remboursPrest','remboursPrest',this.language),
+                    "honorPort": this.localize('pdf_honorPort','honorPort',this.language),
+                    "intervMut": this.localize('pdf_intervMut','intervMut',this.language),
+                    "honorConv": this.localize('pdf_honorConv','honorConv',this.language),
+                    "deltaSupp": this.localize('pdf_deltaSupp','deltaSupp',this.language),
+                    "subTot": this.localize('pdf_subTot','subTot',this.language),
+                    "totOne": this.localize('pdf_totOne','totOne',this.language),
+                    "totFinal": this.localize('pdf_totFinal','totFinal',this.language),
                     "totalACharge" : totalACharge,
                     "totalSuppl" : totalSuppl,
                     "totalRemb" : totalRemb,
@@ -3037,128 +3141,132 @@
                         </td>
                     </tr>
 
-                    <tr class="information">
-                        <td colspan="2">
-                            <table>
-                                <tr>
-                                    <td>
-                                        {{#hcp}}
-                                            {{name}}<br>
-                                            {{speciality}}<br>
+                        <table>
+                            <tr>
+                                <td class="p50">
+                                    {{#hcp}}
+                                        <div class="fleft bold">{{name}}</div>
+                                        <div class="fleft title">{{speciality}}</div>
+                                        <div class="block-addr">
                                             {{#addresses}}
                                                 {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
-                                                {{postalCode}} {{city}}<br>
-                                                {{#telecoms}}
-                                                    {{telecomType}}: {{telecomNumber}}<br>
-                                                {{/telecoms}}
-                                            {{/addresses}}
-                                            TVA/CBE: {{cbe}}<br>
-                                            IBAN: {{bankAccount}}<br>
-                                        {{/hcp}}
-                                    </td>
-                                    <td>
+                                                {{postalCode}} {{city}}
+                                                <table class="addr">
+                                                    {{#telecoms}}
+                                                        <tr><td>{{telecomType}}</td><td><span class="hidden">:</span> {{telecomNumber}}</td></tr>
+                                                    {{/telecoms}}
+                                                    {{/addresses}}
+                                                    <tr><td>TVA/CBE</td><td><span class="hidden">:</span> {{cbe}}</td></tr>
+                                                    <tr><td>IBAN</td><td class="uppercase"><span class="hidden">:</span> {{bankAccount}}</td></tr>
+                                                </table>
+                                        </div>
+                                    {{/hcp}}
+                                </td>
+                                <td class="lborder">
+                                    <div class="title">Coordonnées du patient</div>
                                     {{#patient}}
-                                        {{gender}}
-                                        {{firstName}} {{#toUpperCase}}{{lastName}}{{/toUpperCase}}<br>
+                                        <div>{{gender}}. {{firstName}} <span class="uppercase">{{lastName}}</span></div>
+                                        <div class="block-addr">
                                         {{#addresses}}
                                             {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
-                                            {{postalCode}} {{city}}<br>
+                                            {{postalCode}} {{city}}
+                                            <table class="mt20 addr">
                                             {{#telecoms}}
-                                                {{telecomType}}: {{telecomNumber}}<br>
+                                                <tr><td>{{telecomType}}</td><td><span class="hidden">:</span> {{telecomNumber}}</td></tr>
                                             {{/telecoms}}
+                                            </table>
                                         {{/addresses}}
+                                        </div>
                                     {{/patient}}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="fact-details">
+                            <tr class="heading">
+                                <td class="minw30">{{remboursPrest}}</td>
+                                <td class="p12">{{honorPort}}</td>
+                                <td class="p12">{{intervMut}}</td>
+                                <td class="p12">{{intervMut}}</td>
+                                <td class="p12">{{deltaSupp}}</td>
+                            </tr>
+                            {{#invoice.invoicingCodes}}
+                                <tr class="item">
+                                    <td class="minw30"> {{unit}} {{code}} : {{label}}</td>
+                                    <td class="right">
+                                        {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
+                                    </td>
+                                    <td class="right">
+                                        {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
+                                    </td>
+                                    <td class="right">
+                                        {{#conventionAmount}}
+                                            {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
+                                        {{/conventionAmount}}
+                                        {{^conventionAmount}}na{{/conventionAmount}}
+                                    </td>
+                                    <td class="right">
+                                        {{#conventionAmount}}
+                                            {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
+                                        {{/conventionAmount}}
+                                        {{^conventionAmount}}na{{/conventionAmount}}
                                     </td>
                                 </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                <table>
-                    <tr class="heading">
-                        <td>Prestations remboursables</td>
-                        <td class="p12">Honoraire porté en compte</td>
-                        <td class="p12">Intervention mutuelle</td>
-                        <td class="p12">Honoraire convention</td>
-                        <td class="p12">∆ et Suppléments</td>
-                    </tr>
-                    {{#invoice.invoicingCodes}}
-                        <tr class="item">
-                            <td> {{unit}} {{code}} : {{label}}</td>
-                            <td class="right">
-                                {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
-                            </td>
-                            <td class="right">
-                                {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
-                            </td>
-                            <td class="right">
-                                {{#conventionAmount}}
-                                    {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
-                                {{/conventionAmount}}
-                                {{^conventionAmount}}na{{/conventionAmount}}
-                            </td>
-                            <td class="right">
-                                {{#conventionAmount}}
-                                    {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
-                                {{/conventionAmount}}
-                                {{^conventionAmount}}na{{/conventionAmount}}
-                            </td>
-                        </tr>
-                    {{/invoice.invoicingCodes}}
-                    <tr class="item bold">
-                        <td>Sous-totaux :</td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
-                        </td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
-                        </td>
-                        <td class="right">
-                            {{#totalConv}}
-                                {{#formatNumber}}{{totalConv}}{{/formatNumber}}
-                            {{/totalConv}}
-                            {{^totalConv}}na{{/totalConv}}
-                        </td>
-                        <td class="right">
-                            {{#totalDelta}}
-                                {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                            {{/totalDelta}}
-                            {{^totalDelta}}na{{/totalDelta}}
-                        </td>
-                    </tr>
-                    <tr class="item last">
-                        <td>Totaux Suppléments / Totaux ∆ / Totaux ∆ et suppl.</td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
-                        </td>
-                        <td></td>
-                        <td class="right">
-                            {{#totalConv}}
-                                {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
-                            {{/totalConv}}
-                            {{^totalConv}}na{{/totalConv}}
-                        </td>
-                        <td class="right">
-                            {{#totalDelta}}
-                                {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                            {{/totalDelta}}
-                            {{^totalDelta}}na{{/totalDelta}}
-                        </td>
-                    </tr>
+                            {{/invoice.invoicingCodes}}
+                            <tr class="item bold">
+                                <td class="minw30">{{subTot}} :</td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
+                                    {{#totalConv}}
+                                        {{#formatNumber}}{{totalConv}}{{/formatNumber}}
+                                    {{/totalConv}}
+                                    {{^totalConv}}na{{/totalConv}}
+                                </td>
+                                <td class="right">
+                                    {{#totalDelta}}
+                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
+                                    {{/totalDelta}}
+                                    {{^totalDelta}}na{{/totalDelta}}
+                                </td>
+                            </tr>
+                            <tr class="item last">
+                                <td class="minw30">T{{totOne}}</td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
+                                </td>
+                                <td></td>
+                                <td class="right">
+                                    {{#totalConv}}
+                                        {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+                                    {{/totalConv}}
+                                    {{^totalConv}}na{{/totalConv}}
+                                </td>
+                                <td class="right">
+                                    {{#totalDelta}}
+                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
+                                    {{/totalDelta}}
+                                    {{^totalDelta}}na{{/totalDelta}}
+                                </td>
+                            </tr>
 
-                    <tr class="total">
-                        <td>Total porté en compte</td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
-                        </td>
-                        <td class="right"></td>
-                        <td class="right"></td>
-                        <td class="right"></td>
-                    </tr>
-                </table>
-            </div>
-            </body>
-        </html>`;
+                            <tr class="total">
+                                <td class="minw30">{{totFinal}}</td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
+                                </td>
+                                <td class="right"></td>
+                                <td class="right"></td>
+                                <td class="right"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    </body>
+                </html>`;
 
                 this.api.pdfReport(mustache.render(html, template))
                     .then(data =>{

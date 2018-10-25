@@ -53,6 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="ht-pat-detail-ctc-detail-panel.html">
 <link rel="import" href="../icons/icure-icons.html">
 <link rel="import" href="../../icpc-styles.html">
+<link rel="import" href="../../scrollbar-style.html">
 
 <link rel="import" href="../dynamic-form/entity-selector.html">
 <link rel="import" href="../dynamic-form/health-problem-selector.html">
@@ -67,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 		<style include="iron-flex iron-flex-alignment"></style>
 		<!--suppress CssUnusedSymbol -->
-		<style include="icpc-styles">
+		<style include="icpc-styles scrollbar-style">
 			:host {
 				height: 100%;
 			}
@@ -88,7 +89,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.zone {
 				height: 100%;
 			}
-
 
 			.padding-0{
 				padding:0;
@@ -125,11 +125,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.first-panel{
-				/*width:20%;
-				height:calc(100% - 64px);*/
 				height:100%;
 				background: var(--app-background-color-dark);
-				/*position:fixed;*/
 				top:64px;
 				left:0;
 				@apply --shadow-elevation-3dp;
@@ -407,7 +404,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.submenus-container{
-				overflow-y: auto;
+				overflow-y: overlay;
 				height: calc(100% - 215px);
 				margin-bottom:16px;
 				border-top: 1px solid rgba(0,0,0,.1);
@@ -693,7 +690,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.contacts-container{
-				overflow-y: auto;
+				overflow-y: overlay;
 				height: calc(100% - 80px);
 				padding-bottom: 32px;
 			}
@@ -818,7 +815,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow: hidden;
 			}
 
-			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus  {
+			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus  {
 				--paper-fab-background: var(--app-background-color-dark);
 				--paper-fab-keyboard-focus-background: var(--app-background-color);
 				color: var(--app-primary-color-dark);
@@ -1123,7 +1120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-tooltip for="tlStatus">[[localize('tl','insurance',language)]]</paper-tooltip>
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
 									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
-									<paper-fab id="edmgStatus" mini icon="vaadin:folder-open-o" on-tap="_openEdmgDialog"></paper-fab>
+									<paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
 									<paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]</paper-tooltip>
 								</div>
 							</div>
@@ -1236,7 +1233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
-									<paper-icon-button class="extra-button" icon="vaadin:medal" on-tap="_chapter4"></paper-icon-button>
+									<paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">

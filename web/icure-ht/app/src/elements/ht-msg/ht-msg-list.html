@@ -274,8 +274,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
                 
-                <paper-icon-button icon="delete-forever" class="del-button" on-tap="_removeMsgs"></paper-icon-button>
-                    
+                <paper-icon-button id="delButton" icon="delete-forever" class="del-button" on-tap="_removeMsgs"></paper-icon-button>
+                <paper-tooltip for="delButton">[[localize('del','Delete',language)]]</paper-tooltip>   
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
                     <vaadin-grid-selection-column></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
@@ -308,11 +308,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
                 </vaadin-grid>
-                <div class="del-button">
-                    <div>
-                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                    </div>
-                </div>
             </div>
         </template>
     </template>
