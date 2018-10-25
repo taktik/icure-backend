@@ -934,10 +934,10 @@
                                               on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
                                          value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
-                                         <div slot="suffix">
-                                             <iron-icon icon="info" id="invoice-dmg-icon"
-                                            class="infoDmg"></iron-icon>
-                                        </div>
+                                <div slot="suffix">
+                                    <iron-icon icon="info" id="invoice-dmg-icon"
+                                               class="infoDmg"></iron-icon>
+                                </div>
                             </paper-input>
                             <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
                         </div>
@@ -1030,7 +1030,7 @@
                                                 <template id="dom-if" if="[[!!isInvoiceClosed]]">
                                                     <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
                                                 </template>
-                                                  [[item.relatedCode]]
+                                                [[item.relatedCode]]
                                             </template>
 
                                         </template>
@@ -1114,11 +1114,15 @@
                                          label="[[localize('reimb','Reimbursement',language)]]"
                                          value="{{activeNmclItem.reimbursement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                                         label="[[localize('conv_amoun','Convention amount',language)]]"
+                                         value="{{activeNmclItem.conventionAmount}}" readonly></paper-input>
+                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('extra','Extra',language)]]"
                                          value="{{activeNmclItem.doctorSupplement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('tot','Fee',language)]]"
                                          value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
+
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
@@ -1540,25 +1544,25 @@
                             {
                                 id: 1,
                                 label: {
-                                            "fr": "Utilisation d’un document d’identité sans puce",
-                                            "nl": "Using an identity document without a chip",
-                                            "en": "Using an identity document without a chip"
+                                    "fr": "Utilisation d’un document d’identité sans puce",
+                                    "nl": "Using an identity document without a chip",
+                                    "en": "Using an identity document without a chip"
                                 }
                             },
                             {
                                 id: 2,
                                 label: {
-                                            "fr": "Indisponibilité du lecteur de carte",
-                                            "nl": "Unavailability of the card reader",
-                                            "en": "Unavailability of the card reader"
+                                    "fr": "Indisponibilité du lecteur de carte",
+                                    "nl": "Unavailability of the card reader",
+                                    "en": "Unavailability of the card reader"
                                 }
                             },
                             {
                                 id: 3,
                                 label: {
-                                            "fr": "Panne du système informatique",
-                                            "nl": "Computer system failure",
-                                            "en": "Computer system failure"
+                                    "fr": "Panne du système informatique",
+                                    "nl": "Computer system failure",
+                                    "en": "Computer system failure"
                                 }
                             }
                         ]
@@ -1741,7 +1745,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)']
             }
 
             ready() {
@@ -2031,10 +2035,10 @@
                             this.api.user().modifyUser(this.user)
                                 .then(user => this.api.register(user,"user"))
                                 .then(user => this.dispatchEvent(new CustomEvent('user-saved', {
-                                detail: user,
-                                bubbles: true,
-                                composed: true
-                            })))
+                                    detail: user,
+                                    bubbles: true,
+                                    composed: true
+                                })))
 
                             this.getFavoritesCodes()
                         }
@@ -2061,10 +2065,10 @@
                     this.api.user().modifyUser(this.user)
                         .then(user => this.api.register(user,'user'))
                         .then(user => this.dispatchEvent(new CustomEvent('user-saved', {
-                        detail: user,
-                        bubbles: true,
-                        composed: true
-                    })))
+                            detail: user,
+                            bubbles: true,
+                            composed: true
+                        })))
 
                     this.getFavoritesCodes()
                 }
@@ -2196,7 +2200,7 @@
                             console.log(invoice)
                             this.set('selectedInvoice', invoice)
                             this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
-                    })
+                        })
 
                     this.$['nmclGrid'].clearCache()
 
@@ -2238,20 +2242,20 @@
                             docId: invoice.id,
                             id: "Invoice::" + newReference
                         })
-                        .then(() => {
-                            console.log(invoice)
-                            this.set('selectedInvoice', invoice)
-                            this._selectInvoice(invoice.id)
-                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                this.set('invoices', invoices)
+                            .then(() => {
+                                console.log(invoice)
+                                this.set('selectedInvoice', invoice)
+                                this._selectInvoice(invoice.id)
+                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                    this.set('invoices', invoices)
 
-                                if(this.selectedInvoice.sentMediumType==="efact"){
-                                    this.generateJustificatory()
-                                }else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    this.sendEattest();
-                                }
-                            })
-                        }))
+                                    if(this.selectedInvoice.sentMediumType==="efact"){
+                                        this.generateJustificatory()
+                                    }else if(this.selectedInvoice.sentMediumType==="eattest"){
+                                        this.sendEattest();
+                                    }
+                                })
+                            }))
                 })
             }
 
@@ -2301,8 +2305,8 @@
             }
 
             getInvoiceType(invoiceType){
-               const type = this.invoiceType.find(type => type.id == invoiceType)
-               return type.label[this.language]
+                const type = this.invoiceType.find(type => type.id == invoiceType)
+                return type.label[this.language]
             }
 
             getSentMediumType(sentMediumType){
@@ -2526,8 +2530,8 @@
             }
 
             _getOvveride3PayerCodeAsString(tp){
-                    const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
-                    return (tpAsString) ? tpAsString.label[this.language] : ""
+                const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
+                return (tpAsString) ? tpAsString.label[this.language] : ""
 
             }
 
@@ -2587,7 +2591,7 @@
                                 .then(invoice => {
                                     this.set('selectedInvoice', invoice)
                                     this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
-                            })
+                                })
 
                             this.$['nmclGrid'].clearCache()
 
@@ -2660,7 +2664,7 @@
                                 this.set("selectedInvoice",response)
                                 this.isSelected=false;
                             })
-                    })
+                        })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
@@ -2822,6 +2826,12 @@
                 e.stopPropagation();
                 e.preventDefault();
                 this.eattest(JSON.parse(e.target.dataset.item))
+            }
+
+            conventionAmountChanged(){
+                if(!this.activeNmclItem)return ;
+                const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
+                this.set('activeNmclItem.conventionAmount',tot)
             }
 
             eattest(invoice){
@@ -3155,7 +3165,7 @@
                         a.download = invoice.id+moment()+".pdf";
                         a.click();
                         window.URL.revokeObjectURL(url);
-                })
+                    })
             }
         }
 
