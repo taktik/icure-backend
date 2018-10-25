@@ -351,7 +351,8 @@
     "can_agr" : "Cancel agreement",
     "clos_agr": "Close agreement",
     "ext_agr": "Extend agreement",
-    "req_agr" : "Request agreemnt"
+    "req_agr" : "Request agreemnt",
+    "ch4_request_type" : "Request type"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -770,7 +771,8 @@
     "dmg_reg_incpl" : "Inscription e-DMG incomplète",
     "edmg_completed": "Inscription e-DMG complète",
     "cpl" : "Complète",
-    "no_dmg" : " Patient n'a pas de DMG"
+    "no_dmg" : " Patient n'a pas de DMG",
+    "ch4_request_type" : "Type de requête"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1231,6 +1233,7 @@
     "dmg_reg_incpl" : "Inschrijving e-GMD onvolledig",
     "edmg_completed": "Inschrijving e-GMD klaar",
     "cpl" : "Volledig",
-    "no_dmg" : " Patiënt heeft geen GMD"
+    "no_dmg" : " Patiënt heeft geen GMD",
+    "ch4_request_type" : "Request type"
   }
 }
