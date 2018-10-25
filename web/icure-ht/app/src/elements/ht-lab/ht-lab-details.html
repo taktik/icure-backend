@@ -37,6 +37,8 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
+<link rel="import" href="../ht-lab/ht-lab-healthone.html">
+
 
 
 <dom-module id="ht-lab-details">
@@ -44,6 +46,10 @@
         <style>
         </style>
         <div inner-h-t-m-l="[[attachmentFormated]]"></div>
+        <template dom-if="[[_checkHealthone(]]">
+            <ht-lab-healthone labResults="[[attachment]]"></ht-lab-healthone>
+        </template>
+
     </template>
     <script>
 
@@ -52,6 +58,7 @@
 		import JsBarcode from 'JsBarcode';
 		import moment from 'moment/src/moment';
 		import XML from 'parse-xml/dist/parse-xml';
+		// import Encoding from 'encoding-japanese/src/index.js'
 
 		class HtLabDetails extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			static get is() {
@@ -64,10 +71,6 @@
 						type: Object
 					},
 					attachment:{
-						type: String,
-						value: null
-					},
-                    attachmentFormated:{
 						type: String,
 						value: null
 					},
@@ -95,38 +98,29 @@
 				if(!this.attachment && this.document){
 					this.api.document().getAttachment(this.document.id, this.document.attachmentId, null)
                         .then(att => {
+                        	// TODO: mandatory for annexe in no UTF-8 encoding
+							// try {
+							// 	let bytes = (a.mimeType === 'text/plain')?Encoding.convert(byteContent,'UTF-8'):byteContent;
+							// 	console.log((a.mimeType === 'text/plain')? Encoding.detect(byteContent):"Not text");
+							// }catch (e) {
+							// 	console.log("exception");
+							// 	console.log(e)
+							// }
+
                             this.set("attachment", att);
-                            this._attachementLoaded();
 					    })
                 }
-                else if(this.attachment){
-					if (this._checkXML(this.attachment)) {
-						this.set("attachmentFormated", this.attachment);
-					}
-					if (this._checkHealthone(this.attachment)) {
-						return this.set("attachmentFormated", this._parseHealthone(this.attachment));
-					}
-					this.set("attachmentFormated", this.attachment);
-				}
+				else{
+					console.log("attachment OK")
+                }
             }
 
-            _checkHealthone(lab){
-				return lab.startsWith("A1");
+            _checkHealthone(){
+				return this.attachment.startsWith("A1");
             }
 
-            _checkXML(lab){
-				return lab.startsWith("<?xml");
-            }
-
-            _parseHealthone(lab){
-				let result = "";
-				let lines = lab.split(/\r?\n/);
-				lines.forEach(line =>{
-					let columns = line.split("\\");
-					columns.splice(0,2)
-                    result += columns.join(" ") + "<br/>";
-                })
-                return result;
+            _checkXML(){
+				return this.attachment.startsWith("<?xml");
             }
 
 		}

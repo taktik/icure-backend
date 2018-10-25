@@ -37,7 +37,7 @@
 <link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
-<link rel="import" href="../ht-lab/ht-lab-details.html">
+<!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
 
 
@@ -415,11 +415,22 @@
 													<vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe">import</vaadin-button>
 												</div>
 												<template is="dom-if" if="[[showDetail]]">
-													<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>
+													<div>[[documentAttachment]]</div>
+													<!--TODO: format annexe on display-->
+													<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
 												</template>
 											</template>
 											<template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
-												<ht-lab-details api="[[api]]" document="[[item]]"></ht-lab-details>
+												<div>
+													<span>[[mimeType(item.mainUti)]] [[type]]</span>
+													<vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+													<vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe">import</vaadin-button>
+												</div>
+												<template is="dom-if" if="[[showDetail]]">
+													<div>[[documentAttachment]]</div>
+													<!--TODO: format annexe on display-->
+													<!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
+												</template>
 											</template>
 										</paper-card>
 									</template>
@@ -590,8 +601,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	//Without encryption key
 	getDataUrls(doc){
-		return this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-			this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+		this.set("type","");
+		 if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+			 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
 				let xml = XML.parseXml(att);
 				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
 					xml.kmehrmessage.header.standard.specialisation &&
@@ -601,8 +613,11 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}else{
 					this.set("type","Non Valid Type")
 				}
+				return att
 			})
-			: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null))
+		}else {
+			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+		}
 	}
 
 	_removeMsg(e){
