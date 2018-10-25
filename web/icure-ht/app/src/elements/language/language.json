@@ -351,7 +351,18 @@
     "can_agr" : "Cancel agreement",
     "clos_agr": "Close agreement",
     "ext_agr": "Extend agreement",
-    "req_agr" : "Request agreemnt"
+    "req_agr" : "Request agreemnt",
+    "pdf_justif": "Justificatif",
+    "pdf_date": "Date",
+    "pdf_patCord": "Coordonnées du patient",
+    "pdf_remboursPrest": "Prestations remboursables",
+    "pdf_honorPort": "Honoraire porté en compte",
+    "pdf_intervMut": "Intervention mutuelle",
+    "pdf_honorConv": "Honoraire convention",
+    "pdf_deltaSupp": "&Delta; et Suppléments",
+    "pdf_subTot": "Sub-totals",
+    "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
+    "pdf_totFinal": "Total porté en compte"
   },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -770,7 +781,18 @@
     "dmg_reg_incpl" : "Inscription e-DMG incomplète",
     "edmg_completed": "Inscription e-DMG complète",
     "cpl" : "Complète",
-    "no_dmg" : " Patient n'a pas de DMG"
+    "no_dmg" : " Patient n'a pas de DMG",
+    "pdf_justif": "Justificatif",
+    "pdf_date": "Date",
+    "pdf_patCord": "Coordonnées du patient",
+    "pdf_remboursPrest": "Prestations remboursables",
+    "pdf_honorPort": "Honoraire porté en compte",
+    "pdf_intervMut": "Intervention mutuelle",
+    "pdf_honorConv": "Honoraire convention",
+    "pdf_deltaSupp": "&Delta; et Suppléments",
+    "pdf_subTot": "Sous-totaux",
+    "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
+    "pdf_totFinal": "Total porté en compte"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1230,6 +1252,17 @@
     "dmg_reg_incpl" : "Inschrijving e-GMD onvolledig",
     "edmg_completed": "Inschrijving e-GMD klaar",
     "cpl" : "Volledig",
-    "no_dmg" : " Patiënt heeft geen GMD"
+    "no_dmg" : " Patiënt heeft geen GMD",
+    "pdf_justif": "Justificatif",
+    "pdf_date": "Date",
+    "pdf_patCord": "Coordonnées du patient",
+    "pdf_remboursPrest": "Prestations remboursables",
+    "pdf_honorPort": "Honoraire porté en compte",
+    "pdf_intervMut": "Intervention mutuelle",
+    "pdf_honorConv": "Honoraire convention",
+    "pdf_deltaSupp": "&Delta; et Suppléments",
+    "pdf_subTot": "Sous-totaux",
+    "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
+    "pdf_totFinal": "Total porté en compte"
   }
 }
