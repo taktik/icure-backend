@@ -2917,12 +2917,10 @@
             }
 
             eattest(invoice){
+                e.stopPropagation();
+                e.preventDefault();
 
-            e.stopPropagation();
-            e.preventDefault();
-
-            const invoice = JSON.parse(e.target.dataset.item)
-             //generate jpeg
+                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
