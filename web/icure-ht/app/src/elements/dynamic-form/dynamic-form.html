@@ -173,7 +173,7 @@
 								<template is="dom-if" if="[[_shouldDisplay(layoutItem, readOnly, compact)]]">
 									<template is="dom-if" if="[[_isTextField(layoutItem)]]">
 										<dynamic-text-field id="[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" was-modified="[[_wasModified(layoutItem)]]" is-modified-after="[[_isModifiedAfter(layoutItem)]]"
-										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]"
+										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" linkables="[[linkableHealthElements]]" last-modified="[[_lastModified(layoutItem)]]" pattern="[[layoutItem.editor.pattern]]"
 										 value="[[_value(layoutItem,dataMap.*)]]" api="[[api]]" width="[[layoutItem.editor.flow]]" on-field-changed="_valueChanged" read-only="[[readOnly]]"></dynamic-text-field>
 									</template>
 									<template is="dom-if" if="[[_isTextArea(layoutItem)]]">

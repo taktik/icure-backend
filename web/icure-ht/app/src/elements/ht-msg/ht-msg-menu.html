@@ -112,6 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				color: var(--app-text-color);
 				border-radius: 10px;
 			}
+
 			paper-listbox{
 				background:transparent;
 				padding: 0;
@@ -395,6 +396,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.menu-trigger{
 				padding: 0;
 			}
+
+			.batchNumber{
+				padding: 1px 5px;
+				font-size: 11px;
+				color: var(--paper-grey-100);
+				border-radius: 10px;
+				right: 10%;
+				position: absolute;
+			}
+
+			.batchPending{
+				background-color: var(--paper-orange-400);
+			}
+
+			.batchProcessed{
+				background-color: var(--paper-blue-400);
+			}
+
+			.batchRejected{
+				background-color: var(--paper-red-400);
+			}
+
+			.batchAccepted{
+				background-color: var(--paper-green-400);
+			}
+
+			.batchArchived{
+				background-color: var(--paper-purple-300);
+			}
+
 		</style>
 		<div class="col-left">
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
@@ -428,11 +459,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
                 </paper-item>
                 <paper-listbox class="menu-content sublist" multi toggle-shift>
-                    <paper-item on-tap="_e_inv_pen">[[localize('_e_inv_pen','Invoices pending',language)]]</paper-item>
-                    <paper-item on-tap="_e_inv_pro">[[localize('_e_inv_pro','Invoices processed',language)]]</paper-item>
-                    <paper-item on-tap="_e_inv_rej">[[localize('_e_inv_rej','Invoices rejected',language)]]</paper-item>
-                    <paper-item on-tap="_e_inv_acc">[[localize('_e_inv_acc','Invoices accepted',language)]]</paper-item>
-                    <paper-item on-tap="_e_inv_arc">[[localize('_e_inv_arc','Invoices archived',language)]]</paper-item>
+                    <paper-item on-tap="_e_inv_pen">[[localize('_e_inv_pen','Pending',language)]] <span class="batchNumber batchPending">[[batchCounter.pending]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_pro">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_rej">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_acc">[[localize('_e_inv_acc','Accepted',language)]] <span class="batchNumber batchAccepted">[[batchCounter.accepted]]</span></paper-item>
+                    <paper-item on-tap="_e_inv_arc">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
 			<paper-item class="trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
@@ -504,6 +535,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
             unreadNumber: {
 			    type: Number
+			},
+			batchCounter: {
+			    type: Object,
+				value: () => ({
+					pending: 0,
+					processing: 0,
+					rejected: 0,
+					accepted: 0,
+					archived: 0
+				})
 			}
 		};
 	}
@@ -694,6 +735,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         const allModels = domRepeat.items || [];
 
         this.set('selectedMainElements', this.selectedMainElements.filter(he => !allModels.includes(he)).concat(selectedModels));
+    }
+
+    initializeBatchCounter(e){
+
+	    this.set("batchCounter.pending", e.detail.pending)
+        this.set("batchCounter.processing", e.detail.processing)
+        this.set("batchCounter.rejected", e.detail.rejected)
+        this.set("batchCounter.accepted", e.detail.accepted)
+        this.set("batchCounter.archived", e.detail.archived)
+
     }
 
 }

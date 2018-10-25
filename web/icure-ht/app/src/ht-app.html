@@ -484,7 +484,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
                         </div>
                         <div style="display: flex; align-items: center;">
-                            <div>
+                            <div name="main" on-tap="doRoute" style="cursor:pointer">
                                 <svg version="1.1"
                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
                                     x="0px" y="0px" width="92px" height="64px" viewBox="0 0 92 64" style="enable-background:new 0 0 92 64;" xml:space="preserve" class="icure-logo">
@@ -930,7 +930,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             doRoute(e) {
-                this.set('routeData.page', (e.target.getAttribute('name') || e.target.parentElement.getAttribute('name')) + "/")
+                this.set('routeData.page', ( (e.target.getAttribute('name') || 'main' ) || e.target.parentElement.getAttribute('name')) + "/")
                 this._triggerMenu()
             }
 

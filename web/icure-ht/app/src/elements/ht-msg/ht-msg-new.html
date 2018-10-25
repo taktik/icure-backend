@@ -148,7 +148,7 @@
                 margin: 0;
                 min-width: 30%;
                 width: 80%;
-                max-height: 80vh;
+                height: 80vh;
                 overflow-y: auto;
             }
 
@@ -196,11 +196,6 @@
                 width: 32px;
                 padding: 8px;
                 background: var(--app-primary-color);
-            }
-
-            paper-dialog {
-                width: 80%;
-                max-height: 80%;
             }
 
             vaadin-grid {
@@ -371,6 +366,8 @@
 
             #metadataDialog {
                 width: 50%;
+                top: 50% !important;
+                transform: translateY(-50%);
             }
 
             paper-checkbox {
@@ -396,6 +393,10 @@
                 display: none;
             }
 
+            .force-left {
+                position: absolute;
+                left: 5px;
+            }
 
             .fright {
                 float: right;
@@ -406,7 +407,7 @@
             }
 
             .scrollbox {
-                max-height: 50vh;
+                height: calc(100% - 117px);
                 overflow-y: auto;
                 margin-top: 0;
                 border-bottom: 1px  solid rgba(0,0,0,0.1);
@@ -425,7 +426,7 @@
                 font-size: 14px;
                 min-width: initial;
                 padding: 0;
-                margin: 0 8px 8px 0;
+                margin: 10px 8px 8px 0;
                 border-radius: 5px;
                 text-transform: capitalize;
                 overflow: hidden;
@@ -455,10 +456,39 @@
 				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
             }
 
-            /*#new-msg {*/
-                /*max-height: 80vh;*/
-                /*overflow-y: auto;*/
-            /*}*/
+            #newMsg-From {
+                width: calc(100% - 29px);
+            }
+
+            #customMetasList {
+                height: 200px;
+                overflow-y: auto;
+            }
+
+            .col-half {
+                width: 45%;
+            }
+            .col-half:nth-child(2n) {
+                border-left: 1px solid var(--app-background-color-dark);
+                padding-left: 15px;
+            }
+            #new-msg {
+                height: calc(100vh - 80px);
+                top: 70px !important;
+                right: 7px !important;
+                left: initial !important;
+                position: fixed;
+                max-width: initial !important;
+                width: 83vw !important;
+            }
+            @media screen and (max-width: 1030px) {
+                #new-msg {
+                    right: initial !important;
+                    left: 50% !important;
+                    transform: translateX(-50%);
+                    width: 98vw;
+                }
+            }
 
         </style>
 
@@ -467,7 +497,7 @@
             <div class="scrollbox">
                 <div class="field horizontal">
                     <div class="modal-subtitle">[[localize('from','From',language)]]</div>
-                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float></paper-input>
+                    <paper-input id="newMsg-From" value="[[user.name]]" no-label-float readonly></paper-input>
 
                 </div>
                 <div class="field">
@@ -475,13 +505,13 @@
                         <div class="modal-subtitle">[[localize('to','To',language)]]</div>
                         <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
                                         label="[[localize('sch_by', 'Search by', language)]]" on-change="refreshHcpList"></vaadin-combo-box>
-                        <vaadin-combo-box id="newMsg-To" label="[[localize('to','To',language)]]" items="[[hcpList]]" item-label-path="displayName"
-                                        allow-custom-value on-change="_AddDestinations">
+                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" items="[[hcpList]]" item-label-path="displayName"
+                                          allow-custom-value on-change="_AddDestinations">
                             <template>[[item.displayName]]</template>
                         </vaadin-combo-box>
                     </div>
                     <div class="horizontal">
-                            <template is="dom-if" if="[[newMessage.destinations.length]]">
+                            <template is="dom-if" if="[[newMessage.destinations]]">
                                 <template is="dom-repeat" items="[[newMessage.destinations]]" as="destination" id="destinationsList">
                                     <paper-item class="destination-tag" id="[[destination.displayName]]">
                                         <div class="destination-type">[[destination.type]]</div>
@@ -491,72 +521,60 @@
 
                                         <paper-icon-button class="del-destination" icon="clear" id="[[destination.displayName]]"
                                                     on-tap="_removeDestinations" indexed$='[[index]]'></paper-icon-button>
-
                                     </paper-item>
                                 </template>
                             </template>
-                                <!-- <vaadin-grid id="destinationsList" items="[[newMessage.destinations]]">
-                                    <vaadin-grid-column width="10%">
-                                        <template class="header">
-                                            <div>Type</div>
-                                        </template>
-                                        <template>
-                                            <div class="cell frozen">[[item.type]]</div>
-                                        </template>
-                                    </vaadin-grid-column>
-                                    <vaadin-grid-column>
-                                        <template class="header">
-                                            <div>Name</div>
-                                        </template>
-                                        <template>
-                                            <div class="cell frozen">[[item.displayName]]</div>
-                                        </template>
-                                    </vaadin-grid-column>
-                                    <vaadin-grid-column width="10%">
-                                        <template>
-                                            <div class="cell frozen">
-                                                <paper-button class="remove-destinations-btn" on-tap="_removeDestinations" indexed$='[[index]]'>Remove</paper-button>
-                                            </div>
-                                        </template>
-                                    </vaadin-grid-column>
-                                </vaadin-grid> -->
-
                         </div>
                 </div>
 
-                <div class="field horizontal">
-                    <div class="modal-subtitle">Options</div>
-                    <div>
-                        <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
-                        <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
-                    </div>
-                </div>
-                <div class="field horizontal">
-                    <div class="modal-subtitle">Accused</div>
-                    <div>
-                        <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
-                        <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
-                        <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
-                    </div>
-                </div>
                 <div class="field">
-                    <div class="modal-subtitle">Message</div>
+                    <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
+                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"
+                                      allow-custom-value on-change="_AddSSIN">
+                        <template>[[item.displayName]]</template>
+                    </vaadin-combo-box>
+                </div>
+
+                <div class="field horizontal">
+                    <div class="col-half">
+                        <div class="modal-subtitle">[[localize('options','Options',language)]]</div>
+                        <div>
+                            <paper-checkbox checked="{{newMessage.crypted}}" on-change="chckInvite">[[localize('encrypted','encrypted',language)]]</paper-checkbox>
+                            <paper-checkbox checked="{{newMessage.Important}}" on-change="chckInvite">[[localize('significant','significant',language)]]</paper-checkbox>
+                        </div>
+                    </div>
+                    <div class="col-half bordered">
+                        <div class="modal-subtitle">[[localize('accused','Accused',language)]]</div>
+                        <div>
+                            <paper-checkbox checked="{{newMessage.UsePublicationReceipt}}" on-change="chckInvite">[[localize('publication','publication',language)]]</paper-checkbox>
+                            <paper-checkbox checked="{{newMessage.UseReceivedReceipt}}" on-change="chckInvite">[[localize('reception','reception',language)]]</paper-checkbox>
+                            <paper-checkbox checked="{{newMessage.UseReadReceipt}}" on-change="chckInvite">[[localize('read','read',language)]]</paper-checkbox>
+                        </div>
+                    </div>
+                </div>
+                <!--<div class="field horizontal">-->
+                    <!---->
+                <!--</div>-->
+                <div class="field">
+                    <div class="modal-subtitle">[[localize('msg','Message',language)]]</div>
                     <div>
-                        <paper-input id="newMsg-Subject" label="[[localize('subject','Subject',language)]]" value="{{newMessage.documentTitle}}" always-float-label></paper-input>
-                        <paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"
-                                    on-change="msgBodyFileInputSelected"></paper-input>
+                        <paper-input id="newMsg-Subject" label="[[localize('sub','Subject',language)]]" value="{{newMessage.document.title}}" always-float-label></paper-input>
+                        <!--<paper-input id="messageBodyFile" label="[[localize('join_asmsg','Join a file as message',language)]]" type="file" multiple="false"-->
+                                    <!--on-change="msgBodyFileInputSelected"></paper-input>-->
                         <paper-input-container alway-float-label="true">
-                            <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"
-                                                value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
+                            <!--<iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('join_write', 'Write a message or select a file above', language)]]"-->
+                                                <!--value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>-->
+                            <iron-autogrow-textarea slot="input" class="paper-input-input" id="messageBodyText" placeholder="[[localize('write_msg', 'Write a message', language)]]"
+                                                    value="{{newMessage.document.textContent}}"></iron-autogrow-textarea>
                         </paper-input-container>
                     </div>
                     <div>
-                        <div class="modal-subtitle">Annexes</div>
+                        <div class="modal-subtitle">[[localize('attachments','Attachments',language)]]</div>
                         <paper-input id="newMsg-addAnnexe" type="file" multiple="true" on-change="_addAnnexe"></paper-input>
                         <vaadin-grid id="annexeList" items="[[newMessage.annex]]">
                             <vaadin-grid-column>
                                 <template class="header">
-                                    <div>Files</div>
+                                    <div>[[localize('files','Files',language)]]</div>
                                 </template>
                                 <template>
                                     <div class="cell frozen">[[item.filename]]</div>
@@ -564,7 +582,7 @@
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">
-                                    <div>Size</div>
+                                    <div>[[localize('size','Size',language)]]</div>
                                 </template>
                                 <template>
                                     <div class="cell frozen">[[item.size]]</div>
@@ -573,27 +591,29 @@
                             <vaadin-grid-column>
                                 <template>
                                     <div class="cell frozen">
-                                        <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' >Remove</paper-button>
+                                        <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' ><iron-icon icon="icons:clear" indexed$='[[index]]'></iron-icon></paper-button>
                                     </div>
                                 </template>
                             </vaadin-grid-column>
                         </vaadin-grid>
-                        <!--<vaadin-upload id="vaadin-upload" files="{{files}}" on-upload-success="_fileUploaded" max-file-size="10000000"></vaadin-upload>-->
                     </div>
                 </div>
-                <div class="field">
-                    <div class="modal-subtitle">Patient</div>
-                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"
-                                    allow-custom-value on-change="_AddSSIN">
-                        <template>[[item.displayName]]</template>
-                    </vaadin-combo-box>
-                </div>
-                <div class="field">
-                    <div class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</div>
-                    <paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>
-                </div>
+                <!--<div class="field">-->
+                    <!--<div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>-->
+                    <!--<vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"-->
+                                    <!--allow-custom-value on-change="_AddSSIN">-->
+                        <!--<template>[[item.displayName]]</template>-->
+                    <!--</vaadin-combo-box>-->
+                <!--</div>-->
+                <!--<div class="field">-->
+                    <!--<div class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</div>-->
+                    <!--<paper-button class="modal-button" on-tap="manageMetadata">[[localize('manage','Manage',language)]]</paper-button>-->
+                <!--</div>-->
             </div>
             <div class="buttons">
+                <div class="force-left">
+                    <paper-button class="modal-button--save" on-tap="manageMetadata">Metadatas</paper-button> <!--[[localize('manage','Manage',language)]]-->
+                </div>
                 <div class="fright">
                     <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button--save" on-tap="_SendNewMessage">[[localize('send','Send',language)]]</paper-button>
@@ -629,7 +649,7 @@
                 <vaadin-grid-column>
                     <template>
                         <div class="cell frozen">
-                            <paper-button class="remove-customMetas-btn" on-tap="_removeCustomMetas" indexed$='[[item.0]]'>Remove</paper-button>
+                            <paper-button class="remove-customMetas-btn" indexed$='[[item.0]]'><iron-icon icon="icons:clear" on-tap="_removeCustomMetas" indexed$='[[item.0]]'></iron-icon></paper-button>
                         </div>
                     </template>
                 </vaadin-grid-column>
@@ -668,7 +688,8 @@
                         value: {
 							customMetas:{},
 							document:{},
-                            annex: []
+                            annex: [],
+                            destinations:[]
 						}
                     },
                     type: {
@@ -709,6 +730,7 @@
             }
 
             _cancel() {
+				this.clearField();
                 this.$['new-msg'].close()
 			}
 
@@ -855,10 +877,10 @@
             }
 
 			_removeDestinations(e){
-                let index = e.target.getAttribute('indexed')
-                this.newMessage.destinations.splice(index, 1)
-                let destinationsList = this.shadowRoot.querySelector('#destinationsList')
-                destinationsList.clearCache()
+                let index = e.target.getAttribute('indexed');
+				this.newMessage.destinations.splice(index, 1);
+				let destinationsList = this.shadowRoot.querySelector('#destinationsList')
+				destinationsList.render();
             }
 
 			_AddSSIN(e){
@@ -882,6 +904,14 @@
 				customMetas[this.$.newMsgMetadataKey.value] = this.$.newMsgMetadataValue.value;
                 this.set("newMessage.customMetas", customMetas);
 				this.set("customMetas",Object.keys(customMetas).map(key => [key,customMetas[key]]));
+
+				let newMsgMetadataKey = this.shadowRoot.querySelector('#newMsgMetadataKey');
+				newMsgMetadataKey.value = "";
+				let newMsgMetadataValue = this.shadowRoot.querySelector('#newMsgMetadataValue');
+				newMsgMetadataValue.value = "";
+
+
+
             }
 
 			_removeCustomMetas(e){
@@ -898,7 +928,7 @@
                     let message = {};
 
                     message.id = null;
-					message.publicationId = null;
+					message.publicationId = (new Date).getTime();
 					message.publicationDateTime = parseInt(moment().format('YYYYMMDD'));
 					message.expirationDateTime = parseInt(moment().add(1,"years").format('YYYYMMDD'));
 					message.customMetas = this.newMessage.customMetas;
@@ -907,17 +937,22 @@
 						message.document.filename = "MainDocument.txt";
 						message.document.mimeType = "text/plain";
 						message.document.textContent = this.newMessage.document.textContent;
-						// message.document.content = this.api.crypto().utils.text2ua(this.newMessage.document.textContent);
 						message.document.signing = null;
-					}
+					}else if(!this.newMessage.document.content){
+						message.document.filename = "MainDocument.txt";
+						message.document.mimeType = "text/plain";
+						message.document.textContent = "";
+						message.document.signing = null;
+                    }
+					if(!this.newMessage.document.title) message.document.title = "";
 					message.freeText = null;
 					message.freeInformationTableTitle = null;
 					message.freeInformationTableRows = {};
-					message.patientInss = this.newMessage.patientInss
-					message.annex = this.newMessage.annex;
+					message.patientInss = this.newMessage.patientInss;
+					message.annex = [];
 					message.copyMailTo = [];
 					message.documentTitle = null;
-                    message.annexList = [];
+                    message.annexList = this.newMessage.annex;
 					message.useReceivedReceipt = !!this.newMessage.UseReceivedReceipt;
 					message.useReadReceipt = !!this.newMessage.UseReadReceipt;
 					message.hasAnnex = message.annex && message.annex.length > 0;
@@ -931,13 +966,13 @@
                     // console.log(JSON.stringify(message));
 
                     this.api.fhc().Ehboxcontroller().sendMessageUsingPOST(this.api.keystoreId,this.api.tokenId,this.credentials.ehpassword,message,
-						!!this.newMessage.UsePublicationReceipt,!!this.newMessage.UseReceivedReceipt,!!this.newMessage.UseReadReceipt)
+						!!this.newMessage.UsePublicationReceipt?!!this.newMessage.UsePublicationReceipt:"false",
+                        !!this.newMessage.UseReceivedReceipt?!!this.newMessage.UseReceivedReceipt:"false",
+                        !!this.newMessage.UseReadReceipt?!!this.newMessage.UseReadReceipt:"false")
                         .then(response => {
                         	console.log(response);
                         	if(response) {
-                        		this.set("newMessage",{customMetas:{},document:{},annex: []})
-								let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
-								newMsgSSIN.value = "";
+								this.clearField();
 								this.$['new-msg'].close()
 							}
                         })
@@ -1012,6 +1047,12 @@
                 // if(hcp.quality) Addressee.quality = hcp.quality;
 
                 return Addressee;
+            }
+
+            clearField(){
+				this.set("newMessage",{customMetas:{},document:{},annex: [],destinations:[]})
+				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
+				newMsgSSIN.value = "";
             }
 
 		}

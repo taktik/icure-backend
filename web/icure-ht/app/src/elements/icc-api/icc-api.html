@@ -21,6 +21,7 @@
     import {IccHcpartyXApi} from 'icc-api/dist/icc-x-api/icc-hcparty-x-api'
     import {IccHelementXApi} from 'icc-api/dist/icc-x-api/icc-helement-x-api'
     import {IccPatientXApi} from 'icc-api/dist/icc-x-api/icc-patient-x-api'
+    import {IccReceiptXApi} from 'icc-api/dist/icc-x-api/icc-receipt-x-api'
     import {IccInvoiceXApi} from 'icc-api/dist/icc-x-api/icc-invoice-x-api'
     import {IccMessageXApi} from 'icc-api/dist/icc-x-api/icc-message-x-api'
 
@@ -98,23 +99,21 @@
             this.tarificationicc = new api.iccTarificationApi(this.host, this.headers)
             this.usericc = new api.iccUserApi(this.host, this.headers)
             this.entityreficc = new api.iccEntityrefApi(this.host, this.headers)
-            this.receipticc = new api.iccReceiptApi(this.host, this.headers)
 
-            this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
             this.codeicc = new IccCodeXApi(this.host, this.headers)
+            this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
 
+            this.receipticc = new IccReceiptXApi(this.host, this.headers, this.cryptoicc)
             this.contacticc = new IccContactXApi(this.host, this.headers, this.cryptoicc)
             this.documenticc = new IccDocumentXApi(this.host, this.headers, this.cryptoicc)
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
-
             this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
             this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc)
-
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
@@ -291,11 +290,6 @@
             return e[lng] || e.fr || e.en || e.nl;
         }
 
-        iban(){
-            let iban = require('iban')
-            return iban;
-        }
-
         //Convenience methods for dates management
         after(d1, d2) {
             return d1 === null || d2 === null || d1 === undefined || d2 === undefined || this.moment(d1).isAfter(this.moment(d2));
@@ -366,8 +360,8 @@
                     acc[u.id] = u
                     return acc
                 }, {}))
-                return this.hcparty().getHealthcareParties(users.rows.map(u => u.healthcarePartyId).filter(id => !!id))
-            }).then(hcps => this.set('hcParties', hcps.reduce((acc, hcp) => {
+                return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id))))
+            }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
             }, {})))
@@ -405,6 +399,47 @@
                 body: html,
             }).then(response => response.arrayBuffer())
         }
+
+
+
+        loadBicData() {
+
+            // Already existing, take no action
+            if( typeof this.bicsData !== 'undefined' ) return;
+
+            // Doesn't exist yet, require it
+            this.bicsData = require('../bic/bics-list.json') || {};
+        }
+
+
+
+        getBicByIban( inputString ){
+
+            // Get from json file -> casted in this.bicsData
+            this.loadBicData();
+
+            // Make sure we've got a string
+            inputString = ( inputString || '' ) + '';
+
+            // No Iban ?
+            if(!parseInt( inputString.length ) ) return;
+
+            // First four digits = country code | 3 digits for bic (starting at pos 4) | rest of iban
+            var bicCodeToMatchOn = ( inputString.substr( 4, 3 ) );
+
+            // Do we have a candidate ? (3 digits are to be between start & end values)
+            var foundResult = _.filter( this.bicsData, o => parseInt( o.startValue ) <= parseInt( bicCodeToMatchOn ) && parseInt( o.endValue ) >= parseInt( bicCodeToMatchOn ) );
+
+            // Up with results, if any
+            return foundResult.length ? foundResult[0].bicCode : '';
+
+        }
+
+        logMcn(obj, user, docId) {
+            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
+            return obj
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)
