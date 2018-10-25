@@ -452,22 +452,27 @@
                 color: var(--app-status-color-pending);
             }
 
+            .searchLoadContainer{
+                display: flex;
+            }
+
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2>[[localize('chap-iv','Chapter IV',language)]]</h2>
             <div class="container">
                 <div class="list-panel">
-                    <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                        label="[[localize('From','From',language)]]"
-                                        value="{{fromConsultAsString}}"></vaadin-date-picker>
-                    <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                        label="[[localize('To','To',language)]]"
-                                        value="{{toConsultAsString}}"></vaadin-date-picker>
-                    <vaadin-combo-box id="entities-list" filtered-items="[[consultationType]]"
-                                      on-filter-changed="" item-label-path="label.[[language]]"
-                                      selected-item="{{selectedConsultationType}}" item-value-path="id"
-                                      label="[[localize('ch4_request_type','Request type',language)]]"></vaadin-combo-box>
+                    <div class="searchLoadContainer">
+                        <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                            label="[[localize('From','From',language)]]"
+                                            value="{{consultationStartDateAsString}}"></vaadin-date-picker>
+
+                        <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                            label="[[localize('To','To',language)]]"
+                                            value="{{consultationEndDateAsString}}"></vaadin-date-picker>
+
+                        <paper-input class="tool" label="[[localize('par','Paragraph',language)]]" value="{{selectedLoadParagraph}}"></paper-input>
+                    </div>
                     <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
                                    selected="{{selectValue}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
@@ -677,19 +682,19 @@
                         </div>
                         <div class="bottom-btn-container">
                             <template is="dom-if" if="[[isAgreementSelected]]">
-                                <paper-button class="bottom-btn" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
                                     agreement',language)]]
                                 </paper-button>
-                                <paper-button class="bottom-btn" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
                                     agreement',language)]]
                                 </paper-button>
-                                <paper-button class="bottom-btn" on-tap="_extendChapter">[[localize('ext_agr','Extend
+                                <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
                                     agreement',language)]]
                                 </paper-button>
                             </template>
 
                             <template is="dom-if" if="[[!isAgreementSelected]]">
-                                <paper-button class="bottom-btn" on-tap="_requestChapter4">[[localize('req_agr','Request
+                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">[[localize('req_agr','Request
                                     agreement',language)]]
                                 </paper-button>
                             </template>
@@ -806,30 +811,16 @@
                         type: Boolean,
                         value: false
                     },
-                    consultationType:{
-                        type: Object,
-                        value: () => [
-                            {
-                                id: 1,
-                                label: {
-                                    "fr": "Générale",
-                                    "nl": "General",
-                                    "en": "General"
-                                }
-                            },
-                            {
-                                id: 2,
-                                label: {
-                                    "fr": "Paragraphe",
-                                    "nl": "Paragraph",
-                                    "en": "Paragraph"
-                                }
-                            }
-                        ]
+                    consultationStartDateAsString:{
+                        type: String,
+                        value: () => moment().startOf('month').format('YYYY-MM-DD')
                     },
-                    selectedConsultationType:{
-                        type: Object,
-                        value: () => {}
+                    consultationEndDateAsString:{
+                        type: String,
+                        value: () => moment().endOf('month').format('YYYY-MM-DD')
+                    },
+                    selectedLoadParagraph:{
+                        type: String
                     }
 
                 }
@@ -897,7 +888,6 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    this.set('selectValue', null)
                     (this.selectedParagraph.ioRequestReference || this.selectedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
@@ -983,12 +973,12 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.api.fhc().Chaptercontroller().agreementRequestsConsultationUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, null, this.api.moment(this.fromAsString).valueOf())
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, this.selectedLoadParagraph !== "" ? this.selectedLoadParagraph : null, this.api.moment(this.consultationStartDateAsString).valueOf(), this.consultationEndDateAsString !== "" ? this.api.moment(this.consultationEndDateAsString).valueOf() : null)
                 ).then(agreements => {
-                    if (agreements.warnings.length) {
+                    if (agreements.warnings && agreements.warnings.length) {
                         this.set('warnings', agreements.warnings.map(w => w.msgFr).join(', '))
                     }
-                    if (agreements.errors.length) {
+                    if (agreements.errors && agreements.errors.length) {
                         this.set('errors', agreements.errors.map(w => w.msgFr).join(', '))
                     }
                     console.log(agreements)
@@ -1019,7 +1009,13 @@
                 })
             }
 
-            _requestChapter4() {
+            _requestChapter4(e) {
+
+                const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
+                                    (e.target && e.target.id === "extendChapter") ? "extension" :
+                                    (e.target && e.target.id === "extendChapter") ? "noncontinuousextension" :
+                                    null   //newrequest, extension, noncontinuousextension, complimentaryannex
+
 
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     Promise.all(this.appendicesTokens.map(ap =>
@@ -1126,13 +1122,16 @@
                     const id = e.currentTarget.id
                     const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
 
-                    this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph).then(par => {
+                    this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
+                     .then(par => {
                         this.set('isAgreementSelected', true)
                         this.set('selectedParagraph', {
                             descr: par.headerVerse.textFr,
                             id: par.paragraphName,
                             ioRequestReference: selectedAgreement.ioRequestReference,
-                            ioDecisionReference: selectedAgreement.ioDecisionReference
+                            ioDecisionReference: selectedAgreement.ioDecisionReference,
+                            start : selectedAgreement.start,
+                            end : selectedAgreement.ioDecisionEndOfValidity
                         })
                     })
                 }
