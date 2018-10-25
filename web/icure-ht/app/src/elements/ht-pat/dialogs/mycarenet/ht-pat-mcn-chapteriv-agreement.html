@@ -457,60 +457,73 @@
                 color: var(--app-status-color-pending);
             }
 
+            .searchLoadContainer{
+                display: flex;
+            }
+
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2>[[localize('chap-iv','Chapter IV',language)]]</h2>
             <div class="container">
-                <div class="list-panel-container">
-                    <div class="list-panel">
-                        <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
-                                       selected="{{selectValue}}">
-                            <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
-                                <paper-material class="layout vertical chapter-item chapter--big"
-                                                id="[[item.ioDecisionReference]]" on-tap="_selectItem">
-                                    <paper-item class="chapter-text">
-                                        <div class="chapter-text-row chapter-text-date">
-                                            <label>
-                                                <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
-                                                [[item.paragraph]]
-                                            </label>
-                                            <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
-                                        </div>
-                                        <div class="chapter-text-row grey">
-                                            <p>
-                                                <template is="dom-if" if="[[item.accepted]]">
-                                                    <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
-                                                    [[localize('ch4Accept','Accepted',language)]]
-                                                </template>
-                                                <template is="dom-if" if="[[item.inTreatment]]">
-                                                    <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
-                                                    [[localize('ch4Pending','Pending',language)]]
-                                                </template>
-                                            </p>
-                                            <p>
-                                            <h4>
-                                                [[item.strength]] [[item.strengthUnit]]
-                                                <template is="dom-repeat" items="[[item.medications]]">
-                                                    [[item]],
-                                                </template>
-                                            </h4>
-                                            </p>
-                                            <div class="chapterDateInfo">
-                                                <iron-icon icon="vaadin:calendar-clock"
-                                                           class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.start)]]</span>
-                                                &nbsp;
-                                                <iron-icon icon="vaadin:calendar-clock"
-                                                           class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
-                                            </div>
-                                        </div>
-                                    </paper-item>
-                                </paper-material>
-                            </template>
-                        </paper-listbox>
+                <div class="list-panel">
+                    <div class="searchLoadContainer">
+                        <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                            label="[[localize('From','From',language)]]"
+                                            value="{{consultationStartDateAsString}}"></vaadin-date-picker>
+
+                        <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                            label="[[localize('To','To',language)]]"
+                                            value="{{consultationEndDateAsString}}"></vaadin-date-picker>
+
+                        <paper-input class="tool" label="[[localize('par','Paragraph',language)]]" value="{{selectedLoadParagraph}}"></paper-input>
                     </div>
+                    <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
+                                   selected="{{selectValue}}">
+                        <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
+                            <paper-material class="layout vertical chapter-item chapter--big"
+                                            id="[[item.ioDecisionReference]]" on-tap="_selectItem">
+                                <paper-item class="chapter-text">
+                                    <div class="chapter-text-row chapter-text-date">
+                                        <label>
+                                            <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
+                                            [[item.paragraph]]
+                                        </label>
+                                        <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
+                                    </div>
+                                    <div class="chapter-text-row grey">
+                                        <p>
+                                            <template is="dom-if" if="[[item.accepted]]">
+                                                <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
+                                                [[localize('ch4Accept','Accepted',language)]]
+                                            </template>
+                                            <template is="dom-if" if="[[item.inTreatment]]">
+                                                <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
+                                                [[localize('ch4Pending','Pending',language)]]
+                                            </template>
+                                        </p>
+                                        <p>
+                                        <h4>
+                                            [[item.strength]] [[item.strengthUnit]]
+                                            <template is="dom-repeat" items="[[item.medications]]">
+                                                [[item]],
+                                            </template>
+                                        </h4>
+                                        </p>
+                                        <div class="chapterDateInfo">
+                                            <iron-icon icon="vaadin:calendar-clock"
+                                                       class="chapterDateInfoIcon"></iron-icon>
+                                            <span>[[_formatDate(item.start)]]</span>
+                                            &nbsp;
+                                            <iron-icon icon="vaadin:calendar-clock"
+                                                       class="chapterDateInfoIcon"></iron-icon>
+                                            <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                                        </div>
+                                    </div>
+                                </paper-item>
+                            </paper-material>
+                        </template>
+                    </paper-listbox>
                     <div class="bottom-btn-container">
                         <paper-button class="bottom-btn" on-tap="_loadChapter4">[[localize('load_agr','Load
                             agr.',language)]]
@@ -674,19 +687,19 @@
                         </div>
                         <div class="bottom-btn-container">
                             <template is="dom-if" if="[[isAgreementSelected]]">
-                                <paper-button class="bottom-btn" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
                                     agreement',language)]]
                                 </paper-button>
-                                <paper-button class="bottom-btn" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
                                     agreement',language)]]
                                 </paper-button>
-                                <paper-button class="bottom-btn" on-tap="_extendChapter">[[localize('ext_agr','Extend
+                                <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
                                     agreement',language)]]
                                 </paper-button>
                             </template>
 
                             <template is="dom-if" if="[[!isAgreementSelected]]">
-                                <paper-button class="bottom-btn" on-tap="_requestChapter4">[[localize('req_agr','Request
+                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">[[localize('req_agr','Request
                                     agreement',language)]]
                                 </paper-button>
                             </template>
@@ -802,42 +815,29 @@
                     isAgreementSelected: {
                         type: Boolean,
                         value: false
+                    },
+                    consultationStartDateAsString:{
+                        type: String,
+                        value: () => moment().startOf('month').format('YYYY-MM-DD')
+                    },
+                    consultationEndDateAsString:{
+                        type: String,
+                        value: () => moment().endOf('month').format('YYYY-MM-DD')
+                    },
+                    selectedLoadParagraph:{
+                        type: String
                     }
 
                 }
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)', '_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)']
+                return ['_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)']
             }
 
             ready() {
                 super.ready()
                 this.addEventListener('iron-resize', () => this.onWidthChange())
-            }
-
-            apiReady() {
-                if (!this.api || !this.user || !this.user.id || !this.opened) return
-
-                try {
-                    this.set('plannedAction.HcpId', this.user.healthcarePartyId)
-                    this.api.cacheRowsUsingPagination(
-                        'CD-HCPARTY-pers',
-                        (key, docId) =>
-                            this.api.code().findPaginatedCodesByLabel('be', 'CD-HCPARTY', 'fr', 'pers', key && JSON.stringify(key), docId, 100)
-                                .then(pl => ({
-                                    rows: pl.rows,
-                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                                    done: !pl.nextKeyPair
-                                }))
-                    ).then(rows => {
-                        this.set('hcpartyTypeList', _.orderBy(rows, ['label.fr'], ['asc']))
-                        this.set('plannedAction.ProfessionId', this.professionId)
-                    })
-                } catch (e) {
-                    console.log(e)
-                }
             }
 
             attached() {
@@ -954,12 +954,12 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.api.fhc().Chaptercontroller().agreementRequestsConsultationUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, null, this.api.moment(this.fromAsString).valueOf())
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, this.selectedLoadParagraph !== "" ? this.selectedLoadParagraph : null, this.api.moment(this.consultationStartDateAsString).valueOf(), this.consultationEndDateAsString !== "" ? this.api.moment(this.consultationEndDateAsString).valueOf() : null)
                 ).then(agreements => {
-                    if (agreements.warnings.length) {
+                    if (agreements.warnings && agreements.warnings.length) {
                         this.set('warnings', agreements.warnings.map(w => w.msgFr).join(', '))
                     }
-                    if (agreements.errors.length) {
+                    if (agreements.errors && agreements.errors.length) {
                         this.set('errors', agreements.errors.map(w => w.msgFr).join(', '))
                     }
                     console.log(agreements)
@@ -990,7 +990,13 @@
                 })
             }
 
-            _requestChapter4() {
+            _requestChapter4(e) {
+
+                const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
+                                    (e.target && e.target.id === "extendChapter") ? "extension" :
+                                    (e.target && e.target.id === "extendChapter") ? "noncontinuousextension" :
+                                    null   //newrequest, extension, noncontinuousextension, complimentaryannex
+
 
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     Promise.all(this.appendicesTokens.map(ap =>
@@ -1097,13 +1103,16 @@
                     const id = e.currentTarget.id
                     const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
 
-                    this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph).then(par => {
+                    this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
+                     .then(par => {
                         this.set('isAgreementSelected', true)
                         this.set('selectedParagraph', {
                             descr: par.headerVerse.textFr,
                             id: par.paragraphName,
                             ioRequestReference: selectedAgreement.ioRequestReference,
-                            ioDecisionReference: selectedAgreement.ioDecisionReference
+                            ioDecisionReference: selectedAgreement.ioDecisionReference,
+                            start : selectedAgreement.start,
+                            end : selectedAgreement.ioDecisionEndOfValidity
                         })
                     })
                 }

@@ -362,8 +362,10 @@
     "pdf_deltaSupp": "&Delta; et Suppléments",
     "pdf_subTot": "Sub-totals",
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
-    "pdf_totFinal": "Total porté en compte"
-  },
+    "pdf_totFinal": "Total porté en compte",
+    "req_agr" : "Request agreemnt",
+    "ch4_request_type" : "Request type"
+ },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
     "a_pri_key_fil_is_nee_for_thi_use": "Un fichier de clef privée est requis pour cet utilisateur",
@@ -792,7 +794,8 @@
     "pdf_deltaSupp": "&Delta; et Suppléments",
     "pdf_subTot": "Sous-totaux",
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
-    "pdf_totFinal": "Total porté en compte"
+    "pdf_totFinal": "Total porté en compte",
+    "ch4_request_type" : "Type de requête"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1264,6 +1267,8 @@
     "pdf_deltaSupp": "&Delta; et Suppléments",
     "pdf_subTot": "Sous-totaux",
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
-    "pdf_totFinal": "Total porté en compte"
+    "pdf_totFinal": "Total porté en compte",
+    "no_dmg" : " Patiënt heeft geen GMD",
+    "ch4_request_type" : "Request type"
   }
 }
