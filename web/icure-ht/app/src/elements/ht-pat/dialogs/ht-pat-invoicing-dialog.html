@@ -1068,7 +1068,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.patientIntervention]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1078,7 +1078,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.reimbursement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1087,7 +1087,7 @@
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.doctorSupplement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1096,7 +1096,7 @@
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.totalAmount]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -2359,6 +2359,17 @@
 
             _formatInvoiceDate(date) {
                 return date ? this.api.moment(date).format("DD/MM/YYYY") : 'N/A'
+            }
+
+            _formatAmount(amount) {
+                console.log("formatamount",amount)
+                if (amount == 0) {return "0.00"}
+                if (amount.toString().length < 3) {
+                    let out = // if integer, add the decimals, else just besure it's float
+                        (Number(amount)%1 === 0) ? amount+".00" : parseFloat(amount)
+                    return out
+                }
+                return amount
             }
 
             datePickerChanged() {
