@@ -60,6 +60,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="dialogs/ht-pat-action-plan-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-selection-dialog.html">
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
+<link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
+<link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -98,6 +100,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				white-space: nowrap;
 				font-weight: 400;
 				padding-left:0;
+				width: calc(100% - 48px)
+			}
+
+			.extra-button {
+				width: 24px;
+				height: 24px;
+				margin: 0;
+				padding: 4px;
 			}
 
 			#first {
@@ -805,7 +815,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow: hidden;
 			}
 
-			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus  {
+			#insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus  {
 				--paper-fab-background: var(--app-background-color-dark);
 				--paper-fab-keyboard-focus-background: var(--app-background-color);
 				color: var(--app-primary-color-dark);
@@ -821,7 +831,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-fab-background: var(--app-status-color-pending);
 			}
 
-			#insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent {
+			#insuranceStatus.noInsurance, #hubStatus.noAccess, #tlStatus.noTl, #consentStatus.noConsent, #edmgStatus {
 				--paper-fab-background: var(--app-status-color-nok);
 			}
 
@@ -1110,6 +1120,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-tooltip for="tlStatus">[[localize('tl','insurance',language)]]</paper-tooltip>
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
 									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
+									<paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
+									<paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]</paper-tooltip>
 								</div>
 							</div>
 						</paper-item>
@@ -1221,6 +1233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<collapse-button>
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
+									<paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
 								<paper-listbox id="mhelb" class="menu-content sublist" multi toggle-shift selected-items="{{selectedMedications}}">
@@ -1744,7 +1757,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
 		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
-
+		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></ht-pat-mcn-chapteriv-agreement>
+		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
 	</template>
 	<script>
 
@@ -2160,6 +2174,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._getHubTherapeuticLinks();
         this._getHubTransactionList();
         this.$.hubDialog.open();
+    }
+
+    _openEdmgDialog(e){
+        e.stopPropagation();
+
+        this.$.edmgDialog.open();
     }
 
     _trueOrUnknown(b){
@@ -3972,6 +3992,13 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    if(gender==="male")return "M.";
 	    if(gender==="female")return "Mme";
 	    else return "";
+	}
+
+    _chapter4(e) {
+	    e.stopPropagation()
+		e.preventDefault()
+
+        this.$['chapterivdialog'].open()
 	}
 }
 

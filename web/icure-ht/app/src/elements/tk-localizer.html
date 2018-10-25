@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
 <script>
+import _ from 'lodash/lodash';
+
 Polymer.TkLocalizerMixin = superClass => class extends superClass {
 	constructor() {
 		super();
@@ -34,5 +36,14 @@ Polymer.TkLocalizerMixin = superClass => class extends superClass {
 		}
 		return trns || defaultValue;
 	}
+
+    localizeObjectKey(obj, key) {
+	    let k
+        k= key+_.capitalize(this.language)
+	    if (obj[k] !== undefined) { return obj[k] }
+        k = key+this.language
+        if (obj[k] !== undefined) { return obj[k] }
+        return null
+    }
 };
 </script>
