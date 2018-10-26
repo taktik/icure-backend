@@ -63,7 +63,7 @@
                 display: grid;
                 height: calc(100% - 128px);
                 width: 100%;
-                grid-template-columns: 25% auto; 
+                grid-template-columns: 25% auto;
                 grid-template-rows: 100%;
                 box-sizing: border-box;
                 border-bottom: 1px solid var(--app-background-color-dark);
@@ -465,7 +465,7 @@
                 background: rgba(0, 0, 0, .1);
             }
 
-            
+
 
             .layout.vertical {
                 display: flex;
@@ -487,7 +487,7 @@
                 color: var(--app-status-color-pending);
             }
 
-            
+
 
             .modal-title {
                 background: var(--app-background-color-dark);
@@ -528,7 +528,7 @@
                 border-radius: 20px;
                 padding: 0 12px 0 8px;
                 width: auto;
-                font-size: 12px; 
+                font-size: 12px;
             }
 
             .spinner {
@@ -827,7 +827,7 @@
                         </div>
                     </template>
                     <template is="dom-if" if="[[loadResponse]]">
-                       
+
                     </template>
                 </div>
                 <div class="buttons">
@@ -996,6 +996,9 @@
                     this.set('loadResponse', false)
                     this.set('agreementResponse', [])
                     this.set('selectedAgreementIndex', null);
+
+                    this.set('isAgreementSelected', false)
+
                     this.set('displayedParagraph', this.selectedParagraph);
                 }
             }
@@ -1253,7 +1256,7 @@
                     this._isLoadingParagraph = true
                     const id = e.currentTarget.id
                     const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
-                    
+
                     this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
                         .then(par => {
                             this.set('isAgreementSelected', true)
@@ -1266,9 +1269,8 @@
                                 start: selectedAgreement.start,
                                 end: selectedAgreement.ioDecisionEndOfValidity
                             })
+                            this._isLoadingParagraph = false
                         })
-                        this._isLoadingParagraph = false
-                    })
                 }
             }
 
