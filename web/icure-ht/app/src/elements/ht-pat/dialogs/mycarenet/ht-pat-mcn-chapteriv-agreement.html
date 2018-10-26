@@ -636,7 +636,7 @@
                                                 </template>
                                             </p>
                                             <p>[[localize('ref_io','Reference IO',language)]]:
-                                                [[t.decisionReference]]</p>
+                                                [[t.ioDecisionReference]]</p>
                                             <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
                                             <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                             <h4>[[localize('tec_dat','Technical data',language)]]</h4>
@@ -727,9 +727,6 @@
                                            on-upload-success="_fileUploaded"></vaadin-upload>
                             <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
                         </div>
-                    </template>
-                    <template is="dom-if" if="[[loadResponse]]">
-                       
                     </template>
                 </div>
                 <div class="message">
@@ -847,10 +844,6 @@
                     },
                     selectedLoadParagraph: {
                         type: String
-                    },
-                    loadResponse: {
-                        type: Boolean,
-                        value: false
                     }
 
                 }
@@ -872,7 +865,6 @@
 
             _filterChanged(text) {
                 if (text.detail && text.detail.value && text.detail.value.length > 2) {
-                    this.set('loadResponse', false)
                     const searchString = text.detail.value
                     this.latestSearchString = searchString
                     setTimeout(() => {
@@ -895,17 +887,16 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    this.set('loadResponse', false)
                     this.set('agreementResponse', [])
                     this.set('selectedAgreementIndex', null);
                     this.set('displayedParagraph', this.selectedParagraph);
+                    this.set('tabs', 0)
                 }
             }
 
             _displayedParagraphChanged() {
                 if (this.displayedParagraph && this.displayedParagraph.id) {
                     (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
-                    this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
                     this.set('paragraph', [])
                     const paragraph = this.displayedParagraph.id.split('/')[0]
@@ -981,8 +972,8 @@
             }
 
             _mpps(p) {
-                const mpps = this.agreementMpps && this.agreementMpps.find(mpps => mpps.paragraph === p)
-                return mpps && mpps.mpps
+                //const mpps = this.agreementMpps && this.agreementMpps.mpps.find(mpps => mpps.paragraph === p)
+                return  this.agreementMpps && this.agreementMpps.mpps
             }
 
             _loadChapter4() {
@@ -1007,6 +998,10 @@
                     ).then((transactions) => {
                         this.set('orphanAgreements', transactions.filter(([t, vtm]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
                             .map(([t, vtm]) => ({
+                                careProviderReference: t.careProviderReference,
+                                content: t.content,
+                                coverageType: t.coverageType,
+                                refusalJustification: t.refusalJustification,
                                 paragraph: t.paragraph,
                                 ioRequestReference: t.ioRequestReference,
                                 ioDecisionReference: t.decisionReference,
@@ -1019,17 +1014,19 @@
                                 strengthUnit: t.strengthUnit,
                                 accepted: t.accepted,
                                 inTreatment: t.inTreatment,
+                                end: t.end,
+                                responseType: t.responseType,
+                                timestamp: t.timestamp,
+                                unitNumber : t.unitNumber,
                                 medications: vtm
                             })))
                         this.set('agreementResponse', agreements)
-                        this.set('loadResponse', true)
                     })
 
                 })
             }
 
             _requestChapter4(e) {
-                this.set('loadResponse', false)
                 this.set('agreementResponse', [])
                 let requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
@@ -1165,7 +1162,19 @@
                                 start: selectedAgreement.start,
                                 end: selectedAgreement.ioDecisionEndOfValidity
                             })
-                        })
+                            this.set('agreementResponse', {
+                                transactions: [selectedAgreement]
+                            })
+
+                           this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', selectedAgreement.paragraph).then(it => ({
+                                paragraph: selectedAgreement.paragraph,
+                                mpps: it
+                            })).then(links =>
+                                this.set('agreementMpps', links)
+                            )
+                     })
+
+
                 }
             }
 
