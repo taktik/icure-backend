@@ -16,23 +16,15 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.logic;
+package org.taktik.icure.dto.filter.patient;
 
-import org.taktik.icure.entities.Keyword;
-import org.taktik.icure.entities.embed.Delegation;
+
+import org.taktik.icure.dto.filter.Filter;
+import org.taktik.icure.entities.Patient;
 
 import java.util.List;
-import java.util.Set;
 
-public interface KeywordLogic extends EntityPersister<Keyword, String> {
-
-	Keyword createKeyword(Keyword keyword);
-
-	Keyword getKeyword(String keywordId);
-
-	Set<String> deleteKeywords(Set<String> ids);
-
-	Keyword modifyKeyword(Keyword keyword);
-
-    List<Keyword> getKeywordsByUser(String userId);
+public interface PatientByHcPartyAndSsinsFilter extends Filter<String,Patient> {
+    List<String> getSsins();
+    String getHealthcarePartyId();
 }

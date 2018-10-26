@@ -100,6 +100,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					text-transform: capitalize;
 				};
 				--paper-button-ink-color: var(--app-secondary-color-dark);
+                height: 41px !important;
+                display: block;
+                text-align: center;
 			}
 			.has-unread{
 				font-weight:bold;
@@ -121,6 +124,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			paper-item{
 				background:transparent;
 				outline:0;
+                height: 32px;
+
 				--paper-item-selected:{
 
 				};
@@ -161,21 +166,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				user-select: none;
 				--paper-listbox-selected-item: {
 					color:var(--app-text-color-light);
-					background:var(--app-primary-color);
-				}
+					background:var(--app-primar y-color);
+				};
+                margin-bottom: 15px;
+                transition: var(--transition_-_transition);
+                background: var(--app-background-color-dark);
 			}
+            collapse-button paper-item {
+                font-size: 13px;
+                font-weight: bold;
+            }
 
-			collapse-button > .menu-item.iron-selected {
-				@apply --padding-right-left-16;
+            collapse-button[opened] {
+                @apply --shadow-elevation-2dp;
+                background: white;
+            }
+
+			collapse-button .menu-item.iron-selected,
+            collapse-button paper-item.iron-selected{
+				/*@apply --padding-right-left-16;*/
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
 				@apply --text-shadow;
 			}
 
-			paper-item.opened{
-				padding-top: 8px;
+            collapse-button paper-item.iron-selected{
+                background: var(--app-background-color-dark);
+                color: black;
+                text-shadow: none;
+            }
+            collapse-button paper-item.opened{
+                background: #fff;
+            }
 
-			}
+            collapse-button paper-item.iron-selected {
+                color: white;
+                background: var(--app-primary-color);
+            }
+
 			.opened{
 				color:var(--app-text-color);
 				background:var(--app-text-color-light);
@@ -202,11 +230,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding:0;
 				padding-bottom:4px;
 				border-radius:0 0 2px 2px;
-				@apply --shadow-elevation-2dp;
 			}
-
-
-
 
 			paper-item.list-info {
 				font-weight: lighter;
@@ -237,7 +261,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			.menu-item .iron-selected{
 				background:var(--app-primary-color);
-
 			}
 
 			.menu-item .opened{
@@ -259,7 +282,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			paper-item.menu-item.opened {
-				@apply --padding-right-left-16;
+				/*@apply --padding-right-left-16;*/
 			}
 
 			.submenu-item{
@@ -434,41 +457,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</style>
 		<div class="col-left">
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
-			<collapse-button>
-				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
+			<collapse-button id="inboxcollapse">
+				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:inbox"></iron-icon>[[localize('inb','Inbox',language)]] <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
+					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
-				<paper-listbox class="menu-content sublist" multi toggle-shift>
-						<paper-item on-tap="_ehe">[[localize('ehe','Ehealth',language)]]</paper-item>
-						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
-						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
-						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
-						<!--<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
+				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
+					<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('all','All',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="labResult">[[localize('lab_res','Lab Results',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
-			<collapse-button>
-				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
+			<collapse-button id="sentboxcollapse">
+				<paper-item id="sentbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_sentbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:send"></iron-icon>[[localize('sen_mes','Send Messages',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
+					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
-				<paper-listbox class="menu-content sublist" multi toggle-shift>
-						<paper-item on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
+				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">
+						<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
 						<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
-						<paper-item on-tap="_ehealthMessages">[[localize('ehe_mes','Ehealth Messages',language)]]</paper-item>
+						<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('ehe_mes','Ehealth Messages',language)]]</paper-item>
 				</paper-listbox>
 			</collapse-button>
-            <collapse-button>
-                <paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_e_inv" elevation="">
+            <collapse-button  id="invoiceboxcollapse">
+                <paper-item id="invoicebox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_invoicebox" elevation="">
                     <div class="one-line-menu list-title"><iron-icon icon="vaadin:invoice"></iron-icon>[[localize('inv','Invoices',language)]] <template is="dom-if" if="[[sendNumber]]"><span class="unreadNumber">[[sendNumber]]</span></template></div>
-                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
-                <paper-listbox class="menu-content sublist" multi toggle-shift>
-                    <paper-item on-tap="_e_inv_pen">[[localize('_e_inv_pen','Pending',language)]] <span class="batchNumber batchPending">[[batchCounter.pending]]</span></paper-item>
-                    <paper-item on-tap="_e_inv_pro">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
-                    <paper-item on-tap="_e_inv_rej">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
-                    <paper-item on-tap="_e_inv_acc">[[localize('_e_inv_acc','Accepted',language)]] <span class="batchNumber batchAccepted">[[batchCounter.accepted]]</span></paper-item>
-                    <paper-item on-tap="_e_inv_arc">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
+                <paper-listbox id="invoiceboxlist" class="menu-content sublist"  selected="{{invoiceSelectionIndex}}" selected-item="{{invoiceSelectionItem}}" selectable="paper-item">
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="pending">[[localize('_e_inv_pen','Pending',language)]] <span class="batchNumber batchPending">[[batchCounter.pending]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="process">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="reject">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="accept">[[localize('_e_inv_acc','Accepted',language)]] <span class="batchNumber batchAccepted">[[batchCounter.accepted]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="archive">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
 			<paper-item class="trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
@@ -550,12 +573,20 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					accepted: 0,
 					archived: 0
 				})
-			}
+			},
+            inboxSelectionIndex: {
+			    type: Number,
+			    value: null
+			},
+            sentboxSelectionIndex: {
+                type: Number,
+                value: null
+            }
 		};
 	}
 
 	static get observers() {
-		return [];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)'];
 	}
 
 	constructor() {
@@ -577,88 +608,107 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.dispatchEvent(new CustomEvent('new-msg', { detail: {} }));
 	}
 
-    _inbox(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
+    toggleMenu(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
+        styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
 	}
 
-    _sentbox(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
+    _inbox(e) {
+        e.stopPropagation()
+        e.preventDefault()
+
+        this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'inbox'}}}));
+
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+
+        this.$.inbox.classList.add('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
+	}
+
+    _inboxSelectionIndexChanged() {
+        if (this.inboxSelectionIndex !== null && this.inboxSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.inboxSelectionItem.id } } }));
+
+            this.set('sentboxSelectionIndex', null)
+            this.set('invoiceSelectionIndex', null)
+
+            this.$.inbox.classList.remove('iron-selected')
+            this.$.sentbox.classList.remove('iron-selected')
+            this.$.invoicebox.classList.remove('iron-selected')
+        }
     }
 
-    _labRes(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
+    _sentbox(e){
+        e.stopPropagation()
+        e.preventDefault()
+
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
+
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.add('iron-selected')
+        this.$.invoicebox.classList.remove('iron-selected')
     }
-    _report(){
+
+    _sentboxSelectionIndexChanged() {
+        if (this.sentboxSelectionIndex !== null && this.sentboxSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.sentboxSelectionItem.id } } }));
+
+            this.set('inboxSelectionIndex', null)
+            this.set('invoiceSelectionIndex', null)
+
+            this.$.inbox.classList.remove('iron-selected')
+            this.$.sentbox.classList.remove('iron-selected')
+            this.$.invoicebox.classList.remove('iron-selected')
+        }
+    }
+
+	_report(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
     }
 
-    _e_inv(){
+    _invoicebox(e){
+        e.stopPropagation()
+        e.preventDefault()
+
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+
+        this.set('sentboxSelectionIndex', null)
+        this.set('inboxSelectionIndex', null)
+        this.set('invoiceSelectionIndex', null)
+
+        this.$.inbox.classList.remove('iron-selected')
+        this.$.sentbox.classList.remove('iron-selected')
+        this.$.invoicebox.classList.add('iron-selected')
     }
 
-    _e_inv_pen(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+    _invoiceSelectionIndexChanged() {
+        if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
+
+            this.set('inboxSelectionIndex', null)
+            this.set('sentboxSelectionIndex', null)
+
+            this.$.inbox.classList.remove('iron-selected')
+            this.$.sentbox.classList.remove('iron-selected')
+            this.$.invoicebox.classList.remove('iron-selected')
+        }
     }
 
-    _e_inv_pro(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'process'} } }));
-    }
 
-    _e_inv_rej(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'reject'} } }));
-    }
 
-    _e_inv_acc(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'accept'} } }));
-    }
-
-    _e_inv_arc(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'archive'} } }));
-    }
-
-    _reportIn(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportIn' } } }));
-    }
-
-    _e_invIn(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invIn' } } }));
-    }
-
-    _ehealthMessages(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'ehealthMessages' } } }));
-    }
-    _ehe(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheIn' } } }));
-    }
-
-    _prot(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protIn' } } }));
-    }
-
-    _unread(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'unread' } } }));
-    }
-
-    _submit(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'submit' } } }));
-    }
-
-    _eheOut(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheOut' } } }));
-    }
-
-    _protOut(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protOut' } } }));
-    }
-
-    _EFactBatch(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'EFactBatch' } } }));
-    }
-
-    _GMD(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'GMD' } } }));
-    }
-
+    _trash(){
+		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+	}
 
 	selectedContactItemsChanged() {
 		const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');

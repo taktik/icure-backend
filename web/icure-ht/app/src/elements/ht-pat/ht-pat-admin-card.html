@@ -424,6 +424,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 16px 24px;
             }
 
+            .iron-container {
+                padding: 0;
+            }
+
         </style>
         <div class="administrative-panel">
             <paper-tabs selected="{{tabs}}">
@@ -432,7 +436,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:doctor"></iron-icon>[[localize('adm_h_t','Care team',language)]]</paper-tab>
             </paper-tabs>
 
-            <iron-pages selected="[[tabs]]" class="">
+            <iron-pages class="iron-container" selected="[[tabs]]" class="">
                 <page>
                     <div class="page-container">
                         <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
