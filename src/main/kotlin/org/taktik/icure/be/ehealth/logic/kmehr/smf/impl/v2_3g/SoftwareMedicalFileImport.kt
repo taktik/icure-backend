@@ -1,22 +1,18 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
 
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -25,22 +21,8 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.AddressType
-import org.taktik.icure.entities.embed.Content
-import org.taktik.icure.entities.embed.Duration
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Measure
-import org.taktik.icure.entities.embed.Medication
-import org.taktik.icure.entities.embed.Medicinalproduct
-import org.taktik.icure.entities.embed.RegimenItem
-import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.entities.embed.SubContact
-import org.taktik.icure.entities.embed.Substanceproduct
-import org.taktik.icure.entities.embed.Telecom
-import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
@@ -312,10 +294,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             }
                             medicinalProduct = item.contents.filter { it.medicinalproduct != null }.firstOrNull()?.let {
                                 it.medicinalproduct?.let { Medicinalproduct().apply {
-                                intendedcds = it.intendedcd?.let { listOf(CodeStub( it.s, it.value, it.sv)) }
+                                intendedcds = it.intendedcds?.map { CodeStub( it.s.toString(), it.value, it.sv) }
                                 intendedname = it.intendedname.toString()
                             } } }
-                            compoundPrescription = item.contents.map { it.compoundprescription?.value }.filterNotNull().firstOrNull()
+                            compoundPrescription = item.contents.map {
+                                // TODO: redo this
+                                //var con: List<TextType> = it.compoundprescription?.content as List<String>
+                                //con.map { it.value }.joinToString("")
+                                ""
+                            }.filterNotNull().firstOrNull()
                             instructionForPatient = item.instructionforpatient?.value
                             regimen = item.regimen?.let { it.daynumbersAndQuantitiesAndDaytimes.map {
                                 RegimenItem().apply {
