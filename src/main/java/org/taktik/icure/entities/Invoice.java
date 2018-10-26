@@ -73,6 +73,8 @@ public class Invoice extends StoredICureDocument {
 	private String internshipFirstName;
 	private String internshipCdHcParty;
 
+	private String error;
+
 	private Integer longDelayJustification;
 
 	private Boolean creditNote;
@@ -378,6 +380,10 @@ public class Invoice extends StoredICureDocument {
 	public void setInternshipCdHcParty(String internshipCdHcParty) {
 		this.internshipCdHcParty = internshipCdHcParty;
 	}
+
+	public String getError() { return error; }
+
+	public void setError(String error) { this.error = error; }
 
 	public Integer getLongDelayJustification() {
 		return longDelayJustification;

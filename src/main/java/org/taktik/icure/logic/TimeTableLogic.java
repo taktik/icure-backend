@@ -29,9 +29,9 @@ public interface TimeTableLogic extends EntityPersister<TimeTable, String> {
 
 	TimeTable getTimeTable(String TimeTableId);
 
-	List<TimeTable> getTimeTableByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
+	List<TimeTable> getTimeTablesByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
 
-	List<TimeTable> getTimeTableByAgendaId(String agendaId);
+	List<TimeTable> getTimeTablesByAgendaId(String agendaId);
 
     TimeTable modifyTimeTable(TimeTable TimeTable);
 
