@@ -7,6 +7,7 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
 
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
@@ -227,12 +228,7 @@
 				text-transform:uppercase;
 			}
 
-
 		</style>
-
-
-
-
 
 		<paper-dialog id="dialog" opened="{{opened}}">
 
@@ -296,15 +292,32 @@
 					<page>
 
 						<div class="horizontal" style="padding-top:10px;">
-
-							<!--<template is="dom-repeat" items="[[currentRegs.rs]]" as="reg">-->
-								<!--[[_getOARegStatus(reg)]]-->
-							<!--</template>-->
-
-							<template is="dom-if" if="[[allEDmgregistered]]">
+							<template is="dom-if" if="[[!anyEDmgregistered]]">
+							<div class="warning-message"><h3>AVIS IMPORTANT</h3>
+								<ul>
+								<li>Dès qu’il fait le choix d’utiliser MyCareNet pour la gestion des DMG, le prestataire de soins s’engage à :</li>
+								<li>Ne pas envoyer de notification pour un DMG qu’il a déjà attesté au patient (via 102771).</li>
+								<li>Ne plus attester de DMG via 102771 à partir du lendemain de la date d’inscription, ni pour les ouvertures, ni pour les prolongations.</li>
+								<li>Utiliser l’envoi des notifications MyCareNet pour toute ouverture d’un nouveau DMG.</li>
+								<li>Envoyer les notifications dans les 7 jours ouvrables maximum après la prestation (consultation ou visite) donnant droit au DMG.
+									Pour un prestataire de soins inscrit dans MyCareNet pour la gestion du DMG, l’OA s’engage à:</li>
+								<li>A partir de la date d’inscription à MyCareNet: payer dans les 30 jours toutes les prolongations administratives pour l’année en cours et l’année précédente, lorsque les conditions sont remplies.</li>
+								<li>Faire une prolongation automatique accélérée pour tous les DMG pour lesquels
+								les conditions sont remplies, dans les 30 jours à partir de la réception de
+									l’attestation de la prestation (consultation/visite).</li>
+								<li>Payer les ouvertures de DMG dans les 30 jours à partir de la réception de la notification si les conditions sont remplies.</li>
+								<li>Refuser les attestations DMG relatives à des prestations dont la date est ultérieure à la date d’inscription dans MyCareNet.</li>
+								<li>Envoyer les messages de clôture et de prolongation à bon escient</li>
+								</ul>
+							</div>
+							<vaadin-checkbox checked="{{canRegister}}">J'ai lu et j'approuve les conditions d'utilisation du DMG électronique</vaadin-checkbox>
+							</template>
+							<template is="dom-if" if="[[_cannotRegister(allEDmgregistered,canRegister)]]">
 								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
 								<div class="row" style="position:relative">
+									<template is="dom-if" if="[[allEDmgregistered]]">
 									<div id="edmgRegistrationComplete"><p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p></div>
+									</template>
 									<div class="col-20">
 										<paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
 										<paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
@@ -348,8 +361,7 @@
 								</div>
 							</template>
 
-							<template is="dom-if" if="[[!allEDmgregistered]]">
-
+							<template is="dom-if" if="[[_canRegister(allEDmgregistered,canRegister)]]">
 								<ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
 								<div class="row" style="position:relative">
 
@@ -386,24 +398,29 @@
 									<div class="col-10">
 										<paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_100_cssClass]]" rel="100" id="statusBullet_100"></div></div>
+										<paper-tooltip for="statusBullet_100" offset="0">[[statusError_100]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_200_cssClass]]" rel="200" id="statusBullet_200"></div></div>
+										<paper-tooltip for="statusBullet_200" offset="0">[[statusError_200]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_300_cssClass]]" rel="300" id="statusBullet_300"></div></div>
+										<paper-tooltip for="statusBullet_300" offset="0">[[statusError_300]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_400_cssClass]]" rel="400" id="statusBullet_400"></div></div>
+										<paper-tooltip for="statusBullet_400" offset="0">[[statusError_400]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_500_cssClass]]" rel="500" id="statusBullet_500"></div></div>
+										<paper-tooltip for="statusBullet_500" offset="0">[[statusError_500]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_600_cssClass]]" rel="600" id="statusBullet_600"></div></div>
+										<paper-tooltip for="statusBullet_600" offset="0">[[statusError_600]]</paper-tooltip>
 										<div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_900_cssClass]]" rel="900" id="statusBullet_900"></div></div>
+										<paper-tooltip for="statusBullet_900" offset="0">[[statusError_900]]</paper-tooltip>
 									</div>
 								</div>
 							</template>
 
-
-
-							<template is="dom-if" if="[[!allEDmgregistered]]">
+							<template is="dom-if" if="[[_canRegister(allEDmgregistered,canRegister)]]">
 								<div class="horizontal" style="margin-top:10px">
 									<div class="row">
 										<div class="col-35">&nbsp;</div>
 										<div class="col-30 textAlignCenter"><paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
-										<div class="col-35">&nbsp;</div>
+										<div class="col-35"><template is="dom-if" if="[[!registerEnabled]]"><paper-progress indeterminate></paper-progress></template></div>
 									</div>
 								</div>
 								<div class="horizontal">&nbsp;</div>
@@ -492,18 +509,10 @@
 			    type: Array,
 				value: ['100','200','300','400','500','600','900']
 			},
-			regStatus:{
-			    type: Object,
-				value: null
-			},
             allEDmgregistered:{
 			    type: Boolean,
                 value: false
             },
-            currentRegs:{
-			    type: Object,
-				value : null
-			},
             tabs: {
 			    type: Number,
 				value: 0
@@ -535,6 +544,14 @@
             statusBullet_500_cssClass: { type: String, value: '' },
             statusBullet_600_cssClass: { type: String, value: '' },
             statusBullet_900_cssClass: { type: String, value: '' },
+
+            statusError_100: { type: String, value: '' },
+            statusError_200: { type: String, value: '' },
+            statusError_300: { type: String, value: '' },
+            statusError_400: { type: String, value: '' },
+            statusError_500: { type: String, value: '' },
+            statusError_600: { type: String, value: '' },
+            statusError_900: { type: String, value: '' },
 
             allEDmgregisteredReadAttribute: { type: String, value: '' },
 
@@ -573,19 +590,19 @@
             });
         this.set('userMedicalHouseNihii', propMHNihii.typedValue.stringValue);
 
-        const propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC') ||
-            (this.user.properties[this.user.properties.length] = {
-                type: {identifier: 'org.taktik.icure.user.BIC'},
-                typedValue: {type: 'STRING', stringValue: ''}
-            });
-        this.set('userBIC', propBIC.typedValue.stringValue);
+        // const propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC') ||
+        //     (this.user.properties[this.user.properties.length] = {
+        //         type: {identifier: 'org.taktik.icure.user.BIC'},
+        //         typedValue: {type: 'STRING', stringValue: ''}
+        //     });
+        // this.set('userBIC', propBIC.typedValue.stringValue);
 
-        const propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN') ||
-            (this.user.properties[this.user.properties.length] = {
-                type: {identifier: 'org.taktik.icure.user.IBAN'},
-                typedValue: {type: 'STRING', stringValue: ''}
-            });
-        this.set('userIBAN', propIBAN.typedValue.stringValue);
+        // const propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN') ||
+        //     (this.user.properties[this.user.properties.length] = {
+        //         type: {identifier: 'org.taktik.icure.user.IBAN'},
+        //         typedValue: {type: 'STRING', stringValue: ''}
+        //     });
+        // this.set('userIBAN', propIBAN.typedValue.stringValue);
 	}
 
 	_getOARegStatus(reg){
@@ -600,25 +617,27 @@
 		//100,200,300,400,500,600,900
 		let regs = this.getRegistrationStatus();
         this.set('registerEnabled', false);
-		Promise.all(regs.rs.filter(reg => !reg.registered).map(reg =>
+		Promise.all(regs.filter(reg => !reg.registered).map(reg =>
 			this.registerToEDMGbyOA(_.assign(reg, {iban:this[`userIBAN_${reg.OA}`], bic: this[`userBIC_${reg.OA}`]})).then(reg =>{
 				this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
-				const idx = regs.rs.findIndex(r => r.OA === reg.OA);
+				if (reg.error) {
+				    this.set(`statusError_${reg.OA}`, reg.error && (this.language === 'nl' ? reg.error.msgNl : reg.error.msgFr))
+				}
+				const idx = regs.findIndex(r => r.OA === reg.OA);
 				if(idx >= 0){
-					regs.rs.splice(idx, 1, reg);
+					regs.splice(idx, 1, reg);
 				} else {
-					regs.rs.push(reg);
+					regs.push(reg);
 				}
 
-				this.set('regStatus',JSON.stringify(regs));
-
 				let propRegStatus = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.eDMG.RegistrationStatus')
-                propRegStatus.typedValue.stringValue = this.regStatus;
+                propRegStatus.typedValue.stringValue = JSON.stringify({rs: regs});
 
 				return reg
 			})
         )).then( regs => {
             this.set('allEDmgregistered', regs.every(r => !!r.registered))
+            this.set('anyEDmgregistered', regs.some(r => !!r.registered))
             return this.api.user().modifyUser(this.user).then(
                 user => {
                     this.user = user
@@ -633,24 +652,12 @@
                 type: {identifier: 'org.taktik.icure.user.eDMG.RegistrationStatus'},
                 typedValue: {type: 'JSON', stringValue: '{\"rs\":[]}'}
             });
-		//'{"rs":[{"OA":"100","Comment":"","ErrorCode":""}]}'
 
-        let OAStatus = {};
-        if(propRegStatus && propRegStatus.typedValue) {
-           OAStatus = JSON.parse(propRegStatus.typedValue.stringValue);
-        }
-        let regs = {rs: (OAStatus.rs||[]).map(r => r)}
-        this.listOAs.map(itOA => {
-            let reg = regs.rs.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' };
-            const idx = regs.rs.findIndex(r => r.OA === itOA);
-            if(idx >= 0){
-                regs.rs.splice(idx, 1, reg);
-            } else {
-                regs.rs.push(reg);
-			}
-        })
-        this.set('allEDmgregistered', regs.rs.every(r => !!r.registered));
-        this.set('currentRegs', regs);
+        const OAStatus = propRegStatus && propRegStatus.typedValue && (JSON.parse(propRegStatus.typedValue.stringValue) || {}).rs || [];
+
+        const regs = this.listOAs.map(itOA => OAStatus.find(r => r.OA === itOA) || {OA : itOA, registered: false, lastExecution: null, Comment : '', ErrorCode :  '', iban :'', bic: '' })
+        this.set('allEDmgregistered', regs.every(r => !!r.registered));
+        this.set('anyEDmgregistered', regs.some(r => !!r.registered))
 
         return regs;
 	}
@@ -679,6 +686,7 @@
 									reg.registered = regResp.success
 									reg.lastExecution = (new Date).getTime()
 									reg.response = JSON.stringify(regResp)
+									reg.error = err
 									return reg
 								}
 							} else {
@@ -689,6 +697,7 @@
 						} else {
 							reg.registered = false
 							reg.lastExecution = (new Date).getTime()
+							reg.error = {msgNl : "Onbekende fout", msgFr :"Erreur inconnue"}
 							return reg
 						}
 					}
@@ -696,7 +705,8 @@
 						reg.Comment = 'exception caugh:' + error
 						reg.response = JSON.stringify(error)
 						reg.lastExecution = (new Date).getTime()
-						return Promise.resolve(reg)
+                    	reg.error = {msgNl : "Verbinding met VI mislukt", msgFr :"La connexion avec l'OA a échoué"}
+                    	return Promise.resolve(reg)
 					}
 				)
 		} else {
@@ -749,7 +759,7 @@
 		this.$.dialog.open();
         this.showEHPreferrences(this.user);
         const regs = this.getRegistrationStatus()
-		regs.rs.forEach(reg => {
+		regs.forEach(reg => {
             this.set(`userIBAN_${reg.OA}`, reg.iban)
             this.set(`userBIC_${reg.OA}`, reg.bic)
 		    this.set(`statusBullet_${reg.OA}_cssClass`, reg.registered ? 'ok' : '')
@@ -771,18 +781,16 @@
             let propMHNihii = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.medicalHouse.nihii')
             propMHNihii.typedValue.stringValue = this.userMedicalHouseNihii;
 
-            let propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN')
-            propIBAN.typedValue.stringValue = this.userIBAN;
-            let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
-            propBIC.typedValue.stringValue = this.userBIC;
+            // let propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN')
+            // propIBAN.typedValue.stringValue = this.userIBAN;
+            // let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
+            // propBIC.typedValue.stringValue = this.userBIC;
 
            this.api.user().modifyUser(this.user).then(
                 user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
 			).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
         }
 	}
-
-
 
 
 	// Resolve and assign BIC based on IBAN
@@ -803,14 +811,13 @@
         // Assign bic value back, should we have any
 	    if( ( bicValue+'').length ) {
 
-			if(oaValue==100) this.userBIC_100 = bicValue;
-			if(oaValue==200) this.userBIC_200 = bicValue;
-			if(oaValue==300) this.userBIC_300 = bicValue;
-			if(oaValue==400) this.userBIC_400 = bicValue;
-			if(oaValue==500) this.userBIC_500 = bicValue;
-			if(oaValue==600) this.userBIC_600 = bicValue;
-			if(oaValue==900) this.userBIC_900 = bicValue;
-
+			if (oaValue===100) this.userBIC_100 = bicValue;
+			if (oaValue===200) this.userBIC_200 = bicValue;
+			if (oaValue===300) this.userBIC_300 = bicValue;
+			if (oaValue===400) this.userBIC_400 = bicValue;
+			if (oaValue===500) this.userBIC_500 = bicValue;
+			if (oaValue===600) this.userBIC_600 = bicValue;
+			if (oaValue===900) this.userBIC_900 = bicValue;
 		}
 
 	}
@@ -821,6 +828,13 @@
 	    this.listOAs.forEach( io => this.set(`userIBAN_${io}`, this.userIBAN_100))
         // Same goes for BIC values (including us)
         this.listOAs.forEach( io => this.set(`userBIC_${io}`, this.userBIC_100))
+	}
+
+	_cannotRegister() {
+        return !this.canRegister || this.allEDmgregistered
+    }
+	_canRegister() {
+        return this.canRegister && !this.allEDmgregistered
 	}
 
 }
