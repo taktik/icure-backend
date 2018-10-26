@@ -63,6 +63,8 @@ public class InvoiceDto extends IcureDto {
 
 	protected String careProviderType;
 
+	protected String error;
+
 	private Map<String,String> receipts = new HashMap<>();
 
 	public Long getInvoiceDate() {
@@ -231,4 +233,8 @@ public class InvoiceDto extends IcureDto {
 	public String getCareProviderType() { return careProviderType; }
 
 	public void setCareProviderType(String careProviderType) { this.careProviderType = careProviderType; }
+
+	public String getError() { return error; }
+
+	public void setError(String error) { this.error = error; }
 }

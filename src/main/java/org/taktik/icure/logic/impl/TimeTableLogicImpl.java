@@ -55,12 +55,12 @@ public class TimeTableLogicImpl extends GenericLogicImpl<TimeTable, TimeTableDAO
 	}
 
 	@Override
-	public List<TimeTable> getTimeTableByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId){
+	public List<TimeTable> getTimeTablesByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId){
 		return timeTableDAO.listTimeTableByPeriodAndAgendaId(startDate,endDate,agendaId);
 	}
 
 	@Override
-	public List<TimeTable> getTimeTableByAgendaId(String agendaId){
+	public List<TimeTable> getTimeTablesByAgendaId(String agendaId){
 		return timeTableDAO.listTimeTableByAgendaId(agendaId);
 	}
 	@Override

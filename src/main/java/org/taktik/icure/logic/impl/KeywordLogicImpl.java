@@ -104,7 +104,7 @@ public class KeywordLogicImpl extends GenericLogicImpl<Keyword, KeywordDAO> impl
 	}
 
 	@Override
-	public List<Keyword> getKeywordByUser(String userId) {
+	public List<Keyword> getKeywordsByUser(String userId) {
 		return keywordDAO.getByUserId(userId);
 	}
 
