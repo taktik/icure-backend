@@ -1244,6 +1244,11 @@
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
+                    <template is="dom-if" if="[[isEattestClosed]]">
+                        <paper-button class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                            [[localize('can_eattest','Cancel eattest',language)]]
+                        </paper-button>
+                    </template>
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
@@ -1534,22 +1539,7 @@
                     thirdPartyJustification: {
                         type: Array,
                         value: () => [
-                            {
-                                id: "5",
-                                label: {
-                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
-                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
-                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
-                                }
-                            },
-                            {
-                                id: "9",
-                                label: {
-                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
-                                    "nl": "9. Prohibition of third-party billing via efact",
-                                    "en": "9. Prohibition of third-party billing via efact"
-                                }
-                            },
+
                             {
                                 id: "0",
                                 label: {
@@ -1583,6 +1573,14 @@
                                 }
                             },
                             {
+                                id: "5",
+                                label: {
+                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
+                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
+                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
+                                }
+                            },
+                            {
                                 id: "6",
                                 label: {
                                     "fr": "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés",
@@ -1604,6 +1602,14 @@
                                     "fr": "8. Statut affection chronique (sur base d'une attestation fournie par le patient)",
                                     "nl": "8. Chronic condition",
                                     "en": "8. Chronic condition"
+                                }
+                            },
+                            {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
                                 }
                             },
                             {
@@ -1816,6 +1822,10 @@
                     parentRelatedCodeId: {
                         type: String,
                         value: ""
+                    },
+                    isEattestClosed:{
+                        type:Boolean,
+                        value:false
                     }
 
                 }
@@ -1823,7 +1833,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -2840,11 +2850,11 @@
                 this.selectedInvoice.invoicingCodes.map(code =>{
                     let newCode = {
                         date : code.dateCode,
-                        doctorSupplement : code.doctorSupplement,
-                        fee : parseFloat(code.totalAmount),
+                        doctorSupplement : Number(code.doctorSupplement),
+                        fee : Number(code.totalAmount),
                         quantity : code.units,
-                        reglementarySupplement : code.patientIntervention,
-                        reimbursement: code.reimbursement,
+                        reglementarySupplement : Number(code.patientIntervention),
+                        reimbursement: Number(code.reimbursement),
                         requestor : {
                             date: this.selectedInvoice.invoiceDate ,
                             hcp: {
@@ -2918,7 +2928,7 @@
 
             conventionAmountChanged(){
                 if(!this.activeNmclItem)return ;
-                const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
+                const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
             }
 
@@ -2941,10 +2951,10 @@
 
                 invoice.invoicingCodes.map((code)=>{
                     totalACharge+=code.reimbursement+code.patientIntervention;
-                    totalSuppl+=parseFloat(code.doctorSupplement)
-                    totalRemb+=parseFloat(code.reimbursement)
-                    totalConv+=parseFloat(code.conventionAmount)
-                    totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
+                    totalSuppl+=Number(code.doctorSupplement)
+                    totalRemb+=Number(code.reimbursement)
+                    totalConv+=Number(code.conventionAmount)
+                    totalDelta+=Number(code.reimbursement)+Number(code.patientIntervention)+Number(code.doctorSupplement)
                 })
 
                 let templatePat = _.clone(this.patient), templateHcp = _.clone(this.hcp)
@@ -2970,9 +2980,9 @@
                         return function(calcul,render){
                             let termes = render(calcul).split(" ")
                             while(termes.length>2){
-                                let first = parseFloat(termes.shift())
+                                let first = Number(termes.shift())
                                 let operateur = termes.shift()
-                                let second = parseFloat(termes.shift())
+                                let second = Number(termes.shift())
 
                                 if(operateur=="+"){
                                     termes.unshift(first+second);
@@ -2983,7 +2993,7 @@
                                 else return "erreur dans le calcul"
 
                             }
-                            return parseFloat(termes[0]).toFixed(2)+" €";
+                            return Number(termes[0]).toFixed(2)+" €";
                         }
                     },
                     "justif": this.localize('pdf_justif','justif',this.language),
@@ -3263,6 +3273,15 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                     })
+            }
+
+            varIsEattestClosedChanged(){
+                this.set("isEattestClosed",this.selectedInvoice.sentMediumType==="eattest" && this.selectedInvoice.printedDate)
+            }
+
+            _cancelEattest(){
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+                window.open(url,"cancel");
             }
         }
 
