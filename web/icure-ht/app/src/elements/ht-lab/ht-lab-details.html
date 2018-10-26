@@ -1,0 +1,130 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+
+
+<link rel="import" href="../../../bower_components/vaadin-icons/vaadin-icons.html">
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+<link rel="import" href="../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
+
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../filter-panel/filter-panel.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
+<link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
+
+<link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
+<link rel="import" href="../dynamic-form/dynamic-doc.html">
+<link rel="import" href="../dynamic-form/entity-selector.html">
+
+<link rel="import" href="../ht-lab/ht-lab-healthone.html">
+
+
+
+<dom-module id="ht-lab-details">
+    <template>
+        <style>
+        </style>
+        <div inner-h-t-m-l="[[attachmentFormated]]"></div>
+        <template dom-if="[[_checkHealthone(]]">
+            <ht-lab-healthone labResults="[[attachment]]"></ht-lab-healthone>
+        </template>
+
+    </template>
+    <script>
+
+		import jsPDF from 'jspdf/dist/jspdf.min';
+		import _ from 'lodash/lodash';
+		import JsBarcode from 'JsBarcode';
+		import moment from 'moment/src/moment';
+		import XML from 'parse-xml/dist/parse-xml';
+		// import Encoding from 'encoding-japanese/src/index.js'
+
+		class HtLabDetails extends Polymer.TkLocalizerMixin(Polymer.Element) {
+			static get is() {
+				return 'ht-lab-details';
+			}
+
+			static get properties() {
+				return {
+					api: {
+						type: Object
+					},
+					attachment:{
+						type: String,
+						value: null
+					},
+                    document:{
+						type: Object,
+                        value: null
+                    }
+				};
+			}
+
+			static get observers() {
+				return ['_attachementLoaded(attachment,document)'];
+			}
+
+			constructor() {
+				super();
+			}
+
+			ready(){
+				super.ready();
+			}
+
+			_attachementLoaded(){
+
+				if(!this.attachment && this.document){
+					this.api.document().getAttachment(this.document.id, this.document.attachmentId, null)
+                        .then(att => {
+                        	// TODO: mandatory for annexe in no UTF-8 encoding
+							// try {
+							// 	let bytes = (a.mimeType === 'text/plain')?Encoding.convert(byteContent,'UTF-8'):byteContent;
+							// 	console.log((a.mimeType === 'text/plain')? Encoding.detect(byteContent):"Not text");
+							// }catch (e) {
+							// 	console.log("exception");
+							// 	console.log(e)
+							// }
+
+                            this.set("attachment", att);
+					    })
+                }
+				else{
+					console.log("attachment OK")
+                }
+            }
+
+            _checkHealthone(){
+				return this.attachment.startsWith("A1");
+            }
+
+            _checkXML(){
+				return this.attachment.startsWith("<?xml");
+            }
+
+		}
+
+		customElements.define(HtLabDetails.is, HtLabDetails);
+    </script>
+</dom-module>

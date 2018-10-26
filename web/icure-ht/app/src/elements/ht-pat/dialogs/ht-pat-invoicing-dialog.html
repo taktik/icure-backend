@@ -909,8 +909,7 @@
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
                     <template is="dom-repeat" items="[[invoices]]">
-                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
-                                        id="[[item.id]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
@@ -984,16 +983,16 @@
                         <div class="flex-container">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]"></vaadin-checkbox>
                                     [[localize('inv_cr_no','Credit note',language)]]<br/>
 
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]"></vaadin-checkbox>
                                     [[localize('inv_llp','Lifting limitation period',language)]]
                                 </template>
 
                                 <template is="dom-if" if="[[isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
 
 
@@ -1245,6 +1244,11 @@
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
+                    <template is="dom-if" if="[[isEattestClosed]]">
+                        <paper-button class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                            [[localize('can_eattest','Cancel eattest',language)]]
+                        </paper-button>
+                    </template>
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
@@ -1535,22 +1539,7 @@
                     thirdPartyJustification: {
                         type: Array,
                         value: () => [
-                            {
-                                id: "5",
-                                label: {
-                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
-                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
-                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
-                                }
-                            },
-                            {
-                                id: "9",
-                                label: {
-                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
-                                    "nl": "9. Prohibition of third-party billing via efact",
-                                    "en": "9. Prohibition of third-party billing via efact"
-                                }
-                            },
+
                             {
                                 id: "0",
                                 label: {
@@ -1584,6 +1573,14 @@
                                 }
                             },
                             {
+                                id: "5",
+                                label: {
+                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
+                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
+                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
+                                }
+                            },
+                            {
                                 id: "6",
                                 label: {
                                     "fr": "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés",
@@ -1605,6 +1602,14 @@
                                     "fr": "8. Statut affection chronique (sur base d'une attestation fournie par le patient)",
                                     "nl": "8. Chronic condition",
                                     "en": "8. Chronic condition"
+                                }
+                            },
+                            {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
                                 }
                             },
                             {
@@ -1817,6 +1822,10 @@
                     parentRelatedCodeId: {
                         type: String,
                         value: ""
+                    },
+                    isEattestClosed:{
+                        type:Boolean,
+                        value:false
                     }
 
                 }
@@ -1824,7 +1833,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -1833,6 +1842,10 @@
 
 
             _selectInvoice(e) {
+
+                // Drop all should there be any
+                this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
+
                 this.isSelected=true;
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
                 this.set("isTarificationError", false)
@@ -1858,8 +1871,15 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
                     this.isSelected=false;
+
+                    // Ain't set upon first load, target (either we already have one for today or we target the first node)
+                    var targetObject = this.shadowRoot.querySelector('[id="' + selected.id + '"]') || this.shadowRoot.querySelector('[class="invoice-text"]').parentElement;
+
+                    // Do set
+                    targetObject.classList.add('iron-selected')
+
                 })
             }
 
@@ -1869,7 +1889,7 @@
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
 
-                    const invoiceOfDay = invoices.find( i=> i.invoiceDate === moment().format("YYYYMMDD") && !i.sentDate )
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
 
                     if(!invoiceOfDay){
                         const newInvoice = {}
@@ -2045,7 +2065,6 @@
 
                         const patientKeys = secretForeignKeys.join(",")
 
-                        console.log(this.selectedInvoice)
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
@@ -2803,7 +2822,7 @@
             }
 
             _isLiftingLimitationPeriod(e) {
-                this.set('selectedInvoice.longDelayJustification', e.target.checked)
+                this.set('selectedInvoice.longDelayJustification', e.target.checked ? 1 : 0)
             }
 
             isTravellingExpenses(){
@@ -2831,11 +2850,11 @@
                 this.selectedInvoice.invoicingCodes.map(code =>{
                     let newCode = {
                         date : code.dateCode,
-                        doctorSupplement : code.doctorSupplement,
-                        fee : parseFloat(code.totalAmount),
+                        doctorSupplement : Number(code.doctorSupplement),
+                        fee : Number(code.totalAmount),
                         quantity : code.units,
-                        reglementarySupplement : code.patientIntervention,
-                        reimbursement: code.reimbursement,
+                        reglementarySupplement : Number(code.patientIntervention),
+                        reimbursement: Number(code.reimbursement),
                         requestor : {
                             date: this.selectedInvoice.invoiceDate ,
                             hcp: {
@@ -2907,12 +2926,17 @@
                 this.$['xml_dialog'].open()
             }
 
-            eattest(e){
+            conventionAmountChanged(){
+                if(!this.activeNmclItem)return ;
+                const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
+                this.set('activeNmclItem.conventionAmount',tot)
+            }
+
+            _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
+
+            eattest(invoice){
                 e.stopPropagation();
                 e.preventDefault();
-
-                const invoice = JSON.parse(e.target.dataset.item)
-
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
@@ -2927,10 +2951,10 @@
 
                 invoice.invoicingCodes.map((code)=>{
                     totalACharge+=code.reimbursement+code.patientIntervention;
-                    totalSuppl+=parseFloat(code.doctorSupplement)
-                    totalRemb+=parseFloat(code.reimbursement)
-                    totalConv+=parseFloat(code.conventionAmount)
-                    totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
+                    totalSuppl+=Number(code.doctorSupplement)
+                    totalRemb+=Number(code.reimbursement)
+                    totalConv+=Number(code.conventionAmount)
+                    totalDelta+=Number(code.reimbursement)+Number(code.patientIntervention)+Number(code.doctorSupplement)
                 })
 
                 let templatePat = _.clone(this.patient), templateHcp = _.clone(this.hcp)
@@ -2956,9 +2980,9 @@
                         return function(calcul,render){
                             let termes = render(calcul).split(" ")
                             while(termes.length>2){
-                                let first = parseFloat(termes.shift())
+                                let first = Number(termes.shift())
                                 let operateur = termes.shift()
-                                let second = parseFloat(termes.shift())
+                                let second = Number(termes.shift())
 
                                 if(operateur=="+"){
                                     termes.unshift(first+second);
@@ -2969,7 +2993,7 @@
                                 else return "erreur dans le calcul"
 
                             }
-                            return parseFloat(termes[0]).toFixed(2)+" €";
+                            return Number(termes[0]).toFixed(2)+" €";
                         }
                     },
                     "justif": this.localize('pdf_justif','justif',this.language),
@@ -3249,6 +3273,15 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                     })
+            }
+
+            varIsEattestClosedChanged(){
+                this.set("isEattestClosed",this.selectedInvoice.sentMediumType==="eattest" && this.selectedInvoice.printedDate)
+            }
+
+            _cancelEattest(){
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+                window.open(url,"cancel");
             }
         }
 

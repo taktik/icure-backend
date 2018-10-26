@@ -46,6 +46,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_HAS_FREE_INFORMATION 	= 1 << 5;
 	public final static int STATUS_EFACT 					= 1 << 6;
 
+	public final static int STATUS_SENT  	     			= 1 << 7;
 	public final static int STATUS_SUBMITTED 				= 1 << 8;
 	public final static int STATUS_RECEIVED 				= 1 << 9;
 	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10;
