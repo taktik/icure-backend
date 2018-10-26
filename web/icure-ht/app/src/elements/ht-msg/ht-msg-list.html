@@ -288,7 +288,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                
+
                 <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                 <paper-tooltip for="del-button">[[localize('del','Delete',language)]]</paper-tooltip>
                 <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
@@ -482,6 +482,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
+            getMycarenetIn() {
+                this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
+            }
+
             getEInvIn(){
                 this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
             }
@@ -598,6 +602,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             break;
                         case 'eheIn' :
                             this.getEheIn();
+                            break;
+                        case 'mycarenet' :
+                            this.getMycarenetIn();
                             break;
                         case 'Chap4In' :
                         	this.getChap4In();

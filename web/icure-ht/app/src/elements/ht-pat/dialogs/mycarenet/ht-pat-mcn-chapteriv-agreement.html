@@ -479,8 +479,8 @@
                         <paper-input class="tool" label="[[localize('par','Paragraph',language)]]"
                                      value="{{selectedLoadParagraph}}"></paper-input>
                     </div>
-                    <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
-                                   selected="{{selectValue}}">
+                    <paper-listbox id="_chapter_listbox" selectable="paper-material"
+                                   selected="{{selectedAgreementIndex}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
                             <paper-material class="layout vertical chapter-item chapter--big"
                                             id="[[item.ioDecisionReference]]" on-tap="_selectItem">
@@ -532,7 +532,7 @@
                     </div>
                 </div>
                 <div class="detail-panel" on-dragover="_onDrag">
-                    <vaadin-combo-box id="entities-list" filtered-items="[[searchResults]]"
+                    <vaadin-combo-box id="entities-list" filtered-items="[[searchResults]]" value="{{cbValue}}"
                                       on-filter-changed="_filterChanged" item-label-path="descr"
                                       selected-item="{{selectedParagraph}}" item-value-path="id"
                                       label="[[localize('sea_for_par','Search for paragraph‚ medication‚ pathology...',language)]]"></vaadin-combo-box>
@@ -627,7 +627,14 @@
                                                 <p>[[localize('status','Status',language)]]:
                                                     [[localize('req_in_tre','Request rejected',language)]]</p>
                                             </template>
-                                            <p class="error">[[t.refusalJustification.fr]]</p>
+                                            <p class="error">
+                                                <template is="dom-if" if="[[_isFrench(language)]]">
+                                                    [[t.refusalJustification.FR]]
+                                                </template>
+                                                <template is="dom-if" if="[[_isDutch(language)]]">
+                                                    [[t.refusalJustification.NL]]
+                                                </template>
+                                            </p>
                                             <p>[[localize('ref_io','Reference IO',language)]]:
                                                 [[t.decisionReference]]</p>
                                             <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
@@ -721,6 +728,9 @@
                             <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
                         </div>
                     </template>
+                    <template is="dom-if" if="[[loadResponse]]">
+                       
+                    </template>
                 </div>
                 <div class="message">
                     <div class="warning">[[warnings]]</div>
@@ -787,6 +797,10 @@
                         type: Object,
                         observer: "_selectedParagraphChanged"
                     },
+                    displayedParagraph: {
+                        type: Object,
+                        observer: "_displayedParagraphChanged"
+                    },
                     medications: {
                         type: Array,
                         value: () => []
@@ -815,7 +829,7 @@
                     toAsString: {
                         type: String
                     },
-                    selectValue: {
+                    selectedAgreementIndex: {
                         type: Number,
                         value: null
                     },
@@ -833,6 +847,10 @@
                     },
                     selectedLoadParagraph: {
                         type: String
+                    },
+                    loadResponse: {
+                        type: Boolean,
+                        value: false
                     }
 
                 }
@@ -854,6 +872,7 @@
 
             _filterChanged(text) {
                 if (text.detail && text.detail.value && text.detail.value.length > 2) {
+                    this.set('loadResponse', false)
                     const searchString = text.detail.value
                     this.latestSearchString = searchString
                     setTimeout(() => {
@@ -876,11 +895,20 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    (this.selectedParagraph.ioRequestReference || this.selectedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
+                    this.set('loadResponse', false)
+                    this.set('agreementResponse', [])
+                    this.set('selectedAgreementIndex', null);
+                    this.set('displayedParagraph', this.selectedParagraph);
+                }
+            }
+
+            _displayedParagraphChanged() {
+                if (this.displayedParagraph && this.displayedParagraph.id) {
+                    (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
                     this.set('paragraph', [])
-                    const paragraph = this.selectedParagraph.id.split('/')[0]
+                    const paragraph = this.displayedParagraph.id.split('/')[0]
                     this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
                         .then(pi => {
                             this.set('paragraph', pi)
@@ -958,6 +986,7 @@
             }
 
             _loadChapter4() {
+                this.set('agreementResponse', [])
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.api.fhc().Chaptercontroller().agreementRequestsConsultationUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
@@ -992,15 +1021,19 @@
                                 inTreatment: t.inTreatment,
                                 medications: vtm
                             })))
+                        this.set('agreementResponse', agreements)
+                        this.set('loadResponse', true)
                     })
 
                 })
             }
 
             _requestChapter4(e) {
+                this.set('loadResponse', false)
+                this.set('agreementResponse', [])
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
-                    (e.target && e.target.id === "extendChapter") ? "extension" :
-                        (e.target && e.target.id === "extendChapter") ? "noncontinuousextension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
                             null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
                 if (requestType != null) {
@@ -1021,8 +1054,10 @@
                             this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                 this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
-                                "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                                this.checkedVerses.join(','), appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
+                                requestType, this.paragraph.paragraphVersion, this.paragraph.paragraphName,
+                                this.checkedVerses.join(','), appendices, this.incomplete, requestType !== "complimentaryannex" ? this.api.moment(this.fromAsString).valueOf() : null , null,
+                                (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.ioDecisionReference : null,
+                                ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.ioDecisionReference) ? this.displayedParagraph.ioRequestReference : null)
                         )
                     ).then(res => {
                         console.log(res)
@@ -1037,6 +1072,7 @@
                         )
                     })
                 }
+
             }
 
             _annexBaseName(addedDoc) {
@@ -1047,14 +1083,18 @@
                 if (e && e.detail && e.detail.value) {
                     const tpl = this.root.querySelector('#annexesDr').modelForElement(e.detail.value)
                     if (tpl.item.addressUrl) {
-                        var url = tpl.item.addressUrl.replace('@lng@', this.language)
+                        const url = `${this.api.fhcHost}/chap4/sam/docpreview/IV/${this.paragraph.paragraphName}/${tpl.item.verseSeq}/${tpl.item.documentSeq}/${this.language}`
                         var a = document.createElement('a')
-                        a.href = url
-                        a.target = "_blank"
-                        a.download = `${this._annexBaseName(tpl.item)}.pdf`
-                        document.body.appendChild(a) // we need to append the element to the dom -> otherwise it will not work in firefox
-                        a.click()
-                        a.remove()  //afterwards we remove the element again
+                        return fetch(url, {
+                            method: 'GET'
+                        }).then((resp) => {
+                            return resp.blob();
+                        }).then((blob) => {
+                            a.href = window.URL.createObjectURL(blob);
+                            a.download = `${this._annexBaseName(tpl.item)}.pdf`
+                            a.click();
+                            return null
+                        }).finally(() => a.remove())
                     }
                 }
                 this.root.querySelector('#annexes').set('value', null)
@@ -1071,13 +1111,13 @@
 
             _appendicesChanged() {
                 const files = _.clone(this.appendices)
-                const vaadinUpload = this.$['appendix-upload']
+                const vaadinUpload = this.root.querySelector('#appendix-upload')
 
                 Promise.all(files.filter(f => !f.attached).map(f => {
                     f.attached = true
                     return this.api.document().newInstance(this.user, null, {
                         documentType: 'result',
-                        mainUti: this.api.document().uti(f.type),
+                        mainUti: this.api.document().uti(f.type, f.name.replace(/.+\.(.+)/,'$1')),
                         name: f.name
                     }).then(d => this.api.document().createDocument(d)).then(d => {
                         f.doc = d
@@ -1087,24 +1127,25 @@
                 })).then(files => {
                     if (files.length) {
                         vaadinUpload.uploadFiles(files)
-                        const regAnnex = this.annexes.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
-                        files.forEach(f => this.appendicesTokens.map(x => x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {
+                        files.forEach(f => {
+                            const regAnnex = this.annexes.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
+                            this.appendicesTokens.map(x => x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {
                             descr: f.name.replace(/^(.{5})...+(.{5})$/, '$1…$2'),
                             id: f.doc.id,
                             name: f.name,
                             docSeq: regAnnex.documentSeq,
                             verseSeq: regAnnex.verseSeq
-                        }))
+                        })})
                     }
                 })
             }
 
             _hideUpload() {
-                this.$['appendix-upload-container'].style.display = 'none'
+                this.root.querySelector('#appendix-upload-container').style.display = 'none'
             }
 
             _onDrag() {
-                this.$['appendix-upload-container'].style.display = 'block'
+                this.root.querySelector('#appendix-upload-container').style.display = 'block'
             }
 
             _selectItem(e) {
@@ -1115,7 +1156,8 @@
                     this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
                         .then(par => {
                             this.set('isAgreementSelected', true)
-                            this.set('selectedParagraph', {
+                            this.set('cbValue', '')
+                            this.set('displayedParagraph', {
                                 descr: par.headerVerse.textFr,
                                 id: par.paragraphName,
                                 ioRequestReference: selectedAgreement.ioRequestReference,
@@ -1128,9 +1170,9 @@
             }
 
             _closeChapter(e) {
-                if (this.selectedParagraph) {
+                if (this.displayedParagraph) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference, this.selectedParagraph.ioRequestReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference, this.displayedParagraph.ioRequestReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
@@ -1141,9 +1183,9 @@
             }
 
             _cancelChapter(e) {
-                if (this.selectedParagraph) {
+                if (this.displayedParagraph) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
