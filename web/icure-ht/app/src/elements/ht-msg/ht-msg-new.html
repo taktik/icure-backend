@@ -814,7 +814,7 @@
 					this.newMessage.annex.splice(this.newMessage.annex.indexOf(e.detail.file), 1);
 				}
             }
-            
+
 			_AddDestinations(){
                 let newMsgTo = this.shadowRoot.querySelector('#newMsg-To')
                 let typeTo = this.shadowRoot.querySelector('#type-To')
@@ -1009,6 +1009,7 @@
             }
 
             clearField(){
+            	this.files = [];
 				this.set("newMessage",{customMetas:{},document:{},annex: [],destinations:[]})
 				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
 				newMsgSSIN.value = "";
