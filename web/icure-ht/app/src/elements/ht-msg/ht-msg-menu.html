@@ -421,12 +421,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.batchNumber{
-				padding: 1px 5px;
-				font-size: 11px;
+				padding: 1px;
+				font-size: 12px;
 				color: var(--paper-grey-100);
-				border-radius: 10px;
-				right: 10%;
+				border-radius: 50%;
+                width: 25px;
+                height: 25px;
+                line-height: 25px;
+				right: 4%;
 				position: absolute;
+                text-align: center;
 			}
 
 			.batchPending{
@@ -449,6 +453,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background-color: var(--paper-purple-300);
 			}
 
+            .one-line-menu.list-title {
+                max-width: 100%;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
 		</style>
 		<div class="col-left">
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
@@ -458,7 +469,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
-					<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('all','All',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','eHealth',language)]]</paper-item>
 					<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>
 					<paper-item class="one-line-menu menu-item" id="labResult">[[localize('lab_res','Lab Results',language)]]</paper-item>
 					<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>
