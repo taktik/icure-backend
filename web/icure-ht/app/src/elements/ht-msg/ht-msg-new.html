@@ -774,8 +774,6 @@
 			_fileUploadBefore(e){
 				e.preventDefault();
 
-				console.log(this.files);
-
 				if(e.detail && e.detail.file){
 					let file = e.detail.file;
 					const fr = new FileReader();
@@ -809,7 +807,6 @@
             }
 
 			_fileUploadRemove(e){
-            	console.log(e);
 				if(e.detail && e.detail.file) {
 					this.newMessage.annex.splice(this.newMessage.annex.indexOf(e.detail.file), 1);
 				}
