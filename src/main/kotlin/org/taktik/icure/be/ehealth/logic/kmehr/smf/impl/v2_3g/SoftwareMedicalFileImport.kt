@@ -158,8 +158,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         language: String,
                                         mappings: Map<String, List<ImportMapping>>): Contact {
         return Contact().apply {
+            val contact = this
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
+
             this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
             this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
@@ -188,12 +190,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
                 val label =
                     item.cds.find { it.s == CDITEMschemes.LOCAL && it.sl == "iCureLabel" }?.value
-                        ?: mapping?.label?.get(language) ?: mappings["note"]?.lastOrNull()?.label?.get(language)
-                        ?: "Note"
+                            ?: item.contents.filter { it.texts?.size ?: 0 > 0 }
+                                    .flatMap{
+                                        it.texts.filter {
+                                            it.l == language
+                                        }.map {
+                                            it.value
+                                        }
+                                    }
+                                    .let{ if (it.size > 0) it else null }
+                                    ?.joinToString(" ")
+                            ?: mapping?.label?.get(language)
+                            ?: mappings["note"]?.lastOrNull()?.label?.get(language)
+                            ?: "Note"
 
                 when (cdItem) {
                     "healthcareelement" -> {
-                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v)
+                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
                         v.hes.add(healthElementLogic.createHealthElement(he))
                     }
                 //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
@@ -202,7 +215,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     else -> {
                         val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
                         this.services.add(service)
-                        this.subContacts.add(SubContact().apply { })
+                        this.subContacts.add(SubContact().apply { services.add( ServiceLink(service.id))})
                     }
                 }
             }
@@ -214,7 +227,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                        item: ItemType,
                                        author: User,
                                        language: String,
-                                       v: ImportResult): HealthElement? {
+                                       v: ImportResult,
+                                       contactId: String
+                                    ): HealthElement? {
         return HealthElement().apply {
             this.id = idGenerator.newGUID().toString()
 	        this.healthElementId = idGenerator.newGUID().toString()
@@ -228,6 +243,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
             this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.idOpeningContact = contactId
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
             item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
