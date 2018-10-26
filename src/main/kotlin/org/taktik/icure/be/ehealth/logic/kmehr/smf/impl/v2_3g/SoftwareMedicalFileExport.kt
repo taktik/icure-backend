@@ -88,7 +88,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		progressor: AsyncProgress?,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 			date = makeXGC(Instant.now().toEpochMilli())!!,
-			time = makeXGC(Instant.now().toEpochMilli())!!,
+			time = makeXGC(Instant.now().toEpochMilli(), true)!!,
 			soft = Config.Software(name = "iCure", version = ICUREVERSION),
 			clinicalSummaryType = "TODO",
 			defaultLanguage = "en"
@@ -339,7 +339,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				val cleanPatientId = p.id.replace("-".toRegex(), "")
 				value = "${cleanPatientId.substring(0, minOf(cleanPatientId.length, 8))}.${System.currentTimeMillis()}"
 			})
-			makeXGC(System.currentTimeMillis()).let { date = it; time = it }
+			makeXGC(System.currentTimeMillis(), true).let { date = it; time = it }
 			isIscomplete = true
 			isIsvalidated = true
 		}
