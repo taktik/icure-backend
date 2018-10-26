@@ -24,13 +24,14 @@
 <link rel="import" href="../../../../../bower_components/tk-token-field/tk-token-field.html">
 
 <link rel="import" href="../../../../scrollbar-style.html">
+<link rel="import" href="../../../../spinner-style.html">
 
 <link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="ht-pat-mcn-chapteriv-verse.html">
 
 <dom-module id="ht-pat-mcn-chapteriv-agreement">
     <template>
-        <style include="scrollbar-style">
+        <style include="scrollbar-style spinner-style">
             #dialog {
                 min-height: 600px;
                 min-width: 800px;
@@ -567,14 +568,6 @@
                 width: auto;
                 font-size: 12px; 
                 line-height: 16px;
-            }
-
-            .spinner {
-                --paper-spinner-layer-1-color: var(--app-primary-color-light);
-                --paper-spinner-layer-2-color: var(--app-primary-color-dark);
-                --paper-spinner-layer-3-color: var(--app-secondary-color);
-                --paper-spinner-layer-4-color: var(--app-secondary-color-dark);
-                --paper-spinner-stroke-width: 2px;
             }
 
             .chapter-list-spinner {
