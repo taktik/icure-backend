@@ -1,0 +1,181 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter-mixin.html">
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../dynamic-form/ckmeans-grouping.html">
+
+<dom-module id="ht-msg-mycarenet">
+    <template>
+        <custom-style>
+            <style include="shared-styles">
+
+                :host {
+                    display: block;
+                    z-index:2;
+                }
+
+                :host *:focus {
+                    outline: 0 !important;
+                }
+
+                .msg-btn {
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        margin: 0 auto;
+                        height: 48px;
+                        text-transform: capitalize;
+                    };
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                }
+
+            </style>
+        </custom-style>
+        <div class="invoice-panel">
+            <vaadin-grid id="messagesGrid" items="[[messages]]" active-item="{{activeItem}}" on-tap="_showDetail">
+                <vaadin-grid-column class="recipient-col">
+                    <template class="header">
+                        <vaadin-grid-sorter path="">Date</vaadin-grid-sorter>
+                    </template>
+                    <template>[[item.date]]</template>
+                </vaadin-grid-column>
+                <vaadin-grid-column class="oa-col">
+                    <template class="header">
+                        <vaadin-grid-sorter path="">Type</vaadin-grid-sorter>
+                    </template>
+                    <template>[[item.type]]</template>
+                </vaadin-grid-column>
+                <vaadin-grid-column class="oa-col">
+                    <template class="header">
+                        <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
+                    </template>
+                    <template>[[item.oa]]</template>
+                </vaadin-grid-column>
+                <vaadin-grid-column class="ref-col">
+                    <template class="header">
+                        <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                    </template>
+                    <template>[[item.patient.name]]</template>
+                </vaadin-grid-column>
+                <vaadin-grid-column class="invoice-col">
+                    <template class="header">
+                        <vaadin-grid-sorter path="">Data</vaadin-grid-sorter>
+                    </template>
+                    <template>[[item.data]]</template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+            <paper-button class="msg-btn" on-tap="getMessages">get messages</paper-button>
+        </div>
+
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+        import * as models from 'icc-api/dist/icc-api/model/models'
+
+        class HtMsgMycarenet extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-msg-mycarenet';
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object
+                    },
+                    hcp:{
+                        type: Object
+                    },
+                    user: {
+                        type: Object
+                    },
+                    selectedMessages: {
+                        type: Object,
+                        notify: true
+                    },
+                    activeItem: {
+                        type: Object
+                    },
+                    messages: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    selectList: {
+                        type: Object
+                    },
+                    i18n: {
+                        Type: Object,
+                        value: function () {
+                            moment.locale('fr');
+                            const res = {
+                                monthNames: moment.months(),
+                                weekdays: moment.weekdays(),
+                                weekdaysShort: moment.weekdaysShort(),
+                                firstDayOfWeek: moment.localeData().firstDayOfWeek(),
+                                week: 'Semaine',
+                                calendar: 'Calendrier',
+                                clear: 'Clear',
+                                today: 'Aujourd\'hui',
+                                cancel: 'Annuler',
+                                formatDate: function (d) {
+                                    //return moment(d).format(moment.localeData().longDateFormat('L'))
+                                    return moment(d).format('DD/MM/YYYY');
+                                },
+                                parseDate: function (s) {
+                                    return moment(s, 'DD/MM/YYYY').toDate();
+                                },
+                                formatTitle: function (monthName, fullYear) {
+                                    return monthName + ' ' + fullYear;
+                                }
+                            };
+                            return res;
+                        }
+                    }
+                };
+            }
+
+            constructor() {
+                super();
+            }
+
+            static get observers() {
+                return [];
+            }
+
+            ready() {
+                super.ready();
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
+                    this.set("hcp",response)
+                    this.getMessages()
+                })
+            }
+
+            getMessages() {
+                //set messages
+                let test = ["ext"]
+                //console.log(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900",test)
+                this.api.fhc().Dmgcontroller().getDmgMessagesUsingGET(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900", null)
+                    .then(response =>{
+                        console.log(response)
+                    })
+            }
+
+        }
+
+        customElements.define(HtMsgMycarenet.is, HtMsgMycarenet);
+    </script>
+</dom-module>

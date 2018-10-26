@@ -284,11 +284,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     /* cascading compatibility */
                 }
 
+                .get-msg-btn{
+                    margin-bottom: 16px;
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        width: 100%;
+                        margin: 0 auto;
+                        font-size: 14px;
+                        font-weight: bold;
+                        text-transform: capitalize;
+                    };
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                
+
                 <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
                 <paper-tooltip for="del-button">[[localize('del','Delete',language)]]</paper-tooltip>
                 <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
