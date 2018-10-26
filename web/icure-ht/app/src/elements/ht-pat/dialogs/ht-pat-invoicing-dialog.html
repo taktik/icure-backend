@@ -909,8 +909,7 @@
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
                     <template is="dom-repeat" items="[[invoices]]">
-                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
-                                        id="[[item.id]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
@@ -984,16 +983,16 @@
                         <div class="flex-container">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]"></vaadin-checkbox>
                                     [[localize('inv_cr_no','Credit note',language)]]<br/>
 
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]"></vaadin-checkbox>
                                     [[localize('inv_llp','Lifting limitation period',language)]]
                                 </template>
 
                                 <template is="dom-if" if="[[isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
 
 
@@ -1837,6 +1836,10 @@
 
 
             _selectInvoice(e) {
+
+                // Drop all should there be any
+                this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
+
                 this.isSelected=true;
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
                 this.set("isTarificationError", false)
@@ -1862,8 +1865,15 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
                     this.isSelected=false;
+
+                    // Ain't set upon first load, target (either we already have one for today or we target the first node)
+                    var targetObject = this.shadowRoot.querySelector('[id="' + selected.id + '"]') || this.shadowRoot.querySelector('[class="invoice-text"]').parentElement;
+
+                    // Do set
+                    targetObject.classList.add('iron-selected')
+
                 })
             }
 
@@ -1873,7 +1883,7 @@
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
 
-                    const invoiceOfDay = invoices.find( i=> i.invoiceDate === moment().format("YYYYMMDD") && !i.sentDate )
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
 
                     if(!invoiceOfDay){
                         const newInvoice = {}
@@ -2049,7 +2059,6 @@
 
                         const patientKeys = secretForeignKeys.join(",")
 
-                        console.log(this.selectedInvoice)
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
@@ -2796,7 +2805,7 @@
             }
 
             _isLiftingLimitationPeriod(e) {
-                this.set('selectedInvoice.longDelayJustification', e.target.checked)
+                this.set('selectedInvoice.longDelayJustification', e.target.checked ? 1 : 0)
             }
 
             isTravellingExpenses(){
@@ -2915,6 +2924,8 @@
                 const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
             }
+
+            _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
 
             eattest(invoice){
                 e.stopPropagation();

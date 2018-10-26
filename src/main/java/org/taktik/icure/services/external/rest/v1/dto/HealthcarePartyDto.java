@@ -55,6 +55,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected String ssin;
 	protected String cbe;
 	protected Integer convention; //0,1,2,9
+	protected String supervisorId;
 
     protected String notes;
 
@@ -273,6 +274,15 @@ public class HealthcarePartyDto extends StoredDto {
 	public void setConvention(Integer convention) {
 		this.convention = convention;
 	}
+
+    public String getSupervisorId() {
+        return supervisorId;
+    }
+
+    public void setSupervisorId(String supervisorId) {
+        this.supervisorId = supervisorId;
+    }
+
 
 	public List<FinancialInstitutionInformationDto> getFinancialInstitutionInformation() {
         return financialInstitutionInformation;
