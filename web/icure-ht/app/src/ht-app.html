@@ -385,6 +385,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: translateX(50%);
                 margin: 0;
             }
+            paper-dialog#ht-invite-hcp-user-already-exists{
+                width: 60%;
+                left: 0;
+                transform: translateX(50%);
+                margin: 0;
+            }
 
             .inviteHcpInput {
                 width: 100%;
@@ -420,6 +426,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .taktik-logo{
                 transform: translateY(-2px);
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color);
+                background-color: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-weight: 700;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .modal-button--close{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                margin-left:20px;
             }
 
 
@@ -655,6 +679,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h3>Lien de première connexion</h3>
             <h4>[[invitedHcpLink]]</h4>
         </paper-dialog>
+
+
+
+        <paper-dialog id="ht-invite-hcp-user-already-exists">
+            <h3>[[localize('warning','Attention',language)]]</h3>
+            <h4> [[localize( 'email_address_already_exists', 'L\'adresse email de ce collègue existe déjà\, veuillez svp en spécifier une autre', language)]]</h4>
+            <paper-button dialog-confirm autofocus class="modal-button modal-button--close" on-tap="_inviteHCP" >[[localize('clo','Close',language)]]</paper-button>
+        </paper-dialog>
+
+
 
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
             <iron-icon icon="communication:email"></iron-icon>
@@ -1101,25 +1135,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             confirmUserInvitation() {
 
-                this.api.hcparty().createHealthcareParty({
-                    "name": this.lastName + " " + this.firstName,
-                    "lastName": this.lastName,
-                    "firstName": this.firstName,
-                    "nihii": this.nihii,
-                    "ssin": this.ssin
-                }).then(hcp => {
-                    this.api.user().createUser({
-                        "healthcarePartyId": hcp.id,
-                        "name": this.lastName + " " + this.firstName,
-                        "email": this.email,
-                        "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
-                        "status": "ACTIVE",
-                        "type": "database"
-                    }).then(usr => {
-                        this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
-                        this.$['ht-invite-hcp-link'].open()
-                    })
-                })
+                // See if user exists first, based on email address
+                this.api.user().getUserByEmail(this.email).then( existingUserDto => {
+                    if( existingUserDto && existingUserDto.id ) {
+                        this.$['ht-invite-hcp-user-already-exists'].open();
+                    } else {
+                        this.api.hcparty().createHealthcareParty({
+                            "name": this.lastName + " " + this.firstName,
+                            "lastName": this.lastName,
+                            "firstName": this.firstName,
+                            "nihii": this.nihii,
+                            "ssin": this.ssin
+                        }).then(hcp => {
+                            this.api.user().createUser({
+                                "healthcarePartyId": hcp.id,
+                                "name": this.lastName + " " + this.firstName,
+                                "email": this.email,
+                                "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
+                                "status": "ACTIVE",
+                                "type": "database"
+                            }).then(usr => {
+                                this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
+                                this.$['ht-invite-hcp-link'].open()
+                            })
+                        })
+                    }
+                });
+
             }
 
             checkEhboxMessage() {

@@ -819,6 +819,89 @@
                 visibility: hidden;
             }
 
+            paper-item:hover .he-edit-btn-container {
+                position: absolute;
+                right: 5px;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                /*display:inline-flex;*/
+                flex-flow: row-reverse nowrap;
+                position: absolute;
+                right: 5px;
+            }
+
+            paper-item:hover .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            paper-item.iron-selected .he-edit-btn-container {
+                display:inline-flex;
+            }
+
+            .he-edit-btn-container{
+                background: var(--app-text-color);
+                border-radius: 14px;
+                display: none;
+                flex-flow: row-reverse wrap;
+                justify-content: space-between;
+                align-items: center;
+                padding: 2px;
+                width: 24px;
+                height: 24px;
+                overflow: hidden;
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                cursor: pointer;
+            }
+
+            .he-edit-btn-container.open{
+                width: 90px;
+                display:inline-flex;
+                flex-flow: row-reverse nowrap;
+            }
+
+
+            .he-edit-btn{
+                height: 24px;
+                width: 24px;
+                padding: 4px;
+                color: var(--app-text-color-light);
+                margin-right: 2px;
+                margin-left: 2px;
+                --paper-ink-color:var(--app-text-color-light);
+            }
+
+            .he-edit-btn-dark{
+                color: var(--app-text-color);
+                --paper-ink-color:var(--app-text-color);
+            }
+
+            .he-edit-btn-container > paper-icon-button.he-edit-btn:first-child {
+                transition: .5s ease;
+            }
+            .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
+                transform: rotate(180deg)
+            }
 
         </style>
 
@@ -826,8 +909,7 @@
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
                     <template is="dom-repeat" items="[[invoices]]">
-                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
-                                        id="[[item.id]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
@@ -853,7 +935,7 @@
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="eattest" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -901,16 +983,16 @@
                         <div class="flex-container">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]"></vaadin-checkbox>
                                     [[localize('inv_cr_no','Credit note',language)]]<br/>
 
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]"></vaadin-checkbox>
                                     [[localize('inv_llp','Lifting limitation period',language)]]
                                 </template>
 
                                 <template is="dom-if" if="[[isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
 
 
@@ -934,10 +1016,10 @@
                                               on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
                                          value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
-                                         <div slot="suffix">
-                                             <iron-icon icon="info" id="invoice-dmg-icon"
-                                            class="infoDmg"></iron-icon>
-                                        </div>
+                                <div slot="suffix">
+                                    <iron-icon icon="info" id="invoice-dmg-icon"
+                                               class="infoDmg"></iron-icon>
+                                </div>
                             </paper-input>
                             <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
                         </div>
@@ -1030,7 +1112,7 @@
                                                 <template id="dom-if" if="[[!!isInvoiceClosed]]">
                                                     <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
                                                 </template>
-                                                  [[item.relatedCode]]
+                                                [[item.relatedCode]]
                                             </template>
 
                                         </template>
@@ -1114,11 +1196,15 @@
                                          label="[[localize('reimb','Reimbursement',language)]]"
                                          value="{{activeNmclItem.reimbursement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
+                                         label="[[localize('conv_amoun','Convention amount',language)]]"
+                                         value="{{activeNmclItem.conventionAmount}}" readonly></paper-input>
+                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('extra','Extra',language)]]"
                                          value="{{activeNmclItem.doctorSupplement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('tot','Fee',language)]]"
                                          value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
+
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
@@ -1540,25 +1626,25 @@
                             {
                                 id: 1,
                                 label: {
-                                            "fr": "Utilisation d’un document d’identité sans puce",
-                                            "nl": "Using an identity document without a chip",
-                                            "en": "Using an identity document without a chip"
+                                    "fr": "Utilisation d’un document d’identité sans puce",
+                                    "nl": "Using an identity document without a chip",
+                                    "en": "Using an identity document without a chip"
                                 }
                             },
                             {
                                 id: 2,
                                 label: {
-                                            "fr": "Indisponibilité du lecteur de carte",
-                                            "nl": "Unavailability of the card reader",
-                                            "en": "Unavailability of the card reader"
+                                    "fr": "Indisponibilité du lecteur de carte",
+                                    "nl": "Unavailability of the card reader",
+                                    "en": "Unavailability of the card reader"
                                 }
                             },
                             {
                                 id: 3,
                                 label: {
-                                            "fr": "Panne du système informatique",
-                                            "nl": "Computer system failure",
-                                            "en": "Computer system failure"
+                                    "fr": "Panne du système informatique",
+                                    "nl": "Computer system failure",
+                                    "en": "Computer system failure"
                                 }
                             }
                         ]
@@ -1741,7 +1827,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)']
             }
 
             ready() {
@@ -1750,6 +1836,10 @@
 
 
             _selectInvoice(e) {
+
+                // Drop all should there be any
+                this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
+
                 this.isSelected=true;
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
                 this.set("isTarificationError", false)
@@ -1775,8 +1865,15 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
                     this.isSelected=false;
+
+                    // Ain't set upon first load, target (either we already have one for today or we target the first node)
+                    var targetObject = this.shadowRoot.querySelector('[id="' + selected.id + '"]') || this.shadowRoot.querySelector('[class="invoice-text"]').parentElement;
+
+                    // Do set
+                    targetObject.classList.add('iron-selected')
+
                 })
             }
 
@@ -1786,7 +1883,7 @@
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
 
-                    const invoiceOfDay = invoices.find( i=> i.invoiceDate === moment().format("YYYYMMDD") && !i.sentDate )
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
 
                     if(!invoiceOfDay){
                         const newInvoice = {}
@@ -1962,7 +2059,6 @@
 
                         const patientKeys = secretForeignKeys.join(",")
 
-                        console.log(this.selectedInvoice)
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
@@ -2030,10 +2126,10 @@
                             this.api.user().modifyUser(this.user)
                                 .then(user => this.api.register(user,"user"))
                                 .then(user => this.dispatchEvent(new CustomEvent('user-saved', {
-                                detail: user,
-                                bubbles: true,
-                                composed: true
-                            })))
+                                    detail: user,
+                                    bubbles: true,
+                                    composed: true
+                                })))
 
                             this.getFavoritesCodes()
                         }
@@ -2060,10 +2156,10 @@
                     this.api.user().modifyUser(this.user)
                         .then(user => this.api.register(user,'user'))
                         .then(user => this.dispatchEvent(new CustomEvent('user-saved', {
-                        detail: user,
-                        bubbles: true,
-                        composed: true
-                    })))
+                            detail: user,
+                            bubbles: true,
+                            composed: true
+                        })))
 
                     this.getFavoritesCodes()
                 }
@@ -2195,7 +2291,7 @@
                             console.log(invoice)
                             this.set('selectedInvoice', invoice)
                             this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
-                    })
+                        })
 
                     this.$['nmclGrid'].clearCache()
 
@@ -2237,20 +2333,20 @@
                             docId: invoice.id,
                             id: "Invoice::" + newReference
                         })
-                        .then(() => {
-                            console.log(invoice)
-                            this.set('selectedInvoice', invoice)
-                            this._selectInvoice(invoice.id)
-                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                this.set('invoices', invoices)
+                            .then(() => {
+                                console.log(invoice)
+                                this.set('selectedInvoice', invoice)
+                                this._selectInvoice(invoice.id)
+                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
+                                    this.set('invoices', invoices)
 
-                                if(this.selectedInvoice.sentMediumType==="efact"){
-                                    this.generateJustificatory()
-                                }else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    this.sendEattest();
-                                }
-                            })
-                        }))
+                                    if(this.selectedInvoice.sentMediumType==="efact"){
+                                        this.generateJustificatory()
+                                    }else if(this.selectedInvoice.sentMediumType==="eattest"){
+                                        this.sendEattest();
+                                    }
+                                })
+                            }))
                 })
             }
 
@@ -2525,8 +2621,8 @@
             }
 
             _getOvveride3PayerCodeAsString(tp){
-                    const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
-                    return (tpAsString) ? tpAsString.label[this.language] : ""
+                const tpAsString = this.thirdPartyJustification.find(tpRef => tpRef.id == tp)
+                return (tpAsString) ? tpAsString.label[this.language] : ""
 
             }
 
@@ -2586,7 +2682,7 @@
                                 .then(invoice => {
                                     this.set('selectedInvoice', invoice)
                                     this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
-                            })
+                                })
 
                             this.$['nmclGrid'].clearCache()
 
@@ -2659,7 +2755,7 @@
                                 this.set("selectedInvoice",response)
                                 this.isSelected=false;
                             })
-                    })
+                        })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
@@ -2709,7 +2805,7 @@
             }
 
             _isLiftingLimitationPeriod(e) {
-                this.set('selectedInvoice.longDelayJustification', e.target.checked)
+                this.set('selectedInvoice.longDelayJustification', e.target.checked ? 1 : 0)
             }
 
             isTravellingExpenses(){
@@ -2780,7 +2876,11 @@
 
                     eattest.codes.push(newCode)
                 })
-                console.log(eattest)
+
+                let tempInvoice =this.selectedInvoice;
+                tempInvoice =_.omit(tempInvoice,["printedDate"])
+                this.eattest(tempInvoice)
+
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
                         console.log(response)
@@ -2813,26 +2913,57 @@
                 this.$['xml_dialog'].open()
             }
 
-            eattest(e){
+            duplicate(e){
+                e.stopPropagation();
+                e.preventDefault();
+                this.eattest(JSON.parse(e.target.dataset.item))
+            }
+
+            conventionAmountChanged(){
+                if(!this.activeNmclItem)return ;
+                const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
+                this.set('activeNmclItem.conventionAmount',tot)
+            }
+
+            _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
+
+            eattest(invoice){
                 e.stopPropagation();
                 e.preventDefault();
 
-                const invoice = JSON.parse(e.target.dataset.item)
-
-                console.log(invoice)
-                console.log(this.hcp)
-
-                //generate jpeg
+                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
 
-                console.log(jpegUrl)
+                //totaux
+                let totalACharge=0.00;
+                let totalSuppl=0.00;
+                let totalRemb=0.00;
+                let totalConv=0.00;
+                let totalDelta=0.00;
+
+                invoice.invoicingCodes.map((code)=>{
+                    totalACharge+=code.reimbursement+code.patientIntervention;
+                    totalSuppl+=parseFloat(code.doctorSupplement)
+                    totalRemb+=parseFloat(code.reimbursement)
+                    totalConv+=parseFloat(code.conventionAmount)
+                    totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
+                })
+
+                let templatePat = _.clone(this.patient), templateHcp = _.clone(this.hcp)
+                templatePat.gender = (this.patient.gender === "male") ? "Mr" : "Mme"
+                templatePat.addresses.map(addr=>{addr.telecoms.map(telcom=>{
+                    telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
+                })})
+                templateHcp.map(that=>{that.addresses.map(addr=>{addr.telecoms.map(telcom=>{
+                    telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
+                })})})
 
                 const template = {
                     "invoice" : invoice,
-                    "patient" : this.patient,
-                    "hcp" : this.hcp,
+                    "patient" : templatePat,
+                    "hcp" : templateHcp,
                     "formatDate" : function(){
                         return function(date,render){
                             let format =render(date)
@@ -2859,27 +2990,24 @@
                             return parseFloat(termes[0]).toFixed(2)+" €";
                         }
                     },
-                    "totalACharge" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention);
-                    }),
-                    "totalSuppl" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.doctorSupplement);
-                    }),
-                    "totalRemb" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.reimbursement);
-                    }),
-                    "totalConv" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.conventionAmount);
-                    }),
-                    "totalDelta" : invoice.invoicingCodes.reduce((tot,code)=>{
-                        if(!tot)tot=0;
-                        return parseFloat(tot)+parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement);
-                    }),
-                    "jpegUrl" : jpegUrl
+                    "justif": this.localize('pdf_justif','justif',this.language),
+                    "date": this.localize('pdf_date','date',this.language),
+                    "patCord": this.localize('pdf_patCord','patCord',this.language),
+                    "remboursPrest": this.localize('pdf_remboursPrest','remboursPrest',this.language),
+                    "honorPort": this.localize('pdf_honorPort','honorPort',this.language),
+                    "intervMut": this.localize('pdf_intervMut','intervMut',this.language),
+                    "honorConv": this.localize('pdf_honorConv','honorConv',this.language),
+                    "deltaSupp": this.localize('pdf_deltaSupp','deltaSupp',this.language),
+                    "subTot": this.localize('pdf_subTot','subTot',this.language),
+                    "totOne": this.localize('pdf_totOne','totOne',this.language),
+                    "totFinal": this.localize('pdf_totFinal','totFinal',this.language),
+                    "totalACharge" : totalACharge,
+                    "totalSuppl" : totalSuppl,
+                    "totalRemb" : totalRemb,
+                    "totalConv" : totalConv,
+                    "totalDelta" : totalDelta,
+                    "jpegUrl" : jpegUrl,
+                    "isDuplicata" : (invoice.printedDate) ? true : false
                 }
 
                 const html = `
@@ -3011,132 +3139,136 @@
                             <img src="{{jpegUrl}}" alt="barcode" />
                             <br>
                             <span>{{invoice.thirdPartyReference}}</span><br>
-                            {{#invoice.printedDate}}<span style="color: red">DUPLICATA</span>{{/invoice.printedDate}}
+                            {{#isDuplicata}}<span style="color: red">DUPLICATA</span>{{/isDuplicata}}
                         </td>
                     </tr>
 
-                    <tr class="information">
-                        <td colspan="2">
-                            <table>
-                                <tr>
-                                    <td>
-                                        {{#hcp}}
-                                            {{name}}<br>
-                                            {{speciality}}<br>
+                        <table>
+                            <tr>
+                                <td class="p50">
+                                    {{#hcp}}
+                                        <div class="fleft bold">{{name}}</div>
+                                        <div class="fleft title">{{speciality}}</div>
+                                        <div class="block-addr">
                                             {{#addresses}}
                                                 {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
-                                                {{postalCode}} {{city}}<br>
-                                                {{#telecoms}}
-                                                    {{telecomType}}: {{telecomNumber}}<br>
-                                                {{/telecoms}}
-                                            {{/addresses}}
-                                            TVA/CBE: {{cbe}}<br>
-                                            IBAN: {{bankAccount}}<br>
-                                        {{/hcp}}
-                                    </td>
-                                    <td>
+                                                {{postalCode}} {{city}}
+                                                <table class="addr">
+                                                    {{#telecoms}}
+                                                        <tr><td>{{telecomType}}</td><td><span class="hidden">:</span> {{telecomNumber}}</td></tr>
+                                                    {{/telecoms}}
+                                                    {{/addresses}}
+                                                    <tr><td>TVA/CBE</td><td><span class="hidden">:</span> {{cbe}}</td></tr>
+                                                    <tr><td>IBAN</td><td class="uppercase"><span class="hidden">:</span> {{bankAccount}}</td></tr>
+                                                </table>
+                                        </div>
+                                    {{/hcp}}
+                                </td>
+                                <td class="lborder">
+                                    <div class="title">Coordonnées du patient</div>
                                     {{#patient}}
-                                        {{gender}}
-                                        {{firstName}} {{#toUpperCase}}{{lastName}}{{/toUpperCase}}<br>
+                                        <div>{{gender}}. {{firstName}} <span class="uppercase">{{lastName}}</span></div>
+                                        <div class="block-addr">
                                         {{#addresses}}
                                             {{street}} {{houseNumber}} {{#postboxNumber}}b.{{postboxNumber}}{{/postboxNumber}}
-                                            {{postalCode}} {{city}}<br>
+                                            {{postalCode}} {{city}}
+                                            <table class="mt20 addr">
                                             {{#telecoms}}
-                                                {{telecomType}}: {{telecomNumber}}<br>
+                                                <tr><td>{{telecomType}}</td><td><span class="hidden">:</span> {{telecomNumber}}</td></tr>
                                             {{/telecoms}}
+                                            </table>
                                         {{/addresses}}
+                                        </div>
                                     {{/patient}}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="fact-details">
+                            <tr class="heading">
+                                <td class="minw30">{{remboursPrest}}</td>
+                                <td class="p12">{{honorPort}}</td>
+                                <td class="p12">{{intervMut}}</td>
+                                <td class="p12">{{intervMut}}</td>
+                                <td class="p12">{{deltaSupp}}</td>
+                            </tr>
+                            {{#invoice.invoicingCodes}}
+                                <tr class="item">
+                                    <td class="minw30"> {{unit}} {{code}} : {{label}}</td>
+                                    <td class="right">
+                                        {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
+                                    </td>
+                                    <td class="right">
+                                        {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
+                                    </td>
+                                    <td class="right">
+                                        {{#conventionAmount}}
+                                            {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
+                                        {{/conventionAmount}}
+                                        {{^conventionAmount}}na{{/conventionAmount}}
+                                    </td>
+                                    <td class="right">
+                                        {{#conventionAmount}}
+                                            {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
+                                        {{/conventionAmount}}
+                                        {{^conventionAmount}}na{{/conventionAmount}}
                                     </td>
                                 </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                <table>
-                    <tr class="heading">
-                        <td>Prestations remboursables</td>
-                        <td class="p12">Honoraire porté en compte</td>
-                        <td class="p12">Intervention mutuelle</td>
-                        <td class="p12">Honoraire convention</td>
-                        <td class="p12">∆ et Suppléments</td>
-                    </tr>
-                    {{#invoice.invoicingCodes}}
-                        <tr class="item">
-                            <td> {{unit}} {{code}} : {{label}}</td>
-                            <td class="right">
-                                {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
-                            </td>
-                            <td class="right">
-                                {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
-                            </td>
-                            <td class="right">
-                                {{#conventionAmount}}
-                                    {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
-                                {{/conventionAmount}}
-                                {{^conventionAmount}}na{{/conventionAmount}}
-                            </td>
-                            <td class="right">
-                                {{#conventionAmount}}
-                                    {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
-                                {{/conventionAmount}}
-                                {{^conventionAmount}}na{{/conventionAmount}}
-                            </td>
-                        </tr>
-                    {{/invoice.invoicingCodes}}
-                    <tr class="item bold">
-                        <td>Sous-totaux :</td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
-                        </td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
-                        </td>
-                        <td class="right">
-                            {{#totalConv}}
-                                {{#formatNumber}}{{totalConv}}{{/formatNumber}}
-                            {{/totalConv}}
-                            {{^totalConv}}na{{/totalConv}}
-                        </td>
-                        <td class="right">
-                            {{#totalDelta}}
-                                {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                            {{/totalDelta}}
-                            {{^totalDelta}}na{{/totalDelta}}
-                        </td>
-                    </tr>
-                    <tr class="item last">
-                        <td>Totaux Suppléments / Totaux ∆ / Totaux ∆ et suppl.</td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
-                        </td>
-                        <td></td>
-                        <td class="right">
-                            {{#totalConv}}
-                                {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
-                            {{/totalConv}}
-                            {{^totalConv}}na{{/totalConv}}
-                        </td>
-                        <td class="right">
-                            {{#totalDelta}}
-                                {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                            {{/totalDelta}}
-                            {{^totalDelta}}na{{/totalDelta}}
-                        </td>
-                    </tr>
+                            {{/invoice.invoicingCodes}}
+                            <tr class="item bold">
+                                <td class="minw30">{{subTot}} :</td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
+                                    {{#totalConv}}
+                                        {{#formatNumber}}{{totalConv}}{{/formatNumber}}
+                                    {{/totalConv}}
+                                    {{^totalConv}}na{{/totalConv}}
+                                </td>
+                                <td class="right">
+                                    {{#totalDelta}}
+                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
+                                    {{/totalDelta}}
+                                    {{^totalDelta}}na{{/totalDelta}}
+                                </td>
+                            </tr>
+                            <tr class="item last">
+                                <td class="minw30">T{{totOne}}</td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
+                                </td>
+                                <td></td>
+                                <td class="right">
+                                    {{#totalConv}}
+                                        {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+                                    {{/totalConv}}
+                                    {{^totalConv}}na{{/totalConv}}
+                                </td>
+                                <td class="right">
+                                    {{#totalDelta}}
+                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
+                                    {{/totalDelta}}
+                                    {{^totalDelta}}na{{/totalDelta}}
+                                </td>
+                            </tr>
 
-                    <tr class="total">
-                        <td>Total porté en compte</td>
-                        <td class="right">
-                            {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
-                        </td>
-                        <td class="right"></td>
-                        <td class="right"></td>
-                        <td class="right"></td>
-                    </tr>
-                </table>
-            </div>
-            </body>
-        </html>`;
+                            <tr class="total">
+                                <td class="minw30">{{totFinal}}</td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
+                                </td>
+                                <td class="right"></td>
+                                <td class="right"></td>
+                                <td class="right"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    </body>
+                </html>`;
 
                 this.api.pdfReport(mustache.render(html, template))
                     .then(data =>{
@@ -3152,42 +3284,7 @@
                         a.download = invoice.id+moment()+".pdf";
                         a.click();
                         window.URL.revokeObjectURL(url);
-                })
-
-                /*this.api.pdfReport("<html>" +
-                    "" +
-                    "</html>")
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
-
-                        let url = window.URL.createObjectURL(blob)
-
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
-
-                        a.href = url;
-                        a.download = invoice.id+this.api.moment()+".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
                     })
-                this.api.pdfReport("<html>" +
-                    "" +
-                    "</html>")
-                    .then(data =>{
-                        let blob = new Blob([data],{type :'application/pdf'});
-
-                        let url = window.URL.createObjectURL(blob)
-
-                        let a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style = "display: none";
-
-                        a.href = url;
-                        a.download = invoice.id+this.api.moment()+".pdf";
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    })*/
             }
         }
 
