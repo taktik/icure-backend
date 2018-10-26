@@ -64,6 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     flex-wrap: wrap;
                     flex-basis: 100%;
                     align-items: center;
+                    width:100%
                 }
 
                 .horizontal paper-input {
@@ -463,6 +464,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin-top:0;
                 }
 
+                paper-dialog {
+                    width: 80%;
+                    min-height:200px;
+                    display:flex;
+                    flex-flow: row wrap;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                }
+                paper-input{
+                    --paper-input-container-focus-color: var(--app-primary-color);
+                    font-size:var(--form-font-size);
+                }
+
                 .saved-filters {
                     display: flex;
                     flex-flow: row wrap;
@@ -557,6 +571,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .eid {
                         padding-top: 12px;
                     }
+
+                    .administrative-panel {
+                        height:100%;
+                        background: var(--app-background-color);
+                        margin: 0;
+                        width:100%;
+                        grid-column: 2 / 4;
+                        /*grid-template-columns: 40px 200px 200px 40px;*/
+                        grid-row: 1 / 1;
+                    }
+
+                    paper-tabs {
+                        background: var(--app-secondary-color);
+                        --paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+                        --paper-tabs: {
+                            color: var(--app-text-color);
+                        };
+                    }
+
+                    paper-tab {
+                        --paper-tab-ink: var(--app-text-color);
+                    }
+
+                    paper-tab.iron-selected {
+                        font-weight: bold;
+                    }
+
+                    paper-tab.iron-selected iron-icon{
+                        opacity: 1;
+                    }
+
+                    paper-tab iron-icon{
+                        opacity: 0.5;
+                        color: var(--app-text-color);
+                    }
+
+                    .horizontal paper-input {
+                        @apply --padding-right-left-16;
+                        height: 65px;
+                    }
+
+                    .horizontal paper-input-container {
+                        @apply --padding-right-left-16;
+                        padding:0;
+                    }
+
+                    .horizontal paper-menu-button{
+                        padding:0;
+                    }
+
+                    .horizontal vaadin-date-picker {
+                        @apply --padding-right-left-16;
+                        padding-top: 4px;
+                        height: 48px;
+                    }
+
+                    .dialog {
+                        width: 80%;
+                        min-height:320px;
+                        display:flex;
+                        flex-flow: row wrap;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    }
+
+
                 }
             </style>
         </custom-style>
@@ -744,111 +824,123 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </div>
 
-        <paper-dialog id="add-patient-dialog">
 
 
 
-            <paper-tabs selected="{{tabs}}">
-                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>[[localize('subscription_form_physical_person','Physical person',language)]]</paper-tab>
-                <paper-tab class="adm-tab"><iron-icon class="smaller" icon="vaadin:family"></iron-icon>[[localize('subscription_form_medical_house','Medical houses',language)]]</paper-tab>
-            </paper-tabs>
 
 
-            <iron-pages selected="[[tabs]]" class="">
-                <page>
-                    <div class="horizontal">
-                        <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
-                        <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-                        <paper-input label="First name" value="{{firstName}}"></paper-input>
-                        <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
-                        <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
-                        <paper-input-container>
-                            <label slot="label">[[localize("gender","Gender",language)]]
-                            </label>
-                            <iron-input slot="input" bind-value="{{valueGender}}">
-                                <input id="inputGender"  readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
-                            </iron-input>
-                            <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
-                                <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
-                                <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
-                                    <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
-                                    <template is="dom-repeat" items="[[option]]">
-                                        <paper-item>[[item]]</paper-item>
+
+            <paper-dialog id="add-patient-dialog" class="dialog">
+
+                <div class="administrative-panel" style="width:100%">
+
+
+                    <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
+                        <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon> [[localize('subscription_form_physical_person','Physical person',language)]]</paper-tab>
+                        <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:family"></iron-icon> [[localize('subscription_form_medical_house','Medical houses',language)]]</paper-tab>
+                    </paper-tabs>
+
+
+                    <iron-pages selected="[[tabs]]" class="">
+                        <page>
+                            <div class="horizontal" style="margin-top:20px">
+                                    <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
+                                    <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
+                                    <paper-input label="First name" value="{{firstName}}"></paper-input>
+                                    <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+                                    <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
+                                    <paper-input-container>
+                                        <label slot="label">[[localize("gender","Gender",language)]]
+                                        </label>
+                                        <iron-input slot="input" bind-value="{{valueGender}}">
+                                            <input id="inputGender"  readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
+                                        </iron-input>
+                                        <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+                                            <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+                                            <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
+                                                <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
+                                                <template is="dom-repeat" items="[[option]]">
+                                                    <paper-item>[[item]]</paper-item>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-menu-button>
+                                    </paper-input-container>
+                            </div>
+                        </page>
+                        <page>
+                            <!--Medical houses-->
+                            <div class="horizontal" style="margin-top:20px">
+                                <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label style="width:20%"></paper-input>
+                                <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract" always-float-label on-value-changed="updateStartOfCoverage"  style="width:20%"></vaadin-date-picker>
+                                <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage" type="number" always-float-label min="0" max="12" style="min-width: 20%"></paper-input>
+                                <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly  style="width:20%"></vaadin-date-picker>
+                            </div>
+                            <div class="horizontal" style="margin-top:30px">
+                                <label style="font-weight: 700; display:inline-block; margin-right:30px;"><iron-icon icon="icons:check" style="margin-right:10px; color:var(--app-secondary-color);"></iron-icon> [[localize('patient_subscriptions','Patient subscriptions',language)]]:</label>
+                                <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label style="margin-right:30px">Has doctor subscription?</paper-checkbox>
+                                <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label style="margin-right:30px">Has physiotherapist subscription?</paper-checkbox>
+                                <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
+                            </div>
+                        </page>
+                    </iron-pages>
+
+
+                    <div>
+                        <template is="dom-if" if="[[displayResult]]">
+                            <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('las_nam','Last name',language)]]
                                     </template>
-                                </paper-listbox>
-                            </paper-menu-button>
-                        </paper-input-container>
+                                    <template>
+                                        <div>[[item.lastName]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('fir_nam','First name',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.firstName]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('dat_of_bir','Date of birth',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('ssin','SSIN',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.ssin]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('remark','Remarks',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.remarks]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                            </vaadin-grid>
+                        </template>
                     </div>
-                </page>
-                <page>
-                    <!--Medical houses-->
-                    <div class="horizontal">
-                        <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label></paper-input>
-                        <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label style="margin-right:20px">Has doctor subscription?</paper-checkbox>
-                        <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label style="margin-right:20px">Has physiotherapist subscription?</paper-checkbox>
-                        <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
+                    <div class="buttons" style="margin-top:30px; float:right">
+                        <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
                     </div>
-                    <div class="horizontal">
-                        <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract" always-float-label on-value-changed="updateStartOfCoverage"></vaadin-date-picker>
-                        <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage" type="number" always-float-label min="0" max="12" style="min-width: 200px"></paper-input>
-                        <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly></vaadin-date-picker>
-                    </div>
-                </page>
-            </iron-pages>
-
-
-            <div>
-                <template is="dom-if" if="[[displayResult]]">
-                    <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('las_nam','Last name',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.lastName]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('fir_nam','First name',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.firstName]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('dat_of_bir','Date of birth',language)]]
-                            </template>
-                            <template>
-                                <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('ssin','SSIN',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.ssin]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('remark','Remarks',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.remarks]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                    </vaadin-grid>
-                </template>
-            </div>
-            <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]
-                </paper-button>
             </div>
         </paper-dialog>
+
+
+
+
 
         <paper-dialog id="saveFilterDialog">
             <h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
