@@ -734,7 +734,7 @@
                 if (this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp => {
-                                return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
+                                return this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(
                                     this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                     this.listIO,

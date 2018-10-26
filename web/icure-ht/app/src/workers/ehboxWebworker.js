@@ -18,7 +18,7 @@ onmessage = e => {
         const keystoreId        = e.data.keystoreId
         const user              = e.data.user
         const ehpassword        = e.data.ehpassword
-        const boxId             = e.data.boxId
+        const boxIds             = e.data.boxId
 		const alternateKeystores= e.data.alternateKeystores
 
         const ehboxApi          = new fhcApi.fhcEhboxcontrollerApi(fhcHost, fhcHeaders)
@@ -39,7 +39,7 @@ onmessage = e => {
         const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
         const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
 
-        const treatMessage =  (message) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
+        const treatMessage =  (message,boxId) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
             .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
             .then(([fullMessage, existingMess]) => {
                 console.log(fullMessage)
@@ -93,15 +93,18 @@ onmessage = e => {
                 }
             })
 
+		boxIds && boxIds.forEach(boxId =>{
         ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores).then(messages => {
             let p = Promise.resolve([])
             messages.forEach(m => {
-                p = p.then(acc => treatMessage(m).then(id => id ? acc.concat([id]) : acc))
+					p = p.then(acc => treatMessage(m,boxId).then(id => id ? acc.concat([id]) : acc))
             })
             return p
-        }).then(toBeDeletedIds =>
-            Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN"+boxId)))
-        )
+			}).then(toBeDeletedIds => {
+				if (!boxId.startsWith("BIN")) Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN" + boxId)))
+			})
+		})
+
     }
 };
 

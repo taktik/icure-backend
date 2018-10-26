@@ -466,7 +466,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item on-tap="_e_inv_arc">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
-			<paper-item class="trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
+			<paper-item class="trash" on-tap="_trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
 		</div>
 	</template>
 	<script>
@@ -654,6 +654,9 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'GMD' } } }));
     }
 
+    _trash(){
+		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+	}
 
 	selectedContactItemsChanged() {
 		const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');

@@ -1182,12 +1182,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         keystoreId: this.api.keystoreId,
                         user: this.user,
                         ehpassword: this.credentials.ehpassword,
-                        boxId: "INBOX",
+                        boxId: ["INBOX","SENTBOX"],
                         alternateKeystores: ({keystores:alternateKeystores.filter(ak => ak.passPhrase)}),
                         keyPair: keyPair
                     })
 
-                })
+                });
 
                 this.worker.onmessage = e => {
                     this.set('ehboxWebWorkerMessage', e.data.message)

@@ -1077,7 +1077,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-hcp>
-                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
                     <ht-view404 name="view404"></ht-view404>
@@ -1589,7 +1589,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						keystoreId: this.api.keystoreId,
 						user: this.user,
 						ehpassword: this.credentials.ehpassword,
-						boxId: "INBOX",
+						boxId: ["INBOX","SENTBOX"],
 						alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
 						keyPair: keyPair
 					})
