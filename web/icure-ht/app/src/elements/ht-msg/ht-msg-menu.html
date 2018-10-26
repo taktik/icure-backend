@@ -164,7 +164,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			}
 
-			collapse-button > .menu-item.iron-selected {
+			collapse-button  .menu-item.iron-selected {
 				@apply --padding-right-left-16;
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
@@ -430,15 +430,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<div class="col-left">
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button>
-				<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
+				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
 					<div class="one-line-menu list-title"><iron-icon icon="icons:inbox"></iron-icon>[[localize('inb','Inbox',language)]] <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
-					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none"></paper-icon-button>
+					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
-				<paper-listbox class="menu-content sublist" multi toggle-shift>
-						<paper-item on-tap="_ehe">[[localize('ehe','Ehealth',language)]]</paper-item>
-						<paper-item on-tap="_prot">[[localize('prot','Protocol',language)]]</paper-item>
-						<paper-item on-tap="_labRes">[[localize('lab_res','Lab Results',language)]]</paper-item>
-						<paper-item on-tap="_reportIn">[[localize('rep','Report',language)]]</paper-item>
+				<paper-listbox class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
+					<paper-item class="one-line-menu menu-item" id="eheIn">[[localize('ehe','Ehealth',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="protIn">[[localize('prot','Protocol',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="labResult">[[localize('lab_res','Lab Results',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="reportIn">[[localize('rep','Report',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="mycarenet">[[localize('mycarenet','My Carenet',language)]]</paper-item>
 						<!--<paper-item on-tap="_e_invIn">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 				</paper-listbox>
 			</collapse-button>
@@ -545,12 +546,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					accepted: 0,
 					archived: 0
 				})
+			},
+            inboxSelectionIndex: {
+			    type: Number,
+			    value: null
 			}
 		};
 	}
 
 	static get observers() {
-		return [];
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)'];
 	}
 
 	constructor() {
@@ -572,17 +577,37 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.dispatchEvent(new CustomEvent('new-msg', { detail: {} }));
 	}
 
-    _inbox(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
+    toggleMenu(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
+        styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
 	}
+
+
+    _inbox(e){
+	    e.stopPropagation()
+		e.preventDefault()
+
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'inbox' } } }));
+
+	    this.set('inboxSelectionIndex', null)
+		this.$.inbox.classList.add('iron-selected')
+	}
+
+    _inboxSelectionIndexChanged() {
+        if (this.inboxSelectionIndex !== null && this.inboxSelectionIndex !== undefined) {
+            this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.inboxSelectionItem.id } } }));
+            this.$.inbox.classList.remove('iron-selected')
+        }
+    }
+
 
     _sentbox(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
     }
 
-    _labRes(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'labResult' } } }));
-    }
     _report(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
     }
@@ -611,23 +636,12 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'archive'} } }));
     }
 
-    _reportIn(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportIn' } } }));
-    }
-
     _e_invIn(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invIn' } } }));
     }
 
     _ehealthMessages(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'ehealthMessages' } } }));
-    }
-    _ehe(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'eheIn' } } }));
-    }
-
-    _prot(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'protIn' } } }));
     }
 
     _unread(){
@@ -648,10 +662,6 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _EFactBatch(){
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'EFactBatch' } } }));
-    }
-
-    _GMD(){
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'GMD' } } }));
     }
 
     _trash(){
