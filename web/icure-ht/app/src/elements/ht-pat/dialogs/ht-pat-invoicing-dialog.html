@@ -935,7 +935,7 @@
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="eattest" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -1067,7 +1067,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.patientIntervention]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1077,7 +1077,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.reimbursement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1086,7 +1086,7 @@
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.doctorSupplement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1095,7 +1095,7 @@
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.totalAmount]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1196,15 +1196,11 @@
                                          label="[[localize('reimb','Reimbursement',language)]]"
                                          value="{{activeNmclItem.reimbursement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
-                                         label="[[localize('conv_amoun','Convention amount',language)]]"
-                                         value="{{activeNmclItem.conventionAmount}}" readonly></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('extra','Extra',language)]]"
                                          value="{{activeNmclItem.doctorSupplement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('tot','Fee',language)]]"
                                          value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
-
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
@@ -1827,7 +1823,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -2374,6 +2370,17 @@
                 return date ? this.api.moment(date).format("DD/MM/YYYY") : 'N/A'
             }
 
+            _formatAmount(amount) {
+                console.log("formatamount",amount)
+                if (amount == 0) {return "0.00"}
+                if (amount.toString().length < 3) {
+                    let out = // if integer, add the decimals, else just besure it's float
+                        (Number(amount)%1 === 0) ? amount+".00" : parseFloat(amount)
+                    return out
+                }
+                return amount
+            }
+
             datePickerChanged() {
                 console.log('datePickerChange')
             }
@@ -2396,8 +2403,8 @@
             }
 
             getInvoiceType(invoiceType){
-               const type = this.invoiceType.find(type => type.id === invoiceType)
-               return type && type.label && type.label[this.language]
+                const type = this.invoiceType.find(type => type.id === invoiceType)
+                return type && type.label && type.label[this.language]
             }
 
             getSentMediumType(sentMediumType){
@@ -2876,11 +2883,7 @@
 
                     eattest.codes.push(newCode)
                 })
-
-                let tempInvoice =this.selectedInvoice;
-                tempInvoice =_.omit(tempInvoice,["printedDate"])
-                this.eattest(tempInvoice)
-
+                console.log(eattest)
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
                         console.log(response)
@@ -2913,12 +2916,6 @@
                 this.$['xml_dialog'].open()
             }
 
-            duplicate(e){
-                e.stopPropagation();
-                e.preventDefault();
-                this.eattest(JSON.parse(e.target.dataset.item))
-            }
-
             conventionAmountChanged(){
                 if(!this.activeNmclItem)return ;
                 const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
@@ -2930,8 +2927,7 @@
             eattest(invoice){
                 e.stopPropagation();
                 e.preventDefault();
-
-                 //generate jpeg
+                //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
@@ -3006,142 +3002,124 @@
                     "totalRemb" : totalRemb,
                     "totalConv" : totalConv,
                     "totalDelta" : totalDelta,
-                    "jpegUrl" : jpegUrl,
-                    "isDuplicata" : (invoice.printedDate) ? true : false
+                    "jpegUrl" : jpegUrl
                 }
 
                 const html = `
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <title></title>
-                <style>
-                    .invoice-box {
-                        max-width: 800px;
-                        min-height:880px;
-                        margin: auto;
-                        padding: 30px;
-                        border: 1px solid #eee;
-                        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-                        font-size: 16px;
-                        line-height: 24px;
-                        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                        color: #555;
-                    }
-
-                    .invoice-box table {
-                        width: 100%;
-                        line-height: inherit;
-                        text-align: left;
-                    }
-
-                    .p12 {
-                        width:12%;
-                    }
-
-                    .p50 {
-                        width:50%;
-                    }
-
-                    .bold {
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table td {
-                        padding: 5px;
-                        vertical-align: top;
-                    }
-
-                    .invoice-box table tr td.right {
-                        text-align: right;
-                    }
-
-                    .invoice-box table tr.top table td {
-                    }
-
-                    .invoice-box table tr.top table td.title {
-                        font-size: 45px;
-                        line-height: 45px;
-                        color: #333;
-                    }
-
-                    .invoice-box table tr.information table td {
-                        padding-bottom: 40px;
-                    }
-
-                    .invoice-box table tr.heading td {
-                        background: #eee;
-                        border-bottom: 1px solid #ddd;
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.details td {
-                        padding-bottom: 20px;
-                    }
-
-                    .invoice-box table tr.item td{
-                        border-bottom: 1px solid #eee;
-                    }
-
-                    .invoice-box table tr.item.last td {
-                        border-bottom: none;
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.total td {
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.total td:nth-child(2) {
-                        border-top: 2px solid #eee;
-                    }
-
-                    @media only screen and (max-width: 600px) {
-                        .invoice-box table tr.top table td {
-                            width: 100%;
-                            display: block;
-                            text-align: center;
-                        }
-
-                        .invoice-box table tr.information table td {
-                            width: 100%;
-                            display: block;
-                            text-align: center;
-                        }
-                    }
-
-                    /** RTL **/
-                    .rtl {
-                        direction: rtl;
-                        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                    }
-
-                    .rtl table {
-                        text-align: right;
-                    }
-
-                    .rtl table tr td:nth-child(2) {
-                        text-align: left;
-                    }
-	            </style>
-            </head>
-            <body>
-            <div class="invoice-box">
-                <table cellpadding="0" cellspacing="0">
-                    <tr class="top">
-                        <td class="p50">
-                            Justificatif #: {{invoice.invoiceReference}}<br>
-                            Date:
-                            {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
-                            <br>
-                        </td>
-                        <td class="p50" style="text-align: center;">
-                            <img src="{{jpegUrl}}" alt="barcode" />
-                            <br>
-                            <span>{{invoice.thirdPartyReference}}</span><br>
-                            {{#isDuplicata}}<span style="color: red">DUPLICATA</span>{{/isDuplicata}}
-                        </td>
-                    </tr>
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title></title>
+                        <style>
+                            .invoice-box {
+                                max-width: 800px;
+                                min-height:880px;
+                                margin: auto;
+                                padding: 30px;
+                                border: 1px solid #eee;
+                                box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+                                font-size: 16px;
+                                line-height: 24px;
+                                font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+                                color: #555;
+                            }
+                            .invoice-box table {
+                                width: 100%;
+                                line-height: inherit;
+                                text-align: left;
+                            }
+                            .p12 {width:12%;}
+                            .p50 {width:50%;}
+                            .bold {font-weight: bold;}
+                            .invoice-box table td {
+                                padding: 5px;
+                                vertical-align: top;
+                            }
+                            td.first-col {
+                            min-width: 33%;
+                            }
+                            .invoice-box table tr td.right {text-align: right;}
+                            .invoice-box table tr.top table td.title {
+                                font-size: 45px;
+                                line-height: 45px;
+                                color: #333;
+                            }
+                            .invoice-box table tr.information table td {padding-bottom: 40px;}
+                            .invoice-box table tr.heading td {
+                                background: #eee;
+                                border-bottom: 1px solid #ddd;
+                                font-weight: bold;
+                            }
+                            .invoice-box table tr.details td {padding-bottom: 20px;}
+                            .invoice-box table tr.item td{border-bottom: 1px solid #eee;}
+                            .invoice-box table tr.item.last td {
+                                border-bottom: none;
+                                font-weight: bold;
+                            }
+                            .invoice-box table tr.total td {font-weight: bold;}
+                            .invoice-box table tr.total td:nth-child(2) {border-top: 2px solid #eee;}
+                            .underline {border-bottom: 1px solid lightgrey;}
+                            .underline-dotted {border-bottom: 1px dotted lightgrey;}
+                            table.fact-details {
+                                border: .5px solid lightgrey;
+                                margin-top: 35px;
+                            }
+                            table.fact-details * {font-size: 12px}
+                            td.minw30 {max-width: 30%;}
+                            .fleft {
+                                float: left;
+                                clear: both;
+                            }
+                            .hidden {display: none;}
+                            .txt-center {text-align: center;}
+                            .lborder {
+                                border-left: 1px solid lightgrey;
+                                padding-left: 10px;
+                            }
+                            .uppercase {text-transform: uppercase !important;}
+                            .capitalize {text-transform: capitalize;}
+                            .txt-red {color: red;}
+                            .mt20{margin-top: 20px;}
+                            .mb10{margin-bottom: 10px;}
+                            .mb20{margin-bottom:20px;}
+                            .m0auto {margin: 0 auto;}
+                            table.addr tr td:first-child {
+                                border-bottom: 1px solid lightgrey;
+                                text-align: right;
+                                text-transform: uppercase;
+                            }
+                            table.addr tr td:nth-child(2) {
+                                border-bottom: 1px dotted lightgrey;
+                                text-transform: lowercase;
+                                word-wrap: break-word;
+                            }
+                            .txt-underline {text-decoration:underline}
+                            .title {font-weight:bold;text-decoration: underline; margin-bottom:15px;}
+                            table.top-table {margin-bottom: 50px;}
+                        </style>
+                    </head>
+                    <body>
+                    <div class="invoice-box">
+                        <table class="toptable">
+                            <tr class="top">
+                                <td class="p50">
+                                    <h1>EATTEST</h1>
+                                    <h2 class="mb20">{{#patient}}
+                                        <div>{{firstName}} <span class="uppercase">{{lastName}}</span></div>
+                                        <div>NISS : {{ssin}}</div>
+                                    {{/patient}}</h2>
+                                    {{justif}} : {{invoice.invoiceReference}}<br />
+                                    {{date}} : {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
+                               </td>
+                               <td class="p50 txt-center">
+                                    <img src="{{jpegUrl}}" alt="barcode" />
+                                    <div class="txt-center">{{invoice.thirdPartyReference}}</div>
+                                    {{#invoice.printedDate}}
+                                        <div class="txt-center"><span class="txt-red">DUPLICATA</span></div>
+                                    {{/invoice.printedDate}}
+                                </td>
+                            </tr>
+                        </table>
 
                         <table>
                             <tr>
