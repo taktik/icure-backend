@@ -765,9 +765,16 @@
                                                     <p>[[localize('status','Status',language)]]:
                                                         [[localize('req_in_tre','Request rejected',language)]]</p>
                                                 </template>
-                                                <p class="error">[[t.refusalJustification.fr]]</p>
+                                                <p class="error">
+                                                <template is="dom-if" if="[[_isFrench(language)]]">
+                                                    [[t.refusalJustification.FR]]
+                                                </template>
+                                                <template is="dom-if" if="[[_isDutch(language)]]">
+                                                    [[t.refusalJustification.NL]]
+                                                </template>
+                                                </p>
                                             </template>
-                                            <p>[[localize('ref_io','Reference IO',language)]]: [[t.decisionReference]]</p>
+                                            <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
                                             <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
                                             <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                             <h4>[[localize('tec_dat','Technical data',language)]]</h4>
@@ -802,64 +809,68 @@
                                                 </vaadin-grid-column>
                                             </vaadin-grid>
                                         </template>
-                                        <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                        <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                        <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                        <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
-                                    </div>
-                                </page>
-                            </iron-pages>
-                            <div class="tool-container">
-                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                                    label="[[localize('From','From',language)]]"
-                                                    value="{{fromAsString}}"></vaadin-date-picker>
-                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                                    label="[[localize('To','To',language)]]"
-                                                    value="{{toAsString}}"></vaadin-date-picker>
-                                <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
-                                                on-value-splices-change="_localizedValueChanged" data-value-path="id"
-                                                data-label-path="descr" always-float-label></tk-token-field>
-                                <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
-                                    'incomplete
-                                    request', language)]]
-                                </vaadin-checkbox>
-                            </div>
-                            <div class="btns-container">
-                                <template is="dom-if" if="[[isAgreementSelected]]">
-                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
-                                        agreement',language)]]
-                                    </paper-button>
-                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
-                                        agreement',language)]]
-                                    </paper-button>
-                                    <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
-                                        agreement',language)]]
-                                    </paper-button>
-                                </template>
+                                    </template>
+                                    <h4>[[localize('tec_dat','Technical data',language)]]</h4>
+                                    <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
+                                    <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
+                                    <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
+                                </div>
+                            </page>
+                        </iron-pages>
+                        <div class="tool-container">
+                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                                label="[[localize('From','From',language)]]"
+                                                value="{{fromAsString}}"></vaadin-date-picker>
+                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                                label="[[localize('To','To',language)]]"
+                                                value="{{toAsString}}"></vaadin-date-picker>
+                            <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
+                                            on-value-splices-change="_localizedValueChanged" data-value-path="id"
+                                            data-label-path="descr" always-float-label></tk-token-field>
+                            <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
+                                'incomplete
+                                request', language)]]
+                            </vaadin-checkbox>
+                        </div>
+                        <div class="btns-container">
+                            <template is="dom-if" if="[[isAgreementSelected]]">
+                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">
+                                    [[localize('can_agr','Cancel
+                                    agreement',language)]]
+                                </paper-button>
+                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">
+                                    [[localize('clos_agr','Close
+                                    agreement',language)]]
+                                </paper-button>
+                                <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">
+                                    [[localize('ext_agr','Extend
+                                    agreement',language)]]
+                                </paper-button>
+                            </template>
 
-                                <template is="dom-if" if="[[!isAgreementSelected]]">
-                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">[[localize('req_agr','Request
-                                        agreement',language)]]
-                                    </paper-button>
-                                </template>
-                            </div>
+                            <template is="dom-if" if="[[!isAgreementSelected]]">
+                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
+                                    [[localize('req_agr','Request
+                                    agreement',language)]]
+                                </paper-button>
+                            </template>
+                        </div>
 
-                            <div id="appendix-upload-container">
-                                <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
-                                            accept="image/jpeg,application/pdf"
-                                            target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
-                                            form-data-name="attachment"
-                                            on-upload-success="_fileUploaded"></vaadin-upload>
-                                <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
-                            </div>
-                        </template>
-                    </div>
+                        <div id="appendix-upload-container">
+                            <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
+                                           accept="image/jpeg,application/pdf"
+                                           target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                                           form-data-name="attachment"
+                                           on-upload-success="_fileUploaded"></vaadin-upload>
+                            <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
+                        </div>
+                    </template>
+                </div>
+                <div class="message">
+                    <div class="warning">[[warnings]]</div>
+                    <div class="error">[[errors]]</div>
                 </div>
                 <div class="buttons">
-                    <div class="message">
-                        <div class="warning">[[warnings]]</div>
-                        <div class="error">[[errors]]</div>
-                    </div>
                     <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
                     </paper-button>
                 </div>
@@ -970,10 +981,6 @@
                     },
                     selectedLoadParagraph: {
                         type: String
-                    },
-                    loadResponse: {
-                        type: Boolean,
-                        value: false
                     }
 
                 }
@@ -995,7 +1002,6 @@
 
             _filterChanged(text) {
                 if (text.detail && text.detail.value && text.detail.value.length > 2) {
-                    this.set('loadResponse', false)
                     const searchString = text.detail.value
                     this.latestSearchString = searchString
                     setTimeout(() => {
@@ -1018,20 +1024,19 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    this.set('loadResponse', false)
                     this.set('agreementResponse', [])
                     this.set('selectedAgreementIndex', null);
 
                     this.set('isAgreementSelected', false)
 
                     this.set('displayedParagraph', this.selectedParagraph);
+                    this.set('tabs', 0)
                 }
             }
 
             _displayedParagraphChanged() {
                 if (this.displayedParagraph && this.displayedParagraph.id) {
                     (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
-                    this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
                     this.set('paragraph', [])
                     const paragraph = this.displayedParagraph.id.split('/')[0]
@@ -1107,8 +1112,8 @@
             }
 
             _mpps(p) {
-                const mpps = this.agreementMpps && this.agreementMpps.find(mpps => mpps.paragraph === p)
-                return mpps && mpps.mpps
+                //const mpps = this.agreementMpps && this.agreementMpps.mpps.find(mpps => mpps.paragraph === p)
+                return  this.agreementMpps && this.agreementMpps.mpps
             }
 
             _loadChapter4() {
@@ -1134,6 +1139,10 @@
                     ).then((transactions) => {
                         this.set('orphanAgreements', transactions.filter(([t, vtm]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
                             .map(([t, vtm]) => ({
+                                careProviderReference: t.careProviderReference,
+                                content: t.content,
+                                coverageType: t.coverageType,
+                                refusalJustification: t.refusalJustification,
                                 paragraph: t.paragraph,
                                 ioRequestReference: t.ioRequestReference,
                                 ioDecisionReference: t.decisionReference,
@@ -1146,10 +1155,13 @@
                                 strengthUnit: t.strengthUnit,
                                 accepted: t.accepted,
                                 inTreatment: t.inTreatment,
+                                end: t.end,
+                                responseType: t.responseType,
+                                timestamp: t.timestamp,
+                                unitNumber : t.unitNumber,
                                 medications: vtm
                             })))
                         this.set('agreementResponse', agreements)
-                        this.set('loadResponse', true)
                         this._isLoadingChapter = false;
                     })
 
@@ -1157,7 +1169,6 @@
             }
 
             _requestChapter4(e) {
-                this.set('loadResponse', false)
                 this.set('agreementResponse', [])
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
@@ -1294,8 +1305,21 @@
                                 start: selectedAgreement.start,
                                 end: selectedAgreement.ioDecisionEndOfValidity
                             })
-                            this._isLoadingParagraph = false
-                        })
+                            this.set('agreementResponse', {
+                                transactions: [selectedAgreement]
+                            })
+
+                           this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', selectedAgreement.paragraph).then(it => ({
+                                paragraph: selectedAgreement.paragraph,
+                                mpps: it
+                            })).then(links =>
+                                this.set('agreementMpps', links)
+                            )
+                              this._isLoadingParagraph = false
+
+                     })
+
+
                 }
             }
 
