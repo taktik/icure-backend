@@ -24,13 +24,14 @@
 <link rel="import" href="../../../../../bower_components/tk-token-field/tk-token-field.html">
 
 <link rel="import" href="../../../../scrollbar-style.html">
+<link rel="import" href="../../../../spinner-style.html">
 
 <link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="ht-pat-mcn-chapteriv-verse.html">
 
 <dom-module id="ht-pat-mcn-chapteriv-agreement">
     <template>
-        <style include="scrollbar-style">
+        <style include="scrollbar-style spinner-style">
             #dialog {
                 min-height: 600px;
                 min-width: 800px;
@@ -56,7 +57,7 @@
                 margin: 0;
                 padding: 0;
                 display: grid;
-                height: calc(100% - 128px);
+                height: calc(100% - 108px);
                 width: 100%;
                 grid-template-columns: 25% auto;
                 grid-template-rows: 100%;
@@ -71,7 +72,7 @@
                 grid-row: 1/1;
                 display: inline-grid;
                 grid-template-columns: 1fr;
-                grid-template-rows: 15% 77% 8%;
+                grid-template-rows: calc(3 * 57px + 8px) 1fr 48px;
                 margin-top: 0;
                 padding: 0;
                 box-sizing: border-box;
@@ -82,7 +83,12 @@
                 grid-row: 1/1;
                 display: flex;
                 flex-flow: row wrap;
-                padding: 8px 24px;
+                padding: 4px 24px;
+            }
+
+            .searchLoadContainer .tool{
+                height: 57px;
+                margin: 0;
             }
 
             #_chapter_listbox{
@@ -108,6 +114,8 @@
                 flex-direction: row;
                 justify-content: center;
                 align-items: center;
+                padding: 4px 0;
+                box-sizing: border-box;
             }
 
             .detail-panel {
@@ -208,7 +216,7 @@
                 flex-flow: row wrap;
                 justify-content: flex-start;
                 align-items: center;
-                font-size: 14px;
+                font-size: 12px;
                 @apply --padding-right-left-16;
             }
 
@@ -265,6 +273,7 @@
                 min-width: 100px;
                 @apply --shadow-elevation-2dp;
                 padding: 10px 1.2em;
+                text-transform: capitalize;
             }
 
             .message {
@@ -360,6 +369,7 @@
             .detail-panel .btns-container{
                 grid-column: 1/1;
                 grid-row: 4/4;
+                padding: 4px 0;
             }
 
             vaadin-date-picker {
@@ -539,6 +549,8 @@
                 display: flex;
                 flex-flow: row wrap;
                 justify-content: space-between;
+                padding: 4px 0;
+                box-sizing: border-box;
             }
 
             .accepted-status {
@@ -554,16 +566,8 @@
                 border-radius: 20px;
                 padding: 1px 12px 1px 8px;
                 width: auto;
-                font-size: 12px;
+                font-size: 12px; 
                 line-height: 16px;
-            }
-
-            .spinner {
-                --paper-spinner-layer-1-color: var(--app-primary-color-light);
-                --paper-spinner-layer-2-color: var(--app-primary-color-dark);
-                --paper-spinner-layer-3-color: var(--app-secondary-color);
-                --paper-spinner-layer-4-color: var(--app-secondary-color-dark);
-                --paper-spinner-stroke-width: 2px;
             }
 
             .chapter-list-spinner {
@@ -809,44 +813,40 @@
                                                 </vaadin-grid-column>
                                             </vaadin-grid>
                                         </template>
-                                    </template>
-                                    <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                    <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                    <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                    <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
-                                </div>
-                            </page>
-                        </iron-pages>
-                        <div class="tool-container">
-                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                                label="[[localize('From','From',language)]]"
-                                                value="{{fromAsString}}"></vaadin-date-picker>
-                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                                label="[[localize('To','To',language)]]"
-                                                value="{{toAsString}}"></vaadin-date-picker>
-                            <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
-                                            on-value-splices-change="_localizedValueChanged" data-value-path="id"
-                                            data-label-path="descr" always-float-label></tk-token-field>
-                            <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
-                                'incomplete
-                                request', language)]]
-                            </vaadin-checkbox>
-                        </div>
-                        <div class="btns-container">
-                            <template is="dom-if" if="[[isAgreementSelected]]">
-                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">
-                                    [[localize('can_agr','Cancel
-                                    agreement',language)]]
-                                </paper-button>
-                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">
-                                    [[localize('clos_agr','Close
-                                    agreement',language)]]
-                                </paper-button>
-                                <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">
-                                    [[localize('ext_agr','Extend
-                                    agreement',language)]]
-                                </paper-button>
-                            </template>
+                                        <h4>[[localize('tec_dat','Technical data',language)]]</h4>
+                                        <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
+                                        <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
+                                        <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
+                                    </div>
+                                </page>
+                            </iron-pages>
+                            <div class="tool-container">
+                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                                    label="[[localize('From','From',language)]]"
+                                                    value="{{fromAsString}}"></vaadin-date-picker>
+                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                                    label="[[localize('To','To',language)]]"
+                                                    value="{{toAsString}}"></vaadin-date-picker>
+                                <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
+                                                on-value-splices-change="_localizedValueChanged" data-value-path="id"
+                                                data-label-path="descr" always-float-label></tk-token-field>
+                                <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
+                                    'incomplete
+                                    request', language)]]
+                                </vaadin-checkbox>
+                            </div>
+                            <div class="btns-container">
+                                <template is="dom-if" if="[[isAgreementSelected]]">
+                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                        agreement',language)]]
+                                    </paper-button>
+                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                        agreement',language)]]
+                                    </paper-button>
+                                    <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
+                                        agreement',language)]]
+                                    </paper-button>
+                                </template>
 
                             <template is="dom-if" if="[[!isAgreementSelected]]">
                                 <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
@@ -865,15 +865,18 @@
                             <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
                         </div>
                     </template>
+                    <template is="dom-if" if="[[loadResponse]]">
+
+                    </template>
                 </div>
+            </div>
+            <div class="buttons">
                 <div class="message">
                     <div class="warning">[[warnings]]</div>
                     <div class="error">[[errors]]</div>
                 </div>
-                <div class="buttons">
-                    <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
-                    </paper-button>
-                </div>
+                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
+                </paper-button>
             </div>
         </paper-dialog>
 
