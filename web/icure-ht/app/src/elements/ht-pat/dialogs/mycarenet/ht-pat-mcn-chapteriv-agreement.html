@@ -52,11 +52,6 @@
                 top: 4px;
             }
 
-            vaadin-combo-box {
-                width: 100%;
-                height: 72px;
-            }
-
             .container {
                 margin: 0;
                 padding: 0;
@@ -97,6 +92,7 @@
                 grid-column: 1/1;
                 grid-row: 2/2;
                 overflow-y: overlay;
+                overflow-x: hidden;
                 --paper-listbox-selected-item: {
                     color: var(--app-text-color-light);
                     background: var(--app-primary-color);
@@ -122,23 +118,43 @@
                 padding: 8px 24px;
                 box-sizing: border-box;
                 position: relative;
+                display: inline-grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: 72px 1fr;
+            }
+
+            .detail-panel vaadin-combo-box {
+                grid-column: 1/1;
+                grid-row: 1/1;
+                width: 100%;
+                height: 72px;
+            }
+
+            .detail-panel .paragraph{
+                grid-column: 1/1;
+                grid-row: 2/2;
+                display:inline-grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: 32px 1fr 106px 48px;
+            }
+
+            iron-pages{
+                grid-column: 1/1;
+                grid-row: 2/2;
             }
 
             .detail-panel div.paragraph-content {
                 height: 100%;
                 position: relative;
-                overflow-y: overlay;
                 text-align: justify;
                 padding: 0 24px;
+                overflow-y: overlay;
+                max-height: 600px;
             }
 
             .detail-panel div.paragraph-content p{
                 padding-bottom: 12px;
                 border-bottom: 1px solid var(--app-background-color-dark);
-            }
-
-            iron-pages {
-                height: calc(100% - 256px)
             }
 
             .chapterDateInfo {
@@ -303,8 +319,9 @@
             }
 
             paper-tabs {
+                grid-column:1/1;
+                grid-row: 1/1;
                 height: 32px;
-                margin-top: -12px;
                 --paper-tabs-selection-bar-color: var(--app-secondary-color);
                 --paper-tabs: {
                     color: var(--app-text-color);
@@ -328,16 +345,21 @@
                 color: var(--app-text-color);
             }
 
-            .tool-container {
+            .detail-panel .tool-container {
                 width: calc(100% - 48px);
-                position: absolute;
-                bottom: 24px;
                 display: flex;
                 flex-flow: row wrap;
                 align-items: center;
                 justify-content: flex-start;
                 box-sizing: border-box;
                 margin: 0 8px;
+                grid-column: 1/1;
+                grid-row: 3/3;
+            }
+
+            .detail-panel .btns-container{
+                grid-column: 1/1;
+                grid-row: 4/4;
             }
 
             vaadin-date-picker {
@@ -352,8 +374,11 @@
 
             tk-token-field.tool {
                 min-width: 180px;
-                height: 106px;
+                height: 80px;
                 flex-grow: 3;
+            }
+            vaadin-checkbox.tool{
+                height: auto;
             }
 
             #appendix-upload-container {
@@ -519,16 +544,18 @@
             .accepted-status {
                 background: #00f9743b;
                 border-radius: 20px;
-                padding: 0 12px 0 8px;
+                padding: 1px 12px 1px 8px;
                 width: auto;
                 font-size: 12px;
+                line-height: 16px;
             }
             .pending-status {
                 background: #fcdf354d;
                 border-radius: 20px;
-                padding: 0 12px 0 8px;
+                padding: 1px 12px 1px 8px;
                 width: auto;
                 font-size: 12px;
+                line-height: 16px;
             }
 
             .spinner {
@@ -547,9 +574,18 @@
 
             .paragraph-spinner {
                 position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
+                grid-column: 1/1;
+                grid-row: 2/2;
+                place-self: center center;
+            }
+
+            .ioref-icon{
+                opacity: 0.7;
+                transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+
+            .ioref-icon:hover{
+                opacity: 1;
             }
 
             .searchLoadContainer {
@@ -584,7 +620,16 @@
                                             <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
                                             [[item.paragraph]]
                                         </label>
-                                        <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
+                                        <div>
+                                            <iron-icon icon="vaadin:calendar-clock"
+                                                        class="chapterDateInfoIcon"></iron-icon>
+                                                <span>[[_formatDate(item.start)]]</span>
+                                                &nbsp;
+                                                <iron-icon icon="vaadin:calendar-clock"
+                                                        class="chapterDateInfoIcon"></iron-icon>
+                                                <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                                            </div>
+
                                     </div>
                                     <div class="chapter-text-row grey">
                                         <h4>
@@ -594,15 +639,6 @@
                                             </template>
                                         </h4>
                                         <div class="chapterDateInfo">
-                                            <div>
-                                                <iron-icon icon="vaadin:calendar-clock"
-                                                        class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.start)]]</span>
-                                                &nbsp;
-                                                <iron-icon icon="vaadin:calendar-clock"
-                                                        class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
-                                            </div>
                                             <template is="dom-if" if="[[item.accepted]]">
                                                 <span class="accepted-status">
                                                     <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
@@ -615,6 +651,9 @@
                                                     [[localize('ch4Pending','Pending',language)]]
                                                 </span>
                                             </template>
+                                            <iron-icon class="chapterDateInfoIcon ioref-icon" id="ioref-[[item.ioDecisionReference]][[item.ioRequestReference]]" icon="info"></iron-icon>
+                                            <paper-tooltip for="ioref-[[item.ioDecisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">[[item.ioDecisionReference]] [[item.ioRequestReference]]</paper-tooltip>
+
                                         </div>
                                     </div>
                                 </paper-item>
@@ -634,107 +673,101 @@
                                       selected-item="{{selectedParagraph}}" item-value-path="id"
                                       label="[[localize('sea_for_par','Search for paragraph‚ medication‚ pathology...',language)]]"></vaadin-combo-box>
                     <paper-spinner class="spinner paragraph-spinner" alt="Loading chapter4 list" active=[[_isLoadingParagraph]]></paper-spinner>
-                    <template is="dom-if" if="[[paragraph]]">
-                        <paper-tabs selected="{{tabs}}">
-                            <paper-tab class="adm-tab">
-                                <iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>
-                                [[localize('que_form','Query Form',language)]]
-                            </paper-tab>
-                            <paper-tab class="adm-tab">
-                                <iron-icon class="smaller" icon="vaadin:family"></iron-icon>
-                                [[localize('agr_res','Agreement response',language)]]
-                            </paper-tab>
-                        </paper-tabs>
+                    <div class="paragraph">
+                        <template is="dom-if" if="[[paragraph]]">
+                            <paper-tabs selected="{{tabs}}">
+                                <paper-tab class="adm-tab">
+                                    <iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>
+                                    [[localize('que_form','Query Form',language)]]
+                                </paper-tab>
+                                <paper-tab class="adm-tab">
+                                    <iron-icon class="smaller" icon="vaadin:family"></iron-icon>
+                                    [[localize('agr_res','Agreement response',language)]]
+                                </paper-tab>
+                            </paper-tabs>
 
-                        <iron-pages selected="[[tabs]]" class="">
-                            <page>
-                                <div class="paragraph-content">
-                                    <h2>[[localize('chapter','Chapter',language)]] [[paragraph.chapterName]],
-                                        [[localize('paragraph','Paragraph',language)]]
-                                        [[paragraph.paragraphName]]</h2>
-                                    <template is="dom-if" if="[[annexes.length]]">
-                                        <paper-dropdown-menu id="annexes" class="annexes" label="Annexes"
-                                                             on-selected-item-changed="_downloadAnnex">
-                                            <paper-listbox slot="dropdown-content" class="dropdown-content">
-                                                <template id="annexesDr" is="dom-repeat" items="[[annexes]]">
-                                                    <paper-item>
-                                                        <template is="dom-if" if="[[_isFrench(language)]]">
-                                                            [[item.descrFr]]
-                                                        </template>
-                                                        <template is="dom-if" if="[[_isDutch(language)]]">
-                                                            [[item.descrNl]]
-                                                        </template>
-                                                    </paper-item>
-                                                </template>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
-                                    </template>
-                                    <p>
-                                        <template is="dom-if" if="[[_isFrench(language)]]">[[paragraph.keyStringFr]]
+                            <iron-pages selected="[[tabs]]" class="">
+                                <page>
+                                    <div class="paragraph-content">
+                                        <h2>[[localize('chapter','Chapter',language)]] [[paragraph.chapterName]],
+                                            [[localize('paragraph','Paragraph',language)]]
+                                            [[paragraph.paragraphName]]</h2>
+                                        <template is="dom-if" if="[[annexes.length]]">
+                                            <paper-dropdown-menu id="annexes" class="annexes" label="Annexes"
+                                                                on-selected-item-changed="_downloadAnnex">
+                                                <paper-listbox slot="dropdown-content" class="dropdown-content">
+                                                    <template id="annexesDr" is="dom-repeat" items="[[annexes]]">
+                                                        <paper-item>
+                                                            <template is="dom-if" if="[[_isFrench(language)]]">
+                                                                [[item.descrFr]]
+                                                            </template>
+                                                            <template is="dom-if" if="[[_isDutch(language)]]">
+                                                                [[item.descrNl]]
+                                                            </template>
+                                                        </paper-item>
+                                                    </template>
+                                                </paper-listbox>
+                                            </paper-dropdown-menu>
                                         </template>
-                                        <template is="dom-if" if="[[_isDutch(language)]]">[[paragraph.keyStringNl]]
-                                        </template>
-                                    </p>
-                                    <ul class="outer-ul">
-                                        <ht-pat-mcn-chapteriv-verse verse="[[paragraph.headerVerse]]"
-                                                                    checked-verses="{{checkedVerses}}"
-                                                                    language="[[language]]"></ht-pat-mcn-chapteriv-verse>
-                                    </ul>
-                                </div>
-                            </page>
-                            <page>
-                                <div class="paragraph-content">
+                                        <p>
+                                            <template is="dom-if" if="[[_isFrench(language)]]">[[paragraph.keyStringFr]]
+                                            </template>
+                                            <template is="dom-if" if="[[_isDutch(language)]]">[[paragraph.keyStringNl]]
+                                            </template>
+                                        </p>
+                                        <ul class="outer-ul">
+                                            <ht-pat-mcn-chapteriv-verse verse="[[paragraph.headerVerse]]"
+                                                                        checked-verses="{{checkedVerses}}"
+                                                                        language="[[language]]"></ht-pat-mcn-chapteriv-verse>
+                                        </ul>
+                                    </div>
+                                </page>
+                                <page>
+                                    <div class="paragraph-content">
 
-                                    <template is="dom-if" if="[[agreementResponse]]">
-                                        <template is="dom-if" if="[[agreementResponse.acknowledge]]">
-                                            <h3>[[localize('the_req_was_suc', 'The request was successfully transmitted
-                                                to the IO', language)]]</h3>
-                                        </template>
-                                        <template is="dom-if" if="[[agreementResponse.acknowledge]]">
-                                            <h3>[[localize('the_req_cou_not', 'The request could not be successfully
-                                                transmitted to the IO', language)]]</h3>
-                                        </template>
-                                        <template is="dom-if" if="[[agreementResponse.errors.length]]">
-                                            <h4>Error(s)</h4>
-                                            <template is="dom-repeat" items="[[agreementResponse.errors]]" as="e">
-                                                <p class="error">[[localizeObjectKey(e,'msg',language)]] [ code :
-                                                    [[e.code]], path: [[e.path]] ]</p>
+                                        <template is="dom-if" if="[[agreementResponse]]">
+                                            <template is="dom-if" if="[[agreementResponse.acknowledge]]">
+                                                <h3>[[localize('the_req_was_suc', 'The request was successfully transmitted
+                                                    to the IO', language)]]</h3>
                                             </template>
-                                        </template>
-                                        <template is="dom-if" if="[[agreementResponse.warnings.length]]">
-                                            <h4>Warning(s)</h4>
-                                            <template is="dom-repeat" items="[[agreementResponse.warnings]]" as="e">
-                                                <p class="warning">[[localizeObjectKey(e,'msg',language)]] [ code :
-                                                    [[e.code]], path: [[e.path]] ]</p>
+                                            <template is="dom-if" if="[[agreementResponse.acknowledge]]">
+                                                <h3>[[localize('the_req_cou_not', 'The request could not be successfully
+                                                    transmitted to the IO', language)]]</h3>
                                             </template>
-                                        </template>
-                                        <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
-                                            <h4>[[localize('agr_res','Agreement response',language)]],
-                                                [[_formatDateTime(t.timestamp)]]</h4>
-                                            <template is="dom-if" if="[[t.accepted]]">
-                                                <p>[[localize('status','Status',language)]]:
-                                                    [[localize('agreed','Agreement conceded',language)]]</p>
-                                            </template>
-                                            <template is="dom-if" if="[[t.inTreatment]]">
-                                                <p>[[localize('status','Status',language)]]:
-                                                    [[localize('req_in_tre','Request in treatment',language)]]</p>
-                                                <p>[[localize('ref_jus','Justification of refusal',language)]]:
-                                                    [[t.refusalJustification]]</p>
-                                            </template>
-                                            <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
-                                                <p>[[localize('status','Status',language)]]:
-                                                    [[localize('req_in_tre','Request rejected',language)]]</p>
-                                            </template>
-                                            <p class="error">
-                                                <template is="dom-if" if="[[_isFrench(language)]]">
-                                                    [[t.refusalJustification.FR]]
+                                            <template is="dom-if" if="[[agreementResponse.errors.length]]">
+                                                <h4>Error(s)</h4>
+                                                <template is="dom-repeat" items="[[agreementResponse.errors]]" as="e">
+                                                    <p class="error">[[localizeObjectKey(e,'msg',language)]] [ code :
+                                                        [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
-                                                <template is="dom-if" if="[[_isDutch(language)]]">
-                                                    [[t.refusalJustification.NL]]
+                                            </template>
+                                            <template is="dom-if" if="[[agreementResponse.warnings.length]]">
+                                                <h4>Warning(s)</h4>
+                                                <template is="dom-repeat" items="[[agreementResponse.warnings]]" as="e">
+                                                    <p class="warning">[[localizeObjectKey(e,'msg',language)]] [ code :
+                                                        [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
-                                            </p>
-                                            <p>[[localize('ref_io','Reference IO',language)]]:
-                                                [[t.decisionReference]]</p>
+                                            </template>
+                                            <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
+                                                <h4>[[localize('agr_res','Agreement response',language)]],
+                                                    [[_formatDateTime(t.timestamp)]]</h4>
+                                                <template is="dom-if" if="[[t.accepted]]">
+                                                    <p>[[localize('status','Status',language)]]:
+                                                        [[localize('agreed','Agreement conceded',language)]]</p>
+                                                </template>
+                                                <template is="dom-if" if="[[t.inTreatment]]">
+                                                    <p>[[localize('status','Status',language)]]:
+                                                        [[localize('req_in_tre','Request in treatment',language)]]</p>
+                                                    <p>[[localize('ref_jus','Justification of refusal',language)]]:
+                                                        [[t.refusalJustification]]</p>
+                                                </template>
+                                                <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
+                                                    <p>[[localize('status','Status',language)]]:
+                                                        [[localize('req_in_tre','Request rejected',language)]]</p>
+                                                </template>
+                                                <p class="error">[[t.refusalJustification.fr]]</p>
+                                            </template>
+                                            <p>[[localize('ref_io','Reference IO',language)]]: [[t.decisionReference]]</p>
                                             <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
                                             <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                             <h4>[[localize('tec_dat','Technical data',language)]]</h4>
@@ -743,8 +776,8 @@
                                             <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
                                             <h4>[[localize('medications','Medications',language)]]</h4>
                                             <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
-                                                         items="[[_mpps(t.paragraph, agreementMpps.*)]]"
-                                                         active-item="{{selectedMedication}}">
+                                                        items="[[_mpps(t.paragraph, agreementMpps.*)]]"
+                                                        active-item="{{selectedMedication}}">
                                                 <vaadin-grid-column>
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="mut">
@@ -763,72 +796,64 @@
                                                     </template>
                                                     <template>
                                                         <div class="cell frozen">
-                                                            <vaadincheckbox
-                                                                    checked="{{item.selected}}"></vaadincheckbox>
+                                                            <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
                                                         </div>
                                                     </template>
                                                 </vaadin-grid-column>
                                             </vaadin-grid>
                                         </template>
-                                    </template>
-                                    <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                    <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                    <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                    <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
-                                </div>
-                            </page>
-                        </iron-pages>
-                        <div class="tool-container">
-                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                                label="[[localize('From','From',language)]]"
-                                                value="{{fromAsString}}"></vaadin-date-picker>
-                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                                label="[[localize('To','To',language)]]"
-                                                value="{{toAsString}}"></vaadin-date-picker>
-                            <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
-                                            on-value-splices-change="_localizedValueChanged" data-value-path="id"
-                                            data-label-path="descr" always-float-label></tk-token-field>
-                            <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
-                                'incomplete
-                                request', language)]]
-                            </vaadin-checkbox>
-                        </div>
-                        <div class="bottom-btn-container">
-                            <template is="dom-if" if="[[isAgreementSelected]]">
-                                <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">
-                                    [[localize('can_agr','Cancel
-                                    agreement',language)]]
-                                </paper-button>
-                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">
-                                    [[localize('clos_agr','Close
-                                    agreement',language)]]
-                                </paper-button>
-                                <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">
-                                    [[localize('ext_agr','Extend
-                                    agreement',language)]]
-                                </paper-button>
-                            </template>
+                                        <h4>[[localize('tec_dat','Technical data',language)]]</h4>
+                                        <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
+                                        <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
+                                        <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
+                                    </div>
+                                </page>
+                            </iron-pages>
+                            <div class="tool-container">
+                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                                                    label="[[localize('From','From',language)]]"
+                                                    value="{{fromAsString}}"></vaadin-date-picker>
+                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                                                    label="[[localize('To','To',language)]]"
+                                                    value="{{toAsString}}"></vaadin-date-picker>
+                                <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
+                                                on-value-splices-change="_localizedValueChanged" data-value-path="id"
+                                                data-label-path="descr" always-float-label></tk-token-field>
+                                <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
+                                    'incomplete
+                                    request', language)]]
+                                </vaadin-checkbox>
+                            </div>
+                            <div class="btns-container">
+                                <template is="dom-if" if="[[isAgreementSelected]]">
+                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                        agreement',language)]]
+                                    </paper-button>
+                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                        agreement',language)]]
+                                    </paper-button>
+                                    <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
+                                        agreement',language)]]
+                                    </paper-button>
+                                </template>
 
-                            <template is="dom-if" if="[[!isAgreementSelected]]">
-                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
-                                    [[localize('req_agr','Request
-                                    agreement',language)]]
-                                </paper-button>
-                            </template>
-                        </div>
+                                <template is="dom-if" if="[[!isAgreementSelected]]">
+                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">[[localize('req_agr','Request
+                                        agreement',language)]]
+                                    </paper-button>
+                                </template>
+                            </div>
 
-                        <div id="appendix-upload-container">
-                            <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
-                                           accept="image/jpeg,application/pdf"
-                                           target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
-                                           form-data-name="attachment"
-                                           on-upload-success="_fileUploaded"></vaadin-upload>
-                            <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
-                        </div>
-                    </template>
-                    <template is="dom-if" if="[[loadResponse]]">
-
-                    </template>
+                            <div id="appendix-upload-container">
+                                <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
+                                            accept="image/jpeg,application/pdf"
+                                            target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                                            form-data-name="attachment"
+                                            on-upload-success="_fileUploaded"></vaadin-upload>
+                                <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
+                            </div>
+                        </template>
+                    </div>
                 </div>
                 <div class="buttons">
                     <div class="message">
@@ -1147,10 +1172,10 @@
                                     this.api.document().getAttachment(doc.id, doc.attachmentId)
                                 ).then(a => ({
                                     verseSeq: ap.verseSeq,
-                                    documentSeq: ap.documentSeq,
-                                    data: a,
+                                    documentSeq: ap.docSeq,
+                                    data: btoa(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')),
                                     mimeType: 'application/pdf',
-                                    path: a.name
+                                    path: ap.name
                                 })
                             ))
                         ).then(appendices =>
