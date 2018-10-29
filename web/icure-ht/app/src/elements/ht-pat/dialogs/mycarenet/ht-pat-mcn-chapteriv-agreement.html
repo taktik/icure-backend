@@ -72,10 +72,14 @@
                 grid-row: 1/1;
                 display: inline-grid;
                 grid-template-columns: 1fr;
-                grid-template-rows: calc(3 * 57px + 8px) 1fr 48px;
+                grid-template-rows: calc(280px) 1fr 48px;
                 margin-top: 0;
                 padding: 0;
                 box-sizing: border-box;
+            }
+
+            .list-panel.search-load-container-collapsed {
+                grid-template-rows: calc(40px + 16px) 1fr 48px;
             }
 
             .searchLoadContainer{
@@ -83,7 +87,7 @@
                 grid-row: 1/1;
                 display: flex;
                 flex-flow: row wrap;
-                padding: 4px 24px;
+                padding: 12px 8px 4px;
             }
 
             .searchLoadContainer .tool{
@@ -128,7 +132,7 @@
                 position: relative;
                 display: inline-grid;
                 grid-template-columns: 1fr;
-                grid-template-rows: 72px 1fr;
+                grid-template-rows: 56px 1fr;
             }
 
             .detail-panel vaadin-combo-box {
@@ -136,6 +140,8 @@
                 grid-row: 1/1;
                 width: 100%;
                 height: 72px;
+                top: -16px;
+                position: absolute;
             }
 
             .detail-panel .paragraph{
@@ -149,15 +155,21 @@
             iron-pages{
                 grid-column: 1/1;
                 grid-row: 2/2;
+                height:100%;
+            }
+
+            page {
+                grid-column: 1/1;
+                grid-row: 2/2;
+                height:100%;
             }
 
             .detail-panel div.paragraph-content {
-                height: 100%;
+                height: calc(100% - 32px - 106px -48px);
                 position: relative;
                 text-align: justify;
                 padding: 0 24px;
-                overflow-y: overlay;
-                max-height: 600px;
+                overflow-y: auto;
             }
 
             .detail-panel div.paragraph-content p{
@@ -209,6 +221,11 @@
                 overflow-x: hidden;
                 white-space: nowrap;
             }
+
+            .chapter-text-row h4 {
+                width: 100%;
+            }
+
 
             .chapter-item .chapter-text-row {
                 width: calc(100% - 32px);
@@ -325,6 +342,12 @@
                 padding-right: 8px;
                 width: 16px;
                 height: 16px;
+            }
+
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-highlight);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
             }
 
             paper-tabs {
@@ -566,7 +589,7 @@
                 border-radius: 20px;
                 padding: 1px 12px 1px 8px;
                 width: auto;
-                font-size: 12px; 
+                font-size: 12px;
                 line-height: 16px;
             }
 
@@ -595,29 +618,65 @@
             .searchLoadContainer {
                 display: flex;
             }
+
+            .searchLoadContainer .search-load-container-collapsed {
+                max-height: 40px;
+                overflow-y: hidden;
+            }
+
+            .options-bar {
+                position: relative;
+                text-overflow: ellipsis;
+                overflow-x: hidden;
+                white-space: nowrap;
+                width: 100%;
+                height: 40px;
+                padding: 8px 0;
+            }
+
+            .options-bar paper-icon-button {
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+            .small-text {
+                width: 100%;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                text-decoration: none;
+                font-weight: lighter;
+                font-size: 0.8em;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2 class="modal-title">[[localize('chap-iv','Chapter IV',language)]]</h2>
             <div class="container">
-                <div class="list-panel">
+                <div class$="list-panel [[searchLoadContainerClass(searchLoadContainerCollapsed)]]">
                     <div class="searchLoadContainer">
-                        <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
+                        <div class$="[[searchLoadContainerClass(searchLoadContainerCollapsed)]]">
+                            <div class="chapter-text-row grey options-bar">
+                                [[_formatDateShort(consultationStartDateAsString)]] - [[_formatDateShort(consultationEndDateAsString)]] - [[_formatParagraph(selectedLoadParagraph, language)]]
+                                <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                            </div>
+                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
                                             label="[[localize('From','From',language)]]"
                                             value="{{consultationStartDateAsString}}"></vaadin-date-picker>
 
-                        <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
+                            <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
                                             label="[[localize('To','To',language)]]"
                                             value="{{consultationEndDateAsString}}"></vaadin-date-picker>
 
-                        <paper-input class="tool" label="[[localize('par','Paragraph',language)]]"
+                            <paper-input class="tool" label="[[localize('par','Paragraph',language)]]"
                                      value="{{selectedLoadParagraph}}"></paper-input>
+                        </div>
                     </div>
                     <paper-listbox id="_chapter_listbox" selectable="paper-material"
                                    selected="{{selectedAgreementIndex}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
                             <paper-material class="layout vertical chapter-item chapter--big"
-                                            id="[[item.ioDecisionReference]]" on-tap="_selectItem">
+                                            id="[[item.ioDecisionReference]]">
                                 <paper-item class="chapter-text">
                                     <div class="chapter-text-row chapter-text-date">
                                         <label>
@@ -637,6 +696,7 @@
                                     </div>
                                     <div class="chapter-text-row grey">
                                         <h4>
+                                            <div class="small-text">[[item.paragraphName]]</div>
                                             [[item.strength]] [[item.strengthUnit]]
                                             <template is="dom-repeat" items="[[item.medications]]">
                                                 [[item]],
@@ -666,7 +726,7 @@
                     </paper-listbox>
                     <paper-spinner class="spinner chapter-list-spinner" alt="Loading chapter4 list" active=[[_isLoadingChapter]]></paper-spinner>
                     <div class="bottom-btn-container">
-                        <paper-button class="bottom-btn" on-tap="_loadChapter4">[[localize('load_agr','Load
+                        <paper-button disabled="[[_isLoadingChapter]]" class="bottom-btn" on-tap="_loadChapter4">[[localize('load_agr','Load
                             agr.',language)]]
                         </paper-button>
                     </div>
@@ -698,7 +758,7 @@
                                             [[paragraph.paragraphName]]</h2>
                                         <template is="dom-if" if="[[annexes.length]]">
                                             <paper-dropdown-menu id="annexes" class="annexes" label="Annexes"
-                                                                on-selected-item-changed="_downloadAnnex">
+                                                                 on-selected-item-changed="_downloadAnnex">
                                                 <paper-listbox slot="dropdown-content" class="dropdown-content">
                                                     <template id="annexesDr" is="dom-repeat" items="[[annexes]]">
                                                         <paper-item>
@@ -770,12 +830,12 @@
                                                         [[localize('req_in_tre','Request rejected',language)]]</p>
                                                 </template>
                                                 <p class="error">
-                                                <template is="dom-if" if="[[_isFrench(language)]]">
-                                                    [[t.refusalJustification.FR]]
-                                                </template>
-                                                <template is="dom-if" if="[[_isDutch(language)]]">
-                                                    [[t.refusalJustification.NL]]
-                                                </template>
+                                                    <template is="dom-if" if="[[_isFrench(language)]]">
+                                                        [[t.refusalJustification.FR]]
+                                                    </template>
+                                                    <template is="dom-if" if="[[_isDutch(language)]]">
+                                                        [[t.refusalJustification.NL]]
+                                                    </template>
                                                 </p>
                                             </template>
                                             <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
@@ -787,8 +847,8 @@
                                             <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
                                             <h4>[[localize('medications','Medications',language)]]</h4>
                                             <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
-                                                        items="[[_mpps(t.paragraph, agreementMpps.*)]]"
-                                                        active-item="{{selectedMedication}}">
+                                                         items="[[_mpps(t.paragraph, agreementMpps.*)]]"
+                                                         active-item="{{selectedMedication}}">
                                                 <vaadin-grid-column>
                                                     <template class="header">
                                                         <vaadin-grid-sorter path="mut">
@@ -843,28 +903,29 @@
                                     <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-button class="bottom-btn" id="extendChapter"on-tap="_requestChapter4">[[localize('ext_agr','Extend
+                                    <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">[[localize('ext_agr','Extend
                                         agreement',language)]]
                                     </paper-button>
                                 </template>
 
-                            <template is="dom-if" if="[[!isAgreementSelected]]">
-                                <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
-                                    [[localize('req_agr','Request
-                                    agreement',language)]]
-                                </paper-button>
-                            </template>
-                        </div>
+                                <template is="dom-if" if="[[!isAgreementSelected]]">
+                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
+                                        [[localize('req_agr','Request
+                                        agreement',language)]]
+                                    </paper-button>
+                                </template>
+                            </div>
 
-                        <div id="appendix-upload-container">
-                            <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
-                                           accept="image/jpeg,application/pdf"
-                                           target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
-                                           form-data-name="attachment"
-                                           on-upload-success="_fileUploaded"></vaadin-upload>
-                            <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
-                        </div>
-                    </template>
+                            <div id="appendix-upload-container">
+                                <vaadin-upload id="appendix-upload" no-auto files="{{appendices}}"
+                                               accept="image/jpeg,application/pdf"
+                                               target="[[api.host]]/document/{documentId}/attachment/multipart" method="PUT"
+                                               form-data-name="attachment"
+                                               on-upload-success="_fileUploaded"></vaadin-upload>
+                                <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
+                            </div>
+                        </template>
+                    </div>
                     <template is="dom-if" if="[[loadResponse]]">
 
                     </template>
@@ -984,13 +1045,16 @@
                     },
                     selectedLoadParagraph: {
                         type: String
+                    },
+                    searchLoadContainerCollapsed: {
+                        type: Boolean,
+                        value: true
                     }
-
                 }
             }
 
             static get observers() {
-                return ['_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)']
+                return ['_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)', '_selectAgreementInList(selectedAgreementIndex)']
             }
 
             ready() {
@@ -1001,6 +1065,14 @@
             attached() {
                 super.attached()
                 this.async(this.notifyResize, 1)
+            }
+
+            searchLoadContainerClass(collapsed) {
+                return collapsed ? 'search-load-container-collapsed' :''
+            }
+
+            toggleMenu() {
+                this.set('searchLoadContainerCollapsed',!this.searchLoadContainerCollapsed)
             }
 
             _filterChanged(text) {
@@ -1079,8 +1151,16 @@
                 return !a && !b && !c
             }
 
+            _formatParagraph(p) {
+                return p || this.localize('any','Any')
+            }
+
             _formatDate(d) {
                 return d && this.api.moment(d).format('DD/MM/YYYY')
+            }
+
+            _formatDateShort(d) {
+                return d && this.api.moment(d).format('DD/MM/YY')
             }
 
             _formatDateTime(d) {
@@ -1100,6 +1180,7 @@
                     const content = svc.content.find(c => !!c.medicationValue.options.ioChapter4Paragraph)
                     return {
                         id: svc.id,
+                        paragraphName: content.medicationValue.options.ioChapter4ParagraphName,
                         paragraph: content.medicationValue.options.ioChapter4Paragraph,
                         verses: content.medicationValue.options.ioChapter4Verses,
                         ioRequestReference: content.medicationValue.options.ioRequestReference,
@@ -1107,11 +1188,11 @@
                         ioDecisionEndOfValidity: content.medicationValue.options.ioDecisionEndOfValidity,
                         medication: this.api.contact().shortServiceDescription(svc, this.language)
                     }
-                }).concat(this.orphanAgreements)
+                })
             }
 
             _agreements() {
-                return this._convertedMedications()
+                return this._convertedMedications().concat(this.orphanAgreements)
             }
 
             _mpps(p) {
@@ -1138,15 +1219,16 @@
                     const ioRequestReferences = medications.map(x => x.ioRequestReference)
                     const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
                     Promise.all(
-                        agreements.transactions.map(t => this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language).then(vtm => [t, vtm]))
+                        agreements.transactions.map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => [t, vtm, pi]))
                     ).then((transactions) => {
-                        this.set('orphanAgreements', transactions.filter(([t, vtm]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
-                            .map(([t, vtm]) => ({
+                        this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
+                            .map(([t, vtm, pi]) => ({
                                 careProviderReference: t.careProviderReference,
                                 content: t.content,
                                 coverageType: t.coverageType,
                                 refusalJustification: t.refusalJustification,
                                 paragraph: t.paragraph,
+                                paragraphName: this.localizeObjectKey(pi,'keyString', this.language),
                                 ioRequestReference: t.ioRequestReference,
                                 ioDecisionReference: t.decisionReference,
                                 ioDecisionEndOfValidity: t.end,
@@ -1162,7 +1244,8 @@
                                 responseType: t.responseType,
                                 timestamp: t.timestamp,
                                 unitNumber : t.unitNumber,
-                                medications: vtm
+                                medications: vtm,
+                                paragraphInfo: pi
                             })))
                         this.set('agreementResponse', agreements)
                         this._isLoadingChapter = false;
@@ -1290,40 +1373,43 @@
                 this.root.querySelector('#appendix-upload-container').style.display = 'block'
             }
 
-            _selectItem(e) {
-                if (e.currentTarget) {
-                    this._isLoadingParagraph = true
-                    const id = e.currentTarget.id
-                    const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
+            _selectAgreementInList(idx) {
+                if (!idx && idx !== 0) {
+                    this.set('isAgreementSelected', false)
+                    this.set('cbValue', '')
+                    this.set('displayedParagraph', null);
+                    this.set('agreementResponse', null);
+                    this.set('agreementMpps', null);
 
-                    this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
-                        .then(par => {
-                            this.set('isAgreementSelected', true)
-                            this.set('cbValue', '')
-                            this.set('displayedParagraph', {
-                                descr: par.headerVerse.textFr,
-                                id: par.paragraphName,
-                                ioRequestReference: selectedAgreement.ioRequestReference,
-                                ioDecisionReference: selectedAgreement.ioDecisionReference,
-                                start: selectedAgreement.start,
-                                end: selectedAgreement.ioDecisionEndOfValidity
-                            })
-                            this.set('agreementResponse', {
-                                transactions: [selectedAgreement]
-                            })
-
-                           this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', selectedAgreement.paragraph).then(it => ({
-                                paragraph: selectedAgreement.paragraph,
-                                mpps: it
-                            })).then(links =>
-                                this.set('agreementMpps', links)
-                            )
-                              this._isLoadingParagraph = false
-
-                     })
-
-
+                    return
                 }
+                this._isLoadingParagraph = true
+                const selectedAgreement = this._agreements()[idx]
+
+                ;(selectedAgreement.paragraphInfo ? Promise.resolve(selectedAgreement.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph))
+                    .then(par => {
+                        this.set('isAgreementSelected', true)
+                        this.set('cbValue', '')
+                        this.set('displayedParagraph', {
+                            descr: par.headerVerse.textFr,
+                            id: par.paragraphName,
+                            ioRequestReference: selectedAgreement.ioRequestReference,
+                            ioDecisionReference: selectedAgreement.ioDecisionReference,
+                            start: selectedAgreement.start,
+                            end: selectedAgreement.ioDecisionEndOfValidity
+                        })
+                        this.set('agreementResponse', {
+                            transactions: [selectedAgreement]
+                        })
+
+                       this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', selectedAgreement.paragraph).then(it => ({
+                            paragraph: selectedAgreement.paragraph,
+                            mpps: it
+                        })).then(links =>
+                            this.set('agreementMpps', links)
+                        )
+                        this._isLoadingParagraph = false
+                 })
             }
 
             _closeChapter(e) {

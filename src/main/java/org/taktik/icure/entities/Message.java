@@ -103,6 +103,9 @@ public class Message extends StoredICureDocument implements Serializable {
 	private String parentId; //ID of parent in a message conversation
 	private String externalRef;
 
+	private Set<String> unassignedResults; //refs
+	private Map<String, String> assignedResults; //ContactId -> ref
+
 	private Map<String,String> senderReferences;
 
 	public Message solveConflictWith(Message other) {
@@ -304,5 +307,21 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	public void setSenderReferences(Map<String, String> senderReferences) {
 		this.senderReferences = senderReferences;
+	}
+
+	public Set<String> getUnassignedResults() {
+		return unassignedResults;
+	}
+
+	public void setUnassignedResults(Set<String> unassignedResults) {
+		this.unassignedResults = unassignedResults;
+	}
+
+	public Map<String, String> getAssignedResults() {
+		return assignedResults;
+	}
+
+	public void setAssignedResults(Map<String, String> assignedResults) {
+		this.assignedResults = assignedResults;
 	}
 }

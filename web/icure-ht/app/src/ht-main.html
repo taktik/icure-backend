@@ -539,18 +539,30 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		};
 	}
 
-	constructor() {
+    static get observers() {
+        return ['apiReady(user,api)'];
+    }
+
+    constructor() {
 		super();
 	}
 
-	ready() {
-		super.ready();
+    reset() {
+        const props = HtMain.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+    }
+
+    ready() {
+        super.ready();
+    }
+
+    apiReady() {
+	    if (!this.user || !this.api) { return }
 
 		this._isLoadingLatestPatients = true;
 		this._isLoadingLatestLabResults = true;
 		this._isLoadingTodaysConsultations = true;
 		this._isLoadingToDoList = true;
-
 		this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
 			const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2);
 			language && this.set('language', language);
