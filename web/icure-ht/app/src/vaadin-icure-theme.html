@@ -34,6 +34,14 @@
 
             :host [part~="header-cell"]:not([part~="details-cell"]) {
             }
+
+            :host(#invoiceGrid) [part~=body-cell]:not([part~="details-cell"]){
+                background-color: var(--app-background-color);
+            }
+
+            :host(#invoiceGrid) [part~="footer-cell"]{
+                background-color: red;
+            }
         </style>
     </template>
 </dom-module>

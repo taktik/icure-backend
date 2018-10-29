@@ -14,11 +14,11 @@
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 <link rel="import" href="../../vaadin-icure-theme.html">
-
+<link rel="import" href="../../spinner-style.html">
 <dom-module id="ht-msg-invoice">
     <template>
         <custom-style>
-            <style include="shared-styles vaadin-icure-theme">
+            <style include="shared-styles vaadin-icure-theme spinner-style">
 
                 :host {
                     display: block;
@@ -65,7 +65,7 @@
                     };
 
                     --vaadin-grid-body-row-hover-cell: {
-                        background-color: var(--paper-grey-200);
+                        background-color: var(--app-background-color-dark);
                     };
 
                     --vaadin-grid-body-row-selected-cell: {
@@ -144,6 +144,7 @@
                     width:  calc(100% / 11);
                 }
 
+
                 .oa-col{
                     min-width: 25px;
                 }
@@ -214,12 +215,7 @@
                     line-height: 25px;
                 }
 
-                /*
-                vaadin-grid#messagesGrid,
-                vaadin-grid#invoiceGrid {
-                    height: calc(100vh - 185px);
-                }
-                */
+        
                 @media screen and (max-width:1025px){
                     .invoice-panel {
                         left: 0;
@@ -236,11 +232,22 @@
                     height: calc(100vh - 190px - 25px);
                 }
 
-                .pendingStatus{
+                .pending-status--icon{
                     height: 8px;
                     width: 8px;
                     color: var(--app-status-color-pending);
                 }
+
+                .pending-status {
+                    background: #fcdf354d;
+                    border-radius: 20px;
+                    padding: 1px 12px 1px 8px;
+                    width: auto;
+                    font-size: 12px;
+                    display: block;
+                    width: fit-content;
+                }
+                
 
                 #pendingDetailDialog{
                     height: calc(100vh - 40px);
@@ -260,6 +267,14 @@
                     font-size: 24px;
                     text-transform: capitalize;
                     padding-top: 5px;
+                    display: flex;
+                    flex-flow: row wrap;
+                    align-items: center;
+                    justify-content: flex-start;
+                }
+
+                .invoice-status .spinner{
+                    margin-left: 24px;
                 }
 
                 .unlockBtn {
@@ -339,9 +354,8 @@
                     width: 12px;
                 }
 
-                iron-collapse-button {
+                iron-collapse-button #trigger{
                     height: 45px;
-                    line-height: 45px;
                     background: var(--app-background-color-dark);
                     display: initial;
                 }
@@ -382,243 +396,308 @@
                     height: 100%;
                 }
 
+                .pendingTable vaadin-grid{
+                width: 100px;
+                }
+                [part~="cell"]:not([part~="details-cell"]) {
+                    width: 400px;
+                }
+
+                :host [part~="header-cell"]:not([part~="details-cell"]) {
+                    width: 400px;
+                }
+
+                .flex-header{
+                    width: 100%;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 48px;
+                }
+
+                iron-collapse-button:hover{
+                    background: var(--app-background-color-dark);
+                }
+
+                .flex-header span{
+                    display:block;
+                    font-size: 12px;
+                    font-weight: 400;
+                    padding: 4px 12px;
+                    box-sizing:border-box;
+                    cursor: pointer;
+                    color: rgb(115,115,115);
+                }
+
+                .flex-header span.center{
+                    text-align: center;
+                }
+
+                #invoiceGrid .footer{
+                    background: red;
+                }
+
+                .modal-button{
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    color: var(--app-text-color);
+                    font-weight: 400;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    padding: 10px 1.2em;
+                    text-transform: capitalize;
+                }
+
+
             </style>
         </custom-style>
         <div class="invoice-panel">
             <div id="batchStatus" class="invoice-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
+                <paper-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></paper-spinner>
             </div>
+
             <template is="dom-if" if="[[statusPending]]">
                 <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInput}}" on-keyup="refreshFilter" param="invoiceGrid" where="pendings">></paper-input>
             </template>
             <template is="dom-if" if="[[!statusPending]]">
                 <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid" where="notPendings"></paper-input>
             </template>
-
+            
             <template is="dom-if" if="[[statusPending]]">
                 <div class="gridContainer grid-pending">
                     <div class="containScroll">
                         <vaadin-grid id="noscroll" class="pendingTable" class="force-sizer" theme="force-sizer">
-                            <vaadin-grid-column flex-grow="0" class="recipient-col" width="100">
+                            <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col" >
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.sentMediumType">Type</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="patient.insurance.code">Mutuelle</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.invoiceReference">N° facture</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.patient.firstName">Patient</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="patient.ssin">Niss</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.invoiceDate">Date facture</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column-group>
                                 <!-- <template class="header hasBorder">Montants</template> -->
-                                <vaadin-grid-column class="recipient-col">
+                                <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                     <template class="header border-left">
                                         <vaadin-grid-sorter path="invoice.reimbursement">OA</vaadin-grid-sorter>
                                     </template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column class="recipient-col">
+                                <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="invoice.patientIntervention">Patient</vaadin-grid-sorter>
                                     </template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column class="recipient-col">
+                                <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col">
                                     <template class="header">
                                         <vaadin-grid-sorter path="invoice.doctorSupplement">Supplément</vaadin-grid-sorter>
                                     </template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column class="recipient-col border-right">
+                                <vaadin-grid-column  flex-grow="0" width="7%" class="recipient-col border-right">
                                     <template class="header border-right">
                                         <vaadin-grid-sorter path="invoice.totalAmount">Total</vaadin-grid-sorter>
                                     </template>
                                 </vaadin-grid-column>
                             </vaadin-grid-column-group>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column  flex-grow="0" width="10%" class="recipient-col">
                                 <template class="header">
                                     <vaadin-grid-sorter path="invoice.statut">Statut</vaadin-grid-sorter>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                 <template class="header"></template>
                             </vaadin-grid-column>
                         </vaadin-grid>
                         <template is="dom-repeat" items="[[toggledDatas]]">
                             <iron-collapse-button>
-                                <div slot="collapse-trigger" class="flex header">
-                                    <vaadin-grid id="collapse-grid">
-                                        <vaadin-grid-column class="recipient-col">
+                                <div slot="collapse-trigger" class="flex-header">
+                                    <span class="center" style="width: 4%;">[[localize('grp','Groupe',language)]]</span>
+                                    <span style="width: 46%;">OA: [[item.code]]</span>
+                                    <span class="center" style="width: 8%;">[[localize('tot_sub','Sous-total',language)]]</span>
+                                    <span class="center" style="width: 7%;">[[item.sum.oa]]€</span>
+                                    <span class="center" style="width: 7%;">[[item.sum.pat]]€</span>
+                                    <span class="center" style="width: 7%;">[[item.sum.sup]]€</span>
+                                    <span class="center" style="width: 7%;">[[item.sum.tot]]€</span>
+                                    <!-- <vaadin-grid id="collapse-grid" items="[[item.grp]]">
+                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <template class="header">[[localize('grp','Groupe',language)]] <iron-icon icon="unfold-more"></iron-icon></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template class="header"><h3 class="header">OA: [[item.code]]</h3></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
-                                            <!--<template class="header">[[localize('tot_sub','Sous-total',language)]] :</template>-->
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
+                                            <template class="header">[[localize('tot_sub','Sous-total',language)]] :</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="header"><small>[[item.sum.oa]]€</small></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="header"><small>[[item.sum.pat]]€</small></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="header"><small>[[item.sum.sup]]€</small></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col border-right">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
                                                 <template class="header"><small>[[item.sum.tot]]€</small></template>
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                         </vaadin-grid-column>
-                                    </vaadin-grid>
+                                    </vaadin-grid> -->
                                 </div>
                                 <div slot="collapse-content">
                                     <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <!--<template>[[item.invoice.sentMediumType]]</template>-->
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template>
                                                 <small>[[item.insuranceCode]]</small>
                                             </template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template><small>[[item.invoiceReference]]</small></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
                                             <template><small>[[item.patient]]</small></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
-                                            <template>[<small>[item.ssin]]</small></template>
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
+                                            <template>[<small>[[item.ssin]]</small></template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template><small>[[returnDate(item.invoiceDate)]]</small></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="border-left"><small>[[_formatAmount(item.reimbursement)]]€</small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>-->
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template><small>[[_formatAmount(item.patientIntervention)]]€</small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>-->
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template><small>[[_formatAmount(item.doctorSupplement)]]€</small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>-->
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col border-right">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
                                                 <template class="border-right"><small>[[_formatAmount(item.totalAmount)]]</small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>-->
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template>
-                                                <iron-icon icon="vaadin:circle" class="pendingStatus"></iron-icon>
-                                                [[item.statut]]
+                                                <span class="pending-status">
+                                                    <iron-icon icon="vaadin:circle" class="pending-status--icon"></iron-icon>
+                                                    [[item.statut]]
+                                                </span>
                                             </template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <template>
                                                 <iron-icon icon="vaadin:unlock" class="unlockBtn" on-tap="_unlockInvoice" data-item$="[[item.invoice]]"></iron-icon>
                                             </template>
                                         </vaadin-grid-column>
                                     </vaadin-grid>
                                     <vaadin-grid items="toggledDatas">
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template class="footer">[[localize('tot_sub','Sous-total',language)]] :</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="footer"><b>[[item.sum.oa]]€</b></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="footer"><b>[[item.sum.pat]]€</b></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                                 <template class="footer"><b>[[item.sum.sup]]€</b></template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column class="recipient-col border-right">
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
                                                 <template class="footer"><b>[[item.sum.tot]]€</b></template>
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                         </vaadin-grid-column>
                                     </vaadin-grid>
                                 </div>
                             </iron-collapse-button>
                         </template>
                         <vaadin-grid>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                 <template class="footer">[[localize('tot_global','Total',language)]] :</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column-group>
-                                <vaadin-grid-column class="recipient-col">
+                                <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                     <template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column class="recipient-col">
+                                <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                     <template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column class="recipient-col">
+                                <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                     <template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column class="recipient-col border-right">
+                                <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
                                     <template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>
                                 </vaadin-grid-column>
                             </vaadin-grid-column-group>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                             </vaadin-grid-column>
-                            <vaadin-grid-column class="recipient-col">
+                            <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                             </vaadin-grid-column>
                         </vaadin-grid>
                     </div>
@@ -1431,6 +1510,7 @@
             }
 
             fetchMessages() {
+                this._isLoadingMessages = true
                 this.api.message().findMessagesByTransportGuid("EFACT:BATCH:*")
                     .then(messages => {
                         const filteredMessages = messages.rows.filter(msg => msg.transportGuid && msg.responsible === this.hcp.id && msg.transportGuid.startsWith("EFACT:BATCH:" + this.displayedYear))
@@ -1541,6 +1621,7 @@
                                                 }) : mm
                                         }) : mm
                                     }))).then(msgsStructs => {
+                                this._isLoadingMessages = false
                                 this.set('allMessages', msgsStructs)
                                 this.dispatchMessages()
                             })
@@ -1582,7 +1663,7 @@
                 }) // inputList map end
 
                 mutGroups.sort((a, b)=>{return a.code-b.code})
-                this.set('toggledDatas', mutGroups ) // this.set end
+                this.set('toggledDatas', mutGroups ) // this.set 
                 for (let grp of mutGroups) {
                     console.log("grp",grp)
                     let totPat = 0
