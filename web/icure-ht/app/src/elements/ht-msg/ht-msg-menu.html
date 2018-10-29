@@ -115,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				font-size: 11px;
 				background: var(--app-secondary-color);
 				color: var(--app-text-color);
-				border-radius: 10px;
+				border-radius: 17px;
                 white-space: initial;
                 float: right;
 			}
@@ -463,6 +463,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 overflow: hidden;
+                line-height: 32px;
             }
             
             .force-left {
@@ -478,6 +479,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .inbox-txt.force-ellipsis {
                 max-width: 60%;
             }
+            @media screen and (max-width: 1480px) {
+                .inbox-txt.force-ellipsis {
+                    max-width: 50%;
+                }
+                .unreadNumber {
+                    max-width: 19% !important;
+                }
+            }
             .inbox-line.one-line-menu {
                 width: 100%;
             }
@@ -487,7 +496,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
-					<div class="one-line-menu list-title inbox-line"><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis inbox-txt">[[localize('inb','Inbox',language)]]</span> <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
+					<div class="one-line-menu list-title inbox-line"><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis inbox-txt">[[localize('inb','Inbox',language)]]</span> <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="inboxlist" class="menu-content sublist" selected="{{inboxSelectionIndex}}" selected-item="{{inboxSelectionItem}}" selectable="paper-item">
@@ -629,7 +638,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     acc.push(m)
                 }return acc}, [])
             return msg.length;
-        }).then(num => this.set('unreadNumber', num || 0));
+        }).then(num => {
+            const displayNum = (num) ? (num > 999) ? "999+" : num : 0
+            this.set('unreadNumber', displayNum)
+        });
     }
 
 	_newMsg(){
