@@ -522,7 +522,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="archive">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
-			<paper-item class="trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
+			<paper-item class="trash" on-tap="_trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
 		</div>
 	</template>
 	<script>
