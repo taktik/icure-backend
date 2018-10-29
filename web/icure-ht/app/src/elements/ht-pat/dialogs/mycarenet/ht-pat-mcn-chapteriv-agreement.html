@@ -18,16 +18,19 @@
 <link rel="import" href="../../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/vaadin-grid/vaadin-grid.html">
 
 <link rel="import" href="../../../../../bower_components/tk-token-field/tk-token-field.html">
+
+<link rel="import" href="../../../../scrollbar-style.html">
 
 <link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="ht-pat-mcn-chapteriv-verse.html">
 
 <dom-module id="ht-pat-mcn-chapteriv-agreement">
     <template>
-        <style>
+        <style include="scrollbar-style">
             #dialog {
                 min-height: 600px;
                 min-width: 800px;
@@ -55,40 +58,67 @@
             }
 
             .container {
+                margin: 0;
+                padding: 0;
                 display: grid;
                 height: calc(100% - 128px);
-                width: calc(100% - 48px);
+                width: 100%;
                 grid-template-columns: 25% auto;
                 grid-template-rows: 100%;
-            }
-
-            .list-panel-container {
-                position: relative;
-                height: 100%;
-                background: var(--app-background-color-dark);
-                box-shadow: var(--shadow-elevation-3dp_-_box-shadow);
-                grid-column: 1/2;
-                grid-row: 1/1;
-                z-index: 3;
-                overflow-y: auto;
-                margin-top: 0;
-                padding: 8px 24px;
                 box-sizing: border-box;
+                border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             .list-panel {
-                position: relative;
                 height: 100%;
+                background: var(--app-background-color);
+                grid-column: 1/2;
+                grid-row: 1/1;
+                display: inline-grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: 15% 77% 8%;
+                margin-top: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            .searchLoadContainer{
+                grid-column: 1/1;
+                grid-row: 1/1;
+                display: flex;
+                flex-flow: row wrap;
+                padding: 8px 24px;
+            }
+
+            #_chapter_listbox{
+                outline: 0;
+                background: transparent;
+                padding: 8px 24px;
+                grid-column: 1/1;
+                grid-row: 2/2;
+                overflow-y: overlay;
+                --paper-listbox-selected-item: {
+                    color: var(--app-text-color-light);
+                    background: var(--app-primary-color);
+                };
+            }
+
+            .bottom-btn-container {
+                width: 100%;
+                height: 100%;
+                grid-column: 1/1;
+                grid-row: 3/3;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
             }
 
             .detail-panel {
                 height: 100%;
-                background: var(--app-background-color);
-                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 margin: 0;
                 grid-column: 2/2;
                 grid-row: 1/1;
-                z-index: 2;
                 padding: 8px 24px;
                 box-sizing: border-box;
                 position: relative;
@@ -97,8 +127,14 @@
             .detail-panel div.paragraph-content {
                 height: 100%;
                 position: relative;
-                overflow-y: auto;
+                overflow-y: overlay;
                 text-align: justify;
+                padding: 0 24px;
+            }
+
+            .detail-panel div.paragraph-content p{
+                padding-bottom: 12px;
+                border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             iron-pages {
@@ -109,8 +145,15 @@
                 font-size: 12px;
                 display: flex;
                 flex-flow: row nowrap;
-                justify-content: flex-start;
+                justify-content: space-between;
                 align-items: center;
+                width: 100%;
+                padding: 4px 0;
+                max-height: 24px;
+            }
+            .chapterDateInfo > div{
+                height: 100%;
+                max-height: 24px;
             }
 
             .chapterDateInfo span {
@@ -171,6 +214,7 @@
 
             .chapter--big {
                 min-height: 96px;
+                outline: 0;
                 /*@apply --padding-16;*/
                 /*border-bottom: 1px solid var(--app-background-color-dark);*/
             }
@@ -193,15 +237,7 @@
                 display: none;
             }
 
-            .bottom-btn-container {
-                width: calc(100% - 48px);
-                position: absolute;
-                bottom: 6px;
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-            }
+
 
             .bottom-btn {
                 --paper-button-ink-color: var(--app-secondary-color-dark);
@@ -216,20 +252,30 @@
             }
 
             .message {
-                position: absolute;
-                width: calc(100% - 320px);
-                padding: 8px 24px;
-                bottom: 0;
-                height: fit-content;
-                min-height: 32px;
+                height: 40px;
+                padding: 0 24px;
+                flex-grow: 2;
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
             }
 
             .warning {
                 color: #c8a100;
+                background: #fcdf3521;
+                padding: 0 8px;
+                font-weight: bold;
+                width: fit-content;
             }
 
             .error {
-                color: #ff3139;
+                color: var(--app-error-color);
+                background: #e539353b;
+                font-weight: bold;
+                border-radius: 2px;
+                padding: 0 8px;
+                width: fit-content;
             }
 
             paper-listbox {
@@ -259,15 +305,14 @@
             paper-tabs {
                 height: 32px;
                 margin-top: -12px;
-                background: var(--app-secondary-color);
-                --paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+                --paper-tabs-selection-bar-color: var(--app-secondary-color);
                 --paper-tabs: {
                     color: var(--app-text-color);
                 };
             }
 
             paper-tab {
-                --paper-tab-ink: var(--app-text-color);
+                --paper-tab-ink: var(--app-secondary-color);
             }
 
             paper-tab.iron-selected {
@@ -302,6 +347,7 @@
             .tool {
                 padding: 0 4px;
                 flex-grow: 1;
+                height: 50%;
             }
 
             tk-token-field.tool {
@@ -419,23 +465,7 @@
                 background: rgba(0, 0, 0, .1);
             }
 
-            #_chapter_listbox.paper-listbox {
-                outline: 0;
-                --paper-listbox-selected-item: {
-                    color: var(--app-text-color-light);
-                    background: var(--app-primary-color);
-                };
-                --paper-listbox-disabled-color: {
-                    color: red;
-                };
 
-                background: transparent;
-                padding: 0;
-            }
-
-            #_chapter_listbox {
-                padding: 0;
-            }
 
             .layout.vertical {
                 display: flex;
@@ -457,14 +487,78 @@
                 color: var(--app-status-color-pending);
             }
 
+
+
+            .modal-title {
+                background: var(--app-background-color-dark);
+                margin-top: 0;
+                padding: 16px 24px;
+            }
+
+            .modal-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .buttons {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 48px;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-between;
+            }
+
+            .accepted-status {
+                background: #00f9743b;
+                border-radius: 20px;
+                padding: 0 12px 0 8px;
+                width: auto;
+                font-size: 12px;
+            }
+            .pending-status {
+                background: #fcdf354d;
+                border-radius: 20px;
+                padding: 0 12px 0 8px;
+                width: auto;
+                font-size: 12px;
+            }
+
+            .spinner {
+                --paper-spinner-layer-1-color: var(--app-primary-color-light);
+                --paper-spinner-layer-2-color: var(--app-primary-color-dark);
+                --paper-spinner-layer-3-color: var(--app-secondary-color);
+                --paper-spinner-layer-4-color: var(--app-secondary-color-dark);
+                --paper-spinner-stroke-width: 2px;
+            }
+
+            .chapter-list-spinner {
+                grid-column: 1/1;
+                grid-row: 2/2;
+                place-self: center center;
+            }
+
+            .paragraph-spinner {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+
             .searchLoadContainer {
                 display: flex;
             }
-
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <h2>[[localize('chap-iv','Chapter IV',language)]]</h2>
+            <h2 class="modal-title">[[localize('chap-iv','Chapter IV',language)]]</h2>
             <div class="container">
                 <div class="list-panel">
                     <div class="searchLoadContainer">
@@ -479,8 +573,8 @@
                         <paper-input class="tool" label="[[localize('par','Paragraph',language)]]"
                                      value="{{selectedLoadParagraph}}"></paper-input>
                     </div>
-                    <paper-listbox id="_chapter_listbox" focused multi toggle-shift selectable="paper-material"
-                                   selected="{{selectValue}}">
+                    <paper-listbox id="_chapter_listbox" selectable="paper-material"
+                                   selected="{{selectedAgreementIndex}}">
                         <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
                             <paper-material class="layout vertical chapter-item chapter--big"
                                             id="[[item.ioDecisionReference]]" on-tap="_selectItem">
@@ -493,38 +587,41 @@
                                         <label>[[item.ioDecisionReference]] [[item.ioRequestReference]]</label>
                                     </div>
                                     <div class="chapter-text-row grey">
-                                        <p>
-                                            <template is="dom-if" if="[[item.accepted]]">
-                                                <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
-                                                [[localize('ch4Accept','Accepted',language)]]
-                                            </template>
-                                            <template is="dom-if" if="[[item.inTreatment]]">
-                                                <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
-                                                [[localize('ch4Pending','Pending',language)]]
-                                            </template>
-                                        </p>
-                                        <p>
                                         <h4>
                                             [[item.strength]] [[item.strengthUnit]]
                                             <template is="dom-repeat" items="[[item.medications]]">
                                                 [[item]],
                                             </template>
                                         </h4>
-                                        </p>
                                         <div class="chapterDateInfo">
-                                            <iron-icon icon="vaadin:calendar-clock"
-                                                       class="chapterDateInfoIcon"></iron-icon>
-                                            <span>[[_formatDate(item.start)]]</span>
-                                            &nbsp;
-                                            <iron-icon icon="vaadin:calendar-clock"
-                                                       class="chapterDateInfoIcon"></iron-icon>
-                                            <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                                            <div>
+                                                <iron-icon icon="vaadin:calendar-clock"
+                                                        class="chapterDateInfoIcon"></iron-icon>
+                                                <span>[[_formatDate(item.start)]]</span>
+                                                &nbsp;
+                                                <iron-icon icon="vaadin:calendar-clock"
+                                                        class="chapterDateInfoIcon"></iron-icon>
+                                                <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                                            </div>
+                                            <template is="dom-if" if="[[item.accepted]]">
+                                                <span class="accepted-status">
+                                                    <iron-icon icon="vaadin:circle" class="ch4AcceptedStatus"></iron-icon>
+                                                    [[localize('ch4Accept','Accepted',language)]]
+                                                </span>
+                                            </template>
+                                            <template is="dom-if" if="[[item.inTreatment]]">
+                                                <span class="pending-status">
+                                                    <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
+                                                    [[localize('ch4Pending','Pending',language)]]
+                                                </span>
+                                            </template>
                                         </div>
                                     </div>
                                 </paper-item>
                             </paper-material>
                         </template>
                     </paper-listbox>
+                    <paper-spinner class="spinner chapter-list-spinner" alt="Loading chapter4 list" active=[[_isLoadingChapter]]></paper-spinner>
                     <div class="bottom-btn-container">
                         <paper-button class="bottom-btn" on-tap="_loadChapter4">[[localize('load_agr','Load
                             agr.',language)]]
@@ -532,10 +629,11 @@
                     </div>
                 </div>
                 <div class="detail-panel" on-dragover="_onDrag">
-                    <vaadin-combo-box id="entities-list" filtered-items="[[searchResults]]"
+                    <vaadin-combo-box id="entities-list" filtered-items="[[searchResults]]" value="{{cbValue}}"
                                       on-filter-changed="_filterChanged" item-label-path="descr"
                                       selected-item="{{selectedParagraph}}" item-value-path="id"
                                       label="[[localize('sea_for_par','Search for paragraph‚ medication‚ pathology...',language)]]"></vaadin-combo-box>
+                    <paper-spinner class="spinner paragraph-spinner" alt="Loading chapter4 list" active=[[_isLoadingParagraph]]></paper-spinner>
                     <template is="dom-if" if="[[paragraph]]">
                         <paper-tabs selected="{{tabs}}">
                             <paper-tab class="adm-tab">
@@ -627,7 +725,14 @@
                                                 <p>[[localize('status','Status',language)]]:
                                                     [[localize('req_in_tre','Request rejected',language)]]</p>
                                             </template>
-                                            <p class="error">[[t.refusalJustification.fr]]</p>
+                                            <p class="error">
+                                                <template is="dom-if" if="[[_isFrench(language)]]">
+                                                    [[t.refusalJustification.FR]]
+                                                </template>
+                                                <template is="dom-if" if="[[_isDutch(language)]]">
+                                                    [[t.refusalJustification.NL]]
+                                                </template>
+                                            </p>
                                             <p>[[localize('ref_io','Reference IO',language)]]:
                                                 [[t.decisionReference]]</p>
                                             <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
@@ -721,12 +826,15 @@
                             <paper-fab class="close-button-icon" icon="icons:close" on-tap="_hideUpload"></paper-fab>
                         </div>
                     </template>
-                </div>
-                <div class="message">
-                    <div class="warning">[[warnings]]</div>
-                    <div class="error">[[errors]]</div>
+                    <template is="dom-if" if="[[loadResponse]]">
+
+                    </template>
                 </div>
                 <div class="buttons">
+                    <div class="message">
+                        <div class="warning">[[warnings]]</div>
+                        <div class="error">[[errors]]</div>
+                    </div>
                     <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
                     </paper-button>
                 </div>
@@ -787,6 +895,10 @@
                         type: Object,
                         observer: "_selectedParagraphChanged"
                     },
+                    displayedParagraph: {
+                        type: Object,
+                        observer: "_displayedParagraphChanged"
+                    },
                     medications: {
                         type: Array,
                         value: () => []
@@ -815,7 +927,7 @@
                     toAsString: {
                         type: String
                     },
-                    selectValue: {
+                    selectedAgreementIndex: {
                         type: Number,
                         value: null
                     },
@@ -833,6 +945,10 @@
                     },
                     selectedLoadParagraph: {
                         type: String
+                    },
+                    loadResponse: {
+                        type: Boolean,
+                        value: false
                     }
 
                 }
@@ -854,6 +970,7 @@
 
             _filterChanged(text) {
                 if (text.detail && text.detail.value && text.detail.value.length > 2) {
+                    this.set('loadResponse', false)
                     const searchString = text.detail.value
                     this.latestSearchString = searchString
                     setTimeout(() => {
@@ -876,11 +993,23 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
-                    (this.selectedParagraph.ioRequestReference || this.selectedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
+                    this.set('loadResponse', false)
+                    this.set('agreementResponse', [])
+                    this.set('selectedAgreementIndex', null);
+
+                    this.set('isAgreementSelected', false)
+
+                    this.set('displayedParagraph', this.selectedParagraph);
+                }
+            }
+
+            _displayedParagraphChanged() {
+                if (this.displayedParagraph && this.displayedParagraph.id) {
+                    (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('agreementResponse', [])
                     this.set('checkedVerses', [])
                     this.set('paragraph', [])
-                    const paragraph = this.selectedParagraph.id.split('/')[0]
+                    const paragraph = this.displayedParagraph.id.split('/')[0]
                     this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
                         .then(pi => {
                             this.set('paragraph', pi)
@@ -958,6 +1087,8 @@
             }
 
             _loadChapter4() {
+                this._isLoadingChapter = true;
+                this.set('agreementResponse', [])
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.api.fhc().Chaptercontroller().agreementRequestsConsultationUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
@@ -992,15 +1123,20 @@
                                 inTreatment: t.inTreatment,
                                 medications: vtm
                             })))
+                        this.set('agreementResponse', agreements)
+                        this.set('loadResponse', true)
+                        this._isLoadingChapter = false;
                     })
 
                 })
             }
 
             _requestChapter4(e) {
+                this.set('loadResponse', false)
+                this.set('agreementResponse', [])
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
-                    (e.target && e.target.id === "extendChapter") ? "extension" :
-                        (e.target && e.target.id === "extendChapter") ? "noncontinuousextension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
                             null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
                 if (requestType != null) {
@@ -1021,8 +1157,10 @@
                             this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                 this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
-                                "newrequest", this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                                this.checkedVerses.join(','), appendices, this.incomplete, this.api.moment(this.fromAsString).valueOf())
+                                requestType, this.paragraph.paragraphVersion, this.paragraph.paragraphName,
+                                this.checkedVerses.join(','), appendices, this.incomplete, requestType !== "complimentaryannex" ? this.api.moment(this.fromAsString).valueOf() : null , null,
+                                (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.ioDecisionReference : null,
+                                ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.ioDecisionReference) ? this.displayedParagraph.ioRequestReference : null)
                         )
                     ).then(res => {
                         console.log(res)
@@ -1037,6 +1175,7 @@
                         )
                     })
                 }
+
             }
 
             _annexBaseName(addedDoc) {
@@ -1047,14 +1186,18 @@
                 if (e && e.detail && e.detail.value) {
                     const tpl = this.root.querySelector('#annexesDr').modelForElement(e.detail.value)
                     if (tpl.item.addressUrl) {
-                        var url = tpl.item.addressUrl.replace('@lng@', this.language)
+                        const url = `${this.api.fhcHost}/chap4/sam/docpreview/IV/${this.paragraph.paragraphName}/${tpl.item.verseSeq}/${tpl.item.documentSeq}/${this.language}`
                         var a = document.createElement('a')
-                        a.href = url
-                        a.target = "_blank"
-                        a.download = `${this._annexBaseName(tpl.item)}.pdf`
-                        document.body.appendChild(a) // we need to append the element to the dom -> otherwise it will not work in firefox
-                        a.click()
-                        a.remove()  //afterwards we remove the element again
+                        return fetch(url, {
+                            method: 'GET'
+                        }).then((resp) => {
+                            return resp.blob();
+                        }).then((blob) => {
+                            a.href = window.URL.createObjectURL(blob);
+                            a.download = `${this._annexBaseName(tpl.item)}.pdf`
+                            a.click();
+                            return null
+                        }).finally(() => a.remove())
                     }
                 }
                 this.root.querySelector('#annexes').set('value', null)
@@ -1071,13 +1214,13 @@
 
             _appendicesChanged() {
                 const files = _.clone(this.appendices)
-                const vaadinUpload = this.$['appendix-upload']
+                const vaadinUpload = this.root.querySelector('#appendix-upload')
 
                 Promise.all(files.filter(f => !f.attached).map(f => {
                     f.attached = true
                     return this.api.document().newInstance(this.user, null, {
                         documentType: 'result',
-                        mainUti: this.api.document().uti(f.type),
+                        mainUti: this.api.document().uti(f.type, f.name.replace(/.+\.(.+)/,'$1')),
                         name: f.name
                     }).then(d => this.api.document().createDocument(d)).then(d => {
                         f.doc = d
@@ -1087,35 +1230,38 @@
                 })).then(files => {
                     if (files.length) {
                         vaadinUpload.uploadFiles(files)
-                        const regAnnex = this.annexes.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
-                        files.forEach(f => this.appendicesTokens.map(x => x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {
+                        files.forEach(f => {
+                            const regAnnex = this.annexes.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
+                            this.appendicesTokens.map(x => x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {
                             descr: f.name.replace(/^(.{5})...+(.{5})$/, '$1…$2'),
                             id: f.doc.id,
                             name: f.name,
                             docSeq: regAnnex.documentSeq,
                             verseSeq: regAnnex.verseSeq
-                        }))
+                        })})
                     }
                 })
             }
 
             _hideUpload() {
-                this.$['appendix-upload-container'].style.display = 'none'
+                this.root.querySelector('#appendix-upload-container').style.display = 'none'
             }
 
             _onDrag() {
-                this.$['appendix-upload-container'].style.display = 'block'
+                this.root.querySelector('#appendix-upload-container').style.display = 'block'
             }
 
             _selectItem(e) {
                 if (e.currentTarget) {
+                    this._isLoadingParagraph = true
                     const id = e.currentTarget.id
                     const selectedAgreement = this._convertedMedications().find(t => ((t.ioRequestReference === id || t.ioDecisionReference === id)))
-                    
+
                     this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph)
                         .then(par => {
                             this.set('isAgreementSelected', true)
-                            this.set('selectedParagraph', {
+                            this.set('cbValue', '')
+                            this.set('displayedParagraph', {
                                 descr: par.headerVerse.textFr,
                                 id: par.paragraphName,
                                 ioRequestReference: selectedAgreement.ioRequestReference,
@@ -1123,14 +1269,15 @@
                                 start: selectedAgreement.start,
                                 end: selectedAgreement.ioDecisionEndOfValidity
                             })
+                            this._isLoadingParagraph = false
                         })
                 }
             }
 
             _closeChapter(e) {
-                if (this.selectedParagraph) {
+                if (this.displayedParagraph) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference, this.selectedParagraph.ioRequestReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference, this.displayedParagraph.ioRequestReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
@@ -1141,9 +1288,9 @@
             }
 
             _cancelChapter(e) {
-                if (this.selectedParagraph) {
+                if (this.displayedParagraph) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.selectedParagraph.ioDecisionReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
