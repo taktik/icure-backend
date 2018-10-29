@@ -13,7 +13,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
@@ -280,6 +279,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     padding-right: 0;
                     margin-right: 0;
                     height: 100%;
+                }
+
+                .get-msg-btn{
+                    margin-bottom: 16px;
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        width: 100%;
+                        margin: 0 auto;
+                        font-size: 14px;
+                        font-weight: bold;
+                        text-transform: capitalize;
+                    };
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
                 }
 
             </style>
