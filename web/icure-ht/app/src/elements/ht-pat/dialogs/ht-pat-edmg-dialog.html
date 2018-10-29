@@ -136,11 +136,27 @@
             paper-tab.iron-selected > iron-icon {
                 color: var(--app-secondary-color);
             }
+
+            .tab-selector {
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
+
+            .end-buttons {
+                position: absolute;
+                right: 15px;
+                bottom: 15px;
+                margin: 0;
+                padding: 0;
+            }
+            .modal-button--save {
+                background: var(--app-secondary-color);
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2 class="modal-title">[[localize('e_dmg','e-Dmg',language)]]</h2>
-            <paper-tabs selected="{{tabs}}" >
+            <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('dmg-con','Dmg Consultation',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_not','Dmg Notification',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>
@@ -240,9 +256,8 @@
                     <paper-button class="action" on-tap="_dmgListRequest">[[localize('dmg_lst','Get List',language)]]</paper-button>
                 </page>
             </iron-pages>
-            <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
-            </div>
+            <div class="end-buttons">
+                <paper-button class="modal-button--save" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
             <!--<div class="buttons">-->
             <!--<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>-->
@@ -734,7 +749,7 @@
                 if (this.api.tokenId) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp => {
-                                return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
+                                return this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(
                                     this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                     this.listIO,

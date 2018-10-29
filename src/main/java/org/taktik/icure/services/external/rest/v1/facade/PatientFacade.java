@@ -105,6 +105,7 @@ public class PatientFacade implements OpenApiFacade{
     @GET
     @Path("/byNameBirthSsinAuto")
     public Response findByNameBirthSsinAuto(
+    		@ApiParam(value = "Mendatory healthcareParty Id") @QueryParam("healthcarePartyId") String healthcarePartyId,
             @ApiParam(value = "Optional value for filtering results") @QueryParam("filterValue") String filterValue,
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
                     "components to form the Complex Key's startKey") @QueryParam("startKey") String startKey,
@@ -119,7 +120,7 @@ public class PatientFacade implements OpenApiFacade{
         @SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null,
                 limit == null ? null : limit);
 
-	    PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(null, paginationOffset, filterValue, new Sorting(null, sortDirection));
+	    PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId, paginationOffset, filterValue, new Sorting(null, sortDirection));
 
 	    if (patients != null) {
 		    response = buildPaginatedListResponse(patients);

@@ -398,6 +398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .formNewHcp {
                 height: 350px;
+                width: 450px;
             }
 
             .buttons {
@@ -642,17 +643,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         attr-for-selected="name"
                         fallback-selection="view404"
                         role="main">
-                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
+                    <ht-main id="ht-main" name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
                         <splash-screen></splash-screen>
                     </ht-main>
-                    <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
+                    <ht-pat id="ht-pat" name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
                             on-user-saved="_userSaved">
                         <splash-screen></splash-screen>
                     </ht-pat>
-                    <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
+                    <ht-hcp id="ht-hcp" name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]">
                         <splash-screen></splash-screen>
                     </ht-hcp>
-                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                    <ht-msg id="ht-msg" name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen></splash-screen>
                     </ht-msg>
                     <ht-view404 name="view404"></ht-view404>
@@ -709,6 +710,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return {
                     api: {
                         type: Object,
+                        noReset: true,
                         value: null
                     },
                     user: {
@@ -717,10 +719,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     language: {
                         type: String,
+                        noReset: true,
                         value: 'fr'
                     },
                     i18n: {
                         Type: Object,
+                        noReset: true,
                         value() {
                             moment.locale('fr')
                             const res = {
@@ -750,7 +754,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     view: {
                         type: String,
                         reflectToAttribute: true,
-                        observer: '_viewChanged'
+                        observer: '_viewChanged',
+                        noReset: true
                     },
                     headers: {
                         type: Object,
@@ -762,6 +767,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     lazyPages: {
                         type: Object,
+                        noReset: true,
                         value: {
                             main() {
                                 import(/* webpackChunkName: "ht-main" */ './ht-main.html')
@@ -783,7 +789,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     resources: {
                         value() {
                             return require('./elements/language/language.json')
-                        }
+                        },
+                        noReset: true
                     },
                     invitedHcpLink: {
                         type: String,
@@ -791,10 +798,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     disconnectionTimer: {
                         type: Number,
-                        value: 60
+                        value: 60,
+                        noReset: true
                     },
                     connectionTime: {
-                        type: Number
+                        type: Number,
+                        noReset: true
                     },
                     ehboxWebWorkerMessage: {
                         type: String,
@@ -805,7 +814,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: false
                     },
                     worker: {
-                        type: Worker
+                        type: Worker,
+                        noReset: true
                     },
                     timeOutId: {
                         type: String
@@ -833,6 +843,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+            }
+
+            reset() {
+                const props = HtApp.properties
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-main'].map(x => this.root.querySelector(x)).map(el => el && el.reset())
             }
 
             ready() {
@@ -915,7 +931,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _routePageChanged(page) {
                 if (page === 'logout') {
                     sessionStorage.removeItem('auth')
+
                     this.authenticated = false
+
+                    this.reset()
+
                     this.worker && this.worker.terminate()
                     this.set('view', 'auth')
                 } else {
@@ -930,7 +950,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('routeData.page', 'auth/' + (!page ? 'main' : page.startsWith('logout') ? 'main' : page))
                         }
                     } else {
-                        this.set('view', page ? page.replace(/\/$/, '') : 'main')
+                        const dest = page ? page.replace(/\/$/, '') : 'main'
+                        if (dest !== this.view) { this.set('view', dest) }
                     }
                     this._startCheckInactiveTimer('refresh')
                 }
@@ -1138,7 +1159,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 // See if user exists first, based on email address
                 this.api.user().getUserByEmail(this.email).then( existingUserDto => {
                     if( existingUserDto && existingUserDto.id ) {
-                        this.$['ht-invite-hcp-user-already-exists'].open();
+                        this.$['ht-invite-hcp-user-already-exists'].open()
                     } else {
                         this.api.hcparty().createHealthcareParty({
                             "name": this.lastName + " " + this.firstName,
@@ -1160,7 +1181,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             })
                         })
                     }
-                });
+                })
 
             }
 
@@ -1182,12 +1203,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         keystoreId: this.api.keystoreId,
                         user: this.user,
                         ehpassword: this.credentials.ehpassword,
-                        boxId: "INBOX",
+                        boxId: ["INBOX","SENTBOX"],
                         alternateKeystores: ({keystores:alternateKeystores.filter(ak => ak.passPhrase)}),
                         keyPair: keyPair
                     })
-
-                })
+				})
 
                 this.worker.onmessage = e => {
                     this.set('ehboxWebWorkerMessage', e.data.message)

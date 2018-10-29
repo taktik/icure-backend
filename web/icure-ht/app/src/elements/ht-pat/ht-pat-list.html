@@ -13,7 +13,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
@@ -1790,7 +1789,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _activeFilters() {
-                const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+                const filters = this.user && this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
                 if (filters) {
                     const parsedFilters = JSON.parse(filters.typedValue.stringValue)
                     return _.sortBy(Object.keys(parsedFilters).map(k => ({name: k, filter: parsedFilters[k]})))
@@ -2036,6 +2035,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _searchDuplicate() {
+                if (!this.user) return
                 const fingerPrint = this.firstName + '|' + this.lastName + '|' + this.dateAsString + '|' + this.ssin
                 //creation of filters
                 const totalChars = (this.firstName && this.firstName.length || 0) + (this.lastName && this.lastName.length || 0)
@@ -2171,6 +2171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             updateDelegation(){
+                if (!this.user) return
                 let userDelegation = this.user.autoDelegations
 
                 this.hcpSelectedForSharing.forEach( userShared =>{

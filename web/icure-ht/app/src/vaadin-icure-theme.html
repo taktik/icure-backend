@@ -23,3 +23,18 @@
     </template>
 </dom-module>
 
+<dom-module id="invoice-grid-style" theme-for="vaadin-grid">
+    <template>
+        <style>
+            .pendingTable vaadin-grid{
+                width: 100px;
+            }
+            [part~="cell"]:not([part~="details-cell"]) {
+            }
+
+            :host [part~="header-cell"]:not([part~="details-cell"]) {
+            }
+        </style>
+    </template>
+</dom-module>
+

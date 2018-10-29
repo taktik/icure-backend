@@ -8,6 +8,7 @@
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
@@ -412,10 +413,6 @@
                 justify-content: flex-end;
             }
 
-            paper-item.menu-item.opened {
-                @apply --padding-right-left-16;
-            }
-
             paper-item {
                 background: transparent;
                 outline: 0;
@@ -433,11 +430,6 @@
                 --paper-item-focused-before: {
                     background: transparent;
                 };
-
-            }
-
-            paper-item.opened {
-                padding-top: 8px;
 
             }
 
@@ -931,11 +923,11 @@
                                         </template>
                                         <template is="dom-if" if="[[_ifEattestSaved(item)]]">
                                             <div class="he-edit-btn-container">
-                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-right" on-tap="_toggleEditHE"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="eattest" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -1067,7 +1059,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.patientIntervention]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1077,7 +1069,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.reimbursement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1086,7 +1078,7 @@
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.doctorSupplement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1095,7 +1087,7 @@
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.totalAmount]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1196,15 +1188,11 @@
                                          label="[[localize('reimb','Reimbursement',language)]]"
                                          value="{{activeNmclItem.reimbursement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
-                                         label="[[localize('conv_amoun','Convention amount',language)]]"
-                                         value="{{activeNmclItem.conventionAmount}}" readonly></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('extra','Extra',language)]]"
                                          value="{{activeNmclItem.doctorSupplement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('tot','Fee',language)]]"
                                          value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
-
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
@@ -1248,6 +1236,11 @@
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
+                    <template is="dom-if" if="[[isEattestClosed]]">
+                        <paper-button class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                            [[localize('can_eattest','Cancel eattest',language)]]
+                        </paper-button>
+                    </template>
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
@@ -1538,22 +1531,7 @@
                     thirdPartyJustification: {
                         type: Array,
                         value: () => [
-                            {
-                                id: "5",
-                                label: {
-                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
-                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
-                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
-                                }
-                            },
-                            {
-                                id: "9",
-                                label: {
-                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
-                                    "nl": "9. Prohibition of third-party billing via efact",
-                                    "en": "9. Prohibition of third-party billing via efact"
-                                }
-                            },
+
                             {
                                 id: "0",
                                 label: {
@@ -1587,6 +1565,14 @@
                                 }
                             },
                             {
+                                id: "5",
+                                label: {
+                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
+                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
+                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
+                                }
+                            },
+                            {
                                 id: "6",
                                 label: {
                                     "fr": "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés",
@@ -1608,6 +1594,14 @@
                                     "fr": "8. Statut affection chronique (sur base d'une attestation fournie par le patient)",
                                     "nl": "8. Chronic condition",
                                     "en": "8. Chronic condition"
+                                }
+                            },
+                            {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
                                 }
                             },
                             {
@@ -1820,6 +1814,10 @@
                     parentRelatedCodeId: {
                         type: String,
                         value: ""
+                    },
+                    isEattestClosed:{
+                        type:Boolean,
+                        value:false
                     }
 
                 }
@@ -1827,7 +1825,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -1878,6 +1876,7 @@
             }
 
             open() {
+                if (!this.user) return
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
@@ -2374,6 +2373,17 @@
                 return date ? this.api.moment(date).format("DD/MM/YYYY") : 'N/A'
             }
 
+            _formatAmount(amount) {
+                console.log("formatamount",amount)
+                if (amount == 0) {return "0.00"}
+                if (amount.toString().length < 3) {
+                    let out = // if integer, add the decimals, else just besure it's float
+                        (Number(amount)%1 === 0) ? amount+".00" : parseFloat(amount)
+                    return out
+                }
+                return amount
+            }
+
             datePickerChanged() {
                 console.log('datePickerChange')
             }
@@ -2396,8 +2406,8 @@
             }
 
             getInvoiceType(invoiceType){
-               const type = this.invoiceType.find(type => type.id === invoiceType)
-               return type && type.label && type.label[this.language]
+                const type = this.invoiceType.find(type => type.id === invoiceType)
+                return type && type.label && type.label[this.language]
             }
 
             getSentMediumType(sentMediumType){
@@ -2833,11 +2843,11 @@
                 this.selectedInvoice.invoicingCodes.map(code =>{
                     let newCode = {
                         date : code.dateCode,
-                        doctorSupplement : code.doctorSupplement,
-                        fee : parseFloat(code.totalAmount),
+                        doctorSupplement : Number(code.doctorSupplement),
+                        fee : Number(code.totalAmount),
                         quantity : code.units,
-                        reglementarySupplement : code.patientIntervention,
-                        reimbursement: code.reimbursement,
+                        reglementarySupplement : Number(code.patientIntervention),
+                        reimbursement: Number(code.reimbursement),
                         requestor : {
                             date: this.selectedInvoice.invoiceDate ,
                             hcp: {
@@ -2876,11 +2886,7 @@
 
                     eattest.codes.push(newCode)
                 })
-
-                let tempInvoice =this.selectedInvoice;
-                tempInvoice =_.omit(tempInvoice,["printedDate"])
-                this.eattest(tempInvoice)
-
+                console.log(eattest)
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
                         console.log(response)
@@ -2913,15 +2919,9 @@
                 this.$['xml_dialog'].open()
             }
 
-            duplicate(e){
-                e.stopPropagation();
-                e.preventDefault();
-                this.eattest(JSON.parse(e.target.dataset.item))
-            }
-
             conventionAmountChanged(){
                 if(!this.activeNmclItem)return ;
-                const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
+                const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
             }
 
@@ -2930,8 +2930,7 @@
             eattest(invoice){
                 e.stopPropagation();
                 e.preventDefault();
-
-                 //generate jpeg
+                //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
@@ -2945,10 +2944,10 @@
 
                 invoice.invoicingCodes.map((code)=>{
                     totalACharge+=code.reimbursement+code.patientIntervention;
-                    totalSuppl+=parseFloat(code.doctorSupplement)
-                    totalRemb+=parseFloat(code.reimbursement)
-                    totalConv+=parseFloat(code.conventionAmount)
-                    totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
+                    totalSuppl+=Number(code.doctorSupplement)
+                    totalRemb+=Number(code.reimbursement)
+                    totalConv+=Number(code.conventionAmount)
+                    totalDelta+=Number(code.reimbursement)+Number(code.patientIntervention)+Number(code.doctorSupplement)
                 })
 
                 let templatePat = _.clone(this.patient), templateHcp = _.clone(this.hcp)
@@ -2974,9 +2973,9 @@
                         return function(calcul,render){
                             let termes = render(calcul).split(" ")
                             while(termes.length>2){
-                                let first = parseFloat(termes.shift())
+                                let first = Number(termes.shift())
                                 let operateur = termes.shift()
-                                let second = parseFloat(termes.shift())
+                                let second = Number(termes.shift())
 
                                 if(operateur=="+"){
                                     termes.unshift(first+second);
@@ -2987,7 +2986,7 @@
                                 else return "erreur dans le calcul"
 
                             }
-                            return parseFloat(termes[0]).toFixed(2)+" €";
+                            return Number(termes[0]).toFixed(2)+" €";
                         }
                     },
                     "justif": this.localize('pdf_justif','justif',this.language),
@@ -3006,142 +3005,124 @@
                     "totalRemb" : totalRemb,
                     "totalConv" : totalConv,
                     "totalDelta" : totalDelta,
-                    "jpegUrl" : jpegUrl,
-                    "isDuplicata" : (invoice.printedDate) ? true : false
+                    "jpegUrl" : jpegUrl
                 }
 
                 const html = `
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <title></title>
-                <style>
-                    .invoice-box {
-                        max-width: 800px;
-                        min-height:880px;
-                        margin: auto;
-                        padding: 30px;
-                        border: 1px solid #eee;
-                        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-                        font-size: 16px;
-                        line-height: 24px;
-                        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                        color: #555;
-                    }
-
-                    .invoice-box table {
-                        width: 100%;
-                        line-height: inherit;
-                        text-align: left;
-                    }
-
-                    .p12 {
-                        width:12%;
-                    }
-
-                    .p50 {
-                        width:50%;
-                    }
-
-                    .bold {
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table td {
-                        padding: 5px;
-                        vertical-align: top;
-                    }
-
-                    .invoice-box table tr td.right {
-                        text-align: right;
-                    }
-
-                    .invoice-box table tr.top table td {
-                    }
-
-                    .invoice-box table tr.top table td.title {
-                        font-size: 45px;
-                        line-height: 45px;
-                        color: #333;
-                    }
-
-                    .invoice-box table tr.information table td {
-                        padding-bottom: 40px;
-                    }
-
-                    .invoice-box table tr.heading td {
-                        background: #eee;
-                        border-bottom: 1px solid #ddd;
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.details td {
-                        padding-bottom: 20px;
-                    }
-
-                    .invoice-box table tr.item td{
-                        border-bottom: 1px solid #eee;
-                    }
-
-                    .invoice-box table tr.item.last td {
-                        border-bottom: none;
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.total td {
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.total td:nth-child(2) {
-                        border-top: 2px solid #eee;
-                    }
-
-                    @media only screen and (max-width: 600px) {
-                        .invoice-box table tr.top table td {
-                            width: 100%;
-                            display: block;
-                            text-align: center;
-                        }
-
-                        .invoice-box table tr.information table td {
-                            width: 100%;
-                            display: block;
-                            text-align: center;
-                        }
-                    }
-
-                    /** RTL **/
-                    .rtl {
-                        direction: rtl;
-                        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                    }
-
-                    .rtl table {
-                        text-align: right;
-                    }
-
-                    .rtl table tr td:nth-child(2) {
-                        text-align: left;
-                    }
-	            </style>
-            </head>
-            <body>
-            <div class="invoice-box">
-                <table cellpadding="0" cellspacing="0">
-                    <tr class="top">
-                        <td class="p50">
-                            Justificatif #: {{invoice.invoiceReference}}<br>
-                            Date:
-                            {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
-                            <br>
-                        </td>
-                        <td class="p50" style="text-align: center;">
-                            <img src="{{jpegUrl}}" alt="barcode" />
-                            <br>
-                            <span>{{invoice.thirdPartyReference}}</span><br>
-                            {{#isDuplicata}}<span style="color: red">DUPLICATA</span>{{/isDuplicata}}
-                        </td>
-                    </tr>
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title></title>
+                        <style>
+                            .invoice-box {
+                                max-width: 800px;
+                                min-height:880px;
+                                margin: auto;
+                                padding: 30px;
+                                border: 1px solid #eee;
+                                box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+                                font-size: 16px;
+                                line-height: 24px;
+                                font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+                                color: #555;
+                            }
+                            .invoice-box table {
+                                width: 100%;
+                                line-height: inherit;
+                                text-align: left;
+                            }
+                            .p12 {width:12%;}
+                            .p50 {width:50%;}
+                            .bold {font-weight: bold;}
+                            .invoice-box table td {
+                                padding: 5px;
+                                vertical-align: top;
+                            }
+                            td.first-col {
+                            min-width: 33%;
+                            }
+                            .invoice-box table tr td.right {text-align: right;}
+                            .invoice-box table tr.top table td.title {
+                                font-size: 45px;
+                                line-height: 45px;
+                                color: #333;
+                            }
+                            .invoice-box table tr.information table td {padding-bottom: 40px;}
+                            .invoice-box table tr.heading td {
+                                background: #eee;
+                                border-bottom: 1px solid #ddd;
+                                font-weight: bold;
+                            }
+                            .invoice-box table tr.details td {padding-bottom: 20px;}
+                            .invoice-box table tr.item td{border-bottom: 1px solid #eee;}
+                            .invoice-box table tr.item.last td {
+                                border-bottom: none;
+                                font-weight: bold;
+                            }
+                            .invoice-box table tr.total td {font-weight: bold;}
+                            .invoice-box table tr.total td:nth-child(2) {border-top: 2px solid #eee;}
+                            .underline {border-bottom: 1px solid lightgrey;}
+                            .underline-dotted {border-bottom: 1px dotted lightgrey;}
+                            table.fact-details {
+                                border: .5px solid lightgrey;
+                                margin-top: 35px;
+                            }
+                            table.fact-details * {font-size: 12px}
+                            td.minw30 {max-width: 30%;}
+                            .fleft {
+                                float: left;
+                                clear: both;
+                            }
+                            .hidden {display: none;}
+                            .txt-center {text-align: center;}
+                            .lborder {
+                                border-left: 1px solid lightgrey;
+                                padding-left: 10px;
+                            }
+                            .uppercase {text-transform: uppercase !important;}
+                            .capitalize {text-transform: capitalize;}
+                            .txt-red {color: red;}
+                            .mt20{margin-top: 20px;}
+                            .mb10{margin-bottom: 10px;}
+                            .mb20{margin-bottom:20px;}
+                            .m0auto {margin: 0 auto;}
+                            table.addr tr td:first-child {
+                                border-bottom: 1px solid lightgrey;
+                                text-align: right;
+                                text-transform: uppercase;
+                            }
+                            table.addr tr td:nth-child(2) {
+                                border-bottom: 1px dotted lightgrey;
+                                text-transform: lowercase;
+                                word-wrap: break-word;
+                            }
+                            .txt-underline {text-decoration:underline}
+                            .title {font-weight:bold;text-decoration: underline; margin-bottom:15px;}
+                            table.top-table {margin-bottom: 50px;}
+                        </style>
+                    </head>
+                    <body>
+                    <div class="invoice-box">
+                        <table class="toptable">
+                            <tr class="top">
+                                <td class="p50">
+                                    <h1>EATTEST</h1>
+                                    <h2 class="mb20">{{#patient}}
+                                        <div>{{firstName}} <span class="uppercase">{{lastName}}</span></div>
+                                        <div>NISS : {{ssin}}</div>
+                                    {{/patient}}</h2>
+                                    {{justif}} : {{invoice.invoiceReference}}<br />
+                                    {{date}} : {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
+                               </td>
+                               <td class="p50 txt-center">
+                                    <img src="{{jpegUrl}}" alt="barcode" />
+                                    <div class="txt-center">{{invoice.thirdPartyReference}}</div>
+                                    {{#invoice.printedDate}}
+                                        <div class="txt-center"><span class="txt-red">DUPLICATA</span></div>
+                                    {{/invoice.printedDate}}
+                                </td>
+                            </tr>
+                        </table>
 
                         <table>
                             <tr>
@@ -3285,6 +3266,15 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                     })
+            }
+
+            varIsEattestClosedChanged(){
+                this.set("isEattestClosed",this.selectedInvoice.sentMediumType==="eattest" && this.selectedInvoice.printedDate)
+            }
+
+            _cancelEattest(){
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+                window.open(url,"cancel");
             }
         }
 

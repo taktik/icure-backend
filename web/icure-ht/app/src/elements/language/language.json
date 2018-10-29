@@ -348,6 +348,7 @@
     "you_mus_be_con_to_ehe_to_be_all_to_pre": "You must be connected to eHealth to be allowed to prescribe",
     "join_write": "Write a message or select a file below",
     "join_asmsg": "Join a file as message",
+    "load_agr" : "Load agreements",
     "can_agr" : "Cancel agreement",
     "clos_agr": "Close agreement",
     "ext_agr": "Extend agreement",
@@ -363,7 +364,6 @@
     "pdf_subTot": "Sub-totals",
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
     "pdf_totFinal": "Total porté en compte",
-    "req_agr" : "Request agreemnt",
     "ch4_request_type" : "Request type"
  },
   "fr": {
@@ -509,7 +509,7 @@
     "gnotion" : "Uniquement si le médecin n'est pas le médecin généraliste qui gère le DMG, que la notion G peut être appliquée et si cela peut avoir un impact sur le tarif de la consultation",
     "gra": "Graphique",
     "grp": "Groupe",
-    "hc_par": "Prest. de soin",
+    "hc_par": "Prestataires",
     "hcp_ident":"HCP",
     "hea_bac_to_hom": "Retour à l'accueil.",
     "header": "Entête",
@@ -759,6 +759,7 @@
     "faultMessage":"Message d'erreur",
     "faultSource":"Source d'erreur",
     "faultCode":"Code d'erreur",
+    "load_agr": "Charger les agréments",
     "can_agr" : "Annuler l'agrément",
     "clos_agr": "Clôturer l'agrément",
     "ext_agr": "Renouveller l'agrément",
