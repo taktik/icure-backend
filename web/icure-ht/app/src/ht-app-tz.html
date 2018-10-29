@@ -389,6 +389,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: translateX(50%);
                 margin: 0;
             }
+            paper-dialog#ht-invite-hcp-user-already-exists{
+                width: 60%;
+                left: 0;
+                transform: translateX(50%);
+                margin: 0;
+            }
 
             .inviteHcpInput {
                 width: 100%;
@@ -1104,6 +1110,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <h3>Lien de première connexion</h3>
             <h4>[[invitedHcpLink]]</h4>
         </paper-dialog>
+
+
+
+        <paper-dialog id="ht-invite-hcp-user-already-exists">
+            <h3>[[localize('warning','Attention',language)]]</h3>
+            <h4> [[localize( 'email_address_already_exists', 'L\'adresse email de ce collègue existe déjà\, veuillez svp en spécifier une autre', language)]]</h4>
+            <paper-button dialog-confirm autofocus class="modal-button modal-button--close" on-tap="_inviteHCP" >[[localize('clo','Close',language)]]</paper-button>
+        </paper-dialog>
+
+
 
         <paper-item id="ehboxInboxMessage" class="ehbox-notification-panel inboxMessage">
             <iron-icon icon="communication:email"></iron-icon>

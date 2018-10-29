@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-date-picker.html">
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
+<link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 
 <link rel="import" href="../../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
@@ -87,12 +88,17 @@
                 grid-row: 1/1;
                 display: flex;
                 flex-flow: row wrap;
-                padding: 12px 8px 4px;
+                padding: 0 12px;
             }
 
             .searchLoadContainer .tool{
                 height: 57px;
                 margin: 0;
+            }
+
+            .searchLoadContainer vaadin-date-picker.tool{
+                width: calc(50% - 8px);
+                box-sizing: border-box;
             }
 
             #_chapter_listbox{
@@ -127,12 +133,12 @@
                 margin: 0;
                 grid-column: 2/2;
                 grid-row: 1/1;
-                padding: 8px 24px;
+                padding: 0 24px;
                 box-sizing: border-box;
                 position: relative;
                 display: inline-grid;
                 grid-template-columns: 1fr;
-                grid-template-rows: 56px 1fr;
+                grid-template-rows: 56px calc(100% - 56px);
             }
 
             .detail-panel vaadin-combo-box {
@@ -140,32 +146,27 @@
                 grid-row: 1/1;
                 width: 100%;
                 height: 72px;
-                top: -16px;
-                position: absolute;
             }
 
             .detail-panel .paragraph{
                 grid-column: 1/1;
                 grid-row: 2/2;
-                display:inline-grid;
-                grid-template-columns: 1fr;
-                grid-template-rows: 32px 1fr 106px 48px;
+                display:flex;
+                flex-flow: column nowrap;
+                justify-content: space-between;
             }
 
             iron-pages{
-                grid-column: 1/1;
-                grid-row: 2/2;
-                height:100%;
+                align-self: stretch;
+                overflow-y: overlay;
+                flex-grow: 1;
             }
 
             page {
-                grid-column: 1/1;
-                grid-row: 2/2;
                 height:100%;
             }
 
             .detail-panel div.paragraph-content {
-                height: calc(100% - 32px - 106px -48px);
                 position: relative;
                 text-align: justify;
                 padding: 0 24px;
@@ -345,15 +346,14 @@
             }
 
             paper-button[disabled] {
-                background-color: var(--app-secondary-color-highlight);
+                background-color: var(--app-secondary-color-dark);
                 color: var(--app-text-color-disabled);
                 box-shadow: none;
             }
 
             paper-tabs {
-                grid-column:1/1;
-                grid-row: 1/1;
-                height: 32px;
+                height: 40px;
+                min-height: 40px;
                 --paper-tabs-selection-bar-color: var(--app-secondary-color);
                 --paper-tabs: {
                     color: var(--app-text-color);
@@ -385,13 +385,11 @@
                 justify-content: flex-start;
                 box-sizing: border-box;
                 margin: 0 8px;
-                grid-column: 1/1;
-                grid-row: 3/3;
+                height: 103px;
+                min-height: 103px;
             }
 
             .detail-panel .btns-container{
-                grid-column: 1/1;
-                grid-row: 4/4;
                 padding: 4px 0;
             }
 
@@ -615,10 +613,6 @@
                 opacity: 1;
             }
 
-            .searchLoadContainer {
-                display: flex;
-            }
-
             .searchLoadContainer .search-load-container-collapsed {
                 max-height: 40px;
                 overflow-y: hidden;
@@ -750,6 +744,7 @@
                                 </paper-tab>
                             </paper-tabs>
 
+
                             <iron-pages selected="[[tabs]]" class="">
                                 <page>
                                     <div class="paragraph-content">
@@ -758,7 +753,7 @@
                                             [[paragraph.paragraphName]]</h2>
                                         <template is="dom-if" if="[[annexes.length]]">
                                             <paper-dropdown-menu id="annexes" class="annexes" label="Annexes"
-                                                                 on-selected-item-changed="_downloadAnnex">
+                                                                on-selected-item-changed="_downloadAnnex">
                                                 <paper-listbox slot="dropdown-content" class="dropdown-content">
                                                     <template id="annexesDr" is="dom-repeat" items="[[annexes]]">
                                                         <paper-item>
@@ -788,7 +783,6 @@
                                 </page>
                                 <page>
                                     <div class="paragraph-content">
-
                                         <template is="dom-if" if="[[agreementResponse]]">
                                             <template is="dom-if" if="[[agreementResponse.acknowledge]]">
                                                 <h3>[[localize('the_req_was_suc', 'The request was successfully transmitted
@@ -837,49 +831,49 @@
                                                         [[t.refusalJustification.NL]]
                                                     </template>
                                                 </p>
+                                                <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
+                                                <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
+                                                <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
+                                                <h4>[[localize('tec_dat','Technical data',language)]]</h4>
+                                                <p>[[localize('req_ref_io','Request Reference IO',language)]]: [[t.ioRequestReference]]</p>
+                                                <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
+                                                <h4>[[localize('medications','Medications',language)]]</h4>
+                                                <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
+                                                             items="[[_mpps(t.paragraph, agreementMpps.*)]]"
+                                                             active-item="{{selectedMedication}}">
+                                                    <vaadin-grid-column flex-grow="10">
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="mut">
+                                                                [[localize('medication','Medication',language)]]
+                                                            </vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>
+                                                            <div class="cell frozen">[[item.name]])</div>
+                                                        </template>
+                                                    </vaadin-grid-column>
+                                                    <vaadin-grid-column flex-grow="1">
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="periodStart">
+                                                                [[localize('selected','Selected',language)]]
+                                                            </vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>
+                                                            <div class="cell frozen">
+                                                                <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
+                                                            </div>
+                                                        </template>
+                                                    </vaadin-grid-column>
+                                                </vaadin-grid>
                                             </template>
-                                            <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
-                                            <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
-                                            <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                             <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                            <p>[[localize('req_ref_io','Request Reference IO',language)]]:
-                                                [[t.ioRequestReference]]</p>
-                                            <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
-                                            <h4>[[localize('medications','Medications',language)]]</h4>
-                                            <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
-                                                         items="[[_mpps(t.paragraph, agreementMpps.*)]]"
-                                                         active-item="{{selectedMedication}}">
-                                                <vaadin-grid-column>
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="mut">
-                                                            [[localize('medication','Medication',language)]]
-                                                        </vaadin-grid-sorter>
-                                                    </template>
-                                                    <template>
-                                                        <div class="cell frozen">[[item.name]])</div>
-                                                    </template>
-                                                </vaadin-grid-column>
-                                                <vaadin-grid-column>
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="periodStart">
-                                                            [[localize('selected','Selected',language)]]
-                                                        </vaadin-grid-sorter>
-                                                    </template>
-                                                    <template>
-                                                        <div class="cell frozen">
-                                                            <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
-                                                        </div>
-                                                    </template>
-                                                </vaadin-grid-column>
-                                            </vaadin-grid>
+                                            <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
+                                            <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
+                                            <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
                                         </template>
-                                        <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                        <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                        <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                        <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
                                     </div>
                                 </page>
                             </iron-pages>
+
                             <div class="tool-container">
                                 <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
                                                     label="[[localize('From','From',language)]]"
@@ -1115,7 +1109,7 @@
                     this.set('checkedVerses', [])
                     this.set('paragraph', [])
                     const paragraph = this.displayedParagraph.id.split('/')[0]
-                    this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
+                    ;(this.displayedParagraph.paragraphInfo ? Promise.resolve(this.displayedParagraph.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', paragraph))
                         .then(pi => {
                             this.set('paragraph', pi)
                             return this.api.fhc().Chaptercontroller().getAddedDocumentsUsingGET('IV', paragraph)
@@ -1218,7 +1212,7 @@
                     const medications = this._convertedMedications()
                     const ioRequestReferences = medications.map(x => x.ioRequestReference)
                     const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
-                    Promise.all(
+                    return Promise.all(
                         agreements.transactions.map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => [t, vtm, pi]))
                     ).then((transactions) => {
                         this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
@@ -1248,9 +1242,9 @@
                                 paragraphInfo: pi
                             })))
                         this.set('agreementResponse', agreements)
-                        this._isLoadingChapter = false;
                     })
-
+                }).finally(() => {
+                    this._isLoadingChapter = false;
                 })
             }
 
@@ -1387,16 +1381,17 @@
                 const selectedAgreement = this._agreements()[idx]
 
                 ;(selectedAgreement.paragraphInfo ? Promise.resolve(selectedAgreement.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph))
-                    .then(par => {
+                    .then(pi => {
                         this.set('isAgreementSelected', true)
                         this.set('cbValue', '')
                         this.set('displayedParagraph', {
-                            descr: par.headerVerse.textFr,
-                            id: par.paragraphName,
+                            descr: pi.headerVerse.textFr,
+                            id: pi.paragraphName,
                             ioRequestReference: selectedAgreement.ioRequestReference,
                             ioDecisionReference: selectedAgreement.ioDecisionReference,
                             start: selectedAgreement.start,
-                            end: selectedAgreement.ioDecisionEndOfValidity
+                            end: selectedAgreement.ioDecisionEndOfValidity,
+                            paragraphInfo : pi
                         })
                         this.set('agreementResponse', {
                             transactions: [selectedAgreement]
