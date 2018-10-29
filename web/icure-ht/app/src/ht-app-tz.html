@@ -1125,6 +1125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return {
                     api: {
                         type: Object,
+                        noReset: true,
                         value: null
                     },
                     user: {
@@ -1133,10 +1134,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     language: {
                         type: String,
+                        noReset: true,
                         value: 'fr'
                     },
                     i18n: {
                         Type: Object,
+                        noReset: true,
                         value() {
                             moment.locale('fr')
                             const res = {
@@ -1166,7 +1169,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     view: {
                         type: String,
                         reflectToAttribute: true,
-                        observer: '_viewChanged'
+                        observer: '_viewChanged',
+                        noReset: true
                     },
                     headers: {
                         type: Object,
@@ -1178,6 +1182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     lazyPages: {
                         type: Object,
+                        noReset: true,
                         value: {
                             main() {
                                 import(/* webpackChunkName: "ht-main" */ './ht-main.html')
@@ -1199,7 +1204,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     resources: {
                         value() {
                             return require('./elements/language/language.json')
-                        }
+                        },
+                        noReset: true
                     },
                     invitedHcpLink: {
                         type: String,
@@ -1207,10 +1213,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     disconnectionTimer: {
                         type: Number,
-                        value: 60
+                        value: 60,
+                        noReset: true
                     },
                     connectionTime: {
-                        type: Number
+                        type: Number,
+                        noReset: true
                     },
                     ehboxWebWorkerMessage: {
                         type: String,
@@ -1221,7 +1229,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: false
                     },
                     worker: {
-                        type: Worker
+                        type: Worker,
+                        noReset: true
                     },
                     timeOutId: {
                         type: String
@@ -1249,6 +1258,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('icureUrl', params.icureUrl || 'https://icure.cloud/rest/v1')
                 this.set('fhcUrl', params.fhcUrl || 'https://fhcprd.icure.cloud')
+            }
+
+            reset() {
+                const props = HtAppTz.properties
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-main'].map(x => this.root.querySelector(x)).map(el => el && el.reset())
             }
 
             ready() {
@@ -1332,6 +1347,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if (page === 'logout') {
                     sessionStorage.removeItem('auth')
                     this.authenticated = false
+
+                    this.reset()
+
                     this.worker && this.worker.terminate()
                     this.set('view', 'auth')
                 } else {
@@ -1346,7 +1364,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('routeData.page', 'auth/' + (!page ? 'main' : page.startsWith('logout') ? 'main' : page))
                         }
                     } else {
-                        this.set('view', page ? page.replace(/\/$/, '') : 'main')
+                        const dest = page ? page.replace(/\/$/, '') : 'main'
+                        if (dest !== this.view) { this.set('view', dest) }
                     }
                     this._startCheckInactiveTimer('refresh')
                 }
@@ -1550,25 +1569,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             confirmUserInvitation() {
 
-                this.api.hcparty().createHealthcareParty({
-                    "name": this.lastName + " " + this.firstName,
-                    "lastName": this.lastName,
-                    "firstName": this.firstName,
-                    "nihii": this.nihii,
-                    "ssin": this.ssin
-                }).then(hcp => {
-                    this.api.user().createUser({
-                        "healthcarePartyId": hcp.id,
-                        "name": this.lastName + " " + this.firstName,
-                        "email": this.email,
-                        "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
-                        "status": "ACTIVE",
-                        "type": "database"
-                    }).then(usr => {
-                        this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
-                        this.$['ht-invite-hcp-link'].open()
-                    })
+                // See if user exists first, based on email address
+                this.api.user().getUserByEmail(this.email).then(existingUserDto => {
+                    if (existingUserDto && existingUserDto.id) {
+                        this.$['ht-invite-hcp-user-already-exists'].open()
+                    } else {
+                        this.api.hcparty().createHealthcareParty({
+                            "name": this.lastName + " " + this.firstName,
+                            "lastName": this.lastName,
+                            "firstName": this.firstName,
+                            "nihii": this.nihii,
+                            "ssin": this.ssin
+                        }).then(hcp => {
+                            this.api.user().createUser({
+                                "healthcarePartyId": hcp.id,
+                                "name": this.lastName + " " + this.firstName,
+                                "email": this.email,
+                                "applicationTokens": {"tmpFirstLogin": this.api.crypto().randomUuid()},
+                                "status": "ACTIVE",
+                                "type": "database"
+                            }).then(usr => {
+                                this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
+                                this.$['ht-invite-hcp-link'].open()
+                            })
+                        })
+                    }
                 })
+
             }
 
             checkEhboxMessage() {

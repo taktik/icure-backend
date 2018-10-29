@@ -59,6 +59,15 @@ class HtHcp extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		super();
 	}
 
+    reset() {
+        const props = HtHcp.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+    }
+
+	ready() {
+        super.ready()
+    }
+
 }
 
 customElements.define(HtHcp.is, HtHcp);
