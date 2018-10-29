@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-date-picker.html">
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
+<link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 
 <link rel="import" href="../../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../../../bower_components/vaadin-form-layout/vaadin-form-layout.html">
@@ -788,7 +789,6 @@
                                 </page>
                                 <page>
                                     <div class="paragraph-content">
-
                                         <template is="dom-if" if="[[agreementResponse]]">
                                             <template is="dom-if" if="[[agreementResponse.acknowledge]]">
                                                 <h3>[[localize('the_req_was_suc', 'The request was successfully transmitted
@@ -837,46 +837,46 @@
                                                         [[t.refusalJustification.NL]]
                                                     </template>
                                                 </p>
+                                                <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
+                                                <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
+                                                <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
+                                                <h4>[[localize('tec_dat','Technical data',language)]]</h4>
+                                                <p>[[localize('req_ref_io','Request Reference IO',language)]]:
+                                                    [[t.ioRequestReference]]</p>
+                                                <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
+                                                <h4>[[localize('medications','Medications',language)]]</h4>
+                                                <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
+                                                             items="[[_mpps(t.paragraph, agreementMpps.*)]]"
+                                                             active-item="{{selectedMedication}}">
+                                                    <vaadin-grid-column>
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="mut">
+                                                                [[localize('medication','Medication',language)]]
+                                                            </vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>
+                                                            <div class="cell frozen">[[item.name]])</div>
+                                                        </template>
+                                                    </vaadin-grid-column>
+                                                    <vaadin-grid-column>
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="periodStart">
+                                                                [[localize('selected','Selected',language)]]
+                                                            </vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>
+                                                            <div class="cell frozen">
+                                                                <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
+                                                            </div>
+                                                        </template>
+                                                    </vaadin-grid-column>
+                                                </vaadin-grid>
                                             </template>
-                                            <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
-                                            <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
-                                            <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                             <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                            <p>[[localize('req_ref_io','Request Reference IO',language)]]:
-                                                [[t.ioRequestReference]]</p>
-                                            <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
-                                            <h4>[[localize('medications','Medications',language)]]</h4>
-                                            <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
-                                                         items="[[_mpps(t.paragraph, agreementMpps.*)]]"
-                                                         active-item="{{selectedMedication}}">
-                                                <vaadin-grid-column>
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="mut">
-                                                            [[localize('medication','Medication',language)]]
-                                                        </vaadin-grid-sorter>
-                                                    </template>
-                                                    <template>
-                                                        <div class="cell frozen">[[item.name]])</div>
-                                                    </template>
-                                                </vaadin-grid-column>
-                                                <vaadin-grid-column>
-                                                    <template class="header">
-                                                        <vaadin-grid-sorter path="periodStart">
-                                                            [[localize('selected','Selected',language)]]
-                                                        </vaadin-grid-sorter>
-                                                    </template>
-                                                    <template>
-                                                        <div class="cell frozen">
-                                                            <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
-                                                        </div>
-                                                    </template>
-                                                </vaadin-grid-column>
-                                            </vaadin-grid>
+                                            <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
+                                            <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
+                                            <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
                                         </template>
-                                        <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                        <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                        <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                        <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
                                     </div>
                                 </page>
                             </iron-pages>
