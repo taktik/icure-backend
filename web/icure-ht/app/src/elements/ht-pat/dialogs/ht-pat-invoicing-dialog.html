@@ -412,10 +412,6 @@
                 justify-content: flex-end;
             }
 
-            paper-item.menu-item.opened {
-                @apply --padding-right-left-16;
-            }
-
             paper-item {
                 background: transparent;
                 outline: 0;
@@ -433,11 +429,6 @@
                 --paper-item-focused-before: {
                     background: transparent;
                 };
-
-            }
-
-            paper-item.opened {
-                padding-top: 8px;
 
             }
 
@@ -931,7 +922,7 @@
                                         </template>
                                         <template is="dom-if" if="[[_ifEattestSaved(item)]]">
                                             <div class="he-edit-btn-container">
-                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-right" on-tap="_toggleEditHE"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
@@ -1884,6 +1875,7 @@
             }
 
             open() {
+                if (!this.user) return
                 Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)

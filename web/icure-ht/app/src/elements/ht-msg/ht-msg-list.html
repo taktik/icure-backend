@@ -279,9 +279,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #mail-list {
                     padding-right: 0;
                     margin-right: 0;
-                    height: 95vh;
-                    height: calc(95vh - 110px);
-                    /* cascading compatibility */
+                    height: 100%;
                 }
 
                 .get-msg-btn{
@@ -496,6 +494,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
+            getMycarenetIn() {
+                this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
+            }
+
             getEInvIn(){
                 this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
             }
@@ -612,6 +614,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             break;
                         case 'eheIn' :
                             this.getEheIn();
+                            break;
+                        case 'mycarenet' :
+                            this.getMycarenetIn();
                             break;
                         case 'Chap4In' :
                         	this.getChap4In();
