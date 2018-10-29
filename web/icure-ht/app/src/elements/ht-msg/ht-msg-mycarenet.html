@@ -59,7 +59,7 @@
                     <template class="header">
                         <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
                     </template>
-                    <template>[[item.oa]]</template>
+                    <template>[[item.io]]</template>
                 </vaadin-grid-column>
                 <vaadin-grid-column class="ref-col">
                     <template class="header">
@@ -75,6 +75,7 @@
                 </vaadin-grid-column>
             </vaadin-grid>
             <paper-button class="msg-btn" on-tap="getMessages">get messages</paper-button>
+            <paper-button class="msg-btn" on-tap="requestMessages">request messages</paper-button>
         </div>
 
     </template>
@@ -166,12 +167,18 @@
 
             getMessages() {
                 //set messages
-                let test = ["ext"]
-                //console.log(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900",test)
-                this.api.fhc().Dmgcontroller().getDmgMessagesUsingGET(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900", null)
-                    .then(response =>{
-                        console.log(response)
-                    })
+                let list = null
+                let docXApi=null
+                console.log("here")
+                console.log(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900", [])
+                this.api.message().processDmgMessagesList(this.user,this.hcp,list,docXApi).then(reponse =>{
+                    console.log(response)
+                })
+
+            }
+
+            requestMessages(){
+                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName)
             }
 
         }
