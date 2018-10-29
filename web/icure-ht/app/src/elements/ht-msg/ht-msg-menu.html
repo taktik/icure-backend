@@ -31,6 +31,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 
 
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 
@@ -163,6 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			collapse-button {
 				outline:0;
 				width: 100%;
+				user-select: none;
 				--paper-listbox-selected-item: {
 					color:var(--app-text-color-light);
 					background:var(--app-primar y-color);
@@ -415,22 +418,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			paper-item{
 				cursor: pointer;
+				justify-content: space-between;
+				user-select: none;
 			}
 			.menu-trigger{
 				padding: 0;
 			}
 
 			.batchNumber{
-				padding: 1px;
-				font-size: 12px;
-				color: var(--paper-grey-100);
-				border-radius: 50%;
-                width: 25px;
-                height: 25px;
-                line-height: 25px;
-				right: 4%;
-				position: absolute;
-                text-align: center;
+				padding: 1px 5px;
+				font-size: 11px;
+				color: var(--app-text-color-light);
+				border-radius: 10px;
+				min-height: 0;
+				display: block;
+				line-height: 16px;
+    			height: 15px;
 			}
 
 			.batchPending{
@@ -500,7 +503,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="archive">[[localize('_e_inv_arc','Archived',language)]] <span class="batchNumber batchArchived">[[batchCounter.archived]]</span></paper-item>
                 </paper-listbox>
             </collapse-button>
-			<paper-item class="trash" on-tap="_trash"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</paper-item>
+			<paper-item class="trash"><div class="one-line-menu list-title"><iron-icon icon="icons:delete"></iron-icon>[[localize('tra','Trash',language)]]</div></paper-item>
 		</div>
 	</template>
 	<script>

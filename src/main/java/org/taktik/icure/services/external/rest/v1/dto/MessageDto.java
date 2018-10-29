@@ -48,6 +48,9 @@ public class MessageDto extends IcureDto {
 	private String externalRef;
 	private Map<String,String> senderReferences;
 
+	private Set<String> unassignedResults; //refs
+	private Map<String, String> assignedResults; //ContactId -> ref
+
 	public String getFormId() {
 		return formId;
 	}
@@ -199,5 +202,21 @@ public class MessageDto extends IcureDto {
 
 	public void setSenderReferences(Map<String, String> senderReferences) {
 		this.senderReferences = senderReferences;
+	}
+
+	public Set<String> getUnassignedResults() {
+		return unassignedResults;
+	}
+
+	public void setUnassignedResults(Set<String> unassignedResults) {
+		this.unassignedResults = unassignedResults;
+	}
+
+	public Map<String, String> getAssignedResults() {
+		return assignedResults;
+	}
+
+	public void setAssignedResults(Map<String, String> assignedResults) {
+		this.assignedResults = assignedResults;
 	}
 }
