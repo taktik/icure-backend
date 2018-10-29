@@ -1218,7 +1218,7 @@
                     const medications = this._convertedMedications()
                     const ioRequestReferences = medications.map(x => x.ioRequestReference)
                     const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
-                    Promise.all(
+                    return Promise.all(
                         agreements.transactions.map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => [t, vtm, pi]))
                     ).then((transactions) => {
                         this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
@@ -1248,9 +1248,9 @@
                                 paragraphInfo: pi
                             })))
                         this.set('agreementResponse', agreements)
-                        this._isLoadingChapter = false;
                     })
-
+                }).finally(() => {
+                    this._isLoadingChapter = false;
                 })
             }
 
