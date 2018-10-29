@@ -744,7 +744,6 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _invoicebox(e){
         e.stopPropagation()
         e.preventDefault()
-        this.set('isLoadingMailList', true)
 
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
 
@@ -755,13 +754,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.add('iron-selected')
-
-        this.set('isLoadingMailList', false)
     }
 
     _invoiceSelectionIndexChanged() {
         if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
-            this.set('isLoadingMailList', true)
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
 
             this.set('inboxSelectionIndex', null)
@@ -770,7 +766,6 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
-            this.set('isLoadingMailList', false)
         }
     }
 
