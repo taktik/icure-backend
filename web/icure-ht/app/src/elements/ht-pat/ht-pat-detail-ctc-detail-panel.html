@@ -9,7 +9,7 @@
 <link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
 <link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
 
-
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
@@ -357,6 +357,12 @@
 				white-space: nowrap;
 			}
 
+            paper-spinner.center {
+                position: relative;
+                left: 50%;
+                top: 80px;
+                transform: translateX(-50%);
+            }
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -392,7 +398,8 @@
                 <template is="dom-if" if="[[doc]]">
                 <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-					<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
+                    <paper-spinner class="center" active></paper-spinner>
+                    <template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
 							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" current-contact="[[currentContact]]"
 													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"

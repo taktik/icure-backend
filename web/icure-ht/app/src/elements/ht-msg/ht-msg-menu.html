@@ -50,6 +50,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+
 <link rel="import" href="../filter-panel/filter-panel.html">
 
 <link rel="import" href="../collapse-button/collapse-button.html">
@@ -491,8 +493,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 100%;
             }
 
+            paper-spinner {
+                position: fixed;
+                top: 150px;
+                left: 19vw;
+                z-index: 9999;
+                transform: translateX(-50%);
+            }
 		</style>
 		<div class="col-left">
+            <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
@@ -618,6 +628,10 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             sentboxSelectionIndex: {
                 type: Number,
                 value: null
+            },
+            isLoadingMailList: {
+			    type: Boolean,
+                value: false
             }
 		};
 	}
@@ -659,6 +673,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _inbox(e) {
         e.stopPropagation()
         e.preventDefault()
+        this.set('isLoadingMailList', true)
+
 
         this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'inbox'}}}));
 
@@ -669,10 +685,12 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.inbox.classList.add('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
+        this.set('isLoadingMailList', false)
 	}
 
     _inboxSelectionIndexChanged() {
         if (this.inboxSelectionIndex !== null && this.inboxSelectionIndex !== undefined) {
+            this.set('isLoadingMailList', true)
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.inboxSelectionItem.id } } }));
 
             this.set('sentboxSelectionIndex', null)
@@ -681,12 +699,14 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
+            this.set('isLoadingMailList', false)
         }
     }
 
     _sentbox(e){
         e.stopPropagation()
         e.preventDefault()
+        this.set('isLoadingMailList', true)
 
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'sentbox' } } }));
 
@@ -697,10 +717,12 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.add('iron-selected')
         this.$.invoicebox.classList.remove('iron-selected')
+        this.set('isLoadingMailList', false)
     }
 
     _sentboxSelectionIndexChanged() {
         if (this.sentboxSelectionIndex !== null && this.sentboxSelectionIndex !== undefined) {
+            this.set('isLoadingMailList', true)
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.sentboxSelectionItem.id } } }));
 
             this.set('inboxSelectionIndex', null)
@@ -709,16 +731,20 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
+            this.set('isLoadingMailList', false)
         }
     }
 
 	_report(){
+        this.set('isLoadingMailList', true)
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'reportOut' } } }));
+        this.set('isLoadingMailList', false)
     }
 
     _invoicebox(e){
         e.stopPropagation()
         e.preventDefault()
+        this.set('isLoadingMailList', true)
 
         this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
 
@@ -729,10 +755,13 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$.inbox.classList.remove('iron-selected')
         this.$.sentbox.classList.remove('iron-selected')
         this.$.invoicebox.classList.add('iron-selected')
+
+        this.set('isLoadingMailList', false)
     }
 
     _invoiceSelectionIndexChanged() {
         if (this.invoiceSelectionIndex !== null && this.invoiceSelectionIndex !== undefined) {
+            this.set('isLoadingMailList', true)
             this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.invoiceSelectionItem.id, status: this.invoiceSelectionItem.dataset.status } } }));
 
             this.set('inboxSelectionIndex', null)
@@ -741,13 +770,16 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
             this.$.inbox.classList.remove('iron-selected')
             this.$.sentbox.classList.remove('iron-selected')
             this.$.invoicebox.classList.remove('iron-selected')
+            this.set('isLoadingMailList', false)
         }
     }
 
 
 
     _trash(){
+        this.set('isLoadingMailList', true)
 		this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'trash' } } }));
+        this.set('isLoadingMailList', false)
 	}
 
 	selectedContactItemsChanged() {
