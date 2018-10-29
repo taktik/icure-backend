@@ -172,6 +172,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 super()
             }
 
+            reset() {
+                const props = HtMsg.properties
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+            }
+
             ready() {
                 super.ready()
             }
