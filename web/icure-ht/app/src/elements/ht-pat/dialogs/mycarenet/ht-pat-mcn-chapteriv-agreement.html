@@ -835,14 +835,13 @@
                                                 <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
                                                 <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                                 <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                                <p>[[localize('req_ref_io','Request Reference IO',language)]]:
-                                                    [[t.ioRequestReference]]</p>
+                                                <p>[[localize('req_ref_io','Request Reference IO',language)]]: [[t.ioRequestReference]]</p>
                                                 <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
                                                 <h4>[[localize('medications','Medications',language)]]</h4>
                                                 <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
                                                              items="[[_mpps(t.paragraph, agreementMpps.*)]]"
                                                              active-item="{{selectedMedication}}">
-                                                    <vaadin-grid-column>
+                                                    <vaadin-grid-column flex-grow="10">
                                                         <template class="header">
                                                             <vaadin-grid-sorter path="mut">
                                                                 [[localize('medication','Medication',language)]]
@@ -852,7 +851,7 @@
                                                             <div class="cell frozen">[[item.name]])</div>
                                                         </template>
                                                     </vaadin-grid-column>
-                                                    <vaadin-grid-column>
+                                                    <vaadin-grid-column flex-grow="1">
                                                         <template class="header">
                                                             <vaadin-grid-sorter path="periodStart">
                                                                 [[localize('selected','Selected',language)]]
@@ -1110,7 +1109,7 @@
                     this.set('checkedVerses', [])
                     this.set('paragraph', [])
                     const paragraph = this.displayedParagraph.id.split('/')[0]
-                    this.api.fhc().Chaptercontroller().getParagraphInfosUsingGET('IV', paragraph)
+                    ;(this.displayedParagraph.paragraphInfo ? Promise.resolve(this.displayedParagraph.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', paragraph))
                         .then(pi => {
                             this.set('paragraph', pi)
                             return this.api.fhc().Chaptercontroller().getAddedDocumentsUsingGET('IV', paragraph)
@@ -1382,16 +1381,17 @@
                 const selectedAgreement = this._agreements()[idx]
 
                 ;(selectedAgreement.paragraphInfo ? Promise.resolve(selectedAgreement.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', selectedAgreement.paragraph))
-                    .then(par => {
+                    .then(pi => {
                         this.set('isAgreementSelected', true)
                         this.set('cbValue', '')
                         this.set('displayedParagraph', {
-                            descr: par.headerVerse.textFr,
-                            id: par.paragraphName,
+                            descr: pi.headerVerse.textFr,
+                            id: pi.paragraphName,
                             ioRequestReference: selectedAgreement.ioRequestReference,
                             ioDecisionReference: selectedAgreement.ioDecisionReference,
                             start: selectedAgreement.start,
-                            end: selectedAgreement.ioDecisionEndOfValidity
+                            end: selectedAgreement.ioDecisionEndOfValidity,
+                            paragraphInfo : pi
                         })
                         this.set('agreementResponse', {
                             transactions: [selectedAgreement]

@@ -398,6 +398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .formNewHcp {
                 height: 350px;
+                width: 450px;
             }
 
             .buttons {
@@ -709,6 +710,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return {
                     api: {
                         type: Object,
+                        noReset: true,
                         value: null
                     },
                     user: {
@@ -717,10 +719,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     language: {
                         type: String,
+                        noReset: true,
                         value: 'fr'
                     },
                     i18n: {
                         Type: Object,
+                        noReset: true,
                         value() {
                             moment.locale('fr')
                             const res = {
@@ -750,7 +754,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     view: {
                         type: String,
                         reflectToAttribute: true,
-                        observer: '_viewChanged'
+                        observer: '_viewChanged',
+                        noReset: true
                     },
                     headers: {
                         type: Object,
@@ -762,6 +767,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     lazyPages: {
                         type: Object,
+                        noReset: true,
                         value: {
                             main() {
                                 import(/* webpackChunkName: "ht-main" */ './ht-main.html')
@@ -783,7 +789,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     resources: {
                         value() {
                             return require('./elements/language/language.json')
-                        }
+                        },
+                        noReset: true
                     },
                     invitedHcpLink: {
                         type: String,
@@ -791,10 +798,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     disconnectionTimer: {
                         type: Number,
-                        value: 60
+                        value: 60,
+                        noReset: true
                     },
                     connectionTime: {
-                        type: Number
+                        type: Number,
+                        noReset: true
                     },
                     ehboxWebWorkerMessage: {
                         type: String,
@@ -805,7 +814,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         value: false
                     },
                     worker: {
-                        type: Worker
+                        type: Worker,
+                        noReset: true
                     },
                     timeOutId: {
                         type: String
@@ -837,9 +847,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             reset() {
                 const props = HtApp.properties
-                Object.keys(props).forEach(k => { this[k] = (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null)) })
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
                 ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-main'].map(x => this.root.querySelector(x)).map(el => el && el.reset())
-                this.ready()
             }
 
             ready() {
@@ -941,7 +950,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             this.set('routeData.page', 'auth/' + (!page ? 'main' : page.startsWith('logout') ? 'main' : page))
                         }
                     } else {
-                        this.set('view', page ? page.replace(/\/$/, '') : 'main')
+                        const dest = page ? page.replace(/\/$/, '') : 'main'
+                        if (dest !== this.view) { this.set('view', dest) }
                     }
                     this._startCheckInactiveTimer('refresh')
                 }
