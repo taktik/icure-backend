@@ -313,6 +313,14 @@
 										</paper-radio-group>
 									</div>
 
+									<vaadin-combo-box
+											style="width:100%"
+											id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
+											item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
+											label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
+											value="{{hcp.supervisorId}}" autofocus>
+									</vaadin-combo-box>
+
 								</div>
 								<div class="col-lg-6">
 									<paper-input label="Group ID" value="{{user.groupId}}"></paper-input>
@@ -328,19 +336,6 @@
 								</div>
 
 
-
-								<vaadin-form-layout>
-									<!-- Supervisor -->
-									<div class="horizontal" style="margin-top:10px">
-										<vaadin-combo-box
-												style="width:100%"
-												id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
-												item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
-												label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
-												value="{{hcp.supervisorId}}" autofocus>
-										</vaadin-combo-box>
-									</div>
-									<vaadin-form-layout>
 
 
 

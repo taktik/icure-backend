@@ -19,6 +19,8 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FinancialInstitutionInformationDto implements Serializable {
 	protected String name;
@@ -27,6 +29,8 @@ public class FinancialInstitutionInformationDto implements Serializable {
 	protected String bic;
 	protected String proxyBankAccount;
 	protected String proxyBic;
+
+    protected Set<String> preferredFiiForPartners = new HashSet<>(); //Insurance Id, Hcp Id
 
 	public String getName() {
 		return name;
@@ -75,4 +79,8 @@ public class FinancialInstitutionInformationDto implements Serializable {
 	public void setProxyBic(String proxyBic) {
 		this.proxyBic = proxyBic;
 	}
+
+    public Set<String> getPreferredFiiForPartners() { return preferredFiiForPartners; }
+
+    public void setPreferredFiiForPartners(Set<String> preferredFiiForPartners) { this.preferredFiiForPartners = preferredFiiForPartners; }
 }

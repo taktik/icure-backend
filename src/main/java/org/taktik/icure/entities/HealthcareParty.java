@@ -49,6 +49,7 @@ public class HealthcareParty extends StoredDocument implements Person {
 	protected String lastName;
     protected String firstName;
     protected Gender gender;
+
     protected String civility;
 	protected String speciality;
 	protected String companyName;
