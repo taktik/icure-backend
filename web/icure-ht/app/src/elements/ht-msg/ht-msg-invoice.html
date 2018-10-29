@@ -232,7 +232,28 @@
                     height: calc(100vh - 190px - 25px);
                 }
 
-                .pending-status--icon{
+                .invoice-status {
+                    border-radius: 20px;
+                    padding: 1px 12px 1px 8px;
+                    width: auto;
+                    font-size: 12px;
+                    display: block;
+                    width: fit-content;
+                }
+
+                .invoice-status--pendingStatus{
+                    background: #fcdf354d;
+                }
+
+                .invoice-status--okStatus{
+                    background: #07f8804d;
+                }
+
+                .invoice-status--nokStatus{
+                    background: #ff4d4d4d;
+                }
+
+                .statusIcon{
                     height: 8px;
                     width: 8px;
                 }
@@ -245,18 +266,7 @@
                 .statusIcon.nokStatus{
                     color: var(--app-status-color-nok);
                 }
-
-                .pending-status {
-                    background: #fcdf354d;
-                    border-radius: 20px;
-                    padding: 1px 12px 1px 8px;
-                    width: auto;
-                    font-size: 12px;
-                    display: block;
-                    width: fit-content;
-                }
                 
-
                 #pendingDetailDialog{
                     height: calc(100vh - 40px);
                     width: calc(85% - 40px);
@@ -271,7 +281,7 @@
                     width: 100%;
                 }
 
-                .invoice-status {
+                .batch-status {
                     font-size: 24px;
                     text-transform: capitalize;
                     padding-top: 5px;
@@ -281,7 +291,7 @@
                     justify-content: flex-start;
                 }
 
-                .invoice-status .spinner{
+                .batch-status .spinner{
                     margin-left: 24px;
                 }
 
@@ -461,7 +471,7 @@
             </style>
         </custom-style>
         <div class="invoice-panel">
-            <div id="batchStatus" class="invoice-status">
+            <div id="batchStatus" class="batch-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
                 <paper-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></paper-spinner>
             </div>
@@ -627,11 +637,18 @@
                                         </vaadin-grid-column-group>
                                         <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template>
-                                                <template is="dom-if" if="[[_isStatus(item.statut,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                <template is="dom-if" if="[[_isStatus(item.statut,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                <template is="dom-if" if="[[!_isStatus(item.statut,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.statut,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
+                                                <template is="dom-if" if="[[_isStatus(item.statut,'Pending')]]">
+                                                    <span class="invoice-status invoice-status--pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.statut]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[_isStatus(item.statut,'Process')]]">
+                                                    <span class="invoice-status invoice-status--okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.statut]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[!_isStatus(item.statut,'Pending')]]">
+                                                    <template is="dom-if" if="[[!_isStatus(item.statut,'Process')]]">
+                                                        <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>
+                                                    </template>
+                                                </template>
                                                 <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.statut]]"></iron-icon>-->
-                                                [[item.statut]]
                                             </template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
@@ -785,11 +802,18 @@
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
                                                 <template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
-                                                    <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                                    [[item.messageInfo.invoiceStatus]]
+                                                        <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                            <span class="invoice-status invoice-status--pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                        </template>
+                                                        <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                             <span class="invoice-status invoice-status--okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                        </template>
+                                                        <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                            <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                                 <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                            </template>
+                                                        </template>
+                                                        <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column class="payPaid-col">
@@ -866,11 +890,18 @@
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
                                                 <template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
+                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                        <span class="invoice-status invoice-status--pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    </template>
+                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                        <span class="invoice-status invoice-status--okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    </template>
+                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                        <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                            <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                        </template>
+                                                    </template>
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                                    [[item.messageInfo.invoiceStatus]]
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column class="payPaid-col">
@@ -946,11 +977,18 @@
                                                 <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                             </template>
                                             <template>
-                                                <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
-                                                    <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                                [[item.messageInfo.invoiceStatus]]
+                                                <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                    <span class="invoice-status invoice-status--pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                    <span class="invoice-status invoice-status--okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                        <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    </template>
+                                                </template>
+                                                <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                             </template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="reject-col">
@@ -1009,11 +1047,18 @@
                                                 <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                             </template>
                                             <template>
-                                                <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
-                                                    <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                                [[item.messageInfo.invoiceStatus]]
+                                                <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                    <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                    <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                        <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    </template>
+                                                </template>
+                                                <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                             </template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="reject-col">
@@ -1128,11 +1173,18 @@
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
                                                 <template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
+                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                        <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    </template>
+                                                    <template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                        <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    </template>
+                                                    <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">
+                                                        <template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">
+                                                            <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                        </template>
+                                                    </template>
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                                    [[item.messageInfo.invoiceStatus]]
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column class="reject-col">
@@ -1224,11 +1276,18 @@
                                                 <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
                                             </template>
                                             <template>
-                                                <template is="dom-if" if="[[_isStatus(item.status,'Pending')]]"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon></template>
-                                                <template is="dom-if" if="[[_isStatus(item.status,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon></template>
-                                                <template is="dom-if" if="[[!_isStatus(item.status,'Pending')]]"><template is="dom-if" if="[[!_isStatus(item.status,'Process')]]"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon></template></template>
+                                                <template is="dom-if" if="[[_isStatus(item.status,'Pending')]]">
+                                                    <span class="invoice-status invoice-status--pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.statut]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[_isStatus(item.status,'Process')]]">
+                                                    <span class="invoice-status invoice-status--okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.statut]]</span>
+                                                </template>
+                                                <template is="dom-if" if="[[!_isStatus(item.status,'Pending')]]">
+                                                    <template is="dom-if" if="[[!_isStatus(item.status,'Process')]]">
+                                                        <span class="invoice-status invoice-status--nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>
+                                                    </template>
+                                                </template>
                                                 <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                                [[item.statut]]
                                             </template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column class="recipient-col">
