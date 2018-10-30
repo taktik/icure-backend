@@ -81,7 +81,16 @@
 			.col-40 { flex-grow: 1; width: 40%; box-sizing: border-box; float:left }
 			.col-50 { flex-grow: 1; width: 50%; box-sizing: border-box; float:left }
 			#dialog{
-				overflow: auto;
+                position: fixed;
+				overflow: hidden;
+                border-radius: 2px;
+                top: 50% !important;
+                left: 50% !important;
+                max-width: initial !important;
+                max-height: initial !important;
+                height: initial !important;
+                width: 80vw !important;
+                transform: translate(-50%,-50%);
 			}
 			#printable {
 				width: fit-content;
@@ -263,7 +272,16 @@
 				line-height:1.1em;
 			}
 
-
+            .administrative-panel {
+                width: 100%;
+                padding: 0;
+            }
+            .administrative-panel .panel-content {
+                padding: 0 24px;
+                height: 70vh;
+                overflow-y: auto;
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
 
 		</style>
 
@@ -284,7 +302,7 @@
 				</paper-tabs>
 
 
-				<iron-pages selected="[[tabs]]" class="">
+				<iron-pages selected="[[tabs]]" class="panel-content">
 					<page>
 
 						<div class="horizontal" style="margin-top:10px">
