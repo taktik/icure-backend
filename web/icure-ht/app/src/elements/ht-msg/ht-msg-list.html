@@ -281,6 +281,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 100%;
                 }
 
+                .get-msg-btn{
+                    margin-bottom: 16px;
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        width: 100%;
+                        margin: 0 auto;
+                        font-size: 14px;
+                        font-weight: bold;
+                        text-transform: capitalize;
+                    };
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
