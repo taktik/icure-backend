@@ -600,14 +600,14 @@
             <h3 class="modal-subtitle">[[localize('metadatas','Metadatas',language)]]</h3>
             <div>
                 <paper-input id="newMsgMetadataKey" label="[[localize('key','Key',language)]]"></paper-input>
-                <paper-input id="newMsgMetadataValue" label="[[localize('value','Value',language)]]"></paper-input>
+                <paper-input id="newMsgMetadataValue" label="[[localize('val','Value',language)]]"></paper-input>
                 <paper-button class="modal-button fright" on-tap="addMetadata">[[localize('add','Add',language)]]</paper-button>
             </div>
 
             <vaadin-grid id="customMetasList" class="clearb" items="[[customMetas]]">
                 <vaadin-grid-column>
                     <template class="header">
-                        <div>Key</div>
+                        <div>[[localize('key','Key',language)]]</div>
                     </template>
                     <template>
                         <div class="cell frozen">[[item.0]]</div>
@@ -615,7 +615,7 @@
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        <div>Value</div>
+                        <div>[[localize('val','Value',language)]]</div>
                     </template>
                     <template>
                         <div class="cell frozen">[[item.1]]</div>

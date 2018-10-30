@@ -414,6 +414,14 @@
                 box-sizing: border-box;
             }
 
+            #patientSelection{
+                max-width: 100px;
+            }
+
+            #comboPatientSelecter{
+                width: 100%;
+            }
+
 		</style>
 		<template is="dom-if" if="[[messages]]">
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
@@ -455,17 +463,17 @@
                                 <div class="img-container">
                                     <img src$="[[item.dataUrl]]">
                                 </div>
-                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                <vaadin-button id="todayButton" part="today-button" on-tap="selectPatientForImport" docId$="[[item.id]]" attachmentId$="[[item.attachmentId]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                             </template>
                             <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
-                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                <vaadin-button id="todayButton" part="today-button" on-tap="selectPatientForImport" docId$="[[item.id]]" attachmentId$="[[item.attachmentId]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                             </template>
                             <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <div>
                                     <span>[[mimeType(item.mainUti)]] [[type]]</span>
                                     <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-                                    <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="selectPatientForImport" docId$="[[item.id]]" attachmentId$="[[item.attachmentId]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                                 </div>
                                 <template is="dom-if" if="[[showDetail]]">
                                     <div>[[documentAttachment]]</div>
@@ -477,7 +485,7 @@
                                 <div>
                                     <span>[[mimeType(item.mainUti)]] [[type]]</span>
                                     <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
-                                    <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="selectPatientForImport" docId$="[[item.id]]" attachmentId$="[[item.attachmentId]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                                 </div>
                                 <template is="dom-if" if="[[showDetail]]">
                                     <div>[[documentAttachment]]</div>
@@ -487,11 +495,26 @@
                             </template>
                         </paper-card>
                     </template>
-                    <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                 </template>
             </div>
 		</template>
-	</template>
+
+        <paper-dialog id="patientSelection">
+            <h3 class="modal-subtitle">[[localize('selPatAssign','Select the patient to assign',language)]]</h3>
+            <div>
+                <vaadin-combo-box id="comboPatientSelecter" label="[[localize('sch','Search',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
+                                  allow-custom-value on-change="_AddSSIN">
+                    <template>[[item.displayName]]</template>
+                </vaadin-combo-box>
+            </div>
+            <div>
+                <paper-button class="modal-button" on-tap="_cancelImportAnnexe">[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button--save" on-tap="importAnnexe">[[localize('set','Set',language)]]</paper-button>
+            </div>
+
+        </paper-dialog>
+
+    </template>
 	<script>
 
 import jsPDF from 'jspdf/dist/jspdf.min';
@@ -548,7 +571,8 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	static get observers() {
-		return ['_focusChanged(selectMessage, selectMessage.*)'];
+		return ['_focusChanged(selectMessage, selectMessage.*)',
+			'_patientFilterChanged(patientFilter)'];
 	}
 
 	constructor() {
@@ -687,7 +711,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
-		console.log(uti + " " + utis + " " + dataUrl);
 		return dataUrl && (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m && (m.startsWith('image/') || m === 'public/jpeg'));
 	}
 
@@ -746,96 +769,185 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.showDetail = !this.showDetail
 	}
 
+	selectPatientForImport(e){
+		let patSel = this.$.patientSelection;
+		patSel.docId = e.target.getAttribute('docId');
+		patSel.attachmentId = e.target.getAttribute('attachmentId');
+		patSel.mainUti = e.target.getAttribute('mainUti');
+		patSel.otherUtis = e.target.getAttribute('otherUtis');
+		patSel.dataUrl = e.target.getAttribute('dataUrl');
+		patSel.open();
+    }
+
 	importAnnexe(e){
-		let id = e.target.getAttribute('docId');
-		let mainUti = e.target.getAttribute('mainUti');
-		let otherUtis = e.target.getAttribute('otherUtis');
-		let dataUrl = e.target.getAttribute('dataUrl');
-		// this.api.document().getAttachment(document.id, document.attachmentId, null)
-		// 	.then(att => {
-		//
-		// 	});
+		let patSel = this.$.patientSelection;
+		patSel.close();
+		let selectedPatient = this.$.comboPatientSelecter.selectedItem
+        this.api.patient().getPatient(selectedPatient && selectedPatient.id ? selectedPatient.id : e.target.getAttribute('patientId')).then(patient =>{
+            let id           = (patSel && patSel.docId        ? patSel.docId        : e.target.getAttribute('docId'));
+            let attachmentId = (patSel && patSel.attachmentId ? patSel.attachmentId : e.target.getAttribute('attachmentId'));
+            let mainUti      = (patSel && patSel.mainUti      ? patSel.mainUti      : e.target.getAttribute('mainUti'));
+            let otherUtis    = (patSel && patSel.otherUtis    ? patSel.otherUtis    : e.target.getAttribute('otherUtis'));
+            let dataUrl      = (patSel && patSel.dataUrl      ? patSel.dataUrl      : e.target.getAttribute('dataUrl'));
 
-		// IMG
-		if(this._imageMimeType(mainUti, otherUtis, dataUrl)){
-
-		}
-		// PDF
-		else if (this._pdfMimeType(mainUti, otherUtis, dataUrl)) {
-
-		}
-		// XML
-		else if(this._xmlMimeType(mainUti, otherUtis)){
-			let xml = XML.parseXml(this.documentAttachment);
-			if (xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
-				xml.kmehrmessage.header.standard.specialisation &&
-				xml.kmehrmessage.header.standard.specialisation.cd){
-				// SMF
-				if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gpsoftwaremigration"){
-					this.api.bekmehr().importSmf(doc.id, "", this.patient.id, this.user.language,xml).then(
-						contacts => {
-							contacts.forEach(contact => {
-								contact.ctcs.forEach(ctc => {
-									this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+            // IMG, PDF
+            if(this._imageMimeType(mainUti, otherUtis, dataUrl) || this._pdfMimeType(mainUti, otherUtis, dataUrl)){
+                this.api.document().getDocument(id).then(doc => {
+                    let srv = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: doc.id, stringValue: doc.name }]]), label: 'document'});
+                    this.api.contact().newInstance(this.user, patient, {
+                        created: new Date().getTime() ,
+                        modified: new Date().getTime() ,
+                        author: this.user.healthcarePartyId,
+                        responsible: this.user.healthcarePartyId,
+                        openingDate: moment().format('YYYYMMDD') || '',
+                        closingDate: moment().format('YYYYMMDD') || '',
+                        encounterType: {type: "CD-TRANSACTION", version: "1.13", code: "result"},
+                        descr: "Lab " + new Date().getTime(),
+                        subContacts: [{ status: 64, services: [{ serviceId: srv.id }] }],
+                        services: [srv]
+                    }).then(c=>{
+                        this.api.contact().createContact(c).then(c => {
+                            this.api.form().newInstance(this.user, patient, {
+                                contactId: c.id,
+                                descr: "Lab " + new Date().getTime(),
+                            }).then(f => this.api.form().createForm(f))
+                        });
+                    })
+                })
+            }
+            // XML
+            else if(this._xmlMimeType(mainUti, otherUtis)){
+                let xml = XML.parseXml(this.documentAttachment);
+                if (xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+                    xml.kmehrmessage.header.standard.specialisation &&
+                    xml.kmehrmessage.header.standard.specialisation.cd){
+                    // SMF
+                    if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gpsoftwaremigration"){
+						this.api.bekmehr().importSmf(doc.id, "", patient.id, this.user.language, xml).then(
+							contacts => contacts.forEach(contact =>
+								contact.ctcs.forEach(ctc => this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc)
+									.then(c => {
 										console.log(c);
 										return c
-									});
-								})
-							})
-						})
-
-				}
-				//	PMF
-				else if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gppatientmigration"){
-					// this.api.bekmehr().importSmf(doc.id, "123245", this.patient.id, this.user.language,xml).then(
-					// 	contacts => {
-					// 		contacts.forEach(contact => {
-					// 			contact.ctcs.forEach(ctc => {
-					// 				this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-					// 					console.log(c);
-					// 					return c
-					// 				});
-					// 			})
-					// 		})
-					// 	})
-				}
-			}
-
-
-		}
-		// TEXT
-		else if(this._textType(mainUti, otherUtis)){
-			// if(this._checkHealthone()){
-			this.api.patient().getPatient("1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
-				this.api.contact().newInstance(this.user, patient, {
-					created: new Date().getTime() ,
-					modified: new Date().getTime() ,
-					author: this.user.id,
-					responsible: this.user.healthcarePartyId,
-					openingDate: moment().format('YYYYMMDD') || '',
-					closingDate: moment().format('YYYYMMDD') || '',
-					encounterType: {type: "CD-TRANSACTION", version: "1.13", code: "labresult"},
-					descr: "Lab" + new Date().getTime(),
-					subContacts: []
-				}).then(c=>{
-					this.api.contact().createContact(c).then(c => {
-						this.api.form().newInstance(this.user, patient, {
-							contactId: c.id,
-							descr: "Lab" + new Date().getTime(),
-						}).then(f => this.api.form().createForm(f)).then(f => {
-							this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
-								this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c)
-									.then(c => console.log("Contact id" + c.id))
-							})
-						})
-
-					});
-				})
-			});
-			// }
-		}
-
+									})
+								)
+							)
+						)
+                    }
+                    //	PMF
+                    else if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gppatientmigration"){
+						// this.api.bekmehr().importPmf(doc.id, "", patient.id, this.user.language, xml).then(
+						// 	contacts => contacts.forEach(contact =>
+						// 		contact.ctcs.forEach(ctc => this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc)
+						// 			.then(c => {
+						// 				console.log(c);
+						// 				return c
+						// 			})
+						// 		)
+						// 	)
+						// )
+                    }
+                }
+            }
+            // TEXT
+            else if(this._textType(mainUti, otherUtis))
+				this.api.document().getAttachment(id, attachmentId, null).then(att =>
+					(this._checkHealthone() || this._checkMedidoc()) ?
+						this.api.contact().newInstance(this.user, patient, {
+							created: new Date().getTime(),
+							modified: new Date().getTime(),
+							author: this.user.healthcarePartyId,
+							responsible: this.user.healthcarePartyId,
+							openingDate: moment().format('YYYYMMDD') || '',
+							closingDate: moment().format('YYYYMMDD') || '',
+							encounterType: {type: "CD-TRANSACTION", version: "1.13", code: "labresult"},
+							descr: "Lab " + new Date().getTime(),
+							subContacts: []
+						}).then(c =>
+							this.api.contact().createContact(c).then(c =>
+								this.api.form().newInstance(this.user, patient, {
+									contactId: c.id,
+									descr: "Lab " + new Date().getTime(),
+								}).then(f => this.api.form().createForm(f)).then(f =>
+									this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+										this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c)
+											.then(c => {
+												console.log("Contact id " + c.id)
+												return c
+											})
+									})
+								)
+							)
+						) : att
+				)
+		});
 	}
+
+	_checkHealthone(){
+		return this.documentAttachment.startsWith("A1");
+	}
+
+	_checkMedidoc(){
+		let p1 = "^#A.*$";
+		let p2 = "^#R[a-zA-Z]*\\s*$";
+		let p3 = "^#A/\\s*$";
+		let p4 = "^#R/\\s*$";
+		let p5 = "^#/[0-9]*\\s*$";
+		let hasAHash = false;
+        let hasAHashSlash = false;
+        let hasRHash = false;
+        let hasRHashSlash = false;
+        let hasFinalTag = false;
+
+		let text = this.documentAttachment;
+		if (text != null) {
+			lines = text.includes("\r\n") ? text.split("\r\n") : text.split("\n")
+
+			lines.forEach(line =>{
+				if (line.match(p1)) hasAHash = true;
+				if (line.match(p2)) hasRHash = true;
+				if (line.match(p3) && hasAHash) hasAHashSlash = true;
+				if (line.match(p4) && hasRHash) hasRHashSlash = true;
+				if (line.match(p5)) hasFinalTag = true;
+            })
+
+		}
+		return hasAHash && hasAHashSlash && hasRHash && hasRHashSlash && hasFinalTag;
+    }
+
+	_patientFilterChanged(filter){
+		if(filter && filter.length > 1) {
+			this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, filter, null, null, 100, "asc")
+				.then(patients => {
+					console.log(patients);
+					let filtredpatients = patients.rows.filter(pat => pat.ssin)
+						.map(pat => {
+							let newPat = {};
+							newPat.id = pat.id
+							newPat.firstName = pat.firstName ? pat.firstName : "";
+							newPat.lastName = pat.lastName ? pat.lastName : "";
+							newPat.ssin = pat.ssin ? pat.ssin : "";
+							newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+							return newPat
+						})
+					this.set("patientList", _.uniqBy(filtredpatients, 'displayName'))
+				})
+		}
+		else{
+			this.set("patientList", [])
+		}
+	}
+
+	_cancelImportAnnexe(){
+		let patSel = this.$.patientSelection;
+		patSel.docId = undefined;
+		patSel.attachmentId = undefined;
+		patSel.mainUti = undefined;
+		patSel.otherUtis = undefined;
+		patSel.dataUrl = undefined;
+		this.$.comboPatientSelecter.selectedValue = "";
+		patSel.close();
+    }
 }
 
 customElements.define(HtMsgDetail.is, HtMsgDetail);
