@@ -104,9 +104,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:inherit;
                 }
 
-                #msg-invoice {
+                #msg-invoice,
+                #msg-mycarenet {
                     width: 100vw;
                 }
+
             }
         </style>
         <div class="container">
@@ -220,6 +222,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('otherLayout',true)
                 }
                 this.set('selectList', e.detail)
+                this._closeColumn(e)
             }
 
             handleMessageChange(e) {
