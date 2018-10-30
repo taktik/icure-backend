@@ -376,7 +376,8 @@
     "Sep":"Sep",
     "Oct":"Oct",
     "Nov":"Nov",
-    "Dec":"Dec"
+    "Dec":"Dec",
+    "send": "Send"
 
  },
   "fr": {
@@ -821,7 +822,8 @@
     "Sep":"sep",
     "Oct":"oct",
     "Nov":"nov",
-    "Dec":"déc"
+    "Dec":"déc",
+    "send": "Envoyer"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1307,6 +1309,7 @@
     "Sep":"sep",
     "Oct":"oct",
     "Nov":"nov",
-    "Dec":"dec"
+    "Dec":"dec",
+    "send":"Send"
   }
 }
