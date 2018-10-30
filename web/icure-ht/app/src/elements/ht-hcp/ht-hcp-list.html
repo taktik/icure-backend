@@ -14,6 +14,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+
 <dom-module id="ht-hcp-list">
 	<template>
 		<custom-style>
@@ -151,12 +153,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					width: 100%;
 					left: 0;
 				}
-
+                paper-spinner {
+                    position: fixed;
+                    top: 50vh;
+                    left: 50%;
+                    z-index: 9999;
+                    transform: translateX(-50%);
+                }
 			</style>
 		</custom-style>
 
 		<div class="container">
 			<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}" on-keydown="refresh"></paper-input>
+            <paper-spinner class="center" active="[[isLoadingHcp]]"></paper-spinner>
 			<vaadin-grid id="hcps-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" on-tap="click">
 				<vaadin-grid-column width="100px">
 					<template class="header">
@@ -236,7 +245,11 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			activeItem: {
 				type: Object
-			}
+			},
+            isLoadingHcp: {
+			    type: Boolean,
+                value: false
+            }
 		};
 	}
 
@@ -322,10 +335,13 @@ class HtHcpList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			}
 			setTimeout(function () {
 				if (currentValue === this.filterValue) {
+				    this.set('isLoadingHcp',true)
 					console.log("Triggering search for " + this.filterValue);
 					this.$['hcps-list'].clearCache();
+                    this.set('isLoadingHcp',false)
 				} else {
 					console.log("Skipping search for " + this.filterValue + " != " + currentValue);
+                    this.set('isLoadingHcp',false)
 				}
 			}.bind(this), 500); //Wait for the user to stop typing
 		}.bind(this), 100);
