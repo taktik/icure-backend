@@ -341,10 +341,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-primary-color);
                 }
 
-                .filterNameInput {
-                    width: 400px;
-                }
-
                 .deleteFilterIcon {
                     color: var(--app-text-color-disabled);
                 }
@@ -461,13 +457,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     color: var(--app-primary-color-dark);
                     font-weight: 700;
                 }
-                paper-dialog > div {
+                paper-dialog > div:not(.buttons) {
                     margin-top:0;
+                    flex-grow: 1;
                 }
 
                 paper-dialog {
                     width: 80%;
-                    min-height:200px;
                     display:flex;
                     flex-flow: row wrap;
                     justify-content: space-between;
@@ -477,6 +473,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-input-container-focus-color: var(--app-primary-color);
                     font-size:var(--form-font-size);
                 }
+
+                #saveFilterDialog{
+                    align-items: center;
+                }
+                
+                #saveFilterDialog .buttons{
+                    padding: 8px 24px;
+                }
+
 
                 .saved-filters {
                     display: flex;
@@ -693,7 +698,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="click">
-                    <vaadin-grid-column width="48px">
+                    <vaadin-grid-column flex-grow="0" width="5%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
@@ -708,7 +713,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
 
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
                             </vaadin-grid-sorter>
@@ -717,7 +722,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.lastName]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
                             </vaadin-grid-sorter>
@@ -726,7 +731,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.firstName]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="7%">
                         <template class="header">
                             <vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]
                             </vaadin-grid-sorter>
@@ -735,7 +740,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <div class="cell frozen">[[localize('ema','Email',language)]]</div>
                         </template>
@@ -743,7 +748,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.email]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column>
+                    <vaadin-grid-column flex-grow="0" width="14%">
                         <template class="header">
                             <div class="cell numeric">[[localize('pho','Phone',language)]]</div>
                         </template>
@@ -751,7 +756,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell numeric">[[item.phone]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column>
+                    <vaadin-grid-column flex-grow="0" width="14%">
                         <template class="header">
                             <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
                         </template>
@@ -944,12 +949,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
-
-
-
-
         <paper-dialog id="saveFilterDialog">
-            <h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
+            <h2 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h2>
             <div>
                 <paper-input class="filterNameInput" label="Filter name" value="{{filterName}}"></paper-input>
             </div>
