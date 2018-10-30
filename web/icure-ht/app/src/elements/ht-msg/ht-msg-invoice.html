@@ -1274,7 +1274,7 @@
                                             </template>
                                             <template>[[item.invoiceReference]]</template>
                                         </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
+                                        <vaadin-grid-column flex-grow="0" width="9%" class="recipient-col">
                                             <template class="header">
                                                 <vaadin-grid-sorter path="patient">Patient</vaadin-grid-sorter>
                                             </template>
@@ -1318,11 +1318,13 @@
                                                 <template>[[_formatAmount(item.refusedAmount)]]€</template>
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
-                                        <vaadin-grid-column flex-grow="0" width="40%" class="rejectionReason-col">
+                                        <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
                                             <template class="header">
                                                 <vaadin-grid-sorter path="rejectionReason">Motif de rejet</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.rejectionReason]]</template>
+                                            <template style="align-self: flex-start;">
+                                                <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
+                                            </template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                             <template class="header">
