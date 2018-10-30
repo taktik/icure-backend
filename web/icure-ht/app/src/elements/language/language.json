@@ -364,7 +364,20 @@
     "pdf_subTot": "Sub-totals",
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
     "pdf_totFinal": "Total porté en compte",
-    "ch4_request_type" : "Request type"
+    "ch4_request_type" : "Request type",
+    "Jan":"January",
+    "Feb":"February",
+    "Mar":"March",
+    "Apr":"April",
+    "May":"May",
+    "Jun":"June",
+    "Jul":"July",
+    "Aug":"August",
+    "Sep":"September",
+    "Oct":"October",
+    "Nov":"November",
+    "Dec":"December"
+
  },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -796,7 +809,19 @@
     "pdf_subTot": "Sous-totaux",
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
     "pdf_totFinal": "Total porté en compte",
-    "ch4_request_type" : "Type de requête"
+    "ch4_request_type" : "Type de requête",
+    "Jan":"janvier",
+    "Feb":"février",
+    "Mar":"mars",
+    "Apr":"avril",
+    "May":"mai",
+    "Jun":"juin",
+    "Jul":"juillet",
+    "Aug":"août",
+    "Sep":"septembre",
+    "Oct":"octobre",
+    "Nov":"novembre",
+    "Dec":"décembre"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1270,6 +1295,18 @@
     "pdf_totOne": "Totaux Suppléments / Totaux &Delta; / Totaux &Delta; et suppl.",
     "pdf_totFinal": "Total porté en compte",
     "no_dmg" : " Patiënt heeft geen GMD",
-    "ch4_request_type" : "Request type"
+    "ch4_request_type" : "Request type",
+    "Jan":"january",
+    "Feb":"february",
+    "Mar":"march",
+    "Apr":"april",
+    "May":"may",
+    "Jun":"juny",
+    "Jul":"july",
+    "Aug":"augustus",
+    "Sep":"september",
+    "Oct":"october",
+    "Nov":"november",
+    "Dec":"december"
   }
 }
