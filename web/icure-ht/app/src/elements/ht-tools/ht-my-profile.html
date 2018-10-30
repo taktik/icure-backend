@@ -18,6 +18,7 @@
 
 <link rel="import" href="../qrcode-manager/qrcode-printer.html">
 <link rel="import" href="../dynamic-form/validator/ht-iban-validator.html">
+<link rel="import" href="../dynamic-form/dynamic-bank-account.html">
 
 
 
@@ -25,7 +26,7 @@
 	<template>
 		<style>
 			paper-dialog {
-				width: 80%;
+				width: 90%;
 				min-height:320px;
 				display:flex;
 				flex-flow: row wrap;
@@ -62,9 +63,9 @@
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
 				color: var(--app-primary-color-dark);
-				font-weight: 700;
 
 			}
+
 			.left-col, .right-col{
 				flex-grow: 1;
 				width: 50%;
@@ -263,8 +264,6 @@
 				line-height:1.1em;
 			}
 
-
-
 		</style>
 
 
@@ -365,8 +364,8 @@
 									<paper-input label="[[localize('ssin','Registre national',language)]]" value="{{hcp.ssin}}"></paper-input>
 									<paper-input label="[[localize('nihii','Numéro Inami',language)]]" value="{{hcp.nihii}}"></paper-input>
 								</div>
-								<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>
-								<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(--app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>
+								<!--<div class="toolTip" style="margin-top:20px"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier votre profile complet ?</div>-->
+								<!--<div class="toolTip" style="margin-bottom:20px"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon> <b>Rendez-vous dans <a on-tap="_gotoMyProfile" style="color:var(&#45;&#45;app-secondary-color); cursor:pointer">votre fiche personnelle</a></b></div>-->
 
 							</vaadin-form-layout>
 						</div>
@@ -376,21 +375,7 @@
 
 
 					<page>
-						<div class="horizontal" style="margin-top:10px;">
-							<vaadin-form-layout>
-								<ul class="financialInformationListing">
-									<li><label>OA 100</label> {{userIBAN_100}} (BIC: {{userBIC_100}})</li>
-									<li><label>OA 200</label> {{userIBAN_200}} (BIC: {{userBIC_200}})</li>
-									<li><label>OA 300</label> {{userIBAN_300}} (BIC: {{userBIC_300}})</li>
-									<li><label>OA 400</label> {{userIBAN_400}} (BIC: {{userBIC_400}})</li>
-									<li><label>OA 500</label> {{userIBAN_500}} (BIC: {{userBIC_500}})</li>
-									<li><label>OA 600</label> {{userIBAN_600}} (BIC: {{userBIC_600}})</li>
-									<li><label>OA 900</label> {{userIBAN_900}} (BIC: {{userBIC_900}})</li>
-								</ul>
-								<div class="toolTip"><iron-icon icon="icons:info-outline" style="margin-right: 10px"></iron-icon> Vous souhaitez modifier vos informations bancaires ?</div>
-								<div class="toolTip"><iron-icon icon="icons:folder-shared" style="margin-right: 10px"></iron-icon> <b>Rendez-vous dans <a on-tap="_goToEdmg" style="color:var(--app-secondary-color); cursor:pointer">l'onglet "EDMG"</a></b></div>
-							</vaadin-form-layout>
-						</div>
+						<dynamic-bank-account opened="{{opened}}" api="[[api]]" user="{{user}}" hcp="{{hcp}}" i18n="[[i18n]]" language="[[language]]"></dynamic-bank-account>
 					</page>
 
 
@@ -919,6 +904,21 @@
                     propIBAN.typedValue.stringValue = this.userIBAN;
                     let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
                     propBIC.typedValue.stringValue = this.userBIC;
+
+                    // this.hcp.financialInstitutionInformation.push({
+					// 	'name' : 'Compte PRO - Fortis',
+					// 	'bankAccount' : 'BE65001386973896',
+					// 	'bic' : 'GEBABEBB',
+					// 	'proxyBankAccount' : 'Proxy IBAN Fortis',
+					// 	'proxyBic' : 'Proxy BIC Fortis',
+					// });
+                    // this.hcp.financialInstitutionInformation.push({
+					// 	'name' : 'Compte PRO - Belfius',
+					// 	'bankAccount' : 'BE66557963218545',
+					// 	'bic' : 'ABCDEF',
+					// 	'proxyBankAccount' : 'Proxy IBAN Belfius',
+					// 	'proxyBic' : 'Proxy BIC Belfius',
+					// });
 
                     this.api.user().modifyUser(this.user).then(
                         user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
