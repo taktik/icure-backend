@@ -80,7 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     			grid-row: 1 / 1;
 				background:var(--app-background-color-dark);
 				@apply --shadow-elevation-3dp;
-				padding:20px;
+				padding: 24px 0;
 				display:flex;
 				flex-flow: column nowrap;
 				align-items: center;
@@ -91,33 +91,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.new-msg-btn{
-				margin-bottom: 16px;
+				margin: 0 24px 16px;
+				box-sizing: border-box;
+				--paper-button-ink-color: var(--app-secondary-color-dark);
+                height: 40px !important;
+                display: block;
+				text-align: center;
+				min-height: 40px;
 				--paper-button: {
 					background: var(--app-secondary-color);
 					color: var(--app-text-color);
-					width: 100%;
+					width: calc(100% - 48px);
 					margin: 0 auto;
 					font-size: 14px;
 					font-weight: bold;
 					text-transform: capitalize;
 				};
-				--paper-button-ink-color: var(--app-secondary-color-dark);
-                height: 41px !important;
-                display: block;
-                text-align: center;
 			}
 			.has-unread{
 				font-weight:bold;
 			}
 
 			.unreadNumber{
-				padding: 1px 5px;
+				display: block;
+				padding: 2px 5px;
 				font-size: 11px;
 				background: var(--app-secondary-color);
 				color: var(--app-text-color);
-				border-radius: 17px;
-                white-space: initial;
-                float: right;
+				border-radius: 10px;
+				line-height: 11px;
+				margin-left: 8px;
 			}
 
 			paper-listbox{
@@ -129,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background:transparent;
 				outline:0;
                 height: 32px;
-
+				align-items: center;
 				--paper-item-selected:{
 
 				};
@@ -158,7 +161,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				};
 			}
 
-			#adminFileMenu paper-item.iron-selected {
+			paper-item.iron-selected {
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
 				@apply --text-shadow;
@@ -182,13 +185,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             collapse-button[opened] {
-                @apply --shadow-elevation-2dp;
                 background: white;
             }
 
 			collapse-button .menu-item.iron-selected,
             collapse-button paper-item.iron-selected{
-				/*@apply --padding-right-left-16;*/
+				@apply --padding-right-left-16;
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
 				@apply --text-shadow;
@@ -201,34 +203,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             collapse-button paper-item.opened{
                 background: #fff;
-            }
+			}
+			
+			collapse-button paper-item.iron-selected iron-icon{
+				color: var(--app-secondary-color) !important;
+				opacity: 1;
+			}
 
             collapse-button paper-item.iron-selected {
                 color: white;
                 background: var(--app-primary-color);
-            }
+			}
+			
+			collapse-button paper-item iron-icon, paper-item iron-icon{
+				height: 20px;
+				width: 20px;
+				padding:4px;
+				opacity: 0.7;
+				color: var(--app-text-color);
+			}
+
+			collapse-button paper-icon-button{
+				min-width: 40px;
+				min-height: 40px;
+			}
 
 			.opened{
 				color:var(--app-text-color);
 				background:var(--app-text-color-light);
 				border-radius:2px 2px 0 0;
-				box-shadow: 0 4px 0 0 white,
-							0 -2px 0 0 white,
-							0 2px 2px 0 rgba(0, 0, 0, 0.14),
-							0 1px 5px 0 rgba(0, 0, 0, 0.12),
-							0 3px 1px -2px rgba(0, 0, 0, 0.2);
-
+				
 			}
 
-			.opened.iron-selected{
-				box-shadow: 0 4px 0 0 white,
-							0 -2px 0 0 var(--app-primary-color),
-							0 2px 2px 0 rgba(0, 0, 0, 0.14),
-							0 1px 5px 0 rgba(0, 0, 0, 0.12),
-							0 3px 1px -2px rgba(0, 0, 0, 0.2);
-			}
+			
 
-						.sublist{
+			.sublist{
 				background:var(--app-light-color);
 				margin:0 0 8px -30px;
 				padding:0;
@@ -354,7 +363,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			vaadin-grid.material .cell.last {
 				padding-right: 24px;
-				text-al;
 			}
 
 			vaadin-grid.material .cell.numeric {
@@ -410,13 +418,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			.trash{
 				align-self: flex-start;
 				width:100%;
-				padding: 0;
+				padding: 0 8px;
 			}
 
-			iron-icon{
-				padding:4px;
-				color: var(--app-text-color-disabled);
-			}
 
 			paper-item{
 				cursor: pointer;
@@ -424,7 +428,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				user-select: none;
 			}
 			.menu-trigger{
-				padding: 0;
+				padding: 0 8px;
 			}
 
 			.batchNumber{
@@ -462,13 +466,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 max-width: 100%;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                overflow: hidden;
-                line-height: 32px;
-            }
-            
-            .force-left {
-                float: left;
-            }
+				overflow: hidden;
+				align-items: center;
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: flex-start;
+			}
             
             .force-ellipsis {
                 max-width: 100%;
@@ -504,6 +507,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
+					<div class="one-line-menu list-title inbox-line"><iron-icon icon="icons:inbox" class=""></iron-icon><span class="force-ellipsis inbox-txt">[[localize('inb','Inbox',language)]]</span> <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber">[[unreadNumber]]</span></template></div>
 					<div class="one-line-menu list-title inbox-line"><iron-icon icon="icons:inbox" class="force-left"></iron-icon><span class="force-left force-ellipsis inbox-txt">[[localize('inb','Inbox',language)]]</span> <template is="dom-if" if="[[unreadNumber]]"><span class="unreadNumber force-ellipsis">[[unreadNumber]]</span></template></div>
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
