@@ -14,7 +14,7 @@
         <li style$="background-color: [[_ynToColour(verse.checkBoxInd, parentIncomplete)]]">
             <template is="dom-if" if="[[_isY(verse.checkBoxInd)]]"><vaadin-checkbox id="[[verse.verseNum]]" on-checked-changed="_checkChanged"></vaadin-checkbox></template>
             <template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template> [ [[verse.verseNum]] ]
-            <template is="dom-if" if="[[_isIncomplete(verse.minCheckNum, checkedVerses.*)]]"><span style="background-color: #ffa">[Veuillez cocher au minimum [[verse.minCheckNum]] case(s) ci-dessous]</span></template>
+            <template is="dom-if" if="[[_isParent(verse, checkedVerses.*)]]"><span style="background-color: #ffa">[Veuillez cocher au minimum [[verse.minCheckNum]] case(s) ci-dessous]</span></template>
             <ul>
               <template is="dom-repeat" items="[[verse.verses]]" as="v">
                 <ht-pat-mcn-chapteriv-verse verse="[[v]]" language="[[language]]" parent-incomplete="[[_isIncomplete(verse.minCheckNum, checkedVerses.*)]]" on-check="_check"></ht-pat-mcn-chapteriv-verse>
@@ -93,6 +93,10 @@
                     this.splice('checkedVerses', 0, 0, e.detail.verse)
                 }
                 this.dispatchEvent(new CustomEvent('check', {detail: e.detail, bubbles: true, composed: true}))
+            }
+
+            _isParent(val){
+                return val.verses.length!=0 && val.minCheckNum>0 && this.checkedVerses.length<val.minCheckNum
             }
 
         }
