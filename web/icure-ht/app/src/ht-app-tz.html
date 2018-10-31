@@ -400,13 +400,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 100%;
             }
 
-            .formNewHcp {
-                height: 350px;
-                width: 450px;
+            #ht-invite-hcp .buttons {
+                border-top: 1px solid var(--app-background-color-dark);
+                color: var(--app-text-color-light);
+            }
+            #ht-invite-hcp .buttons * {
+                background: var(--app-secondary-color-dark);
             }
 
-            .buttons {
-                height: 30px;
+            .formNewHcp {
+                height: 350px;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .top-gradient {
@@ -455,6 +460,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .logo:hover .logo-text {
                 visibility: visible;
                 transform: scaleX(1);
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color);
+                background-color: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-weight: 700;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .modal-button--close,
+            .modal-button--cancel{
+                background: transparent;
+                color: var(--app-primary-color-dark);
+                font-weight: 400;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
             }
         </style>
 
@@ -1102,8 +1134,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
 
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation">[[localize('invite','Invite',language)]]</paper-button>
+                <paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
             </div>
         </paper-dialog>
         <paper-dialog id="ht-invite-hcp-link">

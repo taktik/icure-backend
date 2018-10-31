@@ -103,8 +103,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:inherit;
                 }
 
-            }
+                #msg-invoice,
+                #msg-mycarenet {
+                    width: 100vw;
+                }
 
+            }
         </style>
         <div class="container">
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
@@ -217,6 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('otherLayout',true)
                 }
                 this.set('selectList', e.detail)
+                this._closeColumn(e)
             }
 
             handleMessageChange(e) {

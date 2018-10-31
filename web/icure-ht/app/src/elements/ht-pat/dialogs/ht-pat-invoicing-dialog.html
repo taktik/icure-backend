@@ -734,24 +734,17 @@
                 flex: auto;
             }
 
-            paper-item:hover .he-edit-btn-container {
-                display:inline-flex;
-            }
-
-            paper-item.iron-selected .he-edit-btn-container {
-                display:inline-flex;
-            }
-
-            paper-button[disabled] {
-                background-color: var(--app-secondary-color-dark);
-                color: var(--app-text-color-disabled);
-                box-shadow: none;
-            }
+paper-button[disabled] {
+    background-color: var(--app-secondary-color-dark);
+    color: var(--app-text-color-disabled);
+    box-shadow: none;
+}
+        
 
             .he-edit-btn-container{
                 background: var(--app-text-color);
                 border-radius: 14px;
-                display: none;
+                display: inline-flex;
                 flex-flow: row-reverse wrap;
                 justify-content: space-between;
                 align-items: center;
@@ -759,8 +752,13 @@
                 width: 24px;
                 height: 24px;
                 overflow: hidden;
-                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1), opacity .33s ease;
                 cursor: pointer;
+                opacity: 0;
+            }
+            paper-item:hover .he-edit-btn-container,
+            paper-item.iron-selected .he-edit-btn-container {
+                opacity: 1;
             }
 
             .he-edit-btn-container.open{
@@ -776,28 +774,6 @@
             paper-item.iron-selected .he-edit-btn-container {
                 display:inline-flex;
             }
-
-            .he-edit-btn-container{
-                background: var(--app-text-color);
-                border-radius: 14px;
-                display: none;
-                flex-flow: row-reverse wrap;
-                justify-content: space-between;
-                align-items: center;
-                padding: 2px;
-                width: 24px;
-                height: 24px;
-                overflow: hidden;
-                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
-                cursor: pointer;
-            }
-
-            .he-edit-btn-container.open{
-                width: 90px;
-                display:inline-flex;
-                flex-flow: row-reverse nowrap;
-            }
-
 
             .he-edit-btn{
                 height: 24px;
