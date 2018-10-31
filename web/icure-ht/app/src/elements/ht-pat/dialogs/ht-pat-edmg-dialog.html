@@ -226,6 +226,7 @@
                         <template is="dom-if" if="[[allEDmgregistered]]">
                         <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
                         <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
+                            <vaadin-checkbox checked="{{asSupervisor}}">[[localize('in_name_sup','In the name of the supervisor',language)]]</vaadin-checkbox>
                         <paper-button class="action" on-tap="_dmgNotify">[[localize('dmg_not','Notify',language)]]</paper-button>
 
                             <template is="dom-if" if="{{notifyDmgResp}}">
@@ -625,13 +626,23 @@
                     if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp => {
-                                    return this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
-                                        this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
-                                        this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
-                                        this.patient.firstName, this.patient.lastName,
-                                        this.getGender(this.patient.ssin),
-                                        requestDate).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id))
+                                    return (this.asSupervisor && hcp.supervisorId ?
+                                        this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(sup =>
+                                            this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
+                                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                                hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
+                                                this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
+                                                this.patient.firstName, this.patient.lastName,
+                                                this.getGender(this.patient.ssin),
+                                                requestDate, sup.ssin, sup.ssin, sup.firstName, sup.lastName))
+                                        :
+                                        this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
+                                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.nomenclature,
+                                            this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
+                                            this.patient.firstName, this.patient.lastName,
+                                            this.getGender(this.patient.ssin),
+                                            requestDate)).then(dmgNotif => this.api.logMcn(dmgNotif, this.user, this.patient.id))
                                 }
                             ).then(edmgResp => {
                                     if (edmgResp) {

@@ -58,6 +58,12 @@ public class InvoiceDto extends IcureDto {
 	protected String internshipFirstName;
 	protected String internshipCdHcParty;
 
+	protected String supervisorNihii;
+	protected String supervisorSsin;
+	protected String supervisorLastName;
+	protected String supervisorFirstName;
+	protected String supervisorCdHcParty;
+
 	protected Integer longDelayJustification;
 	protected Boolean creditNote;
 
@@ -219,6 +225,46 @@ public class InvoiceDto extends IcureDto {
 	public String getInternshipCdHcParty() { return internshipCdHcParty; }
 
 	public void setInternshipCdHcParty(String internshipCdHcParty) { this.internshipCdHcParty = internshipCdHcParty; }
+
+	public String getSupervisorNihii() {
+		return supervisorNihii;
+	}
+
+	public void setSupervisorNihii(String supervisorNihii) {
+		this.supervisorNihii = supervisorNihii;
+	}
+
+	public String getSupervisorSsin() {
+		return supervisorSsin;
+	}
+
+	public void setSupervisorSsin(String supervisorSsin) {
+		this.supervisorSsin = supervisorSsin;
+	}
+
+	public String getSupervisorLastName() {
+		return supervisorLastName;
+	}
+
+	public void setSupervisorLastName(String supervisorLastName) {
+		this.supervisorLastName = supervisorLastName;
+	}
+
+	public String getSupervisorFirstName() {
+		return supervisorFirstName;
+	}
+
+	public void setSupervisorFirstName(String supervisorFirstName) {
+		this.supervisorFirstName = supervisorFirstName;
+	}
+
+	public String getSupervisorCdHcParty() {
+		return supervisorCdHcParty;
+	}
+
+	public void setSupervisorCdHcParty(String supervisorCdHcParty) {
+		this.supervisorCdHcParty = supervisorCdHcParty;
+	}
 
 	public Integer getLongDelayJustification() {
 		return longDelayJustification;
