@@ -858,28 +858,20 @@
                         // Resolve by the time we have a supervisor id
                         if(hcp.supervisorId) {
 
-                            this.api.hcparty().getHealthcareParties(hcp.supervisorId).then(supervisorResult => {
-                                this.supervisorListItem =
-                                    !supervisorResult.length ? [] :
-                                        _.flatten(
-                                            supervisorResult.map(
-                                                supervisor => ({
-                                                    id: supervisor.id,
-                                                    lastName: _.upperFirst(_.lowerCase(supervisor.lastName)),
-                                                    hrLabel:
-                                                        _.upperFirst(_.lowerCase(supervisor.lastName)) + ' ' +
-                                                        _.upperFirst(_.lowerCase(supervisor.firstName)) + ' ' +
-                                                        (typeof supervisor.nihii === 'undefined' || !supervisor.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + supervisor.nihii) + ' ' +
-                                                        (typeof supervisor.ssin === 'undefined' || !supervisor.ssin ? '' : ' - ' + this.localize('ssin', 'Registre national', language) + ': ' + supervisor.ssin.substr(0, 6) + '-' + supervisor.ssin.substr(6, 3) + '-' + supervisor.ssin.substr(8, 2)) + ' ' +
-                                                        ''
-                                                })
-                                            )
-                                        )
-                                ;
+                            this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(supervisor => {
+                                this.supervisorListItem = supervisor ? [{
+                                        id: supervisor.id,
+                                        lastName: _.upperFirst(_.lowerCase(supervisor.lastName)),
+                                        hrLabel:
+                                            _.upperFirst(_.lowerCase(supervisor.lastName)) + ' ' +
+                                            _.upperFirst(_.lowerCase(supervisor.firstName)) + ' ' +
+                                            (typeof supervisor.nihii === 'undefined' || !supervisor.nihii ? '' : ' - ' + this.localize('nihii', 'INAMI', language) + ': ' + supervisor.nihii) + ' ' +
+                                            (typeof supervisor.ssin === 'undefined' || !supervisor.ssin ? '' : ' - ' + this.localize('ssin', 'Registre national', language) + ': ' + supervisor.ssin.substr(0, 6) + '-' + supervisor.ssin.substr(6, 3) + '-' + supervisor.ssin.substr(8, 2)) + ' ' +
+                                            ''
+                                    }] : []
 
                                 // Only cast by the time we've got our answers
                                 this.hcp = hcp;
-
                             });
 
                         } else {
@@ -945,7 +937,7 @@
 
                     this.api.user().modifyUser(this.user).then(
                         user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
-                    ).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).finally(() => this.$.dialog.close())
+                    ).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).then(hcp => this.hcp = hcp).finally(() => this.$.dialog.close())
                 }
             }
 

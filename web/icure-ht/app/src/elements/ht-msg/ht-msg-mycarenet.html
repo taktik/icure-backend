@@ -28,77 +28,125 @@
                     outline: 0 !important;
                 }
 
-                .msg-btn {
-                    box-sizing: border-box;
-                    --paper-button-ink-color: var(--app-secondary-color-dark);
-                    display: block;
-                    text-align: center;
-                    min-height: 40px;
-                    width: fit-content;
-                    --paper-button: {
-                        background: var(--app-secondary-color);
-                        color: var(--app-text-color);
-                        height: 40px !important;
-                        text-transform: capitalize;
-                        font-size: 14px;
-                    };
-                }
-
-                .msg-btn:first-child{
-                    margin-left: 0;
-                }
-
-                .buttons{
+                .invoice-panel {
+                    height: 100%;
+                    margin: 0;
+                    grid-column: 2/2;
+                    grid-row: 1/1;
+                    padding: 0 24px;
                     display:flex;
-                    flex-flow: row wrap;
-                    align-items: center;
-                    justify-content: flex-start;
-                    padding: 24px 0;
+                    flex-flow: column nowrap;
+                    justify-content: space-between;
                 }
 
-                .mycarenet-panel{
-                    padding: 24px;
-                    overflow-y: auto;
+                .grid-panel {
+                    flex-basis: calc(100% - 60px);
+                    height: calc(100% - 60px);
+                    display: flex;
+                    flex-flow: row nowrap;
+                    box-sizing: border-box;
+                    justify-content: space-between;
+                }
+
+                #messagesGrid {
+                    flex-basis: 60%;
+                    height: 100%;
+                }
+
+                #messagesGrid.no-detail {
+                    flex-basis: 100%;
+                }
+
+                #detailGrid {
+                    flex-basis: 40%;
+                    height: 100%;
+                }
+
+                #detailGrid.no-detail {
+                    flex-basis: 0;
+                    display: none;
+                }
+
+                .invoice-panel .btns-container{
+                    padding: 16px 0;
+                    flex-basis: 60px;
+                }
+
+                .bottom-btn {
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    background: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    font-weight: bold;
+                    font-size: 12px;
+                    height: 40px;
+                    min-width: 100px;
+                    @apply --shadow-elevation-2dp;
+                    padding: 10px 1.2em;
+                    text-transform: capitalize;
                 }
 
             </style>
         </custom-style>
-        <div class="mycarenet-panel">
-            <vaadin-grid id="messagesGrid" items="[[messages]]" active-item="{{activeItem}}" on-tap="_showDetail">
-                <vaadin-grid-column class="recipient-col">
-                    <template class="header">
-                        <vaadin-grid-sorter path="">Date</vaadin-grid-sorter>
-                    </template>
-                    <template>[[item.received]]</template>
-                </vaadin-grid-column>
-                <vaadin-grid-column class="oa-col">
-                    <template class="header">
-                        <vaadin-grid-sorter path="">Type</vaadin-grid-sorter>
-                    </template>
-                    <template>[[item.subject]]</template>
-                </vaadin-grid-column>
-                <vaadin-grid-column class="oa-col">
-                    <template class="header">
-                        <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
-                    </template>
-                    <template>[[item.fromAddress]]</template>
-                </vaadin-grid-column>
-                <vaadin-grid-column class="ref-col">
-                    <template class="header">
-                        <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
-                    </template>
-                    <template>[[item.patient.name]]</template>
-                </vaadin-grid-column>
-                <vaadin-grid-column class="invoice-col">
-                    <template class="header">
-                        <vaadin-grid-sorter path="">Data</vaadin-grid-sorter>
-                    </template>
-                    <template>[[item.data]]</template>
-                </vaadin-grid-column>
-            </vaadin-grid>
-            <div class="buttons">
-                <paper-button class="msg-btn" on-tap="getMessages">get messages</paper-button>
-                <paper-button class="msg-btn" on-tap="requestMessages">request messages</paper-button>
+        <div class="invoice-panel">
+            <div class="grid-panel">
+                <vaadin-grid id="messagesGrid" class$="[[detailPanelClass(subMessages)]]" items="[[messages]]" active-item="{{activeItem}}">
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Date</vaadin-grid-sorter>
+                        </template>
+                        <template>[[item.received]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="oa-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Type</vaadin-grid-sorter>
+                        </template>
+                        <template>[[item.subject]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="oa-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
+                        </template>
+                        <template>[[item.fromAddress]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="ref-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                        </template>
+                        <template>[[item.patient.lastName]] [[item.patient.firstName]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="invoice-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Data</vaadin-grid-sorter>
+                        </template>
+                        <template>[[_displayMetas(item.metas)]]</template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+                <vaadin-grid id="detailGrid" class$="[[detailPanelClass(subMessages)]]" items="[[subMessages]]">
+                    <vaadin-grid-column class="recipient-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Period</vaadin-grid-sorter>
+                        </template>
+                        <template>[[item.from]] - [[item.to]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="ref-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                        </template>
+                        <template>[[item.lastName]] [[item.firstName]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column class="invoice-col">
+                        <template class="header">
+                            <vaadin-grid-sorter path="">Payments</vaadin-grid-sorter>
+                        </template>
+                        <template>[[_formatPayments(item.payments)]]</template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
+            <div class="btns-container">
+                <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages">[[localize('req_msg_lists','Request Messages Lists',language)]]
+                </paper-button>
+                <paper-button class="bottom-btn" id="getMessagesBtn" on-tap="getMessages">[[localize('get_msg','Get Messages',language)]]
+                </paper-button>
             </div>
         </div>
 
@@ -131,9 +179,16 @@
                         notify: true
                     },
                     activeItem: {
-                        type: Object
+                        type: Object,
+                        observer: '_activeItemChanged'
                     },
                     messages: {
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    subMessages: {
                         type: Array,
                         value: function () {
                             return [];
@@ -169,9 +224,6 @@
                             };
                             return res;
                         }
-                    },
-                    resultRequest : {
-                        type : Object
                     }
                 };
             }
@@ -188,37 +240,121 @@
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
-                    this.getMessages()
+                    //this.getMessages()
                 })
             }
 
+            refresh() {
+                this.api.message().findMessagesByTransportGuid('GMD:IN:*', null, null, 1000).then(msgsPl => {
+                    const messages = msgsPl && msgsPl.rows || []
+
+                    const ssins = _.uniq(_.compact((messages || []).map(msg => (msg.metas || {}).ssin)))
+                    return (ssins.length ? this.api.patient().filterBy(undefined, undefined, 1000, 0, undefined, false,
+                            {
+                                filter: {
+                                    $type: "PatientByHcPartyAndSsinsFilter",
+                                    healthcarePartyId: user.healthcarePartyId,
+                                    ssins: ssins
+                                }
+                            }
+                        ) : Promise.resolve([])).then(patients => {
+                            messages.forEach(msg => {
+                                const ssin = (msg.metas || {}).ssin
+                                if (ssin) {
+                                    msg.patient = patients.find(p => p.ssin === ssin)
+                                }
+                            })
+                            return messages
+                        })
+                }).then(messages =>  this.set('messages', messages || []))
+            }
+
+            _displayMetas() {
+                return ''
+            }
+
+            _formatPayments(payments) {
+                return payments && payments.map(p => `${p.date}: ${p.amount}${p.currency} [${p.ref}]`).join(', ')
+            }
+
+            detailPanelClass(subMessages) {
+                return subMessages && subMessages.length ? '' : 'no-detail'
+            }
+
+            _activeItemChanged() {
+                if (!this.activeItem) {
+                    this.set('subMessages', [])
+                    return
+                }
+                this.api.document().findByMessage(this.user.healthcarePartyId, this.activeItem).then(
+                    docs => Promise.all(docs.map(d => this.api.document().getAttachment(d.id, d.attachmentId).then(a => {
+                        try {
+                            return JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+                        } catch (e) {
+                            console.log(e)
+                        }
+                    }))).then( lists => {
+                        const inscriptions = _.flatMap(_.compact(lists.map(l => l && l.inscriptions)))
+                        const ssins =  _.uniq(_.compact(inscriptions.filter(i => !i.lastName && i.inss)))
+
+                        ;(ssins.length ? this.api.patient().filterBy(undefined, undefined, 1000, 0, undefined, false,
+                            {
+                                filter: {
+                                    $type: "PatientByHcPartyAndSsinsFilter",
+                                    healthcarePartyId: user.healthcarePartyId,
+                                    ssins: ssins
+                                }
+                            }
+                        ) : Promise.resolve([])).then(patients => {
+                            lists.forEach(l => {
+                                l.inscriptions.forEach( i => {
+                                const ssin = i.inss
+                                if (ssin && !i.lastName) {
+                                    const pat =  patients.find(p => p.ssin === ssin)
+                                    i.firstName = pat.firstName
+                                    i.lastName = pat.lastName
+                                }
+                                i.payments = (i.payment1Amount ? [
+                                            {
+                                                amount: i.payment1Amount,
+                                                currency: i.payment1Currency,
+                                                date: i.payment1Date,
+                                                ref: i.payment1Ref
+                                            }
+                                        ]
+                                        : []
+                                ).concat(
+                                    i.payment2Amount ? [
+                                            {
+                                                amount: i.payment2Amount,
+                                                currency: i.payment2Currency,
+                                                date: i.payment2Date,
+                                                ref: i.payment2Ref
+                                            }
+                                        ]
+                                        : []
+                                )
+                                })
+                            })
+                            this.set('subMessages', _.flatMap(lists,x => x.inscriptions))
+                        })
+                    })
+                )
+            }
+
             getMessages() {
-                //set messages
-                //faire un request avant pour récupérer la liste
-                console.log("avant la requete")
-                let list = null
-                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900", [])
-                    .then(response =>{
-                        list=response
-                        let docXApi=this.api.document()
-                        console.log("===============")
-                        //console.log(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"900", null)
-                        return this.api.message().processDmgMessagesList(this.user,this.hcp,list,docXApi);
-                    })
-                    .then(reponse =>{
-                        console.log("ici")
-                        console.log(response)
-                        this.set("messages",response)
-                    })
-
-
+                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, "", [])
+                    .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
+                    .then(([ackHashes, dmgHashes]) => Promise.all([
+                        this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
+                        this.api.fhc().Dmgcontroller().confirmDmgMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, dmgHashes)
+                    ]))
             }
 
             requestMessages(){
                 this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName)
                     .then(response =>{
                         console.log(response)
-                        this.set("resultRequest",response)
                     })
             }
 
