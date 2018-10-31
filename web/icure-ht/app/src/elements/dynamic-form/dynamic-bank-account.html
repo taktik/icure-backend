@@ -62,7 +62,7 @@
                 position: relative;
             }
             .singleFinancialInstitutionInformationContainer .header .delete { position: absolute; top:0; right:0; }
-            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button:hover { color:#f3caca; }
+            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button:hover { color:var(--app-secondary-color); }
 
             .marginRight10 { margin-right:10px; }
 
@@ -166,7 +166,7 @@
 
 
             _plusOne(inputValue) { return parseInt( inputValue ) + 1; }
-            _getFiiCssDisplayClass( item, index ) { return !parseInt(index) ? '' : (item.bankAccount && item.bic) ? '' : ' fii_hidden ' ; }
+            _getFiiCssDisplayClass( item, index ) { return (typeof item.bankAccount !== 'undefined' && typeof item.bic !== 'undefined' ) ? '' : ' fii_hidden ' ; }
 
 
 
