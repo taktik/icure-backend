@@ -1144,6 +1144,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
 	}
 
+	reset() {
+        let cfp = Polymer.dom(this.root).querySelector("#serviceFilterPanel");
+        cfp && cfp.reset();
+    }
+
 }
 
 customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);

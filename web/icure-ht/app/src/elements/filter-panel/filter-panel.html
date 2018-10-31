@@ -166,11 +166,13 @@ class FilterPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 		return {
 			items: {
 				type: Array,
-				value: []
+				value: [],
+                noReset: true
 			},
 			visibleItems: {
 				type: Array,
-				computed: "computeVisibleItems(panelWidth,items)"
+				computed: "computeVisibleItems(panelWidth,items)",
+                noReset: true
 			},
 			showFiltersPanel: {
 				type: Boolean,
@@ -178,7 +180,8 @@ class FilterPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 			},
 			panelWidth: {
 				type: Number,
-				value: 200
+				value: 200,
+                noReset: true
 			},
 			searchString: {
 				type: String,
@@ -186,9 +189,9 @@ class FilterPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 				value: null
 			},
             selectedFilters: {
-			    type: Object,
+			    type: Array,
                 notify: true,
-                value: null
+                value: []
 			}
 		};
 	}
@@ -260,6 +263,13 @@ class FilterPanel extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polym
 	    return this.selectedFilters ? this.selectedFilters.map(f=> this.items.map(i=>i.filter).indexOf(f)) : []
 
 	}
+
+	reset() {
+        const props = FilterPanel.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+        this.root.querySelector('#filtersPanel').classList.add('filters-panel--collapsed');
+
+    }
 
 }
 
