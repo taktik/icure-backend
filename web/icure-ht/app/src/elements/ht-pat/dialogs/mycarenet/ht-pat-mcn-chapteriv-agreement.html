@@ -107,12 +107,14 @@
                 padding: 8px 24px;
                 grid-column: 1/1;
                 grid-row: 2/2;
-                overflow-y: overlay;
+                overflow-y: auto;
                 overflow-x: hidden;
                 --paper-listbox-selected-item: {
                     color: var(--app-text-color-light);
                     background: var(--app-primary-color);
                 };
+                border-top: 1px solid var(--app-background-color-dark);
+                border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             .bottom-btn-container {
@@ -642,6 +644,11 @@
                 font-weight: lighter;
                 font-size: 0.8em;
             }
+            paper-spinner.asking {
+                top: 12px;
+                left: 5px;
+                position: relative;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -895,16 +902,18 @@
                                     <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">[[localize('ext_agr','Extend
+                                    <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
                                         agreement',language)]]
                                     </paper-button>
+                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                 </template>
 
                                 <template is="dom-if" if="[[!isAgreementSelected]]">
-                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
+                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">
                                         [[localize('req_agr','Request
                                         agreement',language)]]
                                     </paper-button>
+                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                 </template>
                             </div>
 
@@ -1045,6 +1054,10 @@
                     searchLoadContainerCollapsed: {
                         type: Boolean,
                         value: true
+                    },
+                    isAskingAgreement: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1249,9 +1262,11 @@
                                 paragraphInfo: pi
                             })))
                         this.set('agreementResponse', agreements)
+                        this.set('isAskingAgreement', false)
                     })
                 }).finally(() => {
                     this._isLoadingChapter = false;
+                    this.set('isAskingAgreement', false)
                 })
             }
 
@@ -1263,6 +1278,7 @@
                             null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
                 if (requestType != null) {
+                    this.set('isAskingAgreement',true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         Promise.all(this.appendicesTokens.map(ap =>
                             this.api.document().getDocument(ap.id)
@@ -1288,17 +1304,17 @@
                     ).then(res => {
                         console.log(res)
                         this.set('agreementResponse', res)
+                        this.set('isAskingAgreement', false)
                         this.set('tabs', 1)
 
                         return Promise.all(((res || {}) && res.transactions || []).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({
                             paragraph: t.paragraph,
                             mpps: it
-                        })))).then(links =>
+                        })))).then(links => {
                             this.set('agreementMpps', links)
-                        )
+                        })
                     })
                 }
-
             }
 
             _annexBaseName(addedDoc) {
@@ -1411,6 +1427,7 @@
                             this.set('agreementMpps', links)
                         )
                         this._isLoadingParagraph = false
+                        this.set('isAskingAgreement', false)
                  })
             }
 
@@ -1421,6 +1438,7 @@
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
+                            this.set('isAskingAgreement', false)
                             console.log(response)
                         })
                 }
@@ -1434,6 +1452,7 @@
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
+                            this.set('isAskingAgreement', false)
                             console.log(response)
                         })
                 }
