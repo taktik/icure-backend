@@ -760,7 +760,7 @@
                                                             <template is="dom-if" if="[[_isFrench(language)]]">
                                                                 [[item.descrFr]]
                                                             </template>
-                                                            <template is="dom-if" if="[[_isDutch(language)]]">
+                                                            <template is="dom-if" if="[[!_isFrench(language)]]">
                                                                 [[item.descrNl]]
                                                             </template>
                                                         </paper-item>
@@ -816,22 +816,20 @@
                                                 <template is="dom-if" if="[[t.inTreatment]]">
                                                     <p>[[localize('status','Status',language)]]:
                                                         [[localize('req_in_tre','Request in treatment',language)]]</p>
-                                                    <p>[[localize('ref_jus','Justification of refusal',language)]]:
-                                                        [[t.refusalJustification]]</p>
                                                 </template>
                                                 <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
                                                     <p>[[localize('status','Status',language)]]:
                                                         [[localize('req_in_tre','Request rejected',language)]]</p>
+                                                    <p>[[localize('ref_jus','Justification of refusal',language)]]:
+                                                        <template is="dom-if" if="[[_isFrench(language)]]">
+                                                            <span class="error">[[t.refusalJustification.fr]]</span>
+                                                        </template>
+                                                        <template is="dom-if" if="[[!_isFrench(language)]]">
+                                                            <span class="error">[[t.refusalJustification.nl]]</span>
+                                                        </template>
+                                                    </p>
                                                 </template>
-                                                <p class="error">
-                                                    <template is="dom-if" if="[[_isFrench(language)]]">
-                                                        [[t.refusalJustification.FR]]
-                                                    </template>
-                                                    <template is="dom-if" if="[[_isDutch(language)]]">
-                                                        [[t.refusalJustification.NL]]
-                                                    </template>
-                                                </p>
-                                                <p>[[localize('ref_io','Reference IO',language)]]: [[t.ioDecisionReference]]</p>
+                                                <p>[[localize('ref_io','Reference IO',language)]]: [[t.decisionReference]]</p>
                                                 <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
                                                 <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
                                                 <h4>[[localize('tec_dat','Technical data',language)]]</h4>
@@ -1249,7 +1247,7 @@
             }
 
             _requestChapter4(e) {
-                this.set('agreementResponse', [])
+                this.set('agreementResponse', {})
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :

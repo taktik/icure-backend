@@ -76,7 +76,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	private Long received;
 	private Long sent;
 
-	private Map<String,String> metas = new HashMap<>();
+	private Map<String, String> metas = new HashMap<>();
 
 	/*
 		CHAP4:IN:   ${Mycarenet message ref}
