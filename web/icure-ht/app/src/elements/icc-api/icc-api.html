@@ -393,7 +393,10 @@
             const thisPromise = reg.queues[entity.id] || Promise.resolve(entity)
             reg.queues[entity.id] = defer
 
-            return thisPromise.then(e => [e, defer])
+            thisPromise.uuid = this.crypto().randomUuid()
+
+            console.log('' + thisPromise.uuid + ' pending');
+            return thisPromise.then(e => { console.log('' + thisPromise.uuid + ' resolved'); return ([e, defer])})
         }
 
         register(entity, domain, defer) {

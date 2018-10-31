@@ -1242,7 +1242,8 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
                                             return this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p,'patient', defer)).then(p => this.patientChanged())
                                         } else {
-                                            return this.api.unqueue(this.patient.id, 'patient')
+                                            defer.resolve(patient);
+                                            return patient
                                         }
                                     })
                                 }else{
