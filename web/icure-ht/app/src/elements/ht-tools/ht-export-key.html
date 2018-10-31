@@ -12,22 +12,56 @@
 	<template>
 		<style>
 			paper-dialog {
-				width: 60%;
-				height: 90%;
+                position: fixed;
+                top: 50vh !important;
+                left: 50vw !important;
+                transform: translate(-50%,-50%);
+                height: 60vh !important;
+                max-height: initial !important;
+                max-width: initial !important;
 			}
 
 			qrcode-printer {
 				width: 100%;
 				height: 100%;
 			}
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .buttons {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+            }
+
+            .modal-button--cancel{
+                background: transparent;
+                color: var(--app-primary-color-dark);
+                font-weight: 400;
+            }
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
+            }
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}">
 			<h2>[[localize('sca_the_fol_cod_wit_you_tab','Scan the following code with your tablet',language)]]</h2>
 			<div id="printable"><qrcode-printer i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" id="qrcode" text="[[privateKeyPart]]" size="[[qrCodeWidth]]" ecl="H"></qrcode-printer></div>
 			<div class="buttons">
-				<paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button dialog-confirm autofocus on-tap="confirm">[[localize('sel','Select',language)]]</paper-button>
+				<paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+				<paper-button dialog-confirm autofocus on-tap="confirm" class="modal-button modal-button--save">[[localize('sel','Select',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 	</template>

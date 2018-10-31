@@ -29,19 +29,41 @@
                 }
 
                 .msg-btn {
+                    box-sizing: border-box;
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                    display: block;
+                    text-align: center;
+                    min-height: 40px;
+                    width: fit-content;
                     --paper-button: {
                         background: var(--app-secondary-color);
                         color: var(--app-text-color);
-                        margin: 0 auto;
-                        height: 48px;
+                        height: 40px !important;
                         text-transform: capitalize;
+                        font-size: 14px;
                     };
-                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                }
+
+                .msg-btn:first-child{
+                    margin-left: 0;
+                }
+
+                .buttons{
+                    display:flex;
+                    flex-flow: row wrap;
+                    align-items: center;
+                    justify-content: flex-start;
+                    padding: 24px 0;
+                }
+
+                .mycarenet-panel{
+                    padding: 24px;
+                    overflow-y: auto;
                 }
 
             </style>
         </custom-style>
-        <div class="invoice-panel">
+        <div class="mycarenet-panel">
             <vaadin-grid id="messagesGrid" items="[[messages]]" active-item="{{activeItem}}" on-tap="_showDetail">
                 <vaadin-grid-column class="recipient-col">
                     <template class="header">
@@ -74,8 +96,10 @@
                     <template>[[item.data]]</template>
                 </vaadin-grid-column>
             </vaadin-grid>
-            <paper-button class="msg-btn" on-tap="getMessages">get messages</paper-button>
-            <paper-button class="msg-btn" on-tap="requestMessages">request messages</paper-button>
+            <div class="buttons">
+                <paper-button class="msg-btn" on-tap="getMessages">get messages</paper-button>
+                <paper-button class="msg-btn" on-tap="requestMessages">request messages</paper-button>
+            </div>
         </div>
 
     </template>
