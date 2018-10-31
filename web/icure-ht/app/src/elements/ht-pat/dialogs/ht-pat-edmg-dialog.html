@@ -45,6 +45,11 @@
                 color: var(--app-primary-color-dark);
                 justify-self: flex-end;
             }
+            #dialog .dmg-cons paper-button.action[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
+            }
 
             #dialog .dmg-cons .buttons {
                 right: 24px;
@@ -172,7 +177,7 @@
                         <div>
                             <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
-                            <paper-button class="action" on-tap="_consultDmg">[[localize('refresh','Refresh',language)]]</paper-button>
+                            <paper-button class="action" on-tap="_consultDmg" disabled="[[isLoading]]">[[localize('refresh','Refresh',language)]]</paper-button>
                             <paper-spinner active="[[isLoading]]"></paper-spinner>
                         </div>
                         <!-- Show consultation result/errors -->

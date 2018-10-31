@@ -1127,6 +1127,9 @@
 
             _selectedParagraphChanged() {
                 if (this.selectedParagraph && this.selectedParagraph.id) {
+                    if (!this.paragraph) {
+                        this.set('_isLoadingParagraph',true)
+                    }
                     this.set('agreementResponse', [])
                     this.set('selectedAgreementIndex', null);
 
@@ -1134,6 +1137,8 @@
 
                     this.set('displayedParagraph', this.selectedParagraph);
                     this.set('tabs', 0)
+                } else {
+                    this.set('_isLoadingParagraph',false)
                 }
             }
 
@@ -1146,6 +1151,7 @@
                     ;(this.displayedParagraph.paragraphInfo ? Promise.resolve(this.displayedParagraph.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', paragraph))
                         .then(pi => {
                             this.set('paragraph', pi)
+                            this.set('_isLoadingParagraph',false)
                             return this.api.fhc().Chaptercontroller().getAddedDocumentsUsingGET('IV', paragraph)
                         })
                         .then(annexes => {
@@ -1155,6 +1161,7 @@
 
                 } else {
                     this.set('paragraph', null)
+                    this.set('_isLoadingParagraph',false)
                 }
             }
 
