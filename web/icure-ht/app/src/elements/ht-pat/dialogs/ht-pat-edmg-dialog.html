@@ -15,6 +15,7 @@
 
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../dynamic-form/dynamic-link.html">
@@ -152,6 +153,10 @@
                 background: var(--app-secondary-color);
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
             }
+            paper-spinner {
+                position: relative;
+                top: 10px;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -168,6 +173,7 @@
                             <vaadin-date-picker label="[[localize('req_dat','Request date',language)]]" value="{{consultStart}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <!--<vaadin-date-picker label="[[localize('endDate','End date',language)]]" value="{{consultEnd}}" i18n="[[i18n]]"></vaadin-date-picker>-->
                             <paper-button class="action" on-tap="_consultDmg">[[localize('refresh','Refresh',language)]]</paper-button>
+                            <paper-spinner active="[[isLoading]]"></paper-spinner>
                         </div>
                         <!-- Show consultation result/errors -->
                         <div class="edmg-info">
@@ -227,7 +233,8 @@
                         <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
                         <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <vaadin-checkbox checked="{{asSupervisor}}">[[localize('in_name_sup','In the name of the supervisor',language)]]</vaadin-checkbox>
-                        <paper-button class="action" on-tap="_dmgNotify">[[localize('dmg_not','Notify',language)]]</paper-button>
+                            <paper-button class="action" on-tap="_dmgNotify" disabled="[[isLoading]]">[[localize('dmg_not','Notify',language)]]</paper-button>
+                            <paper-spinner active="[[isLoading]]"></paper-spinner>
 
                             <template is="dom-if" if="{{notifyDmgResp}}">
                                 <template is="dom-if" if="{{_hasErrors(notifyDmgResp.errors)}}">
@@ -254,7 +261,8 @@
                     <p>Experimental</p>
                     <vaadin-date-picker label="[[localize('start-date','Start date',language)]]" value="{{listRequestDate}}" i18n="[[i18n]]"></vaadin-date-picker>
                     <paper-input label="[[localize('io','IO',language)]]" value="{{listIO}}" ></paper-input>
-                    <paper-button class="action" on-tap="_dmgListRequest">[[localize('dmg_lst','Get List',language)]]</paper-button>
+                    <paper-button class="action" on-tap="_dmgListRequest" disabled="[[isLoading]]">[[localize('dmg_lst','Get List',language)]]</paper-button>
+                    <paper-spinner active="[[isLoading]]"></paper-spinner>
                 </page>
             </iron-pages>
             <div class="end-buttons">
@@ -433,7 +441,11 @@
                     },
                     getListResp:{
                         type: Object,
-                        vale: null
+                        value: null
+                    },
+                    isLoading:{
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -622,6 +634,7 @@
             getDmgNotifyResult(){
                 const requestDate = Date.parse(this.encounterDate);
                 if (this.api.tokenId) {
+                    this.set('isLoading',true)
                     //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
                     if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
@@ -646,8 +659,10 @@
                                 }
                             ).then(edmgResp => {
                                     if (edmgResp) {
+                                        this.set('isLoading',false)
                                         return edmgResp;
                                     } else {
+                                        this.set('isLoading',false)
                                         return null;
                                     }
                                 }
@@ -670,8 +685,10 @@
                                     }
                                 ).then(edmgResp => {
                                         if (edmgResp) {
+                                            this.set('isLoading',false)
                                             return edmgResp;
                                         } else {
+                                            this.set('isLoading',false)
                                             return null;
                                         }
                                     }
@@ -679,6 +696,7 @@
                         });
                     }
                 } else {
+                    this.set('isLoading',false)
                     return Promise.resolve(null)
                 }
 
@@ -698,6 +716,7 @@
 // patientSsin?: string, patientGender?: string, oa?: string,
 // regNrWithMut?: string, requestDate?: number)
                 if (this.api.tokenId) {
+                    this.set('isLoading',true)
                     //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
                     if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
@@ -710,8 +729,10 @@
                                 }
                             ).then(edmgResp => {
                                     if (edmgResp) {
+                                        this.set('isLoading',false)
                                         return edmgResp;
                                     } else {
+                                        this.set('isLoading',false)
                                         return null;
                                     }
                                 }
@@ -734,8 +755,10 @@
                                     }
                                 ).then(edmgResp => {
                                         if (edmgResp) {
+                                            this.set('isLoading',false)
                                             return edmgResp;
                                         } else {
+                                            this.set('isLoading',false)
                                             return null;
                                         }
                                     }
@@ -743,6 +766,7 @@
                         });
                     }
                 } else {
+                    this.set('isLoading',false)
                     return Promise.resolve(null)
                 }
             }
@@ -758,6 +782,7 @@
             getDmgListRequest(){
                 const requestDate = Date.parse(this.listRequestDate);
                 if (this.api.tokenId) {
+                    this.set('isLoading',true)
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp => {
                                 return this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(
@@ -768,6 +793,7 @@
                             }
                         ).then(edmgResp => {
                                 if (edmgResp) {
+                                    this.set('isLoading',false)
                                     return edmgResp;
                                 } else {
                                     return null;
@@ -776,6 +802,7 @@
                         )
                 }
                 else {
+                    this.set('isLoading',false)
                     return Promise.resolve(null);
                 }
             }
