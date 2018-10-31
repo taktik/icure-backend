@@ -280,7 +280,7 @@
             }
 
             .nmcl-descr {
-                overflow-y: auto;
+                overflow-y: hidden;
                 height: 332px;
             }
 
@@ -734,11 +734,11 @@
                 flex: auto;
             }
 
-paper-button[disabled] {
-    background-color: var(--app-secondary-color-dark);
-    color: var(--app-text-color-disabled);
-    box-shadow: none;
-}
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
+            }
         
 
             .he-edit-btn-container{
@@ -877,7 +877,11 @@ paper-button[disabled] {
             .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
                 transform: rotate(180deg)
             }
-
+            paper-spinner.validAndTarif {
+                position: absolute;
+                top: 10px;
+                transform: translateX(-10px);
+            }
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -1009,7 +1013,7 @@ paper-button[disabled] {
                                 </div>
                             </div>
                             <div class="nmcl-list">
-                                <paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>
+                                <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
@@ -1218,6 +1222,8 @@ paper-button[disabled] {
 
                 </div>
                 <div class="buttons">
+                    <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
+                    <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
@@ -1228,7 +1234,7 @@ paper-button[disabled] {
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification">
+                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">
                                     [[localize('eTarif','Validation eTarif',language)]]
                                 </paper-button>
                             </template>
@@ -1240,13 +1246,13 @@ paper-button[disabled] {
                         </template>
 
                         <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">
+                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">
                                 [[localize('eTarif','Validation eTarif',language)]]
                             </paper-button>
                         </template>
 
                         <template is="dom-if" if="[[isNmclVerified]]">
-                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable">
+                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
@@ -1806,8 +1812,15 @@ paper-button[disabled] {
                     isEattestClosed:{
                         type:Boolean,
                         value:false
+                    },
+                    isValidate: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isJustif: {
+                        type: Boolean,
+                        value: false
                     }
-
                 }
 
             }
@@ -2155,6 +2168,7 @@ paper-button[disabled] {
 
             _verifyTarification() {
                 if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
+                    this.set('isValidate',true)
                     this.isLoadingEattest = true
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
@@ -2218,6 +2232,7 @@ paper-button[disabled] {
                         console.log("Exception", e)
                     }).finally(() => {
                         this.isLoadingEattest = false
+                        this.set('isValidate',false)
                     })
 
                 } else {
@@ -2310,6 +2325,7 @@ paper-button[disabled] {
             _createInvoice() {
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
+                    this.set('isJustif',true)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".reimbursement", 0 - invoiceCode.reimbursement)
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".patientIntervention", 0 - invoiceCode.patientIntervention)
@@ -2348,6 +2364,7 @@ paper-button[disabled] {
                                 })
                             }))
                 })
+                this.set('isJustif',false)
             }
 
             _invoicingCodeChange() {
