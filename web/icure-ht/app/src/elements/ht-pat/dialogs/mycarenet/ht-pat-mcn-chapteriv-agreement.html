@@ -162,6 +162,7 @@
                 align-self: stretch;
                 overflow-y: overlay;
                 flex-grow: 1;
+                border-bottom: 1px solid var(--app-background-color-darker);
             }
 
             page {
@@ -896,16 +897,18 @@
                             </div>
                             <div class="btns-container">
                                 <template is="dom-if" if="[[isAgreementSelected]]">
-                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
+                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isDisablingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
+                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isCloturingAgreement]]">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
+                                    <paper-spinner class="asking" active="[[isCloturingAgreement]]"></paper-spinner>
+                                    <paper-spinner class="asking" active="[[isDisablingAgreement]]"></paper-spinner>
                                 </template>
 
                                 <template is="dom-if" if="[[!isAgreementSelected]]">
@@ -914,6 +917,8 @@
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
+                                    <paper-spinner class="asking" active="[[isCloturingAgreement]]"></paper-spinner>
+                                    <paper-spinner class="asking" active="[[isDisablingAgreement]]"></paper-spinner>
                                 </template>
                             </div>
 
@@ -1056,6 +1061,14 @@
                         value: true
                     },
                     isAskingAgreement: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isCloturingAgreement: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isDisablingAgreement: {
                         type: Boolean,
                         value: false
                     }
@@ -1433,12 +1446,13 @@
 
             _closeChapter(e) {
                 if (this.displayedParagraph) {
+                    this.set('isCloturingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference, this.displayedParagraph.ioRequestReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
-                            this.set('isAskingAgreement', false)
+                            this.set('isCloturingAgreement', false)
                             console.log(response)
                         })
                 }
@@ -1447,12 +1461,13 @@
 
             _cancelChapter(e) {
                 if (this.displayedParagraph) {
+                    this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
-                            this.set('isAskingAgreement', false)
+                            this.set('isClosingAgreement', false)
                             console.log(response)
                         })
                 }
