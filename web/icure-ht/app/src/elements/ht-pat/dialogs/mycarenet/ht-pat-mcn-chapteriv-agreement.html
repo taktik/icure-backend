@@ -946,14 +946,17 @@
                 return {
                     api: {
                         type: Object,
-                        value: null
+                        value: null,
+                        noReset: true
                     },
                     user: {
                         type: Object,
-                        value: null
+                        value: null,
+                        noReset: true
                     },
                     language: {
-                        type: String
+                        type: String,
+                        noReset: true
                     },
                     appendices: {
                         type: Array,
@@ -973,7 +976,8 @@
                     },
                     opened: {
                         type: Boolean,
-                        value: false
+                        value: false,
+                        noReset: true
                     },
                     paragraph: {
                         type: Object,
@@ -1047,6 +1051,11 @@
 
             static get observers() {
                 return ['_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)', '_selectAgreementInList(selectedAgreementIndex)']
+            }
+
+            reset() {
+                const props = HtPatMcnChapterIVAgreement.properties
+                Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
             }
 
             ready() {
