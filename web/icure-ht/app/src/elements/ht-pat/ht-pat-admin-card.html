@@ -889,70 +889,68 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     scheduleSave(patient) {
+        const rev = patient.rev
+
         if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
             this.saveTimeout = undefined
         }
 
         this.saveAction = function () {
-            if (this.patient.partnerships) {
-                const partnerships = this.patient.partnerships
+            this.api.queue(patient, 'patient').then(([pat, defer]) => {
+                if (pat.rev !== rev) { defer.resolve(patient); return }
 
-                partnerships.map(partner => {
-                    const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
-                    const index = partnerships.indexOf(partner)
-                    ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
+                if (this.patient.partnerships) {
+                    const partnerships = this.patient.partnerships
 
-                    if (!mark || !partner.partnerId) {
-                        //patient not present
-                        partner.partnerInfo.active = false
-                        partner.partnerInfo.id = partner.id
-                        partner.partnerId = partner.id
+                    partnerships.map(partner => {
+                        const mark = partnerships.find(fp => fp.partnerId === partner.partnerId)
+                        const index = partnerships.indexOf(partner)
+                        ;(partner.partnerInfo || (partner.partnerInfo = {})).addresses = partner.addresses
 
-                        this.api.patient().newInstance(this.user, partner.partnerInfo).then(p => this.api.register(p,'patient')).then(np => {
-                            this.api.patient().createPatient(np).then(p => this.api.register(p,'patient')).then(np => {
-                                this.set('patient.partnerships.' + index + '.partnerInfo', np)
+                        if (!mark || !partner.partnerId) {
+                            //patient not present
+                            partner.partnerInfo.active = false
+                            partner.partnerInfo.id = partner.id
+                            partner.partnerId = partner.id
+
+                            this.api.patient().newInstance(this.user, partner.partnerInfo).then(p => this.api.register(p, 'patient')).then(np => {
+                                this.api.patient().createPatient(np).then(p => this.api.register(p, 'patient')).then(np => {
+                                    this.set('patient.partnerships.' + index + '.partnerInfo', np)
+                                })
                             })
-                        })
-                    } else {
-                        //patient present
-                        this.api.patient().modifyPatient(partner.partnerInfo)
-                            .then(
-                                p => this.api.register(p,'patient')
-                            )
-                            .then(
-                                partner => { this.set('patient.partnerships.' + index + '.partnerInfo', partner) }
-                            )
-                    }
-                })
-            }
+                        } else {
+                            //patient present
+                            this.api.patient().modifyPatient(partner.partnerInfo)
+                                .then(p => this.api.register(p, 'patient'))
+                                .then(partner => {
+                                        this.set('patient.partnerships.' + index + '.partnerInfo', partner)
+                                        return partner
+                                    })
+                        }
+                    })
+                }
 
-            this.api.patient().modifyPatient(patient)
-                .then(
-                    p => {
-                        this.api.register(p,'patient')
-                        // console.log(patient);
-                        // console.log(p);
-                    }
-                )
-                .then(
-                    p => {
-                        this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                        this.patient && (this.patient.rev = p.rev)
-                    }
-                ).catch(
-                    e => this.patient && this.api.patient().getPatient(this.patient.id)
-                        .then(
-                            p => {
-                                this.patient = p;
-                                this.saveTimeout = undefined;
-                                this.saveAction = undefined;
-                            }
-                        )
-                );
-            }
-            .bind(this);
-            this.saveTimeout = setTimeout(this.saveAction, 10000);
+                this.api.patient().modifyPatient(patient)
+                    .catch(() => defer.resolve(patient))
+                    .then(p => this.api.register(p, 'patient', defer))
+                    .then(p => this.dispatchEvent(new CustomEvent("patient-saved", {detail: p, bubbles: true, composed: true})))
+                    .catch(e => {
+                        if (this.patient) {
+                            return this.api.patient().getPatient(this.patient.id).then(p => this.api.register(p, 'patient')).then(p => {
+                                this.patient = p
+                                this.saveTimeout = undefined
+                                this.saveAction = undefined
+                                throw e
+                            })
+                        } else {
+                            throw e
+                        }
+                    })
+            })
+        }.bind(this);
+
+        this.saveTimeout = setTimeout(this.saveAction, 10000);
     }
 
     flushSave() {
@@ -1100,7 +1098,7 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 "status": "ACTIVE",
                 "type": "database"
             }).then(usr => {
-                this.api.patient().getPatient(this.patient.id).then(patient => {
+                this.api.queue(this.patient, 'patient').then(([patient, defer])  => {
                     var phcp = patient.patientHealthCareParties
                     var newPhcp = {}
                     newPhcp.healthcarePartyId = hcp.id
@@ -1108,16 +1106,18 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     newPhcp.sendFormats = {}
                     phcp.push(newPhcp)
 
-                    this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                        this.set('patient.patientHealthCareParties', phcp)
-                        this.$['add-new-person-to-care-team'].close()
-                        this.initCurrentCareTeam()
+                    this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient))
+                        .then(p => this.api.register(p, 'patient', defer))
+                        .then(() => {
+                            this.set('patient.patientHealthCareParties', phcp)
+                            this.$['add-new-person-to-care-team'].close()
+                            this.initCurrentCareTeam()
 
-                        if (careProvider.Invite === true) {
-                            this.$['ht-invite-hcp-link'].open()
-                            this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
-                        }
-                    })
+                            if (careProvider.Invite === true) {
+                                this.$['ht-invite-hcp-link'].open()
+                                this.invitedHcpLink = window.location.origin + window.location.pathname + '/?userId=' + usr.id + '&token=' + usr.applicationTokens.tmpFirstLogin
+                            }
+                        })
                 })
             })
         })
@@ -1217,29 +1217,32 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                     }];
 
                                     this.api.hcparty().modifyHealthcareParty(hcpE).then(() => {})
-                                    this.api.patient().getPatient(this.patient.id).then(patient => {
-                                        const phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
-                                        if (phcpE) {
-                                            const currentReferralPeriod = phcpE.referralPeriods.find(rp => !rp.endDate)
-                                            let type = "other"
-                                            if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
-                                                const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
-                                                if(cd.value === 'orgprimaryhealthcarecenter'){
-                                                    type = "medicalhouse";
-                                                } else if(cd.value === 'persphysician'){
-                                                    type = "doctor";
-                                                }
+                                    this.api.queue(this.patient, 'patient').then(([patient, defer]) => {
+                                        let phcpE = patient.patientHealthCareParties.find(phcp => phcp.healthcarePartyId === hcpE.id)
+                                        if (!phcpE) {
+                                            patient.patientHealthCareParties.push(phcpE = { healthcarePartyId: hcpE.id, referralPeriods:[] })
+                                        }
+                                        const currentReferralPeriod = phcpE.referralPeriods.find(rp => !rp.endDate)
+                                        let type = "other"
+                                        if(dmgConsultResp.hcParty && dmgConsultResp.hcParty.cds){
+                                            const cd = dmgConsultResp.hcParty.cds.find(cd => cd.s === 'CD_HCPARTY')
+                                            if(cd.value === 'orgprimaryhealthcarecenter'){
+                                                type = "medicalhouse";
+                                            } else if(cd.value === 'persphysician'){
+                                                type = "doctor";
                                             }
-                                            if (!currentReferralPeriod || !phcpE.referral || phcpE.type !== type) {
-                                                phcpE.referralPeriods = [{
-                                                    startDate: dmgConsultResp.from,
-                                                    endDate: null
-                                                }];
-                                                phcpE.referral = true;
-                                                phcpE.isDmg = true;
+                                        }
+                                        if (!currentReferralPeriod || !phcpE.referral || phcpE.type !== type) {
+                                            phcpE.referralPeriods = [{
+                                                startDate: dmgConsultResp.from,
+                                                endDate: null
+                                            }];
+                                            phcpE.referral = true;
+                                            phcpE.isDmg = true;
 
-                                                this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(p => this.patientChanged())
-                                            }
+                                            return this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p,'patient', defer)).then(p => this.patientChanged())
+                                        } else {
+                                            return this.api.unqueue(this.patient.id, 'patient')
                                         }
                                     })
                                 }else{
@@ -1307,13 +1310,11 @@ class HtPatAdminCard extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                         console.log('dmg owner pushed to external team');
                                         //externalTeam.push(hcp2);
                                         externalPatientHcpTeam.push(hcp2);
-                                        this.api.patient().getPatient(this.patient.id).then(patient => {
-                                            var phcp = patient.patientHealthCareParties
-                                            phcp.push(newPhcp)
+                                        this.api.queue(this.patient, 'patient').then(([patient, defer]) => {
+                                            patient.patientHealthCareParties = this.patient.patientHealthCareParties
+                                            this.push('patient.patientHealthCareParties', newPhcp)
                                             // 4 save data
-                                            this.api.patient().modifyPatient(patient).then(p => this.api.register(p,'patient')).then(() => {
-                                                this.set('patient.patientHealthCareParties', phcp)
-                                            })
+                                            return this.api.patient().modifyPatient(patient).catch(e => defer.resolve(patient)).then(p => this.api.register(p,'patient',defer))
                                         })
 
                                 })}

@@ -2148,14 +2148,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _importGenIns() {
 	    if (this.curGenInsResp) {
-            this.set('patient.firstName', this.curGenInsResp.firstName);
-            this.set('patient.lastName', this.curGenInsResp.lastName);
-            this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
-            this.set('patient.gender', this.curGenInsResp.sex);
+	        this.api.queue(this.patient, 'patient').then (([pat, defer]) => {
+                this.set('patient.firstName', this.curGenInsResp.firstName);
+                this.set('patient.lastName', this.curGenInsResp.lastName);
+                this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
+                this.set('patient.gender', this.curGenInsResp.sex);
 
-            this.api.patient().modifyPatient(this.patient).then(p => this.api.register(p,'patient')).then(p => {
-                this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                this.patient && (this.set('patient.rev', p.rev))
+                this.api.patient().modifyPatient(this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient',defer)).then(p => {
+                    this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
+                    this.patient && (this.set('patient.rev', p.rev))
+                })
             })
 	    }
 	}
@@ -3379,8 +3381,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, {paymentapproval: 'true'}) : delete pi.parameters.paymentapproval
 
                         if (patient === this.patient) {
-                            this.set('patient.insurabilities.0', pi)
-                            this.api.patient().modifyPatient(this.patient).then(p => this.api.register(p, 'patient'))
+                            this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
+                                this.set('patient.insurabilities.0', pi)
+                                return this.api.patient().modifyPatient(this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p, 'patient', defer))
+                            })
                         }
 
                     })
