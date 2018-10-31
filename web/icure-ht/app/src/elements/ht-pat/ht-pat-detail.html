@@ -1315,7 +1315,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</template>
 							<template is="dom-repeat" items="[[contactYears]]" as="contactYear">
 								<span class="contact-year" on-click="openToast">
-									[[contactYear.year]]
+									[[contactYear.year]] <paper-spinner active="[[isLoadingDoc]]"></paper-spinner>
 								</span>
 								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact,contactStatutChecked.*)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"

@@ -1835,7 +1835,7 @@
 
 
             _selectInvoice(e) {
-
+                console.log('select invoice')
                 // Drop all should there be any
                 this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
 
@@ -1872,7 +1872,6 @@
 
                     // Do set
                     targetObject.classList.add('iron-selected')
-
                 })
             }
 
