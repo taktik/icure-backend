@@ -360,7 +360,7 @@
             paper-spinner.center {
                 position: relative;
                 left: 50%;
-                top: 80px;
+                top: 33vh;
                 transform: translateX(-50%);
             }
 		</style>
@@ -387,6 +387,7 @@
 				</div>
 			</div>
 			<div class="contact-card-container">
+                <paper-spinner class="center" active="[[isLoadingDoc]]"></paper-spinner>
                 <template is="dom-if" if="[[list]]">
 				    <ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
                 </template>
@@ -396,11 +397,11 @@
                 <template is="dom-if" if="[[graphique]]">
                 </template>
                 <template is="dom-if" if="[[doc]]">
+
                 <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
 					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
                     <template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
 						<template is="dom-if" if="[[form.id]]">
-                            <paper-spinner class="center" active></paper-spinner>
 							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" current-contact="[[currentContact]]"
 													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
 													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
@@ -617,6 +618,10 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
             hiddenSubContactsId: {
                 type: Object,
                 value: {}
+            },
+            isLoadingDoc: {
+			    type: Boolean,
+                value: false
             }
 		};
 	}
@@ -785,21 +790,25 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 	_list(e) {
 		this.hideAll();
+		this.set('isLoadingDoc',true)
 		this.set('list', true);
 	}
 
 	_table(e) {
 		this.hideAll();
+        this.set('isLoadingDoc',true)
 		this.set('table', true);
 	}
 
 	_graphique(e) {
 		this.hideAll();
+        this.set('isLoadingDoc',true)
 		this.set('graphique', true);
 	}
 
 	_default(e) {
 		this.hideAll();
+        this.set('isLoadingDoc',true)
 		this.set('doc', true);
 	}
 
@@ -1065,7 +1074,6 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		if (!this.contacts) {
 			return;
 		}
-
 		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
 			ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
@@ -1109,6 +1117,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				}, [])).sortBy(f=>-f.created).value()
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
+			console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
+            if(this.contactsFormsAndDocuments[0].forms.length) {
+                this.set('isLoadingDoc',true)
+            } else {
+                this.set('isLoadingDoc',false)
+            }
 		});
 	}
 
