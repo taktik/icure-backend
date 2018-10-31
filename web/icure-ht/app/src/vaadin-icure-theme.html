@@ -34,6 +34,21 @@
 
             :host [part~="header-cell"]:not([part~="details-cell"]) {
             }
+
+            :host(#invoiceGrid) [part~=body-cell]:not([part~="details-cell"]){
+                background-color: var(--app-background-color);
+            }
+
+            :host(#invoiceGrid) [part~="footer-cell"]{
+                background-color: red;
+            }
+
+            :host(#invoiceGridDetail) [part~=body-cell]:not([part~="details-cell"]){
+                max-height: 48px;
+                overflow-y: auto;
+                align-items: flex-start;
+                padding-top: 14px;
+            }
         </style>
     </template>
 </dom-module>

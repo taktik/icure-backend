@@ -18,6 +18,7 @@
 <link rel="import" href="../../../../bower_components/vaadin-text-field/vaadin-text-area.html">
 <link rel="import" href="../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
@@ -47,14 +48,14 @@
 
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../spinner-style.html">
 
 <link rel="import" href="related-code-link.html">
 
 
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
-        <style>
-
+        <style include="spinner-style">
 
             .invoice-item {
                 height: 90px;
@@ -733,18 +734,17 @@
                 flex: auto;
             }
 
-            paper-item:hover .he-edit-btn-container {
-                display:inline-flex;
-            }
-
-            paper-item.iron-selected .he-edit-btn-container {
-                display:inline-flex;
-            }
+paper-button[disabled] {
+    background-color: var(--app-secondary-color-dark);
+    color: var(--app-text-color-disabled);
+    box-shadow: none;
+}
+        
 
             .he-edit-btn-container{
                 background: var(--app-text-color);
                 border-radius: 14px;
-                display: none;
+                display: inline-flex;
                 flex-flow: row-reverse wrap;
                 justify-content: space-between;
                 align-items: center;
@@ -752,8 +752,13 @@
                 width: 24px;
                 height: 24px;
                 overflow: hidden;
-                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1), opacity .33s ease;
                 cursor: pointer;
+                opacity: 0;
+            }
+            paper-item:hover .he-edit-btn-container,
+            paper-item.iron-selected .he-edit-btn-container {
+                opacity: 1;
             }
 
             .he-edit-btn-container.open{
@@ -769,28 +774,6 @@
             paper-item.iron-selected .he-edit-btn-container {
                 display:inline-flex;
             }
-
-            .he-edit-btn-container{
-                background: var(--app-text-color);
-                border-radius: 14px;
-                display: none;
-                flex-flow: row-reverse wrap;
-                justify-content: space-between;
-                align-items: center;
-                padding: 2px;
-                width: 24px;
-                height: 24px;
-                overflow: hidden;
-                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
-                cursor: pointer;
-            }
-
-            .he-edit-btn-container.open{
-                width: 90px;
-                display:inline-flex;
-                flex-flow: row-reverse nowrap;
-            }
-
 
             .he-edit-btn{
                 height: 24px;
@@ -1026,6 +1009,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
+                                <paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
@@ -1237,7 +1221,7 @@
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
-                        <paper-button class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
                             [[localize('can_eattest','Cancel eattest',language)]]
                         </paper-button>
                     </template>
@@ -1468,7 +1452,11 @@
                                 label: {"fr": "Médecin", "nl": "Arts", "en": "Physician"}
                             },
                             {
-                                id: "traineeDoctor",
+                                id: "traineesupervised",
+                                label: {"fr": "Méd.stag. superv.", "nl": "Stagiair arts", "en": "Superv. trainee"}
+                            },
+                            {
+                                id: "trainee",
                                 label: {"fr": "Médecin stagiaire", "nl": "Stagiair arts", "en": "Trainee physician"}
                             }
                         ]
@@ -1877,7 +1865,7 @@
 
             open() {
                 if (!this.user) return
-                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
+                Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
@@ -2167,12 +2155,22 @@
 
             _verifyTarification() {
                 if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
+                    this.isLoadingEattest = true
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
-                            this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                            this.selectedInvoice.careProviderType === 'traineesupervised' && hcp.supervisorId ?
+                                this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(sup =>
+                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                                    this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+                                    hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
+                                    this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                    this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference, sup.ssin, sup.nihii, sup.firstName, sup.lastName).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id)
+                                ))
+                                :
+                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
-                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
                                 this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
                         )
                         .then(r => {
@@ -2215,8 +2213,11 @@
                                 this.calculateTotalOfInvoice()
                                 console.log(this.selectedInvoice)
                             }
+                            return null
                         }).catch((e) => {
                         console.log("Exception", e)
+                    }).finally(() => {
+                        this.isLoadingEattest = false
                     })
 
                 } else {
@@ -2299,7 +2300,7 @@
             }
 
             analyzeCareProviderType(e) {
-                if (e.detail.value === "traineeDoctor") {
+                if (e.detail.value === "trainee") {
                     this.set("isTrainee", true)
                 } else {
                     this.set("isTrainee", false)
@@ -2876,7 +2877,7 @@
 
                     if(this.selectedInvoice.internshipNihii){
                         newCode.internship={
-                            cdHcParty: "traineeDoctor",
+                            cdHcParty: "trainee",
                             firstName: null,
                             idHcParty: this.selectedInvoice.internshipNihii,
                             idSsin: null,

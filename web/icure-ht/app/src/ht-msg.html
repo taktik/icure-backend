@@ -50,7 +50,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: grid;
                 grid-template-columns: 50% 50%;
                 grid-template-rows: 100%;
-                grid-template-rows: 100%;
             }
 
             ht-msg-detail{
@@ -104,8 +103,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     display:inherit;
                 }
 
-            }
+                #msg-invoice,
+                #msg-mycarenet {
+                    width: 100vw;
+                }
 
+            }
         </style>
         <div class="container">
             <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
@@ -211,13 +214,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('mycarenetLayout',true)
                     this.set('invoicesLayout', false)
                     this.set('otherLayout',false)
-                    //setTimeout(() => this.shadowRoot.querySelector("#msg-mycarenet").getMessages(),0)
+                    setTimeout(() => this.shadowRoot.querySelector("#msg-mycarenet").refresh(),0)
                 }else{
                     this.set('invoicesLayout', false)
                     this.set('mycarenetLayout',false)
                     this.set('otherLayout',true)
                 }
                 this.set('selectList', e.detail)
+                this._closeColumn(e)
             }
 
             handleMessageChange(e) {
