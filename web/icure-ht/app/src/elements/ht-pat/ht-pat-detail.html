@@ -1149,7 +1149,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					</paper-listbox>
 					<div class="submenus-container">
 							<collapse-button id="cb_ahelb">
-								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleSelectAll" elevation="">
+								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_active_hes" on-tap="toggleMenu" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('act_hea_pro','Active Health Problems',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu" hover="none"></paper-icon-button>
 								</paper-item>
@@ -1166,7 +1166,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button id="cb_ihelb">
-								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleSelectAll" elevation="">
+								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_inactive_hes" on-tap="toggleMenu" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('med_ant','Medical antecedents',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
@@ -1183,7 +1183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button id="cb_ishelb">
-								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_surgical_hes" on-tap="toggleSelectAll" elevation="">
+								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_surgical_hes" on-tap="toggleMenu" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('surg','Surgical',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
@@ -1200,7 +1200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button id="cb_frhelb">
-								<paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
+								<paper-item slot="sublist-collapse-item" id="_svc_group_familyrisks" class="menu-trigger menu-item" on-tap="toggleMenu">
 									<div class="one-line-menu list-title">[[localize('fam_ris','Family risks',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
@@ -1217,7 +1217,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button id="cb_rhelb">
-								<paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleSelectAll">
+								<paper-item slot="sublist-collapse-item" id="_svc_group_risks" class="menu-trigger menu-item" on-tap="toggleMenu">
 									<div class="one-line-menu list-title">[[localize('ris','Risks',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
@@ -1234,7 +1234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button id="cb_alhelb">
-								<paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleSelectAll">
+								<paper-item slot="sublist-collapse-item" id="_svc_group_allergies" class="menu-trigger menu-item" on-tap="toggleMenu">
 									<div class="one-line-menu list-title">[[localize('aller','Allergies',language)]]</div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>
@@ -1251,7 +1251,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
-								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleSelectAll">
+								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleMenu">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
 									<paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -1273,7 +1273,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</paper-listbox>
 							</collapse-button>
 							<collapse-button>
-								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleSelectAll" elevation="">
+								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleMenu" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('arc','Archive',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
 								</paper-item>

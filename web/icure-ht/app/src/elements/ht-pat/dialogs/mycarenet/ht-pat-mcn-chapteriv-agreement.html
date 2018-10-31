@@ -320,8 +320,9 @@
                 background: #e539353b;
                 font-weight: bold;
                 border-radius: 2px;
-                padding: 0 8px;
-                width: fit-content;
+                padding: 12px 8px;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             paper-listbox {
@@ -803,14 +804,14 @@
                                             <template is="dom-if" if="[[agreementResponse.errors.length]]">
                                                 <h4>Error(s)</h4>
                                                 <template is="dom-repeat" items="[[agreementResponse.errors]]" as="e">
-                                                    <p class="error">[[localizeObjectKey(e,'msg',language)]] [ code :
+                                                    <p class="error">[[localizeObjectKey(e,'msg',language)]] <br/>[ code :
                                                         [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
                                             </template>
                                             <template is="dom-if" if="[[agreementResponse.warnings.length]]">
                                                 <h4>Warning(s)</h4>
                                                 <template is="dom-repeat" items="[[agreementResponse.warnings]]" as="e">
-                                                    <p class="warning">[[localizeObjectKey(e,'msg',language)]] [ code :
+                                                    <p class="warning">[[localizeObjectKey(e,'msg',language)]] <br/>[ code :
                                                         [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
                                             </template>
@@ -939,8 +940,8 @@
             </div>
             <div class="buttons">
                 <div class="message">
-                    <div class="warning">[[warnings]]</div>
-                    <div class="error">[[errors]]</div>
+                    <template is="dom-if" if="[[agreementResponse.warnings.length]]"><div class="warning">[[warnings]]</div></template>
+                    <template is="dom-if" if="[[agreementResponse.errors.length]]"><div class="error">[[errors]]</div></template>
                 </div>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
                 </paper-button>
