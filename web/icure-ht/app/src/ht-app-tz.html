@@ -1358,12 +1358,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
-            _timeCheck(period = 300000) {
+            _timeCheck(period = 30000) {
                 setTimeout(() => {
                     if (this.api.tokenId) {
                         this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
-                                this._getToken().then(() => {
+                                this.uploadKeystoreAndCheckToken().then(() => {
                                     this._timeCheck()
                                 }).catch(() => this._timeCheck(10000))
                             } else {
@@ -1371,7 +1371,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }
                         }).catch(() => this._timeCheck(10000))
                     } else {
-                        this._timeCheck()
+                        this.uploadKeystoreAndCheckToken().then(() => {
+                            this._timeCheck()
+                        }).catch(() => this._timeCheck(10000))
                     }
                 }, period)
             }
@@ -1467,8 +1469,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _getToken() {
-                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+                return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')
                         this.$.eHealthStatus.classList.add('connected')
@@ -1477,10 +1479,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('api.token', res.token)
 
                         return res.tokenId
-                    }).catch(() => {
+                    }).catch((e) => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('connected')
                         this.$.eHealthStatus.classList.add('disconnected')
+                        throw(e)
                     })
                 )
             }
@@ -1529,36 +1532,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
                                 this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
-                                if (ok) {
-                                    this.api.loadUsersAndHcParties()
-                            if (this.credentials.ehpassword) {
-                                const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
-                                if (ehKeychain) {
-                                    this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
-                                        this.$.api.keystoreId = res.uuid
-                                        this._getToken()
-                                    })
-                                } else {
-                                    this.$.noehealth.classList.add("notification")
-
-                                    this.$.eHealthStatus.classList.remove('pending')
-                                    this.$.eHealthStatus.classList.remove('connected')
-                                    this.$.eHealthStatus.classList.add('disconnected')
-                                }
-                            } else {
-                                this.$.eHealthStatus.classList.remove('pending')
-                                this.$.eHealthStatus.classList.remove('connected')
-                                this.$.eHealthStatus.classList.add('disconnected')
-                            }
-                            const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                            if (!this.routeData || destPage !== this.routeData.page) {
-                                this.set('routeData.page', destPage)
-                            } else {
-                                this._routePageChanged(destPage)
-                            }
-                                } else {
-                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
-                                    this.$.registerKeyPairDialog.opened = true
+                                    if (ok) {
+                                        this.api.loadUsersAndHcParties()
+                                        this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
+                                        const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                        if (!this.routeData || destPage !== this.routeData.page) {
+                                            this.set('routeData.page', destPage)
+                                        } else {
+                                            this._routePageChanged(destPage)
+                                        }
+                                    } else {
+                                        this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                        this.$.registerKeyPairDialog.opened = true
                                 }
                             })
                         } else {
@@ -1579,6 +1564,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     sessionStorage.removeItem('auth')
                     this.set("credentials.error", "Wrong user or password")
                 }.bind(this))
+            }
+
+            uploadKeystoreAndCheckToken() {
+                if (this.credentials.ehpassword) {
+                    const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+                    if (ehKeychain) {
+                        return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                            this.$.api.keystoreId = res.uuid
+                            return this._getToken()
+                        }).catch((e) => {
+                            this.$.eHealthStatus.classList.remove('pending')
+                            this.$.eHealthStatus.classList.remove('connected')
+                            this.$.eHealthStatus.classList.add('disconnected')
+                            throw(e)
+                        })
+                    } else {
+                        this.$.noehealth.classList.add("notification")
+
+                        this.$.eHealthStatus.classList.remove('pending')
+                        this.$.eHealthStatus.classList.remove('connected')
+                        this.$.eHealthStatus.classList.add('disconnected')
+                    }
+                } else {
+                    this.$.eHealthStatus.classList.remove('pending')
+                    this.$.eHealthStatus.classList.remove('connected')
+                    this.$.eHealthStatus.classList.add('disconnected')
+                }
+                return Promise.resolve(null);
             }
 
             login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
