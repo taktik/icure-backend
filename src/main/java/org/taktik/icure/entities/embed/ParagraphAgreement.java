@@ -3,6 +3,7 @@ package org.taktik.icure.entities.embed;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ParagraphAgreement implements Serializable {
 	private Long timestamp;
@@ -19,6 +20,7 @@ public class ParagraphAgreement implements Serializable {
 
 	private String responseType;
 	private Map<String, String> refusalJustification;
+	private Set<String> verses;
 	private String coverageType;
 	private Double unitNumber;
 	private Double strength ;

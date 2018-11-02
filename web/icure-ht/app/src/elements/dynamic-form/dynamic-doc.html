@@ -115,7 +115,7 @@
 				</div>
 			</template>
 			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<pdf-element src="[[dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
+				<pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
 			</template>
 			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
 				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button><vaadin-button id="todayButton" part="today-button" on-tap="importPatient">
