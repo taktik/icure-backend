@@ -102,6 +102,8 @@
 
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
+
+            this.hcpartyiccLight = new api.iccHcpartyApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
@@ -237,6 +239,10 @@
 
         hcparty() {
             return this.hcpartyicc
+        }
+
+        hcpartyLight() {
+            return this.hcpartyiccLight
         }
 
         helement() {

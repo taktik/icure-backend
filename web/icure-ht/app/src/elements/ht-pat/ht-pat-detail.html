@@ -671,6 +671,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display:block;
 				@apply --paper-font-body2;
 				@apply --padding-32;
+				padding-top:16px;
 				padding-bottom:8px;
 			}
 			.contact-year:first-child{
@@ -1315,7 +1316,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</template>
 							<template is="dom-repeat" items="[[contactYears]]" as="contactYear">
 								<span class="contact-year" on-click="openToast">
-									[[contactYear.year]] <paper-spinner active="[[isLoadingDoc]]"></paper-spinner>
+									[[contactYear.year]]
 								</span>
 								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact,contactStatutChecked.*)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"
