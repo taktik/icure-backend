@@ -106,12 +106,16 @@
 				z-index:1;
 			}
 
+			.contact-card-frame {
+				padding-bottom: 64px;
+			}
+
 			.contact-title{
 				display:block;
 				@apply --paper-font-body2;
 				@apply --padding-32;
 				padding-bottom:8px;
-				padding-top: 32px;
+				padding-top: 16px;
 			}
 			/*.contact-title:first-child{
 				padding-top:0;
@@ -299,13 +303,14 @@
 			.add-forms-container {
 				position: absolute;
 				bottom: 48px;
-				left: 0;
+				right: 0;
 				background-color: var(--app-background-color-light);
 				opacity: .8;
 				padding: 8px 0;
 				border-radius: 2px;
 				max-width: 253px;
 			}
+
 			.floating-action-bar paper-fab-speed-dial-action {
 				--paper-fab-speed-dial-action-label-background: transparent;
 				--paper-fab-iron-icon: {
@@ -358,11 +363,22 @@
 			}
 
             paper-spinner.center {
-                position: relative;
+                position: absolute;
                 left: 50%;
-                top: 33vh;
-                transform: translateX(-50%);
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
             }
+
+			.paper-fab-container {
+				position:relative;
+			}
+
+			#prose-editor {
+				width: 90%;
+				height:90%;
+				padding-bottom: 24px;
+				max-width: 1024px;
+			}
 		</style>
 
 		<paper-item id="prescriptionError" class="notification-panel prescriptionError">
@@ -387,31 +403,38 @@
 				</div>
 			</div>
 			<div class="contact-card-container">
-                <paper-spinner class="center" active="[[isLoadingDoc]]"></paper-spinner>
-                <template is="dom-if" if="[[list]]">
-				    <ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
-                </template>
-                <template is="dom-if" if="[[table]]">
-                    <ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]" contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
-                </template>
-                <template is="dom-if" if="[[graphique]]">
-                </template>
-                <template is="dom-if" if="[[doc]]">
-
-                <template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
-					<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
-                    <template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
-						<template is="dom-if" if="[[form.id]]">
-							<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]" current-contact="[[currentContact]]"
-													 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]" services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
-													 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService" on-data-change="_refreshDrugs"></dynamically-loaded-form>
-						</template>
-						<template is="dom-repeat" items="[[form.docs]]">
-							<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+				<paper-spinner class="center" active="[[isLoadingDoc]]"></paper-spinner>
+				<template is="dom-if" if="[[list]]">
+					<ht-pat-detail-list id="dynamicallyListForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
+										contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-list>
+				</template>
+				<template is="dom-if" if="[[table]]">
+					<ht-pat-detail-table id="dynamicallyTableForm" api="[[api]]" user="[[user]]" patient="[[patient]]" contact="[[dof.ctc]]" health-elements="[[healthElements]]"
+										 contacts="[[contacts]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"></ht-pat-detail-table>
+				</template>
+				<template is="dom-if" if="[[graphique]]">
+				</template>
+				<template is="dom-if" if="[[doc]]">
+					<div class="contact-card-frame">
+					<template is="dom-repeat" items="[[contactsFormsAndDocuments]]" as="dof">
+						<span class="contact-title">[[dof.ctc.descr]] ([[dof.ctc.openingDate]])</span>
+						<template id="formsRepeat" is="dom-repeat" items="[[dof.forms]]" as="form">
+							<template is="dom-if" if="[[form.id]]">
+								<dynamically-loaded-form id="dynamicallyLoadedForm" api="[[api]]" user="[[user]]" patient="[[patient]]" form-id="[[form.id]]" contact="[[dof.ctc]]"
+														 current-contact="[[currentContact]]"
+														 main-health-elements="[[mainHealthElements]]" health-elements="[[healthElements]]" contacts="[[allContacts]]"
+														 services-map="[[servicesMap]]" i18n="[[i18n]]" language="[[language]]"
+														 resources="[[resources]]" on-edit-form="edit" on-form-deleted="formDeleted" on-new-service="_newService"
+														 on-data-change="_refreshDrugs" on-new-report="newReport"></dynamically-loaded-form>
+							</template>
+							<template is="dom-repeat" items="[[form.docs]]">
+								<dynamic-doc api="[[api]]" user="[[user]]" patient="[[patient]]" service="[[item]]" i18n="[[i18n]]" language="[[language]]"
+											 resources="[[resources]]" title="[[item.label]]"></dynamic-doc>
+							</template>
 						</template>
 					</template>
+					</div>
 				</template>
-                </template>
 			</div>
 			<div id="floating-action-bar" class="floating-action-bar">
 				<template is="dom-if" if="[[_hasCurrentContact(contacts)]]">
@@ -419,14 +442,16 @@
 						<paper-button class="add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('add_for','Add forms',language)]]</paper-button>
 					</template>
 					<template is="dom-if" if=[[showAddFormsContainer]]>
-						<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon ic on="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
+						<div class="paper-fab-container">
+							<paper-button class="close-add-forms-btn action-btn" on-tap="_toggleAddActions"><iron-icon icon="[[_actionIcon(showAddFormsContainer)]]" ></iron-icon>[[localize('clo','Close',language)]]</paper-button>
+							<div class="add-forms-container">
+								<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
+								<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
+							</div>
+						</div>
 					</template>
-					<div class="add-forms-container" hidden$="[[!showAddFormsContainer]]">
-						<paper-fab-speed-dial-action icon="vaadin:chart-line" on-tap="addMedicalHistory">[[localize('med_his','Medical history',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="vaadin:doctor-briefcase" on-tap="addConsultation">[[localize('con','Consultation',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="vaadin:records" on-tap="addOther">[[localize('oth_for','Other form',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="editor:attach-file" on-tap="addDocument">[[localize('add_doc','Add document',language)]]</paper-fab-speed-dial-action>
-					</div>
 					<div id="prescribeBtnCtnr" on-tap="_displayPrescriptionError">
 						<paper-button id="prescribeBtn" class="prescribe-btn action-btn" on-tap="_prescribe" disabled="[[!_canPrescribe(api.tokenId,patient.ssin,servicesMap.*,currentContact.services.*,_drugsRefresher)]]">
 							<iron-icon icon="vaadin:pills" ></iron-icon>
@@ -507,6 +532,12 @@
 		</paper-dialog>
 
 		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+		<paper-dialog id="prose-editor" no-cancel-on-outside-click no-cancel-on-esc-key><prose-editor></prose-editor>
+			<div class="prose-buttons">
+			<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+			<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('sav','Save',language)]]</paper-button>
+		</div>
+		</paper-dialog>
 		<canvas id="barCode"></canvas>
 	</template>
 	<script>
@@ -515,6 +546,7 @@ import jsPDF from 'jspdf/dist/jspdf.min';
 import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
+import '../prose-editor/prose-editor/prose-editor';
 
 class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -1118,7 +1150,8 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 			console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-            if(this.contactsFormsAndDocuments[0].forms.length) {
+            if(this.contactsFormsAndDocuments && this.contactsFormsAndDocuments[0] &&
+				this.contactsFormsAndDocuments[0].forms && this.contactsFormsAndDocuments[0].forms.length) {
                 this.set('isLoadingDoc',true)
             } else {
                 this.set('isLoadingDoc',false)
@@ -1158,6 +1191,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		Polymer.dom(this.root).querySelector("#serviceFilterPanel").refreshIcons();
 	}
 
+	newReport() {
+		this.$['prose-editor'].open()
+	}
 }
 
 customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);
