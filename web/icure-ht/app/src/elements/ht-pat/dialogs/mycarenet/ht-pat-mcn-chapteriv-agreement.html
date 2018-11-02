@@ -113,8 +113,6 @@
                     color: var(--app-text-color-light);
                     background: var(--app-primary-color);
                 };
-                border-top: 1px solid var(--app-background-color-dark);
-                border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             .bottom-btn-container {
@@ -162,7 +160,6 @@
                 align-self: stretch;
                 overflow-y: overlay;
                 flex-grow: 1;
-                border-bottom: 1px solid var(--app-background-color-darker);
             }
 
             page {
@@ -659,24 +656,19 @@
                 flex-grow: 1;
                 border: .5px solid var(--app-background-color-dark);
                 box-sizing: border-box;
-                padding: 5px;
+                padding: 4px 12px;
                 box-sizing: border-box;
             }
             /*div.one-line *:not(:first-child) {*/
                 /*margin-left: gutter;*/
             /*}*/
-            h3 {
-                font-size: 1.8em;
-                margin-bottom: 10px;
-            }
             h4 {
                 clear: both;
                 font-size: 1.5em;
-                margin-bottom: 0;
             }
             #insurabilities-list {
                 height: auto;
-                margin: 5px auto;
+                margin: 8px auto;
             }
         </style>
 
@@ -849,17 +841,17 @@
                                                 <div class="one-line">
                                                         <template is="dom-if" if="[[t.accepted]]">
                                                             <div class="fleft third">
-                                                            <p><b>[[localize('status','Status',language)]]:</b><br />
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
                                                                 [[localize('agreed','Agreement conceded',language)]]</p></div>
                                                         </template>
                                                         <template is="dom-if" if="[[t.inTreatment]]">
                                                             <div class="fleft third">
-                                                            <p><b>[[localize('status','Status',language)]]:</b><br />
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
                                                                 [[localize('req_in_tre','Request in treatment',language)]]</p></div>
                                                         </template>
                                                         <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
                                                             <div class="fleft third">
-                                                            <p><b>[[localize('status','Status',language)]]:</b><br />
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
                                                                 [[localize('req_in_tre','Request rejected',language)]]</p>
                                                             <p>[[localize('ref_jus','Justification of refusal',language)]]:
                                                                 <template is="dom-if" if="[[_isFrench(language)]]">
@@ -871,20 +863,20 @@
                                                             </p></div>
                                                         </template>
                                                         <div class="fleft third">
-                                                            <p><b>[[localize('ref_io','Reference IO',language)]]:</b><br /> [[t.decisionReference]]</p>
+                                                            <p><b>[[localize('ref_io','Reference IO',language)]]:</b> [[t.decisionReference]]</p>
                                                         </div>
                                                     <template is="dom-if" if="[[t.start]]">
                                                         <div class="fleft third">
-                                                            <p><b>[[localize('from','From',language)]]:</b><br /> [[_formatDate(t.start)]]</p></div>
+                                                            <p><b>[[localize('from','From',language)]]:</b> [[_formatDate(t.start)]]</p></div>
                                                     </template>
                                                         <template is="dom-if" if="[[t.end]]">
                                                             <div class="fleft third">
-                                                                <p><b>[[localize('to','to',language)]]:</b><br /> [[_formatDate(t.end)]]</p></div>
+                                                                <p><b>[[localize('to','to',language)]]:</b> [[_formatDate(t.end)]]</p></div>
                                                         </template>
                                                 </div>
 
                                                 <h4>[[localize('medications','Medications',language)]]</h4>
-                                                <vaadin-grid id="insurabilities-list" class="material m5auto"
+                                                <vaadin-grid id="insurabilities-list" class="material"
                                                              items="[[_mpps(t.paragraph, agreementMpps.*)]]"
                                                              active-item="{{selectedMedication}}">
                                                     <vaadin-grid-column flex-grow="10">
@@ -1207,6 +1199,7 @@
             }
 
             _displayedParagraphChanged() {
+                const grid = this.shadowRoot.querySelector('#insurabilities-list')
                 if (this.displayedParagraph && this.displayedParagraph.id) {
                     (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('checkedVerses', [])
@@ -1214,12 +1207,14 @@
                     const paragraph = this.displayedParagraph.id.split('/')[0]
                     ;(this.displayedParagraph.paragraphInfo ? Promise.resolve(this.displayedParagraph.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', paragraph))
                         .then(pi => {
+                            console.log("pi",pi)
                             this.set('paragraph', pi)
                             this.set('_isLoadingParagraph',false)
                             return this.api.fhc().Chaptercontroller().getAddedDocumentsUsingGET('IV', paragraph)
                         })
                         .then(addedDocuments => {
-                            console.log(addedDocuments)
+                            console.log("added",addedDocuments)
+                            console.log(grid)
                             this.set('addedDocuments', addedDocuments)
                         })
 
