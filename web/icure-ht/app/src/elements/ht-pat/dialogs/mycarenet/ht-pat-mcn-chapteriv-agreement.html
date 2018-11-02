@@ -655,7 +655,7 @@
                 flex-wrap: wrap;
             }
             div.one-line > .fleft {
-                flex: 1 0 33%;
+                flex: 1 0 25%;
                 flex-grow: 1;
                 border: .5px solid var(--app-background-color-dark);
                 box-sizing: border-box;
@@ -842,21 +842,24 @@
                                                         [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
                                             </template>
+
                                             <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
-                                                <h3>[[localize('agr_res','Agreement response',language)]],
-                                                    [[_formatDateTime(t.timestamp)]]</h3>
+                                                <h4>[[localize('agr_res','Agreement response',language)]],
+                                                    [[_formatDateTime(t.timestamp)]]</h4>
                                                 <div class="one-line">
-                                                    <div class="fleft third">
                                                         <template is="dom-if" if="[[t.accepted]]">
-                                                            <p><b>[[localize('status','Status',language)]]:</b>
-                                                                [[localize('agreed','Agreement conceded',language)]]</p>
+                                                            <div class="fleft third">
+                                                            <p><b>[[localize('status','Status',language)]]:</b><br />
+                                                                [[localize('agreed','Agreement conceded',language)]]</p></div>
                                                         </template>
                                                         <template is="dom-if" if="[[t.inTreatment]]">
-                                                            <p><b>[[localize('status','Status',language)]]:</b>
-                                                                [[localize('req_in_tre','Request in treatment',language)]]</p>
+                                                            <div class="fleft third">
+                                                            <p><b>[[localize('status','Status',language)]]:</b><br />
+                                                                [[localize('req_in_tre','Request in treatment',language)]]</p></div>
                                                         </template>
                                                         <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
-                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                            <div class="fleft third">
+                                                            <p><b>[[localize('status','Status',language)]]:</b><br />
                                                                 [[localize('req_in_tre','Request rejected',language)]]</p>
                                                             <p>[[localize('ref_jus','Justification of refusal',language)]]:
                                                                 <template is="dom-if" if="[[_isFrench(language)]]">
@@ -865,20 +868,49 @@
                                                                 <template is="dom-if" if="[[!_isFrench(language)]]">
                                                                     <span class="error">[[t.refusalJustification.nl]]</span>
                                                                 </template>
-                                                            </p>
+                                                            </p></div>
                                                         </template>
-                                                    </div>
-                                                    <div class="fleft third">
-                                                        <p><b>[[localize('ref_io','Reference IO',language)]]:</b> [[t.decisionReference]]</p>
-                                                    </div>
-                                                    <div class="fleft third">
-                                                        <p><b>[[localize('from','From',language)]]:</b> [[_formatDate(t.start)]]</p>
-                                                    </div>
+                                                        <div class="fleft third">
+                                                            <p><b>[[localize('ref_io','Reference IO',language)]]:</b><br /> [[t.decisionReference]]</p>
+                                                        </div>
+                                                    <template is="dom-if" if="[[t.start]]">
+                                                        <div class="fleft third">
+                                                            <p><b>[[localize('from','From',language)]]:</b><br /> [[_formatDate(t.start)]]</p></div>
+                                                    </template>
+                                                        <template is="dom-if" if="[[t.end]]">
+                                                            <div class="fleft third">
+                                                                <p><b>[[localize('to','to',language)]]:</b><br /> [[_formatDate(t.end)]]</p></div>
+                                                        </template>
                                                 </div>
 
+                                                <h4>[[localize('medications','Medications',language)]]</h4>
+                                                <vaadin-grid id="insurabilities-list" class="material m5auto"
+                                                             items="[[_mpps(t.paragraph, agreementMpps.*)]]"
+                                                             active-item="{{selectedMedication}}">
+                                                    <vaadin-grid-column flex-grow="10">
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="mut">
+                                                                [[localize('medication','Medication',language)]]
+                                                            </vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>
+                                                            <div class="cell frozen">[[item.name]])</div>
+                                                        </template>
+                                                    </vaadin-grid-column>
+                                                    <vaadin-grid-column flex-grow="1">
+                                                        <template class="header">
+                                                            <vaadin-grid-sorter path="periodStart">
+                                                                [[localize('selected','Selected',language)]]
+                                                            </vaadin-grid-sorter>
+                                                        </template>
+                                                        <template>
+                                                            <div class="cell frozen">
+                                                                <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
+                                                            </div>
+                                                        </template>
+                                                    </vaadin-grid-column>
+                                                </vaadin-grid>
 
-
-                                                <!--<p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>-->
                                                 <h4>[[localize('tec_dat','Technical data',language)]]</h4>
                                                 <div class="one-line">
                                                     <template is="dom-if" if="[[t.ioRequestReference]]">
@@ -907,33 +939,6 @@
                                                         </div>
                                                     </template>
                                                 </div>
-                                                <h4>[[localize('medications','Medications',language)]]</h4>
-                                                <vaadin-grid id="insurabilities-list" class="material m5auto"
-                                                             items="[[_mpps(t.paragraph, agreementMpps.*)]]"
-                                                             active-item="{{selectedMedication}}">
-                                                    <vaadin-grid-column flex-grow="10">
-                                                        <template class="header">
-                                                            <vaadin-grid-sorter path="mut">
-                                                                [[localize('medication','Medication',language)]]
-                                                            </vaadin-grid-sorter>
-                                                        </template>
-                                                        <template>
-                                                            <div class="cell frozen">[[item.name]])</div>
-                                                        </template>
-                                                    </vaadin-grid-column>
-                                                    <vaadin-grid-column flex-grow="1">
-                                                        <template class="header">
-                                                            <vaadin-grid-sorter path="periodStart">
-                                                                [[localize('selected','Selected',language)]]
-                                                            </vaadin-grid-sorter>
-                                                        </template>
-                                                        <template>
-                                                            <div class="cell frozen">
-                                                                <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
-                                                            </div>
-                                                        </template>
-                                                    </vaadin-grid-column>
-                                                </vaadin-grid>
                                             </template>
                                         </template>
                                     </div>
