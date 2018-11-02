@@ -102,6 +102,8 @@
 
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
+
+            this.hcpartyiccLight = new api.iccHcpartyApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
@@ -239,6 +241,10 @@
             return this.hcpartyicc
         }
 
+        hcpartyLight() {
+            return this.hcpartyiccLight
+        }
+
         helement() {
             return this.helementicc
         }
@@ -371,21 +377,52 @@
             this.registry[domain] = {listeners:[], entities:{}}
         }
 
-        register(entity, domain) {
-            if (!entity) { return entity }
+        /**
+         * returns a Promise that will resolve when the current tail of the promise chain for this object resolves or that resolves immediately if the current chain is empty
+         *
+         * The promise resolves with two args in an array. The one that has been passed to the resolve and the next promise to resolve in order to make the queue advance
+         *
+         * @param entity
+         * @param domain
+         * @returns {*}
+         */
+        queue(entity, domain) {
+            if (!entity || !entity.id) { return Promise.resolve([entity, undefined]) }
+            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}, queues:{}})
 
-            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}})
+            let res = null
+            const defer = new Promise((resolve) => {
+                res = resolve
+            })
+            defer.resolve = res
+
+            const thisPromise = reg.queues[entity.id] || Promise.resolve(entity)
+            reg.queues[entity.id] = defer
+
+            thisPromise.uuid = this.crypto().randomUuid()
+
+            console.log('' + thisPromise.uuid + ' pending');
+            return thisPromise.then(e => { console.log('' + thisPromise.uuid + ' resolved'); return ([e, defer])})
+        }
+
+        register(entity, domain, defer) {
+            if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
+
+            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}, queues:{}})
             let current = reg.entities[entity.id]
-            if (current) {
+            if (current && (!current.rev || Number(current.rev.split('-')[0])) < Number(entity.rev.split('-')[0])) {
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
                 reg.listeners.forEach(l=>{
                     if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
                 })
-            } else {
+            } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
             }
+
+            defer && defer.resolve(current)
+
             return current
         }
 
