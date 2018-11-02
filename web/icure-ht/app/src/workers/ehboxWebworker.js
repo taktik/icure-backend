@@ -39,18 +39,19 @@ onmessage = e => {
         const docxApi           = new iccXApi.IccDocumentXApi(iccHost, iccHeaders, iccCryptoXApi)
         const iccMessageXApi    = new iccXApi.IccMessageXApi(iccHost, iccHeaders, iccCryptoXApi)
 
-        const treatMessage =  (message,boxId) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
-            .then(fullMessage => msgApi.findMessagesByTransportGuid(boxId+":"+message.id, null, null, 1).then(existingMess => [fullMessage, existingMess]))
+        const treatMessage = (message, boxId) => ehboxApi.getFullMessageUsingGET(keystoreId, tokenId, ehpassword, boxId, message.id)
+            .then(fullMessage =>
+                msgApi.findMessagesByTransportGuid(boxId + ":" + message.id, null, null, 1)
+                    .then(existingMess => [fullMessage, existingMess])
+            )
             .then(([fullMessage, existingMess]) => {
                 console.log(fullMessage)
-                if(existingMess.rows.length > 0){
+                if (existingMess.rows.length > 0) {
                     console.log("Message found")
 
                     const existingMessage = existingMess.rows[0]
 
-                    if(existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))){
-                        return fullMessage.id
-                    }
+                    return (existingMessage.created !== null && existingMessage.created < (Date.now() - (24 * 3600000))) ? fullMessage.id : null
                 } else {
                     console.log('Message not found')
 
@@ -58,14 +59,14 @@ onmessage = e => {
                     let receivedDate = new Date().getTime()
 
                     let newMessage = {
-                        created:                createdDate,
-                        fromAddress:            getFromAddress(fullMessage.sender),
-                        subject:                (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
-						metas:                  fullMessage.customMetas,
-                        toAddresses:            [boxId],
-                        fromHealthcarePartyId:  "",
-                        transportGuid:          boxId+":"+fullMessage.id,
-                        received:               receivedDate
+                        created: createdDate,
+                        fromAddress: getFromAddress(fullMessage.sender),
+                        subject: (fullMessage.document && fullMessage.document.title) || fullMessage.errorCode + " " + fullMessage.title,
+                        metas: fullMessage.customMetas,
+                        toAddresses: [boxId],
+                        fromHealthcarePartyId: "",
+                        transportGuid: boxId + ":" + fullMessage.id,
+                        received: receivedDate
 
                     }
 
@@ -74,37 +75,39 @@ onmessage = e => {
                         .then(createdMessage => {
                             console.log(createdMessage)
                             Promise.all((fullMessage.document ? [fullMessage.document] : []).concat(fullMessage.annex || []).map(a => a &&
-									docxApi.newInstance(user, createdMessage, {
-										documentLocation:   (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
-										documentType:       'result', //Todo identify message and set type accordingly
-										mainUti:            docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/,'$1')),
-										name:               a.title
-									})
-										.then(d => docApi.createDocument(d))
-										.then(createdDocument => {
-											let byteContent = iccUtils.base64toArrayBuffer(a.content)
-											return [createdDocument, byteContent]
-										})
-										.then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
-								)
+                                docxApi.newInstance(user, createdMessage, {
+                                    documentLocation: (fullMessage.document && a.content === fullMessage.document.content) ? 'body' : 'annex',
+                                    documentType: 'result', //Todo identify message and set type accordingly
+                                    mainUti: docxApi.uti(a.mimeType, a.filename && a.filename.replace(/.+\.(.+)/, '$1')),
+                                    name: a.title
+                                })
+                                    .then(d => docApi.createDocument(d))
+                                    .then(createdDocument => {
+                                        let byteContent = iccUtils.base64toArrayBuffer(a.content)
+                                        return [createdDocument, byteContent]
+                                    })
+                                    .then(([createdDocument, byteContent]) => docApi.setAttachment(createdDocument.id, null, byteContent))
+                                )
                             )
                         })
                         .then(() => null) //DO NOT RETURN A MESSAGE ID TO BE DELETED
                 }
             })
 
-		boxIds && boxIds.forEach(boxId =>{
-        ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores).then(messages => {
-            let p = Promise.resolve([])
-            messages.forEach(m => {
-					p = p.then(acc => treatMessage(m,boxId).then(id => id ? acc.concat([id]) : acc))
-            })
-            return p
-			}).then(toBeDeletedIds => {
-				if (!boxId.startsWith("BIN")) Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN" + boxId)))
-			})
-		})
-
+        boxIds && boxIds.forEach(boxId =>
+            ehboxApi.loadMessagesUsingPOST(keystoreId, tokenId, ehpassword, boxId, 100, alternateKeystores)
+                .then(messages => {
+                    let p = Promise.resolve([])
+                    messages.forEach(m => {
+                        p = p.then(acc => treatMessage(m, boxId).then(id => id ? acc.concat([id]) : acc).catch(e => {console.log("Error loading message "+m.id); return acc}))
+                    })
+                    return p
+                })
+                .then(toBeDeletedIds =>
+                    (!boxId.startsWith("BIN")) ? Promise.all(toBeDeletedIds.map(id => ehboxApi.moveMessagesUsingPOST(keystoreId, tokenId, ehpassword, [id], boxId, "BIN" + boxId))) : Promise.resolve([])
+                )
+                .catch(() => console.log("Error while fetching messages"))
+        )
     }
 };
 

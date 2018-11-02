@@ -329,7 +329,7 @@
                 background: transparent;
             }
 
-            .annexes {
+            .addedDocuments {
                 position: absolute;
                 top: 16px;
                 right: 16px;
@@ -760,11 +760,11 @@
                                         <h2>[[localize('chapter','Chapter',language)]] [[paragraph.chapterName]],
                                             [[localize('paragraph','Paragraph',language)]]
                                             [[paragraph.paragraphName]]</h2>
-                                        <template is="dom-if" if="[[annexes.length]]">
-                                            <paper-dropdown-menu id="annexes" class="annexes" label="Annexes"
+                                        <template is="dom-if" if="[[addedDocuments.length]]">
+                                            <paper-dropdown-menu id="addedDocuments" class="addedDocuments" label="Annexes"
                                                                 on-selected-item-changed="_downloadAnnex">
                                                 <paper-listbox slot="dropdown-content" class="dropdown-content">
-                                                    <template id="annexesDr" is="dom-repeat" items="[[annexes]]">
+                                                    <template id="addedDocumentsDr" is="dom-repeat" items="[[addedDocuments]]">
                                                         <paper-item>
                                                             <template is="dom-if" if="[[_isFrench(language)]]">
                                                                 [[item.descrFr]]
@@ -1154,9 +1154,9 @@
                             this.set('_isLoadingParagraph',false)
                             return this.api.fhc().Chaptercontroller().getAddedDocumentsUsingGET('IV', paragraph)
                         })
-                        .then(annexes => {
-                            console.log(annexes)
-                            this.set('annexes', annexes)
+                        .then(addedDocuments => {
+                            console.log(addedDocuments)
+                            this.set('addedDocuments', addedDocuments)
                         })
 
                 } else {
@@ -1267,9 +1267,6 @@
                                 ioRequestReference: t.ioRequestReference,
                                 ioDecisionReference: t.decisionReference,
                                 ioDecisionEndOfValidity: t.end,
-                                restStrength: t.restStrength,
-                                restStrengthUnit: t.restStrengthUnit,
-                                restUnitNumber: t.restUnitNumber,
                                 start: t.start,
                                 strength: t.strength,
                                 strengthUnit: t.strengthUnit,
@@ -1294,7 +1291,7 @@
             _requestChapter4(e) {
                 this.set('agreementResponse', {})
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
-                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) === 1 ) ? "extension" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
                             null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
@@ -1344,7 +1341,7 @@
 
             _downloadAnnex(e) {
                 if (e && e.detail && e.detail.value) {
-                    const tpl = this.root.querySelector('#annexesDr').modelForElement(e.detail.value)
+                    const tpl = this.root.querySelector('#addedDocumentsDr').modelForElement(e.detail.value)
                     if (tpl.item.addressUrl) {
                         const url = `${this.api.fhcHost}/chap4/sam/docpreview/IV/${this.paragraph.paragraphName}/${tpl.item.verseSeq}/${tpl.item.documentSeq}/${this.language}`
                         var a = document.createElement('a')
@@ -1360,7 +1357,7 @@
                         }).finally(() => a.remove())
                     }
                 }
-                this.root.querySelector('#annexes').set('value', null)
+                this.root.querySelector('#addedDocuments').set('value', null)
             }
 
             _appendicesTokenChanged() {
@@ -1391,7 +1388,7 @@
                     if (files.length) {
                         vaadinUpload.uploadFiles(files)
                         files.forEach(f => {
-                            const regAnnex = this.annexes.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
+                            const regAnnex = this.addedDocuments.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
                             this.appendicesTokens.map(x => x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {
                             descr: f.name.replace(/^(.{5})...+(.{5})$/, '$1…$2'),
                             id: f.doc.id,

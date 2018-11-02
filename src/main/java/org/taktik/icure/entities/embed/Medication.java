@@ -56,6 +56,7 @@ public class Medication implements Serializable {
 	List<RegimenItem> regimen;
 
 	Map<String, Content> options; //ioRequestReference -> String, ioDecisionReference -> String, ioDecisionEndOfValidity -> Date, ioChapter4Paragraph : String, ioChapter4Verses: String
+	Map<String, ParagraphAgreement> agreements;
 
 	public Map<String, Content> getOptions() {
 		return options;
@@ -159,6 +160,14 @@ public class Medication implements Serializable {
 
 	public void setDuration(Duration duration) {
 		this.duration = duration;
+	}
+
+	public Map<String, ParagraphAgreement> getAgreements() {
+		return agreements;
+	}
+
+	public void setAgreements(Map<String, ParagraphAgreement> agreements) {
+		this.agreements = agreements;
 	}
 
 	public String toString() {
