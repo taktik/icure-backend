@@ -260,7 +260,7 @@
 									<template is="dom-if" if="[[_isSubForm(layoutItem)]]">
 										<dynamic-sub-form id="sf_[[layoutItem.name]]" label="[[layoutItem.label]]" key="[[layoutItem.name]]" layout-item="[[layoutItem]]" api="[[api]]" user="[[user]]"
 										 i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" sub-contexts="[[_subForms(layoutItem,dataMap.*)]]"
-										 on-delete-subform="_deleteSubForm" on-add-subform="_addSubForm" read-only="[[readOnly]]"></dynamic-sub-form>
+										 on-delete-subform="_deleteSubForm" on-add-subform="_addSubForm" read-only="[[readOnly]]" no-print="[[noPrint]]"></dynamic-sub-form>
 									</template>
 								</template>
 							</template>
@@ -271,7 +271,7 @@
 			<template is="dom-if" if="[[showEdit]]">
 				<paper-icon-button class="edit-print-pat-details-btn" icon="create" on-tap="editForm"></paper-icon-button>
 			</template>
-			<template is="dom-if" if="[[!showEdit]]">
+			<template is="dom-if" if="[[_none(showEdit,noPrint)]]">
 					<paper-icon-button class="edit-print-pat-details-btn" icon="print" on-tap="toggleReportsList"></paper-icon-button>
 					<div class="reports-list-container" hidden$="[[!reportsListDisplayed]]">
 						<paper-fab-speed-dial-action icon="vaadin:file-o" on-tap="newReport" id="report">[[localize('new_rep','New report',language)]]</paper-fab-speed-dial-action>
@@ -322,6 +322,10 @@
 						type: Boolean,
 						value: false
 					},
+                    noPrint: {
+                        type: Boolean,
+                        value: false
+                    },
 					title: {
 						type: String,
 						value: null
@@ -643,6 +647,10 @@
 			newReport() {
                 this.dispatchEvent(new CustomEvent('new-report', {composed: true, bubbles: true}));
             }
+
+            _none(a,b) {
+			    return !a && !b
+			}
 		}
 
 		customElements.define(DynamicForm.is, DynamicForm);
