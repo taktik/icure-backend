@@ -403,14 +403,13 @@
                         if (currentValue === this.leftFilterValue) {
                             console.log("Triggering search for " + this.leftFilterValue)
 
-                            console.log(this.tempoMessages)
                             const regexYear = new RegExp('[0-9]{4}');
                             const regexFullDate = new RegExp('[0-9]{2}[.\-/][0-9]{2}[.\-/][0-9]{4}');
                             const regexOa= new RegExp('[1-6|9]00');
                             (this.leftFilterValue.length===4 && regexYear.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(messages => this.api.moment(messages.received).format("YYYY")===this.leftFilterValue)) :
                             (this.leftFilterValue.length>=8 && regexFullDate.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(messages => this.api.moment(messages.received).format("DDMMYYYY")===this.parseDate(this.leftFilterValue))) :
                             (this.leftFilterValue.length===3 && regexOa.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(messages => (messages.fromAddress===this.leftFilterValue))) :
-                                this.set("messages",this.tempoMessages)
+                            this.set("messages",this.tempoMessages.filter(messages => messages.subject.toLowerCase().includes(this.leftFilterValue.toLowerCase()) || ((messages.patient) &&((messages.patient.firstName.includes(this.leftFilterValue)) || (messages.patient.lastName.includes(this.leftFilterValue))))))
 
 
                         } else {
