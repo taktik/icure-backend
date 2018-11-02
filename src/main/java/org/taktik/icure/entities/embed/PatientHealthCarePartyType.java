@@ -19,5 +19,5 @@
 package org.taktik.icure.entities.embed;
 
 public enum PatientHealthCarePartyType {
-	doctor, referral, medicalhouse, retirementhome, hospital, other
+	doctor, referral, medicalhouse, retirementhome, hospital, other, referringphysician
 }
