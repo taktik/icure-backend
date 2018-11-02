@@ -1194,6 +1194,13 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	newReport() {
 		this.$['prose-editor'].open()
 	}
+
+    reset() {
+        const props = HtPatDetailCtcDetailPanel.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+        ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
+    }
+
 }
 
 customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);
