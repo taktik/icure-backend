@@ -176,11 +176,6 @@
                 overflow-y: auto;
             }
 
-            .detail-panel div.paragraph-content p{
-                padding-bottom: 12px;
-                border-bottom: 1px solid var(--app-background-color-dark);
-            }
-
             .chapterDateInfo {
                 font-size: 12px;
                 display: flex;
@@ -213,6 +208,7 @@
                 width: 100%;
                 height: 100%;
                 padding: 0;
+                overflow: hidden;
             }
 
             .chapter-text:focus::before, .chapter-text:focus::after {
@@ -651,6 +647,37 @@
                 left: 5px;
                 position: relative;
             }
+
+            div.one-line {
+                display: flex;
+                justify-content: space-between;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            div.one-line > .fleft {
+                flex: 1 0 33%;
+                flex-grow: 1;
+                border: .5px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+                padding: 5px;
+                box-sizing: border-box;
+            }
+            /*div.one-line *:not(:first-child) {*/
+                /*margin-left: gutter;*/
+            /*}*/
+            h3 {
+                font-size: 1.8em;
+                margin-bottom: 10px;
+            }
+            h4 {
+                clear: both;
+                font-size: 1.5em;
+                margin-bottom: 0;
+            }
+            #insurabilities-list {
+                height: auto;
+                margin: 5px auto;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -816,36 +843,72 @@
                                                 </template>
                                             </template>
                                             <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
-                                                <h4>[[localize('agr_res','Agreement response',language)]],
-                                                    [[_formatDateTime(t.timestamp)]]</h4>
-                                                <template is="dom-if" if="[[t.accepted]]">
-                                                    <p>[[localize('status','Status',language)]]:
-                                                        [[localize('agreed','Agreement conceded',language)]]</p>
-                                                </template>
-                                                <template is="dom-if" if="[[t.inTreatment]]">
-                                                    <p>[[localize('status','Status',language)]]:
-                                                        [[localize('req_in_tre','Request in treatment',language)]]</p>
-                                                </template>
-                                                <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
-                                                    <p>[[localize('status','Status',language)]]:
-                                                        [[localize('req_in_tre','Request rejected',language)]]</p>
-                                                    <p>[[localize('ref_jus','Justification of refusal',language)]]:
-                                                        <template is="dom-if" if="[[_isFrench(language)]]">
-                                                            <span class="error">[[t.refusalJustification.fr]]</span>
+                                                <h3>[[localize('agr_res','Agreement response',language)]],
+                                                    [[_formatDateTime(t.timestamp)]]</h3>
+                                                <div class="one-line">
+                                                    <div class="fleft third">
+                                                        <template is="dom-if" if="[[t.accepted]]">
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                                [[localize('agreed','Agreement conceded',language)]]</p>
                                                         </template>
-                                                        <template is="dom-if" if="[[!_isFrench(language)]]">
-                                                            <span class="error">[[t.refusalJustification.nl]]</span>
+                                                        <template is="dom-if" if="[[t.inTreatment]]">
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                                [[localize('req_in_tre','Request in treatment',language)]]</p>
                                                         </template>
-                                                    </p>
-                                                </template>
-                                                <p>[[localize('ref_io','Reference IO',language)]]: [[t.decisionReference]]</p>
-                                                <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
-                                                <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
+                                                        <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                                [[localize('req_in_tre','Request rejected',language)]]</p>
+                                                            <p>[[localize('ref_jus','Justification of refusal',language)]]:
+                                                                <template is="dom-if" if="[[_isFrench(language)]]">
+                                                                    <span class="error">[[t.refusalJustification.fr]]</span>
+                                                                </template>
+                                                                <template is="dom-if" if="[[!_isFrench(language)]]">
+                                                                    <span class="error">[[t.refusalJustification.nl]]</span>
+                                                                </template>
+                                                            </p>
+                                                        </template>
+                                                    </div>
+                                                    <div class="fleft third">
+                                                        <p><b>[[localize('ref_io','Reference IO',language)]]:</b> [[t.decisionReference]]</p>
+                                                    </div>
+                                                    <div class="fleft third">
+                                                        <p><b>[[localize('from','From',language)]]:</b> [[_formatDate(t.start)]]</p>
+                                                    </div>
+                                                </div>
+
+
+
+                                                <!--<p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>-->
                                                 <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                                <p>[[localize('req_ref_io','Request Reference IO',language)]]: [[t.ioRequestReference]]</p>
-                                                <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
+                                                <div class="one-line">
+                                                    <template is="dom-if" if="[[t.ioRequestReference]]">
+                                                        <div class="fleft third">
+                                                            <p><b>[[localize('req_ref_io','Request Reference IO',language)]]: </b>[[t.ioRequestReference]]</p>
+                                                        </div>
+                                                    </template>
+                                                    <template is="dom-if" if="[[t.responseType]]">
+                                                        <div class="fleft third">
+                                                            <p><b>[[localize('raw_res','Raw response',language)]]:</b> [[t.responseType]]</p>
+                                                        </div>
+                                                    </template>
+                                                    <template is="dom-if" if="[[agreementResponse.commonOutput.inputReference]]">
+                                                        <div class="fleft third">
+                                                            <p><b>commonInput:</b> [[agreementResponse.commonOutput.inputReference]]</p>
+                                                        </div>
+                                                    </template>
+                                                    <template is="dom-if" if="[[agreementResponse.commonOutput.nipReference]]">
+                                                        <div class="fleft third">
+                                                            <p><b>nipReference:</b> [[agreementResponse.commonOutput.nipReference]]</p>
+                                                        </div>
+                                                    </template>
+                                                    <template is="dom-if" if="[[agreementResponse.commonOutput.outputReference]]">
+                                                        <div class="fleft third">
+                                                            <p><b>commonOutput:</b> [[agreementResponse.commonOutput.outputReference]]</p>
+                                                        </div>
+                                                    </template>
+                                                </div>
                                                 <h4>[[localize('medications','Medications',language)]]</h4>
-                                                <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
+                                                <vaadin-grid id="insurabilities-list" class="material m5auto"
                                                              items="[[_mpps(t.paragraph, agreementMpps.*)]]"
                                                              active-item="{{selectedMedication}}">
                                                     <vaadin-grid-column flex-grow="10">
@@ -872,10 +935,6 @@
                                                     </vaadin-grid-column>
                                                 </vaadin-grid>
                                             </template>
-                                            <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                            <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                            <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                            <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
                                         </template>
                                     </div>
                                 </page>
