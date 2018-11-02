@@ -1668,7 +1668,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.getAlternateKeystores().then(alternateKeystores => {
 					this.worker.postMessage({
 						action: "loadEhboxMessage",
-						hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+						hcpartyBaseApi: this.api.hcpartyLight(),
 						fhcHost: this.api.fhc().host,
 						fhcHeaders: JSON.stringify(this.api.fhc().headers),
 						iccHost: this.api.host,

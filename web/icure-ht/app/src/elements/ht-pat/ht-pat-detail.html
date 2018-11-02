@@ -671,10 +671,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				display:block;
 				@apply --paper-font-body2;
 				@apply --padding-32;
+				padding-top:16px;
 				padding-bottom:8px;
-			}
-			.contact-year:first-child{
-				padding-top:0;
 			}
 
 			.contact-text{
@@ -1315,7 +1313,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</template>
 							<template is="dom-repeat" items="[[contactYears]]" as="contactYear">
 								<span class="contact-year" on-click="openToast">
-									[[contactYear.year]] <paper-spinner active="[[isLoadingDoc]]"></paper-spinner>
+									[[contactYear.year]]
 								</span>
 								<template is="dom-repeat" items="[[contactYear.contacts]]" as="contact" filter="[[contactFilter(selectedHealthcareElements, selectedHealthcareElements.*, timeSpanStart, timeSpanEnd, contactSearchString, contactFilters, contactFilters.*, currentContact,contactStatutChecked.*)]]" sort="compareContacts">
 									<paper-material id="ctc_[[contact.id]]"
@@ -2165,14 +2163,16 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _importGenIns() {
 	    if (this.curGenInsResp) {
-            this.set('patient.firstName', this.curGenInsResp.firstName);
-            this.set('patient.lastName', this.curGenInsResp.lastName);
-            this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
-            this.set('patient.gender', this.curGenInsResp.sex);
+	        this.api.queue(this.patient, 'patient').then (([pat, defer]) => {
+                this.set('patient.firstName', this.curGenInsResp.firstName);
+                this.set('patient.lastName', this.curGenInsResp.lastName);
+                this.set('patient.dateOfBirth', this.curGenInsResp.dateOfBirth);
+                this.set('patient.gender', this.curGenInsResp.sex);
 
-            this.api.patient().modifyPatient(this.patient).then(p => this.api.register(p,'patient')).then(p => {
-                this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
-                this.patient && (this.set('patient.rev', p.rev))
+                this.api.patient().modifyPatient(this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p,'patient',defer)).then(p => {
+                    this.dispatchEvent(new CustomEvent("patient-saved", {bubbles: true, composed: true}))
+                    this.patient && (this.set('patient.rev', p.rev))
+                })
             })
 	    }
 	}
@@ -3403,8 +3403,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                         ins.paymentApproval ? pi.parameters = _.assign(pi.parameters || {}, {paymentapproval: 'true'}) : delete pi.parameters.paymentapproval
 
                         if (patient === this.patient) {
-                            this.set('patient.insurabilities.0', pi)
-                            this.api.patient().modifyPatient(this.patient).then(p => this.api.register(p, 'patient'))
+                            this.api.queue(this.patient, 'patient').then (([pat, defer])  => {
+                                this.set('patient.insurabilities.0', pi)
+                                return this.api.patient().modifyPatient(this.patient).catch(e => defer.resolve(this.patient)).then(p => this.api.register(p, 'patient', defer))
+                            })
                         }
 
                     })
