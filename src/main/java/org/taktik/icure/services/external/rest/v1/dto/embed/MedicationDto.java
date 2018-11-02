@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.entities.embed.ParagraphAgreement;
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 
 public class MedicationDto implements Serializable {
@@ -48,6 +49,7 @@ public class MedicationDto implements Serializable {
 	List<RegimenItemDto> regimen;
 
 	Map<String, ContentDto> options;
+	Map<String, ParagraphAgreementDto> agreements;
 
 	public Map<String, ContentDto> getOptions() {
 		return options;
