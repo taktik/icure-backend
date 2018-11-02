@@ -229,7 +229,7 @@
                     box-shadow: var(--app-shadow-elevation-1);
                 }
                 .gridContainer.grid-pending {
-                    height: calc(100vh - 190px - 25px);
+                    height: calc(100vh - 190px - 30px);
                 }
 
                 .invoice-status {
@@ -489,6 +489,39 @@
                     --paper-input-container-focus-color: var(--app-primary-color);
                 }
 
+                .buttons {
+                    position: absolute;
+                    right: 0;
+                    bottom: 0;
+                    margin: 5px 15px;
+                }
+
+                .modal-button{
+                    --paper-button-ink-color: var(--app-secondary-color);
+                    background-color: var(--app-secondary-color);
+                    color: var(--app-text-color);
+                    font-weight: 700;
+                    font-size: 14px;
+                    height: 40px;
+                    min-width: 100px;
+                    padding: 10px 1.2em;
+                    text-transform: capitalize;
+                }
+
+                .modal-button--close,
+                .modal-button--cancel{
+                    background: transparent;
+                    color: var(--app-primary-color-dark);
+                    font-weight: 400;
+                }
+
+                .modal-button--save{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-secondary-color);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+
+                }
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -749,8 +782,10 @@
                         </vaadin-grid>
                     </div>
                 </div>
-                <paper-button on-tap="receiveInvoices" class="modal-button">Recevoir</paper-button>
-                <paper-button on-tap="sendInvoices" class="modal-button">Envoyer</paper-button>
+                <div class="buttons">
+                    <paper-button on-tap="receiveInvoices" class="modal-button">Recevoir</paper-button>
+                    <paper-button on-tap="sendInvoices" class="modal-button">Envoyer</paper-button>
+                </div>
             </template>
 
                 <template is="dom-if" if="[[!statusPending]]">

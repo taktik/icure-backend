@@ -18,6 +18,7 @@
 <link rel="import" href="../../../../bower_components/vaadin-text-field/vaadin-text-area.html">
 <link rel="import" href="../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
@@ -47,14 +48,14 @@
 
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../spinner-style.html">
 
 <link rel="import" href="related-code-link.html">
 
 
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
-        <style>
-
+        <style include="spinner-style">
 
             .invoice-item {
                 height: 90px;
@@ -279,7 +280,7 @@
             }
 
             .nmcl-descr {
-                overflow-y: auto;
+                overflow-y: hidden;
                 height: 332px;
             }
 
@@ -733,6 +734,13 @@
                 flex: auto;
             }
 
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
+            }
+        
+
             .he-edit-btn-container{
                 background: var(--app-text-color);
                 border-radius: 14px;
@@ -869,7 +877,11 @@
             .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
                 transform: rotate(180deg)
             }
-
+            paper-spinner.validAndTarif {
+                position: absolute;
+                top: 10px;
+                transform: translateX(-10px);
+            }
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -1001,6 +1013,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
+                                <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
@@ -1209,17 +1222,19 @@
 
                 </div>
                 <div class="buttons">
+                    <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
+                    <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
-                        <paper-button class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
                             [[localize('can_eattest','Cancel eattest',language)]]
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification">
+                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">
                                     [[localize('eTarif','Validation eTarif',language)]]
                                 </paper-button>
                             </template>
@@ -1231,13 +1246,13 @@
                         </template>
 
                         <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">
+                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">
                                 [[localize('eTarif','Validation eTarif',language)]]
                             </paper-button>
                         </template>
 
                         <template is="dom-if" if="[[isNmclVerified]]">
-                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable">
+                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
@@ -1443,7 +1458,11 @@
                                 label: {"fr": "Médecin", "nl": "Arts", "en": "Physician"}
                             },
                             {
-                                id: "traineeDoctor",
+                                id: "traineesupervised",
+                                label: {"fr": "Méd.stag. superv.", "nl": "Stagiair arts", "en": "Superv. trainee"}
+                            },
+                            {
+                                id: "trainee",
                                 label: {"fr": "Médecin stagiaire", "nl": "Stagiair arts", "en": "Trainee physician"}
                             }
                         ]
@@ -1793,8 +1812,15 @@
                     isEattestClosed:{
                         type:Boolean,
                         value:false
+                    },
+                    isValidate: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isJustif: {
+                        type: Boolean,
+                        value: false
                     }
-
                 }
 
             }
@@ -1809,7 +1835,7 @@
 
 
             _selectInvoice(e) {
-
+                console.log('select invoice')
                 // Drop all should there be any
                 this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
 
@@ -1846,13 +1872,12 @@
 
                     // Do set
                     targetObject.classList.add('iron-selected')
-
                 })
             }
 
             open() {
                 if (!this.user) return
-                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
+                Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
@@ -2142,12 +2167,23 @@
 
             _verifyTarification() {
                 if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
+                    this.set('isValidate',true)
+                    this.isLoadingEattest = true
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
-                            this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                            this.selectedInvoice.careProviderType === 'traineesupervised' && hcp.supervisorId ?
+                                this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(sup =>
+                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                                    this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+                                    hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
+                                    this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                    this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference, sup.ssin, sup.nihii, sup.firstName, sup.lastName).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id)
+                                ))
+                                :
+                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
-                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
                                 this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
                         )
                         .then(r => {
@@ -2190,8 +2226,12 @@
                                 this.calculateTotalOfInvoice()
                                 console.log(this.selectedInvoice)
                             }
+                            return null
                         }).catch((e) => {
                         console.log("Exception", e)
+                    }).finally(() => {
+                        this.isLoadingEattest = false
+                        this.set('isValidate',false)
                     })
 
                 } else {
@@ -2274,7 +2314,7 @@
             }
 
             analyzeCareProviderType(e) {
-                if (e.detail.value === "traineeDoctor") {
+                if (e.detail.value === "trainee") {
                     this.set("isTrainee", true)
                 } else {
                     this.set("isTrainee", false)
@@ -2284,6 +2324,7 @@
             _createInvoice() {
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
+                    this.set('isJustif',true)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".reimbursement", 0 - invoiceCode.reimbursement)
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".patientIntervention", 0 - invoiceCode.patientIntervention)
@@ -2322,6 +2363,7 @@
                                 })
                             }))
                 })
+                this.set('isJustif',false)
             }
 
             _invoicingCodeChange() {
@@ -2851,7 +2893,7 @@
 
                     if(this.selectedInvoice.internshipNihii){
                         newCode.internship={
-                            cdHcParty: "traineeDoctor",
+                            cdHcParty: "trainee",
                             firstName: null,
                             idHcParty: this.selectedInvoice.internshipNihii,
                             idSsin: null,

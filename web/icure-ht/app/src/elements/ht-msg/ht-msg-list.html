@@ -301,6 +301,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     left: 33vw;
                     top: 150px;
                 }
+                @media screen and (max-width:1025px) {
+                    .col-right {
+                        width: 100vw;
+                        transition: all .5s ease;
+                    }
+                    .col-right.mobile-open {
+                        height: calc(50vh - 64px);
+                    }
+                    #del-button {
+                        left: initial;
+                        right: 30px;
+                    }
+
+                    paper-spinner.center {
+                        left: 50vw;
+                    }
+                }
+
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">

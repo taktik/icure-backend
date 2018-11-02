@@ -400,13 +400,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 100%;
             }
 
-            .formNewHcp {
-                height: 350px;
-                width: 450px;
+            #ht-invite-hcp .buttons {
+                border-top: 1px solid var(--app-background-color-dark);
+                color: var(--app-text-color-light);
+            }
+            #ht-invite-hcp .buttons * {
+                background: var(--app-secondary-color-dark);
             }
 
-            .buttons {
-                height: 30px;
+            .formNewHcp {
+                height: 350px;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .top-gradient {
@@ -455,6 +460,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .logo:hover .logo-text {
                 visibility: visible;
                 transform: scaleX(1);
+            }
+
+            .modal-button{
+                --paper-button-ink-color: var(--app-secondary-color);
+                background-color: var(--app-secondary-color);
+                color: var(--app-text-color);
+                font-weight: 700;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
+            }
+
+            .modal-button--close,
+            .modal-button--cancel{
+                background: transparent;
+                color: var(--app-primary-color-dark);
+                font-weight: 400;
+            }
+
+            .modal-button--save{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+
             }
         </style>
 
@@ -1102,8 +1134,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
 
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation">[[localize('invite','Invite',language)]]</paper-button>
+                <paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
             </div>
         </paper-dialog>
         <paper-dialog id="ht-invite-hcp-link">
@@ -1326,12 +1358,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
-            _timeCheck(period = 300000) {
+            _timeCheck(period = 30000) {
                 setTimeout(() => {
                     if (this.api.tokenId) {
                         this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
-                                this._getToken().then(() => {
+                                this.uploadKeystoreAndCheckToken().then(() => {
                                     this._timeCheck()
                                 }).catch(() => this._timeCheck(10000))
                             } else {
@@ -1339,7 +1371,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }
                         }).catch(() => this._timeCheck(10000))
                     } else {
-                        this._timeCheck()
+                        this.uploadKeystoreAndCheckToken().then(() => {
+                            this._timeCheck()
+                        }).catch(() => this._timeCheck(10000))
                     }
                 }, period)
             }
@@ -1435,8 +1469,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _getToken() {
-                return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+                return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')
                         this.$.eHealthStatus.classList.add('connected')
@@ -1445,10 +1479,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('api.token', res.token)
 
                         return res.tokenId
-                    }).catch(() => {
+                    }).catch((e) => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('connected')
                         this.$.eHealthStatus.classList.add('disconnected')
+                        throw(e)
                     })
                 )
             }
@@ -1497,36 +1532,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         if (this.$.api.crypto().RSA.loadKeyPairNotImported(u.healthcarePartyId)) {
                                 this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
-                                if (ok) {
-                                    this.api.loadUsersAndHcParties()
-                            if (this.credentials.ehpassword) {
-                                const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
-                                if (ehKeychain) {
-                                    this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
-                                        this.$.api.keystoreId = res.uuid
-                                        this._getToken()
-                                    })
-                                } else {
-                                    this.$.noehealth.classList.add("notification")
-
-                                    this.$.eHealthStatus.classList.remove('pending')
-                                    this.$.eHealthStatus.classList.remove('connected')
-                                    this.$.eHealthStatus.classList.add('disconnected')
-                                }
-                            } else {
-                                this.$.eHealthStatus.classList.remove('pending')
-                                this.$.eHealthStatus.classList.remove('connected')
-                                this.$.eHealthStatus.classList.add('disconnected')
-                            }
-                            const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
-                            if (!this.routeData || destPage !== this.routeData.page) {
-                                this.set('routeData.page', destPage)
-                            } else {
-                                this._routePageChanged(destPage)
-                            }
-                                } else {
-                                    this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
-                                    this.$.registerKeyPairDialog.opened = true
+                                    if (ok) {
+                                        this.api.loadUsersAndHcParties()
+                                        this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
+                                        const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
+                                        if (!this.routeData || destPage !== this.routeData.page) {
+                                            this.set('routeData.page', destPage)
+                                        } else {
+                                            this._routePageChanged(destPage)
+                                        }
+                                    } else {
+                                        this.registerKeyPairDialogMessage = "The key registered in your browser is invalid"
+                                        this.$.registerKeyPairDialog.opened = true
                                 }
                             })
                         } else {
@@ -1547,6 +1564,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     sessionStorage.removeItem('auth')
                     this.set("credentials.error", "Wrong user or password")
                 }.bind(this))
+            }
+
+            uploadKeystoreAndCheckToken() {
+                if (this.credentials.ehpassword) {
+                    const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage(this.user.healthcarePartyId)
+                    if (ehKeychain) {
+                        return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
+                            this.$.api.keystoreId = res.uuid
+                            return this._getToken()
+                        }).catch((e) => {
+                            this.$.eHealthStatus.classList.remove('pending')
+                            this.$.eHealthStatus.classList.remove('connected')
+                            this.$.eHealthStatus.classList.add('disconnected')
+                            throw(e)
+                        })
+                    } else {
+                        this.$.noehealth.classList.add("notification")
+
+                        this.$.eHealthStatus.classList.remove('pending')
+                        this.$.eHealthStatus.classList.remove('connected')
+                        this.$.eHealthStatus.classList.add('disconnected')
+                    }
+                } else {
+                    this.$.eHealthStatus.classList.remove('pending')
+                    this.$.eHealthStatus.classList.remove('connected')
+                    this.$.eHealthStatus.classList.add('disconnected')
+                }
+                return Promise.resolve(null);
             }
 
             login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
