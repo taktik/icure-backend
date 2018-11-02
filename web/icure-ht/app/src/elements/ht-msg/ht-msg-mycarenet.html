@@ -98,7 +98,7 @@
         </custom-style>
         <div class="invoice-panel">
             <div class="grid-panel">
-                <div  id="messagesGrid" class$="[[detailPanelClass(subMessages)]]">
+                <div  id="messagesGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{leftFilterValue}}"
                                  on-keydown="refreshFilter">
                     </paper-input>
@@ -135,26 +135,31 @@
                         </vaadin-grid-column>
                     </vaadin-grid>
                 </div>
-                <vaadin-grid id="detailGrid" class$="[[detailPanelClass(subMessages)]]" items="[[subMessages]]">
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Period</vaadin-grid-sorter>
-                        </template>
-                        <template>[[_formatDate(item.from)]] - [[_formatDate(item.to)]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="ref-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.lastName]] [[item.firstName]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="invoice-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Payments</vaadin-grid-sorter>
-                        </template>
-                        <template>[[_formatPayments(item.payments)]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
+                <div id="detailGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
+                    <paper-input id="subFilter" label="[[localize('fil','Filter',language)]]" value="{{rightFilterValue}}"
+                                 on-keydown="refreshSubFilter">
+                    </paper-input>
+                    <vaadin-grid items="[[subMessages]]">
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Period</vaadin-grid-sorter>
+                            </template>
+                            <template>[[_formatDate(item.from)]] - [[_formatDate(item.to)]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="ref-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.lastName]] [[item.firstName]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="invoice-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Payments</vaadin-grid-sorter>
+                            </template>
+                            <template>[[_formatPayments(item.payments)]]</template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </div>
             </div>
             <div class="btns-container">
                 <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages">[[localize('req_msg_lists','Request Messages Lists',language)]]
@@ -242,14 +247,20 @@
                     leftFilterValue :{
                         type : String
                     },
-                    latestSearchValue:{
-                        type : String
-                    },
                     tempoMessages :{
                         type: Array,
                         value: function () {
                             return [];
                         }
+                    },
+                    tempoSubMessages :{
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    rightFilterValue :{
+                        type : String
                     }
                 };
             }
@@ -314,6 +325,7 @@
             _activeItemChanged() {
                 if (!this.activeItem) {
                     this.set('subMessages', [])
+                    this.set('tempoSubMessages', [])
                     return
                 }
                 this.api.document().findByMessage(this.user.healthcarePartyId, this.activeItem).then(
@@ -367,6 +379,7 @@
                                 })
                             })
                             this.set('subMessages', _.flatMap(lists,x => x.inscriptions))
+                            this.set('tempoSubMessages', _.flatMap(lists,x => x.inscriptions))
                         })
                     })
                 )
@@ -396,13 +409,10 @@
                 setTimeout(function () {
                     let currentValue = this.leftFilterValue
 
-                    if (this.latestSearchValue === currentValue) {
-                        return
-                    }
                     setTimeout(function () {
                         if (currentValue === this.leftFilterValue) {
                             console.log("Triggering search for " + this.leftFilterValue)
-
+                            this.set("messages",this.tempoMessages);
                             const regexYear = new RegExp('[0-9]{4}');
                             const regexFullDate = new RegExp('[0-9]{2}[.\-/][0-9]{2}[.\-/][0-9]{4}');
                             const regexOa= new RegExp('[1-6|9]00');
@@ -421,6 +431,32 @@
 
             parseDate(s) {
                 return s.replace(/\W/g,"")
+            }
+
+            refreshSubFilter(){
+                setTimeout(function () {
+                    let currentValue = this.rightFilterValue
+
+                    setTimeout(function () {
+                        if (currentValue === this.rightFilterValue) {
+                            console.log("Triggering search for " + this.rightFilterValue)
+
+                            console.log(this.tempoSubMessages)
+                            const regexYear = new RegExp('[0-9]{4}');
+                            const regexFullDate = new RegExp('[0-9]{2}[.\-/][0-9]{2}[.\-/][0-9]{4}');
+                            (this.rightFilterValue.length===4 && regexYear.test(this.rightFilterValue)) ? this.set("subMessages",this.tempoSubMessages.filter(message => this.api.moment(message.from).format("YYYY")<=this.rightFilterValue && this.api.moment(message.to).format("YYYY")>=this.rightFilterValue)) :
+                                (this.rightFilterValue.length>=8 && regexFullDate.test(this.rightFilterValue)) ? this.set("subMessages",this.tempoSubMessages.filter(message => (this.api.moment(message.from).format("YYYYMMDD")<=this.formatDate(this.rightFilterValue) && this.api.moment(message.to).format("YYYYMMDD")>=this.formatDate(this.rightFilterValue)) || this.api.moment(message.payments.date).format("DDMMYYYY")===this.parseDate(this.rightFilterValue))) :
+                                    this.set("subMessages",this.tempoSubMessages.filter(message => message.lastName+" "+message.firstName.includes(this.rightFilterValue)))
+                        } else {
+                            console.log("Skipping search for " + this.rightFilterValue + " != " + currentValue)
+                        }
+                    }.bind(this), 500) //Wait for the user to stop typing
+                }.bind(this), 100)
+            }
+
+            formatDate(date){
+                const tab =date.split(/\W/)
+                return tab[2]+tab[1]+tab[0]+""
             }
         }
 
