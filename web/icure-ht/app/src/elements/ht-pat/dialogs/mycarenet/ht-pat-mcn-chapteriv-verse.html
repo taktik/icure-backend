@@ -96,7 +96,7 @@
             }
 
             _isParent(val){
-                return val.verses.length!=0 && val.minCheckNum>0 && this.checkedVerses.length<val.minCheckNum
+                return val && val.verses && val.verses.length !== 0 && val.minCheckNum>0 && this.checkedVerses.length<val.minCheckNum
             }
 
         }
