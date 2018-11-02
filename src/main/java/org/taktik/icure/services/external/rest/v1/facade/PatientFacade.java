@@ -36,8 +36,10 @@ import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Delegation;
+import org.taktik.icure.exceptions.BulkUpdateConflictException;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
 import org.taktik.icure.exceptions.MissingRequirementsException;
+import org.taktik.icure.exceptions.UpdateConflictException;
 import org.taktik.icure.logic.AccessLogLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.PatientLogic;
@@ -66,6 +68,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -791,7 +794,19 @@ public class PatientFacade implements OpenApiFacade{
 		this.sessionLogic = sessionLogic;
 	}
 
-    @ExceptionHandler(Exception.class)
+	@ExceptionHandler(BulkUpdateConflictException.class)
+	Response bulkUpdateConflictExceptionHandler(BulkUpdateConflictException e) {
+		log.error(e.getMessage());
+		return Response.status(Response.Status.CONFLICT).type(MediaType.APPLICATION_JSON_TYPE).entity(e.getConflicts()).build();
+	}
+
+	@ExceptionHandler(UpdateConflictException.class)
+	Response updateConflictExceptionHandler(UpdateConflictException e) {
+		log.error(e.getMessage());
+		return Response.status(Response.Status.CONFLICT).type(MediaType.APPLICATION_JSON_TYPE).entity(e.getDoc()).build();
+	}
+
+	@ExceptionHandler(Exception.class)
 	Response exceptionHandler(Exception e) {
 		log.error(e.getMessage(), e);
 		return ResponseUtils.internalServerError(e.getMessage());
