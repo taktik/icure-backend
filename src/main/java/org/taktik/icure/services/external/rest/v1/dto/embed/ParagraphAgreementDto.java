@@ -5,6 +5,7 @@ import org.taktik.icure.entities.embed.AgreementAppendix;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ParagraphAgreementDto implements Serializable {
 	private Long timestamp;
@@ -21,6 +22,7 @@ public class ParagraphAgreementDto implements Serializable {
 
 	private String responseType;
 	private Map<String, String> refusalJustification;
+	private Set<String> verses;
 	private String coverageType;
 	private Double unitNumber;
 	private Double strength ;
@@ -202,5 +204,19 @@ public class ParagraphAgreementDto implements Serializable {
 		this.documentId = documentId;
 	}
 
+	public Set<String> getVerses() {
+		return verses;
+	}
 
+	public void setVerses(Set<String> verses) {
+		this.verses = verses;
+	}
+
+	public List<AgreementAppendixDto> getAgreementAppendices() {
+		return agreementAppendices;
+	}
+
+	public void setAgreementAppendices(List<AgreementAppendixDto> agreementAppendices) {
+		this.agreementAppendices = agreementAppendices;
+	}
 }

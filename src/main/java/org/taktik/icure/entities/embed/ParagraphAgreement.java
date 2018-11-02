@@ -181,4 +181,12 @@ public class ParagraphAgreement implements Serializable {
 	public void setAgreementAppendices(List<AgreementAppendix> agreementAppendices) {
 		this.agreementAppendices = agreementAppendices;
 	}
+
+	public Set<String> getVerses() {
+		return verses;
+	}
+
+	public void setVerses(Set<String> verses) {
+		this.verses = verses;
+	}
 }
