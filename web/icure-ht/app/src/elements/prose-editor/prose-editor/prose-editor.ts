@@ -9,6 +9,10 @@ import "../../../../bower_components/paper-item/paper-item"
 import "../../../../bower_components/neon-animation/web-animations"
 
 import "../utils/color-picker.ts"
+import "../utils/heading-picker.ts"
+import "../utils/font-picker.ts"
+import "../utils/font-size-picker.ts"
+
 
 import './prose-editor.html'
 
@@ -443,10 +447,6 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
-  doFontMenu(e: CustomEvent) {
-    e.preventDefault()
-  }
-
   doSize(e: CustomEvent) {
     e.stopPropagation()
     e.preventDefault()
@@ -456,10 +456,6 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
-  doSizeMenu(e: CustomEvent) {
-    e.preventDefault()
-  }
-
   doHeading(e: CustomEvent) {
     e.stopPropagation()
     e.preventDefault()
@@ -467,10 +463,6 @@ export class ProseEditor extends Polymer.Element {
       setBlockType(this.editorSchema.nodes.heading, {level: parseInt(e.detail.value.replace(/.+ ([0-9]+)/, '$1'))})(this.editorView.state, this.editorView.dispatch)
       this.editorView.focus()
     }
-  }
-
-  doHeadingMenu(e: CustomEvent) {
-    e.preventDefault()
   }
 
   doLeft(e: CustomEvent) {

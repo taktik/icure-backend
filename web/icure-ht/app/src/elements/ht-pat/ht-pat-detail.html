@@ -409,8 +409,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow-y: overlay;
 				height: calc(100% - 215px);
 				margin-bottom:16px;
-				border-top: 1px solid rgba(0,0,0,.1);
-				border-bottom: 1px solid rgba(0,0,0,.1);
 			}
 
 
@@ -1248,7 +1246,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									</template>
 								</paper-listbox>
 							</collapse-button>
-							<collapse-button>
+							<collapse-button id="cb_gmhelb">
 								<paper-item slot="sublist-collapse-item" id="_svc_group_medications" class="menu-trigger menu-item" on-tap="toggleMenu">
 									<div class="one-line-menu list-title">[[localize('med','Medication',language)]]</div>
 									<paper-icon-button class="extra-button" icon="icons:euro-symbol" on-tap="_chapter4"></paper-icon-button>
@@ -1270,7 +1268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									</template>
 								</paper-listbox>
 							</collapse-button>
-							<collapse-button>
+							<collapse-button id="cb_archhelb">
 								<paper-item slot="sublist-collapse-item" class="menu-trigger menu-item" id="_ht_archived_hes" on-tap="toggleMenu" elevation="">
 									<div class="one-line-menu list-title"><span>[[localize('arc','Archive',language)]]</span></div>
 									<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" on-tap="toggleMenu"></paper-icon-button>
@@ -1824,10 +1822,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}
 			},
 			eidCardNumber:{
-			    type: String
+			    type: String,
+                value : '',
 			},
 			isiCardNumber:{
-			    type: String
+			    type: String,
+				value : '',
 			},
             hubEndPoint:{
                 type: String,
@@ -3148,11 +3148,17 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.set('risks', [])
         this.set('familyrisks', [])
         this.set('surgicalHealthElements', [])
+        this.set('eidCardNumber', '')
+        this.set('isiCardNumber', '')
 
         this.root.querySelector('#cb_ahelb').opened = false
         this.root.querySelector('#cb_ihelb').opened = false
         this.root.querySelector('#cb_alhelb').opened = false
         this.root.querySelector('#cb_rhelb').opened = false
+        this.root.querySelector('#cb_gmhelb').opened = false
+        this.root.querySelector('#cb_archhelb').opened = false
+        this.root.querySelector('#cb_ishelb').opened = false
+        this.root.querySelector('#cb_frhelb').opened = false
 
         this.set('selectedHealthcareElements', [])
         this.set('contacts', [])
@@ -3163,6 +3169,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (this.api && this.user && this.patient) {
             this.refreshPatient()
         }
+
+        let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
+        let ctcDetailPanel = Polymer.dom(this.root).querySelector("#ctcDetailPanel"); ctcDetailPanel && ctcDetailPanel.reset();
+
     }
 
     refreshPatient() {
