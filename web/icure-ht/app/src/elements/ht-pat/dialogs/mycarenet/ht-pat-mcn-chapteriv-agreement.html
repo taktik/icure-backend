@@ -811,9 +811,8 @@
                                             </template>
                                         </p>
                                         <ul class="outer-ul">
-                                            <ht-pat-mcn-chapteriv-verse verse="[[paragraph.headerVerse]]"
-                                                                        checked-verses="{{checkedVerses}}"
-                                                                        language="[[language]]"></ht-pat-mcn-chapteriv-verse>
+                                            <ht-pat-mcn-chapteriv-verse verse="[[paragraph.headerVerse]]" extension="[[_extension(displayedParagraph, isAgreementSelected)]]"
+                                                                        checked-verses="{{checkedVerses}}" language="[[language]]"></ht-pat-mcn-chapteriv-verse>
                                         </ul>
                                     </div>
                                 </page>
@@ -960,17 +959,29 @@
                                     request', language)]]
                                 </vaadin-checkbox>
                             </div>
+                            <template is="dom-if" if="[[_missingAppendices(appendicesToken.*, displayedParagraph)]]">
+                                <div class="warning">[[_missingAppendices(appendicesToken.*, displayedParagraph)]] [[localize('app_are_mis','appendices are missing', language)]]</div>
+                            </template>
+                            <template is="dom-if" if="[[_unwantedAppendix(appendicesToken.*, displayedParagraph)]]">
+                                <div class="error">[[localize('app_are_unw','No appendix should be included for this agreement request', language)]]</div>
+                            </template>
                             <div class="btns-container">
-                                <template is="dom-if" if="[[isAgreementSelected]]">
+                                <template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">
                                     <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isDisablingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isCloturingAgreement]]">[[localize('clos_agr','Close
+                                </template>
+                                <template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">
+                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isCloturingAgreement]]">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
+                                </template>
+                                <template is="dom-if" if="[[isAgreementSelected]]">
+                                    <template is="dom-if" if="[[displayedParagraph.end]]">
                                     <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
                                         agreement',language)]]
                                     </paper-button>
+                                    </template>
                                     <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                     <paper-spinner class="asking" active="[[isCloturingAgreement]]"></paper-spinner>
                                     <paper-spinner class="asking" active="[[isDisablingAgreement]]"></paper-spinner>
@@ -982,8 +993,6 @@
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
-                                    <paper-spinner class="asking" active="[[isCloturingAgreement]]"></paper-spinner>
-                                    <paper-spinner class="asking" active="[[isDisablingAgreement]]"></paper-spinner>
                                 </template>
                             </div>
 
@@ -1082,7 +1091,6 @@
                         type: Array,
                         value: () => []
                     },
-
                     tabs: {
                         type: Number,
                         value: 0
@@ -1229,6 +1237,49 @@
                 }
             }
 
+            _closure() {
+                return this.isAgreementSelected && this.displayedParagraph && (!this.displayedParagraph.end || this.api.moment(this.displayedParagraph.end).isAfter(moment(this.fromAsString))) &&
+                    (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isBefore(moment(this.fromAsString)))
+            }
+
+            _cancellation() {
+                return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isAfter(moment(this.fromAsString))))
+
+            }
+
+            _extension() {
+                return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.inTreatment
+            }
+
+            neededAppendices() {
+                const dp = this.displayedParagraph
+                if (!dp) { return 0 }
+
+                const pt = (dp.paragraphInfo.processType || 1)
+                const extension = this.isAgreementSelected && !dp.inTreatment
+
+                const scanVerse = (v) => {
+                    return v.verses.reduce((acc, v) => acc + scanVerse(v), (extension && v.requestType !== 'D' || !extension && v.requestType !== 'P')
+                    && (v.checkBoxInd === 'N' || v.checkBoxInd === 'Y' && ((this.checkedVerses || []).includes(v.verseNum) || (dp.verses || []).includes(v.verseNum)))
+                    && (v.otherAddedDocumentInd === 'Y') ? 1 : 0)
+                }
+
+                const num = scanVerse(dp.paragraphInfo.headerVerse)
+                return  (pt === 2 || pt === 3 && extension || pt === 4 && !extension) ? num : 0
+            }
+
+            _missingAppendices() {
+                return Math.max(this.neededAppendices() - (this.appendicesTokens || []).length, 0)
+            }
+
+            _unwantedAppendix() {
+                const dp = this.displayedParagraph
+                const pt = (dp.paragraphInfo.processType || 1)
+
+                return (pt === 1 && (this.appendicesTokens || []).length > 0)
+                    || (pt === 3  && !extension && (this.appendicesTokens || []).length > 0)
+                    || (pt === 4  && extension && (this.appendicesTokens || []).length > 0)
+            }
 
             onWidthChange() {
                 /*const offsetWidth = this.$.dialog.offsetWidth
@@ -1275,18 +1326,10 @@
             }
 
             _convertedMedications() {
-                return (this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.options && c.medicationValue.options.ioChapter4Paragraph)).map(svc => {
-                    const content = svc.content.find(c => !!c.medicationValue.options.ioChapter4Paragraph)
-                    return {
-                        id: svc.id,
-                        paragraphName: content.medicationValue.options.ioChapter4ParagraphName,
-                        paragraph: content.medicationValue.options.ioChapter4Paragraph,
-                        verses: content.medicationValue.options.ioChapter4Verses,
-                        ioRequestReference: content.medicationValue.options.ioRequestReference,
-                        ioDecisionReference: content.medicationValue.options.ioDecisionReference,
-                        ioDecisionEndOfValidity: content.medicationValue.options.ioDecisionEndOfValidity,
-                        medication: this.api.contact().shortServiceDescription(svc, this.language)
-                    }
+                return (this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements.length)).flatMap(svc => {
+                    const content = svc.content.find(c => !!c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements.length)
+                    const agreements = content.medicationValue.paragraphAgreements
+                    return Object.values(agreements).map(t => _.assign({}, t, {medications: (content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname}))
                 })
             }
 
@@ -1355,7 +1398,7 @@
             _requestChapter4(e) {
                 this.set('agreementResponse', {})
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
-                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) === 1 ) ? "extension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) <= 1 ) ? "extension" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
                             null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
@@ -1379,7 +1422,8 @@
                                 hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                 this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
                                 requestType, this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                                this.checkedVerses.join(','), appendices, this.incomplete, requestType !== "complimentaryannex" ? this.api.moment(this.fromAsString).valueOf() : null , null,
+                                this.checkedVerses.join(','), appendices, this.incomplete,
+                                requestType === "complimentaryannex" ? null : requestType === "extension" ? this.api.moment(this.displayedParagraph.end).add(1, "days").valueOf() : this.api.moment(this.fromAsString).valueOf() , null,
                                 (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.ioDecisionReference : null,
                                 ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.ioDecisionReference) ? this.displayedParagraph.ioRequestReference : null)
                         )
@@ -1391,9 +1435,33 @@
 
                         return Promise.all(((res || {}) && res.transactions || []).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({
                             paragraph: t.paragraph,
+                            transaction: t,
                             mpps: it
                         })))).then(links => {
                             this.set('agreementMpps', links)
+
+                            Promise.all(links.map(l => {
+                                this.api.contact().service().newInstance(this.api.user, {
+                                    content: _.fromPairs([[this.language, {
+                                        medicationValue: {
+                                            medicinalProduct: {
+                                                intendedcds: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
+                                                intendedname: l.mpps[0].name
+                                            },
+                                            paragraphAgreements: _.fromPairs([[l.paragraph,
+                                                _.assign({}, t, {verses: this.checkedVerses, agreementAppendices: this.appendicesTokens.map(ap => ({
+                                                        verseSeq: ap.verseSeq,
+                                                        documentSeq: ap.docSeq,
+                                                        path: ap.name,
+                                                        documentId: ap.id
+                                                    }))})
+                                            ]])
+                                        }
+                                    }]]), label: this.localize('medication', 'Medication')
+                                })
+                            })).then(svcs =>
+                                this.dispatchEvent(new CustomEvent('services-created', {detail: svcs, bubbles: true, composed: true}))
+                            )
                         })
                     })
                 }
@@ -1496,6 +1564,7 @@
                             ioDecisionReference: selectedAgreement.ioDecisionReference,
                             start: selectedAgreement.start,
                             end: selectedAgreement.ioDecisionEndOfValidity,
+                            verses: selectedAgreement.verses,
                             paragraphInfo : pi
                         })
                         this.set('agreementResponse', {
@@ -1509,6 +1578,7 @@
                             this.set('agreementMpps', links)
                         )
                         this._isLoadingParagraph = false
+                        this.set('tabs', 0)
                         this.set('isAskingAgreement', false)
                  })
             }

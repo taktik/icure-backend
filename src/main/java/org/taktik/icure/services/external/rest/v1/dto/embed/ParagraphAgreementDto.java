@@ -22,7 +22,7 @@ public class ParagraphAgreementDto implements Serializable {
 
 	private String responseType;
 	private Map<String, String> refusalJustification;
-	private Set<String> verses;
+	private Set<Long> verses;
 	private String coverageType;
 	private Double unitNumber;
 	private Double strength ;
@@ -204,11 +204,11 @@ public class ParagraphAgreementDto implements Serializable {
 		this.documentId = documentId;
 	}
 
-	public Set<String> getVerses() {
+	public Set<Long> getVerses() {
 		return verses;
 	}
 
-	public void setVerses(Set<String> verses) {
+	public void setVerses(Set<Long> verses) {
 		this.verses = verses;
 	}
 
