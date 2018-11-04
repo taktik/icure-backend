@@ -73,14 +73,14 @@
                 grid-row: 1/1;
                 display: inline-grid;
                 grid-template-columns: 1fr;
-                grid-template-rows: calc(280px) 1fr 48px;
+                grid-template-rows: auto 1fr 48px;
                 margin-top: 0;
                 padding: 0;
                 box-sizing: border-box;
             }
 
             .list-panel.search-load-container-collapsed {
-                grid-template-rows: calc(40px + 16px) 1fr 48px;
+                grid-template-rows: calc(40px + 8px) 1fr 48px;
             }
 
             .searchLoadContainer{
@@ -107,7 +107,7 @@
                 padding: 8px 24px;
                 grid-column: 1/1;
                 grid-row: 2/2;
-                overflow-y: overlay;
+                overflow-y: auto;
                 overflow-x: hidden;
                 --paper-listbox-selected-item: {
                     color: var(--app-text-color-light);
@@ -146,6 +146,8 @@
                 grid-row: 1/1;
                 width: 100%;
                 height: 72px;
+                top: -24px;
+                position: relative;
             }
 
             .detail-panel .paragraph{
@@ -171,11 +173,6 @@
                 text-align: justify;
                 padding: 0 24px;
                 overflow-y: auto;
-            }
-
-            .detail-panel div.paragraph-content p{
-                padding-bottom: 12px;
-                border-bottom: 1px solid var(--app-background-color-dark);
             }
 
             .chapterDateInfo {
@@ -210,6 +207,7 @@
                 width: 100%;
                 height: 100%;
                 padding: 0;
+                overflow: hidden;
             }
 
             .chapter-text:focus::before, .chapter-text:focus::after {
@@ -225,7 +223,9 @@
 
             .chapter-text-row h4 {
                 width: 100%;
-            }
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow-x: hidden;         }
 
 
             .chapter-item .chapter-text-row {
@@ -317,15 +317,15 @@
                 background: #e539353b;
                 font-weight: bold;
                 border-radius: 2px;
-                padding: 0 8px;
-                width: fit-content;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             paper-listbox {
                 background: transparent;
             }
 
-            .annexes {
+            .addedDocuments {
                 position: absolute;
                 top: 16px;
                 right: 16px;
@@ -642,6 +642,37 @@
                 font-weight: lighter;
                 font-size: 0.8em;
             }
+            paper-spinner.asking {
+                top: 12px;
+                left: 5px;
+                position: relative;
+            }
+
+            div.one-line {
+                display: flex;
+                justify-content: space-between;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            div.one-line > .fleft {
+                flex: 1 0 25%;
+                flex-grow: 1;
+                border: .5px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+                padding: 4px 12px;
+                box-sizing: border-box;
+            }
+            /*div.one-line *:not(:first-child) {*/
+                /*margin-left: gutter;*/
+            /*}*/
+            h4 {
+                clear: both;
+                font-size: 1.5em;
+            }
+            #medications-list {
+                height: auto;
+                margin: 8px auto;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -668,7 +699,7 @@
                     </div>
                     <paper-listbox id="_chapter_listbox" selectable="paper-material"
                                    selected="{{selectedAgreementIndex}}">
-                        <template is="dom-repeat" items="[[_agreements(medications.*, orphanAgreements.*)]]">
+                        <template is="dom-repeat" items="[[_agreements(convertedMedications.*, orphanAgreements.*)]]">
                             <paper-material class="layout vertical chapter-item chapter--big"
                                             id="[[item.ioDecisionReference]]">
                                 <paper-item class="chapter-text">
@@ -732,7 +763,7 @@
                                       label="[[localize('sea_for_par','Search for paragraph‚ medication‚ pathology...',language)]]"></vaadin-combo-box>
                     <paper-spinner class="spinner paragraph-spinner" alt="Loading chapter4 list" active=[[_isLoadingParagraph]]></paper-spinner>
                     <div class="paragraph">
-                        <template is="dom-if" if="[[paragraph]]">
+                        <template is="dom-if" if="[[displayedParagraph.paragraphInfo]]">
                             <paper-tabs selected="{{tabs}}">
                                 <paper-tab class="adm-tab">
                                     <iron-icon class="smaller" icon="vaadin:clipboard-text"></iron-icon>
@@ -748,14 +779,14 @@
                             <iron-pages selected="[[tabs]]" class="">
                                 <page>
                                     <div class="paragraph-content">
-                                        <h2>[[localize('chapter','Chapter',language)]] [[paragraph.chapterName]],
+                                        <h2>[[localize('chapter','Chapter',language)]] [[displayedParagraph.paragraphInfo.chapterName]],
                                             [[localize('paragraph','Paragraph',language)]]
-                                            [[paragraph.paragraphName]]</h2>
-                                        <template is="dom-if" if="[[annexes.length]]">
-                                            <paper-dropdown-menu id="annexes" class="annexes" label="Annexes"
+                                            [[displayedParagraph.paragraphInfo.paragraphName]]</h2>
+                                        <template is="dom-if" if="[[addedDocuments.length]]">
+                                            <paper-dropdown-menu id="addedDocuments" class="addedDocuments" label="Annexes"
                                                                 on-selected-item-changed="_downloadAnnex">
                                                 <paper-listbox slot="dropdown-content" class="dropdown-content">
-                                                    <template id="annexesDr" is="dom-repeat" items="[[annexes]]">
+                                                    <template id="addedDocumentsDr" is="dom-repeat" items="[[addedDocuments]]">
                                                         <paper-item>
                                                             <template is="dom-if" if="[[_isFrench(language)]]">
                                                                 [[item.descrFr]]
@@ -769,74 +800,85 @@
                                             </paper-dropdown-menu>
                                         </template>
                                         <p>
-                                            <template is="dom-if" if="[[_isFrench(language)]]">[[paragraph.keyStringFr]]
+                                            <template is="dom-if" if="[[_isFrench(language)]]">[[displayedParagraph.paragraphInfo.keyStringFr]]
                                             </template>
-                                            <template is="dom-if" if="[[_isDutch(language)]]">[[paragraph.keyStringNl]]
+                                            <template is="dom-if" if="[[_isDutch(language)]]">[[displayedParagraph.paragraphInfo.keyStringNl]]
                                             </template>
                                         </p>
                                         <ul class="outer-ul">
-                                            <ht-pat-mcn-chapteriv-verse verse="[[paragraph.headerVerse]]"
-                                                                        checked-verses="{{checkedVerses}}"
-                                                                        language="[[language]]"></ht-pat-mcn-chapteriv-verse>
+                                            <ht-pat-mcn-chapteriv-verse verse="[[displayedParagraph.paragraphInfo.headerVerse]]" extension="[[_extension(displayedParagraph, isAgreementSelected)]]"
+                                                                        checked-verses="{{checkedVerses}}" language="[[language]]"></ht-pat-mcn-chapteriv-verse>
                                         </ul>
                                     </div>
                                 </page>
                                 <page>
                                     <div class="paragraph-content">
                                         <template is="dom-if" if="[[agreementResponse]]">
-                                            <template is="dom-if" if="[[agreementResponse.acknowledge]]">
+                                            <template is="dom-if" if="[[!_isNull(agreementResponse.acknowledge)]]">
                                                 <h3>[[localize('the_req_was_suc', 'The request was successfully transmitted
                                                     to the IO', language)]]</h3>
                                             </template>
-                                            <template is="dom-if" if="[[agreementResponse.acknowledge]]">
+                                            <template is="dom-if" if="[[_isNull(agreementResponse.acknowledge)]]">
                                                 <h3>[[localize('the_req_cou_not', 'The request could not be successfully
                                                     transmitted to the IO', language)]]</h3>
                                             </template>
                                             <template is="dom-if" if="[[agreementResponse.errors.length]]">
                                                 <h4>Error(s)</h4>
                                                 <template is="dom-repeat" items="[[agreementResponse.errors]]" as="e">
-                                                    <p class="error">[[localizeObjectKey(e,'msg',language)]] [ code :
+                                                    <p class="error">[[localizeObjectKey(e,'msg',language)]] <br/>[ code :
                                                         [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
                                             </template>
                                             <template is="dom-if" if="[[agreementResponse.warnings.length]]">
                                                 <h4>Warning(s)</h4>
                                                 <template is="dom-repeat" items="[[agreementResponse.warnings]]" as="e">
-                                                    <p class="warning">[[localizeObjectKey(e,'msg',language)]] [ code :
+                                                    <p class="warning">[[localizeObjectKey(e,'msg',language)]] <br/>[ code :
                                                         [[e.code]], path: [[e.path]] ]</p>
                                                 </template>
                                             </template>
+
                                             <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
                                                 <h4>[[localize('agr_res','Agreement response',language)]],
                                                     [[_formatDateTime(t.timestamp)]]</h4>
-                                                <template is="dom-if" if="[[t.accepted]]">
-                                                    <p>[[localize('status','Status',language)]]:
-                                                        [[localize('agreed','Agreement conceded',language)]]</p>
-                                                </template>
-                                                <template is="dom-if" if="[[t.inTreatment]]">
-                                                    <p>[[localize('status','Status',language)]]:
-                                                        [[localize('req_in_tre','Request in treatment',language)]]</p>
-                                                </template>
-                                                <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
-                                                    <p>[[localize('status','Status',language)]]:
-                                                        [[localize('req_in_tre','Request rejected',language)]]</p>
-                                                    <p>[[localize('ref_jus','Justification of refusal',language)]]:
-                                                        <template is="dom-if" if="[[_isFrench(language)]]">
-                                                            <span class="error">[[t.refusalJustification.fr]]</span>
+                                                <div class="one-line">
+                                                        <template is="dom-if" if="[[t.accepted]]">
+                                                            <div class="fleft third">
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                                [[localize('agreed','Agreement conceded',language)]]</p></div>
                                                         </template>
-                                                        <template is="dom-if" if="[[!_isFrench(language)]]">
-                                                            <span class="error">[[t.refusalJustification.nl]]</span>
+                                                        <template is="dom-if" if="[[t.inTreatment]]">
+                                                            <div class="fleft third">
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                                [[localize('req_in_tre','Request in treatment',language)]]</p></div>
                                                         </template>
-                                                    </p>
-                                                </template>
-                                                <p>[[localize('ref_io','Reference IO',language)]]: [[t.decisionReference]]</p>
-                                                <p>[[localize('from','From',language)]]: [[_formatDate(t.start)]]</p>
-                                                <p>[[localize('to','to',language)]]: [[_formatDate(t.end)]]</p>
-                                                <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                                <p>[[localize('req_ref_io','Request Reference IO',language)]]: [[t.ioRequestReference]]</p>
-                                                <p>[[localize('raw_res','Raw response',language)]]: [[t.responseType]]</p>
+                                                        <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
+                                                            <div class="fleft third">
+                                                            <p><b>[[localize('status','Status',language)]]:</b>
+                                                                [[localize('req_in_tre','Request rejected',language)]]</p>
+                                                            <p>[[localize('ref_jus','Justification of refusal',language)]]:
+                                                                <template is="dom-if" if="[[_isFrench(language)]]">
+                                                                    <span class="error">[[t.refusalJustification.fr]]</span>
+                                                                </template>
+                                                                <template is="dom-if" if="[[!_isFrench(language)]]">
+                                                                    <span class="error">[[t.refusalJustification.nl]]</span>
+                                                                </template>
+                                                            </p></div>
+                                                        </template>
+                                                        <div class="fleft third">
+                                                            <p><b>[[localize('ref_io','Reference IO',language)]]:</b> [[t.decisionReference]]</p>
+                                                        </div>
+                                                    <template is="dom-if" if="[[t.start]]">
+                                                        <div class="fleft third">
+                                                            <p><b>[[localize('from','From',language)]]:</b> [[_formatDate(t.start)]]</p></div>
+                                                    </template>
+                                                        <template is="dom-if" if="[[t.end]]">
+                                                            <div class="fleft third">
+                                                                <p><b>[[localize('to','to',language)]]:</b> [[_formatDate(t.end)]]</p></div>
+                                                        </template>
+                                                </div>
+
                                                 <h4>[[localize('medications','Medications',language)]]</h4>
-                                                <vaadin-grid id="insurabilities-list" class="material" overflow="bottom"
+                                                <vaadin-grid id="medications-list" class="material"
                                                              items="[[_mpps(t.paragraph, agreementMpps.*)]]"
                                                              active-item="{{selectedMedication}}">
                                                     <vaadin-grid-column flex-grow="10">
@@ -863,10 +905,36 @@
                                                     </vaadin-grid-column>
                                                 </vaadin-grid>
                                             </template>
+
                                             <h4>[[localize('tec_dat','Technical data',language)]]</h4>
-                                            <p>commonInput: [[agreementResponse.commonOutput.inputReference]]</p>
-                                            <p>nipReference: [[agreementResponse.commonOutput.nipReference]]</p>
-                                            <p>commonOutput: [[agreementResponse.commonOutput.outputReference]]</p>
+                                            <div class="one-line">
+                                                <template is="dom-if" if="[[t.ioRequestReference]]">
+                                                    <div class="fleft third">
+                                                        <p><b>[[localize('req_ref_io','Request Reference IO',language)]]: </b>[[t.ioRequestReference]]</p>
+                                                    </div>
+                                                </template>
+                                                <template is="dom-if" if="[[t.responseType]]">
+                                                    <div class="fleft third">
+                                                        <p><b>[[localize('raw_res','Raw response',language)]]:</b> [[t.responseType]]</p>
+                                                    </div>
+                                                </template>
+                                                <template is="dom-if" if="[[agreementResponse.commonOutput.inputReference]]">
+                                                    <div class="fleft third">
+                                                        <p><b>commonInput:</b> [[agreementResponse.commonOutput.inputReference]]</p>
+                                                    </div>
+                                                </template>
+                                                <template is="dom-if" if="[[agreementResponse.commonOutput.nipReference]]">
+                                                    <div class="fleft third">
+                                                        <p><b>nipReference:</b> [[agreementResponse.commonOutput.nipReference]]</p>
+                                                    </div>
+                                                </template>
+                                                <template is="dom-if" if="[[agreementResponse.commonOutput.outputReference]]">
+                                                    <div class="fleft third">
+                                                        <p><b>commonOutput:</b> [[agreementResponse.commonOutput.outputReference]]</p>
+                                                    </div>
+                                                </template>
+                                            </div>
+
                                         </template>
                                     </div>
                                 </page>
@@ -887,24 +955,40 @@
                                     request', language)]]
                                 </vaadin-checkbox>
                             </div>
+                            <template is="dom-if" if="[[_missingAppendices(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)]]">
+                                <div class="warning">[[_missingAppendices(appendicesToken.*, displayedParagraph)]] [[localize('app_are_mis','appendices are missing', language)]]</div>
+                            </template>
+                            <template is="dom-if" if="[[_unwantedAppendix(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)]]">
+                                <div class="error">[[localize('app_are_unw','No appendix is expected for this agreement request. Adding one can delay the procedure.', language)]]</div>
+                            </template>
                             <div class="btns-container">
-                                <template is="dom-if" if="[[isAgreementSelected]]">
-                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter">[[localize('can_agr','Cancel
-                                        agreement',language)]]
-                                    </paper-button>
-                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter">[[localize('clos_agr','Close
-                                        agreement',language)]]
-                                    </paper-button>
-                                    <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4">[[localize('ext_agr','Extend
+                                <template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">
+                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isDisablingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
                                 </template>
+                                <template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">
+                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isClosingAgreement]]">[[localize('clos_agr','Close
+                                        agreement',language)]]
+                                    </paper-button>
+                                </template>
+                                <template is="dom-if" if="[[isAgreementSelected]]">
+                                    <template is="dom-if" if="[[displayedParagraph.end]]">
+                                    <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
+                                        agreement',language)]]
+                                    </paper-button>
+                                    </template>
+                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
+                                    <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
+                                    <paper-spinner class="asking" active="[[isDisablingAgreement]]"></paper-spinner>
+                                </template>
 
                                 <template is="dom-if" if="[[!isAgreementSelected]]">
-                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4">
+                                    <paper-button class="bottom-btn" id="requestChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">
                                         [[localize('req_agr','Request
                                         agreement',language)]]
                                     </paper-button>
+                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                 </template>
                             </div>
 
@@ -925,8 +1009,20 @@
             </div>
             <div class="buttons">
                 <div class="message">
-                    <div class="warning">[[warnings]]</div>
-                    <div class="error">[[errors]]</div>
+                    <template is="dom-if" if="[[warnings.length]]">
+                        <div class="warning">
+                            <template is="dom-repeat" items="[[warnings]]">
+                                [[item]]<br/>
+                            </template>
+                        </div>
+                    </template>
+                    <template is="dom-if" if="[[errors.length]]">
+                        <div class="error">
+                            <template is="dom-repeat" items="[[errors]]">
+                                [[item]]<br/>
+                            </template>
+                        </div>
+                    </template>
                 </div>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]
                 </paper-button>
@@ -967,21 +1063,21 @@
                         value: () => []
                     },
                     errors: {
-                        type: String,
-                        value: null
+                        type: Array,
+                        value: () => []
                     },
                     warnings: {
-                        type: String,
-                        value: null
+                        type: Array,
+                        value: () => []
                     },
                     opened: {
                         type: Boolean,
                         value: false,
                         noReset: true
                     },
-                    paragraph: {
-                        type: Object,
-                        value: () => null
+                    incomplete: {
+                        type: Number, //null or 2 means managed by dialog, 0 or 1 means managed by user
+                        value: null
                     },
                     searchResults: {
                         type: Array,
@@ -999,11 +1095,14 @@
                         type: Array,
                         value: () => []
                     },
+                    convertedMedications: {
+                        type: Array,
+                        value: null
+                    },
                     orphanAgreements: {
                         type: Array,
                         value: () => []
                     },
-
                     tabs: {
                         type: Number,
                         value: 0
@@ -1045,12 +1144,24 @@
                     searchLoadContainerCollapsed: {
                         type: Boolean,
                         value: true
+                    },
+                    isAskingAgreement: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isClosingAgreement: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isDisablingAgreement: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
 
             static get observers() {
-                return ['_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)', '_selectAgreementInList(selectedAgreementIndex)']
+                return ['_convertedMedications(medications.*),_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)', '_selectAgreementInList(selectedAgreementIndex)', '_prepareIncomplete(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)']
             }
 
             reset() {
@@ -1066,6 +1177,10 @@
             attached() {
                 super.attached()
                 this.async(this.notifyResize, 1)
+            }
+
+            _isNull(v) {
+                return v === null
             }
 
             searchLoadContainerClass(collapsed) {
@@ -1111,26 +1226,80 @@
             }
 
             _displayedParagraphChanged() {
+                const grid = this.shadowRoot.querySelector('#medications-list')
+                this.incomplete = null
                 if (this.displayedParagraph && this.displayedParagraph.id) {
                     (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('checkedVerses', [])
-                    this.set('paragraph', [])
                     const paragraph = this.displayedParagraph.id.split('/')[0]
+                    this.set('_isLoadingParagraph',true)
                     ;(this.displayedParagraph.paragraphInfo ? Promise.resolve(this.displayedParagraph.paragraphInfo) : this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', paragraph))
                         .then(pi => {
-                            this.set('paragraph', pi)
+                            console.log("pi",pi)
+                            this.set('displayedParagraph.paragraphInfo', pi)
+                            this.set('_isLoadingParagraph',false)
                             return this.api.fhc().Chaptercontroller().getAddedDocumentsUsingGET('IV', paragraph)
                         })
-                        .then(annexes => {
-                            console.log(annexes)
-                            this.set('annexes', annexes)
+                        .then(addedDocuments => {
+                            console.log("added",addedDocuments)
+                            console.log(grid)
+                            this.set('addedDocuments', addedDocuments)
+                            return addedDocuments
                         })
-
-                } else {
-                    this.set('paragraph', null)
+                        .finally(() =>  this.set('_isLoadingParagraph',false))
                 }
             }
 
+            _closure() {
+                return this.isAgreementSelected && this.displayedParagraph && (!this.displayedParagraph.end || this.api.moment(this.displayedParagraph.end).isAfter(moment())) &&
+                    (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isBefore(moment(this.fromAsString)))
+            }
+
+            _cancellation() {
+                return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isAfter(moment())))
+
+            }
+
+            _extension() {
+                return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.inTreatment
+            }
+
+            neededAppendices() {
+                const dp = this.displayedParagraph
+                if (!dp || !dp.paragraphInfo) { return 0 }
+
+                const pt = (dp.paragraphInfo.processType || 1)
+                const extension = this.isAgreementSelected && !dp.inTreatment
+
+                const scanVerse = (v) => {
+                    return v.verses.reduce((acc, v) => acc + scanVerse(v), (extension && v.requestType !== 'D' || !extension && v.requestType !== 'P')
+                    && (v.checkBoxInd === 'N' || v.checkBoxInd === 'Y' && ((this.checkedVerses || []).includes(v.verseNum) || (dp.verses || []).includes(v.verseNum)))
+                    && (v.otherAddedDocumentInd === 'Y') ? 1 : 0)
+                }
+
+                const num = scanVerse(dp.paragraphInfo.headerVerse)
+                return  (pt === 2 || pt === 3 && extension || pt === 4 && !extension) ? num : 0
+            }
+
+            _prepareIncomplete() {
+                if (this.incomplete === null || this.incomplete > 1) {
+                    this.incomplete = this.neededAppendices()>0 ? 2 : null;
+                }
+            }
+
+            _missingAppendices() {
+                return Math.max(this.neededAppendices() - (this.appendicesTokens || []).length, 0)
+            }
+
+            _unwantedAppendix() {
+                const dp = this.displayedParagraph
+                if (!dp || !dp.paragraphInfo) { return false }
+                const pt = (dp.paragraphInfo.processType || 1)
+
+                return (pt === 1 && (this.appendicesTokens || []).length > 0)
+                    || (pt === 3  && !extension && (this.appendicesTokens || []).length > 0)
+                    || (pt === 4  && extension && (this.appendicesTokens || []).length > 0)
+            }
 
             onWidthChange() {
                 /*const offsetWidth = this.$.dialog.offsetWidth
@@ -1177,23 +1346,19 @@
             }
 
             _convertedMedications() {
-                return (this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.options && c.medicationValue.options.ioChapter4Paragraph)).map(svc => {
-                    const content = svc.content.find(c => !!c.medicationValue.options.ioChapter4Paragraph)
-                    return {
-                        id: svc.id,
-                        paragraphName: content.medicationValue.options.ioChapter4ParagraphName,
-                        paragraph: content.medicationValue.options.ioChapter4Paragraph,
-                        verses: content.medicationValue.options.ioChapter4Verses,
-                        ioRequestReference: content.medicationValue.options.ioRequestReference,
-                        ioDecisionReference: content.medicationValue.options.ioDecisionReference,
-                        ioDecisionEndOfValidity: content.medicationValue.options.ioDecisionEndOfValidity,
-                        medication: this.api.contact().shortServiceDescription(svc, this.language)
-                    }
-                })
+                return Promise.all((this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)).flatMap(svc => {
+                    const content =  Object.values(svc.content).find(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)
+                    const agreements = content.medicationValue.paragraphAgreements
+                    return _.toPairs(agreements).map(([p, t]) => _.assign({}, t, { paragraph: p, medications: [(content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname] }))
+                }).map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => Object.assign(t, {
+                    paragraphName: this.localizeObjectKey(pi, 'keyString'),
+                    medications: (t.medications || []).concat(vtm),
+                    paragraphInfo: pi
+                })))).then(agreements => { this.set('convertedMedications', agreements); return agreements })
             }
 
             _agreements() {
-                return this._convertedMedications().concat(this.orphanAgreements)
+                return (this.convertedMedications || []).concat(this.orphanAgreements)
             }
 
             _mpps(p) {
@@ -1210,59 +1375,63 @@
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, this.selectedLoadParagraph !== "" ? this.selectedLoadParagraph : null, this.api.moment(this.consultationStartDateAsString).valueOf(), this.consultationEndDateAsString !== "" ? this.api.moment(this.consultationEndDateAsString).valueOf() : null)
                 ).then(agreements => {
                     if (agreements.warnings && agreements.warnings.length) {
-                        this.set('warnings', agreements.warnings.map(w => w.msgFr).join(', '))
+                        this.set('warnings', agreements.warnings.map(w => this.localizeObjectKey(w,'msg') + (w.code||w.path?` [${w.code||''} : ${w.path||''}]` : '')))
                     }
                     if (agreements.errors && agreements.errors.length) {
-                        this.set('errors', agreements.errors.map(w => w.msgFr).join(', '))
+                        this.set('errors', agreements.errors.map(w => this.localizeObjectKey(w,'msg') + (w.code||w.path?` [${w.code||''} : ${w.path||''}]` : '')))
                     }
                     console.log(agreements)
-                    const medications = this._convertedMedications()
-                    const ioRequestReferences = medications.map(x => x.ioRequestReference)
-                    const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
+
                     return Promise.all(
                         agreements.transactions.map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => [t, vtm, pi]))
                     ).then((transactions) => {
-                        this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
-                            .map(([t, vtm, pi]) => ({
-                                careProviderReference: t.careProviderReference,
-                                content: t.content,
-                                coverageType: t.coverageType,
-                                refusalJustification: t.refusalJustification,
-                                paragraph: t.paragraph,
-                                paragraphName: this.localizeObjectKey(pi,'keyString', this.language),
-                                ioRequestReference: t.ioRequestReference,
-                                ioDecisionReference: t.decisionReference,
-                                ioDecisionEndOfValidity: t.end,
-                                restStrength: t.restStrength,
-                                restStrengthUnit: t.restStrengthUnit,
-                                restUnitNumber: t.restUnitNumber,
-                                start: t.start,
-                                strength: t.strength,
-                                strengthUnit: t.strengthUnit,
-                                accepted: t.accepted,
-                                inTreatment: t.inTreatment,
-                                end: t.end,
-                                responseType: t.responseType,
-                                timestamp: t.timestamp,
-                                unitNumber : t.unitNumber,
-                                medications: vtm,
-                                paragraphInfo: pi
-                            })))
-                        this.set('agreementResponse', agreements)
+                        return (this.convertedMedications ? Promise.resolve(this.convertedMedications) : this._convertedMedications()).then(medications => {
+                            const ioRequestReferences = medications.map(x => x.ioRequestReference)
+                            const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
+
+                            this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
+                                .map(([t, vtm, pi]) => ({
+                                    careProviderReference: t.careProviderReference,
+                                    content: t.content,
+                                    coverageType: t.coverageType,
+                                    refusalJustification: t.refusalJustification,
+                                    paragraph: t.paragraph,
+                                    paragraphName: this.localizeObjectKey(pi,'keyString', this.language),
+                                    ioRequestReference: t.ioRequestReference,
+                                    ioDecisionReference: t.decisionReference,
+                                    ioDecisionEndOfValidity: t.end,
+                                    start: t.start,
+                                    strength: t.strength,
+                                    strengthUnit: t.strengthUnit,
+                                    accepted: t.accepted,
+                                    inTreatment: t.inTreatment,
+                                    end: t.end,
+                                    responseType: t.responseType,
+                                    timestamp: t.timestamp,
+                                    unitNumber : t.unitNumber,
+                                    medications: vtm,
+                                    paragraphInfo: pi
+                                })))
+                            this.set('agreementResponse', agreements)
+                            this.set('isAskingAgreement', false)
+                        })
                     })
                 }).finally(() => {
                     this._isLoadingChapter = false;
+                    this.set('isAskingAgreement', false)
                 })
             }
 
             _requestChapter4(e) {
+                const pi = this.displayedParagraph && this.displayedParagraph.paragraphInfo
                 this.set('agreementResponse', {})
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
-                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) == 1 ) ? "extension" :
+                                    (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) <= 1 ) ? "extension" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
                             null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
-                if (requestType != null) {
+                if (pi && requestType != null) {
+                    this.set('isAskingAgreement',true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         Promise.all(this.appendicesTokens.map(ap =>
                             this.api.document().getDocument(ap.id)
@@ -1280,8 +1449,9 @@
                             this.api.fhc().Chaptercontroller().requestAgreementUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                                 this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender,
-                                requestType, this.paragraph.paragraphVersion, this.paragraph.paragraphName,
-                                this.checkedVerses.join(','), appendices, this.incomplete, requestType !== "complimentaryannex" ? this.api.moment(this.fromAsString).valueOf() : null , null,
+                                requestType, pi.paragraphVersion, pi.paragraphName,
+                                this.checkedVerses.join(','), appendices,!!this.incomplete,
+                                requestType === "complimentaryannex" ? null : requestType === "extension" ? this.api.moment(this.displayedParagraph.end).add(1, "days").valueOf() : this.api.moment(this.fromAsString).valueOf() , null,
                                 (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.ioDecisionReference : null,
                                 ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.ioDecisionReference) ? this.displayedParagraph.ioRequestReference : null)
                         )
@@ -1290,26 +1460,53 @@
                         this.set('agreementResponse', res)
                         this.set('tabs', 1)
 
-                        return Promise.all(((res || {}) && res.transactions || []).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph).then(it => ({
-                            paragraph: t.paragraph,
+                        return Promise.all(((res || {}) && res.transactions || []).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
+                            paragraph: t.paragraph || pi.paragraphName,
+                            transaction: t,
                             mpps: it
-                        })))).then(links =>
+                        })))).then(links => {
                             this.set('agreementMpps', links)
-                        )
-                    })
-                }
 
+                            Promise.all(links.map(l =>
+                                this.api.contact().service().newInstance(this.api.user, {
+                                    tags: [{type: "CD-ITEM", code:"medication"}],
+                                    codes: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
+                                    content: _.fromPairs([[this.language, {
+                                        medicationValue: {
+                                            medicinalProduct: {
+                                                intendedcds: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
+                                                intendedname: l.mpps.length  ? l.mpps[0].name : 'Chapter IV §'+t.paragraph
+                                            },
+                                            paragraphAgreements: _.fromPairs([[l.paragraph,
+                                                _.assign({}, l.transaction, {verses: this.checkedVerses, agreementAppendices: this.appendicesTokens.map(ap => ({
+                                                        verseSeq: ap.verseSeq,
+                                                        documentSeq: ap.docSeq,
+                                                        path: ap.name,
+                                                        documentId: ap.id
+                                                    }))})
+                                            ]])
+                                        }
+                                    }]]), label: this.localize('medication', 'Medication')
+                                })
+                            )).then(svcs =>
+                                svcs.forEach(svc => this.dispatchEvent(new CustomEvent('create-service', {detail: {service: svc}, bubbles: true, composed: true})))
+                            )
+                        })
+                    }).finally(() => {this.isAskingAgreement = false;})
+                }
             }
 
             _annexBaseName(addedDoc) {
-                return `${this.paragraph.paragraphName}_${this.paragraph.paragraphVersion}_${addedDoc.verseSeq}_${addedDoc.documentSeq}_${this.localizeObjectKey(addedDoc, 'descr')}`
+                const pi = this.displayedParagraph && this.displayedParagraph.paragraphInfo
+                return pi ? `${pi.paragraphName}_${pi.paragraphVersion}_${addedDoc.verseSeq}_${addedDoc.documentSeq}_${this.localizeObjectKey(addedDoc, 'descr')}` : 'annex'
             }
 
             _downloadAnnex(e) {
-                if (e && e.detail && e.detail.value) {
-                    const tpl = this.root.querySelector('#annexesDr').modelForElement(e.detail.value)
+                const pi = this.displayedParagraph && this.displayedParagraph.paragraphInfo
+                if (e && e.detail && e.detail.value && pi) {
+                    const tpl = this.root.querySelector('#addedDocumentsDr').modelForElement(e.detail.value)
                     if (tpl.item.addressUrl) {
-                        const url = `${this.api.fhcHost}/chap4/sam/docpreview/IV/${this.paragraph.paragraphName}/${tpl.item.verseSeq}/${tpl.item.documentSeq}/${this.language}`
+                        const url = `${this.api.fhcHost}/chap4/sam/docpreview/IV/${pi.paragraphName}/${tpl.item.verseSeq}/${tpl.item.documentSeq}/${this.language}`
                         var a = document.createElement('a')
                         return fetch(url, {
                             method: 'GET'
@@ -1323,7 +1520,7 @@
                         }).finally(() => a.remove())
                     }
                 }
-                this.root.querySelector('#annexes').set('value', null)
+                this.root.querySelector('#addedDocuments').set('value', null)
             }
 
             _appendicesTokenChanged() {
@@ -1354,7 +1551,7 @@
                     if (files.length) {
                         vaadinUpload.uploadFiles(files)
                         files.forEach(f => {
-                            const regAnnex = this.annexes.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
+                            const regAnnex = this.addedDocuments.find(a => f.name.startsWith(this._annexBaseName(a))) || {}
                             this.appendicesTokens.map(x => x && x.id).includes(f.doc.id) || this.push('appendicesTokens', {
                             descr: f.name.replace(/^(.{5})...+(.{5})$/, '$1…$2'),
                             id: f.doc.id,
@@ -1398,6 +1595,7 @@
                             ioDecisionReference: selectedAgreement.ioDecisionReference,
                             start: selectedAgreement.start,
                             end: selectedAgreement.ioDecisionEndOfValidity,
+                            verses: selectedAgreement.verses,
                             paragraphInfo : pi
                         })
                         this.set('agreementResponse', {
@@ -1411,16 +1609,20 @@
                             this.set('agreementMpps', links)
                         )
                         this._isLoadingParagraph = false
+                        this.set('tabs', 0)
+                        this.set('isAskingAgreement', false)
                  })
             }
 
             _closeChapter(e) {
                 if (this.displayedParagraph) {
+                    this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference, this.displayedParagraph.ioRequestReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
+                            this.set('isClosingAgreement', false)
                             console.log(response)
                         })
                 }
@@ -1429,11 +1631,13 @@
 
             _cancelChapter(e) {
                 if (this.displayedParagraph) {
+                    this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
+                            this.set('isClosingAgreement', false)
                             console.log(response)
                         })
                 }

@@ -108,6 +108,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 100vw;
                 }
 
+                ht-msg-detail {
+                    padding: 0;
+                    z-index: 100;
+                    width: 100vw;
+                    height: 50vh;
+                    bottom: 0;
+                    position: fixed;
+                    transition: all .5s ease;
+                    transform: translateY(100vh);
+                    opacity: 0;
+                }
             }
         </style>
         <div class="container">
@@ -196,6 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reset() {
                 const props = HtMsg.properties
                 Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+				;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
             ready() {

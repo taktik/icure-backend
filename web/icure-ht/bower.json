@@ -69,7 +69,6 @@
     "intl-messageformat": "^1.1.0",
     "iron-collapse-button": "^1.0.1",
     "gold-password-input": "^2.1.0",
-    "polymer-password-strength": "^1.0.0",
     "vaadin-tabs": "vaadin/vaadin-tabs#^2.0.0",
     "vaadin-progress-bar": "vaadin/vaadin-progress-bar#^1.1.0",
     "js-xlsx": "^0.14.0"

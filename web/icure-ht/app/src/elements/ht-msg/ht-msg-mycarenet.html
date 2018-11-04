@@ -55,6 +55,8 @@
 
                 #messagesGrid.no-detail {
                     flex-basis: 100%;
+                    margin-top: 25px;
+                    height: calc(100% - 40px);
                 }
 
                 #detailGrid {
@@ -68,8 +70,11 @@
                 }
 
                 .invoice-panel .btns-container{
-                    padding: 16px 0;
+                    padding: 0;
                     flex-basis: 60px;
+                    position: fixed;
+                    right: 20px;
+                    bottom: 15px;
                 }
 
                 .bottom-btn {
@@ -85,62 +90,76 @@
                     text-transform: capitalize;
                 }
 
+                vaadin-grid{
+                    height: 100%;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
             <div class="grid-panel">
-                <vaadin-grid id="messagesGrid" class$="[[detailPanelClass(subMessages)]]" items="[[messages]]" active-item="{{activeItem}}">
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Date</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.received]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="oa-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Type</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.subject]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="oa-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.fromAddress]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="ref-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.patient.lastName]] [[item.patient.firstName]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="invoice-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Data</vaadin-grid-sorter>
-                        </template>
-                        <template>[[_displayMetas(item.metas)]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-                <vaadin-grid id="detailGrid" class$="[[detailPanelClass(subMessages)]]" items="[[subMessages]]">
-                    <vaadin-grid-column class="recipient-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Period</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.from]] - [[item.to]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="ref-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
-                        </template>
-                        <template>[[item.lastName]] [[item.firstName]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column class="invoice-col">
-                        <template class="header">
-                            <vaadin-grid-sorter path="">Payments</vaadin-grid-sorter>
-                        </template>
-                        <template>[[_formatPayments(item.payments)]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
+                <div  id="messagesGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
+                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{leftFilterValue}}"
+                                 on-keydown="refreshFilter">
+                    </paper-input>
+                    <vaadin-grid items="[[messages]]" active-item="{{activeItem}}">
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Date</vaadin-grid-sorter>
+                            </template>
+                            <template>[[_formatDate(item.received)]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="oa-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Type</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.subject]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="oa-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.fromAddress]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="ref-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.patient.lastName]] [[item.patient.firstName]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="invoice-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Data</vaadin-grid-sorter>
+                            </template>
+                            <template>[[_displayMetas(item.metas)]]</template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </div>
+                <div id="detailGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
+                    <paper-input id="subFilter" label="[[localize('fil','Filter',language)]]" value="{{rightFilterValue}}"
+                                 on-keydown="refreshSubFilter">
+                    </paper-input>
+                    <vaadin-grid items="[[subMessages]]">
+                        <vaadin-grid-column class="recipient-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Period</vaadin-grid-sorter>
+                            </template>
+                            <template>[[_formatDate(item.from)]] - [[_formatDate(item.to)]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="ref-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                            </template>
+                            <template>[[item.lastName]] [[item.firstName]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column class="invoice-col">
+                            <template class="header">
+                                <vaadin-grid-sorter path="">Payments</vaadin-grid-sorter>
+                            </template>
+                            <template>[[_formatPayments(item.payments)]]</template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </div>
             </div>
             <div class="btns-container">
                 <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages">[[localize('req_msg_lists','Request Messages Lists',language)]]
@@ -224,6 +243,24 @@
                             };
                             return res;
                         }
+                    },
+                    leftFilterValue :{
+                        type : String
+                    },
+                    tempoMessages :{
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    tempoSubMessages :{
+                        type: Array,
+                        value: function () {
+                            return [];
+                        }
+                    },
+                    rightFilterValue :{
+                        type : String
                     }
                 };
             }
@@ -266,7 +303,10 @@
                             })
                             return messages
                         })
-                }).then(messages =>  this.set('messages', messages || []))
+                }).then(messages =>  {
+                    this.set('messages', messages || [])
+                    this.set('tempoMessages', messages || [])
+                })
             }
 
             _displayMetas() {
@@ -274,7 +314,8 @@
             }
 
             _formatPayments(payments) {
-                return payments && payments.map(p => `${p.date}: ${p.amount}${p.currency} [${p.ref}]`).join(', ')
+                console.log(payments)
+                return payments && payments.map(p => this._formatDate(p.date)+`: ${p.amount} ${(p.currency="eur") ? "€" : p.currency}`+(p.ref ? `[${p.ref}]` : "")).join(', ')
             }
 
             detailPanelClass(subMessages) {
@@ -284,6 +325,7 @@
             _activeItemChanged() {
                 if (!this.activeItem) {
                     this.set('subMessages', [])
+                    this.set('tempoSubMessages', [])
                     return
                 }
                 this.api.document().findByMessage(this.user.healthcarePartyId, this.activeItem).then(
@@ -337,6 +379,7 @@
                                 })
                             })
                             this.set('subMessages', _.flatMap(lists,x => x.inscriptions))
+                            this.set('tempoSubMessages', _.flatMap(lists,x => x.inscriptions))
                         })
                     })
                 )
@@ -358,6 +401,63 @@
                     })
             }
 
+            _formatDate(val){
+                return this.api.moment(val).format("DD/MM/YYYY")
+            }
+
+            refreshFilter(){
+                setTimeout(function () {
+                    let currentValue = this.leftFilterValue
+
+                    setTimeout(function () {
+                        if (currentValue === this.leftFilterValue) {
+                            console.log("Triggering search for " + this.leftFilterValue)
+                            this.set("messages",this.tempoMessages);
+                            const regexYear = new RegExp('[0-9]{4}');
+                            const regexFullDate = new RegExp('[0-9]{2}[.\-/][0-9]{2}[.\-/][0-9]{4}');
+                            const regexOa= new RegExp('[1-6|9]00');
+                            (this.leftFilterValue.length===4 && regexYear.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(messages => this.api.moment(messages.received).format("YYYY")===this.leftFilterValue)) :
+                            (this.leftFilterValue.length>=8 && regexFullDate.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(messages => this.api.moment(messages.received).format("DDMMYYYY")===this.parseDate(this.leftFilterValue))) :
+                            (this.leftFilterValue.length===3 && regexOa.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(messages => (messages.fromAddress===this.leftFilterValue))) :
+                            this.set("messages",this.tempoMessages.filter(messages => messages.subject.toLowerCase().includes(this.leftFilterValue.toLowerCase()) || ((messages.patient) &&((messages.patient.firstName.includes(this.leftFilterValue)) || (messages.patient.lastName.includes(this.leftFilterValue))))))
+
+
+                        } else {
+                            console.log("Skipping search for " + this.leftFilterValue + " != " + currentValue)
+                        }
+                    }.bind(this), 500) //Wait for the user to stop typing
+                }.bind(this), 100)
+            }
+
+            parseDate(s) {
+                return s.replace(/\W/g,"")
+            }
+
+            refreshSubFilter(){
+                setTimeout(function () {
+                    let currentValue = this.rightFilterValue
+
+                    setTimeout(function () {
+                        if (currentValue === this.rightFilterValue) {
+                            console.log("Triggering search for " + this.rightFilterValue)
+
+                            console.log(this.tempoSubMessages)
+                            const regexYear = new RegExp('[0-9]{4}');
+                            const regexFullDate = new RegExp('[0-9]{2}[.\-/][0-9]{2}[.\-/][0-9]{4}');
+                            (this.rightFilterValue.length===4 && regexYear.test(this.rightFilterValue)) ? this.set("subMessages",this.tempoSubMessages.filter(message => this.api.moment(message.from).format("YYYY")<=this.rightFilterValue && this.api.moment(message.to).format("YYYY")>=this.rightFilterValue)) :
+                                (this.rightFilterValue.length>=8 && regexFullDate.test(this.rightFilterValue)) ? this.set("subMessages",this.tempoSubMessages.filter(message => (this.api.moment(message.from).format("YYYYMMDD")<=this.formatDate(this.rightFilterValue) && this.api.moment(message.to).format("YYYYMMDD")>=this.formatDate(this.rightFilterValue)) || this.api.moment(message.payments.date).format("DDMMYYYY")===this.parseDate(this.rightFilterValue))) :
+                                    this.set("subMessages",this.tempoSubMessages.filter(message => message.lastName+" "+message.firstName.includes(this.rightFilterValue)))
+                        } else {
+                            console.log("Skipping search for " + this.rightFilterValue + " != " + currentValue)
+                        }
+                    }.bind(this), 500) //Wait for the user to stop typing
+                }.bind(this), 100)
+            }
+
+            formatDate(date){
+                const tab =date.split(/\W/)
+                return tab[2]+tab[1]+tab[0]+""
+            }
         }
 
         customElements.define(HtMsgMycarenet.is, HtMsgMycarenet);

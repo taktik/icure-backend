@@ -1311,7 +1311,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reset() {
                 const props = HtAppTz.properties
                 Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
-                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-main'].map(x => this.root.querySelector(x)).map(el => el && el.reset())
+                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
             ready() {
@@ -1668,7 +1668,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.getAlternateKeystores().then(alternateKeystores => {
 					this.worker.postMessage({
 						action: "loadEhboxMessage",
-						hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+						hcpartyBaseApi: this.api.hcpartyLight(),
 						fhcHost: this.api.fhc().host,
 						fhcHeaders: JSON.stringify(this.api.fhc().headers),
 						iccHost: this.api.host,
