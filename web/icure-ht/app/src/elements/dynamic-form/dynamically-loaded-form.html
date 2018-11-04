@@ -60,7 +60,7 @@
 		</style>
 
 		<template is="dom-if" if="[[_shouldDisplay(form, form.deletionDate)]]">
-			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]"
+			<dynamic-form id="dynamic-form" api="[[api]]" user="[[user]]" language="[[language]]" resources="[[resources]]" template="[[form.template.layout]]" reports="[[formReports]]"
 						  data-provider="[[dataProvider]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" data-map="[[dataMap]]" linkable-health-elements="[[mainHealthElements]]"
 						  title="[[form.template.name]]" read-only="[[_isNotInCurrentContact(currentContact, contact, form, currentContact.subContacts.*)]]" show-title="true" health-elements="[[healthElements]]"
 						  on-link-form="linkForm" on-link-to-health-element="linkService" on-delete-form="deleteForm" on-status-changed="_statusChanged" on-dynamically-event="_openActionDialog">
@@ -94,6 +94,10 @@
                         value: null
                     },
                     contacts: {
+                        type: Array,
+                        value: []
+                    },
+                    formReports: {
                         type: Array,
                         value: []
                     },
@@ -158,7 +162,7 @@
             }
 
             static get observers() {
-                return ["_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
+                return ["_loadReports(form.reports.*)", "_prepareDataProvider(contact, contacts.*, servicesMap.*, form, patient,user)", '_hcpFilterChanged(filterValue)', '_proceduresFilterChanged(proceduresFilterValue)', '_drugsFilterChanged(drugsFilterValue)'];
             }
 
             constructor() {
@@ -238,6 +242,12 @@
             _allContacts() {
                 return this.contacts.includes(this.contact) ? this.contacts : _.concat([this.contact], this.contacts)
             }
+
+            _loadReports() {
+            	if (!this.forms || !this.form.reports) { return }
+            	Promise.all(this.form.reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
+					.then(tpls => {this.formRepors = tpls})
+			}
 
             _prepareDataProvider() {
                 if (this.contacts && this.contact && this.form && this.user && this.patient && this.servicesMap) {
