@@ -838,25 +838,21 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 	_list(e) {
 		this.hideAll();
-		this.set('isLoadingDoc',true)
 		this.set('list', true);
 	}
 
 	_table(e) {
 		this.hideAll();
-        this.set('isLoadingDoc',true)
 		this.set('table', true);
 	}
 
 	_graphique(e) {
 		this.hideAll();
-        this.set('isLoadingDoc',true)
 		this.set('graphique', true);
 	}
 
 	_default(e) {
 		this.hideAll();
-        this.set('isLoadingDoc',true)
 		this.set('doc', true);
 	}
 
@@ -1105,6 +1101,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		if (!this.contacts) {
 			return;
 		}
+
+        this.set('isLoadingDoc',true)
+
 		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
 			ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
@@ -1149,13 +1148,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 			console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-            if(this.contactsFormsAndDocuments && this.contactsFormsAndDocuments[0] &&
-				this.contactsFormsAndDocuments[0].forms && this.contactsFormsAndDocuments[0].forms.length) {
-                this.set('isLoadingDoc',true)
-            } else {
-                this.set('isLoadingDoc',false)
-            }
-		});
+		}).finally(() => this.set('isLoadingDoc',false));
 	}
 
 	toggleDetailsFiltersPanel() {
