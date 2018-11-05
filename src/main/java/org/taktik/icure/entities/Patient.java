@@ -75,8 +75,6 @@ public class Patient extends StoredICureDocument implements Person {
     protected String education;
     protected String profession;
     protected String note;
-    protected String noteAdministrative;
-    protected boolean openNoteAdmin = false;
 	protected String warning;
 	protected String nationality;
 
@@ -355,22 +353,6 @@ public class Patient extends StoredICureDocument implements Person {
 
     public void setMedicalHouseContracts(List<MedicalHouseContract> medicalHouseContracts) {
         this.medicalHouseContracts = medicalHouseContracts;
-    }
-
-    public String getNoteAdministrative() {
-        return noteAdministrative;
-    }
-
-    public void setNoteAdministrative(String noteAdministrative) {
-        this.noteAdministrative = noteAdministrative;
-    }
-
-    public boolean isOpenNoteAdmin() {
-        return openNoteAdmin;
-    }
-
-    public void setOpenNoteAdmin(boolean openNoteAdmin) {
-        this.openNoteAdmin = openNoteAdmin;
     }
 
     @Override
