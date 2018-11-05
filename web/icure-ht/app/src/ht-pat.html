@@ -56,7 +56,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	static get properties() {
 		return {
 			api: {
-				type: Object
+				type: Object,
+                noReset: true
 			},
 			user: {
 				type: Object
@@ -67,6 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 			routeData: {
 				type: Object,
+                noReset: true,
 				value: {}
 			},
 			selectedPatient: {
@@ -83,6 +85,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	constructor() {
 		super();
+	}
+
+	reset() {
+		const props = HtPat.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
 	}
 
 	ready() {

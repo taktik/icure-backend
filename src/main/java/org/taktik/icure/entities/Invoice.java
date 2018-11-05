@@ -72,6 +72,13 @@ public class Invoice extends StoredICureDocument {
 	private String internshipLastName;
 	private String internshipFirstName;
 	private String internshipCdHcParty;
+	private String supervisorNihii;
+	private String supervisorSsin;
+	private String supervisorLastName;
+	private String supervisorFirstName;
+	private String supervisorCdHcParty;
+
+	private String error;
 
 	private Integer longDelayJustification;
 
@@ -113,6 +120,11 @@ public class Invoice extends StoredICureDocument {
 		this.internshipLastName = this.internshipLastName == null ? other.internshipLastName : this.internshipLastName;
 		this.internshipFirstName = this.internshipFirstName == null ? other.internshipFirstName : this.internshipFirstName;
 		this.internshipCdHcParty = this.internshipCdHcParty == null ? other.internshipCdHcParty : this.internshipCdHcParty;
+		this.supervisorNihii = this.supervisorNihii == null ? other.supervisorNihii : this.supervisorNihii;
+		this.supervisorSsin = this.supervisorSsin == null ? other.supervisorSsin : this.supervisorSsin;
+		this.supervisorLastName = this.supervisorLastName == null ? other.supervisorLastName : this.supervisorLastName;
+		this.supervisorFirstName = this.supervisorFirstName == null ? other.supervisorFirstName : this.supervisorFirstName;
+		this.supervisorCdHcParty = this.supervisorCdHcParty == null ? other.supervisorCdHcParty : this.supervisorCdHcParty;
 
 		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes
 				: MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
@@ -163,6 +175,11 @@ public class Invoice extends StoredICureDocument {
 		ni.internshipLastName = i.internshipLastName;
 		ni.internshipFirstName = i.internshipFirstName;
 		ni.internshipCdHcParty = i.internshipCdHcParty;
+		ni.supervisorNihii = i.supervisorNihii;
+		ni.supervisorSsin = i.supervisorSsin;
+		ni.supervisorLastName = i.supervisorLastName;
+		ni.supervisorFirstName = i.supervisorFirstName;
+		ni.supervisorCdHcParty = i.supervisorCdHcParty;
 
 		ni.invoicingCodes = codes.stream().map(ic -> {
 			InvoicingCode invoicingCode = new InvoicingCode(ic);
@@ -378,6 +395,50 @@ public class Invoice extends StoredICureDocument {
 	public void setInternshipCdHcParty(String internshipCdHcParty) {
 		this.internshipCdHcParty = internshipCdHcParty;
 	}
+
+	public String getSupervisorNihii() {
+		return supervisorNihii;
+	}
+
+	public void setSupervisorNihii(String supervisorNihii) {
+		this.supervisorNihii = supervisorNihii;
+	}
+
+	public String getSupervisorSsin() {
+		return supervisorSsin;
+	}
+
+	public void setSupervisorSsin(String supervisorSsin) {
+		this.supervisorSsin = supervisorSsin;
+	}
+
+	public String getSupervisorLastName() {
+		return supervisorLastName;
+	}
+
+	public void setSupervisorLastName(String supervisorLastName) {
+		this.supervisorLastName = supervisorLastName;
+	}
+
+	public String getSupervisorFirstName() {
+		return supervisorFirstName;
+	}
+
+	public void setSupervisorFirstName(String supervisorFirstName) {
+		this.supervisorFirstName = supervisorFirstName;
+	}
+
+	public String getSupervisorCdHcParty() {
+		return supervisorCdHcParty;
+	}
+
+	public void setSupervisorCdHcParty(String supervisorCdHcParty) {
+		this.supervisorCdHcParty = supervisorCdHcParty;
+	}
+
+	public String getError() { return error; }
+
+	public void setError(String error) { this.error = error; }
 
 	public Integer getLongDelayJustification() {
 		return longDelayJustification;

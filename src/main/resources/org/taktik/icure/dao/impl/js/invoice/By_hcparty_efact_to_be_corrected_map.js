@@ -1,7 +1,7 @@
 function isInvoiceBad(doc) {
-  if(!doc.sentDate || doc.invoicingCodes.length === 0) return false;
+  if(doc.invoicingCodes.length === 0) return false;
   return doc.invoicingCodes.some(function(code){
-    return code.status && (code.status & 32) === 32
+    return code.pending && code.resent
   });
 }
 

@@ -115,7 +115,13 @@ public class PlaceFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(response = PlaceDto.class, value = "Gets all places")
+    @ApiOperation(
+            value = "Gets all places",
+            response = PlaceDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     public Response getPlaces() {
         Response response;
@@ -128,7 +134,6 @@ public class PlaceFacade implements OpenApiFacade {
         }
         return response;
     }
-
 
     @ApiOperation(response = PlaceDto.class, value = "Modifies an place")
     @PUT

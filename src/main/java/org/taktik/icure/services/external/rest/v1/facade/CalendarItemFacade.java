@@ -145,7 +145,7 @@ public class CalendarItemFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byPeriodAndHcPartyId")
-    public Response getCalendars(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("hcPartyId") String hcPartyId) {
+    public Response getCalendarItemsByPeriodAndHcPartyId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("hcPartyId") String hcPartyId) {
         if (startDate == null || endDate == null || hcPartyId == null || hcPartyId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
@@ -160,9 +160,16 @@ public class CalendarItemFacade implements OpenApiFacade {
         }
     }
 
+    @ApiOperation(
+            value = "Get CalendarItems by Period and AgendaId",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST",
+            notes = ""
+    )
     @POST
     @Path("/byPeriodAndAgendaId")
-    public Response getCalendarsForAgenda(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
+    public Response getCalendarsByPeriodAndAgendaId(@QueryParam("startDate") Long startDate, @QueryParam("endDate") Long endDate, @QueryParam("agendaId") String agendaId) {
         if (startDate == null || endDate == null || agendaId == null || agendaId.isEmpty()) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
@@ -193,7 +200,13 @@ public class CalendarItemFacade implements OpenApiFacade {
         return ResponseUtils.internalServerError(e.getMessage());
     }
 
-    @ApiOperation(response = CalendarItemDto.class, value = "Gets all calendarItems")
+    @ApiOperation(
+            value = "Gets all calendarItems",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
     @GET
     public Response getCalendarItems() {
         Response response;

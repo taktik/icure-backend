@@ -8,6 +8,7 @@
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-checkbox.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
@@ -17,6 +18,7 @@
 <link rel="import" href="../../../../bower_components/vaadin-text-field/vaadin-text-area.html">
 <link rel="import" href="../../../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
@@ -46,14 +48,14 @@
 
 
 <link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../spinner-style.html">
 
 <link rel="import" href="related-code-link.html">
 
 
 <dom-module id="ht-pat-invoicing-dialog">
     <template>
-        <style>
-
+        <style include="spinner-style">
 
             .invoice-item {
                 height: 90px;
@@ -278,7 +280,7 @@
             }
 
             .nmcl-descr {
-                overflow-y: auto;
+                overflow-y: hidden;
                 height: 332px;
             }
 
@@ -412,10 +414,6 @@
                 justify-content: flex-end;
             }
 
-            paper-item.menu-item.opened {
-                @apply --padding-right-left-16;
-            }
-
             paper-item {
                 background: transparent;
                 outline: 0;
@@ -433,11 +431,6 @@
                 --paper-item-focused-before: {
                     background: transparent;
                 };
-
-            }
-
-            paper-item.opened {
-                padding-top: 8px;
 
             }
 
@@ -741,18 +734,17 @@
                 flex: auto;
             }
 
-            paper-item:hover .he-edit-btn-container {
-                display:inline-flex;
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
             }
 
-            paper-item.iron-selected .he-edit-btn-container {
-                display:inline-flex;
-            }
 
             .he-edit-btn-container{
                 background: var(--app-text-color);
                 border-radius: 14px;
-                display: none;
+                display: inline-flex;
                 flex-flow: row-reverse wrap;
                 justify-content: space-between;
                 align-items: center;
@@ -760,8 +752,13 @@
                 width: 24px;
                 height: 24px;
                 overflow: hidden;
-                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
+                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1), opacity .33s ease;
                 cursor: pointer;
+                opacity: 0;
+            }
+            paper-item:hover .he-edit-btn-container,
+            paper-item.iron-selected .he-edit-btn-container {
+                opacity: 1;
             }
 
             .he-edit-btn-container.open{
@@ -777,28 +774,6 @@
             paper-item.iron-selected .he-edit-btn-container {
                 display:inline-flex;
             }
-
-            .he-edit-btn-container{
-                background: var(--app-text-color);
-                border-radius: 14px;
-                display: none;
-                flex-flow: row-reverse wrap;
-                justify-content: space-between;
-                align-items: center;
-                padding: 2px;
-                width: 24px;
-                height: 24px;
-                overflow: hidden;
-                transition: width .42s cubic-bezier(0.075, 0.82, 0.165, 1);
-                cursor: pointer;
-            }
-
-            .he-edit-btn-container.open{
-                width: 90px;
-                display:inline-flex;
-                flex-flow: row-reverse nowrap;
-            }
-
 
             .he-edit-btn{
                 height: 24px;
@@ -902,15 +877,18 @@
             .he-edit-btn-container.open > paper-icon-button.he-edit-btn:first-child {
                 transform: rotate(180deg)
             }
-
+            paper-spinner.validAndTarif {
+                position: absolute;
+                top: 10px;
+                transform: translateX(-10px);
+            }
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
                     <template is="dom-repeat" items="[[invoices]]">
-                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice"
-                                        id="[[item.id]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
@@ -932,7 +910,7 @@
                                         </template>
                                         <template is="dom-if" if="[[_ifEattestSaved(item)]]">
                                             <div class="he-edit-btn-container">
-                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-right" on-tap="_toggleEditHE"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
@@ -984,16 +962,16 @@
                         <div class="flex-container">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]"></vaadin-checkbox>
                                     [[localize('inv_cr_no','Credit note',language)]]<br/>
 
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod"></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]"></vaadin-checkbox>
                                     [[localize('inv_llp','Lifting limitation period',language)]]
                                 </template>
 
                                 <template is="dom-if" if="[[isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
 
 
@@ -1035,6 +1013,7 @@
                                 </div>
                             </div>
                             <div class="nmcl-list">
+                                <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px">
@@ -1068,7 +1047,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.patientIntervention]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1078,7 +1057,7 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.reimbursement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1087,7 +1066,7 @@
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.doctorSupplement]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1096,7 +1075,7 @@
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[item.totalAmount]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
@@ -1197,15 +1176,11 @@
                                          label="[[localize('reimb','Reimbursement',language)]]"
                                          value="{{activeNmclItem.reimbursement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
-                                         label="[[localize('conv_amoun','Convention amount',language)]]"
-                                         value="{{activeNmclItem.conventionAmount}}" readonly></paper-input>
-                            <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('extra','Extra',language)]]"
                                          value="{{activeNmclItem.doctorSupplement}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             <paper-input prevent-invalid-input allowed-pattern="[.\d]" class="flex-container-nmcl-row"
                                          label="[[localize('tot','Fee',language)]]"
                                          value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
-
                         </div>
                         <div class="flex-container-nmcl">
                             <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
@@ -1247,12 +1222,19 @@
 
                 </div>
                 <div class="buttons">
+                    <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
+                    <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
+                    <template is="dom-if" if="[[isEattestClosed]]">
+                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                            [[localize('can_eattest','Cancel eattest',language)]]
+                        </paper-button>
+                    </template>
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification">
+                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">
                                     [[localize('eTarif','Validation eTarif',language)]]
                                 </paper-button>
                             </template>
@@ -1264,13 +1246,13 @@
                         </template>
 
                         <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning">
+                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">
                                 [[localize('eTarif','Validation eTarif',language)]]
                             </paper-button>
                         </template>
 
                         <template is="dom-if" if="[[isNmclVerified]]">
-                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable">
+                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
@@ -1476,7 +1458,11 @@
                                 label: {"fr": "Médecin", "nl": "Arts", "en": "Physician"}
                             },
                             {
-                                id: "traineeDoctor",
+                                id: "traineesupervised",
+                                label: {"fr": "Méd.stag. superv.", "nl": "Stagiair arts", "en": "Superv. trainee"}
+                            },
+                            {
+                                id: "trainee",
                                 label: {"fr": "Médecin stagiaire", "nl": "Stagiair arts", "en": "Trainee physician"}
                             }
                         ]
@@ -1539,22 +1525,7 @@
                     thirdPartyJustification: {
                         type: Array,
                         value: () => [
-                            {
-                                id: "5",
-                                label: {
-                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
-                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
-                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
-                                }
-                            },
-                            {
-                                id: "9",
-                                label: {
-                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
-                                    "nl": "9. Prohibition of third-party billing via efact",
-                                    "en": "9. Prohibition of third-party billing via efact"
-                                }
-                            },
+
                             {
                                 id: "0",
                                 label: {
@@ -1588,6 +1559,14 @@
                                 }
                             },
                             {
+                                id: "5",
+                                label: {
+                                    "fr": "5. Prestations dispensées dans les centres de santé mentale, centres de planning familial et centres d'accueil pour toxicomanes",
+                                    "nl": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers",
+                                    "en": "5. Services Provided in Mental Health Centers, Family Planning Centers and Addiction Centers"
+                                }
+                            },
+                            {
                                 id: "6",
                                 label: {
                                     "fr": "6. Prestations dispensées dans des établissements spécialisés dans les soins aux enfants, aux personnes agées ou aux handicapés",
@@ -1609,6 +1588,14 @@
                                     "fr": "8. Statut affection chronique (sur base d'une attestation fournie par le patient)",
                                     "nl": "8. Chronic condition",
                                     "en": "8. Chronic condition"
+                                }
+                            },
+                            {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
                                 }
                             },
                             {
@@ -1821,14 +1808,25 @@
                     parentRelatedCodeId: {
                         type: String,
                         value: ""
+                    },
+                    isEattestClosed:{
+                        type:Boolean,
+                        value:false
+                    },
+                    isValidate: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isJustif: {
+                        type: Boolean,
+                        value: false
                     }
-
                 }
 
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)']
             }
 
             ready() {
@@ -1837,6 +1835,10 @@
 
 
             _selectInvoice(e) {
+                console.log('select invoice')
+                // Drop all should there be any
+                this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
+
                 this.isSelected=true;
                 const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
                 this.set("isTarificationError", false)
@@ -1862,18 +1864,25 @@
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
-                    this.set('isInvoiceClosed', !!this.selectedInvoice.sentDate)
+                    this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
                     this.isSelected=false;
+
+                    // Ain't set upon first load, target (either we already have one for today or we target the first node)
+                    var targetObject = this.shadowRoot.querySelector('[id="' + selected.id + '"]') || this.shadowRoot.querySelector('[class="invoice-text"]').parentElement;
+
+                    // Do set
+                    targetObject.classList.add('iron-selected')
                 })
             }
 
             open() {
-                Promise.all([this.api.hcparty().getHealthcareParties(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
+                if (!this.user) return
+                Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
 
-                    const invoiceOfDay = invoices.find( i=> i.invoiceDate === moment().format("YYYYMMDD") && !i.sentDate )
+                    const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
 
                     if(!invoiceOfDay){
                         const newInvoice = {}
@@ -2049,7 +2058,6 @@
 
                         const patientKeys = secretForeignKeys.join(",")
 
-                        console.log(this.selectedInvoice)
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
@@ -2159,12 +2167,23 @@
 
             _verifyTarification() {
                 if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
+                    this.set('isValidate',true)
+                    this.isLoadingEattest = true
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
-                            this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                            this.selectedInvoice.careProviderType === 'traineesupervised' && hcp.supervisorId ?
+                                this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(sup =>
+                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                                    this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+                                    hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
+                                    this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                    this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference, sup.ssin, sup.nihii, sup.firstName, sup.lastName).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id)
+                                ))
+                                :
+                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                 this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
-                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
                                 this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
                         )
                         .then(r => {
@@ -2207,8 +2226,12 @@
                                 this.calculateTotalOfInvoice()
                                 console.log(this.selectedInvoice)
                             }
+                            return null
                         }).catch((e) => {
                         console.log("Exception", e)
+                    }).finally(() => {
+                        this.isLoadingEattest = false
+                        this.set('isValidate',false)
                     })
 
                 } else {
@@ -2291,7 +2314,7 @@
             }
 
             analyzeCareProviderType(e) {
-                if (e.detail.value === "traineeDoctor") {
+                if (e.detail.value === "trainee") {
                     this.set("isTrainee", true)
                 } else {
                     this.set("isTrainee", false)
@@ -2301,6 +2324,7 @@
             _createInvoice() {
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
+                    this.set('isJustif',true)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".reimbursement", 0 - invoiceCode.reimbursement)
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".patientIntervention", 0 - invoiceCode.patientIntervention)
@@ -2335,10 +2359,12 @@
                                         this.generateJustificatory()
                                     }else if(this.selectedInvoice.sentMediumType==="eattest"){
                                         this.sendEattest();
+                                        this.eattest(this.selectedInvoice)
                                     }
                                 })
                             }))
                 })
+                this.set('isJustif',false)
             }
 
             _invoicingCodeChange() {
@@ -2365,6 +2391,17 @@
                 return date ? this.api.moment(date).format("DD/MM/YYYY") : 'N/A'
             }
 
+            _formatAmount(amount) {
+                console.log("formatamount",amount)
+                if (amount == 0) {return "0.00"}
+                if (amount.toString().length < 3) {
+                    let out = // if integer, add the decimals, else just besure it's float
+                        (Number(amount)%1 === 0) ? amount+".00" : parseFloat(amount)
+                    return out
+                }
+                return amount
+            }
+
             datePickerChanged() {
                 console.log('datePickerChange')
             }
@@ -2387,8 +2424,8 @@
             }
 
             getInvoiceType(invoiceType){
-               const type = this.invoiceType.find(type => type.id === invoiceType)
-               return type && type.label && type.label[this.language]
+                const type = this.invoiceType.find(type => type.id === invoiceType)
+                return type && type.label && type.label[this.language]
             }
 
             getSentMediumType(sentMediumType){
@@ -2397,213 +2434,600 @@
             }
 
             generateJustificatory(){
-                const width = 210
-                const height = 297
-
-                const center = function (pdf, x, txt, fontSize) {
-                    return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
-                };
-
-                const pdf = new jsPDF('p', 'mm', [width, height]);
-
-
-                pdf.setFontSize(9);
-                pdf.setFont('Arial');
-                pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
-                pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU PATIENT", 86, 24)
-                pdf.text("Patient", 38.5, 31.5)
-                pdf.text("Dispensateur de soins", 117, 31.5)
-                pdf.text("Identification", 20, 38.5)
-                pdf.text("Identification", 77, 38.5)
-                pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
-                pdf.text("Nom: "+this.patient.firstName, 20, 45.5)
-                pdf.text("Nom: "+this.hcp.firstName, 77, 45.5)
-                pdf.text("Nom: ", 135, 45.5)
-                pdf.text("Prénom: "+this.patient.lastName, 20, 52)
-                pdf.text("Prénom: "+this.hcp.firstName, 77, 52)
-                pdf.text("BCE: ", 135, 52)
-                pdf.text("NISS: "+this.patient.inss, 20, 58)
-                pdf.text("Adresse: "+this.patient.firstName, 77, 58)
-                pdf.text("INAMI: "+this.hcp.nihii, 77, 70)
-                pdf.text("BCE: "+this.hcp.cbe, 77, 76)
-
-
-                pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
-                pdf.text("Date des prestations", 20, 96)
-                pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
-
-                pdf.text("Code prestation", 51, 102)
-                pdf.text("Intervention OA", 80, 102)
-                pdf.text("Intervention personnelle", 110, 102)
-                pdf.text("Supplément", 150, 102)
-                pdf.text("Total", 180, 102)
-
-                let startNmclHeight = 108
-
-                let totTotal=0;
-                let totOA=0;
-                let totPers=0;
-                let totSupp=0;
+                let template = {
+                    "pageOne": {
+                        entries: [],
+                        tot: {
+                            totTotal: 0,
+                            totOa: 0,
+                            totPers: 0,
+                            totSuppr: 0
+                        }
+                    },
+                    "pageTwo": {
+                        entries: [],
+                        tot: {
+                            totTotal: 0,
+                            totOa: 0,
+                            totPers: 0,
+                            totSuppr: 0
+                        }
+                    }
+                }
+                let totTotal=0.00,totOA=0.00,totPers=0.00,totSupp=0.00
 
                 this.selectedInvoice.invoicingCodes.map(code => {
-                    let invoiceDate = this._formatInvoiceDate(code.dateCode)
-                    pdf.text(invoiceDate,20, startNmclHeight)
-                    pdf.text(code.code.toString(),50, startNmclHeight)
-                    pdf.text(code.reimbursement.toString(),95, startNmclHeight)
-                    pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
-                    pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
-                    pdf.text(code.totalAmount.toString(),184, startNmclHeight)
-
-                    startNmclHeight = Number(startNmclHeight) + 6
+                    const invoiceDate = this._formatInvoiceDate(code.dateCode)
+                    const invDate = invoiceDate
+                    const thisCode = code.code.toString()
+                    const reimbursement = code.reimbursement.toString()
+                    const patientIntervention = code.patientIntervention.toString()
+                    const doctorSupplement = code.doctorSupplement.toString()
+                    const totalAmount = code.totalAmount.toString()
 
                     totTotal+=code.totalAmount;
                     totOA+=code.reimbursement;
                     totPers+=code.patientIntervention;
                     totSupp+=code.doctorSupplement;
+
+                    const entry = {
+                        "invDate": invoiceDate,
+                        "code": thisCode,
+                        "reimbursement": reimbursement,
+                        "patientIntervention": patientIntervention,
+                        "doctorSupplement": doctorSupplement,
+                        "totalAmount": totalAmount
+                    }
+                    template.pageOne.entries.push(entry)
+                    template.pageTwo.entries.push(entry)
                 })
+                template.pageOne.tot.totTotal = totTotal
+                template.pageOne.tot.totOa = totOA
+                template.pageOne.tot.totPers = totPers
+                template.pageOne.tot.totSupp = totSupp
 
-                pdf.text("Total", 20, 260)
-                pdf.text(totOA.toString(), 95, 260)
-                pdf.text(totPers.toString(), 132, 260)
-                pdf.text(totSupp.toString(), 160, 260)
-                pdf.text(totTotal.toString(), 184, 260)
+                template.pageTwo.tot.totTotal = totTotal
+                template.pageTwo.tot.totOa = totOA
+                template.pageTwo.tot.totPers = totPers
+                template.pageTwo.tot.totSupp = totSupp
 
-                pdf.text("Total dû par le patient", 20, 266)
-                pdf.text(totPers.toString(), 184, 266)
+                const html =
+                `<html>
+                    <head>
+                        <style>article.page,table{box-sizing:border-box}td.important,td.indic{font-weight:700}body{margin:0}@page{size:A4;margin:0}article.page{width:210mm;height:297mm;display:flex;flex-direction:column;padding:25px;page-break-after:always;border-bottom:1px dashed grey}article.page:last-child{border-bottom:0}@media print{article.page{border-bottom:0}}table{display:table;border-spacing:0;border-collapse:collapse;width:100%}table thead{font-size:14px}table td,table tr{margin:0;padding:0;vertical-align:top}table td{padding:5px}table.border,table.border td,table.border tr{border:1px solid #000}.half td{width:50%}.no-border *{border:none!important}#factBody{display:flex;flex-direction:column;flex:1;border:1px solid #000}#factBody *{border:none}#factBody>*{display:flex;flex-direction:column}#factBody>*>tr{display:flex;flex-direction:row;border-bottom:1px solid #000}#factBody>*>tr.border>td{border-right:1px solid #000}#factBody>*>tr.border>td:last-child{border-right:0}#factBody>*>tr>td{flex:1 100%}#factBody>tbody{flex:1}#factBody .table-entry,#factBody .table-entry td{border:none;border-bottom:.5px solid #d3d3d3}#factBody .table-entry td:last-child{border-bottom:none}#factBody .table-entry>td{text-align:right}#factBody .table-entry>td:first-child{text-align:left}#factBody .row-total>td{text-align:right}#factBody .row-total>td:first-child{text-align:left}.txt-center{text-align:center}.mt20{margin-top:20px}.bleft{border-left:1px solid #000!important}.bleft-light{border-left:1px solid #d3d3d3!important}.bbottom-light{border-bottom:1px solid #d3d3d3!important}.bbzero{border-bottom:0!important}.nopad{padding:0}.fleft{float:left}.fright{float:right}td.important{font-size:1.1em}.min-txt{font-size:11px}.table-entry.min-txt{font-size:16px}</style>
+                    </head>
+                    <body>
+                        <article id="page-patient" class="page">
+                            <table id="docHeader" class="border">
+                                <thead>
+                                <tr>
+                                    <td class="important">Numéro d'ordre: ${this.selectedInvoice.invoiceReference}</td>
+                                    <td class="important txt-center">DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU PATIENT</td>
+                                </tr>
+                                <tr>
+                                    <td class="indic txt-center">Patient</td>
+                                    <td class="indic txt-center">Dispensateur de soins</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td id="patient-info" class="nopad">
+                                        <table class="no-border">
+                                            <thead>
+                                                <tr>
+                                                    <td colspan="2">Identification</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr class="bbottom-light">
+                                                <td>Nom :</td>
+                                                <td class="indic">${this.patient.lastName}</td>
+                                            </tr>
+                                            <tr class="bbottom-light">
+                                                <td>Prénom :</td>
+                                                <td class="indic">${this.patient.firstName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>NISS :</td>
+                                                <td class="indic">${this.patient.inss}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td class="nopad">
+                                        <table class="no-border half">
+                                            <tr>
+                                                <td class="nopad">
+                                                    <table class="no-border">
+                                                        <thead>
+                                                        <tr>
+                                                            <td colspan="2">Identification</td>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr class="bbottom-light">
+                                                            <td>Nom :</td>
+                                                            <td class="indic">${this.hcp.lastName}</td>
+                                                        </tr>
+                                                        <tr class="bbottom-light">
+                                                            <td>Prénom :</td>
+                                                            <td class="indic">${this.hcp.firstName}</td>
+                                                        </tr>
+                                                        <tr class="bbottom-light">
+                                                            <td>Adresse :</td>
+                                                            <td class="indic">${this.hcp.firstName}</td>
+                                                        </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                        <tr class="bbottom-light">
+                                                            <td>INAMI :</td>
+                                                            <td class="indic">${this.hcp.nihii}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>BCE :</td>
+                                                            <td class="indic">${this.hcp.cbe}</td>
+                                                        </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </td>
+                                                <td class="bleft nopad">
+                                                    <table class="no-border">
+                                                        <thead>
+                                                        <tr>
+                                                            <td class="txt-center">Les prestations de santé ont été effectuées pour le
+                                                                compte de :</td>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <table class="no-border">
+                                                            <tbody>
+                                                            <tr class="bbottom-light">
+                                                                <td>Nom :</td>
+                                                                <td class="indic">${this.hcp.firstName}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>BCE :</td>
+                                                                <td class="indic">${this.hcp.cbe}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table id="factBody" class="border mt20">
+                                <thead>
+                                <tr>
+                                    <td colspan="6" class="important txt-center">PRESTATION(S) DE SANTE REMBOURSABLE(S)</td>
+                                </tr>
+                                <tr class="no-border">
+                                    <td style="flex: 1 0 15.15%;"></td>
+                                    <td class="indic txt-center bleft-light" colspan="5">Prestation(s) facturée(s) en tiers payant</td>
+                                </tr>
+                                <tr class="border min-txt">
+                                    <td>Date des prestations</td>
+                                    <td>Code prestation</td>
+                                    <td>Intervention OA</td>
+                                    <td>Intervention personnelle</td>
+                                    <td>Supplément</td>
+                                    <td>Total</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#pageOne.entries}}
+                                <tr class="table-entry min-txt">
+                                    <td>{{invDate}}</td>
+                                    <td class="bleft-light">{{code}}</td>
+                                    <td class="bleft-light">{{reimbursement}}</td>
+                                    <td class="bleft-light">{{patientIntervention}}</td>
+                                    <td class="bleft-light">{{doctorSupplement}}</td>
+                                    <td class="bleft-light">{{totalAmount}}</td>
+                                </tr>
+                                {{/pageOne.entries}}
+                                </tbody>
+                                <tfoot>
+                                <tr class="no-border row-total">
+                                    <td class="important">Total</td>
+                                    <td></td>
+                                    {{#pageOne.tot}}
+                                    <td class="indic">{{totOa}}</td>
+                                    <td class="indic">{{totPerso}}</td>
+                                    <td class="indic">{{totSupp}}</td>
+                                    <td class="indic">{{totTotal}}</td>
+                                    {{/pageOne.tot}}
+                                </tr>
+                                <tr class="no-border">
+                                    <td class="indic">
+                                        <div class="fleft">Total dû par le patient</div>
+                                        <div class="fright">{{pageOne.tot.totPers}}</div>
+                                    </td>
+                                </tr>
+                                <tr class="no-border">
+                                    <td class="indic">
+                                        <div class="fleft">Montant total facturé à l'organisme assureur (OA)</div>
+                                        <div class="fright">{{pageOne.tot.totOa}}</div>
+                                    </td>
+                                </tr>
+                                <tr class="no-border bbzero">
+                                    <td class="indic">
+                                        <div class="fleft">Montant total à payer par le patient</div>
+                                        <div class="fright">{{pageOne.tot.totPers}}</div>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <small>Le présent document justificatif ne donne aucun droit au remboursement</small>
+                        </article>
+                        <article id="page-medic" class="page">
+                            <table id="docHeader" class="border">
+                                <thead>
+                                <tr>
+                                    <td class="important">Numéro d'ordre: ${this.selectedInvoice.invoiceReference}</td>
+                                    <td class="important txt-center" colspan="2">DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MÉDECIN</td>
 
-                pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
-                pdf.text(totOA.toString(), 184, 272)
+                                </tr>
+                                <tr>
+                                    <td class="indic txt-center" colspan="3">Dispensateur de soins</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="nopad">
+                                        <table class="no-border">
+                                            <thead>
+                                            <tr>
+                                                <td colspan="2">Identification</td>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr class="bbottom-light">
+                                                <td>Nom :</td>
+                                                <td class="indic">${this.hcp.lastName}</td>
+                                            </tr>
+                                            <tr class="bbottom-light">
+                                                <td>Prénom :</td>
+                                                <td class="indic">${this.hcp.firstName}</td>
+                                            </tr>
+                                            <tr class="bbottom-light">
+                                                <td>Adresse :</td>
+                                                <td class="indic">${this.hcp.firstName}</td>
+                                            </tr>
+                                            </tbody>
+                                            <tfoot>
+                                            <tr class="bbottom-light">
+                                                <td>INAMI :</td>
+                                                <td class="indic">${this.hcp.nihii}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>BCE :</td>
+                                                <td class="indic">${this.hcp.cbe}</td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </td>
+                                    <td class="bleft nopad">
+                                        <table class="no-border">
+                                            <thead>
+                                            <tr>
+                                                <td class="txt-center">Les prestations de santé ont été effectuées pour le
+                                                    compte de :</td>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                <table class="no-border">
+                                                    <tbody>
+                                                    <tr class="bbottom-light">
+                                                        <td>Nom :</td>
+                                                        <td class="indic">${this.hcp.lastName}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>BCE :</td>
+                                                        <td class="indic">${this.hcp.cbe}</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table id="factBody" class="border mt20">
+                                <thead>
+                                <tr>
+                                    <td colspan="6" class="important txt-center">PRESTATION(S) DE SANTE REMBOURSABLE(S)</td>
+                                </tr>
+                                <tr class="no-border">
+                                    <td style="flex: 1 0 15.15%;"></td>
+                                    <td class="indic txt-center bleft-light" colspan="5">Prestation(s) facturée(s) en tiers payant</td>
+                                </tr>
+                                <tr class="border min-txt">
+                                    <td>Date des prestations</td>
+                                    <td>Code prestation</td>
+                                    <td>Intervention OA</td>
+                                    <td>Intervention personnelle</td>
+                                    <td>Supplément</td>
+                                    <td>Total</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#pageTwo.entries}}
+                                <tr class="table-entry min-txt">
+                                    <td>{{invDate}}</td>
+                                    <td class="bleft-light">{{code}}</td>
+                                    <td class="bleft-light">{{reimbursement}}</td>
+                                    <td class="bleft-light">{{patientIntervention}}</td>
+                                    <td class="bleft-light">{{doctorSupplement}}</td>
+                                    <td class="bleft-light">{{totalAmount}}</td>
+                                </tr>
+                                {{/pageTwo.entries}}
+                                </tbody>
+                                <tfoot>
+                                <tr class="no-border row-total">
+                                    <td class="important">Total</td>
+                                    <td></td>
+                                    {{#pageTwo.tot}}
+                                    <td class="indic">{{totOa}}</td>
+                                    <td class="indic">{{totPerso}}</td>
+                                    <td class="indic">{{totSupp}}</td>
+                                    <td class="indic">{{totTotal}}</td>
+                                    {{/pageTwo.tot}}
+                                </tr>
+                                <tr class="no-border">
+                                    <td class="indic">
+                                        <div class="fleft">Total dû par le patient</div>
+                                        <div class="fright">{{pageTwo.tot.totPers}}</div>
+                                    </td>
+                                </tr>
+                                <tr class="no-border">
+                                    <td class="indic">
+                                        <div class="fleft">Montant total facturé à l'organisme assureur (OA)</div>
+                                        <div class="fright">{{pageTwo.tot.totOa}}</div>
+                                    </td>
+                                </tr>
+                                <tr class="no-border bbzero">
+                                    <td class="indic">
+                                        <div class="fleft">Montant total à payer par le patient</div>
+                                        <div class="fright">{{pageTwo.tot.totPers}}</div>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <small>Le présent document justificatif ne donne aucun droit au remboursement</small>
+                        </article>
+                    </body>
+                </html>`;
 
-                pdf.text("Montant total à payer par le patient ", 20, 278)
-                pdf.text((totPers+totSupp).toString(), 184, 278)
+                this.api.pdfReport(mustache.render(html, template))
+                    .then(data =>{
+                        let blob = new Blob([data],{type :'application/pdf'});
 
-                pdf.setFontSize(6);
-                pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+                        let url = window.URL.createObjectURL(blob)
 
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
 
-                //Horizontals lines
-                pdf.lines([[0, 0], [180, 0]], 18, 20);
-                pdf.lines([[0, 0], [180, 0]], 18, 27.5);
-                pdf.lines([[0, 0], [180, 0]], 18, 34.5);
-                pdf.lines([[0, 0], [180, 0]], 18, 80);
-                pdf.lines([[0, 0], [180, 0]], 18, 86);
-                pdf.lines([[0, 0], [180, 0]], 18, 92);
-                pdf.lines([[0, 0], [180, 0]], 18, 98);
-                pdf.lines([[0, 0], [180, 0]], 18, 262);
-                pdf.lines([[0, 0], [180, 0]], 18, 268);
-                pdf.lines([[0, 0], [180, 0]], 18, 274);
-                pdf.lines([[0, 0], [180, 0]], 18, 280);
+                        a.href = url;
+                        a.download = this.selectedInvoice.id+moment()+".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
 
-
-                //Verticals lines
-                pdf.lines([[0, 60], [0, 0]], 18, 20);
-                pdf.lines([[0, 60], [0, 0]], 68, 20);
-                pdf.lines([[0, 45], [0, 0]], 75, 34.5);
-                pdf.lines([[0, 45], [0, 0]], 132, 34.5);
-                pdf.lines([[0, 60], [0, 0]], 198, 20);
-
-                pdf.lines([[0, 194], [0, 0]], 18, 86);
-                pdf.lines([[0, 194], [0, 0]], 198, 86);
-
-                pdf.addPage()
-
-                pdf.setFontSize(9);
-                pdf.setFont('Arial');
-                pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
-                pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MEDECIN", 86, 24)
-                pdf.text("Dispensateur de soins", 117, 31.5)
-                pdf.text("Identification", 20, 38.5)
-                pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
-                pdf.text("Nom: "+this.hcp.firstName, 20, 45.5)
-                pdf.text("Nom: ", 135, 45.5)
-                pdf.text("Prénom: "+this.hcp.lastName, 20, 52)
-                pdf.text("BCE: ", 135, 52)
-                pdf.text("Adresse: ", 20, 58)
-                pdf.text("INAMI: "+this.hcp.nihii, 20, 64)
-                pdf.text("BCE: "+this.hcp.cbe, 20, 70)
-                pdf.text("N° mutuelle: "+ "/ N° OA", 20, 76)
-
-
-                pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
-                pdf.text("Date des prestations", 20, 96)
-                pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
-
-                pdf.text("Code prestation", 51, 102)
-                pdf.text("Intervention OA", 80, 102)
-                pdf.text("Intervention personnelle", 110, 102)
-                pdf.text("Supplément", 150, 102)
-                pdf.text("Total", 180, 102)
-
-                startNmclHeight = 108
-
-                totTotal=0;
-                totOA=0;
-                totPers=0;
-                totSupp=0;
-
-                this.selectedInvoice.invoicingCodes.map(code => {
-                    let invoiceDate = this._formatInvoiceDate(code.dateCode)
-                    pdf.text(invoiceDate,20, startNmclHeight)
-                    pdf.text(code.code.toString(),50, startNmclHeight)
-                    pdf.text(code.reimbursement.toString(),95, startNmclHeight)
-                    pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
-                    pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
-                    pdf.text(code.totalAmount.toString(),184, startNmclHeight)
-
-                    startNmclHeight = Number(startNmclHeight) + 6
-
-                    totTotal+=code.totalAmount;
-                    totOA+=code.reimbursement;
-                    totPers+=code.patientIntervention;
-                    totSupp+=code.doctorSupplement;
-                })
-
-                pdf.text("Total", 20, 260)
-                pdf.text(totOA.toString(), 95, 260)
-                pdf.text(totPers.toString(), 132, 260)
-                pdf.text(totSupp.toString(), 160, 260)
-                pdf.text(totTotal.toString(), 184, 260)
-
-                pdf.text("Total dû par le patient", 20, 266)
-                pdf.text(totPers.toString(), 184, 266)
-
-                pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
-                pdf.text(totOA.toString(), 184, 272)
-
-                pdf.text("Montant total à payer par le patient ", 20, 278)
-                pdf.text((totPers+totSupp).toString(), 184, 278)
-
-                pdf.setFontSize(6);
-                pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
-
-                //Horizontals lines
-                pdf.lines([[0, 0], [180, 0]], 18, 20);
-                pdf.lines([[0, 0], [180, 0]], 18, 27.5);
-                pdf.lines([[0, 0], [180, 0]], 18, 34.5);
-                pdf.lines([[0, 0], [180, 0]], 18, 80);
-                pdf.lines([[0, 0], [180, 0]], 18, 86);
-                pdf.lines([[0, 0], [180, 0]], 18, 92);
-                pdf.lines([[0, 0], [180, 0]], 18, 98);
-                pdf.lines([[0, 0], [180, 0]], 18, 262);
-                pdf.lines([[0, 0], [180, 0]], 18, 268);
-                pdf.lines([[0, 0], [180, 0]], 18, 274);
-                pdf.lines([[0, 0], [180, 0]], 18, 280);
-
-
-                //Verticals lines
-                pdf.lines([[0, 60], [0, 0]], 18, 20);
-                pdf.lines([[0, 7], [0, 0]], 68, 20);
-                pdf.lines([[0, 45], [0, 0]], 132, 34.5);
-                pdf.lines([[0, 60], [0, 0]], 198, 20);
-
-                pdf.lines([[0, 194], [0, 0]], 18, 86);
-                pdf.lines([[0, 194], [0, 0]], 198, 86);
-
-
-
-                pdf.autoPrint();
-
-                pdf.save(`efactJustificatory_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.selectedInvoice.invoiceDate || '00000000'}.pdf`);
+                // const width = 210
+                // const height = 297
+                //
+                // const center = function (pdf, x, txt, fontSize) {
+                //     return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
+                // };
+                //
+                // const pdf = new jsPDF('p', 'mm', [width, height]);
+                //
+                // pdf.setFontSize(9);
+                // pdf.setFont('Arial');
+                // pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
+                // pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU PATIENT", 86, 24)
+                // pdf.text("Patient", 38.5, 31.5)
+                // pdf.text("Dispensateur de soins", 117, 31.5)
+                // pdf.text("Identification", 20, 38.5)
+                // pdf.text("Identification", 77, 38.5)
+                // pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
+                // pdf.text("Nom: "+this.patient.firstName, 20, 45.5)
+                // pdf.text("Nom: "+this.hcp.firstName, 77, 45.5)
+                // pdf.text("Nom: ", 135, 45.5)
+                // pdf.text("Prénom: "+this.patient.lastName, 20, 52)
+                // pdf.text("Prénom: "+this.hcp.firstName, 77, 52)
+                // pdf.text("BCE: ", 135, 52)
+                // pdf.text("NISS: "+this.patient.inss, 20, 58)
+                // pdf.text("Adresse: "+this.patient.firstName, 77, 58)
+                // pdf.text("INAMI: "+this.hcp.nihii, 77, 70)
+                // pdf.text("BCE: "+this.hcp.cbe, 77, 76)
+                //
+                //
+                // pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
+                // pdf.text("Date des prestations", 20, 96)
+                // pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
+                //
+                // pdf.text("Code prestation", 51, 102)
+                // pdf.text("Intervention OA", 80, 102)
+                // pdf.text("Intervention personnelle", 110, 102)
+                // pdf.text("Supplément", 150, 102)
+                // pdf.text("Total", 180, 102)
+                //
+                // let startNmclHeight = 108
+                //
+                // let totTotal=0;
+                // let totOA=0;
+                // let totPers=0;
+                // let totSupp=0;
+                //
+                // this.selectedInvoice.invoicingCodes.map(code => {
+                //     let invoiceDate = this._formatInvoiceDate(code.dateCode)
+                //     pdf.text(invoiceDate,20, startNmclHeight)
+                //     pdf.text(code.code.toString(),50, startNmclHeight)
+                //     pdf.text(code.reimbursement.toString(),95, startNmclHeight)
+                //     pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
+                //     pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
+                //     pdf.text(code.totalAmount.toString(),184, startNmclHeight)
+                //
+                //     startNmclHeight = Number(startNmclHeight) + 6
+                //
+                //     totTotal+=code.totalAmount;
+                //     totOA+=code.reimbursement;
+                //     totPers+=code.patientIntervention;
+                //     totSupp+=code.doctorSupplement;
+                // })
+                //
+                // pdf.text("Total", 20, 260)
+                // pdf.text(totOA.toString(), 95, 260)
+                // pdf.text(totPers.toString(), 132, 260)
+                // pdf.text(totSupp.toString(), 160, 260)
+                // pdf.text(totTotal.toString(), 184, 260)
+                //
+                // pdf.text("Total dû par le patient", 20, 266)
+                // pdf.text(totPers.toString(), 184, 266)
+                //
+                // pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
+                // pdf.text(totOA.toString(), 184, 272)
+                //
+                // pdf.text("Montant total à payer par le patient ", 20, 278)
+                // pdf.text((totPers+totSupp).toString(), 184, 278)
+                //
+                // pdf.setFontSize(6);
+                // pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+                //
+                //
+                // //Horizontals lines
+                // pdf.lines([[0, 0], [180, 0]], 18, 20);
+                // pdf.lines([[0, 0], [180, 0]], 18, 27.5);
+                // pdf.lines([[0, 0], [180, 0]], 18, 34.5);
+                // pdf.lines([[0, 0], [180, 0]], 18, 80);
+                // pdf.lines([[0, 0], [180, 0]], 18, 86);
+                // pdf.lines([[0, 0], [180, 0]], 18, 92);
+                // pdf.lines([[0, 0], [180, 0]], 18, 98);
+                // pdf.lines([[0, 0], [180, 0]], 18, 262);
+                // pdf.lines([[0, 0], [180, 0]], 18, 268);
+                // pdf.lines([[0, 0], [180, 0]], 18, 274);
+                // pdf.lines([[0, 0], [180, 0]], 18, 280);
+                //
+                //
+                // //Verticals lines
+                // pdf.lines([[0, 60], [0, 0]], 18, 20);
+                // pdf.lines([[0, 60], [0, 0]], 68, 20);
+                // pdf.lines([[0, 45], [0, 0]], 75, 34.5);
+                // pdf.lines([[0, 45], [0, 0]], 132, 34.5);
+                // pdf.lines([[0, 60], [0, 0]], 198, 20);
+                //
+                // pdf.lines([[0, 194], [0, 0]], 18, 86);
+                // pdf.lines([[0, 194], [0, 0]], 198, 86);
+                //
+                // pdf.addPage()
+                //
+                // pdf.setFontSize(9);
+                // pdf.setFont('Arial');
+                // pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
+                // pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MEDECIN", 86, 24)
+                // pdf.text("Dispensateur de soins", 117, 31.5)
+                // pdf.text("Identification", 20, 38.5)
+                // pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
+                // pdf.text("Nom: "+this.hcp.firstName, 20, 45.5)
+                // pdf.text("Nom: ", 135, 45.5)
+                // pdf.text("Prénom: "+this.hcp.lastName, 20, 52)
+                // pdf.text("BCE: ", 135, 52)
+                // pdf.text("Adresse: ", 20, 58)
+                // pdf.text("INAMI: "+this.hcp.nihii, 20, 64)
+                // pdf.text("BCE: "+this.hcp.cbe, 20, 70)
+                // pdf.text("N° mutuelle: "+ "/ N° OA", 20, 76)
+                //
+                //
+                // pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
+                // pdf.text("Date des prestations", 20, 96)
+                // pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
+                //
+                // pdf.text("Code prestation", 51, 102)
+                // pdf.text("Intervention OA", 80, 102)
+                // pdf.text("Intervention personnelle", 110, 102)
+                // pdf.text("Supplément", 150, 102)
+                // pdf.text("Total", 180, 102)
+                //
+                // startNmclHeight = 108
+                //
+                // totTotal=0;
+                // totOA=0;
+                // totPers=0;
+                // totSupp=0;
+                //
+                // this.selectedInvoice.invoicingCodes.map(code => {
+                //     let invoiceDate = this._formatInvoiceDate(code.dateCode)
+                //     pdf.text(invoiceDate,20, startNmclHeight)
+                //     pdf.text(code.code.toString(),50, startNmclHeight)
+                //     pdf.text(code.reimbursement.toString(),95, startNmclHeight)
+                //     pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
+                //     pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
+                //     pdf.text(code.totalAmount.toString(),184, startNmclHeight)
+                //
+                //     startNmclHeight = Number(startNmclHeight) + 6
+                //
+                //     totTotal+=code.totalAmount;
+                //     totOA+=code.reimbursement;
+                //     totPers+=code.patientIntervention;
+                //     totSupp+=code.doctorSupplement;
+                // })
+                //
+                // pdf.text("Total", 20, 260)
+                // pdf.text(totOA.toString(), 95, 260)
+                // pdf.text(totPers.toString(), 132, 260)
+                // pdf.text(totSupp.toString(), 160, 260)
+                // pdf.text(totTotal.toString(), 184, 260)
+                //
+                // pdf.text("Total dû par le patient", 20, 266)
+                // pdf.text(totPers.toString(), 184, 266)
+                //
+                // pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
+                // pdf.text(totOA.toString(), 184, 272)
+                //
+                // pdf.text("Montant total à payer par le patient ", 20, 278)
+                // pdf.text((totPers+totSupp).toString(), 184, 278)
+                //
+                // pdf.setFontSize(6);
+                // pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
+                //
+                // //Horizontals lines
+                // pdf.lines([[0, 0], [180, 0]], 18, 20);
+                // pdf.lines([[0, 0], [180, 0]], 18, 27.5);
+                // pdf.lines([[0, 0], [180, 0]], 18, 34.5);
+                // pdf.lines([[0, 0], [180, 0]], 18, 80);
+                // pdf.lines([[0, 0], [180, 0]], 18, 86);
+                // pdf.lines([[0, 0], [180, 0]], 18, 92);
+                // pdf.lines([[0, 0], [180, 0]], 18, 98);
+                // pdf.lines([[0, 0], [180, 0]], 18, 262);
+                // pdf.lines([[0, 0], [180, 0]], 18, 268);
+                // pdf.lines([[0, 0], [180, 0]], 18, 274);
+                // pdf.lines([[0, 0], [180, 0]], 18, 280);
+                //
+                //
+                // //Verticals lines
+                // pdf.lines([[0, 60], [0, 0]], 18, 20);
+                // pdf.lines([[0, 7], [0, 0]], 68, 20);
+                // pdf.lines([[0, 45], [0, 0]], 132, 34.5);
+                // pdf.lines([[0, 60], [0, 0]], 198, 20);
+                //
+                // pdf.lines([[0, 194], [0, 0]], 18, 86);
+                // pdf.lines([[0, 194], [0, 0]], 198, 86);
+                //
+                //
+                //
+                // pdf.autoPrint();
+                //
+                // pdf.save(`efactJustificatory_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.selectedInvoice.invoiceDate || '00000000'}.pdf`);
 
             }
 
@@ -2796,7 +3220,7 @@
             }
 
             _isLiftingLimitationPeriod(e) {
-                this.set('selectedInvoice.longDelayJustification', e.target.checked)
+                this.set('selectedInvoice.longDelayJustification', e.target.checked ? 1 : 0)
             }
 
             isTravellingExpenses(){
@@ -2824,11 +3248,11 @@
                 this.selectedInvoice.invoicingCodes.map(code =>{
                     let newCode = {
                         date : code.dateCode,
-                        doctorSupplement : code.doctorSupplement,
-                        fee : parseFloat(code.totalAmount),
+                        doctorSupplement : Number(code.doctorSupplement),
+                        fee : Number(code.totalAmount),
                         quantity : code.units,
-                        reglementarySupplement : code.patientIntervention,
-                        reimbursement: code.reimbursement,
+                        reglementarySupplement : Number(code.patientIntervention),
+                        reimbursement: Number(code.reimbursement),
                         requestor : {
                             date: this.selectedInvoice.invoiceDate ,
                             hcp: {
@@ -2857,7 +3281,7 @@
 
                     if(this.selectedInvoice.internshipNihii){
                         newCode.internship={
-                            cdHcParty: "traineeDoctor",
+                            cdHcParty: "trainee",
                             firstName: null,
                             idHcParty: this.selectedInvoice.internshipNihii,
                             idSsin: null,
@@ -2868,10 +3292,7 @@
                     eattest.codes.push(newCode)
                 })
 
-                let tempInvoice =this.selectedInvoice;
-                tempInvoice =_.omit(tempInvoice,["printedDate"])
-                this.eattest(tempInvoice)
-
+                console.log(eattest)
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
                         console.log(response)
@@ -2904,23 +3325,25 @@
                 this.$['xml_dialog'].open()
             }
 
-            duplicate(e){
-                e.stopPropagation();
-                e.preventDefault();
-                this.eattest(JSON.parse(e.target.dataset.item))
-            }
-
             conventionAmountChanged(){
                 if(!this.activeNmclItem)return ;
-                const tot = parseFloat(this.activeNmclItem.patientIntervention)+parseFloat(this.activeNmclItem.reimbursement);
+                const tot = Number(this.activeNmclItem.patientIntervention)+Number(this.activeNmclItem.reimbursement);
                 this.set('activeNmclItem.conventionAmount',tot)
             }
 
-            eattest(invoice){
+            _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
+
+            duplicate(e){
                 e.stopPropagation();
                 e.preventDefault();
 
-                 //generate jpeg
+                console.log(e.target.dataset.item)
+                this.eattest(JSON.parse(e.target.dataset.item))
+            }
+
+            eattest(invoice){
+
+                //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
@@ -2934,10 +3357,10 @@
 
                 invoice.invoicingCodes.map((code)=>{
                     totalACharge+=code.reimbursement+code.patientIntervention;
-                    totalSuppl+=parseFloat(code.doctorSupplement)
-                    totalRemb+=parseFloat(code.reimbursement)
-                    totalConv+=parseFloat(code.conventionAmount)
-                    totalDelta+=parseFloat(code.reimbursement)+parseFloat(code.patientIntervention)+parseFloat(code.doctorSupplement)
+                    totalSuppl+=Number(code.doctorSupplement)
+                    totalRemb+=Number(code.reimbursement)
+                    totalConv+=Number(code.conventionAmount)
+                    totalDelta+=Number(code.reimbursement)+Number(code.patientIntervention)+Number(code.doctorSupplement)
                 })
 
                 let templatePat = _.clone(this.patient), templateHcp = _.clone(this.hcp)
@@ -2963,9 +3386,9 @@
                         return function(calcul,render){
                             let termes = render(calcul).split(" ")
                             while(termes.length>2){
-                                let first = parseFloat(termes.shift())
+                                let first = Number(termes.shift())
                                 let operateur = termes.shift()
-                                let second = parseFloat(termes.shift())
+                                let second = Number(termes.shift())
 
                                 if(operateur=="+"){
                                     termes.unshift(first+second);
@@ -2976,7 +3399,7 @@
                                 else return "erreur dans le calcul"
 
                             }
-                            return parseFloat(termes[0]).toFixed(2)+" €";
+                            return Number(termes[0]).toFixed(2)+" €";
                         }
                     },
                     "justif": this.localize('pdf_justif','justif',this.language),
@@ -2995,142 +3418,124 @@
                     "totalRemb" : totalRemb,
                     "totalConv" : totalConv,
                     "totalDelta" : totalDelta,
-                    "jpegUrl" : jpegUrl,
-                    "isDuplicata" : (invoice.printedDate) ? true : false
+                    "jpegUrl" : jpegUrl
                 }
 
                 const html = `
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <title></title>
-                <style>
-                    .invoice-box {
-                        max-width: 800px;
-                        min-height:880px;
-                        margin: auto;
-                        padding: 30px;
-                        border: 1px solid #eee;
-                        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-                        font-size: 16px;
-                        line-height: 24px;
-                        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                        color: #555;
-                    }
-
-                    .invoice-box table {
-                        width: 100%;
-                        line-height: inherit;
-                        text-align: left;
-                    }
-
-                    .p12 {
-                        width:12%;
-                    }
-
-                    .p50 {
-                        width:50%;
-                    }
-
-                    .bold {
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table td {
-                        padding: 5px;
-                        vertical-align: top;
-                    }
-
-                    .invoice-box table tr td.right {
-                        text-align: right;
-                    }
-
-                    .invoice-box table tr.top table td {
-                    }
-
-                    .invoice-box table tr.top table td.title {
-                        font-size: 45px;
-                        line-height: 45px;
-                        color: #333;
-                    }
-
-                    .invoice-box table tr.information table td {
-                        padding-bottom: 40px;
-                    }
-
-                    .invoice-box table tr.heading td {
-                        background: #eee;
-                        border-bottom: 1px solid #ddd;
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.details td {
-                        padding-bottom: 20px;
-                    }
-
-                    .invoice-box table tr.item td{
-                        border-bottom: 1px solid #eee;
-                    }
-
-                    .invoice-box table tr.item.last td {
-                        border-bottom: none;
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.total td {
-                        font-weight: bold;
-                    }
-
-                    .invoice-box table tr.total td:nth-child(2) {
-                        border-top: 2px solid #eee;
-                    }
-
-                    @media only screen and (max-width: 600px) {
-                        .invoice-box table tr.top table td {
-                            width: 100%;
-                            display: block;
-                            text-align: center;
-                        }
-
-                        .invoice-box table tr.information table td {
-                            width: 100%;
-                            display: block;
-                            text-align: center;
-                        }
-                    }
-
-                    /** RTL **/
-                    .rtl {
-                        direction: rtl;
-                        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                    }
-
-                    .rtl table {
-                        text-align: right;
-                    }
-
-                    .rtl table tr td:nth-child(2) {
-                        text-align: left;
-                    }
-	            </style>
-            </head>
-            <body>
-            <div class="invoice-box">
-                <table cellpadding="0" cellspacing="0">
-                    <tr class="top">
-                        <td class="p50">
-                            Justificatif #: {{invoice.invoiceReference}}<br>
-                            Date:
-                            {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
-                            <br>
-                        </td>
-                        <td class="p50" style="text-align: center;">
-                            <img src="{{jpegUrl}}" alt="barcode" />
-                            <br>
-                            <span>{{invoice.thirdPartyReference}}</span><br>
-                            {{#isDuplicata}}<span style="color: red">DUPLICATA</span>{{/isDuplicata}}
-                        </td>
-                    </tr>
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title></title>
+                        <style>
+                            .invoice-box {
+                                max-width: 800px;
+                                min-height:880px;
+                                margin: auto;
+                                padding: 30px;
+                                border: 1px solid #eee;
+                                box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+                                font-size: 16px;
+                                line-height: 24px;
+                                font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+                                color: #555;
+                            }
+                            .invoice-box table {
+                                width: 100%;
+                                line-height: inherit;
+                                text-align: left;
+                            }
+                            .p12 {width:12%;}
+                            .p50 {width:50%;}
+                            .bold {font-weight: bold;}
+                            .invoice-box table td {
+                                padding: 5px;
+                                vertical-align: top;
+                            }
+                            td.first-col {
+                            min-width: 33%;
+                            }
+                            .invoice-box table tr td.right {text-align: right;}
+                            .invoice-box table tr.top table td.title {
+                                font-size: 45px;
+                                line-height: 45px;
+                                color: #333;
+                            }
+                            .invoice-box table tr.information table td {padding-bottom: 40px;}
+                            .invoice-box table tr.heading td {
+                                background: #eee;
+                                border-bottom: 1px solid #ddd;
+                                font-weight: bold;
+                            }
+                            .invoice-box table tr.details td {padding-bottom: 20px;}
+                            .invoice-box table tr.item td{border-bottom: 1px solid #eee;}
+                            .invoice-box table tr.item.last td {
+                                border-bottom: none;
+                                font-weight: bold;
+                            }
+                            .invoice-box table tr.total td {font-weight: bold;}
+                            .invoice-box table tr.total td:nth-child(2) {border-top: 2px solid #eee;}
+                            .underline {border-bottom: 1px solid lightgrey;}
+                            .underline-dotted {border-bottom: 1px dotted lightgrey;}
+                            table.fact-details {
+                                border: .5px solid lightgrey;
+                                margin-top: 35px;
+                            }
+                            table.fact-details * {font-size: 12px}
+                            td.minw30 {max-width: 30%;}
+                            .fleft {
+                                float: left;
+                                clear: both;
+                            }
+                            .hidden {display: none;}
+                            .txt-center {text-align: center;}
+                            .lborder {
+                                border-left: 1px solid lightgrey;
+                                padding-left: 10px;
+                            }
+                            .uppercase {text-transform: uppercase !important;}
+                            .capitalize {text-transform: capitalize;}
+                            .txt-red {color: red;}
+                            .mt20{margin-top: 20px;}
+                            .mb10{margin-bottom: 10px;}
+                            .mb20{margin-bottom:20px;}
+                            .m0auto {margin: 0 auto;}
+                            table.addr tr td:first-child {
+                                border-bottom: 1px solid lightgrey;
+                                text-align: right;
+                                text-transform: uppercase;
+                            }
+                            table.addr tr td:nth-child(2) {
+                                border-bottom: 1px dotted lightgrey;
+                                text-transform: lowercase;
+                                word-wrap: break-word;
+                            }
+                            .txt-underline {text-decoration:underline}
+                            .title {font-weight:bold;text-decoration: underline; margin-bottom:15px;}
+                            table.top-table {margin-bottom: 50px;}
+                        </style>
+                    </head>
+                    <body>
+                    <div class="invoice-box">
+                        <table class="toptable">
+                            <tr class="top">
+                                <td class="p50">
+                                    <h1>EATTEST</h1>
+                                    <h2 class="mb20">{{#patient}}
+                                        <div>{{firstName}} <span class="uppercase">{{lastName}}</span></div>
+                                        <div>NISS : {{ssin}}</div>
+                                    {{/patient}}</h2>
+                                    {{justif}} : {{invoice.invoiceReference}}<br />
+                                    {{date}} : {{#formatDate}}{{invoice.invoiceDate}}{{/formatDate}}
+                               </td>
+                               <td class="p50 txt-center">
+                                    <img src="{{jpegUrl}}" alt="barcode" />
+                                    <div class="txt-center">{{invoice.thirdPartyReference}}</div>
+                                    {{#invoice.printedDate}}
+                                        <div class="txt-center"><span class="txt-red">DUPLICATA</span></div>
+                                    {{/invoice.printedDate}}
+                                </td>
+                            </tr>
+                        </table>
 
                         <table>
                             <tr>
@@ -3274,6 +3679,15 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                     })
+            }
+
+            varIsEattestClosedChanged(){
+                this.set("isEattestClosed",this.selectedInvoice.sentMediumType==="eattest" && this.selectedInvoice.printedDate)
+            }
+
+            _cancelEattest(){
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+                window.open(url,"cancel");
             }
         }
 

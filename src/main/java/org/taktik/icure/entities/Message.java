@@ -46,6 +46,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_HAS_FREE_INFORMATION 	= 1 << 5;
 	public final static int STATUS_EFACT 					= 1 << 6;
 
+	public final static int STATUS_SENT  	     			= 1 << 7;
 	public final static int STATUS_SUBMITTED 				= 1 << 8;
 	public final static int STATUS_RECEIVED 				= 1 << 9;
 	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10;
@@ -75,7 +76,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	private Long received;
 	private Long sent;
 
-	private Map<String,String> metas = new HashMap<>();
+	private Map<String, String> metas = new HashMap<>();
 
 	/*
 		CHAP4:IN:   ${Mycarenet message ref}
@@ -101,6 +102,9 @@ public class Message extends StoredICureDocument implements Serializable {
 	private List<String> invoiceIds = new ArrayList<>();
 	private String parentId; //ID of parent in a message conversation
 	private String externalRef;
+
+	private Set<String> unassignedResults; //refs
+	private Map<String, String> assignedResults; //ContactId -> ref
 
 	private Map<String,String> senderReferences;
 
@@ -303,5 +307,21 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	public void setSenderReferences(Map<String, String> senderReferences) {
 		this.senderReferences = senderReferences;
+	}
+
+	public Set<String> getUnassignedResults() {
+		return unassignedResults;
+	}
+
+	public void setUnassignedResults(Set<String> unassignedResults) {
+		this.unassignedResults = unassignedResults;
+	}
+
+	public Map<String, String> getAssignedResults() {
+		return assignedResults;
+	}
+
+	public void setAssignedResults(Map<String, String> assignedResults) {
+		this.assignedResults = assignedResults;
 	}
 }

@@ -34,5 +34,5 @@ public interface KeywordLogic extends EntityPersister<Keyword, String> {
 
 	Keyword modifyKeyword(Keyword keyword);
 
-    List<Keyword> getKeywordByUser(String userId);
+    List<Keyword> getKeywordsByUser(String userId);
 }
