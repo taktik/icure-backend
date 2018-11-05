@@ -701,7 +701,7 @@
                                    selected="{{selectedAgreementIndex}}">
                         <template is="dom-repeat" items="[[_agreements(convertedMedications.*, orphanAgreements.*)]]">
                             <paper-material class="layout vertical chapter-item chapter--big"
-                                            id="[[item.ioDecisionReference]]">
+                                            id="[[item.decisionReference]]">
                                 <paper-item class="chapter-text">
                                     <div class="chapter-text-row chapter-text-date">
                                         <label>
@@ -715,7 +715,7 @@
                                                 &nbsp;
                                                 <iron-icon icon="vaadin:calendar-clock"
                                                         class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.ioDecisionEndOfValidity)]]</span>
+                                                <span>[[_formatDate(item.decisionEndOfValidity)]]</span>
                                             </div>
 
                                     </div>
@@ -740,8 +740,8 @@
                                                     [[localize('ch4Pending','Pending',language)]]
                                                 </span>
                                             </template>
-                                            <iron-icon class="chapterDateInfoIcon ioref-icon" id="ioref-[[item.ioDecisionReference]][[item.ioRequestReference]]" icon="info"></iron-icon>
-                                            <paper-tooltip for="ioref-[[item.ioDecisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">[[item.ioDecisionReference]] [[item.ioRequestReference]]</paper-tooltip>
+                                            <iron-icon class="chapterDateInfoIcon ioref-icon" id="ioref-[[item.decisionReference]][[item.ioRequestReference]]" icon="info"></iron-icon>
+                                            <paper-tooltip for="ioref-[[item.decisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">[[item.decisionReference]] [[item.ioRequestReference]]</paper-tooltip>
 
                                         </div>
                                     </div>
@@ -837,7 +837,7 @@
                                                 </template>
                                             </template>
 
-                                            <template is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
+                                            <template id="transactionRepeat" is="dom-repeat" items="[[agreementResponse.transactions]]" as="t">
                                                 <h4>[[localize('agr_res','Agreement response',language)]],
                                                     [[_formatDateTime(t.timestamp)]]</h4>
                                                 <div class="one-line">
@@ -899,7 +899,7 @@
                                                         </template>
                                                         <template>
                                                             <div class="cell frozen">
-                                                                <vaadincheckbox checked="{{item.selected}}"></vaadincheckbox>
+                                                                <vaadin-checkbox id="[[item.id.id]]" checked="[[_medicationChecked(item, displayedParagraph.selectedMedication)]]" on-checked-changed="_updateMedication"></vaadin-checkbox>
                                                             </div>
                                                         </template>
                                                     </vaadin-grid-column>
@@ -955,32 +955,40 @@
                                     request', language)]]
                                 </vaadin-checkbox>
                             </div>
+
                             <template is="dom-if" if="[[_missingAppendices(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)]]">
-                                <div class="warning">[[_missingAppendices(appendicesToken.*, displayedParagraph)]] [[localize('app_are_mis','appendices are missing', language)]]</div>
+                                <div class="warning">[[_missingAppendices(appendicesTokens.*, displayedParagraph)]] [[localize('app_are_mis','appendices are missing', language)]]</div>
                             </template>
                             <template is="dom-if" if="[[_unwantedAppendix(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)]]">
                                 <div class="error">[[localize('app_are_unw','No appendix is expected for this agreement request. Adding one can delay the procedure.', language)]]</div>
                             </template>
+
                             <div class="btns-container">
                                 <template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">
-                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isDisablingAgreement]]">[[localize('can_agr','Cancel
+                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isCancellingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
+                                    <paper-spinner class="asking" active="[[isCancellingAgreement]]"></paper-spinner>
                                 </template>
                                 <template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">
-                                <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isClosingAgreement]]">[[localize('clos_agr','Close
+                                    <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isClosingAgreement]]">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
+                                    <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
+                                </template>
+                                <template is="dom-if" if="[[_complimentaryAnnex(isAgreementSelected, displayedParagraph, appendicesTokens.*)]]">
+                                    <paper-button class="bottom-btn" id="complimentaryAnnex" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">
+                                        [[localize('sen_com_app','Send complimentary annex',language)]]
+                                    </paper-button>
+                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                 </template>
                                 <template is="dom-if" if="[[isAgreementSelected]]">
                                     <template is="dom-if" if="[[displayedParagraph.end]]">
-                                    <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
-                                        agreement',language)]]
-                                    </paper-button>
+                                        <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
+                                            agreement',language)]]
+                                        </paper-button>
+                                        <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                     </template>
-                                    <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
-                                    <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
-                                    <paper-spinner class="asking" active="[[isDisablingAgreement]]"></paper-spinner>
                                 </template>
 
                                 <template is="dom-if" if="[[!isAgreementSelected]]">
@@ -1153,7 +1161,7 @@
                         type: Boolean,
                         value: false
                     },
-                    isDisablingAgreement: {
+                    isCancellingAgreement: {
                         type: Boolean,
                         value: false
                     }
@@ -1161,7 +1169,7 @@
             }
 
             static get observers() {
-                return ['_convertedMedications(medications.*),_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)', '_selectAgreementInList(selectedAgreementIndex)', '_prepareIncomplete(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)']
+                return ['_convertedMedications(medications.*)', '_appendicesChanged(appendices.*)', '_appendicesTokenChanged(appendicesToken.*)', '_selectAgreementInList(selectedAgreementIndex)', '_prepareIncomplete(appendicesTokens.*, displayedParagraph.paragraphInfo, checkedVerses.*)', '_medicationChanged(displayedParagraph.selectedMedication)']
             }
 
             reset() {
@@ -1191,6 +1199,20 @@
                 this.set('searchLoadContainerCollapsed',!this.searchLoadContainerCollapsed)
             }
 
+            _medicationChanged(mpp) {
+                const t = this.displayedParagraph
+                if (t && mpp) {
+                    if (t.service) {
+                        const content = Object.values((t.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[t.paragraph])
+                        content.medicationValue.medicinalProduct = {
+                            intendedcds: {type: "CD-DRUG-CNK", code: mpp.id.id},
+                            intendedname: mpp.name
+                        }
+                        this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [t.service]}, bubbles: true, composed: true}))
+                    }
+                }
+            }
+
             _filterChanged(text) {
                 if (text.detail && text.detail.value && text.detail.value.length > 2) {
                     const searchString = text.detail.value
@@ -1203,7 +1225,7 @@
                             if (searchString === this.latestSearchString) {
                                 this.set('searchResults', paragraphs.map(p => ({
                                     id: `${p.paragraphName}/${p.paragraphVersion}`,
-                                    descr: `${p.paragraphName} - ${p.keyStringFr}`
+                                    descr: `${p.paragraphName} - ${this.localizeObjectKey(p, 'keyString')}`
                                 })))
                             }
                         })
@@ -1229,7 +1251,7 @@
                 const grid = this.shadowRoot.querySelector('#medications-list')
                 this.incomplete = null
                 if (this.displayedParagraph && this.displayedParagraph.id) {
-                    (this.displayedParagraph.ioRequestReference || this.displayedParagraph.ioDecisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
+                    (this.displayedParagraph.ioRequestReference || this.displayedParagraph.decisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('checkedVerses', [])
                     const paragraph = this.displayedParagraph.id.split('/')[0]
                     this.set('_isLoadingParagraph',true)
@@ -1257,11 +1279,14 @@
 
             _cancellation() {
                 return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isAfter(moment())))
-
             }
 
             _extension() {
                 return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.inTreatment
+            }
+
+            _complimentaryAnnex() {
+                return this.isAgreementSelected && this.displayedParagraph && this.displayedParagraph.inTreatment && this.appendicesTokens && this.appendicesTokens.length > 0
             }
 
             neededAppendices() {
@@ -1349,12 +1374,15 @@
                 return Promise.all((this.medications || []).filter(svc => Object.values(svc.content).some(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)).flatMap(svc => {
                     const content =  Object.values(svc.content).find(c => !!c.medicationValue.paragraphAgreements && Object.keys(c.medicationValue.paragraphAgreements).length)
                     const agreements = content.medicationValue.paragraphAgreements
-                    return _.toPairs(agreements).map(([p, t]) => _.assign({}, t, { paragraph: p, medications: [(content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname] }))
+                    return _.toPairs(agreements).map(([p, t]) => _.assign({}, t, { service: svc, paragraph: p, medications: [(content.medicationValue.medicinalProduct || {}).intendedname || (content.medicationValue.substanceProduct || {}).intendedname] }))
                 }).map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => Object.assign(t, {
                     paragraphName: this.localizeObjectKey(pi, 'keyString'),
                     medications: (t.medications || []).concat(vtm),
                     paragraphInfo: pi
-                })))).then(agreements => { this.set('convertedMedications', agreements); return agreements })
+                })))).then(agreements => {
+                    this.set('convertedMedications', agreements)
+                    return agreements
+                })
             }
 
             _agreements() {
@@ -1362,8 +1390,7 @@
             }
 
             _mpps(p) {
-                //const mpps = this.agreementMpps && this.agreementMpps.mpps.find(mpps => mpps.paragraph === p)
-                return  this.agreementMpps && this.agreementMpps.mpps
+                return this.agreementMpps && (this.agreementMpps.find(mpps => mpps.paragraph === p) || {}).mpps || []
             }
 
             _loadChapter4() {
@@ -1387,31 +1414,36 @@
                     ).then((transactions) => {
                         return (this.convertedMedications ? Promise.resolve(this.convertedMedications) : this._convertedMedications()).then(medications => {
                             const ioRequestReferences = medications.map(x => x.ioRequestReference)
-                            const ioDecisionReferences = medications.map(x => x.ioDecisionReference)
+                            const decisionReferences = medications.map(x => x.decisionReference)
 
-                            this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && ioDecisionReferences.includes(t.decisionReference))))
-                                .map(([t, vtm, pi]) => ({
-                                    careProviderReference: t.careProviderReference,
-                                    content: t.content,
-                                    coverageType: t.coverageType,
-                                    refusalJustification: t.refusalJustification,
-                                    paragraph: t.paragraph,
+                            const updatedAgreements = _.compact(medications.map(x => {
+                                const bx = _.cloneDeep(x)
+                                const t = transactions.find( t => t.ioRequestReference === x.ioRequestReference || t.decisionReference === x.decisionReference)
+                                if (t) {
+                                    _.assign(x, t)
+                                    if (!_.isEqual(bx, x)) {
+                                        return x
+                                    }
+                                }
+                                return null
+                            }))
+
+                            if (updatedAgreements.length) {
+                                const services = _.compact(updatedAgreements.map(x => {
+                                    const c = Object.values((x.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[x.paragraph])
+                                    const pa = c && c.medicationValue.paragraphAgreements[x.paragraph]
+                                    return pa && Object.assign(pa, _.pickBy(x, (v,k) => !['paragraphInfo','medications','paragraphName','service'].includes(k))) && x
+                                }))
+                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: services}, bubbles: true, composed: true}))
+                            }
+
+                            this.set('orphanAgreements', transactions.filter(([t]) => !((t.ioRequestReference && ioRequestReferences.includes(t.ioRequestReference)) || (t.decisionReference && decisionReferences.includes(t.decisionReference))))
+                                .map(([t, vtm, pi]) => _.assign({}, t, {
                                     paragraphName: this.localizeObjectKey(pi,'keyString', this.language),
-                                    ioRequestReference: t.ioRequestReference,
-                                    ioDecisionReference: t.decisionReference,
-                                    ioDecisionEndOfValidity: t.end,
-                                    start: t.start,
-                                    strength: t.strength,
-                                    strengthUnit: t.strengthUnit,
-                                    accepted: t.accepted,
-                                    inTreatment: t.inTreatment,
-                                    end: t.end,
-                                    responseType: t.responseType,
-                                    timestamp: t.timestamp,
-                                    unitNumber : t.unitNumber,
                                     medications: vtm,
                                     paragraphInfo: pi
-                                })))
+                                }))
+                            )
                             this.set('agreementResponse', agreements)
                             this.set('isAskingAgreement', false)
                         })
@@ -1428,7 +1460,7 @@
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) <= 1 ) ? "extension" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
-                            null   //newrequest, extension, noncontinuousextension, complimentaryannex
+                                    (e.target && e.target.id === "complimentaryAnnex") ? "complimentaryannex" : null   //newrequest, extension, noncontinuousextension, complimentaryannex
 
                 if (pi && requestType != null) {
                     this.set('isAskingAgreement',true)
@@ -1452,19 +1484,21 @@
                                 requestType, pi.paragraphVersion, pi.paragraphName,
                                 this.checkedVerses.join(','), appendices,!!this.incomplete,
                                 requestType === "complimentaryannex" ? null : requestType === "extension" ? this.api.moment(this.displayedParagraph.end).add(1, "days").valueOf() : this.api.moment(this.fromAsString).valueOf() , null,
-                                (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.ioDecisionReference : null,
-                                ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.ioDecisionReference) ? this.displayedParagraph.ioRequestReference : null)
+                                (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.decisionReference : null, //Might want to set ioRequestReference here for complimentary appendices
+                                ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.decisionReference) ? this.displayedParagraph.ioRequestReference : null)
                         )
                     ).then(res => {
                         console.log(res)
                         this.set('agreementResponse', res)
                         this.set('tabs', 1)
 
-                        return Promise.all(((res || {}) && res.transactions || []).map(t => this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
-                            paragraph: t.paragraph || pi.paragraphName,
-                            transaction: t,
-                            mpps: it
-                        })))).then(links => {
+                        return Promise.all(((res || {}) && res.transactions || []).map(t =>
+                            this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
+                                paragraph: t.paragraph || pi.paragraphName,
+                                transaction: t,
+                                mpps: it
+                            }))
+                        )).then(links => {
                             this.set('agreementMpps', links)
 
                             Promise.all(links.map(l =>
@@ -1571,10 +1605,28 @@
                 this.root.querySelector('#appendix-upload-container').style.display = 'block'
             }
 
+            _medicationChecked(item) {
+                return item && item.id && item.id.id && this.displayedParagraph && this.displayedParagraph.selectedMedication && this.displayedParagraph.selectedMedication.id.id && this.displayedParagraph.selectedMedication.id.id === item.id.id
+            }
+
+            _updateMedication(event) {
+                const tr = this.root.querySelector("#transactionRepeat").modelForElement(event.target)
+                const t = tr.t
+                if (t) {
+                    const id = event.target.id
+                    const mpp = this._mpps(t.paragraph).find(mpp => ''+mpp.id.id === id)
+
+                    if (mpp && mpp.id.id && (!this.displayedParagraph.selectedMedication || this.displayedParagraph.selectedMedication.id.id !== id)) {
+                        this.set('displayedParagraph.selectedMedication', mpp)
+                    } else {
+                        this.set('displayedParagraph.selectedMedication', null)
+                    }
+                }
+            }
+
             _selectAgreementInList(idx) {
                 if (!idx && idx !== 0) {
                     this.set('isAgreementSelected', false)
-                    this.set('cbValue', '')
                     this.set('displayedParagraph', null);
                     this.set('agreementResponse', null);
                     this.set('agreementMpps', null);
@@ -1588,24 +1640,21 @@
                     .then(pi => {
                         this.set('isAgreementSelected', true)
                         this.set('cbValue', '')
-                        this.set('displayedParagraph', {
-                            descr: pi.headerVerse.textFr,
-                            id: pi.paragraphName,
-                            ioRequestReference: selectedAgreement.ioRequestReference,
-                            ioDecisionReference: selectedAgreement.ioDecisionReference,
-                            start: selectedAgreement.start,
-                            end: selectedAgreement.ioDecisionEndOfValidity,
-                            verses: selectedAgreement.verses,
+                        this.set('displayedParagraph', _.assign({}, selectedAgreement, {
+                            id: `${pi.paragraphName}/${pi.paragraphVersion}`,
+                            descr: `${pi.paragraphName} - ${this.localizeObjectKey(pi, 'keyString')}`,
                             paragraphInfo : pi
-                        })
+                        }))
+                        this.set('checkedVerses', selectedAgreement.verses)
                         this.set('agreementResponse', {
                             transactions: [selectedAgreement]
                         })
 
-                       this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', selectedAgreement.paragraph).then(it => ({
-                            paragraph: selectedAgreement.paragraph,
+                       this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', selectedAgreement.paragraph).then(it => ([{
+                            paragraph: selectedAgreement.paragraph || pi.paragraphName,
+                            transaction: selectedAgreement,
                             mpps: it
-                        })).then(links =>
+                        }])).then(links =>
                             this.set('agreementMpps', links)
                         )
                         this._isLoadingParagraph = false
@@ -1618,7 +1667,7 @@
                 if (this.displayedParagraph) {
                     this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference, this.displayedParagraph.ioRequestReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)
@@ -1633,7 +1682,7 @@
                 if (this.displayedParagraph) {
                     this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.ioDecisionReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference))
                         .then(response => {
                             this.set('agreementResponse', response)
                             this.set('tabs', 1)

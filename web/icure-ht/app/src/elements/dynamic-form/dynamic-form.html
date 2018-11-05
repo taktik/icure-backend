@@ -47,7 +47,7 @@
 			.pat-details-card {
 				min-height: 200px;
 				width: calc(100% - 64px);
-				margin: 0 32px;
+				margin: 0 32px 32px;
 				padding: 0 8px 8px;
 			}
 
@@ -274,9 +274,9 @@
 			<template is="dom-if" if="[[_none(showEdit,noPrint)]]">
 					<paper-icon-button class="edit-print-pat-details-btn" icon="print" on-tap="toggleReportsList"></paper-icon-button>
 					<div class="reports-list-container" hidden$="[[!reportsListDisplayed]]">
-						<paper-fab-speed-dial-action icon="vaadin:file-o" on-tap="newReport" id="report">[[localize('new_rep','New report',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="mail" on-tap="newReport">[[localize('new_rep','New report',language)]]</paper-fab-speed-dial-action>
-						<paper-fab-speed-dial-action icon="description" on-tap="newReport">[[localize('new_rep','New report',language)]]</paper-fab-speed-dial-action>
+						<template is="dom-repeat" items="[[reports]]" as="report">
+							<paper-fab-speed-dial-action icon="vaadin:file-o" on-tap="newReport" id="report">[[report.name]]</paper-fab-speed-dial-action>
+						</template>
 					</div>
 			</template>
 		</paper-card>
@@ -299,7 +299,10 @@
 						type: Object,
 						observer: '_templateChanged'
 					},
-					readOnly: {
+                    reports: {
+                        type: Array
+                    },
+                    readOnly: {
 						type: Boolean,
 						value: false
 					},
@@ -645,7 +648,7 @@
 			}
 
 			newReport() {
-                this.dispatchEvent(new CustomEvent('new-report', {composed: true, bubbles: true}));
+                this.dispatchEvent(new CustomEvent('new-report', {detail: {dataProvider: this.dataProvider}, composed: true, bubbles: true}));
             }
 
             _none(a,b) {
