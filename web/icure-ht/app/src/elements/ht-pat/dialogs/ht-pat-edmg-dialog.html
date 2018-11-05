@@ -300,6 +300,10 @@
                         type: Object,
                         value: null
                     },
+                    userHcp: {
+                        type:Object,
+                        value: {"supervisorId" : null}
+                    },
                     language: {
                         type: String
                     },
@@ -448,7 +452,7 @@
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)'];
+                return ['apiReady(api,user,opened)', 'hcpSupervisorChanged(userHcp.supervisorId)'];
             }
 
             ready() {
@@ -644,7 +648,7 @@
                                                 this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
                                                 this.patient.firstName, this.patient.lastName,
                                                 this.getGender(this.patient.ssin),
-                                                requestDate, sup.ssin, sup.ssin, sup.firstName, sup.lastName))
+                                                requestDate, sup.ssin, sup.nihii, sup.firstName, sup.lastName))
                                         :
                                         this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
                                             this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
@@ -804,6 +808,16 @@
                 }
             }
 
+            hcpSupervisorChanged(supervisorId){
+                if(supervisorId && supervisorId !== '') {
+                    this.set('asSupervisor', true);
+                }
+                else
+                {
+                    this.set('asSupervisor', false);
+                }
+            }
+
             apiReady() {
                 if (!this.api || !this.user || !this.user.id || !this.opened) return;
 
@@ -820,6 +834,9 @@
 
 
             open() {
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                    this.set('userHcp', hcp);
+                })
                 this.set('edmgNiss', null);
                 this.set('edmgOA', null);
                 this.set('edmgAFF', null);
