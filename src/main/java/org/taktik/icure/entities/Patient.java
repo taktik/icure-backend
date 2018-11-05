@@ -68,6 +68,7 @@ public class Patient extends StoredICureDocument implements Person {
     protected String partnerName; // Name of the partner, sometimes equal to spouseName
     protected PersonalStatus personalStatus = PersonalStatus.unknown;
 
+
     protected Integer dateOfBirth; // YYYYMMDD if unknown, 00, ex:20010000 or
 	protected Integer dateOfDeath; // YYYYMMDD if unknown, 00, ex:20010000 or
     protected String placeOfBirth;
@@ -75,7 +76,9 @@ public class Patient extends StoredICureDocument implements Person {
     protected String education;
     protected String profession;
     protected String note;
-	protected String warning;
+	protected String administrativeNote;
+
+    protected String warning;
 	protected String nationality;
 
 	protected String preferredUserId;
@@ -547,4 +550,12 @@ public class Patient extends StoredICureDocument implements Person {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public String getAdministrativeNote() {
+        return administrativeNote;
+    }
+
+    public void setAdministrativeNote(String administrativeNote) {
+        this.administrativeNote = administrativeNote;
+    }
 }
