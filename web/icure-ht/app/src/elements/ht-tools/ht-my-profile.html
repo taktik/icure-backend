@@ -919,11 +919,6 @@
                     let propMHNihii = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.medicalHouse.nihii')
                     propMHNihii.typedValue.stringValue = this.userMedicalHouseNihii;
 
-                    let propIBAN = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.IBAN')
-                    propIBAN.typedValue.stringValue = this.userIBAN;
-                    let propBIC = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.BIC')
-                    propBIC.typedValue.stringValue = this.userBIC;
-
                     // Only save if we actually have data
                     this.hcp.financialInstitutionInformation =  _.filter( this.hcp.financialInstitutionInformation, 'bankAccount' );
 
