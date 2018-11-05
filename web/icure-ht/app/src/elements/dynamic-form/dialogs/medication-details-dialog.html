@@ -112,12 +112,6 @@
                 font-weight: 700;
             }
 
-            .modal-title {
-                background: var(--app-background-color-dark);
-                margin-top: 0;
-                padding: 16px 24px;
-            }
-
             .buttons {
                 position: absolute;
                 bottom: 0;
@@ -270,18 +264,19 @@
 
             <div class="regimen-line save-line">
                 <!--<template is="dom-if" if="[[!existingMedicine]]">-->
-                    <div class="buttons force-left">
-                        <paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button--cancel">[[localize('cancel','Cancel',language)]]</paper-button>
-                    </div>
+                    <!--<div class="buttons force-left">-->
+                        <!--<paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button&#45;&#45;cancel">[[localize('cancel','Cancel',language)]]</paper-button>-->
+                    <!--</div>-->
                 <!--</template>-->
-                <template is="dom-if" if="[[existingMedicine]]">
-                    <div class="buttons force-left">
-                        <paper-button dialog-confirm autofocus on-tap="removeMedic" class="modal-button modal-button--delete">[[localize('del','Delete',language)]]</paper-button>
-                        <paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button--save">[[localize('cancel','Cancel',language)]]</paper-button>
-                    </div>
-                </template>
-                <div class="buttons force-right">
+                <!--<template is="dom-if" if="[[existingMedicine]]">-->
+                    <!--<div class="buttons force-left">-->
+                        <!--<paper-button dialog-confirm autofocus on-tap="removeMedic" class="modal-button modal-button&#45;&#45;delete">[[localize('del','Delete',language)]]</paper-button>-->
+                        <!--<paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button&#45;&#45;save">[[localize('cancel','Cancel',language)]]</paper-button>-->
+                    <!--</div>-->
+                <!--</template>-->
+                <div class="buttons">
                     <!--<paper-button dialog-confirm autofocus on-tap="_closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>-->
+                    <paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
                 </div>
             </div>

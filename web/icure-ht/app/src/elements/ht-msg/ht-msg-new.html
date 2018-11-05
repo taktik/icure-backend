@@ -32,7 +32,6 @@
 <link rel="import" href="../filter-panel/filter-panel.html">
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
-<link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
 
@@ -504,8 +503,8 @@
                     <div class="horizontal horizontal--nowrap">
                         <div class="modal-subtitle">[[localize('to','To',language)]]</div>
                         <vaadin-combo-box id="type-To" items="[[type]]" value="NIHII" required error-message="This field is required"
-                                        label="[[localize('sch_by', 'Search by', language)]]" on-change="refreshHcpList"></vaadin-combo-box>
-                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" items="[[hcpList]]" item-label-path="displayName"
+                                        label="[[localize('sch_by', 'Search by', language)]]" selected-item="{{recipientType}}"></vaadin-combo-box>
+                        <vaadin-combo-box id="newMsg-To" label="[[localize('rec','Destinataire',language)]]" filter="{{recipientFilter}}" filtered-items="[[hcpList]]" item-label-path="displayName"
                                           allow-custom-value on-change="_AddDestinations">
                             <template>[[item.displayName]]</template>
                         </vaadin-combo-box>
@@ -529,7 +528,7 @@
 
                 <div class="field">
                     <div class="modal-subtitle">[[localize('pati','Patient',language)]]</div>
-                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" items="[[patientList]]" item-label-path="displayName"
+                    <vaadin-combo-box id="newMsg-SSIN" label="[[localize('sel','Select',language)]]" filter="{{patientFilter}}" filtered-items="[[patientList]]" item-label-path="displayName"
                                       allow-custom-value on-change="_AddSSIN">
                         <template>[[item.displayName]]</template>
                     </vaadin-combo-box>
@@ -570,32 +569,7 @@
                     </div>
                     <div>
                         <div class="modal-subtitle">[[localize('attachments','Attachments',language)]]</div>
-                        <paper-input id="newMsg-addAnnexe" type="file" multiple="true" on-change="_addAnnexe"></paper-input>
-                        <vaadin-grid id="annexeList" items="[[newMessage.annex]]">
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    <div>[[localize('files','Files',language)]]</div>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.filename]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template class="header">
-                                    <div>[[localize('size','Size',language)]]</div>
-                                </template>
-                                <template>
-                                    <div class="cell frozen">[[item.size]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template>
-                                    <div class="cell frozen">
-                                        <paper-button class="remove-customMetas-btn" on-tap="_removeAnnexe" indexed$='[[index]]' ><iron-icon icon="icons:clear" indexed$='[[index]]'></iron-icon></paper-button>
-                                    </div>
-                                </template>
-                            </vaadin-grid-column>
-                        </vaadin-grid>
+                        <vaadin-upload id="vaadin-upload" auto files="{{files}}"  form-data-name="attachment" on-upload-before="_fileUploadBefore" on-file-remove="_fileUploadRemove"></vaadin-upload>
                     </div>
                 </div>
                 <!--<div class="field">-->
@@ -612,7 +586,7 @@
             </div>
             <div class="buttons">
                 <div class="force-left">
-                    <paper-button class="modal-button--save" on-tap="manageMetadata">Metadatas</paper-button> <!--[[localize('manage','Manage',language)]]-->
+                    <paper-button class="modal-button" on-tap="manageMetadata">Metadatas</paper-button> <!--[[localize('manage','Manage',language)]]-->
                 </div>
                 <div class="fright">
                     <paper-button class="modal-button" on-tap="_cancel">[[localize('can','Cancel',language)]]</paper-button>
@@ -710,7 +684,8 @@
             }
 
             static get observers() {
-                // return ['_focusChanged(selectMessage, selectMessage.*)'];
+                return ['_recipientFilterChanged(recipientType, recipientFilter)',
+                    '_patientFilterChanged(patientFilter)'];
             }
 
             constructor() {
@@ -719,10 +694,7 @@
 
 			ready() {
 				super.ready()
-
-				this.LoadHcpList("NIHII")
-				this.LoadPatients()
-				this.set("newMessage.destinations", [])
+                this.set("newMessage.destinations", [])
 			}
 
             open() {
@@ -734,127 +706,110 @@
                 this.$['new-msg'].close()
 			}
 
-            refreshHcpList() {
-                let typeTo = this.shadowRoot.querySelector('#type-To')
-                this.LoadHcpList(typeTo.value || "")
-            }
-
-			LoadHcpList(type){
-				this.api.hcparty().listHealthcareParties().then(hcps => {
-					let filtredHcps = hcps.rows
-						.filter(hcp=> (hcp.lastName || hcp.firstName) && this.filterHcp(hcp,type))
-						.map(hcp => this.cleanHcp(hcp,type))
-                        .sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName))
-					this.set("hcpList",filtredHcps)
-				})
-            }
-
-            filterHcp(hcp,type){
-				switch (type) {
-                    case "CBE":
-                        return hcp.cbe && !isNaN(parseInt(hcp.cbe))
-                    case "EHP":
-                        return hcp.ehp != undefined
-                    case "INSS":
-                        return hcp.ssin && !isNaN(parseInt(hcp.ssin))
-                    case "NIHII":
-					case "NIHII-HOSPITAL":
-					case "NIHII-PHARMACY":
-                        return hcp.nihii && !isNaN(parseInt(hcp.nihii))
+			_recipientFilterChanged(type, filter) {
+            	if(filter && filter.length >1) {
+					Promise.all([this.api.hcparty().findByName(filter, null, null, 100, false), this.api.hcparty().findBySsinOrNihii(filter, null, null, 100, false)]).then(([hcps1, hcps2]) => {
+						this.set("hcpList", _.uniqBy(_.uniqBy(hcps1.rows.concat(hcps2.rows), 'id')
+							.map(hcp => this.getHcpLight(hcp, type))
+							.filter(hcp => !!this.getTypeValue(hcp, type))
+							.sort((a, b) => a.lastName === b.lastName ? a.firstName.localeCompare(b.firstName) : a.lastName.localeCompare(b.lastName)), 'displayName'))
+					})
 				}
-                return false
+				else{
+					this.set("hcpList",[]);
+                }
             }
 
-			cleanHcp(hcp,type){
-                hcp.nihii = hcp.nihii ? parseInt(hcp.nihii) : ""
-                hcp.cbe = hcp.cbe ? parseInt(hcp.cbe) : ""
-                hcp.lastName = hcp.lastName ? hcp.lastName.toLowerCase().trim() : ""
-                hcp.firstName = hcp.firstName ? hcp.firstName.toLowerCase().trim() : ""
-                hcp.displayName = hcp.lastName + " " + hcp.firstName + " [" + this.getTypeValue(hcp, type) + "]"
-                return hcp
+			getHcpLight(hcp, type){
+            	let newHcp = {};
+				newHcp.nihii = hcp.nihii ? parseInt(hcp.nihii) : "";
+				newHcp.cbe = hcp.cbe ? parseInt(hcp.cbe) : "";
+				newHcp.ehp = hcp.ehp ? hcp.ehp : "";
+				newHcp.lastName = hcp.lastName ? hcp.lastName.trim() : "";
+				newHcp.firstName = hcp.firstName ? hcp.firstName.trim() : "";
+				newHcp.displayName = newHcp.lastName + " " + newHcp.firstName + " [" + this.getTypeValue(hcp, type) + "]";
+                return newHcp;
             }
 
             getTypeValue(hcp, type){
 				switch (type) {
 					case "CBE":
-                        return hcp.cbe.toString()
+                        return hcp.cbe ? hcp.cbe.toString() : "";
 					case "INSS":
-                        return hcp.ssin.toString()
+                        return hcp.ssin ? hcp.ssin.toString() : "";
+					case "EHP":
+						return hcp.ehp ? hcp.ehp.toString() : "";
 					case "NIHII":
 					case "NIHII-HOSPITAL":
 					case "NIHII-PHARMACY":
-                        return hcp.nihii.toString()
+                        return hcp.nihii ? hcp.nihii.toString() : "";
+					default:
+                    	return "";
 				}
             }
 
-			LoadPatients(){
-				this.api.patient().listPatients(this.user.healthcarePartyId).then(patients =>{
-					let filtredpatients = patients.rows.filter(pat => pat.ssin).map(pat =>{
-						pat.displayName = pat.firstName + " " + pat.lastName + " " + pat.ssin
-                        return pat
-                    })
-					this.set("patientList",filtredpatients)
-				})
-			}
-
-			_fileUploaded(e) {
-				// if (!this.currentContact) {
-				// 	return;
-				// }
-				// const vaadinUpload = this.$['vaadin-upload'];
-				// const f = e.detail.file;
-				// const d = f.doc;
-                //
-				// let sc = this.currentContact.subContacts.find(sbc => (sbc.status || 0) & 64);
-				// if (!sc) {
-				// 	sc = { status: 64, services: [] };
-				// 	this.currentContact.subContacts.push(sc);
-				// }
-				// const svc = this.api.contact().service().newInstance(this.user, { content: _.fromPairs([[this.language, { documentId: d.id, stringValue: f.name }]]), label: 'document' });
-				// this.currentContact.services.push(svc);
-				// sc.services.push({ serviceId: svc.id });
-				// if (!vaadinUpload.files.find(f => !f.complete && !f.error)) {
-				// 	this.saveCurrentContact().then(c => this._contactsChanged());
-				// }
-
-			}
-
-			_addAnnexe(){
-
-				let newMsgaddAnnexe = this.shadowRoot.querySelector('#newMsg-addAnnexe');
-
-				if( newMsgaddAnnexe.inputElement && newMsgaddAnnexe.inputElement.inputElement){
-					Object.values(newMsgaddAnnexe.inputElement.inputElement.files).forEach( file =>{
-						const fr = new FileReader();
-						fr.onload = function (e) {
-							let fileByteArray = [];
-							new Uint8Array(e.target.result).forEach(int8 => fileByteArray.push(int8));
-
-							this.push('newMessage.annex',{
-								"content": fileByteArray,
-								"filename": file.name,
-								"mimeType": file.type,
-								"title": file.name,
-                                "size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
-							});
-
-						}.bind(this);
-						fr.readAsArrayBuffer(file);
-                    })
+			_patientFilterChanged(filter){
+                if(filter && filter.length > 1) {
+					this.api.patient().findByNameBirthSsinAuto(this.user.healthcarePartyId, filter, null, null, 100, "asc")
+						.then(patients => {
+							console.log(patients);
+							let filtredpatients = patients.rows.filter(pat => pat.ssin)
+								.map(pat => {
+									let newPat = {};
+									newPat.firstName = pat.firstName ? pat.firstName : "";
+									newPat.lastName = pat.lastName ? pat.lastName : "";
+									newPat.ssin = pat.ssin ? pat.ssin : "";
+									newPat.displayName = newPat.firstName + " " + newPat.lastName + " " + newPat.ssin;
+									return newPat
+								})
+							this.set("patientList", _.uniqBy(filtredpatients, 'displayName'))
+						})
 				}
+				else{
+					this.set("patientList", [])
+                }
+            }
 
-				//Clear control
-				newMsgaddAnnexe.value = '';
+			_fileUploadBefore(e){
+				e.preventDefault();
+
+				if(e.detail && e.detail.file){
+					let file = e.detail.file;
+					const fr = new FileReader();
+
+					fr.onload = function (se) {
+						let fileByteArray = [];
+						new Uint8Array(se.target.result).forEach(int8 => fileByteArray.push(int8));
+
+						this.push('newMessage.annex',{
+							"content": fileByteArray,
+							"filename": file.name,
+							"mimeType": file.type,
+							"title": file.name,
+							"size": file.size>1024?(file.size/1024).toFixed(2) + " ko":file.size + " o"
+						});
+
+						let vaadinUpload = this.shadowRoot.querySelector('#vaadin-upload');
+						let fileIndex = vaadinUpload.files.indexOf(file);
+						vaadinUpload.set(['files', fileIndex, 'progress'], 100);
+						vaadinUpload.set(['files', fileIndex, 'complete'], true);
+
+
+						this.dispatchEvent(new CustomEvent('file-received', file));
+						// this.fire('file-received', file);
+
+					}.bind(this);
+
+					fr.readAsArrayBuffer(file);
+				}
 
             }
 
-
-			_removeAnnexe(e){
-				let index = e.target.getAttribute('indexed');
-				this.newMessage.annex.splice(index,1);
-				let annexeList = this.shadowRoot.querySelector('#annexeList');
-				annexeList.clearCache();
-			}
+			_fileUploadRemove(e){
+				if(e.detail && e.detail.file) {
+					this.newMessage.annex.splice(this.newMessage.annex.indexOf(e.detail.file), 1);
+				}
+            }
 
 			_AddDestinations(){
                 let newMsgTo = this.shadowRoot.querySelector('#newMsg-To')
@@ -1050,6 +1005,7 @@
             }
 
             clearField(){
+            	this.files = [];
 				this.set("newMessage",{customMetas:{},document:{},annex: [],destinations:[]})
 				let newMsgSSIN = this.shadowRoot.querySelector('#newMsg-SSIN');
 				newMsgSSIN.value = "";

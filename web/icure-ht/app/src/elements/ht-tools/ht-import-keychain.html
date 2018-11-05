@@ -1,5 +1,8 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 
@@ -39,12 +42,12 @@
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
+                color: var(--app-text-color);
 			}
 
 			.remove-msgKeystore-btn{
 				background: var(--app-status-color-nok);
 			}
-
 		</style>
 
 		<paper-dialog id="dialog" opened="{{opened}}" style="overflow: auto">

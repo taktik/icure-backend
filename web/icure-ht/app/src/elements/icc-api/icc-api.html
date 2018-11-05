@@ -102,6 +102,8 @@
 
             this.codeicc = new IccCodeXApi(this.host, this.headers)
             this.bedrugsicc = new IccBedrugsXApi(this.host, this.headers)
+
+            this.hcpartyiccLight = new api.iccHcpartyApi(this.host, this.headers)
             this.hcpartyicc = new IccHcpartyXApi(this.host, this.headers)
 
             this.cryptoicc = new IccCryptoXApi(this.host, this.headers, this.hcpartyicc)
@@ -113,7 +115,7 @@
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
             this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
-            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc)
+            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
@@ -239,6 +241,10 @@
             return this.hcpartyicc
         }
 
+        hcpartyLight() {
+            return this.hcpartyiccLight
+        }
+
         helement() {
             return this.helementicc
         }
@@ -360,7 +366,7 @@
                     acc[u.id] = u
                     return acc
                 }, {}))
-                return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id))))
+                return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))))
             }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
@@ -371,21 +377,52 @@
             this.registry[domain] = {listeners:[], entities:{}}
         }
 
-        register(entity, domain) {
-            if (!entity) { return entity }
+        getRegistry(domain) {
+            return this.registry[domain] || (this.registry[domain] = {listeners: [], entities: {}, queues: {}})
+        }
 
-            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}})
+        /**
+         * returns a Promise that will resolve when the current tail of the promise chain for this object resolves or that resolves immediately if the current chain is empty
+         *
+         * The promise resolves with two args in an array. The one that has been passed to the resolve and the next promise to resolve in order to make the queue advance
+         *
+         * @param entity
+         * @param domain
+         * @returns {*}
+         */
+        queue(entity, domain) {
+            if (!entity || !entity.id) { return Promise.resolve([entity, undefined]) }
+            const reg = this.getRegistry(domain)
+
+            let res = null
+            const defer = new Promise((resolve) => { res = resolve })
+            defer.resolve = res
+
+            const thisPromise = reg.queues[entity.id]
+            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolved(entity) }, 10000) : null
+            reg.queues[entity.id] = defer
+
+            return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
+        }
+
+        register(entity, domain, defer) {
+            if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
+
+            const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
-            if (current) {
+            if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
                 reg.listeners.forEach(l=>{
                     if (!l.pool || l.pool.some(x => x.id === entity.id)) { l.target.notifyPath(l.path) }
                 })
-            } else {
+            } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
             }
+
+            defer && defer.resolve(current)
+
             return current
         }
 
@@ -394,13 +431,11 @@
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin
                 credentials: "same-origin", // include, same-origin, *omit
-                headers: { "Content-Type": "text/html; charset=utf-8", },
+                headers: {"Content-Type": "text/html; charset=utf-8",},
                 redirect: "follow",
                 body: html,
             }).then(response => response.arrayBuffer())
         }
-
-
 
         loadBicData() {
 
