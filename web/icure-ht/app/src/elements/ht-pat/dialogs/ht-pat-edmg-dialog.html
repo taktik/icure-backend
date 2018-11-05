@@ -169,7 +169,6 @@
             <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('dmg-con','Dmg Consultation',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_not','Dmg Notification',language)]]</paper-tab>
-                <paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>
             </paper-tabs>
             <iron-pages selected="[[tabs]]" class="">
                 <page>
@@ -261,13 +260,6 @@
                             </template>
                         </template>
                     </div>
-                </page>
-                <page>
-                    <p>Experimental</p>
-                    <vaadin-date-picker label="[[localize('start-date','Start date',language)]]" value="{{listRequestDate}}" i18n="[[i18n]]"></vaadin-date-picker>
-                    <paper-input label="[[localize('io','IO',language)]]" value="{{listIO}}" ></paper-input>
-                    <paper-button class="action" on-tap="_dmgListRequest" disabled="[[isLoading]]">[[localize('dmg_lst','Get List',language)]]</paper-button>
-                    <paper-spinner active="[[isLoading]]"></paper-spinner>
                 </page>
             </iron-pages>
             <div class="end-buttons">
