@@ -85,7 +85,7 @@
             }
 
             _isIncomplete(val) {
-                return val>0 && this.checkedVerses.length<val
+                return val>0 && (this.checkedVerses || []).length<val
             }
 
             _checked(verseNum) {
