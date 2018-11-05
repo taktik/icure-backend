@@ -26,6 +26,7 @@ import {baseKeymap, toggleMark, setBlockType} from "prosemirror-commands";
 import {Plugin} from "prosemirror-state"
 import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
+import Element = Polymer.Element;
 
 
 /**
@@ -76,6 +77,16 @@ export class ProseEditor extends Polymer.Element {
     draggable: false,
 
     toDOM: (node: any) => ["span", {style: "padding-left:100px", class: "tab"}],
+    parseDOM: [{tag: "span.var", getAttrs(dom) { return {expr: (dom as HTMLElement).dataset.expr} }}]
+  }
+
+  varNodeSpec: NodeSpec = {
+    inline: true,
+    group: "inline",
+    draggable: true,
+    attrs: { expr: {default: ''} },
+
+    toDOM: (node: any) => ["span", {style: "padding-left:100px", class: "var", "data-expr":node.attrs.expr}],
     parseDOM: [{
       tag: "span.tab"
     }]
@@ -99,7 +110,8 @@ export class ProseEditor extends Polymer.Element {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
         }
       }))
-      .addBefore("image", "tab", this.tabNodeSpec),
+      .addBefore("image", "tab", this.tabNodeSpec)
+      .addBefore("image", "var", this.tabNodeSpec),
     marks: (schema.spec.marks as any)
       .addToEnd("underlined", {
         attrs: {
@@ -178,6 +190,22 @@ export class ProseEditor extends Polymer.Element {
         toDOM(mark:Mark) {
           let {size} = mark.attrs
           return ['span', {style: `font-size: ${size}`}, 0]
+        }
+      }).addToEnd("var", {
+        attrs: {
+          expr: {default: ''}
+        },
+        parseDOM: [
+          {
+            tag: 'span.var',
+            getAttrs(value:HTMLElement) {
+              return {expr: value.dataset.expr}
+            }
+          }
+        ],
+        toDOM(mark:Mark) {
+          let {expr} = mark.attrs
+          return ['span', {class:'var', 'data-expr': expr}, 0]
         }
       })
   })
