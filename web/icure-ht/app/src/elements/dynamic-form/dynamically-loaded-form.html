@@ -244,9 +244,9 @@
             }
 
             _loadReports() {
-            	if (!this.forms || !this.form.reports) { return }
+            	if (!this.forms || !this.form.reports) { this.formReports = [{name:'Report'}]; return }
             	Promise.all(this.form.reports.map(r => this.api.doctemplate().getDocumentTemplate(r)))
-					.then(tpls => {this.formRepors = tpls})
+					.then(tpls => {this.formReports = [{name:'Report'}].concat(tpls)})
 			}
 
             _prepareDataProvider() {

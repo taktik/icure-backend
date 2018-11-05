@@ -348,6 +348,11 @@
 				background: var(--app-secondary-color-dark) !important;
 			}
 
+			.fleft {
+				position: absolute;
+				left: 8px;
+			}
+
 			.floating-action-bar iron-icon{
 				box-sizing: border-box;
 				padding: 2px;
@@ -546,12 +551,17 @@
 		</paper-dialog>
 
 		<ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+
 		<paper-dialog id="prose-editor" no-cancel-on-outside-click no-cancel-on-esc-key>
 			<h2 class="modal-title">New Report</h2>
 			<prose-editor></prose-editor>
 			<div class="buttons">
+				<div class="fleft">
+					<paper-button class="modal-button" on-tap="saveTemplate">[[localize('sav_temp','Save template',language)]]</paper-button>
+					<paper-button class="modal-button" on-tap="loadTemplate">[[localize('load_temp','Load template',language)]]</paper-button>
+				</div>
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('sav','Save',language)]]</paper-button>
+				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 		<canvas id="barCode"></canvas>
@@ -1147,7 +1157,6 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				}, [])).sortBy(f=>-f.created).value()
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
-			console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
 		}).finally(() => this.set('isLoadingDoc',false));
 	}
 
