@@ -169,7 +169,6 @@
             <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('dmg-con','Dmg Consultation',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_not','Dmg Notification',language)]]</paper-tab>
-                <paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>
             </paper-tabs>
             <iron-pages selected="[[tabs]]" class="">
                 <page>
@@ -262,13 +261,6 @@
                         </template>
                     </div>
                 </page>
-                <page>
-                    <p>Experimental</p>
-                    <vaadin-date-picker label="[[localize('start-date','Start date',language)]]" value="{{listRequestDate}}" i18n="[[i18n]]"></vaadin-date-picker>
-                    <paper-input label="[[localize('io','IO',language)]]" value="{{listIO}}" ></paper-input>
-                    <paper-button class="action" on-tap="_dmgListRequest" disabled="[[isLoading]]">[[localize('dmg_lst','Get List',language)]]</paper-button>
-                    <paper-spinner active="[[isLoading]]"></paper-spinner>
-                </page>
             </iron-pages>
             <div class="end-buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
@@ -307,6 +299,10 @@
                     user: {
                         type: Object,
                         value: null
+                    },
+                    userHcp: {
+                        type:Object,
+                        value: {"supervisorId" : null}
                     },
                     language: {
                         type: String
@@ -456,7 +452,7 @@
             }
 
             static get observers() {
-                return ['apiReady(api,user,opened)'];
+                return ['apiReady(api,user,opened)', 'hcpSupervisorChanged(userHcp.supervisorId)'];
             }
 
             ready() {
@@ -652,7 +648,7 @@
                                                 this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null,
                                                 this.patient.firstName, this.patient.lastName,
                                                 this.getGender(this.patient.ssin),
-                                                requestDate, sup.ssin, sup.ssin, sup.firstName, sup.lastName))
+                                                requestDate, sup.ssin, sup.nihii, sup.firstName, sup.lastName))
                                         :
                                         this.api.fhc().Dmgcontroller().notifyDmgUsingPOST(
                                             this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
@@ -812,6 +808,16 @@
                 }
             }
 
+            hcpSupervisorChanged(supervisorId){
+                if(supervisorId && supervisorId !== '') {
+                    this.set('asSupervisor', true);
+                }
+                else
+                {
+                    this.set('asSupervisor', false);
+                }
+            }
+
             apiReady() {
                 if (!this.api || !this.user || !this.user.id || !this.opened) return;
 
@@ -828,6 +834,9 @@
 
 
             open() {
+                this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+                    this.set('userHcp', hcp);
+                })
                 this.set('edmgNiss', null);
                 this.set('edmgOA', null);
                 this.set('edmgAFF', null);
