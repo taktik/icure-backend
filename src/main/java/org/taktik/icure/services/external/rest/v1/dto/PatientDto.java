@@ -65,8 +65,6 @@ public class PatientDto extends IcureDto {
     protected String education;
     protected String profession;
     protected String note;
-    protected String noteAdministrative;
-    protected boolean openNoteAdmin = false;
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
@@ -391,23 +389,7 @@ public class PatientDto extends IcureDto {
         this.medicalHouseContracts = medicalHouseContracts;
     }
 
-    public String getNoteAdministrative() {
-        return noteAdministrative;
-    }
-
-    public void setNoteAdministrative(String noteAdministrative) {
-        this.noteAdministrative = noteAdministrative;
-    }
-
-    public boolean isOpenNoteAdmin() {
-        return openNoteAdmin;
-    }
-
-    public void setOpenNoteAdmin(boolean openNoteAdmin) {
-        this.openNoteAdmin = openNoteAdmin;
-    }
-
-    @Override
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
