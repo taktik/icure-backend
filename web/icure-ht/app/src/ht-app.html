@@ -854,7 +854,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reset() {
                 const props = HtApp.properties
                 Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
-                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg', '#ht-main'].map(x => this.root.querySelector(x)).map(el => el && el.reset())
+                ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
             }
 
             ready() {
@@ -913,7 +913,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             }
                         }).catch(() => this._timeCheck(10000))
                     } else {
+                        this.uploadKeystoreAndCheckToken().then(() => {
                         this._timeCheck()
+                        }).catch(() => this._timeCheck(10000))
                     }
                 }, period)
             }
@@ -1026,6 +1028,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('connected')
                         this.$.eHealthStatus.classList.add('disconnected')
+                        throw(e)
                     })
                 )
             }
@@ -1076,7 +1079,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 this.$.api.crypto().checkPrivateKeyValidity(hcp).then(ok => {
                                     if (ok) {
                                         this.api.loadUsersAndHcParties()
-                                        this.uploadKeystoreAndCheckToken()
+                                        this.uploadKeystoreAndCheckToken().catch(e => console.log(e))
                                         const destPage = page || (this.routeData && this.routeData.page === 'auth' && this.subrouteData && this.subrouteData.page ? this.subrouteData.page : 'main')
                                         if (!this.routeData || destPage !== this.routeData.page) {
                                             this.set('routeData.page', destPage)
@@ -1115,6 +1118,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
                             this.$.api.keystoreId = res.uuid
                             return this._getToken()
+                        }).catch((e) => {
+                            this.$.eHealthStatus.classList.remove('pending')
+                            this.$.eHealthStatus.classList.remove('connected')
+                            this.$.eHealthStatus.classList.add('disconnected')
+                            throw(e)
                         })
                     } else {
                         this.$.noehealth.classList.add("notification")
@@ -1128,6 +1136,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.$.eHealthStatus.classList.remove('connected')
                     this.$.eHealthStatus.classList.add('disconnected')
                 }
+                return Promise.resolve(null);
             }
 
             login(event, loginObject) /* this is called from mouseDown with 2 arguments */ {
@@ -1204,7 +1213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.getAlternateKeystores().then(alternateKeystores => {
                     this.worker.postMessage({
                         action: "loadEhboxMessage",
-                        hcpartyBaseApi: this.api.crypto().hcpartyBaseApi,
+						hcpartyBaseApi: this.api.hcpartyLight(),
                         fhcHost: this.api.fhc().host,
                         fhcHeaders: JSON.stringify(this.api.fhc().headers),
                         iccHost: this.api.host,

@@ -108,7 +108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .page-container {
-                height: 100%;
+                height: calc(100% - 48px);
                 overflow-y: auto;
             }
 
@@ -428,6 +428,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 0;
             }
 
+            .form-container {
+                padding-bottom:32px;
+            }
+
         </style>
         <div class="administrative-panel">
             <paper-tabs selected="{{tabs}}">
@@ -439,14 +443,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-pages class="iron-container" selected="[[tabs]]" class="">
                 <page>
                     <div class="page-container">
+                        <div class="form-container">
                         <dynamic-form id="dynamic-form-administrative" class="page-content" api="[[api]]" user="[[user]]" template="[[patientForm]]" data-map="[[patientMap]]"
-                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                                      data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print></dynamic-form>
+                        </div>
                     </div>
                 </page>
                 <page>
                     <div class="page-container">
                         <dynamic-form id="dynamic-form-partnerships" class="page-content" api="[[api]]" user="[[user]]" template="[[partnershipsContainerForm]]"
-                                      data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]"></dynamic-form>
+                                      data-map="[[patientMap]]" data-provider="[[dataProvider]]" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" no-print></dynamic-form>
                     </div>
                 </page>
                 <page>

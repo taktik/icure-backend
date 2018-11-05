@@ -126,7 +126,7 @@
 
 			.pat-details-card {
 				width: calc(100% - 64px);
-				margin: 0 32px;
+				margin: 0 32px 32px;
 			}
 
 			.horizontal {
@@ -838,25 +838,21 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 
 	_list(e) {
 		this.hideAll();
-		this.set('isLoadingDoc',true)
 		this.set('list', true);
 	}
 
 	_table(e) {
 		this.hideAll();
-        this.set('isLoadingDoc',true)
 		this.set('table', true);
 	}
 
 	_graphique(e) {
 		this.hideAll();
-        this.set('isLoadingDoc',true)
 		this.set('graphique', true);
 	}
 
 	_default(e) {
 		this.hideAll();
-        this.set('isLoadingDoc',true)
 		this.set('doc', true);
 	}
 
@@ -981,33 +977,20 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 					pdf.setFont('Arial');
 					pdf.text(center(pdf, 148.56, rids[idx].rid, 7), 69, rids[idx].rid);
 					pdf.setFontSize(9);
-					pdf.setFont('Arial');
 					pdf.text(center(pdf, 148.56, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE", 9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE");
-					pdf.setFontSize(9);
 					pdf.setFont('Serif');
 					pdf.text(center(pdf, 148.56, "Veuillez présenter ce document au pharmacien pour scanner le ", 9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(center(pdf, 148.56, "code-barres et délivrer les médicaments prescrits", 9), 116, "code-barres et délivrer les médicaments prescrits");
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(18, 141.5, `${hcp.firstName} ${hcp.lastName}`);
 					pdf.setFontSize(7);
-					pdf.setFont('Serif');
 					pdf.text(18, 129, "Nom et prénom du prescripteur:");
 					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(18, 153.5, `INAMI: ${hcp.nihii}`);
 					pdf.setFontSize(7);
-					pdf.setFont('Serif');
 					pdf.text(18, 162.5, "Nom et prénom du patient:");
 					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(18, 174, `${this.patient.firstName} ${this.patient.lastName}`);
-					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(18, 187.5, `NISS: ${this.patient.ssin}`);
-					pdf.setFontSize(9);
 					pdf.setFont('Arial');
 					pdf.text(center(pdf, 148.56, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE", 9), 204, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE");
 
@@ -1017,22 +1000,18 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 						return ["S/ " + medicationApi.medicationNameToString(med, this.language), "R/ " + medicationApi.posologyToString(med, this.language), ""];
 					}));
 
-					pdf.setFontSize(9);
-					pdf.setFont('Arial');
 					pdf.text(center(pdf, 148.56, "Aucun ajout manuscrit ne sera pris en compte", 9), 474, "Aucun ajout manuscrit ne sera pris en compte");
 					pdf.setFontSize(7);
 					pdf.setFont('Serif');
 					pdf.text(center(pdf, 148.56, "Date:", 7), 487, "Date:");
 
 					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(center(pdf, 148.56, moment().format("DD/MM/YYYY"), 9), 501, moment().format("DD/MM/YYYY"));
 					pdf.setFontSize(7);
-					pdf.setFont('Serif');
 					pdf.text(center(pdf, 148.56, "Délivrable à partir du:", 7), 521, "Délivrable à partir du:");
 					pdf.setFontSize(9);
-					pdf.setFont('Serif');
 					pdf.text(center(pdf, 148.56, moment(this.deliveryDateString).format("DD/MM/YYYY"), 9), 533, moment(this.deliveryDateString).format("DD/MM/YYYY"));
+
 					pdf.lines([[0, 0], [286, 0]], 5.788, 76);
 					pdf.lines([[0, 0], [286, 0]], 5.788, 94);
 					pdf.lines([[0, 0], [286, 0]], 5.788, 122);
@@ -1122,6 +1101,9 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 		if (!this.contacts) {
 			return;
 		}
+
+        this.set('isLoadingDoc',true)
+
 		const seenForms = {}
 		const formGroups = this.contacts.map(contact => ({
 			ctc: contact, forms: _.sortBy((contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && !(sc.id && this.hiddenSubContactsId[sc.id])) || []).map(sc => {
@@ -1166,13 +1148,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 			});
 			this.set('contactsFormsAndDocuments', _.sortBy(formGroups, fg => -fg.ctc.openingDate));
 			console.log('contactsFormsAndDocuments',this.contactsFormsAndDocuments)
-            if(this.contactsFormsAndDocuments && this.contactsFormsAndDocuments[0] &&
-				this.contactsFormsAndDocuments[0].forms && this.contactsFormsAndDocuments[0].forms.length) {
-                this.set('isLoadingDoc',true)
-            } else {
-                this.set('isLoadingDoc',false)
-            }
-		});
+		}).finally(() => this.set('isLoadingDoc',false));
 	}
 
 	toggleDetailsFiltersPanel() {
@@ -1210,6 +1186,13 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 	newReport() {
 		this.$['prose-editor'].open()
 	}
+
+    reset() {
+        const props = HtPatDetailCtcDetailPanel.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+        ;['#ht-main', '#ht-pat', '#ht-hcp', '#ht-msg'].map(x => this.root.querySelector(x)).map(el => el && typeof el.reset === 'function' && el.reset())
+    }
+
 }
 
 customElements.define(HtPatDetailCtcDetailPanel.is, HtPatDetailCtcDetailPanel);

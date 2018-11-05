@@ -818,7 +818,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					descr: "Lab" + new Date().getTime(),
 					subContacts: []
 				}).then(c=>{
-					this.api.contact().createContact(c).then(c => {
+					this.api.contact().createContactWithUser(this.user, c).then(c => {
 						this.api.form().newInstance(this.user, patient, {
 							contactId: c.id,
 							descr: "Lab" + new Date().getTime(),
