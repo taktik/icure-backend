@@ -81,38 +81,42 @@ class NewGroupObserver(private val hazelcast: HazelcastInstance, private val ssl
     }
 
     private fun startObserver() {
+        log.info("Start group observer")
         startHttpClient()
 
         val dbInstance = CouchDbInstance(httpClient!!, URI.create(couchDbUrl!!), couchDbPrefix!! + "-config", couchDbUsername, couchDbPassword)
-        dbInstance
-            .changes("now",
-                     { change ->
-                         lastHeartBeat.set(System.currentTimeMillis())
-                         change.doc?.let { doc ->
-                             if (Group::class.java.canonicalName == doc["java_type"]) {
-                                 prepareDesignDocumentsAndStartReplications(groupDAO.get(doc["_id"] as String))
-                             }
-                         }
-                     },
-                     {
-                         lastHeartBeat.set(System.currentTimeMillis())
+        log.info("Start group observer changes")
+        dbInstance.changes("now",
+                           { change ->
+                               log.info("Detected new group : ${change.doc?.get("_id") ?: ""}")
+                               lastHeartBeat.set(System.currentTimeMillis())
+                               change.doc?.let { doc ->
+                                   if (Group::class.java.canonicalName == doc["java_type"]) {
+                                       log.info("Start observing : ${change.doc?.get("_id") ?: ""}")
+                                       prepareDesignDocumentsAndStartReplications(groupDAO.get(doc["_id"] as String))
+                                   }
+                               }
+                           },
+                           {
+                               lastHeartBeat.set(System.currentTimeMillis())
+                               log.debug("GO hb")
+                               val entries = synchronized(this.pendingReplications) {
+                                   HashSet(this.pendingReplications.entries)
+                               }
 
-                         val entries = synchronized(this.pendingReplications) {
-                             HashSet(this.pendingReplications.entries)
-                         }
-                         entries.forEach { entry ->
-                             entry.value.let { p ->
-                                 p.replicator.startReplication(p.group, this.sslContextFactory)
-                                     .thenAccept { b ->
-                                         if (b == true) {
-                                             synchronized(this.pendingReplications) {
-                                                 this.pendingReplications.remove(entry.key)
-                                             }
-                                         }
-                                     }
-                             }
-                         }
-                     }).whenComplete { _, _ -> this.startObserver() }
+                               entries.forEach { entry ->
+                                   entry.value.let { p ->
+                                       p.replicator.startReplication(p.group, this.sslContextFactory)
+                                           .thenAccept { b ->
+                                               if (b == true) {
+                                                   synchronized(this.pendingReplications) {
+                                                       this.pendingReplications.remove(entry.key)
+                                                   }
+                                               }
+                                           }
+                                   }
+                               }
+                           }).whenComplete { _, _ -> this.startObserver() }
     }
 
     private fun startHttpClient() {
