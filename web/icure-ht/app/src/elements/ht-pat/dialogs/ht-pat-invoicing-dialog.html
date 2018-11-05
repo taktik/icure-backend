@@ -739,7 +739,7 @@
                 color: var(--app-text-color-disabled);
                 box-shadow: none;
             }
-        
+
 
             .he-edit-btn-container{
                 background: var(--app-text-color);
@@ -914,7 +914,7 @@
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
                                                 <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="eattest" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -2359,6 +2359,7 @@
                                         this.generateJustificatory()
                                     }else if(this.selectedInvoice.sentMediumType==="eattest"){
                                         this.sendEattest();
+                                        this.eattest(this.selectedInvoice)
                                     }
                                 })
                             }))
@@ -3290,6 +3291,7 @@
 
                     eattest.codes.push(newCode)
                 })
+
                 console.log(eattest)
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
@@ -3331,9 +3333,16 @@
 
             _handleCheckboxCheckedStatusFromInteger( inputValue ) { return !!inputValue; }
 
-            eattest(invoice){
+            duplicate(e){
                 e.stopPropagation();
                 e.preventDefault();
+
+                console.log(e.target.dataset.item)
+                this.eattest(JSON.parse(e.target.dataset.item))
+            }
+
+            eattest(invoice){
+
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
                 JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });

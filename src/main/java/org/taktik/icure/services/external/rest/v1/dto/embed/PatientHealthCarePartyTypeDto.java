@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 public enum PatientHealthCarePartyTypeDto {
-	doctor, referral, medicalhouse, retirementhome, hospital, other
+	doctor, referral, medicalhouse, retirementhome, hospital, other, referringphysician
 }

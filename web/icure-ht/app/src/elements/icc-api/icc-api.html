@@ -410,7 +410,7 @@
 
             const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
-            if (current && (!current.rev || Number(current.rev.split('-')[0])) < Number(entity.rev.split('-')[0])) {
+            if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
