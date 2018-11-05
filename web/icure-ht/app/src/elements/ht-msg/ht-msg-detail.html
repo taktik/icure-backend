@@ -34,8 +34,9 @@
 <link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
-<link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
+
+<!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
 
 
 
@@ -395,7 +396,7 @@
             }
 
             .read-txt {
-                height: calc(80vh - 50%);
+                min-height: 80px;
                 width: 100%;
                 overflow-y: scroll;
             }
@@ -428,11 +429,11 @@
 					<template is="dom-repeat" items="[[messages]]" as="msg">
 							<paper-card class="pat-details-card" >
                                 <div>
-                                    <paper-input class="inlined" readonly value="From : [[msg.fromAddress]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="To : [[msg.toAddresses]]"></paper-input>
-                                    <paper-input class="inlined" readonly value="Date: [[_timeFormat(msg.received)]]"></paper-input>
+                                    <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
+                                    <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
+                                    <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
                                 </div>
-                                <paper-input class="clearb subject" readonly value="Subject: [[msg.subject]]"></paper-input>
+                                <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input>
 
 								<template is="dom-if" if="[[msg.body]]">
                                     <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
@@ -453,26 +454,42 @@
                                 <div class="img-container">
                                     <img src$="[[item.dataUrl]]">
                                 </div>
+                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                             </template>
                             <template is="dom-if" if="[[_pdfMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <pdf-element src="[[item.dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
+                                <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                             </template>
                             <template is="dom-if" if="[[_xmlMimeType(item.mainUti, item.otherUtis.*, item.dataUrl)]]">
                                 <div>
                                     <span>[[mimeType(item.mainUti)]] [[type]]</span>
-                                    <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button>
-                                    <vaadin-button id="todayButton" part="today-button" on-tap="importPatient">import</vaadin-button>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
                                 </div>
                                 <template is="dom-if" if="[[showDetail]]">
-                                    [[documentAttachment]]
+                                    <div>[[documentAttachment]]</div>
+                                    <!--TODO: format annexe on display-->
+                                    <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
+                                </template>
+                            </template>
+                            <template is="dom-if" if="[[_textType(item.mainUti, item.otherUtis.*)]]">
+                                <div>
+                                    <span>[[mimeType(item.mainUti)]] [[type]]</span>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment" id$="[[item.id]]" attachmentId$="[[item.attachmentId]]">details</vaadin-button>
+                                    <vaadin-button id="todayButton" part="today-button" on-tap="importAnnexe" docId$="[[item.id]]" mainUti$="[[item.mainUti]]" otherUtis$="[[item.otherUtis.*]]" dataUrl$="[[item.dataUrl]]">import</vaadin-button>
+                                </div>
+                                <template is="dom-if" if="[[showDetail]]">
+                                    <div>[[documentAttachment]]</div>
+                                    <!--TODO: format annexe on display-->
+                                    <!--<ht-lab-details api="[[api]]" attachment="[[documentAttachment]]"></ht-lab-details>-->
                                 </template>
                             </template>
                         </paper-card>
                     </template>
+                    <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                 </template>
             </div>
 		</template>
-
 	</template>
 	<script>
 
@@ -563,7 +580,6 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 								{
 									doc.dataUrl = this.getDataUrls(doc)
 									if(this._isEqualTo(doc.documentLocation,'body')) tempSelect.body = a;
-									else this.set('documentAttachment', a);
 									return doc
 								}
 							)
@@ -631,8 +647,9 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	//Without encryption key
 	getDataUrls(doc){
-		return this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)?
-			this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
+		this.set("type","");
+		 if (this._xmlMimeType(doc.mainUti, doc.otherUtis, this.dataUrl)){
+			 return this.api.document().getAttachment(doc.id, doc.attachmentId, null).then(att => {
 				let xml = XML.parseXml(att);
 				if(xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
 					xml.kmehrmessage.header.standard.specialisation &&
@@ -642,20 +659,30 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}else{
 					this.set("type","Non Valid Type")
 				}
+				return att
 			})
-			: (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null))
+		}else {
+			return (doc && this.api.document().getAttachmentUrl(doc.id, doc.attachmentId, null));
+		}
 	}
 
 	_removeMsg(e){
 		let msgId = e.target.getAttribute('msgId');
-		console.log(msgId);
-
+		let transportGuid = e.target.getAttribute('transportGuid');
 		this.set('messages', null);
 
+		this.api.message().findMessagesByTransportGuid(transportGuid, null, null, 1)
+			.then(msg => {
+				let m = msg.rows[0];
+				if(m.transportGuid.startsWith("BIN")){
 		this.api.message().deleteMessages(msgId)
-			.then(x =>
-				this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
-			)
+						.then(() => this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } })));
+				} else {
+					m.transportGuid = "BIN" + m.transportGuid;
+					this.api.message().modifyMessage(m)
+						.then(() => this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}})));
+				}
+			})
 	}
 
 	_imageMimeType(uti, utis, dataUrl) {
@@ -669,6 +696,10 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_xmlMimeType(uti, utis) {
 		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/xml' || m === 'application/xml');
+	}
+
+	_textType(uti, utis){
+		return (uti && [uti] || []).concat(utis && utis.value || []).map(u => this.mimeType(u)).find(m => m === 'text/plain');
 	}
 
 	_isEqualTo(title, string) {
@@ -707,22 +738,102 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	}
 
-	_getAttachment(){
+	_getAttachment(e){
+		let id = e.target.getAttribute('id');
+		let attachmentId = e.target.getAttribute('attachmentId');
+		this.api.document().getAttachment(id, attachmentId, null).then(att => this.set("documentAttachment",att));
 		this.showDetail = !this.showDetail
 	}
 
-	importPatient(){
-		this.api.bekmehr().importSmf(this.document.id, "123245", this.patient.id, this.user.language,{}).then(
-			contacts => {
-				contacts.forEach(contact => {
-					contact.ctcs.forEach(ctc => {
-						this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
-							console.log(c)
-							return c
-						});
-					})
+	importAnnexe(e){
+		let id = e.target.getAttribute('docId');
+		let mainUti = e.target.getAttribute('mainUti');
+		let otherUtis = e.target.getAttribute('otherUtis');
+		let dataUrl = e.target.getAttribute('dataUrl');
+		// this.api.document().getAttachment(document.id, document.attachmentId, null)
+		// 	.then(att => {
+		//
+		// 	});
+
+		// IMG
+		if(this._imageMimeType(mainUti, otherUtis, dataUrl)){
+
+		}
+		// PDF
+		else if (this._pdfMimeType(mainUti, otherUtis, dataUrl)) {
+
+		}
+		// XML
+		else if(this._xmlMimeType(mainUti, otherUtis)){
+			let xml = XML.parseXml(this.documentAttachment);
+			if (xml.kmehrmessage && xml.kmehrmessage.header && xml.kmehrmessage.header.standard &&
+				xml.kmehrmessage.header.standard.specialisation &&
+				xml.kmehrmessage.header.standard.specialisation.cd){
+				// SMF
+				if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gpsoftwaremigration"){
+					this.api.bekmehr().importSmf(doc.id, "", this.patient.id, this.user.language,xml).then(
+						contacts => {
+							contacts.forEach(contact => {
+								contact.ctcs.forEach(ctc => {
+									this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+										console.log(c);
+										return c
+									});
+								})
+							})
+						})
+
+				}
+				//	PMF
+				else if(xml.kmehrmessage.header.standard.specialisation.cd.value === "gppatientmigration"){
+					// this.api.bekmehr().importSmf(doc.id, "123245", this.patient.id, this.user.language,xml).then(
+					// 	contacts => {
+					// 		contacts.forEach(contact => {
+					// 			contact.ctcs.forEach(ctc => {
+					// 				this.api.contact().initDelegationsAndEncryptionKeys(this.user, this.patient, ctc).then(c => {
+					// 					console.log(c);
+					// 					return c
+					// 				});
+					// 			})
+					// 		})
+					// 	})
+				}
+			}
+
+
+		}
+		// TEXT
+		else if(this._textType(mainUti, otherUtis)){
+			// if(this._checkHealthone()){
+			this.api.patient().getPatient("1d6eee30-6c8f-4204-a3ea-56a01ed3132d").then(patient => {
+				this.api.contact().newInstance(this.user, patient, {
+					created: new Date().getTime() ,
+					modified: new Date().getTime() ,
+					author: this.user.id,
+					responsible: this.user.healthcarePartyId,
+					openingDate: moment().format('YYYYMMDD') || '',
+					closingDate: moment().format('YYYYMMDD') || '',
+					encounterType: {type: "CD-TRANSACTION", version: "1.13", code: "labresult"},
+					descr: "Lab" + new Date().getTime(),
+					subContacts: []
+				}).then(c=>{
+					this.api.contact().createContactWithUser(this.user, c).then(c => {
+						this.api.form().newInstance(this.user, patient, {
+							contactId: c.id,
+							descr: "Lab" + new Date().getTime(),
+						}).then(f => this.api.form().createForm(f)).then(f => {
+							this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+								this.api.beresultimporticc.doImport(id, this.user.healthcarePartyId, hcp.languages.find(e => !!e) || "en", "***", f.id, null, c)
+									.then(c => console.log("Contact id" + c.id))
+							})
+						})
+
+					});
 				})
-			})
+			});
+			// }
+		}
+
 	}
 }
 

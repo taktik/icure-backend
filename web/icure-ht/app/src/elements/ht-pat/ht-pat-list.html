@@ -13,7 +13,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
@@ -21,6 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
@@ -340,10 +341,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-primary-color);
                 }
 
-                .filterNameInput {
-                    width: 400px;
-                }
-
                 .deleteFilterIcon {
                     color: var(--app-text-color-disabled);
                 }
@@ -460,13 +457,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     color: var(--app-primary-color-dark);
                     font-weight: 700;
                 }
-                paper-dialog > div {
+                paper-dialog > div:not(.buttons) {
                     margin-top:0;
+                    flex-grow: 1;
                 }
 
                 paper-dialog {
                     width: 80%;
-                    min-height:200px;
                     display:flex;
                     flex-flow: row wrap;
                     justify-content: space-between;
@@ -476,6 +473,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     --paper-input-container-focus-color: var(--app-primary-color);
                     font-size:var(--form-font-size);
                 }
+
+                #saveFilterDialog{
+                    align-items: center;
+                }
+                
+                #saveFilterDialog .buttons{
+                    padding: 8px 24px;
+                }
+
 
                 .saved-filters {
                     display: flex;
@@ -635,8 +641,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         justify-content: space-between;
                         align-items: flex-start;
                     }
-
-
+                }
+                paper-spinner {
+                    position: fixed;
+                    top: 210px;
+                    left: 50%;
+                    z-index: 9999;
+                    transform: translateX(-50%);
+                }
+                #add-patient-dialog {
+                    border-radius: 2px;
+                }
+                #add-patient-dialog .administrative-panel {
+                    padding: 0;
+                }
+                #add-patient-dialog .administrative-panel paper-tabs {
+                    border-radius: 2px 2px 0 0;
+                }
+                #add-patient-dialog .administrative-panel iron-pages {
+                    padding: 0 24px;
                 }
             </style>
         </custom-style>
@@ -684,10 +707,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
 
 
-
+                <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="click">
-                    <vaadin-grid-column width="48px">
+                    <vaadin-grid-column flex-grow="0" width="5%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
@@ -702,7 +725,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
 
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
                             </vaadin-grid-sorter>
@@ -711,7 +734,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.lastName]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
                             </vaadin-grid-sorter>
@@ -720,7 +743,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.firstName]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="7%">
                         <template class="header">
                             <vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]
                             </vaadin-grid-sorter>
@@ -729,7 +752,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <div class="cell frozen">[[localize('ema','Email',language)]]</div>
                         </template>
@@ -737,7 +760,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.email]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column>
+                    <vaadin-grid-column flex-grow="0" width="14%">
                         <template class="header">
                             <div class="cell numeric">[[localize('pho','Phone',language)]]</div>
                         </template>
@@ -745,7 +768,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell numeric">[[item.phone]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column>
+                    <vaadin-grid-column flex-grow="0" width="14%">
                         <template class="header">
                             <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
                         </template>
@@ -938,12 +961,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-dialog>
 
-
-
-
-
         <paper-dialog id="saveFilterDialog">
-            <h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
+            <h2 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h2>
             <div>
                 <paper-input class="filterNameInput" label="Filter name" value="{{filterName}}"></paper-input>
             </div>
@@ -1295,6 +1314,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             nurse: '',
                         })
                     },
+                    isLoadingPatient: {
+                        type: Boolean,
+                        value: false
+                    }
                 }
             }
 
@@ -1482,10 +1505,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     setTimeout(function () {
                         if (currentValue === this.filterValue) {
+                            this.set('isLoadingPatient', true)
                             console.log("Triggering search for " + this.filterValue)
                             this.$['patients-list'].clearCache()
+                            this.set('isLoadingPatient', false)
                         } else {
                             console.log("Skipping search for " + this.filterValue + " != " + currentValue)
+                            this.set('isLoadingPatient', false)
                         }
                     }.bind(this), 500) //Wait for the user to stop typing
                 }.bind(this), 100)
@@ -1501,6 +1527,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
+                this.set('isLoadingPatient', true)
                 if(this.shareOption || this.exportOption || this.fusionOption) return;
 
                 // Must click on a row
@@ -1509,6 +1536,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
+                this.set('isLoadingPatient', false)
             }
 
             _addPatient() {
@@ -1790,7 +1818,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _activeFilters() {
-                const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+                const filters = this.user && this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
                 if (filters) {
                     const parsedFilters = JSON.parse(filters.typedValue.stringValue)
                     return _.sortBy(Object.keys(parsedFilters).map(k => ({name: k, filter: parsedFilters[k]})))
@@ -2036,6 +2064,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _searchDuplicate() {
+                if (!this.user) return
                 const fingerPrint = this.firstName + '|' + this.lastName + '|' + this.dateAsString + '|' + this.ssin
                 //creation of filters
                 const totalChars = (this.firstName && this.firstName.length || 0) + (this.lastName && this.lastName.length || 0)
@@ -2171,6 +2200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             updateDelegation(){
+                if (!this.user) return
                 let userDelegation = this.user.autoDelegations
 
                 this.hcpSelectedForSharing.forEach( userShared =>{
