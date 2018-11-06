@@ -22,15 +22,14 @@ package org.taktik.icure.config
 import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
-import org.ektorp.spring.HttpClientFactoryBean
+import org.springframework.cache.support.NoOpCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.stereotype.Component
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.properties.CouchDbProperties
 
 @Configuration
-class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
+class CouchDbLocalConfig(val couchDbProperties: CouchDbProperties) {
     @Bean fun couchdbInstance() = StdCouchDbInstance(StdHttpClient.Builder()
             .maxConnections(couchDbProperties.maxConnections)
             .socketTimeout(couchDbProperties.socketTimeout)
@@ -43,4 +42,6 @@ class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
     @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-base", couchdbInstance)
     @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-patient", couchdbInstance)
     @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-healthdata", couchdbInstance)
+
+    @Bean fun entitiesCacheManager() = NoOpCacheManager()
 }
