@@ -304,7 +304,7 @@
                             messages.forEach(msg => {
                                 const ssin = (msg.metas || {}).ssin
                                 if (ssin) {
-                                    msg.patient = patients.find(p => p.ssin === ssin)
+                                    msg.patient = patients.rows.find(p => p.ssin === ssin)
                                 }
                             })
                             return messages

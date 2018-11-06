@@ -110,8 +110,7 @@ export class ProseEditor extends Polymer.Element {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
         }
       }))
-      .addBefore("image", "tab", this.tabNodeSpec)
-      .addBefore("image", "var", this.tabNodeSpec),
+      .addBefore("image", "tab", this.tabNodeSpec),
     marks: (schema.spec.marks as any)
       .addToEnd("underlined", {
         attrs: {
@@ -302,6 +301,7 @@ export class ProseEditor extends Polymer.Element {
               const underlinedMark = marks.find(m => m.type === proseEditor.editorSchema.marks.underlined)
               const colorMark = marks.find(m => m.type === proseEditor.editorSchema.marks.color)
               const bgcolorMark = marks.find(m => m.type === proseEditor.editorSchema.marks.bgcolor)
+              const varMark = marks.find(m => m.type === proseEditor.editorSchema.marks.var)
 
               proseEditor.set('currentFont', fontMark && fontMark.attrs.font || 'Roboto')
               proseEditor.set('currentSize', sizeMark && sizeMark.attrs.size || '11px')
@@ -310,6 +310,8 @@ export class ProseEditor extends Polymer.Element {
               proseEditor.set('isUnderlined', !!underlinedMark )
               proseEditor.set('currentColor', colorMark && colorMark.attrs.color || '#000000' )
               proseEditor.set('currentBgColor', bgcolorMark && bgcolorMark.attrs.color || '#000000' )
+              proseEditor.set('isCode',  varMark && varMark.attrs.expr &&  varMark && varMark.attrs.expr.length)
+              proseEditor.set('codeExpression',  varMark && varMark.attrs.expr || '')
 
               proseEditor.set('isLeft', align && align === 'left')
               proseEditor.set('isCenter',  align && align === 'center' )
@@ -529,6 +531,12 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
+  insertOrEditCode(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+
+  }
+
   setAlignment(align: String) {
     const proseEditor = this
     return function(state: EditorState, dispatch?: (tr: Transaction) => void)  {
@@ -545,6 +553,7 @@ export class ProseEditor extends Polymer.Element {
       return true
     }
   }
+
   addMark(markType: MarkType, attrs?: { [key: string]: any }): (state: EditorState, dispatch?: (tr: Transaction) => void) => boolean {
     return function (state, dispatch) {
       let {empty, $cursor, ranges} = state.selection as TextSelection

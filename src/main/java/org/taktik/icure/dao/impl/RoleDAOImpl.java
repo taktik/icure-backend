@@ -35,7 +35,7 @@ import java.util.List;
 public class RoleDAOImpl extends CachedDAOImpl<Role> implements RoleDAO {
 
     @Autowired
-    public RoleDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+    public RoleDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(Role.class, couchdb, idGenerator, cacheManager);
         initStandardDesignDocument();
     }
