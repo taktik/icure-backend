@@ -1274,11 +1274,11 @@
 
             _closure() {
                 return this.isAgreementSelected && this.displayedParagraph && (!this.displayedParagraph.end || this.api.moment(this.displayedParagraph.end).isAfter(moment())) &&
-                    (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isBefore(moment(this.fromAsString)))
+                    (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isBefore(moment()))
             }
 
             _cancellation() {
-                return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isAfter(moment())))
+                return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isSameOrAfter(moment(),"day")))
             }
 
             _extension() {
