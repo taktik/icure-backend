@@ -304,7 +304,7 @@
                             messages.forEach(msg => {
                                 const ssin = (msg.metas || {}).ssin
                                 if (ssin) {
-                                    msg.patient = patients.find(p => p.ssin === ssin)
+                                    msg.patient = patients.rows.find(p => p.ssin === ssin)
                                 }
                             })
                             return messages
@@ -395,8 +395,8 @@
                 this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, "", [])
                     .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
                     .then(([ackHashes, dmgHashes]) => Promise.all([
-                        this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
-                        this.api.fhc().Dmgcontroller().confirmDmgMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, dmgHashes)
+                        //this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
+                        //this.api.fhc().Dmgcontroller().confirmDmgMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, dmgHashes)
                     ]))
             }
 
