@@ -13,11 +13,16 @@
             .disabled {
                 color: lightgrey;
             }
+
+            .chapterDocIcon{
+                height: 14px;
+                width: 14px;
+            }
         </style>
 
         <li style$="background-color: [[_ynToColour(verse.checkBoxInd, parentIncomplete)]]">
             <template is="dom-if" if="[[_isY(verse.checkBoxInd)]]"><vaadin-checkbox id="[[verse.verseNum]]" checked="[[_checked(verse.verseNum, checkedVerses.*)]]" on-checked-changed="_checkChanged"></vaadin-checkbox></template>
-            <span class$="[[_verseDisabled(extension,verse)]]"><template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template></span> [ [[verse.verseNum]] ]
+            <span class$="[[_verseDisabled(extension,verse)]]"><template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template><template is="dom-if" if="[[_isY(verse.otherAddedDocumentInd)]]"> <iron-icon icon="vaadin:file-text-o" class="chapterDocIcon"></iron-icon> *doc* </template>[ [[verse.verseNum]] ]</span>
             <template is="dom-if" if="[[_isParent(verse, checkedVerses.*)]]"><span style="background-color: #ffa">[Veuillez cocher au minimum [[verse.minCheckNum]] case(s) ci-dessous]</span></template>
             <ul>
               <template is="dom-repeat" items="[[verse.verses]]" as="v">
@@ -112,7 +117,7 @@
             }
 
             _verseDisabled(ext,v) {
-                return !v || (extension && v.requestType !== 'D' || !extension && v.requestType !== 'P') ? '' : 'disabled'
+                return !v || (this.extension && v.requestType !== 'N' || !this.extension && v.requestType !== 'P') ? '' : 'disabled'
             }
 
         }

@@ -49,24 +49,26 @@
                 }
 
                 #messagesGrid {
-                    flex-basis: 60%;
-                    height: 100%;
+                    flex-basis: calc(100% - 33vw - 24px);
+                    height: calc(100% - 73px);
+                    transition: .5s ease;
                 }
-
                 #messagesGrid.no-detail {
                     flex-basis: 100%;
-                    margin-top: 25px;
-                    height: calc(100% - 40px);
                 }
 
                 #detailGrid {
                     flex-basis: 40%;
-                    height: 100%;
+                    height: calc(100% - 197px);
+                    position: fixed;
+                    right: 24px;
+                    width: 33vw;
+                    transition: .5s ease;
                 }
 
                 #detailGrid.no-detail {
                     flex-basis: 0;
-                    display: none;
+                    transform: translateX(100vw);
                 }
 
                 .invoice-panel .btns-container{
@@ -94,6 +96,10 @@
                     height: 100%;
                 }
 
+                vaading-grid-column.icon-col {
+                    width: 50px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -104,33 +110,50 @@
                     </paper-input>
                     <vaadin-grid items="[[messages]]" active-item="{{activeItem}}" selected-items="{{selectedItems}}">
                         <vaadin-grid-selection-column id="msg-list-selection-column"></vaadin-grid-selection-column>
+                        <vaadin-grid-column class="icon-col">
+                            <template class="header">
+                            </template>
+                            <template>
+                                <template is="dom-if" if="[[_isList(item)]]">
+                                    <iron-icon class="icon type-icon" icon="list"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[_isClosure(item)]]">
+                                    <iron-icon class="icon type-icon" icon="close"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[_isExtension(item)]]">
+                                    <iron-icon class="icon type-icon" icon="add"></iron-icon>
+                                </template>
+                            </template>
+                        </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">Date</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("dat","Date",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[_formatDate(item.received)]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="oa-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">Type</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("tel_type","Type",language)]]</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.subject]]</template>
+                            <template>
+                                [[item.subject]]
+                            </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="oa-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">OA</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("OA","OA",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[item.fromAddress]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="ref-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">Patient</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("pati","Patient",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[item.patient.lastName]] [[item.patient.firstName]]</template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="invoice-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">Data</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("data","Data",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[_displayMetas(item.metas)]]</template>
                         </vaadin-grid-column>
@@ -143,7 +166,7 @@
                     <vaadin-grid items="[[subMessages]]">
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">Period</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("peri","Period",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[_formatDate(item.from)]] - [[_formatDate(item.to)]]</template>
                         </vaadin-grid-column>
@@ -155,7 +178,7 @@
                         </vaadin-grid-column>
                         <vaadin-grid-column class="invoice-col">
                             <template class="header">
-                                <vaadin-grid-sorter path="">Payments</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="">[[localize("pay","Payment",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[_formatPayments(item.payments)]]</template>
                         </vaadin-grid-column>
@@ -315,8 +338,9 @@
                 })
             }
 
-            _displayMetas() {
-                return ''
+            _displayMetas(metas) {
+                if(_.isEmpty(metas) || metas.type==="list")return "";
+                return metas.endOfPreviousDmg+' '+metas.previousHcp
             }
 
             _formatPayments(payments) {
@@ -333,7 +357,7 @@
                     this.set('tempoSubMessages', [])
                     return
                 }
-                Promise.all(this.selectedItems.map(msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg).then(
+                Promise.all(this.selectedItems.filter(item => this._isList(item)).map(msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg).then(
                     docs => Promise.all(docs.map(d => this.api.document().getAttachment(d.id, d.attachmentId).then(a => {
                         try {
                             return JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))
@@ -392,7 +416,7 @@
             }
 
             getMessages() {
-                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, "", [])
+                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", []).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
                     .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
                     .then(([ackHashes, dmgHashes]) => Promise.all([
                         //this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
@@ -401,7 +425,7 @@
             }
 
             requestMessages(){
-                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName)
+                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
                     .then(response =>{
                         console.log(response)
                     })
@@ -428,8 +452,6 @@
                             (this.leftFilterValue.length>=6 && regexMonthDate.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(message => this.api.moment(message.received).isSame(moment(this.leftFilterValue,'MM-YYYY')||moment(this.leftFilterValue,'MM/YYYY')||moment(this.leftFilterValue,'MM.YYYY'),"month"))) :
                             (this.leftFilterValue.length===3 && regexOa.test(this.leftFilterValue)) ? this.set("messages",this.tempoMessages.filter(message => (message.fromAddress===this.leftFilterValue))) :
                             this.set("messages",this.tempoMessages.filter(message => message.subject.toLowerCase().includes(this.leftFilterValue.toLowerCase()) || ((message.patient) &&((message.patient.firstName.includes(this.leftFilterValue)) || (message.patient.lastName.includes(this.leftFilterValue))))))
-
-
                         } else {
                             console.log("Skipping search for " + this.leftFilterValue + " != " + currentValue)
                         }
@@ -462,6 +484,18 @@
                 }.bind(this), 100)
             }
 
+
+            _isList(item){
+                return (_.isEmpty(item.metas) && item.subject.includes("List")) || item.metas.type==="list";
+            }
+
+            _isClosure(item){
+                return (_.isEmpty(item.metas) && item.subject.includes("Closure")) || item.metas.type==="closure";
+            }
+
+            _isExtension(item){
+                return (_.isEmpty(item.metas) && item.subject.includes("Extension")) || item.metas.type==="extension";
+            }
         }
 
         customElements.define(HtMsgMycarenet.is, HtMsgMycarenet);
