@@ -63,6 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
+<link rel="import" href="dialogs/hubs/ht-hub-transaction-view.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -1728,6 +1729,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
 				<paper-button on-tap="_showTransaction">get transaction</paper-button>
+				<paper-button on-tap="_openTransactionViewer">view transaction</paper-button>
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
 			</template>
 			<template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
@@ -1778,6 +1780,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
 		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
+		<ht-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-hub-transaction-view>
 	</template>
 	<script>
 
@@ -2657,6 +2660,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
+    _openTransactionViewer(){
+		this.$.transactionViewDialog.open(this._getHubTransaction());
+	}
+
     _showTransaction(){
 	    this.$.transactionDialog.open();
         //this.shadowRoot.querySelector("#transaction_name").innerHTML = "" // erase previous title
@@ -2697,7 +2704,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     req.send(null);
 				} else {
                     var slot = this.shadowRoot.querySelector("#kmehr_slot");
-                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype
+                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype + ":" + tranResp
 				}
 
             } else {
