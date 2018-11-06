@@ -9,7 +9,7 @@
                     background: 0 0;
                     height: 100%;
                     width: 100%;
-                    font-family: Roboto,sans-serif;
+                    font-family: 'Roboto', sans-serif;
                     font-size: 13px;
 
                 }
@@ -151,7 +151,8 @@
 
                 .toolbar {
                     width: 100%;
-                    height: 40px;
+                    height: 48px;
+                    min-height: 40px;
                     overflow: hidden;
                     border-bottom: 1px solid #e0e0e0;
                     background: #fff;
@@ -159,7 +160,7 @@
                     display: flex;
                     flex-flow: row nowrap;
                     align-items: center;
-                    justify-content: space-between;
+                    justify-content: flex-start;
                     box-sizing: border-box;
                     padding: 0 8px;
                 }
@@ -185,9 +186,19 @@
                     border-bottom: 1px solid #e0e0e0;
                 }
 
+                paper-icon-button:hover{
+                    color: var(--app-text-color);
+                    background: --app-background-color-dark;
+                }
+
+                paper-icon-button{
+                    color: var(--app-text-color-disabled);
+                    border-radius: 50%;
+                    transition: all .12s cubic-bezier(0.075, 0.82, 0.165, 1);
+                }
+
                 paper-icon-button[active] {
-                    background: #bbb;
-                    border-radius: 20px;
+                    color: var(--app-text-color);
                 }
 
                 paper-input.zoom {
@@ -196,7 +207,7 @@
                 }
 
                 .divider{
-                    display: inline-block;
+                    display: block;
                     border-left: 1px solid #e0e0e0;
                     height: 100%;
                     margin: 0 4px;
@@ -218,79 +229,6 @@
 
                 <font-size-picker font-size="[[currentSize]]" on-font-size-picker-selected="doSize"></font-size-picker>
 
-                <!-- <paper-dropdown-menu placeholder="Style"  value="[[currentHeading]]" no-label-float on-selected-item-label-changed="doHeading" vertical-offset="40" horizontal-align="left">
-                    <paper-listbox slot="dropdown-content" class="dropdown-content">
-                        <paper-item>Normal</paper-item>
-                        <paper-item>Heading 1</paper-item>
-                        <paper-item>Heading 2</paper-item>
-                        <paper-item>Heading 2</paper-item>
-                        <paper-item>Heading 4</paper-item>
-                        <paper-item>Heading 5</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu> -->
-
-                <!-- <paper-dropdown-menu placeholder="Font" value="[[currentFont]]" no-label-float on-selected-item-label-changed="doFont" vertical-offset="40" horizontal-align="left">
-                    <paper-listbox slot="dropdown-content" class="dropdown-content" style="min-width: 320px;">
-                        <paper-item><span style="font-family:'Alegreya';">Alegreya</span></paper-item>
-                        <paper-item><span style="font-family:'Barlow';">Barlow</span></paper-item>
-                        <paper-item><span style="font-family:'Barlow Condensed';">Barlow Condensed</span></paper-item>
-                        <paper-item><span style="font-family:'Cardo';">Cardo</span></paper-item>
-                        <paper-item><span style="font-family:'Crete Round';">Crete Round</span></paper-item>
-                        <paper-item><span style="font-family:'EB Garamond';">EB Garamond</span></paper-item>
-                        <paper-item><span style="font-family:'Exo 2';">Exo 2</span></paper-item>
-                        <paper-item><span style="font-family:'Exo';">Exo</span></paper-item>
-                        <paper-item><span style="font-family:'Fjalla One';">Fjalla One</span></paper-item>
-                        <paper-item><span style="font-family:'Great Vibes';">Great Vibes</span></paper-item>
-                        <paper-item><span style="font-family:'Indie Flower';">Indie Flower</span></paper-item>
-                        <paper-item><span style="font-family:'Josefin Sans';">Josefin Sans</span></paper-item>
-                        <paper-item><span style="font-family:'Kurale';">Kurale</span></paper-item>
-                        <paper-item><span style="font-family:'Libre Baskerville';">Libre Baskerville</span></paper-item>
-                        <paper-item><span style="font-family:'Lobster';">Lobster</span></paper-item>
-                        <paper-item><span style="font-family:'Lora';">Lora</span></paper-item>
-                        <paper-item><span style="font-family:'Maven Pro';">Maven Pro</span></paper-item>
-                        <paper-item><span style="font-family:'Monoton';">Monoton</span></paper-item>
-                        <paper-item><span style="font-family:'Montserrat';">Montserrat</span></paper-item>
-                        <paper-item><span style="font-family:'Montserrat Alternates';">Montserrat Alternates</span></paper-item>
-                        <paper-item><span style="font-family:'Nanum Myeongjo';">Nanum Myeongjo</span></paper-item>
-                        <paper-item><span style="font-family:'Neucha';">Neucha</span></paper-item>
-                        <paper-item><span style="font-family:'Old Standard TT';">Old Standard TT</span></paper-item>
-                        <paper-item><span style="font-family:'Open Sans';">Open Sans</span></paper-item>
-                        <paper-item><span style="font-family:'Oswald';">Oswald</span></paper-item>
-                        <paper-item><span style="font-family:'Pathway Gothic One';">Pathway Gothic One</span></paper-item>
-                        <paper-item><span style="font-family:'Poiret One';">Poiret One</span></paper-item>
-                        <paper-item><span style="font-family:'Poppins';">Poppins</span></paper-item>
-                        <paper-item><span style="font-family:'Quattrocento';">Quattrocento</span></paper-item>
-                        <paper-item><span style="font-family:'Quattrocento Sans';">Quattrocento Sans</span></paper-item>
-                        <paper-item><span style="font-family:'Quicksand';">Quicksand</span></paper-item>
-                        <paper-item><span style="font-family:'Raleway';">Raleway</span></paper-item>
-                        <paper-item><span style="font-family:'Roboto';">Roboto</span></paper-item>
-                        <paper-item><span style="font-family:'Roboto Condensed';">Roboto Condensed</span></paper-item>
-                        <paper-item><span style="font-family:'Source Serif Pro';">Source Serif Pro</span></paper-item>
-                        <paper-item><span style="font-family:'Spectral';">Spectral</span></paper-item>
-                        <paper-item><span style="font-family:'Teko';">Teko</span></paper-item>
-                        <paper-item><span style="font-family:'Tinos';">Tinos</span></paper-item>
-                        <paper-item><span style="font-family:'Vollkorn';">Vollkorn</span></paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-
-                <paper-dropdown-menu placeholder="Size" value="[[currentSize]]" no-label-float on-selected-item-label-changed="doSize" vertical-offset="40" horizontal-align="left">
-                    <paper-listbox slot="dropdown-content" class="dropdown-content">
-                        <paper-item>6 px</paper-item>
-                        <paper-item>7 px</paper-item>
-                        <paper-item>8 px</paper-item>
-                        <paper-item>9 px</paper-item>
-                        <paper-item>10 px</paper-item>
-                        <paper-item>12 px</paper-item>
-                        <paper-item>14 px</paper-item>
-                        <paper-item>16 px</paper-item>
-                        <paper-item>20 px</paper-item>
-                        <paper-item>24 px</paper-item>
-                        <paper-item>32 px</paper-item>
-                        <paper-item>48 px</paper-item>
-                        <paper-item>72 px</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu> -->
-
                 <span class="divider"></span>
 
                 <paper-icon-button icon="editor:format-bold" active="[[isStrong]]" on-tap="toggleBold"></paper-icon-button>
@@ -307,14 +245,12 @@
 
                 <span class="divider"></span>
 
-                <!-- <paper-input no-label-float class="zoom" type="number" value="{{zoomLevel}}"><div slot="suffix">&nbsp;%</div></paper-input> -->
-
-
+                <paper-input no-label-float class="zoom" type="number" value="{{zoomLevel}}"><div slot="suffix">&nbsp;%</div></paper-input>
             </div>
 
             <div class="scroll-area">
                 <div id="container" class="container">
-                    <div id=editor style="margin-bottom: 23px"></div>
+                    <div id=editor></div>
                     <div style="display: none" id="content">
                         <div id="page_0" class="page">
                             <p>This is editable text. You can focus it and start typing.</p>
