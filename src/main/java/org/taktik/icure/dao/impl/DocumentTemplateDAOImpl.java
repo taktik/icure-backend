@@ -49,7 +49,7 @@ class DocumentTemplateDAOImpl extends CachedDAOImpl<DocumentTemplate> implements
 	private static final Logger log = LoggerFactory.getLogger(DocumentTemplateDAOImpl.class);
 
 	@Autowired
-	public DocumentTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+	public DocumentTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(DocumentTemplate.class, couchdb, idGenerator, cacheManager);
 		initStandardDesignDocument();
 	}
