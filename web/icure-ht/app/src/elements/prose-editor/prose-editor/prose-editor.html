@@ -243,6 +243,8 @@
                 <paper-icon-button icon="editor:format-align-right" active="[[isRight]]" on-tap="doRight"></paper-icon-button>
                 <paper-icon-button icon="editor:format-align-justify" active="[[isJustify]]" on-tap="doJustify"></paper-icon-button>
 
+                <paper-icon-button icon="vaadin:code" active="[[isCode]]" on-tap="insertOrEditCode"></paper-icon-button>
+
                 <span class="divider"></span>
 
                 <paper-input no-label-float class="zoom" type="number" value="{{zoomLevel}}"><div slot="suffix">&nbsp;%</div></paper-input>
