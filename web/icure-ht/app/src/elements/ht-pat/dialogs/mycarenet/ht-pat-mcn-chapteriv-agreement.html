@@ -543,6 +543,12 @@
                 color: var(--app-status-color-pending);
             }
 
+            .ch4RejectedStatus{
+                height: 10px;
+                width: 10px;
+                color: var(--app-status-color-ko);
+            }
+
 
 
             .modal-title {
@@ -584,6 +590,15 @@
             }
             .pending-status {
                 background: #fcdf354d;
+                border-radius: 20px;
+                padding: 1px 12px 1px 8px;
+                width: auto;
+                font-size: 12px;
+                line-height: 16px;
+            }
+
+            .rejected-status{
+                background: rgba(252, 39, 31, 0.3);
                 border-radius: 20px;
                 padding: 1px 12px 1px 8px;
                 width: auto;
@@ -686,11 +701,11 @@
                                 <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                             </div>
                             <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                            label="[[localize('From','From',language)]]"
+                                            label="[[localize('from','From',language)]]"
                                             value="{{consultationStartDateAsString}}"></vaadin-date-picker>
 
                             <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                            label="[[localize('To','To',language)]]"
+                                            label="[[localize('to','To',language)]]"
                                             value="{{consultationEndDateAsString}}"></vaadin-date-picker>
 
                             <paper-input class="tool" label="[[localize('par','Paragraph',language)]]"
@@ -715,7 +730,7 @@
                                                 &nbsp;
                                                 <iron-icon icon="vaadin:calendar-clock"
                                                         class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.decisionEndOfValidity)]]</span>
+                                                <span>[[_formatDate(item.end)]]</span>
                                             </div>
 
                                     </div>
@@ -738,6 +753,12 @@
                                                 <span class="pending-status">
                                                     <iron-icon icon="vaadin:book" class="ch4PendingStatus"></iron-icon>
                                                     [[localize('ch4Pending','Pending',language)]]
+                                                </span>
+                                            </template>
+                                            <template is="dom-if" if="{{_isAgreementRejected(item.inTreatment, item.accepted)}}">
+                                                <span class="rejected-status">
+                                                    <iron-icon icon="vaadin:close" class="ch4RejectedStatus"></iron-icon>
+                                                    [[localize('ch4Rejected','Rejected',language)]]
                                                 </span>
                                             </template>
                                             <iron-icon class="chapterDateInfoIcon ioref-icon" id="ioref-[[item.decisionReference]][[item.ioRequestReference]]" icon="info"></iron-icon>
@@ -780,7 +801,7 @@
                                 <page>
                                     <div class="paragraph-content">
                                         <h2>[[localize('chapter','Chapter',language)]] [[displayedParagraph.paragraphInfo.chapterName]],
-                                            [[localize('paragraph','Paragraph',language)]]
+                                            [[localize('par','Paragraph',language)]]
                                             [[displayedParagraph.paragraphInfo.paragraphName]]</h2>
                                         <template is="dom-if" if="[[addedDocuments.length]]">
                                             <paper-dropdown-menu id="addedDocuments" class="addedDocuments" label="Annexes"
@@ -854,7 +875,7 @@
                                                         <template is="dom-if" if="[[_none(t.accepted, t.inTreatment)]]">
                                                             <div class="fleft third">
                                                             <p><b>[[localize('status','Status',language)]]:</b>
-                                                                [[localize('req_in_tre','Request rejected',language)]]</p>
+                                                                [[localize('req_rej','Request rejected',language)]]</p>
                                                             <p>[[localize('ref_jus','Justification of refusal',language)]]:
                                                                 <template is="dom-if" if="[[_isFrench(language)]]">
                                                                     <span class="error">[[t.refusalJustification.fr]]</span>
@@ -942,15 +963,15 @@
 
                             <div class="tool-container">
                                 <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
-                                                    label="[[localize('From','From',language)]]"
+                                                    label="[[localize('from','From',language)]]"
                                                     value="{{fromAsString}}"></vaadin-date-picker>
                                 <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                                    label="[[localize('To','To',language)]]"
+                                                    label="[[localize('to','To',language)]]"
                                                     value="{{toAsString}}"></vaadin-date-picker>
-                                <tk-token-field class="tool" label="Appendices" value="{{appendicesTokens}}"
+                                <tk-token-field class="tool" label="[[localize('appendices','Appendices',language)]]" value="{{appendicesTokens}}"
                                                 on-value-splices-change="_localizedValueChanged" data-value-path="id"
                                                 data-label-path="descr" always-float-label></tk-token-field>
-                                <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('incomplete request',
+                                <vaadin-checkbox class="tool" checked="{{incomplete}}">[[localize('inc_req',
                                     'incomplete
                                     request', language)]]
                                 </vaadin-checkbox>
@@ -1320,6 +1341,7 @@
                 const dp = this.displayedParagraph
                 if (!dp || !dp.paragraphInfo) { return false }
                 const pt = (dp.paragraphInfo.processType || 1)
+                const extension = !dp.inTreatment
 
                 return (pt === 1 && (this.appendicesTokens || []).length > 0)
                     || (pt === 3  && !extension && (this.appendicesTokens || []).length > 0)
@@ -1407,6 +1429,10 @@
                     if (agreements.errors && agreements.errors.length) {
                         this.set('errors', agreements.errors.map(w => this.localizeObjectKey(w,'msg') + (w.code||w.path?` [${w.code||''} : ${w.path||''}]` : '')))
                     }
+
+                    if(agreements.acknowledged === true && agreements.transactions.length === 0){
+                        this.push('warnings', this.localize('no_agre','No agreement found for selected period',this.language))
+                    }
                     console.log(agreements)
 
                     return Promise.all(
@@ -1460,7 +1486,7 @@
                 const requestType = (e.target && e.target.id === "requestChapter") ? "newrequest" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) <= 1 ) ? "extension" :
                                     (e.target && e.target.id === "extendChapter" && (this.api.moment(this.fromAsString).diff(this.api.moment(this.displayedParagraph.end), "days")) > 1 ) ? "noncontinuousextension" :
-                                    (e.target && e.target.id === "complimentaryAnnex") ? "complimentaryannex" : null   //newrequest, extension, noncontinuousextension, complimentaryannex
+                                    (e.target && e.target.id === "complimentaryAnnex") ? "complimentaryannex" : null
 
                 if (pi && requestType != null) {
                     this.set('isAskingAgreement',true)
@@ -1501,30 +1527,59 @@
                         )).then(links => {
                             this.set('agreementMpps', links)
 
-                            Promise.all(links.map(l =>
-                                this.api.contact().service().newInstance(this.api.user, {
-                                    tags: [{type: "CD-ITEM", code:"medication"}],
-                                    codes: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
-                                    content: _.fromPairs([[this.language, {
-                                        medicationValue: {
-                                            medicinalProduct: {
-                                                intendedcds: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
-                                                intendedname: l.mpps.length  ? l.mpps[0].name : 'Chapter IV §'+t.paragraph
-                                            },
-                                            paragraphAgreements: _.fromPairs([[l.paragraph,
-                                                _.assign({}, l.transaction, {verses: this.checkedVerses, agreementAppendices: this.appendicesTokens.map(ap => ({
-                                                        verseSeq: ap.verseSeq,
-                                                        documentSeq: ap.docSeq,
-                                                        path: ap.name,
-                                                        documentId: ap.id
-                                                    }))})
-                                            ]])
-                                        }
-                                    }]]), label: this.localize('medication', 'Medication')
+                            if (requestType === 'newrequest') {
+                                return Promise.all(links.map(l =>
+                                    this.api.contact().service().newInstance(this.api.user, {
+                                        tags: [{type: "CD-ITEM", code: "medication"}],
+                                        codes: l.mpps.length ? [{type: "CD-DRUG-CNK", code: l.mpps[0].id.id}] : [],
+                                        content: _.fromPairs([[this.language, {
+                                            medicationValue: {
+                                                medicinalProduct: {
+                                                    intendedcds: l.mpps.length ? [{
+                                                        type: "CD-DRUG-CNK",
+                                                        code: l.mpps[0].id.id
+                                                    }] : [],
+                                                    intendedname: l.mpps.length ? l.mpps[0].name : 'Chapter IV §' + t.paragraph
+                                                },
+                                                paragraphAgreements: _.fromPairs([[l.paragraph,
+                                                    _.assign({}, l.transaction, {
+                                                        verses: this.checkedVerses,
+                                                        agreementAppendices: this.appendicesTokens.map(ap => ({
+                                                            verseSeq: ap.verseSeq,
+                                                            documentSeq: ap.docSeq,
+                                                            path: ap.name,
+                                                            documentId: ap.id
+                                                        }))
+                                                    })
+                                                ]])
+                                            }
+                                        }]]), label: this.localize('medication', 'Medication')
+                                    })
+                                )).then(svcs => {
+                                    svcs.forEach(svc => this.dispatchEvent(new CustomEvent('create-service', {
+                                        detail: {service: svc},
+                                        bubbles: true,
+                                        composed: true
+                                    })))
+                                    return svcs
                                 })
-                            )).then(svcs =>
-                                svcs.forEach(svc => this.dispatchEvent(new CustomEvent('create-service', {detail: {service: svc}, bubbles: true, composed: true})))
-                            )
+                            } else {
+                                const svcs = _.compact(links.map( l => {
+                                    const m = this.convertedMedications.find(t => t.decisionReference === l.transaction.decisionReference || t.ioRequestReference === l.transaction.ioRequestReference)
+                                    if (m) {
+                                        const pa = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
+                                        if (pa) {
+                                            Object.assign(pa, l.transaction)
+                                            return pa
+                                        }
+                                    }
+                                    return null
+                                }))
+
+                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
+
+                                return Promise.resolve(svcs)
+                            }
                         })
                     }).finally(() => {this.isAskingAgreement = false;})
                 }
@@ -1654,9 +1709,10 @@
                             paragraph: selectedAgreement.paragraph || pi.paragraphName,
                             transaction: selectedAgreement,
                             mpps: it
-                        }])).then(links =>
-                            this.set('agreementMpps', links)
-                        )
+                        }])).then(links =>{
+                           this.set('agreementMpps', links)
+                           this.set('displayedParagraph.selectedMedication', links[0].mpps.find(lnk => lnk.id.id === links[0].transaction.service.codes[0].code))
+                       })
                         this._isLoadingParagraph = false
                         this.set('tabs', 0)
                         this.set('isAskingAgreement', false)
@@ -1691,6 +1747,11 @@
                         })
                 }
             }
+
+            _isAgreementRejected(inTreatment, accepted){
+                return (!inTreatment && !accepted) ? true : false
+            }
+
         }
 
         customElements.define(HtPatMcnChapterIVAgreement.is, HtPatMcnChapterIVAgreement)
