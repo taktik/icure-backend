@@ -762,6 +762,12 @@
                                                     [[localize('ch4Rejected','Rejected',language)]]
                                                 </span>
                                             </template>
+                                            <template is="dom-if" if="[[item.canceled]]">
+                                                 <span class="pending-status">
+                                                    <iron-icon icon="vaadin:close" class="ch4RejectedStatus"></iron-icon>
+                                                    [[localize('ch4Closed','Closed',language)]]
+                                                </span>
+                                            </template>
                                             <iron-icon class="chapterDateInfoIcon ioref-icon" id="ioref-[[item.decisionReference]][[item.ioRequestReference]]" icon="info"></iron-icon>
                                             <paper-tooltip for="ioref-[[item.decisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">[[item.decisionReference]] [[item.ioRequestReference]]</paper-tooltip>
 
@@ -1566,7 +1572,22 @@
                                     return svcs
                                 })
                             } else {
-                                const svcs = _.compact(links.map( l => {
+
+
+                                return Promise.all(((res || {}) && res.transactions || []).map(t => {
+                                    const svc = this.displayedParagraph.service
+                                    if (svc && t.accepted && t.decisionReference && t.end) {
+                                        const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
+                                        if (paragraphAgreement) {
+                                            Object.assign(paragraphAgreement, {end: res.transaction.end})
+                                            this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
+                                        }
+                                    }
+                                }))
+
+
+                                /*const svcs = _.compact(links.map( l => {
                                     const m = this.convertedMedications.find(t =>  t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
                                     if (m) {
                                         const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
@@ -1579,7 +1600,7 @@
                                     return null
                                 }))
 
-                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
+                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))*/
                             }
                         })
                     }).finally(() => {this.isAskingAgreement = false;})
@@ -1737,7 +1758,7 @@
                                     const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
                                     const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
-                                        Object.assign(paragraphAgreement, {end: l.transaction.end})
+                                        Object.assign(paragraphAgreement, {end: t.end})
                                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
                                     }
                                 }
