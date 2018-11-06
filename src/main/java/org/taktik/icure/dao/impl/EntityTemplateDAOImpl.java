@@ -41,7 +41,7 @@ import org.taktik.icure.entities.EntityTemplate;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityTemplate' && !doc.deleted) emit( null, doc._id )}")
 public class EntityTemplateDAOImpl extends CachedDAOImpl<EntityTemplate> implements EntityTemplateDAO {
 	@Autowired
-	public EntityTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+	public EntityTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(EntityTemplate.class, couchdb, idGenerator, cacheManager);
 	}
 

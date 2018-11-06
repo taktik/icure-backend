@@ -825,7 +825,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			}
 
-			#insuranceStatus.medicalHouse {
+			#insuranceStatus.medicalHouse, #edmgStatus.edmgPending {
 				--paper-fab-background: var(--app-status-color-pending);
 			}
 
@@ -833,7 +833,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				--paper-fab-background: var(--app-status-color-nok);
 			}
 
-			#insuranceStatus.insuranceOk, #hubStatus.accessOk, #tlStatus.tlOk, #consentStatus.consentOk {
+			#insuranceStatus.insuranceOk, #hubStatus.accessOk, #tlStatus.tlOk, #consentStatus.consentOk, #edmgStatus.edmgOk {
 				--paper-fab-background: var(--app-status-color-ok);
 			}
 
@@ -1776,7 +1776,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
 		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
-		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService"></ht-pat-mcn-chapteriv-agreement>
+		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
 	</template>
 	<script>
@@ -2981,7 +2981,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if (!this.currentContact) {
 				return;
 			}
-			this.saveService(svc).then(c => this.filterEvents());
+			this.saveNewService(svc).then(c => this.filterEvents());
 		}
 	}
 
@@ -2995,7 +2995,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if (!this.currentContact) {
 				return;
 			}
-			this.saveService(svc).then(c => this.filterEvents());
+			this.saveNewService(svc).then(c => this.filterEvents());
 		}
 	}
 
@@ -3008,13 +3008,22 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             return;
         }
         const hes = e.detail.hes || []
-        const allContacts = _.concat(this.currentContact ? [this.currentContact] : [], this.contacts)
+        const allContacts = (this.currentContact ? [this.currentContact] : []).concat(this.contacts)
         Promise.all(hes.map(he => he.id ? Promise.resolve(he) : this.contact().promoteServiceToHealthElement(he))).then(hes =>
             this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, this.api.contact().service().newInstance(this.user, e.detail.service), null, [], hes.map(he => he.id))
         ).then(() => this.saveContact(this.currentContact))
     }
 
-    saveService(svc) {
+    _updateServices(e) {
+        if (!this.currentContact) {
+            return;
+        }
+        const allContacts = (this.currentContact ? [this.currentContact] : []).concat(this.contacts)
+		;(e.detail.services || []).forEach(svc => this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, svc, null, {}, []))
+		this.saveContact(this.currentContact)
+	}
+
+    saveNewService(svc) {
 		svc.modified = +new Date();
 		if (!svc.id) {
 			svc.id = this.api.crypto().randomUuid();
@@ -3171,7 +3180,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
 
         let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
-        let ctcDetailPanel = Polymer.dom(this.root).querySelector("#ctcDetailPanel"); ctcDetailPanel && ctcDetailPanel.reset();
 
     }
 
@@ -3425,6 +3433,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 this.showPatientConsentState()
                 this.showPatientTherLinkState()
                 this.showHubState()
+                this.updateEdmgStatus()
             }))
 
         }
@@ -3509,7 +3518,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 } else {
                     this.api.contact().getContactWithUser(this.user, contact.id).then(c => {
                         c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-                        (c.rev ? this.api.contact().modifyContactWithUser(this.user, c) : this.api.contact().createContact(c)).then(c=>this.api.register(c,'contact')).then(() => this.refreshPatient())
+                        (c.rev ? this.api.contact().modifyContactWithUser(this.user, c) : this.api.contact().createContactWithUser(this.user, c)).then(c=>this.api.register(c,'contact')).then(() => this.refreshPatient())
                         //this.notifyPath('currentContact.closingDate')
                     });
                 }
@@ -3546,7 +3555,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if ((svc.status & 2) === 0) {
 				svc.status = svc.status | 2;
 			}
-			this.saveService(svc).then(c => this.refreshPatient());
+			this.saveNewService(svc).then(c => this.refreshPatient());
 		}
 	}
 
@@ -3582,7 +3591,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if ((svc.status & 2) === 2) {
 				svc.status = svc.status - 2;
 			} //unarchive
-			this.saveService(svc).then(c => this.refreshPatient());
+			this.saveNewService(svc).then(c => this.refreshPatient());
 		}
 	}
 
@@ -3613,7 +3622,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				svc.status = svc.status - 2;
 			} //unarchive
 
-			this.saveService(svc).then(c => this.refreshPatient());
+			this.saveNewService(svc).then(c => this.refreshPatient());
 		}
 	}
 
@@ -3875,7 +3884,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (!this.currentContact) {
             return;
         }
-        this.saveService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+        this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
 	}
 
     _displayMedicationDetails(e) {
@@ -3887,7 +3896,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (!this.currentContact) {
             return;
         }
-        this.saveService(e.detail).then(() => this.refreshPatient())
+        this.saveNewService(e.detail).then(() => this.refreshPatient())
     }
 
 	_healthElementsSelectorColumns() {
@@ -3977,7 +3986,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!this.currentContact) {
 			return;
 		}
-		this.saveService(svc).then(c => this.refreshPatient());
+		this.saveNewService(svc).then(c => this.refreshPatient());
 	}
 
 	_svcEntityContentChanged(e, value) {
@@ -4087,6 +4096,76 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
         this.$['chapterivdialog'].open()
 	}
+
+
+    updateEdmgStatus(){
+        let edmgDialogComponent = this.root.querySelector("#edmgDialog");
+
+        // Drop statuses, if any
+	    this.$.edmgStatus.classList.remove('edmgPending'); this.$.edmgStatus.classList.remove('edmgOk');
+
+        // Everything that isn't today
+        this.flushOldEdmgStatusCache();
+
+        // Do we have an existing cache file ? (One hit a day by HCP & Patient)
+        const cachedEdmgRespStorageName = 'org.taktik.icure.edmgStatus' + moment().format('YYYYMMDD') + '.' + this.user.healthcarePartyId + '.' + edmgDialogComponent.patient.ssin;
+
+        // Try to get data from cache
+        const cachedEdmgResp = localStorage.getItem( cachedEdmgRespStorageName ) || null;
+        if( cachedEdmgResp ) { this.visualUpdateEdmgStatus( JSON.parse(cachedEdmgResp), edmgDialogComponent ); return; }
+
+        // Couldn't get data from cache, do hit + trigger status visual update
+        edmgDialogComponent.getDmgConsult().then( edmgResp => { this.visualUpdateEdmgStatus( edmgResp, edmgDialogComponent ); localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) ); }).catch((e) => { console.log('error getDmgConsult' , e); });
+    }
+
+
+
+    visualUpdateEdmgStatus( edmgResp, edmgDialogComponent ){
+
+        // Define now
+        let currentTstamp = moment().valueOf();
+
+	    // Something wrong ?
+        if( !edmgResp || edmgDialogComponent._hasErrors(edmgResp) || !edmgResp.hcParty || !this.user || !this.user.healthcarePartyId ) return;
+
+        // Get connected user's HCP.nihii
+        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(
+            thisHcp => {
+                // Connected doctor !== the one that has patient's EDMG
+                if( thisHcp.nihii !== edmgDialogComponent._getHcpNihii(edmgResp) ) { console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; }
+
+                // Valid status (last consultation between start & end of eDMG)
+                if( edmgResp.from <= currentTstamp && edmgResp.to >= currentTstamp ) { console.log( 'EDMG OK: last consultation less than 1 year ago' ); this.$.edmgStatus.classList.add('edmgOk'); return; }
+
+                // Pending status (last consultation more than a year ago but less than 2 years ago)
+                if( edmgResp.from > currentTstamp && currentTstamp >= moment(edmgResp.from).subtract(1, 'year').valueOf() ) { console.log( 'EDMG PENDING: last consultation less than 2 years ago (but more than one)' ); this.$.edmgStatus.classList.add('edmgPending'); return; }
+
+                /// Anything else
+                console.log( 'EDMG FAILED: last consultation more than 2 years ago' );
+
+            }
+        ).catch(() => { console.log( 'error getHealthcareParty' ); console.log(e); })
+
+    }
+
+
+
+    flushOldEdmgStatusCache() {
+
+        // Target what's for us
+	    let patternToLookFor= 'org.taktik.icure.edmgStatus';
+
+        // Loop and drop old ones
+	    Object.keys(localStorage).filter(k => k.startsWith(patternToLookFor)).forEach(k => {
+            // patternToLookFor . YYYYMMDD . userHcpId. patientSsin
+	        const [dateFormCache] = k.replace(patternToLookFor,'').split('.');
+
+            // Drop if older than today
+	        if(moment(dateFormCache).isBefore(moment(), 'day')) { localStorage.removeItem(k) }
+        });
+
+    }
+
 }
 
 customElements.define(HtPatDetail.is, HtPatDetail);

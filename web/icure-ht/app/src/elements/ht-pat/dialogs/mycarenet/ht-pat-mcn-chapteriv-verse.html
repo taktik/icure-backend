@@ -13,15 +13,20 @@
             .disabled {
                 color: lightgrey;
             }
+
+            .chapterDocIcon{
+                height: 14px;
+                width: 14px;
+            }
         </style>
 
         <li style$="background-color: [[_ynToColour(verse.checkBoxInd, parentIncomplete)]]">
-            <template is="dom-if" if="[[_isY(verse.checkBoxInd)]]"><vaadin-checkbox id="[[verse.verseNum]]" on-checked-changed="_checkChanged"></vaadin-checkbox></template>
-            <span class$="[[_verseDisabled(extension,verse)]]"><template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template></span> [ [[verse.verseNum]] ]
+            <template is="dom-if" if="[[_isY(verse.checkBoxInd)]]"><vaadin-checkbox id="[[verse.verseNum]]" checked="[[_checked(verse.verseNum, checkedVerses.*)]]" on-checked-changed="_checkChanged"></vaadin-checkbox></template>
+            <span class$="[[_verseDisabled(extension,verse)]]"><template is="dom-if" if="[[_isFrench(language)]]">[[verse.textFr]] </template><template is="dom-if" if="[[_isDutch(language)]]">[[verse.textNl]]</template><template is="dom-if" if="[[_isY(verse.otherAddedDocumentInd)]]"> <iron-icon icon="vaadin:file-text-o" class="chapterDocIcon"></iron-icon> *doc* </template>[ [[verse.verseNum]] ]</span>
             <template is="dom-if" if="[[_isParent(verse, checkedVerses.*)]]"><span style="background-color: #ffa">[Veuillez cocher au minimum [[verse.minCheckNum]] case(s) ci-dessous]</span></template>
             <ul>
               <template is="dom-repeat" items="[[verse.verses]]" as="v">
-                <ht-pat-mcn-chapteriv-verse verse="[[v]]" language="[[language]]" parent-incomplete="[[_isIncomplete(verse.minCheckNum, checkedVerses.*)]]" on-check="_check"></ht-pat-mcn-chapteriv-verse>
+                <ht-pat-mcn-chapteriv-verse verse="[[v]]" language="[[language]]" parent-incomplete="[[_isIncomplete(verse.minCheckNum, checkedVerses.*)]]" on-check="_check" checked-verses="[[checkedVerses]]"></ht-pat-mcn-chapteriv-verse>
             </template>
             </ul>
         </li>
@@ -85,7 +90,11 @@
             }
 
             _isIncomplete(val) {
-                return val>0 && this.checkedVerses.length<val
+                return val>0 && (this.checkedVerses || []).length<val
+            }
+
+            _checked(verseNum) {
+                return (this.checkedVerses || []).includes(verseNum)
             }
 
             _checkChanged(e) {
@@ -104,11 +113,11 @@
             }
 
             _isParent(val){
-                return val && val.verses && val.verses.length !== 0 && val.minCheckNum>0 && this.checkedVerses.length<val.minCheckNum
+                return val && val.verses && val.verses.length !== 0 && val.minCheckNum>0 && (this.checkedVerses || []).length<val.minCheckNum
             }
 
             _verseDisabled(ext,v) {
-                return !v || (extension && v.requestType !== 'D' || !extension && v.requestType !== 'P') ? '' : 'disabled'
+                return !v || (this.extension && v.requestType !== 'N' || !this.extension && v.requestType !== 'P') ? '' : 'disabled'
             }
 
         }

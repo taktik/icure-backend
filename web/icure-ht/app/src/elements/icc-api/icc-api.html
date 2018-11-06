@@ -410,7 +410,7 @@
 
             const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
-            if (current && (!current.rev || Number(current.rev.split('-')[0])) < Number(entity.rev.split('-')[0])) {
+            if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
@@ -438,7 +438,6 @@
         }
 
         loadBicData() {
-
             // Already existing, take no action
             if( typeof this.bicsData !== 'undefined' ) return;
 
@@ -446,10 +445,7 @@
             this.bicsData = require('../bic/bics-list.json') || {};
         }
 
-
-
         getBicByIban( inputString ){
-
             // Get from json file -> casted in this.bicsData
             this.loadBicData();
 
@@ -467,7 +463,6 @@
 
             // Up with results, if any
             return foundResult.length ? foundResult[0].bicCode : '';
-
         }
 
         logMcn(obj, user, docId) {
