@@ -1057,7 +1057,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 console.log("allPages",allPages)
                 let onePageBody = ""
                 allPages.map((that)=>{
-                    let posoByDay = {
+                    let posoByDay = { // make the arrays that will receive sorted posologies
                             'byMoment':[],
                             'byHour':[]
                         },
@@ -1071,11 +1071,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             <footer>`; // prepare the PDF's pages
                         that.poso.map((singlePoso)=>{ // construct the posology body
                             console.log("singlePoso",singlePoso) // WIP
+                            // map and sort posology
                         })
                         let onepageBodyBottom = `</footer></div>`;
                         onePageBody = onePageBodyTop+" poso goes here "+onepageBodyBottom;
                     }
-                })
+                }) // allPage map end
                 const toPrint = `<html>
                     <head>
                         <style>
