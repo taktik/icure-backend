@@ -977,35 +977,44 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                 //
                 // const pdf = new jsPDF('p', 'pt', [width, height]);
 
-                let prescriToPrint = []
-
+                let prescriToPrint = [] // all the prescriptions
+                let allPages = [{'body':null,'poso':{}}]
+                let prescNum = 0, pageNum = 1
                 splitColumns.forEach((c, idx) => {
+                    prescNum += 1
+                    if (prescNum > 2 * pageNum) {
+                        console.log("add a new page")
+                        pageNum += 1
+                        allPages.push("")
+                    } // will be set on next page
                     const element = this.root.querySelector("#barCode");
                     JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
                     var jpegUrl = element.toDataURL("image/jpeg");
                     const ridIdx = (rids[idx].rid).split('').join(' ');
 
-                    let prescArray = []
+                    let prescArray = [], posology = {}
                     _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
                         const medicationApi = this.api.contact().medication();
                         const med = this.api.contact().medicationValue(s, this.language);
                         const medS = "S/ " + medicationApi.medicationNameToString(med, this.language)
                         const medR = "R/ " + medicationApi.posologyToString(med, this.language)
-                        const thisMed = {'S': medS, 'R': medR};
+                        const medPoso = this.api.contact().medication().posologyToString(this.api.contact().medicationValue(med, this.language), this.language) || "N/A";
+                        const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
                         prescArray.push(thisMed)
                     }) // flatmap end
+                    console.log("prescArray",prescArray)
 
                     let prescriContent = ""
-                    prescArray.map(that => {
-                        prescriContent +=
-                        `<article>
+                    let articlePoso = [{}]
+                    prescArray.map(that => { // create prescription body
+                        prescriContent += `<article>
                             ${that.S}<br>
                             ${that.R}
-                        </article>`
+                        </article>`;
+                        articlePoso.push(that.poso)
                     }) // map end
-
-                    const prescri = `
-                    <article class="prescription">
+                    console.log("allPages",allPages)
+                    const prescri = `<article class="prescription">
                         <header>
                             <img src="${jpegUrl}" alt="code-bar">
                             <div class="barcode-num">${ridIdx}</div>
@@ -1047,70 +1056,84 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
                         </footer>
                     </article>`;
-                    prescriToPrint.push({'singlePrescription':prescri})
-                }) // forEach end
+                    prescriToPrint.push({'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription and say on what page it should be
+                }) // splitCol forEach end
 
-                const template = {'prescriToPrint': prescriToPrint}
-                const html = `
-                <html>
+                prescriToPrint.map((that)=>{
+                    if (!allPages[that.page]) {allPages[that.page].body = ""}
+                    allPages[that.page].body += (that.prescriBody)
+                    let thatPoso = []
+                    that.posology.map((poso)=>{
+                        thatPoso.push(poso)
+                    })
+                    allPages[that.page].poso = thatPoso
+                })
+                let onePageBody = ""
+                allPages.map((that)=>{
+                    if (typeof that  != 'object') {
+                        let onePageBodyTop = `<div class="page">
+                            <main>
+                                ${that.body}
+                            </main>
+                            <footer>`;
+                        that.poso.map((singlePoso)=>{
+                            console.log(singlePoso)
+                        })
+                        let onepageBodyBottom = `</footer></div>`;
+                        onePageBody = onePageBodyTop+" poso goes here "+onepageBodyBottom;
+                    }
+                })
+                const toPrint = `<html>
                     <head>
                         <style>
-                            body {margin: 0;display:flex;flex-direction:column;width: 210mm;}
-                            @page {size: A4;margin: 0;}
-                            main {display: flex;width: 100%;}
-                            main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
-                            main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
-                            main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
-                            main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
-                            main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
-                            main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
-                            main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
-                            main > article .prescription-content p.center {margin:5px;text-align: center;}
-                            main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
-                            main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
-                            main > article div.profile {margin: 0 25px;}
-                            main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
-                            main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
-                            main > article div.prescription-content > article {margin: 7.5px 0;}
-                            main > article footer p {text-align: center;margin: 2px 0;}
-                            body > footer {border-top: .5px dashed lightgrey;text-align:center;padding:5px 20px 0 20px;}
-                            body > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
-                            body > footer table:first-child {border-top:none;}
-                            body > footer table tr td {border-bottom:1px solid black;text-align: center;}
-                            body > footer table tr td:first-child {width:258px;border-right:2px solid black;}
-                            body > footer table thead {font-weight: bold;background: rgba(0,0,0,.075);}
-                            body > footer table thead tr td:first-child{text-decoration: underline;}
+                            body {margin: 0;width: 210mm;}
+                            body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
+                            body > div.page:last-child {page-break-after: avoid;}
+                            body > div.page >main {display: flex;width: 100%;}
+                            body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
+                            body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
+                            body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
+                            body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
+                            body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
+                            body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
+                            body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
+                            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
+                            body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
+                            body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
+                            body > div.page > main > article div.profile {margin: 0 25px;}
+                            body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
+                            body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
+                            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
+                            body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
+                            body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
+                            body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
+                            body > div.page > footer table:first-child {border-top:none;}
+                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: center;}
+                            body > div.page > footer table tr td:first-child {width:258px;border-right:2px solid black;}
+                            body > div.page > footer table thead {font-weight: bold;background: rgba(0,0,0,.075);}
+                            body > div.page > footer table thead tr td:first-child{text-decoration: underline;}
                         </style>
                     </head>
                     <body>
-                        <main>
-                            {{#prescriToPrint}}
-                                {{{singlePrescription}}}
-                            {{/prescriToPrint}}
-                        </main>
-                        <footer>
-                        </footer>
+                        ${onePageBody}
                     </body>
-                    </html>`;
+                </html>`;
+                console.log("toPrint",toPrint)
 
                 this.$.loadingPrescriptionDialog.close();
 
-                this.api.pdfReport(mustache.render(html, template))
+                this.api.pdfReport(mustache.render(toPrint, null))
                     .then(data => {
                         let blob = new Blob([data], {type: 'application/pdf'});
-
                         let url = window.URL.createObjectURL(blob)
-
                         let a = document.createElement("a");
                         document.body.appendChild(a);
                         a.style = "display: none";
-
                         a.href = url;
                         a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
                         a.click();
                         window.URL.revokeObjectURL(url);
                     })
-
                 drugsToBePrescribed.forEach(s => {
                     const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
                     if (tag) {
