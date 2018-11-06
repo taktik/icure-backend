@@ -49,24 +49,26 @@
                 }
 
                 #messagesGrid {
-                    flex-basis: 60%;
-                    height: 100%;
+                    flex-basis: calc(100% - 33vw - 24px);
+                    height: calc(100% - 73px);
+                    transition: .5s ease;
                 }
-
                 #messagesGrid.no-detail {
                     flex-basis: 100%;
-                    /*margin-top: 25px;*/
-                    height: calc(100% - 73px);
                 }
 
                 #detailGrid {
                     flex-basis: 40%;
-                    height: 100%;
+                    height: calc(100% - 197px);
+                    position: fixed;
+                    right: 24px;
+                    width: 33vw;
+                    transition: .5s ease;
                 }
 
                 #detailGrid.no-detail {
                     flex-basis: 0;
-                    display: none;
+                    transform: translateX(100vw);
                 }
 
                 .invoice-panel .btns-container{
@@ -94,6 +96,10 @@
                     height: 100%;
                 }
 
+                vaading-grid-column.icon-col {
+                    width: 50px;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
@@ -104,6 +110,21 @@
                     </paper-input>
                     <vaadin-grid items="[[messages]]" active-item="{{activeItem}}" selected-items="{{selectedItems}}">
                         <vaadin-grid-selection-column id="msg-list-selection-column"></vaadin-grid-selection-column>
+                        <vaadin-grid-column class="icon-col">
+                            <template class="header">
+                            </template>
+                            <template>
+                                <template is="dom-if" if="[[_isList(item)]]">
+                                    <iron-icon class="icon type-icon" icon="list"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[_isClosure(item)]]">
+                                    <iron-icon class="icon type-icon" icon="close"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[_isExtension(item)]]">
+                                    <iron-icon class="icon type-icon" icon="add"></iron-icon>
+                                </template>
+                            </template>
+                        </vaadin-grid-column>
                         <vaadin-grid-column class="recipient-col">
                             <template class="header">
                                 <vaadin-grid-sorter path="">[[localize("dat","Date",language)]]</vaadin-grid-sorter>
@@ -115,15 +136,6 @@
                                 <vaadin-grid-sorter path="">[[localize("tel_type","Type",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>
-                                <template is="dom-if" if="[[_isList(item)]]">
-                                    <iron-icon class="icon" icon="vaadin:list"></iron-icon>
-                                </template>
-                                <template is="dom-if" if="[[_isClosure(item)]]">
-                                    <iron-icon class="icon" icon="vaadin:close"></iron-icon>
-                                </template>
-                                <template is="dom-if" if="[[_isExtension(item)]]">
-                                    <iron-icon class="icon" icon="vaadin:close"></iron-icon>
-                                </template>
                                 [[item.subject]]
                             </template>
                         </vaadin-grid-column>
