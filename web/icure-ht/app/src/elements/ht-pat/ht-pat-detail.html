@@ -409,8 +409,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				overflow-y: overlay;
 				height: calc(100% - 215px);
 				margin-bottom:16px;
-				border-top: 1px solid rgba(0,0,0,.1);
-				border-bottom: 1px solid rgba(0,0,0,.1);
 			}
 
 
@@ -673,9 +671,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				@apply --padding-32;
 				padding-top:16px;
 				padding-bottom:8px;
-			}
-			.contact-year:first-child{
-				padding-top:0;
 			}
 
 			.contact-text{
@@ -1781,7 +1776,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
 		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
-		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]"></ht-pat-mcn-chapteriv-agreement>
+		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
 	</template>
 	<script>
@@ -2986,7 +2981,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if (!this.currentContact) {
 				return;
 			}
-			this.saveService(svc).then(c => this.filterEvents());
+			this.saveNewService(svc).then(c => this.filterEvents());
 		}
 	}
 
@@ -3000,7 +2995,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if (!this.currentContact) {
 				return;
 			}
-			this.saveService(svc).then(c => this.filterEvents());
+			this.saveNewService(svc).then(c => this.filterEvents());
 		}
 	}
 
@@ -3013,13 +3008,22 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             return;
         }
         const hes = e.detail.hes || []
-        const allContacts = _.concat(this.currentContact ? [this.currentContact] : [], this.contacts)
+        const allContacts = (this.currentContact ? [this.currentContact] : []).concat(this.contacts)
         Promise.all(hes.map(he => he.id ? Promise.resolve(he) : this.contact().promoteServiceToHealthElement(he))).then(hes =>
             this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, this.api.contact().service().newInstance(this.user, e.detail.service), null, [], hes.map(he => he.id))
         ).then(() => this.saveContact(this.currentContact))
     }
 
-    saveService(svc) {
+    _updateServices(e) {
+        if (!this.currentContact) {
+            return;
+        }
+        const allContacts = (this.currentContact ? [this.currentContact] : []).concat(this.contacts)
+		;(e.detail.services || []).forEach(svc => this.api.contact().promoteServiceInContact(this.currentContact, this.user, allContacts, svc, null, {}, []))
+		this.saveContact(this.currentContact)
+	}
+
+    saveNewService(svc) {
 		svc.modified = +new Date();
 		if (!svc.id) {
 			svc.id = this.api.crypto().randomUuid();
@@ -3176,7 +3180,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
 
         let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
-        let ctcDetailPanel = Polymer.dom(this.root).querySelector("#ctcDetailPanel"); ctcDetailPanel && ctcDetailPanel.reset();
 
     }
 
@@ -3515,7 +3518,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 } else {
                     this.api.contact().getContactWithUser(this.user, contact.id).then(c => {
                         c.closingDate = parseInt(moment().format('YYYYMMDDHHmmss'));
-                        (c.rev ? this.api.contact().modifyContactWithUser(this.user, c) : this.api.contact().createContact(c)).then(c=>this.api.register(c,'contact')).then(() => this.refreshPatient())
+                        (c.rev ? this.api.contact().modifyContactWithUser(this.user, c) : this.api.contact().createContactWithUser(this.user, c)).then(c=>this.api.register(c,'contact')).then(() => this.refreshPatient())
                         //this.notifyPath('currentContact.closingDate')
                     });
                 }
@@ -3552,7 +3555,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if ((svc.status & 2) === 0) {
 				svc.status = svc.status | 2;
 			}
-			this.saveService(svc).then(c => this.refreshPatient());
+			this.saveNewService(svc).then(c => this.refreshPatient());
 		}
 	}
 
@@ -3588,7 +3591,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			if ((svc.status & 2) === 2) {
 				svc.status = svc.status - 2;
 			} //unarchive
-			this.saveService(svc).then(c => this.refreshPatient());
+			this.saveNewService(svc).then(c => this.refreshPatient());
 		}
 	}
 
@@ -3619,7 +3622,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				svc.status = svc.status - 2;
 			} //unarchive
 
-			this.saveService(svc).then(c => this.refreshPatient());
+			this.saveNewService(svc).then(c => this.refreshPatient());
 		}
 	}
 
@@ -3881,7 +3884,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (!this.currentContact) {
             return;
         }
-        this.saveService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+        this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
 	}
 
     _displayMedicationDetails(e) {
@@ -3893,7 +3896,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         if (!this.currentContact) {
             return;
         }
-        this.saveService(e.detail).then(() => this.refreshPatient())
+        this.saveNewService(e.detail).then(() => this.refreshPatient())
     }
 
 	_healthElementsSelectorColumns() {
@@ -3983,7 +3986,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		if (!this.currentContact) {
 			return;
 		}
-		this.saveService(svc).then(c => this.refreshPatient());
+		this.saveNewService(svc).then(c => this.refreshPatient());
 	}
 
 	_svcEntityContentChanged(e, value) {

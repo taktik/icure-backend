@@ -25,6 +25,8 @@ import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.FormGroup;
 
+import java.util.List;
+
 /**
  * Created by aduchate on 09/07/13, 16:27
  */
@@ -61,6 +63,8 @@ public class FormTemplate extends StoredDocument {
     protected String shortReport;
     protected String mediumReport;
     protected String longReport;
+
+    protected List<String> reports;
 
     @JsonIgnore
 	private transient boolean attachmentDirty = false;
@@ -186,4 +190,12 @@ public class FormTemplate extends StoredDocument {
     public void setLongReport(String longReport) {
         this.longReport = longReport;
     }
+
+	public List<String> getReports() {
+		return reports;
+	}
+
+	public void setReports(List<String> reports) {
+		this.reports = reports;
+	}
 }

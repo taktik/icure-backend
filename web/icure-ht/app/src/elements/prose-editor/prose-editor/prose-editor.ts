@@ -9,6 +9,10 @@ import "../../../../bower_components/paper-item/paper-item"
 import "../../../../bower_components/neon-animation/web-animations"
 
 import "../utils/color-picker.ts"
+import "../utils/heading-picker.ts"
+import "../utils/font-picker.ts"
+import "../utils/font-size-picker.ts"
+
 
 import './prose-editor.html'
 
@@ -22,6 +26,7 @@ import {baseKeymap, toggleMark, setBlockType} from "prosemirror-commands";
 import {Plugin} from "prosemirror-state"
 import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
+import Element = Polymer.Element;
 
 
 /**
@@ -72,6 +77,16 @@ export class ProseEditor extends Polymer.Element {
     draggable: false,
 
     toDOM: (node: any) => ["span", {style: "padding-left:100px", class: "tab"}],
+    parseDOM: [{tag: "span.var", getAttrs(dom) { return {expr: (dom as HTMLElement).dataset.expr} }}]
+  }
+
+  varNodeSpec: NodeSpec = {
+    inline: true,
+    group: "inline",
+    draggable: true,
+    attrs: { expr: {default: ''} },
+
+    toDOM: (node: any) => ["span", {style: "padding-left:100px", class: "var", "data-expr":node.attrs.expr}],
     parseDOM: [{
       tag: "span.tab"
     }]
@@ -95,7 +110,8 @@ export class ProseEditor extends Polymer.Element {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
         }
       }))
-      .addBefore("image", "tab", this.tabNodeSpec),
+      .addBefore("image", "tab", this.tabNodeSpec)
+      .addBefore("image", "var", this.tabNodeSpec),
     marks: (schema.spec.marks as any)
       .addToEnd("underlined", {
         attrs: {
@@ -174,6 +190,22 @@ export class ProseEditor extends Polymer.Element {
         toDOM(mark:Mark) {
           let {size} = mark.attrs
           return ['span', {style: `font-size: ${size}`}, 0]
+        }
+      }).addToEnd("var", {
+        attrs: {
+          expr: {default: ''}
+        },
+        parseDOM: [
+          {
+            tag: 'span.var',
+            getAttrs(value:HTMLElement) {
+              return {expr: value.dataset.expr}
+            }
+          }
+        ],
+        toDOM(mark:Mark) {
+          let {expr} = mark.attrs
+          return ['span', {class:'var', 'data-expr': expr}, 0]
         }
       })
   })
@@ -443,10 +475,6 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
-  doFontMenu(e: CustomEvent) {
-    e.preventDefault()
-  }
-
   doSize(e: CustomEvent) {
     e.stopPropagation()
     e.preventDefault()
@@ -456,10 +484,6 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
-  doSizeMenu(e: CustomEvent) {
-    e.preventDefault()
-  }
-
   doHeading(e: CustomEvent) {
     e.stopPropagation()
     e.preventDefault()
@@ -467,10 +491,6 @@ export class ProseEditor extends Polymer.Element {
       setBlockType(this.editorSchema.nodes.heading, {level: parseInt(e.detail.value.replace(/.+ ([0-9]+)/, '$1'))})(this.editorView.state, this.editorView.dispatch)
       this.editorView.focus()
     }
-  }
-
-  doHeadingMenu(e: CustomEvent) {
-    e.preventDefault()
   }
 
   doLeft(e: CustomEvent) {

@@ -115,7 +115,7 @@
 				</div>
 			</template>
 			<template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-				<pdf-element src="[[dataUrl]]" elevation="5" downloadable height="900" fit-width enable-text-selection></pdf-element>
+				<pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
 			</template>
 			<template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
 				<span> <iron-icon class="iron-icon" icon="home"></iron-icon> [[document.name]] [[mimeType(document.mainUti)]] [[type]]</span> <vaadin-button id="todayButton" part="today-button" on-tap="_getAttachment">details</vaadin-button><vaadin-button id="todayButton" part="today-button" on-tap="importPatient">
@@ -145,8 +145,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			service: {
 				type: Object,
-				value: null,
-				observer: '_serviceChanged'
+				value: null
 			},
 			document: {
 				type: Object,
@@ -179,12 +178,16 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		};
 	}
 
-	constructor() {
+    static get observers() {
+        return ['_serviceChanged(service, api, user)']
+    }
+
+    constructor() {
 		super();
 	}
 
 	_serviceChanged() {
-		if (!this.service) {
+		if (!this.service || !this.api || !this.user) {
 			return;
 		}
 		const serviceContent = this.api && this.api.contact().localize(this.service.content, this.language || 'en');

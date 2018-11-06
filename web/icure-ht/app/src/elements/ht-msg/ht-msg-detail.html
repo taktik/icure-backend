@@ -34,7 +34,6 @@
 <link rel="import" href="../../../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
 
 <link rel="import" href="../dynamic-form/dynamically-loaded-form.html">
-<link rel="import" href="../dynamic-form/dynamic-doc.html">
 <link rel="import" href="../dynamic-form/entity-selector.html">
 
 <!--<link rel="import" href="../ht-lab/ht-lab-details.html">-->
@@ -818,7 +817,7 @@ class HtMsgDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					descr: "Lab" + new Date().getTime(),
 					subContacts: []
 				}).then(c=>{
-					this.api.contact().createContact(c).then(c => {
+					this.api.contact().createContactWithUser(this.user, c).then(c => {
 						this.api.form().newInstance(this.user, patient, {
 							contactId: c.id,
 							descr: "Lab" + new Date().getTime(),

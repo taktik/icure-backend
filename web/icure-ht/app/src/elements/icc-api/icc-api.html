@@ -377,6 +377,10 @@
             this.registry[domain] = {listeners:[], entities:{}}
         }
 
+        getRegistry(domain) {
+            return this.registry[domain] || (this.registry[domain] = {listeners: [], entities: {}, queues: {}})
+        }
+
         /**
          * returns a Promise that will resolve when the current tail of the promise chain for this object resolves or that resolves immediately if the current chain is empty
          *
@@ -388,29 +392,25 @@
          */
         queue(entity, domain) {
             if (!entity || !entity.id) { return Promise.resolve([entity, undefined]) }
-            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}, queues:{}})
+            const reg = this.getRegistry(domain)
 
             let res = null
-            const defer = new Promise((resolve) => {
-                res = resolve
-            })
+            const defer = new Promise((resolve) => { res = resolve })
             defer.resolve = res
 
-            const thisPromise = reg.queues[entity.id] || Promise.resolve(entity)
+            const thisPromise = reg.queues[entity.id]
+            const timeout =  thisPromise ? setTimeout(()=>{ thisPromise.resolved(entity) }, 10000) : null
             reg.queues[entity.id] = defer
 
-            thisPromise.uuid = this.crypto().randomUuid()
-
-            console.log('' + thisPromise.uuid + ' pending');
-            return thisPromise.then(e => { console.log('' + thisPromise.uuid + ' resolved'); return ([e, defer])})
+            return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
         }
 
         register(entity, domain, defer) {
             if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
 
-            const reg = this.registry[domain] || (this.registry[domain] = {listeners:[], entities:{}, queues:{}})
+            const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
-            if (current && (!current.rev || Number(current.rev.split('-')[0])) < Number(entity.rev.split('-')[0])) {
+            if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
                 _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
                 _.assign(current, entity)
 
@@ -431,13 +431,11 @@
                 method: "POST",
                 mode: "cors", // no-cors, cors, *same-origin
                 credentials: "same-origin", // include, same-origin, *omit
-                headers: { "Content-Type": "text/html; charset=utf-8", },
+                headers: {"Content-Type": "text/html; charset=utf-8",},
                 redirect: "follow",
                 body: html,
             }).then(response => response.arrayBuffer())
         }
-
-
 
         loadBicData() {
 
