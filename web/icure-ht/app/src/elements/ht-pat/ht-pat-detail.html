@@ -2210,7 +2210,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _trueOrUnknown(b){
-	    return b ? '+' : '?'
+	    return b ? this.localize('yes','yes',this.language) : '?'
 	}
 
 	_yesOrNo(b){
