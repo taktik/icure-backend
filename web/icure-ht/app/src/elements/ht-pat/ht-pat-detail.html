@@ -4099,9 +4099,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 
     updateEdmgStatus(){
-
-        // Target / spare component selection
-        let edmgDialogComponent = Polymer.dom(this.root).querySelector("#edmgDialog");
+        let edmgDialogComponent = this.root.querySelector("#edmgDialog");
 
         // Drop statuses, if any
 	    this.$.edmgStatus.classList.remove('edmgPending'); this.$.edmgStatus.classList.remove('edmgOk');
@@ -4114,13 +4112,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
         // Try to get data from cache
         const cachedEdmgResp = localStorage.getItem( cachedEdmgRespStorageName ) || null;
-
-        // Got data from cache ? Act on it
         if( cachedEdmgResp ) { this.visualUpdateEdmgStatus( JSON.parse(cachedEdmgResp), edmgDialogComponent ); return; }
 
         // Couldn't get data from cache, do hit + trigger status visual update
-        edmgDialogComponent.getDmgConsult().then( edmgResp => { this.visualUpdateEdmgStatus( edmgResp, edmgDialogComponent ); localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) ); }).catch((e) => { console.log( 'error getDmgConsult' ); console.log(e); });
-
+        edmgDialogComponent.getDmgConsult().then( edmgResp => { this.visualUpdateEdmgStatus( edmgResp, edmgDialogComponent ); localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) ); }).catch((e) => { console.log('error getDmgConsult' , e); });
     }
 
 
@@ -4136,7 +4131,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         // Get connected user's HCP.nihii
         this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(
             thisHcp => {
-
                 // Connected doctor !== the one that has patient's EDMG
                 if( thisHcp.nihii !== edmgDialogComponent._getHcpNihii(edmgResp) ) { console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; }
 
@@ -4162,17 +4156,12 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    let patternToLookFor= 'org.taktik.icure.edmgStatus';
 
         // Loop and drop old ones
-	    Object.keys(localStorage).forEach(k => {
-
-	        // Not for us ?
-	        if( k.indexOf( patternToLookFor ) == -1 ) return;
-
+	    Object.keys(localStorage).filter(k => k.startsWith(patternToLookFor)).forEach(k => {
             // patternToLookFor . YYYYMMDD . userHcpId. patientSsin
-	        let keyDatas = k.replace(patternToLookFor,'').split('.');
+	        const [dateFormCache] = k.replace(patternToLookFor,'').split('.');
 
             // Drop if older than today
-	        if( moment(keyDatas[0]).format('YYYYMMDD') + '' < moment().format('YYYYMMDD') + '' ) localStorage.removeItem(k);
-
+	        if(moment(dateFormCache).isBefore(moment(), 'day')) { localStorage.removeItem(k) }
         });
 
     }
