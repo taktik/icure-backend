@@ -114,7 +114,18 @@
                             <template class="header">
                                 <vaadin-grid-sorter path="">[[localize("tel_type","Type",language)]]</vaadin-grid-sorter>
                             </template>
-                            <template>[[item.subject]]</template>
+                            <template>
+                                <template is="dom-if" if="[[_isList(item)]]">
+                                    <iron-icon class="icon" icon="vaadin:list"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[_isClosure(item)]]">
+                                    <iron-icon class="icon" icon="vaadin:close"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[_isExtension(item)]]">
+                                    <iron-icon class="icon" icon="vaadin:close"></iron-icon>
+                                </template>
+                                [[item.subject]]
+                            </template>
                         </vaadin-grid-column>
                         <vaadin-grid-column class="oa-col">
                             <template class="header">
@@ -315,8 +326,9 @@
                 })
             }
 
-            _displayMetas() {
-                return ''
+            _displayMetas(metas) {
+                if(_.isEmpty(metas) || metas.type==="list")return "";
+                return metas.endOfPreviousDmg+' '+metas.previousHcp
             }
 
             _formatPayments(payments) {
@@ -333,7 +345,7 @@
                     this.set('tempoSubMessages', [])
                     return
                 }
-                Promise.all(this.selectedItems.map(msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg).then(
+                Promise.all(this.selectedItems.filter(item => this._isList(item)).map(msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg).then(
                     docs => Promise.all(docs.map(d => this.api.document().getAttachment(d.id, d.attachmentId).then(a => {
                         try {
                             return JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))
@@ -460,6 +472,18 @@
                 }.bind(this), 100)
             }
 
+
+            _isList(item){
+                return (_.isEmpty(item.metas) && item.subject.includes("List")) || item.metas.type==="list";
+            }
+
+            _isClosure(item){
+                return (_.isEmpty(item.metas) && item.subject.includes("Closure")) || item.metas.type==="closure";
+            }
+
+            _isExtension(item){
+                return (_.isEmpty(item.metas) && item.subject.includes("Extension")) || item.metas.type==="extension";
+            }
         }
 
         customElements.define(HtMsgMycarenet.is, HtMsgMycarenet);
