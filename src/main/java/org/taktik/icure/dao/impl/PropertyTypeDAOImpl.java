@@ -35,7 +35,7 @@ import java.util.List;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.PropertyType' && !doc.deleted) emit( null, doc._id )}")
 public class PropertyTypeDAOImpl extends CachedDAOImpl<PropertyType> implements PropertyTypeDAO {
     @Autowired
-    public PropertyTypeDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+    public PropertyTypeDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(PropertyType.class, couchdb, idGenerator, cacheManager);
         initStandardDesignDocument();
     }
