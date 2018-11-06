@@ -19,16 +19,12 @@
 
 package org.taktik.icure.config
 
-import com.hazelcast.core.HazelcastInstance
-import com.hazelcast.spring.cache.HazelcastCacheManager
 import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
-import org.ektorp.spring.HttpClientFactoryBean
 import org.springframework.cache.support.NoOpCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.stereotype.Component
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.properties.CouchDbProperties
 
