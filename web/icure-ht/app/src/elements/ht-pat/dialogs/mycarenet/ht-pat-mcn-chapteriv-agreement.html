@@ -985,18 +985,18 @@
                             </template>
 
                             <div class="btns-container">
-                                <template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">
+                                <!--<template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">-->
                                     <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isCancellingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isCancellingAgreement]]"></paper-spinner>
-                                </template>
-                                <template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">
+                                <!--</template>-->
+                                <!--<template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">-->
                                     <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isClosingAgreement]]">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
-                                </template>
+                                <!--</template>-->
                                 <template is="dom-if" if="[[_complimentaryAnnex(isAgreementSelected, displayedParagraph, appendicesTokens.*)]]">
                                     <paper-button class="bottom-btn" id="complimentaryAnnex" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">
                                         [[localize('sen_com_app','Send complimentary annex',language)]]
@@ -1293,12 +1293,12 @@
                 }
             }
 
-            _closure() {
+            _closure(){
                 return this.isAgreementSelected && this.displayedParagraph && (!this.displayedParagraph.end || this.api.moment(this.displayedParagraph.end).isAfter(moment())) &&
                     (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isBefore(moment(this.fromAsString)))
             }
 
-            _cancellation() {
+            _cancellation(){
                 return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isAfter(moment())))
             }
 
@@ -1444,7 +1444,7 @@
 
                             const updatedAgreements = _.compact(medications.map(x => {
                                 const bx = _.cloneDeep(x)
-                                const t = transactions.find( t => t.ioRequestReference === x.ioRequestReference || t.decisionReference === x.decisionReference)
+                                const t = transactions.find( t => t.decisionReference && t.decisionReference === x.decisionReference || t.ioRequestReference && t.ioRequestReference === x.ioRequestReference)
                                 if (t) {
                                     _.assign(x, t)
                                     if (!_.isEqual(bx, x)) {
@@ -1527,7 +1527,7 @@
                         )).then(links => {
                             this.set('agreementMpps', links)
 
-                            if (requestType === 'newrequest') {
+                            if (requestType === 'newrequest' || requestType === 'extension' || requestType === 'noncontinuousextension') {
                                 return Promise.all(links.map(l =>
                                     this.api.contact().service().newInstance(this.api.user, {
                                         tags: [{type: "CD-ITEM", code: "medication"}],
@@ -1565,20 +1565,19 @@
                                 })
                             } else {
                                 const svcs = _.compact(links.map( l => {
-                                    const m = this.convertedMedications.find(t => t.decisionReference === l.transaction.decisionReference || t.ioRequestReference === l.transaction.ioRequestReference)
+                                    const m = this.convertedMedications.find(t =>  t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
                                     if (m) {
-                                        const pa = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
-                                        if (pa) {
-                                            Object.assign(pa, l.transaction)
-                                            return pa
+                                        const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
+                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[m.paragraph]
+                                        if (paragraphAgreement) {
+                                            Object.assign(paragraphAgreement, l.transaction)
+                                            return m.service
                                         }
                                     }
                                     return null
                                 }))
 
                                 this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
-
-                                return Promise.resolve(svcs)
                             }
                         })
                     }).finally(() => {this.isAskingAgreement = false;})
@@ -1711,7 +1710,7 @@
                             mpps: it
                         }])).then(links =>{
                            this.set('agreementMpps', links)
-                           this.set('displayedParagraph.selectedMedication', links[0].mpps.find(lnk => lnk.id.id === links[0].transaction.service.codes[0].code))
+                          // this.set('displayedParagraph.selectedMedication', links[0].mpps.find(lnk => lnk.id.id === links[0].transaction.service.codes[0].code))
                        })
                         this._isLoadingParagraph = false
                         this.set('tabs', 0)
@@ -1724,14 +1723,38 @@
                     this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference))
-                        .then(response => {
-                            this.set('agreementResponse', response)
+                        .then(res => {
+                            this.set('agreementResponse', res)
                             this.set('tabs', 1)
-                            this.set('isClosingAgreement', false)
-                            console.log(response)
-                        })
-                }
 
+                            console.log(res)
+
+                            return Promise.all(((res || {}) && res.transactions || []).map(t =>
+                                this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
+                                    paragraph: t.paragraph || pi.paragraphName,
+                                    transaction: t,
+                                    mpps: it
+                                }))
+                            )).then(links => {
+                                this.set('agreementMpps', links)
+
+                                const svcs = _.compact(links.map( l => {
+                                    const m = this.convertedMedications.find(t => t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
+                                    if (m) {
+                                        const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
+                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[m.paragraph]
+                                        if (paragraphAgreement) {
+                                            Object.assign(paragraphAgreement, l.transaction)
+                                            return m.service
+                                        }
+                                    }
+                                    return null
+                                }))
+
+                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
+                            })
+                        }).finally(() => this.set('isClosingAgreement', false))
+                }
             }
 
             _cancelChapter(e) {
@@ -1739,11 +1762,36 @@
                     this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
                         this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference))
-                        .then(response => {
-                            this.set('agreementResponse', response)
+                        .then(res => {
+                            this.set('agreementResponse', res)
                             this.set('tabs', 1)
                             this.set('isClosingAgreement', false)
-                            console.log(response)
+                            console.log(res)
+
+                            return Promise.all(((res || {}) && res.transactions || []).map(t =>
+                                this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
+                                    paragraph: t.paragraph || pi.paragraphName,
+                                    transaction: t,
+                                    mpps: it
+                                }))
+                            )).then(links => {
+                                this.set('agreementMpps', links)
+
+                                const svcs = _.compact(links.map( l => {
+                                    const m = this.convertedMedications.find(t => t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
+                                    if (m) {
+                                        const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
+                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[m.paragraph]
+                                        if (paragraphAgreement) {
+                                            Object.assign(paragraphAgreement, l.transaction)
+                                            return m.service
+                                        }
+                                    }
+                                    return null
+                                }))
+
+                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
+                            })
                         })
                 }
             }
