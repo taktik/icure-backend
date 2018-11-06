@@ -1422,7 +1422,8 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                     this.api.fhc().Chaptercontroller().agreementRequestsConsultationUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                         hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, this.selectedLoadParagraph !== "" ? this.selectedLoadParagraph : null, this.api.moment(this.consultationStartDateAsString).valueOf(), this.consultationEndDateAsString !== "" ? this.api.moment(this.consultationEndDateAsString).valueOf() : null)
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, null, this.selectedLoadParagraph !== "" ? this.selectedLoadParagraph : null,
+                        this.api.moment(this.consultationStartDateAsString).valueOf(), this.consultationEndDateAsString !== "" ? this.api.moment(this.consultationEndDateAsString).valueOf() : null).then( x => this.api.logMcn(x, this.user, this.patient.id) )
                 ).then(agreements => {
                     if (agreements.warnings && agreements.warnings.length) {
                         this.set('warnings', agreements.warnings.map(w => this.localizeObjectKey(w,'msg') + (w.code||w.path?` [${w.code||''} : ${w.path||''}]` : '')))
@@ -1512,7 +1513,7 @@
                                 this.checkedVerses.join(','), appendices,!!this.incomplete,
                                 requestType === "complimentaryannex" ? null : requestType === "extension" ? this.api.moment(this.displayedParagraph.end).add(1, "days").valueOf() : this.api.moment(this.fromAsString).valueOf() , null,
                                 (requestType === "extension" || requestType === "noncontinuousextension" || requestType === "complimentaryannex") ? this.displayedParagraph.decisionReference : null, //Might want to set ioRequestReference here for complimentary appendices
-                                ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.decisionReference) ? this.displayedParagraph.ioRequestReference : null)
+                                ((requestType === "noncontinuousextension" || requestType === "complimentaryannex") && !this.displayedParagraph.decisionReference) ? this.displayedParagraph.ioRequestReference : null).then( x => this.api.logMcn(x, this.user, this.patient.id) )
                         )
                     ).then(res => {
                         console.log(res)
@@ -1723,37 +1724,24 @@
                 if (this.displayedParagraph) {
                     this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.closeAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference).then( x => this.api.logMcn(x, this.user, this.patient.id) ))
                         .then(res => {
                             this.set('agreementResponse', res)
                             this.set('tabs', 1)
 
                             console.log(res)
 
-                            return Promise.all(((res || {}) && res.transactions || []).map(t =>
-                                this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
-                                    paragraph: t.paragraph || pi.paragraphName,
-                                    transaction: t,
-                                    mpps: it
-                                }))
-                            )).then(links => {
-                                this.set('agreementMpps', links)
-
-                                const svcs = _.compact(links.map( l => {
-                                    const m = this.convertedMedications.find(t => t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
-                                    if (m) {
-                                        const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
-                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[m.paragraph]
-                                        if (paragraphAgreement) {
-                                            Object.assign(paragraphAgreement, l.transaction)
-                                            return m.service
-                                        }
+                            return Promise.all(((res || {}) && res.transactions || []).map(t => {
+                                const svc = this.displayedParagraph.service
+                                if (svc && t.accepted && t.decisionReference && t.end) {
+                                    const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                    const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
+                                    if (paragraphAgreement) {
+                                        Object.assign(paragraphAgreement, {end: l.transaction.end})
+                                        this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
                                     }
-                                    return null
-                                }))
-
-                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
-                            })
+                                }
+                            }))
                         }).finally(() => this.set('isClosingAgreement', false))
                 }
             }
@@ -1762,38 +1750,24 @@
                 if (this.displayedParagraph) {
                     this.set('isClosingAgreement', true)
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.fhc().chaptercontrollerfhc.cancelAgreementUsingDELETE(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference))
+                        this.patient.ssin, this.patient.dateOfBirth, this.patient.firstName, this.patient.lastName, this.patient.gender, this.displayedParagraph.decisionReference, this.displayedParagraph.ioRequestReference).then( x => this.api.logMcn(x, this.user, this.patient.id) ))
                         .then(res => {
                             this.set('agreementResponse', res)
                             this.set('tabs', 1)
-                            this.set('isClosingAgreement', false)
                             console.log(res)
 
-                            return Promise.all(((res || {}) && res.transactions || []).map(t =>
-                                this.api.fhc().Chaptercontroller().getMppsForParagraphUsingGET('IV', t.paragraph || pi.paragraphName).then(it => ({
-                                    paragraph: t.paragraph || pi.paragraphName,
-                                    transaction: t,
-                                    mpps: it
-                                }))
-                            )).then(links => {
-                                this.set('agreementMpps', links)
-
-                                const svcs = _.compact(links.map( l => {
-                                    const m = this.convertedMedications.find(t => t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
-                                    if (m) {
-                                        const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
-                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[m.paragraph]
-                                        if (paragraphAgreement) {
-                                            Object.assign(paragraphAgreement, l.transaction)
-                                            return m.service
-                                        }
+                            return Promise.all(((res || {}) && res.transactions || []).map(t => {
+                                const svc = this.displayedParagraph.service
+                                if (svc && t.accepted && t.decisionReference) {
+                                    const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                    const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
+                                    if (paragraphAgreement) {
+                                        Object.assign(paragraphAgreement, {canceled: true})
+                                        this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
                                     }
-                                    return null
-                                }))
-
-                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
-                            })
-                        })
+                                }
+                            }))
+                        }).finally(() => this.set('isClosingAgreement', false))
                 }
             }
 

@@ -416,7 +416,7 @@
             }
 
             getMessages() {
-                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", [])
+                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", []).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
                     .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
                     .then(([ackHashes, dmgHashes]) => Promise.all([
                         //this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
@@ -425,7 +425,7 @@
             }
 
             requestMessages(){
-                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName)
+                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
                     .then(response =>{
                         console.log(response)
                     })

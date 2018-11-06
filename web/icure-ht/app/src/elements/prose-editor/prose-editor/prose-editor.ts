@@ -111,7 +111,8 @@ export class ProseEditor extends Polymer.Element {
         toDOM(node: any) {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
         }
-      }).append(tableNodes({
+      }))
+      .append(tableNodes({
         tableGroup: "block",
         cellContent: "block+",
         cellAttributes: {
@@ -121,7 +122,7 @@ export class ProseEditor extends Polymer.Element {
             setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
           }
         }
-      })))
+      }))
       .addBefore("image", "tab", this.tabNodeSpec),
     marks: (schema.spec.marks as any)
       .addToEnd("underlined", {
