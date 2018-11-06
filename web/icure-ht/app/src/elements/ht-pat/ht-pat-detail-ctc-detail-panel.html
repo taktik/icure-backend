@@ -963,29 +963,14 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
 				deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
 			}))).then(rids => {
-                // const width = 297.576,
-                //       height = 566.928;
-                //
-                // const center = function (pdf, x, txt, fontSize) {
-                // 	return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
-                // };
-                //
-                //const pdf = new jsPDF('p', 'pt', [width, height])
-                //
-                //pdf.addFont('ArialMS', 'Arial', 'normal')
-                //pdf.addFont('Times', 'Serif', 'normal')
-                //
-                // const pdf = new jsPDF('p', 'pt', [width, height]);
-
                 let prescriToPrint = [] // all the prescriptions
                 let allPages = [{'body':null,'poso':{}}]
                 let prescNum = 0, pageNum = 1
                 splitColumns.forEach((c, idx) => {
                     prescNum += 1
-                    if (prescNum > 2 * pageNum) {
-                        console.log("add a new page")
-                        pageNum += 1
-                        allPages.push("")
+                    if (prescNum > 2 * pageNum) { // if doesn't fit in page
+                        pageNum += 1 // add a page
+                        allPages.push({'body':"",'poso':{}}) // prepare the page
                     } // will be set on next page
                     const element = this.root.querySelector("#barCode");
                     JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
@@ -996,22 +981,22 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
                         const medicationApi = this.api.contact().medication();
                         const med = this.api.contact().medicationValue(s, this.language);
+                        const medPoso = this.api.contact().medication().posologyToString(this.api.contact().medicationValue(med, this.language), this.language) || "N/A";
                         const medS = "S/ " + medicationApi.medicationNameToString(med, this.language)
                         const medR = "R/ " + medicationApi.posologyToString(med, this.language)
-                        const medPoso = this.api.contact().medication().posologyToString(this.api.contact().medicationValue(med, this.language), this.language) || "N/A";
                         const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
-                        prescArray.push(thisMed)
+                        prescArray.push(thisMed) // add to the medications list
                     }) // flatmap end
                     console.log("prescArray",prescArray)
 
                     let prescriContent = ""
                     let articlePoso = [{}]
-                    prescArray.map(that => { // create prescription body
+                    prescArray.map(that => { // create prescription content
                         prescriContent += `<article>
                             ${that.S}<br>
                             ${that.R}
                         </article>`;
-                        articlePoso.push(that.poso)
+                        articlePoso.push(that.poso) // add posology to the list
                     }) // map end
                     console.log("allPages",allPages)
                     const prescri = `<article class="prescription">
@@ -1055,29 +1040,37 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             <small class="center">Délivrable à partir du&nbsp;:</small>
                             <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
                         </footer>
-                    </article>`;
-                    prescriToPrint.push({'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription and say on what page it should be
+                    </article>`; // create single prescription body
+                    prescriToPrint.push({'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
                 }) // splitCol forEach end
+                console.log("prescriToPrint",prescriToPrint)
 
-                prescriToPrint.map((that)=>{
+                prescriToPrint.map((that)=>{ // for every prescription found in list
                     if (!allPages[that.page]) {allPages[that.page].body = ""}
-                    allPages[that.page].body += (that.prescriBody)
+                    allPages[that.page].body += (that.prescriBody) // get the body
                     let thatPoso = []
-                    that.posology.map((poso)=>{
+                    that.posology.map((poso)=>{ // check if there's posology
                         thatPoso.push(poso)
                     })
-                    allPages[that.page].poso = thatPoso
+                    allPages[that.page].poso = thatPoso // assign posology to prescription
                 })
+                console.log("allPages",allPages)
                 let onePageBody = ""
                 allPages.map((that)=>{
-                    if (typeof that  != 'object') {
+                    let posoByDay = {
+                            'byMoment':[],
+                            'byHour':[]
+                        },
+                        posoByWeek = [],
+                        posoByMonth = []
+                    if (typeof that != 'object') {
                         let onePageBodyTop = `<div class="page">
                             <main>
                                 ${that.body}
                             </main>
-                            <footer>`;
-                        that.poso.map((singlePoso)=>{
-                            console.log(singlePoso)
+                            <footer>`; // prepare the PDF's pages
+                        that.poso.map((singlePoso)=>{ // construct the posology body
+                            console.log("singlePoso",singlePoso) // WIP
                         })
                         let onepageBodyBottom = `</footer></div>`;
                         onePageBody = onePageBodyTop+" poso goes here "+onepageBodyBottom;
@@ -1117,7 +1110,7 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     <body>
                         ${onePageBody}
                     </body>
-                </html>`;
+                </html>`; // finalize PDF body
                 console.log("toPrint",toPrint)
 
                 this.$.loadingPrescriptionDialog.close();
