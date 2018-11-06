@@ -246,6 +246,7 @@
 				background: var(--app-secondary-color);
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
+				text-transform: capitalize;
 			}
 
 			filter-panel{
@@ -385,7 +386,7 @@
 			}
 
 			#prose-editor > prose-editor{
-				height: calc(100% - 60px - 64px);
+				height: calc(100% - 60px - 56px);
 				width: 100%;
 				display: block;
 				padding: 0;
@@ -397,6 +398,7 @@
 				bottom: 0;
 				width: 100%;
 				box-sizing: border-box;
+				border-top: 1px solid #e0e0e0;
 			}
 		</style>
 
@@ -546,7 +548,7 @@
 			</div>
 			<div class="buttons">
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_printPrescriptions">[[localize('pri','Print',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 
@@ -561,7 +563,7 @@
 					<paper-button class="modal-button" on-tap="loadTemplate">[[localize('load_temp','Load template',language)]]</paper-button>
 				</div>
 				<paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-				<paper-button class="modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('save','Save',language)]]</paper-button>
+				<paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="_saveProse">[[localize('save','Save',language)]]</paper-button>
 			</div>
 		</paper-dialog>
 		<canvas id="barCode"></canvas>
