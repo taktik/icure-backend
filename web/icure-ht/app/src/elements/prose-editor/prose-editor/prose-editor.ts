@@ -110,8 +110,7 @@ export class ProseEditor extends Polymer.Element {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
         }
       }))
-      .addBefore("image", "tab", this.tabNodeSpec)
-      .addBefore("image", "var", this.tabNodeSpec),
+      .addBefore("image", "tab", this.tabNodeSpec),
     marks: (schema.spec.marks as any)
       .addToEnd("underlined", {
         attrs: {
