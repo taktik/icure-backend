@@ -2433,6 +2433,10 @@
                 return type && type.label && type.label[this.language]
             }
 
+            formatAmount(value) {
+                return parseFloat(Math.round(value * 100) / 100).toFixed(2);
+            }
+
             generateJustificatory(){
                 let template = {
                     "pageOne": {
@@ -2456,19 +2460,27 @@
                 }
                 let totTotal=0.00,totOA=0.00,totPers=0.00,totSupp=0.00
 
+                console.log("selected Invoice",this.selectedInvoice.invoicingCodes)
+                console.log("this patient",this.patient)
+
                 this.selectedInvoice.invoicingCodes.map(code => {
                     const invoiceDate = this._formatInvoiceDate(code.dateCode)
                     const invDate = invoiceDate
                     const thisCode = code.code.toString()
-                    const reimbursement = code.reimbursement.toString()
-                    const patientIntervention = code.patientIntervention.toString()
-                    const doctorSupplement = code.doctorSupplement.toString()
-                    const totalAmount = code.totalAmount.toString()
+                    const reimbursement = this.formatAmount(code.reimbursement.toString())
+                    const patientIntervention = this.formatAmount(code.patientIntervention.toString())
+                    const doctorSupplement = this.formatAmount(code.doctorSupplement.toString())
+                    const totalAmount = this.formatAmount(code.totalAmount.toString())
 
                     totTotal+=code.totalAmount;
                     totOA+=code.reimbursement;
                     totPers+=code.patientIntervention;
                     totSupp+=code.doctorSupplement;
+
+                    totTotal = this.formatAmount(totTotal)
+                    totOA = this.formatAmount(totOA)
+                    totPers = this.formatAmount(totPers)
+                    totSupp = this.formatAmount(totSupp)
 
                     const entry = {
                         "invDate": invoiceDate,
@@ -2494,7 +2506,102 @@
                 const html =
                 `<html>
                     <head>
-                        <style>article.page,table{box-sizing:border-box}td.important,td.indic{font-weight:700}body{margin:0}@page{size:A4;margin:0}article.page{width:210mm;height:297mm;display:flex;flex-direction:column;padding:25px;page-break-after:always;border-bottom:1px dashed grey}article.page:last-child{border-bottom:0}@media print{article.page{border-bottom:0}}table{display:table;border-spacing:0;border-collapse:collapse;width:100%}table thead{font-size:14px}table td,table tr{margin:0;padding:0;vertical-align:top}table td{padding:5px}table.border,table.border td,table.border tr{border:1px solid #000}.half td{width:50%}.no-border *{border:none!important}#factBody{display:flex;flex-direction:column;flex:1;border:1px solid #000}#factBody *{border:none}#factBody>*{display:flex;flex-direction:column}#factBody>*>tr{display:flex;flex-direction:row;border-bottom:1px solid #000}#factBody>*>tr.border>td{border-right:1px solid #000}#factBody>*>tr.border>td:last-child{border-right:0}#factBody>*>tr>td{flex:1 100%}#factBody>tbody{flex:1}#factBody .table-entry,#factBody .table-entry td{border:none;border-bottom:.5px solid #d3d3d3}#factBody .table-entry td:last-child{border-bottom:none}#factBody .table-entry>td{text-align:right}#factBody .table-entry>td:first-child{text-align:left}#factBody .row-total>td{text-align:right}#factBody .row-total>td:first-child{text-align:left}.txt-center{text-align:center}.mt20{margin-top:20px}.bleft{border-left:1px solid #000!important}.bleft-light{border-left:1px solid #d3d3d3!important}.bbottom-light{border-bottom:1px solid #d3d3d3!important}.bbzero{border-bottom:0!important}.nopad{padding:0}.fleft{float:left}.fright{float:right}td.important{font-size:1.1em}.min-txt{font-size:11px}.table-entry.min-txt{font-size:16px}</style>
+                        <style>
+                            body {
+                                margin: 0;
+                            }
+                            @page {
+                                size: A4;
+                                margin: 0;
+                            }
+                            article.page {
+                                width: 210mm;
+                                height: 297mm;
+                                display: flex;
+                                flex-direction: column;
+                                padding: 25px;
+                                box-sizing: border-box;
+                                page-break-after: always;
+                                border-bottom: 1px dashed grey;
+                            }
+                            article.page:last-child {
+                                border-bottom: 0;
+                            }
+                            @media print {
+                                article.page {
+                                    border-bottom: 0;
+                                }
+                            }
+                            table {
+                                display: table;
+                                box-sizing: border-box;
+                                border-spacing: 0;
+                                border-collapse: collapse;
+                                width: 100%;
+                            }
+                            table thead {font-size: 14px}
+                            table tr,
+                            table td {
+                                margin: 0;
+                                padding: 0;
+                                vertical-align: top;
+                            }
+                            table td {padding: 5px;}
+
+                            table.border,
+                            table.border tr,
+                            table.border td {
+                                border: 1px solid black;
+                            }
+                            *.half td {width: 50%;}
+                            *.no-border * {border: none !important;}
+                            #factBody {
+                                display: flex;
+                                flex-direction: column;
+                                flex: 1;
+                                border: 1px solid black;
+                            }
+                            #factBody * {border: none;}
+                            #factBody > * {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            #factBody > * > tr {
+                                display: flex;
+                                flex-direction: row;
+                                border-bottom: 1px solid black;
+                            }
+                            #factBody > * > tr.border > td {border-right: 1px solid black;}
+                            #factBody > * > tr.border > td:last-child {border-right: 0;            }
+                            #factBody > * > tr > td {flex: 1 100%;}
+                            #factBody > tbody {flex: 1;}
+                            #factBody .table-entry,
+                            #factBody .table-entry td {
+                                border: none;
+                                border-bottom: .5px solid lightgrey;
+                            }
+                            #factBody .table-entry td:last-child {border-bottom: none;}
+                            #factBody .table-entry > td {text-align: right;}
+                            #factBody .table-entry > td:first-child {text-align: left;}
+                            #factBody .row-total > td {text-align: right;}
+                            #factBody .row-total > td:first-child {text-align: left;}
+                            .txt-center {text-align: center;}
+                            .mt20 {margin-top: 20px;}
+                            .bleft {border-left:1px solid black !important;}
+                            .bleft-light {border-left:1px solid lightgrey !important;}
+                            .bbottom-light {border-bottom:1px solid lightgrey !important;}
+                            .bbzero {border-bottom: 0 !important;}
+                            .nopad {padding: 0;}
+                            .fleft {float: left;}
+                            .fright {float:right;}
+                            td.important {
+                                font-weight: bold;
+                                font-size: 1.1em;
+                            }
+                            td.indic {font-weight: 700;}
+                            *.min-txt {font-size: 11px;}
+                            .table-entry.min-txt {font-size: 16px;}
+                        </style>
                     </head>
                     <body>
                         <article id="page-patient" class="page">
@@ -2520,16 +2627,16 @@
                                             </thead>
                                             <tbody>
                                             <tr class="bbottom-light">
-                                                <td>Nom :</td>
+                                                <td>Nom&nbsp;:</td>
                                                 <td class="indic">${this.patient.lastName}</td>
                                             </tr>
                                             <tr class="bbottom-light">
-                                                <td>Prénom :</td>
+                                                <td>Prénom&nbsp;:</td>
                                                 <td class="indic">${this.patient.firstName}</td>
                                             </tr>
                                             <tr>
-                                                <td>NISS :</td>
-                                                <td class="indic">${this.patient.inss}</td>
+                                                <td>NISS&nbsp;:</td>
+                                                <td class="indic">${this.patient.ssin}</td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -2546,25 +2653,25 @@
                                                         </thead>
                                                         <tbody>
                                                         <tr class="bbottom-light">
-                                                            <td>Nom :</td>
+                                                            <td>Nom&nbsp;:</td>
                                                             <td class="indic">${this.hcp.lastName}</td>
                                                         </tr>
                                                         <tr class="bbottom-light">
-                                                            <td>Prénom :</td>
+                                                            <td>Prénom&nbsp;:</td>
                                                             <td class="indic">${this.hcp.firstName}</td>
                                                         </tr>
                                                         <tr class="bbottom-light">
-                                                            <td>Adresse :</td>
+                                                            <td>Adresse&nbsp;:</td>
                                                             <td class="indic">${this.hcp.firstName}</td>
                                                         </tr>
                                                         </tbody>
                                                         <tfoot>
                                                         <tr class="bbottom-light">
-                                                            <td>INAMI :</td>
+                                                            <td>INAMI&nbsp;:</td>
                                                             <td class="indic">${this.hcp.nihii}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>BCE :</td>
+                                                            <td>BCE&nbsp;:</td>
                                                             <td class="indic">${this.hcp.cbe}</td>
                                                         </tr>
                                                         </tfoot>
@@ -2582,11 +2689,11 @@
                                                         <table class="no-border">
                                                             <tbody>
                                                             <tr class="bbottom-light">
-                                                                <td>Nom :</td>
+                                                                <td>Nom&nbsp;:</td>
                                                                 <td class="indic">${this.hcp.firstName}</td>
                                                             </tr>
                                                             <tr>
-                                                                <td>BCE :</td>
+                                                                <td>BCE&nbsp;:</td>
                                                                 <td class="indic">${this.hcp.cbe}</td>
                                                             </tr>
                                                             </tbody>
@@ -2667,7 +2774,7 @@
                             <table id="docHeader" class="border">
                                 <thead>
                                 <tr>
-                                    <td class="important">Numéro d'ordre: ${this.selectedInvoice.invoiceReference}</td>
+                                    <td class="important">Numéro d'ordre&nbsp;: ${this.selectedInvoice.invoiceReference}</td>
                                     <td class="important txt-center" colspan="2">DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MÉDECIN</td>
 
                                 </tr>
@@ -2686,25 +2793,25 @@
                                             </thead>
                                             <tbody>
                                             <tr class="bbottom-light">
-                                                <td>Nom :</td>
+                                                <td>Nom&nbsp;:</td>
                                                 <td class="indic">${this.hcp.lastName}</td>
                                             </tr>
                                             <tr class="bbottom-light">
-                                                <td>Prénom :</td>
+                                                <td>Prénom&nbsp;:</td>
                                                 <td class="indic">${this.hcp.firstName}</td>
                                             </tr>
                                             <tr class="bbottom-light">
-                                                <td>Adresse :</td>
+                                                <td>Adresse&nbsp;:</td>
                                                 <td class="indic">${this.hcp.firstName}</td>
                                             </tr>
                                             </tbody>
                                             <tfoot>
                                             <tr class="bbottom-light">
-                                                <td>INAMI :</td>
+                                                <td>INAMI&nbsp;:</td>
                                                 <td class="indic">${this.hcp.nihii}</td>
                                             </tr>
                                             <tr>
-                                                <td>BCE :</td>
+                                                <td>BCE&nbsp;:</td>
                                                 <td class="indic">${this.hcp.cbe}</td>
                                             </tr>
                                             </tfoot>
@@ -2715,18 +2822,18 @@
                                             <thead>
                                             <tr>
                                                 <td class="txt-center">Les prestations de santé ont été effectuées pour le
-                                                    compte de :</td>
+                                                    compte de&nbsp;:</td>
                                             </tr>
                                             </thead>
                                             <tbody>
                                                 <table class="no-border">
                                                     <tbody>
                                                     <tr class="bbottom-light">
-                                                        <td>Nom :</td>
+                                                        <td>Nom&nbsp;:</td>
                                                         <td class="indic">${this.hcp.lastName}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>BCE :</td>
+                                                        <td>BCE&nbsp;:</td>
                                                         <td class="indic">${this.hcp.cbe}</td>
                                                     </tr>
                                                     </tbody>
@@ -3368,9 +3475,11 @@
                 templatePat.addresses.map(addr=>{addr.telecoms.map(telcom=>{
                     telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
                 })})
-                templateHcp.map(that=>{that.addresses.map(addr=>{addr.telecoms.map(telcom=>{
+                console.log("hcp",templateHcp,typeof templateHcp)
+                console.log("pat",templatePat,typeof templatePat)
+                templateHcp.addresses.map(addr=>{addr.telecoms.map(telcom=>{
                     telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
-                })})})
+                })})
 
                 const template = {
                     "invoice" : invoice,

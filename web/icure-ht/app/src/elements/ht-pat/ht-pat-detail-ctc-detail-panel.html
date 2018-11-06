@@ -486,7 +486,7 @@
 						</paper-button>
 					</div>
 					<div id="invoicingBtnCtnr">
-						<paper-button id="invoicingBtn" class="invoicing-btn action-btn"  on-tap="_invoicing">
+						<paper-button id="invoicingBtn" class="invoicing-btn ac.detail-panel div.paragraph-contenttion-btn"  on-tap="_invoicing">
 							<iron-icon icon="vaadin:invoice" ></iron-icon>
 							[[localize('inv','Invoice',language)]]
 						</paper-button>
@@ -575,6 +575,7 @@ import _ from 'lodash/lodash';
 import JsBarcode from 'JsBarcode';
 import moment from 'moment/src/moment';
 import '../prose-editor/prose-editor/prose-editor';
+import mustache from "mustache/mustache.js";
 
 class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get is() {
@@ -962,94 +963,183 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
 				deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
 			}))).then(rids => {
-				const width = 297.576,
-				      height = 566.928;
+                let prescriToPrint = [] // all the prescriptions
+                let allPages = [{'body':null,'poso':{}}]
+                let prescNum = 0, pageNum = 1
+                splitColumns.forEach((c, idx) => {
+                    prescNum += 1
+                    if (prescNum > 2 * pageNum) { // if doesn't fit in page
+                        pageNum += 1 // add a page
+                        allPages.push({'body':"",'poso':{}}) // prepare the page
+                    } // will be set on next page
+                    const element = this.root.querySelector("#barCode");
+                    JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
+                    var jpegUrl = element.toDataURL("image/jpeg");
+                    const ridIdx = (rids[idx].rid).split('').join(' ');
 
-				const center = function (pdf, x, txt, fontSize) {
-					return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
-				};
+                    let prescArray = [], posology = {}
+                    _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
+                        const medicationApi = this.api.contact().medication();
+                        const med = this.api.contact().medicationValue(s, this.language);
+                        const medPoso = this.api.contact().medication().posologyToString(this.api.contact().medicationValue(med, this.language), this.language) || "N/A";
+                        const medS = "S/ " + medicationApi.medicationNameToString(med, this.language)
+                        const medR = "R/ " + medicationApi.posologyToString(med, this.language)
+                        const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
+                        prescArray.push(thisMed) // add to the medications list
+                    }) // flatmap end
+                    console.log("prescArray",prescArray)
 
-				//const pdf = new jsPDF('p', 'pt', [width, height])
+                    let prescriContent = ""
+                    let articlePoso = [{}]
+                    prescArray.map(that => { // create prescription content
+                        prescriContent += `<article>
+                            ${that.S}<br>
+                            ${that.R}
+                        </article>`;
+                        articlePoso.push(that.poso) // add posology to the list
+                    }) // map end
+                    console.log("allPages",allPages)
+                    const prescri = `<article class="prescription">
+                        <header>
+                            <img src="${jpegUrl}" alt="code-bar">
+                            <div class="barcode-num">${ridIdx}</div>
+                            <hr>
+                            <h2>Preuve de prescription électronique</h2>
+                            <hr>
+                            <p class="center">Veuillez présenter ce document au pharmacien pour scanner le code-barres et délivrer les médicaments prescrits</p>
+                            <hr>
+                            <div class="profile">
+                                <small>Nom et prénom du prescripteur&nbsp;:</small>
+                                <ul class="prescripteur-details">
+                                    <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
+                                    <li><b>INAMI&nbsp;:</b> ${hcp.nihii}</li>
+                                </ul>
+                            </div>
+                            <hr>
+                            <div class="profile">
+                                <small>Nom et prénom du patient&nbsp;:</small>
+                                <ul class="patient-details">
+                                    <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
+                                    <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
+                                </ul>
+                            </div>
+                            <hr>
+                        </header>
+                        <h2>Contenu de la prescription électronique</h2>
+                        <hr>
+                        <div class="prescription-content">
+                            ${prescriContent}
+                        </div>
+                        <footer>
+                            <hr>
+                            <p class="center">Aucun ajout manuscrit ne sera pris en compte</p>
+                            <hr>
+                            <small class="center">Date&nbsp;:</small>
+                            <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                            <hr>
+                            <small class="center">Délivrable à partir du&nbsp;:</small>
+                            <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
+                        </footer>
+                    </article>`; // create single prescription body
+                    prescriToPrint.push({'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
+                }) // splitCol forEach end
+                console.log("prescriToPrint",prescriToPrint)
 
-				//pdf.addFont('ArialMS', 'Arial', 'normal')
-				//pdf.addFont('Times', 'Serif', 'normal')
+                prescriToPrint.map((that)=>{ // for every prescription found in list
+                    if (!allPages[that.page]) {allPages[that.page].body = ""}
+                    allPages[that.page].body += (that.prescriBody) // get the body
+                    let thatPoso = []
+                    that.posology.map((poso)=>{ // check if there's posology
+                        thatPoso.push(poso)
+                    })
+                    allPages[that.page].poso = thatPoso // assign posology to prescription
+                })
+                console.log("allPages",allPages)
+                let onePageBody = ""
+                allPages.map((that)=>{
+                    let posoByDay = {
+                            'byMoment':[],
+                            'byHour':[]
+                        },
+                        posoByWeek = [],
+                        posoByMonth = []
+                    if (typeof that != 'object') {
+                        let onePageBodyTop = `<div class="page">
+                            <main>
+                                ${that.body}
+                            </main>
+                            <footer>`; // prepare the PDF's pages
+                        that.poso.map((singlePoso)=>{ // construct the posology body
+                            console.log("singlePoso",singlePoso) // WIP
+                        })
+                        let onepageBodyBottom = `</footer></div>`;
+                        onePageBody = onePageBodyTop+" poso goes here "+onepageBodyBottom;
+                    }
+                })
+                const toPrint = `<html>
+                    <head>
+                        <style>
+                            body {margin: 0;width: 210mm;}
+                            body > div.page {display:block;size: A4;margin: 0;width: 210mm;page-break-after: always;display:flex;flex-direction:column;}
+                            body > div.page:last-child {page-break-after: avoid;}
+                            body > div.page >main {display: flex;width: 100%;}
+                            body > div.page > main > article.prescription {padding-top: 15px;width: 105mm;height: 200mm;overflow: hidden;font-size: 12px;display: flex;flex-direction: column;}
+                            body > div.page > main > article.prescription:first-child{border-right: .5px dashed lightgrey;}
+                            body > div.page > main > article img {display: block;width: 95%;max-height:80px;margin: 0 auto;text-align: center;}
+                            body > div.page > main > article div.barcode-num {margin: 3px 25px 10px 25px;font-size: 1.2em;text-align: justify;}
+                            body > div.page > main > article div.barcode-num:after {content: "";display: inline-block;width: 100%;}
+                            body > div.page > main > article h2 {font-size: .9em;text-transform: uppercase;margin: 5px auto;text-align: center;}
+                            body > div.page > main > article header p.center {text-align: center;max-width: 80%;margin: 5px auto;}
+                            body > div.page > main > article .prescription-content p.center {margin:5px;text-align: center;}
+                            body > div.page > main > article small.center {text-align: center;width: 100%;display: block;margin: 0 auto;}
+                            body > div.page > main > article hr {border-top: 1px solid darkgrey;border-bottom: 0;margin: 0 10px;}
+                            body > div.page > main > article div.profile {margin: 0 25px;}
+                            body > div.page > main > article ul {padding-left: 0;list-style: none;margin-top: 2px;}
+                            body > div.page > main > article div.prescription-content {display: flex;padding: 0 25px;flex-direction: column;flex: 1;}
+                            body > div.page > main > article div.prescription-content > article {margin: 7.5px 0;}
+                            body > div.page > main > article footer p {text-align: center;margin: 2px 0;}
+                            body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
+                            body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
+                            body > div.page > footer table:first-child {border-top:none;}
+                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: center;}
+                            body > div.page > footer table tr td:first-child {width:258px;border-right:2px solid black;}
+                            body > div.page > footer table thead {font-weight: bold;background: rgba(0,0,0,.075);}
+                            body > div.page > footer table thead tr td:first-child{text-decoration: underline;}
+                        </style>
+                    </head>
+                    <body>
+                        ${onePageBody}
+                    </body>
+                </html>`; // finalize PDF body
+                console.log("toPrint",toPrint)
 
-				const pdf = new jsPDF('p', 'pt', [width, height]);
+                this.$.loadingPrescriptionDialog.close();
 
-				splitColumns.forEach((c, idx) => {
-					if (idx) {
-						pdf.addPage();
-					}
-					const element = this.root.querySelector("#barCode");
-					JsBarcode(element, rids[idx].rid, { format: "CODE128A", displayValue: false, height: 75 });
-					var jpegUrl = element.toDataURL("image/jpeg");
-
-					pdf.addImage(jpegUrl, 'JPEG', 20, 10, 257.576, 57);
-					pdf.setFontSize(7);
-					pdf.setFont('Arial');
-					pdf.text(center(pdf, 148.56, rids[idx].rid, 7), 69, rids[idx].rid);
-					pdf.setFontSize(9);
-					pdf.text(center(pdf, 148.56, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE", 9), 87.5, "PREUVE DE PRESCRIPTION ÉLECTRONIQUE");
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, "Veuillez présenter ce document au pharmacien pour scanner le ", 9), 105, "Veuillez présenter ce document au pharmacien pour scanner le ");
-					pdf.text(center(pdf, 148.56, "code-barres et délivrer les médicaments prescrits", 9), 116, "code-barres et délivrer les médicaments prescrits");
-					pdf.text(18, 141.5, `${hcp.firstName} ${hcp.lastName}`);
-					pdf.setFontSize(7);
-					pdf.text(18, 129, "Nom et prénom du prescripteur:");
-					pdf.setFontSize(9);
-					pdf.text(18, 153.5, `INAMI: ${hcp.nihii}`);
-					pdf.setFontSize(7);
-					pdf.text(18, 162.5, "Nom et prénom du patient:");
-					pdf.setFontSize(9);
-					pdf.text(18, 174, `${this.patient.firstName} ${this.patient.lastName}`);
-					pdf.text(18, 187.5, `NISS: ${this.patient.ssin}`);
-					pdf.setFont('Arial');
-					pdf.text(center(pdf, 148.56, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE", 9), 204, "CONTENU DE LA PRESCRIPTION ÉLECTRONIQUE");
-
-					pdf.text(18, 240, _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
-						const medicationApi = this.api.contact().medication();
-						const med = this.api.contact().medicationValue(s, this.language);
-						return ["S/ " + medicationApi.medicationNameToString(med, this.language), "R/ " + medicationApi.posologyToString(med, this.language), ""];
-					}));
-
-					pdf.text(center(pdf, 148.56, "Aucun ajout manuscrit ne sera pris en compte", 9), 474, "Aucun ajout manuscrit ne sera pris en compte");
-					pdf.setFontSize(7);
-					pdf.setFont('Serif');
-					pdf.text(center(pdf, 148.56, "Date:", 7), 487, "Date:");
-
-					pdf.setFontSize(9);
-					pdf.text(center(pdf, 148.56, moment().format("DD/MM/YYYY"), 9), 501, moment().format("DD/MM/YYYY"));
-					pdf.setFontSize(7);
-					pdf.text(center(pdf, 148.56, "Délivrable à partir du:", 7), 521, "Délivrable à partir du:");
-					pdf.setFontSize(9);
-					pdf.text(center(pdf, 148.56, moment(this.deliveryDateString).format("DD/MM/YYYY"), 9), 533, moment(this.deliveryDateString).format("DD/MM/YYYY"));
-
-					pdf.lines([[0, 0], [286, 0]], 5.788, 76);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 94);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 122);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 156);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 192);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 210);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 464);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 480);
-					pdf.lines([[0, 0], [286, 0]], 5.788, 513);
-				});
-
-				this.$.loadingPrescriptionDialog.close();
-
-				pdf.autoPrint();
-				//pdf.output("dataurlnewwindow")
-				pdf.save(`presc_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.patient.dateOfBirth || '00000000'}.pdf`);
-
-				drugsToBePrescribed.forEach(s=>{
-				    const tag = s.tags.find(t=>t.type==='CD-LIFECYCLE')
-					if (tag) { tag.id = 'CD-LIFECYCLE|ordered|1'; tag.code = 'ordered' } else { s.tags.push(this.api.code().normalize({id:'CD-LIFECYCLE|ordered|1'})) }
-				})
-                this.saveCurrentContact().then(()=>this._refreshDrugs())
-
-			}));
-		}
-	}
+                this.api.pdfReport(mustache.render(toPrint, null))
+                    .then(data => {
+                        let blob = new Blob([data], {type: 'application/pdf'});
+                        let url = window.URL.createObjectURL(blob)
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+                        a.href = url;
+                        a.download = "presc_" + this.patient.lastName+"_"+this.patient.firstName + "_" + moment() + ".pdf";
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                drugsToBePrescribed.forEach(s => {
+                    const tag = s.tags.find(t => t.type === 'CD-LIFECYCLE')
+                    if (tag) {
+                        tag.id = 'CD-LIFECYCLE|ordered|1';
+                        tag.code = 'ordered'
+                    } else {
+                        s.tags.push(this.api.code().normalize({id: 'CD-LIFECYCLE|ordered|1'}))
+                    }
+                }) // forEach end
+                this.saveCurrentContact().then(() => this._refreshDrugs())
+            })); // rids and api call end
+		} // if end
+	} // method end
 
 	_columnName(idx) {
 		return `#${idx + 1}`;
