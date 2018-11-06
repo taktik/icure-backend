@@ -22,12 +22,10 @@ package org.taktik.icure.config
 import org.ektorp.CouchDbInstance
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
-import org.ektorp.spring.HttpClientFactoryBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager
+import org.springframework.cache.support.NoOpCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.stereotype.Component
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.properties.CouchDbProperties
 
@@ -42,10 +40,10 @@ class CouchDbLocalConfig(val couchDbProperties: CouchDbProperties) {
             .url(couchDbProperties.url)
             .build())
 
-    @Bean fun entitiesCacheManager() = ConcurrentMapCacheManager()
-
     @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-config", couchdbInstance)
     @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-base", couchdbInstance)
     @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-patient", couchdbInstance)
     @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-healthdata", couchdbInstance)
+
+    @Bean fun entitiesCacheManager() = NoOpCacheManager()
 }
