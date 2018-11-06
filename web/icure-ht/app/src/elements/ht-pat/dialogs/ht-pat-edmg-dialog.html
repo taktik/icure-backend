@@ -226,14 +226,14 @@
                 <page>
                     <div class="dmg-cons"> <!-- Notification input -->
                         <div class="edmg-info">
-                            <template is="dom-if" if="[[!allEDmgregistered]]">
+                            <template is="dom-if" if="[[!_enableNotification(allEDmgregistered, asSupervisor)]]">
                                 <p>[[localize('dmg_reg_incpl','e-Dmg registration not yet completed',language)]]</p>
                             </template>
                             <!--<template is="dom-if" if="{{_eDmgRegComplete()}}">-->
                                 <!--<p>localize('dmg_reg_cpl','e-Dmg registration completed',language)</p>-->
                             <!--</template>-->
                         </div>
-                        <template is="dom-if" if="[[allEDmgregistered]]">
+                        <template is="dom-if" if="[[_enableNotification(allEDmgregistered, asSupervisor)]]">
                         <paper-input label="[[localize('nomen','Prestation code',language)]]" value="{{nomenclature}}" ></paper-input>
                         <vaadin-date-picker label="[[localize('prest-dat','Encounter date',language)]]" value="{{encounterDate}}" i18n="[[i18n]]"></vaadin-date-picker>
                             <vaadin-checkbox checked="{{asSupervisor}}">[[localize('in_name_sup','In the name of the supervisor',language)]]</vaadin-checkbox>
@@ -416,6 +416,10 @@
                         type: Boolean,
                         value: false
                     },
+                    asSupervisor:{
+                      type: Boolean,
+                      value: false
+                    },
                     currentRegs:{
                         type: Object,
                         value : null
@@ -596,6 +600,10 @@
                 this.set('currentRegs', regs);
 
                 return regs;
+            }
+
+            _enableNotification(allReg, superv){
+                return allReg || superv;
             }
 
             _eDmgRegComplete(){
