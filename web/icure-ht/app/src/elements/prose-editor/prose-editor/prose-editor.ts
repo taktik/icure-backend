@@ -27,6 +27,8 @@ import {Plugin} from "prosemirror-state"
 import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
 import Element = Polymer.Element;
+import {columnResizing, goToNextCell, tableEditing, TableMap, tableNodes} from "prosemirror-tables";
+
 
 
 /**
@@ -108,6 +110,17 @@ export class ProseEditor extends Polymer.Element {
         }})),
         toDOM(node: any) {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
+        }
+      }))
+      .append(tableNodes({
+        tableGroup: "block",
+        cellContent: "block+",
+        cellAttributes: {
+          background: {
+            default: null,
+            getFromDOM(dom) { return (dom as HTMLElement).style.backgroundColor || null },
+            setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
+          }
         }
       }))
       .addBefore("image", "tab", this.tabNodeSpec),
@@ -369,29 +382,38 @@ export class ProseEditor extends Polymer.Element {
       })
     });
 
-    this.editorView = new EditorView(this.$.editor, {
-      state: EditorState.create({
-        doc: DOMParser.fromSchema(this.editorSchema).parse(this.$.content),
-        plugins: [
-          keymap({
-            "Tab": (state: EditorState, dispatch: any, editorView: EditorView) => {
-              let tabType = this.editorSchema.nodes.tab
-              let {$from} = state.selection, index = $from.index()
-              if (!$from.parent.canReplaceWith(index, index, this.editorSchema.nodes.tab))
-                return false
-              if (dispatch)
-                dispatch(state.tr.replaceSelectionWith(tabType.create()))
-              return true
-            }
-          }),
-          keymap(baseKeymap),
-          history(),
-          selectionTrackingPlugin,
-          paginationPlugin,
-          paragraphPlugin
-        ]
-      })
+    let state = EditorState.create({
+      doc: DOMParser.fromSchema(this.editorSchema).parse(this.$.content),
+      plugins: [
+        keymap({
+          "Tab": (state: EditorState, dispatch: any, editorView: EditorView) => {
+            let tabType = this.editorSchema.nodes.tab
+            let {$from} = state.selection, index = $from.index()
+            if (!$from.parent.canReplaceWith(index, index, this.editorSchema.nodes.tab))
+              return false
+            if (dispatch)
+              dispatch(state.tr.replaceSelectionWith(tabType.create()))
+            return true
+          }
+        }),
+        keymap(baseKeymap),
+        history(),
+        columnResizing({}),
+        tableEditing(),
+        keymap({
+          "Tab": goToNextCell(1),
+          "Shift-Tab": goToNextCell(-1)
+        }),
+        selectionTrackingPlugin,
+        paginationPlugin,
+        paragraphPlugin
+      ]
     })
+
+    this.editorView = new EditorView(this.$.editor, {
+      state: state
+    })
+
   }
 
   doUndo(e: CustomEvent) {

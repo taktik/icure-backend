@@ -397,6 +397,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 1000px;
                 }
 
+                #sharePatientDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+
                 #inputGender {
                     border:none;
                     width: calc(100% - 24px);
@@ -421,6 +426,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 #sharePatientDelegationDialog{
                     width : 920px;
+                }
+                #sharePatientDelegationDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
                 }
                 .delegationCheckBox {
                     width: 220px;
@@ -1505,6 +1514,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     setTimeout(function () {
                         if (currentValue === this.filterValue) {
+                            this.set('hideSpinner', false)
                             this.set('isLoadingPatient', true)
                             console.log("Triggering search for " + this.filterValue)
                             this.$['patients-list'].clearCache()
@@ -1527,7 +1537,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
-                this.set('isLoadingPatient', true)
+                if (!this.hideSpinner) {
+                    this.set('isLoadingPatient', true)
+                }
                 if(this.shareOption || this.exportOption || this.fusionOption) return;
 
                 // Must click on a row
@@ -1871,6 +1883,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _sharePatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('shareOption', true)
                 this.set('exportOption', false)
                 this.set('fusionOption', false)
@@ -1879,6 +1892,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _exportPatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('exportOption', true)
                 this.set('shareOption', false)
                 this.set('fusionOption', false)
@@ -1886,6 +1900,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _fusionPatient(e){
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('fusionOption', true)
                 this.set('shareOption', false)
                 this.set('exportOption', false)
