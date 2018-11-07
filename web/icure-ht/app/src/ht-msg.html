@@ -108,16 +108,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 100vw;
                 }
 
+                ht-msg-list {
+                    transition: all .5s ease-out;
+                }
+
+                ht-msg-list.selected {
+                    height: calc(50vh - 24px);
+                }
+
                 ht-msg-detail {
-                    padding: 0;
-                    z-index: 100;
+                    padding: 0 16px;
+                    z-index: 2;
                     width: 100vw;
-                    height: 50vh;
+                    height: calc(50vh - 32px);
                     bottom: 0;
                     position: fixed;
-                    transition: all .5s ease;
+                    transition: all .5s ease-out;
                     transform: translateY(100vh);
                     opacity: 0;
+                    display: flex;
+                    flex-direction: column;
+                    box-sizing: border-box;
+                }
+                ht-msg-detail.selected {
+                    transform: none;
+                    opacity: 1;
                 }
             }
         </style>
@@ -130,10 +145,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-msg-list api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
                                  user="[[user]]"
                                  select-list="[[selectList]]"
-                                 on-selection-messages-change="handleMessageChange"></ht-msg-list>
+                                 on-selection-messages-change="handleMessageChange"
+                                 class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-list>
 
                     <ht-msg-detail api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]"
-                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"></ht-msg-detail>
+                                   user="[[user]]" credentials="[[credentials]]" select-message="[[selectMessage]]" on-item-delete="handleRefreshlist"
+                                   class$="[[_selectedElem(selectMessage.selection.item)]]"></ht-msg-detail>
                 </div>
             </template>
 
@@ -214,6 +231,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+            }
+
+            _selectedElem(e) {
+                return (e) ? 'selected' : ''
             }
 
             handleMenuChange(e) {

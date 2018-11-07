@@ -1016,7 +1016,7 @@
                                 <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
-                                    <vaadin-grid-column width="20px">
+                                    <vaadin-grid-column width="20px" style="padding: 0;">
                                         <template>
                                             <div class="cell frozen">
                                                 <template is="dom-if" if="[[item.valid]]">
@@ -1033,7 +1033,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="650px">
+                                    <vaadin-grid-column width="50%">
                                         <template class="header">
                                             <div class="cell frozen">[[localize('lab','Label',language)]]</div>
                                         </template>

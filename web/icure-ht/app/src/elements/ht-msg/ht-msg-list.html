@@ -305,9 +305,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .col-right {
                         width: 100vw;
                         transition: all .5s ease;
-                    }
-                    .col-right.mobile-open {
-                        height: calc(50vh - 64px);
+                        box-shadow: none;
                     }
                     #del-button {
                         left: initial;
@@ -333,34 +331,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
                     <vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
-                        <vaadin-grid-column flex-grow="2">
+                        <vaadin-grid-column flex-grow="0" width="130px">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
+                                <div>[[localize('dat','Date',language)]]</div>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[_timeFormat(item.received)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="1">
+                            <template class="header">
+                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b> [[localize('and','and',language)]] [[localize('sub','Subject',language)]]
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen">[[item.fromAddress]]</div>
+                                <div class="cell frozen"><b>[[item.fromAddress]]</b> - [[item.subject]]</div>
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column flex-grow="1">
-                        <template class="header">
-                            <div>[[localize('dat','Date',language)]]</div>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[_timeFormat(item.received)]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="3">
-                        <template class="header">
-                            <vaadin-grid-sorter class="cell frozen" path="subject">
-                                [[localize('sub','Subject',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.subject]]</div>
-                        </template>
-                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
         </template>
