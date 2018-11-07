@@ -78,7 +78,7 @@
                     };
 
                 }
-                
+
 
                 vaadin-grid.material .cell {
                     overflow: hidden;
@@ -215,7 +215,7 @@
                     line-height: 25px;
                 }
 
-        
+
                 @media screen and (max-width:1025px){
                     .invoice-panel {
                         left: 0;
@@ -271,7 +271,7 @@
                 .statusIcon.invoice-status--nokStatus {
                     background: transparent !important;
                 }
-                
+
                 #pendingDetailDialog{
                     height: calc(100vh - 40px);
                     width: calc(85% - 40px);
@@ -536,7 +536,7 @@
             <template is="dom-if" if="[[!statusPending]]">
                 <paper-input id="filter" label="[[localize('sch','Rechercher',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid" where="notPendings"></paper-input>
             </template>
-            
+
             <template is="dom-if" if="[[statusPending]]">
                 <div class="gridContainer grid-pending">
                     <div class="containScroll">
@@ -1716,6 +1716,17 @@
                                         const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
 
                                         return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
+
+                                            if (typeof a === "string"){
+                                                try {
+                                                    let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
+                                                    readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
+                                                    a = JSON.parse(readyToParse)
+                                                } catch (ignored) {}
+                                            } else if (typeof a === "object") {
+                                                try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
+                                            }
+
                                             const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
                                             const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
                                             const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
@@ -1835,7 +1846,7 @@
                 }) // inputList map end
 
                 mutGroups.sort((a, b)=>{return a.code-b.code})
-                this.set('toggledDatas', mutGroups ) // this.set 
+                this.set('toggledDatas', mutGroups ) // this.set
                 for (let grp of mutGroups) {
                     console.log("grp",grp)
                     let totPat = 0
@@ -2535,12 +2546,15 @@
                         .then((docs) => Promise.all(_.flatMap(docs).filter(d => !_.endsWith(d.name, '_parsed_records') && _.endsWith(d.name, '_records') && d.mainUti === "public.json").map(d => this.api.document().getAttachment(d.id, d.attachmentId))))
                         .then((attachs) => {
                             attachs.forEach( a => {
+
                                 if (typeof a === "string"){
                                     try {
                                         let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
                                         readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
                                         a = JSON.parse(readyToParse)
                                     } catch (ignored) {}
+                                } else if (typeof a === "object") {
+                                    try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
                                 }
 
                                 const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
@@ -2604,7 +2618,7 @@
             }
 
             receiveInvoices() {
-                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then(response => {
+                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) ).then(response => {
                     let prom = Promise.resolve()
                     response.forEach(message => {
                         // console.log(message)
@@ -2637,8 +2651,8 @@
                             const responses = chunk.filter(x => x && x.detail)
 
                             sprom = sprom
-                                //.then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
-                                //.then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
+                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
                         })
                         return sprom
                     })
@@ -2669,7 +2683,7 @@
             _getIconStatusClass(status) {
                 return (status == "Pending") ? "invoice-status--pendingStatus" : (status == "Process") ? "invoice-status--okStatus" : "invoice-status--nokStatus"
             }
-            
+
             _isStatus(status,test) {
                 return status == test
             }
