@@ -1137,7 +1137,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
 									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
 									<paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
-									<paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]</paper-tooltip>
+									<paper-tooltip for="edmgStatus"><div style="min-width: 280px;"><h4>[[localize('edmg','e-DMG',language)]]</h4>
+										<template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
+											Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]
+										</template>
+									</div></paper-tooltip>
 								</div>
 							</div>
 						</paper-item>
@@ -2116,6 +2120,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		const allContacts = _.concat(this.currentContact ? [this.currentContact] : [], this.contacts)
 		this.set('selectedContacts', this.selectedContactIds.map(i => allContacts.find(c => c && c.id === i.substr(4) /* skip ctc_ */)))
+	}
+
+    _myReferralPeriods(refPeriods) {
+	    return refPeriods && (refPeriods.find(r => r.healthcarePartyId === this.user.healthcarePartyId) || {}).referralPeriods
 	}
 
 	_shortId(id) {
