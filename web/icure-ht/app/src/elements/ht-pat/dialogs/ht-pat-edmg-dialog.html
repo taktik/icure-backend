@@ -169,6 +169,7 @@
             <paper-tabs class="tab-selector" selected="{{tabs}}" >
                 <paper-tab>[[localize('dmg-con','Dmg Consultation',language)]]</paper-tab>
                 <paper-tab>[[localize('dmg_not','Dmg Notification',language)]]</paper-tab>
+                <!--<paper-tab>[[localize('dmg_tst','Dmg Test',language)]]</paper-tab>-->
             </paper-tabs>
             <iron-pages selected="[[tabs]]" class="">
                 <page>
@@ -261,6 +262,13 @@
                         </template>
                     </div>
                 </page>
+                <!--<page>-->
+                    <!--<p>Experimental</p>-->
+                    <!--<vaadin-date-picker label="[[localize('start-date','Start date',language)]]" value="{{listRequestDate}}" i18n="[[i18n]]"></vaadin-date-picker>-->
+                    <!--<paper-input label="[[localize('io','IO',language)]]" value="{{listIO}}" ></paper-input>-->
+                    <!--<paper-button class="action" on-tap="_dmgListRequest" disabled="[[isLoading]]">[[localize('dmg_lst','Get List',language)]]</paper-button>-->
+                    <!--<paper-spinner active="[[isLoading]]"></paper-spinner>-->
+                <!--</page>-->
             </iron-pages>
             <div class="end-buttons">
                 <paper-button class="modal-button" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
@@ -711,74 +719,28 @@
 
             }
 
+
+
             _consultDmg(){
-                //consultDmgResp
-                this.getDmgConsult().then(edmgResp => this.set('consultDmgResp', edmgResp));
-            }
-
-            getDmgConsult(){
-                const requestDate = Date.parse(this.consultStart);
-
-//.consultDmgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, this.patient.ssin)
-//consultDmgUsingGET(xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
-// hcpNihii: string, hcpSsin: string, hcpFirstName: string, hcpLastName: string,
-// patientSsin?: string, patientGender?: string, oa?: string,
-// regNrWithMut?: string, requestDate?: number)
-                if (this.api.tokenId) {
-                    this.set('isLoading',true)
-                    //if(this.genInsOA && this.genInsOA !=='' && this.genInsAFF && this.genInsAFF !== ''){
-                    if(((this.edmgNiss && this.edmgNiss !=='') || (this.patient.ssin && this.patient.ssin !== '')) && !(this.edmgOA && this.edmgOA !=='')){
-                        return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                            .then(hcp => {
-                                    return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
-                                        this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                        hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                        this.edmgNiss ? this.edmgNiss.trim() : this.patient.ssin, null, null, null,
-                                        requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.patient.id))
-                                }
-                            ).then(edmgResp => {
-                                    if (edmgResp) {
-                                        this.set('isLoading',false)
-                                        return edmgResp;
-                                    } else {
-                                        this.set('isLoading',false)
-                                        return null;
-                                    }
-                                }
-                            )
-                    }else{
-                        //return Promise.resolve(null)
-                        //there is no niss
-                        let oa = this.genInsOA;
-                        let aff = this.genInsAFF;
-                        const pi = this.patient.insurabilities && _.assign({}, this.patient.insurabilities[0] || {});
-                        this.api.insurance().getInsurance(pi.insuranceId).then(insu => {
-                            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                                .then(hcp => {
-                                        return this.api.fhc().Dmgcontroller().consultDmgUsingGET(
-                                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
-                                            hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
-                                            null, null, (this.genInsOA && this.genInsOA != '') ? this.genInsOA.trim() : insu.code,
-                                            (this.genInsAFF && this.genInsAFF != '') ? this.genInsAFF.trim() : pi.identificationNumber,
-                                            requestDate).then(dmgConsult => this.api.logMcn(dmgConsult, this.user, this.patient.id))
-                                    }
-                                ).then(edmgResp => {
-                                        if (edmgResp) {
-                                            this.set('isLoading',false)
-                                            return edmgResp;
-                                        } else {
-                                            this.set('isLoading',false)
-                                            return null;
-                                        }
-                                    }
-                                )
-                        });
-                    }
-                } else {
+                if (!this.api.tokenId || this.isLoading) return;
+                this.set('isLoading', true);
+                this.api.getUpdatedEdmgStatus(
+                    this.user,
+                    this.patient,
+                    Date.parse(this.consultStart),
+                    this.edmgNiss,
+                    this.edmgOA,
+                    this.genInsOA,
+                    this.genInsAFF                    ,
+                    true    // Bypass cache, force hit on fhc().Dmgcontroller().consultDmgUsingGET()
+                ).then(edmgResp => {
                     this.set('isLoading',false)
-                    return Promise.resolve(null)
-                }
+                    this.set('consultDmgResp', edmgResp);
+                });
             }
+
+
+
 
             _dmgListRequest(){
                 this.getDmgListRequest().then(edmgResp => this.set('getListResp', edmgResp));
@@ -816,6 +778,7 @@
                 }
             }
 
+
             hcpSupervisorChanged(supervisorId){
                 if(supervisorId && supervisorId !== '') {
                     this.set('asSupervisor', true);
@@ -825,6 +788,7 @@
                     this.set('asSupervisor', false);
                 }
             }
+
 
             apiReady() {
                 if (!this.api || !this.user || !this.user.id || !this.opened) return;
