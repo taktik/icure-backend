@@ -475,6 +475,90 @@
             return obj
         }
 
+
+
+        getUpdatedEdmgStatus( user, patient, requestDate, edmgNiss, edmgOA, genInsOA, genInsAFF, byPassCache=false ){
+
+            if(!user||!patient) return Promise.resolve(null);
+
+            // Everything that isn't today
+            this.flushObsoleteEdmgStatusCache();
+
+            const cachedEdmgRespStorageName = 'org.taktik.icure.edmgStatus.' + moment().format('YYYYMMDD') + '.' + user.healthcarePartyId + '.' + patient.ssin;
+
+            // Try to get data from cache
+            const cachedEdmgResp = localStorage.getItem( cachedEdmgRespStorageName ) || null;
+            if( cachedEdmgResp && !byPassCache ) { return Promise.resolve(JSON.parse(cachedEdmgResp)); }
+
+            if(((edmgNiss && edmgNiss !=='') || (patient.ssin && patient.ssin !== '')) && !(edmgOA && edmgOA !=='')){
+                return this.hcparty().getHealthcareParty(user.healthcarePartyId)
+                    .then(hcp => {
+                        return this.fhc().Dmgcontroller().consultDmgUsingGET(
+                            this.keystoreId,
+                            this.tokenId,
+                            this.credentials.ehpassword,
+                            hcp.nihii,
+                            hcp.ssin,
+                            hcp.firstName,
+                            hcp.lastName,
+                            edmgNiss ? edmgNiss.trim() : patient.ssin,
+                            null,
+                            null,
+                            null,
+                            requestDate
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                    }).then(edmgResp => {
+                        localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
+                        return edmgResp||Promise.resolve(null);
+                    }).catch(() => { return Promise.resolve(null)});
+            }else{
+                //there is no niss
+                const pi = patient.insurabilities && _.assign({}, patient.insurabilities[0] || {});
+                this.insurance().getInsurance(pi.insuranceId).then(insu => {
+                    return this.hcparty().getHealthcareParty(user.healthcarePartyId)
+                        .then(hcp => {
+                                return this.fhc().Dmgcontroller().consultDmgUsingGET(
+                                    this.keystoreId,
+                                    this.tokenId,
+                                    this.credentials.ehpassword,
+                                    hcp.nihii,
+                                    hcp.ssin,
+                                    hcp.firstName,
+                                    hcp.lastName,
+                                    null,
+                                    null,
+                                    (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
+                                    (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
+                                    requestDate
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                            }
+                        ).then(edmgResp => {
+                            localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
+                            return edmgResp||Promise.resolve(null);
+                        }).catch(() => { return Promise.resolve(null)});
+                    }).catch(() => { return Promise.resolve(null)});
+            }
+
+        }
+
+        flushObsoleteEdmgStatusCache() {
+
+            // Target what's for us
+            const patternToLookFor= 'org.taktik.icure.edmgStatus.';
+
+            // Loop and drop old ones
+            Object.keys(localStorage).filter(k => k.startsWith(patternToLookFor)).forEach(k => {
+                // patternToLookFor . YYYYMMDD . userHcpId. patientSsin
+                const [dateFormCache] = k.replace(patternToLookFor,'').split('.');
+
+                // Drop if older than today
+                if(moment(dateFormCache).isBefore(moment(), 'day')) { localStorage.removeItem(k) }
+            });
+
+        }
+
+
+
     }
 
     customElements.define(IccApi.is, IccApi)
