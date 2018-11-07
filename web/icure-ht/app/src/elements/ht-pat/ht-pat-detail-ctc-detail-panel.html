@@ -1106,10 +1106,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
                             body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
                             body > div.page > footer table:first-child {border-top:none;}
-                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: center;}
-                            body > div.page > footer table tr td:first-child {width:258px;border-right:2px solid black;}
-                            body > div.page > footer table thead {font-weight: bold;background: rgba(0,0,0,.075);}
-                            /*body > div.page > footer table thead tr td:first-child{text-decoration: underline;}*/
+                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
+                            body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
+                            body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
+                            body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
+                            body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
                         </style>
                     </head>
                     <body>
