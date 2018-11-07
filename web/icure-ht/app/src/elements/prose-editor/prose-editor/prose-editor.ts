@@ -28,6 +28,7 @@ import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
 import Element = Polymer.Element;
 import {columnResizing, goToNextCell, tableEditing, TableMap, tableNodes} from "prosemirror-tables";
+import {fixTables} from "./fixtables";
 
 
 
@@ -409,6 +410,9 @@ export class ProseEditor extends Polymer.Element {
         paragraphPlugin
       ]
     })
+
+    let fix = fixTables(state)
+    if (fix) state = state.apply(fix.setMeta("addToHistory", false))
 
     this.editorView = new EditorView(this.$.editor, {
       state: state

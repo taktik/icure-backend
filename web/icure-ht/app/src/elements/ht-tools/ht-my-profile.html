@@ -20,16 +20,6 @@
 <link rel="import" href="../dynamic-form/validator/ht-iban-validator.html">
 <link rel="import" href="../dynamic-form/dynamic-bank-account.html">
 
-
-
-
-
-
-
-
-
-
-
 <dom-module id="ht-my-profile">
 	<template>
 		<style>
@@ -741,11 +731,19 @@
                         return reg
                     })
                 )).then( regs => {
-                    this.set('allEDmgregistered', regs.every(r => !!r.registered))
-                    return this.api.user().modifyUser(this.user).then(
-                        user => {
+                    let allDone = regs.every(r => !!r.registered)
+                    this.set('allEDmgregistered', allDone)
+                    return this.api.user().modifyUser(this.user)
+                        .then(user => {
                             this.user = user
                             this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
+                        })
+                        .finally(() => {
+                            if (!allDone) {
+                                setTimeout(() => {
+                                    this._registerToEDMG()
+                                }, 300000)
+                            }
                         })
                 }).finally(() => this.set('registerEnabled', true))
             }
@@ -781,7 +779,9 @@
 
             registerToEDMGbyOA(reg) {
                 if (this.api.tokenId) {
-                    if (!iban.isValid(reg.iban)) { return Promise.resolve(reg) }
+                    if (!iban.isValid(reg.iban)) {
+                        return Promise.resolve(reg)
+                    }
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp => {
                                 return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
@@ -815,13 +815,14 @@
                                     return reg
                                 }
                             }
-                        ).catch(function (error) {
-                                reg.Comment = 'exception caugh:' + error
-                                reg.response = JSON.stringify(error)
-                                reg.lastExecution = (new Date).getTime()
-                                return Promise.resolve(reg)
-                            }
                         )
+                        .catch((error) => {
+                            reg.Comment = 'exception caugh:' + error
+                            reg.response = JSON.stringify(error)
+                            reg.lastExecution = (new Date).getTime()
+
+                            return Promise.resolve(reg)
+                        })
                 } else {
                     reg.Comment = 'err: no tokenid'
                     return Promise.resolve(reg)
@@ -928,9 +929,6 @@
                 }
             }
 
-
-
-
             // Resolve and assign BIC based on IBAN
             _evalBic( event, fieldObject ) {
 
@@ -958,9 +956,7 @@
                     if(oaValue==900) this.userBIC_900 = bicValue;
 
                 }
-
             }
-
 
             replicateIbanValueToAllFields() {
                 // Copy iban values to all fields (including us)
@@ -973,11 +969,7 @@
                 this.set( 'tabs', 3 )
             }
 
-
-
-
             _superVisorSearch(e) {
-
                 let latestSearchValue = e && e.detail.value
                 this.latestSearchValue = latestSearchValue
 
@@ -994,8 +986,6 @@
                     this.set('supervisorListItem', res.rows)
                 })
             }
-
-
 
             _supervisorDataProvider() {
                 return {
@@ -1034,23 +1024,14 @@
                 }
             }
 
-
-
             isEnterPressed(e){
                 if(e.keyCode==13){
                     // this._addSupervisor(e);
                 }
             }
 
-
-
             _gotoMyProfile() {
-
             }
-
-
-
-
         }
 
         customElements.define(HtExportKey.is, HtExportKey);
