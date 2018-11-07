@@ -120,6 +120,7 @@
 
 			.pat-details-card {
 				width: 100%;
+                height: 100%;
 				padding: 0 16px;
                 flex: 1;
                 display: flex;
@@ -241,6 +242,11 @@
 				padding: 10px 1.2em;
 				text-transform: capitalize;
 			}
+            @media screen and (max-width: 1314px) {
+                .modal-button {
+                    margin: 0;
+                }
+            }
 
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
@@ -255,6 +261,11 @@
 				color: var(--app-primary-color-dark);
 				font-weight: 700;
 			}
+            @media screen and (max-width: 1200px) {
+                .modal-button--delete {
+                    display: none;
+                }
+            }
 
 			filter-panel{
 				flex-grow: 9;
@@ -389,7 +400,15 @@
             .clearb {
                 clear: both;
             }
+            .flexbox {
+                display: flex;
+                flex-direction: row;
+            }
+            .flexbox.read {
+                width: 100%;
+            }
             .inlined {
+                flex: 1;
                 float: left;
                 width: 30%;
                 margin: 0 1%;
@@ -399,12 +418,16 @@
                 width: 100%;
                 flex: 1;
                 background: white;
+                margin-bottom: 8px;
             }
 
             .attached {
                 overflow-y: auto;
                 box-sizing: border-box;
                 padding-bottom: 4px;
+            }
+            .attached paper-button {
+                margin-bottom: 4px;
             }
 
             .close-panel {
@@ -421,8 +444,15 @@
                 flex: 1;
             }
 
-            iron-input.subject {
-                font-weight: bolder;
+            ht-msg-list.selected .col-right {
+                width: 100%;
+            }
+
+            .message-box {
+                padding: 4px;
+                width: 100%;
+                box-sizing: border-box;
+                flex: 1;
             }
 
             .mobileOnly {display: none;}
@@ -434,9 +464,6 @@
                     width: 100%;
                     overflow-y: auto;
                 }
-                .attached paper-button {
-                    margin-bottom: 4px;
-                }
 
                 .read-txt {
                     height: auto;
@@ -447,23 +474,21 @@
 
 		</style>
 		<template is="dom-if" if="[[messages]]">
-            <!--<div id="close-panel" class="close-panel mobileOnly" on-tap="close">-->
-                <!--<div>[[localize('clo','Close',language)]] <iron-icon icon="arrow-downward"></iron-icon></div>-->
-            <!--</div>-->
 			<div id="main-details-panel" class="details-panel" on-dragover="_onDrag">
                 <div class="action-buttons">
                     <div class="buttons">
-                        <paper-button class="modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
-                        <paper-button class="modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
-                        <paper-button class="modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="check-box-outline-blank"></iron-icon>[[localize('markread','Mark as read',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="forward"></iron-icon>[[localize('fw','Forward',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
                     </div>
                     <div class="del-button">
-                        <paper-button class="modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
 					<template is="dom-repeat" items="[[messages]]" as="msg">
+                        <div class="message-box">
 							<paper-card class="pat-details-card" >
-                                <div>
+                                <div class="flexbox">
                                     <paper-input class="inlined" readonly value="[[localize('from','From',language)]] : [[msg.fromAddress]]"></paper-input>
                                     <paper-input class="inlined" readonly value="[[localize('to','To',language)]] : [[msg.toAddresses]]"></paper-input>
                                     <paper-input class="inlined" readonly value="[[localize('dat','Date',language)]]: [[_timeFormat(msg.received)]]"></paper-input>
@@ -471,10 +496,13 @@
                                 <paper-input class="clearb subject" readonly value="[[localize('sub','Subject',language)]]: [[msg.subject]]"></paper-input>
 
 								<template is="dom-if" if="[[msg.body]]">
-                                    <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+                                    <div class="flexbox read">
+                                        <iron-autogrow-textarea class="read-txt" readonly placeholder="no content" value="[[msg.body]]"></iron-autogrow-textarea>
+                                    </div>
                                 </template>
 
                             </paper-card>
+                        </div>
                     </template>
             </div>
 
