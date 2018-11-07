@@ -408,7 +408,8 @@
     "Nov":"Nov",
     "Dec":"Dec",
     "send": "Send",
-    "pay" : "Payment"
+    "pay" : "Payment",
+    "info" : "Informations"
 
  },
   "fr": {
@@ -885,7 +886,8 @@
     "Oct":"oct",
     "Nov":"nov",
     "Dec":"déc",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "info" : "Informations"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1400,6 +1402,7 @@
     "Oct":"oct",
     "Nov":"nov",
     "Dec":"dec",
-    "send":"Send"
+    "send":"Send",
+    "info" : "Informations"
   }
 }
