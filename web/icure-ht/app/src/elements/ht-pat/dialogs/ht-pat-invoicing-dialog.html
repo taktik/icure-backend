@@ -882,6 +882,12 @@
                 top: 10px;
                 transform: translateX(-10px);
             }
+
+            .modal-button-red {
+                background-color:#ff0000!important;
+                color:#ffffff!important;
+            }
+
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -1221,6 +1227,7 @@
                     </template>
 
                 </div>
+
                 <div class="buttons">
                     <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
                     <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
@@ -1234,21 +1241,18 @@
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">
-                                    [[localize('eTarif','Validation eTarif',language)]]
-                                </paper-button>
+                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                             </template>
                             <template is="dom-if" if="[[!npi]]">
-                                <paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation
-                                    eTarif',language)]]
-                                </paper-button>
+                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                             </template>
                         </template>
 
                         <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">
-                                [[localize('eTarif','Validation eTarif',language)]]
-                            </paper-button>
+                            <template is="dom-if" if="[[_hasInsurability()]]"><paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                            <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                         </template>
 
                         <template is="dom-if" if="[[isNmclVerified]]">
@@ -1256,17 +1260,9 @@
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
-                        <template is="dom-if" if="[[!isNmclVerified]]">
-                            <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
-                                create invoice',language)]]
-                            </paper-button>
-                        </template>
+                        <template is="dom-if" if="[[!isNmclVerified]]"><paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button></template>
                     </template>
-                    <template is="dom-if" if="[[isInvoiceClosed]]">
-                        <paper-button on-tap="_createInvoice" class="modal-button invoiceBtnEnable">
-                            [[localize('val_justificatory','Justificatory',language)]]
-                        </paper-button>
-                    </template>
+                    <template is="dom-if" if="[[isInvoiceClosed]]"><paper-button on-tap="_createInvoice" class="modal-button invoiceBtnEnable">[[localize('val_justificatory','Justificatory',language)]]</paper-button></template>
                 </div>
             </div>
             <canvas id="barCode"></canvas>
@@ -1876,7 +1872,7 @@
             }
 
             open() {
-                if (!this.user) return
+                if (!this.user) return;
                 Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
@@ -1892,8 +1888,8 @@
                         newInvoice.invoiceDate = moment().format("YYYYMMDD")
                         newInvoice.invoiceReference = null
                         newInvoice.thirdPartyReference = "0"
-                        newInvoice.invoiceType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient"
-                        newInvoice.sentMediumType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest"
+                        newInvoice.invoiceType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient" ) : 'patient';
+                        newInvoice.sentMediumType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest" ) : 'paper';
                         newInvoice.invoicePeriod = 0
                         newInvoice.longDelayJustification = 0
                         newInvoice.gnotionNihii = null
@@ -1967,7 +1963,7 @@
                 return {
                     filter: function (nmclFilterValue) {
                         let count = 10
-                        return Promise.all([this.api.tarification().findPaginatedTarificationsByLabel('be', 'INAMI-RIZIV', 'fr', nmclFilterValue, null, count)]).then(results => {
+                        return Promise.all([this.api.tarification().findPaginatedTarificationsByLabel('be', 'INAMI-RIZIV', this.language, nmclFilterValue, null, count)]).then(results => {
                             const nmclList = results[0]
                             const filtered = _.flatten(nmclList.rows.map(nmcl => ({
                                 id: nmcl.id,
@@ -2022,7 +2018,7 @@
                         prescriberNorm: 0
 
                     }
-                    const ins = this.patient.insurabilities.find(i => !i.endDate)
+                    const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
 
@@ -2058,7 +2054,7 @@
 
                         const patientKeys = secretForeignKeys.join(",")
 
-                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
+                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
                                 if (!invoice.id) {
@@ -3154,7 +3150,7 @@
                 if(this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.join(",")
-                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [this.activeNmclItem]).then(response => {
+                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem]).then(response => {
                             response.map(invoice => {
                                 if (!invoice.id) {
                                     invoice.invoiceDate = this.selectedInvoice.invoiceDate
@@ -3800,6 +3796,12 @@
                 const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
                 window.open(url,"cancel");
             }
+
+
+
+            _hasInsurability() { return ( this.patient && this.patient && !!this.patient.insurabilities.length ); }
+
+
         }
 
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
