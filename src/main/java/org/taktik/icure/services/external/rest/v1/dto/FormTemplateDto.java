@@ -24,6 +24,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.FormGroupDto;
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class FormTemplateDto extends StoredDto implements Serializable {
 
@@ -52,6 +53,8 @@ public class FormTemplateDto extends StoredDto implements Serializable {
     protected String shortReport;
     protected String mediumReport;
     protected String longReport;
+
+    protected List<String> reports;
 
     public FormTemplateDto() {
 	}
@@ -158,5 +161,13 @@ public class FormTemplateDto extends StoredDto implements Serializable {
 
     public void setShortReport(String shortReport) {
         this.shortReport = shortReport;
+    }
+
+    public List<String> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<String> reports) {
+        this.reports = reports;
     }
 }

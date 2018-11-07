@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,6 +36,8 @@ public class FinancialInstitutionInformation implements Serializable {
 
 	protected String proxyBankAccount;
 	protected String proxyBic;
+
+	protected Set<String> preferredFiiForPartners = new HashSet<>(); //Insurance Id, Hcp Id
 
 	public String getName() {
 		return name;
@@ -81,5 +85,13 @@ public class FinancialInstitutionInformation implements Serializable {
 
 	public void setProxyBic(String proxyBic) {
 		this.proxyBic = proxyBic;
+	}
+
+	public Set<String> getPreferredFiiForPartners() {
+		return preferredFiiForPartners;
+	}
+
+	public void setPreferredFiiForPartners(Set<String> preferredFiiForPartners) {
+		this.preferredFiiForPartners = preferredFiiForPartners;
 	}
 }

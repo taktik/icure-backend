@@ -229,7 +229,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
 				i += isStandardFormat?6:9;
 
-				if (protocolIds.contains(code)) {
+				if (protocolIds.contains(code) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
 					do {
 						i++;
 					} while (!p2.matcher(lines.get(i)).matches());
