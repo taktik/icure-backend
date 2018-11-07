@@ -173,18 +173,19 @@
             <iron-pages selected="[[tabs]]" class="">
                 <page>
                     <div class="hub-cons">
+                        <div class="hub-info">
+                            <div><p><b>[[localize('tra_typ','Type',language)]]</b>[[_transactionType(transInfo)]]</p></div>
+                            <div><p><b>[[localize('tra_dat','Date',language)]]</b>[[_transactionDate(transInfo)]]</p></div>
+                            <div><p><b>[[localize('tra_aut','Author',language)]]</b>[[_transactionAuthor(transInfo)]]</p></div>
+                        </div>
                         <div>
                             <div id="kmehr_slot"></div>
-                        </div>
-                        <!-- Show consultation result/errors -->
-                        <div class="hub-info">
-
                         </div>
                     </div>
                 </page>
                 <page>
                     <div class="hub-cons"> <!-- Notification input -->
-                        <div class="hub-info">
+                        <div>
                             <iron-autogrow-textarea class="paper-input-input" slot="input" id="transactionText" value="{{transactionXml}}" ></iron-autogrow-textarea>
                         </div>
 
@@ -236,6 +237,10 @@
                     transactionXml:{
                         type: String,
                         value: ''
+                    },
+                    transInfo:{
+                        type: Object,
+                        value: null
                     }
                 };
             }
@@ -305,36 +310,87 @@
             }
 
 
-            open(tranRespPromise) {
+            open(transInfo, tranRespPromise) {
                 this.$.dialog.open();
+                this.set('transInfo', transInfo);
                 this.set('isLoading',true);
                 this.set('transactionXml', '');
                 tranRespPromise.then(tranResp => {
                     if (tranResp) {
                         this.set('transactionXml', tranResp);
                         //TODO: show formatted
-                        this.formatResponse(tranResp);
+                        this.formatResponse(transInfo, tranResp);
                     }
                     this.set('isLoading',false);
                 }).catch( error=> {
-                    console.log(error);
+                    console.log('getTransaction failed : ' + error);
                     this.set('isLoading',false);
                 })
             }
 
-            _transactionType(tr){
-                const cdTransType = tr.cds.find(cd => cd.s === "CD-TRANSACTION");
-                if(cdTransType){
-                    return cdTransType.value;
+            _transactionId(tr){
+                if(tr) {
+                    const idLocal = tr.ids.find(id => id.s === "LOCAL");
+                    if (idLocal) {
+                        return idLocal.value;
+                    }
+                    else {
+                        return "--";
+                    }
                 }
-                else {
-                    return "--";
+                else
+                {
+                    return "";
                 }
             }
 
-            formatResponse(tranResp){
+            _transactionDate(tr){
+                if(tr && tr.date) {
+                    var d = new Date(0);
+                    d.setUTCMilliseconds(tr.date);
+                    return d.toDateString();
+                } else {
+                    return "";
+                }
+            }
+
+            _transactionAuthor(tr){
+                if(tr){
+                var authorRes = "--";
+                const author = tr.author.hcparties.find(hcp => hcp.familyname);
+                if(author) {
+                    authorRes = author.familyname + ' ' + author.firstname;
+                }
+                const dept = tr.author.hcparties.find(hcp => hcp.cds.find(cd => cd.s === "CD-HCPARTY"))
+                if(dept){
+                    const cd = dept.cds.find(cd => cd.s === "CD-HCPARTY")
+                    authorRes += "/" + cd.value;
+                }
+                return authorRes;
+                }else {
+                    return "";
+                }
+            }
+
+            _transactionType(tr){
+                if(tr) {
+                    const cdTransType = tr.cds.find(cd => cd.s === "CD-TRANSACTION");
+                    if (cdTransType) {
+                        return cdTransType.value;
+                    }
+                    else {
+                        return "--";
+                    }
+                } else {
+                    return "";
+                }
+            }
+
+            formatResponse(transInfo, tranResp){
                 const slot = this.shadowRoot.querySelector("#kmehr_slot");
                 if(tranResp) {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(tranResp,"text/xml");
                     const req = new XMLHttpRequest();
                     req.onreadystatechange = function(event) {
                         if (this.readyState === XMLHttpRequest.DONE) {
@@ -342,7 +398,7 @@
                                 const xsltProcessor = new XSLTProcessor();
                                 const xslStylesheet = this.responseXML;
                                 xsltProcessor.importStylesheet(xslStylesheet);
-                                const fragment = xsltProcessor.transformToFragment(tranResp, document);
+                                const fragment = xsltProcessor.transformToFragment(xmlDoc, document);
                                 slot.innerHTML = "";
                                 slot.appendChild(fragment);
                             } else {
@@ -351,11 +407,12 @@
                         }
                     };
 
-                    const transtype =  this._transactionType(this.selectedTransaction);
-                    let xslt;
+                    const transtype =  this._transactionType(transInfo);
                     if(transtype == "sumehr") {
-                        xslt = "sumehr_to_html.xslt"
-                        req.open("GET", xslt, true);
+                        req.open("GET", "sumehr_to_html.xslt", true);
+                        req.send(null);
+                    } else if(transtype == "medicationscheme") {
+                        req.open("GET", "sumehr_to_html.xslt", true);
                         req.send(null);
                     } else {
                         slot.innerHTML = "No visualizer implemented for transaction of type " + transtype + ":" + tranResp

@@ -2661,7 +2661,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _openTransactionViewer(){
-		this.$.transactionViewDialog.open(this._getHubTransaction());
+		this.$.transactionViewDialog.open(this.selectedTransaction, this._getHubTransaction());
 	}
 
     _showTransaction(){
