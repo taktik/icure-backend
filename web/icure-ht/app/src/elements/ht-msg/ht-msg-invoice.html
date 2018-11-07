@@ -1718,13 +1718,9 @@
                                         return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 
                                             if (typeof a === "string"){
-                                                try {
-                                                    let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
-                                                    readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
-                                                    a = JSON.parse(readyToParse)
-                                                } catch (ignored) {}
+                                                try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
                                             } else if (typeof a === "object") {
-                                                try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
+                                                try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                             }
 
                                             const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
@@ -2548,13 +2544,9 @@
                             attachs.forEach( a => {
 
                                 if (typeof a === "string"){
-                                    try {
-                                        let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
-                                        readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
-                                        a = JSON.parse(readyToParse)
-                                    } catch (ignored) {}
+                                    try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
                                 } else if (typeof a === "object") {
-                                    try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
+                                    try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                 }
 
                                 const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
@@ -2686,6 +2678,19 @@
 
             _isStatus(status,test) {
                 return status == test
+            }
+
+            cleanStringForJsonParsing(inputValue) {
+                return inputValue
+                    .replace(/\\n/g, "\\n")
+                    .replace(/\\'/g, "\\'")
+                    .replace(/\\"/g, '\\"')
+                    .replace(/\\&/g, "\\&")
+                    .replace(/\\r/g, "\\r")
+                    .replace(/\\t/g, "\\t")
+                    .replace(/\\b/g, "\\b")
+                    .replace(/\\f/g, "\\f")
+                    .replace(/[\u0000-\u0019]+/g,"")
             }
 
         }
