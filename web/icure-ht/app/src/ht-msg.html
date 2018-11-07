@@ -55,6 +55,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             ht-msg-detail{
                 padding: 16px;
                 z-index: 15;
+                transform: translateX(100vw);
+                opacity: 0;
+                transition: all .5s ease-out;
+            }
+            ht-msg-detail.selected {
+                transform: none;
+                opacity: 1;
             }
 
             .display-left-menu{
@@ -129,7 +136,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: calc(70vh - 32px);
                     bottom: 0;
                     position: fixed;
-                    transition: all .5s ease-out;
                     transform: translateY(100vh);
                     opacity: 0;
                     display: flex;

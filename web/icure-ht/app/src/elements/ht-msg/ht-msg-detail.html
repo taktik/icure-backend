@@ -262,7 +262,7 @@
 				font-weight: 700;
 			}
             @media screen and (max-width: 1200px) {
-                .modal-button--delete {
+                .modal-button--delete.remove {
                     display: none;
                 }
             }
@@ -482,7 +482,7 @@
                         <paper-button class="modal-button modal-button--save"  msgId$='[[msg.id]]' ><iron-icon icon="reply"></iron-icon>[[localize('rep','Reply',language)]]</paper-button>
                     </div>
                     <div class="del-button">
-                        <paper-button class="modal-button modal-button--delete" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--delete remove" on-tap="_removeMsg"  msgId$='[[msg.id]]' ><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
                     </div>
                 </div>
 					<template is="dom-repeat" items="[[messages]]" as="msg">
