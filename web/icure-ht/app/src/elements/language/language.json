@@ -409,7 +409,9 @@
     "Dec":"Dec",
     "send": "Send",
     "pay" : "Payment",
-    "info" : "Informations"
+    "info" : "Informations",
+    "req_msg_lists" : "Request Messages Lists",
+    "get_msg" : "Get Messages"
 
  },
   "fr": {
@@ -887,7 +889,9 @@
     "Nov":"nov",
     "Dec":"déc",
     "send": "Envoyer",
-    "info" : "Informations"
+    "info" : "Informations",
+    "req_msg_lists" : "Requête pour les messages \"Listes\"",
+    "get_msg" : "Obtenir les messages"
   },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1403,6 +1407,8 @@
     "Nov":"nov",
     "Dec":"dec",
     "send":"Send",
-    "info" : "Informations"
+    "info" : "Informations",
+    "req_msg_lists" : "Request Messages Lists",
+    "get_msg" : "Get Messages"
   }
 }

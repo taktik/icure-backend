@@ -134,35 +134,35 @@
                                 </template>
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="recipient-col" width="120px">
+                        <vaadin-grid-column class="received-col" width="120px">
                             <template class="header">
                                 <vaadin-grid-sorter path="received">[[localize("dat","Date",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[_formatDate(item.received)]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="oa-col" width="calc(30% - 93px)">
+                        <vaadin-grid-column class="subject-col" width="calc(30% - 93px)">
                             <template class="header">
-                                <vaadin-grid-sorter path="">[[localize("tel_type","Type",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="subject">[[localize("tel_type","Type",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>
                                 [[item.subject]]
                             </template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="oa-col" width="80px">
+                        <vaadin-grid-column class="adress-col" width="80px">
                             <template class="header">
-                                <vaadin-grid-sorter path="">[[localize("OA","OA",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="fromAddress">[[localize("OA","OA",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[item.fromAddress]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="ref-col" width="calc(30% - 93px)">
+                        <vaadin-grid-column class="patient-col" width="calc(30% - 93px)">
                             <template class="header">
-                                <vaadin-grid-sorter path="">[[localize("pati","Patient",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="patient.lastName">[[localize("pati","Patient",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[item.patient.lastName]] [[item.patient.firstName]]</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column class="invoice-col" width="calc(30% - 93px)">
+                        <vaadin-grid-column class="metas-col" width="calc(30% - 93px)">
                             <template class="header">
-                                <vaadin-grid-sorter path="">[[localize("info","Informations",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="metas">[[localize("info","Informations",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[_displayMetas(item.metas)]]</template>
                         </vaadin-grid-column>
@@ -350,7 +350,10 @@
 
             _displayMetas(metas) {
                 if(_.isEmpty(metas) || metas.type==="list")return "";
-                return metas.endOfPreviousDmg+' '+metas.previousHcp
+                else if(metas.type==="closure")
+                    return metas.endOfPreviousDmg+' '+metas.previousHcp
+                else if(metas.type==="extension")
+                    return metas.from+" ["+metas.claim+"]";
             }
 
             _formatPayments(payments) {
