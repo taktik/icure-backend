@@ -48,6 +48,7 @@ public class MedicationDto implements Serializable {
 	List<RegimenItemDto> regimen;
 
 	Map<String, ContentDto> options;
+	Map<String, ParagraphAgreementDto> agreements;
 
 	public Map<String, ContentDto> getOptions() {
 		return options;
@@ -159,5 +160,13 @@ public class MedicationDto implements Serializable {
 
 	public void setDuration(DurationDto duration) {
 		this.duration = duration;
+	}
+
+	public Map<String, ParagraphAgreementDto> getAgreements() {
+		return agreements;
+	}
+
+	public void setAgreements(Map<String, ParagraphAgreementDto> agreements) {
+		this.agreements = agreements;
 	}
 }
