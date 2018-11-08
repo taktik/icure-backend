@@ -17,7 +17,9 @@
 
 <dom-module id="ht-pat-hub-dialog">
     <template>
-        <style>
+        <style include="iron-flex iron-flex-alignment"></style>
+        <!--suppress CssUnusedSymbol -->
+        <style include="icpc-styles scrollbar-style">
 
             #dialog .hub-cons{
                 display: flex;
@@ -148,10 +150,24 @@
                 margin: 0;
                 padding: 0;
             }
-            .modal-button--save {
-                background: var(--app-secondary-color);
-                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+            .modal-button {
+                --paper-button-ink-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color);
+                font-weight: 400;
+                font-size: 14px;
+                height: 40px;
+                min-width: 100px;
+                padding: 10px 1.2em;
+                text-transform: capitalize;
             }
+
+            .modal-button--save {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                background: var(--app-secondary-color);
+                color: var(--app-primary-color-dark);
+                font-weight: 700;
+            }
+
             paper-spinner {
                 position: relative;
                 top: 10px;
@@ -165,10 +181,13 @@
 
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
+            <div>
+                <p><b>[[localize('pat_hub_info','Pat Hub info',language)]]</b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
+            </div>
             <template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent) || !hubSupportsConsent]]">
                 <div>
-                    <div><p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p></div>
-                    <div><p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p></div>
+                    <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
+                    <p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p>
                 </div>
                 <vaadin-grid id="transaction-list" class="material" overflow="bottom" items=[[hubTransactionList]] active-item="{{selectedTransaction}}">
                     <vaadin-grid-column width="120px">
@@ -202,6 +221,9 @@
                 <paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
                 <!--<paper-button on-tap="_showTransaction">get transaction</paper-button>-->
                 <paper-button on-tap="_openTransactionViewer">view transaction</paper-button>
+                <paper-button on-tap="_runGetHubPatient">Get Patient</paper-button>
+                <paper-button on-tap="_runPutHubPatient">Put Patient</paper-button>
+
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
             </template>
             <template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
@@ -282,6 +304,9 @@
                     },
                     patientHubTherLink:{
                         type: Object
+                    },
+                    patientHubInfo:{
+                      type: Object
                     },
                     hcpZip:{
                         type:String,
@@ -369,10 +394,11 @@
                         break
                 }
 
-                this._getHubHcpConsent();
-                this._getHubPatientConsent();
-                this._getHubTherapeuticLinks();
-                this._getHubTransactionList();
+                this._getHubHcpConsent().then(consentResp => this.set('hcpHubConsent', consentResp));
+                this._getHubPatientConsent().then(consentResp => this.set('patientHubConsent', consentResp));
+                this._getHubTherapeuticLinks().then(tlResp => this.set('patientHubTherLinks', tlResp));
+                this._getHubTransactionList().then(tranResp => this.set('hubTransactionList', tranResp));
+                this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat));
             }
 
             close() {
@@ -510,7 +536,6 @@
                                 hcp.nihii, hcp.lastName, hcp.firstName, hcp.ssin, this.hcpZip)
                         ).then(consentResp => {
                                 if (consentResp) {
-                                    this.set('hcpHubConsent', consentResp)
                                     return consentResp;
                                 } else {
                                     return null;
@@ -519,6 +544,14 @@
                         )
                 } else {
                     return Promise.resolve(null)
+                }
+            }
+
+            _getHubPatientInfoDesc(pi){
+                if(pi){
+                    return pi.firstName + " " + pi.lastName + " [" + this.localize(pi.gender, pi.gender, this.language) + "]";
+                }else{
+                    return  this.localize("pat_not_hub", "Patient does not exist on hub.", this.language);
                 }
             }
 
@@ -542,6 +575,66 @@
                 return desc;
             }
 
+
+            _runGetHubPatient(){
+                this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat));
+            }
+            //getPatientUsingGET(
+            // endpoint: string,
+            // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+            // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+            // patientSsin: string, hubPackageId?: string): Promise<models.Patient | any>;
+            getHubPatient(){
+                if (this.patient.ssin && this.api.tokenId) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp =>
+                            this.api.fhc().Hubcontroller().getPatientUsingGET(this.hubEndPoint,
+                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                this.patient.ssin)
+                        ).then(patResp => {
+                                if (patResp) {
+                                    return patResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                } else {
+                    return Promise.resolve(null)
+                }
+            }
+
+            _runPutHubPatient(){
+                this.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat));
+            }
+            //putPatientUsingPOST(
+            // endpoint: string,
+            // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+            // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+            // patientSsin: string, firstName: string, lastName: string, gender: string, dateOfBirth: number,
+            // hubPackageId?: string): Promise<models.Patient | any>;
+            putHubPatient(){
+                if (this.patient.ssin && this.api.tokenId) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp =>
+                            this.api.fhc().Hubcontroller().putPatientUsingPOST(this.hubEndPoint,
+                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                this.patient.ssin, this.patient.firstName, this.patient.lastName, this.patient.gender, this.patient.dateOfBirth)
+                        ).then(patResp => {
+                                if (patResp) {
+                                    return patResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                } else {
+                    return Promise.resolve(null)
+                }
+            }
+
             _getHubPatientConsent(){
                 //getPatientConsentUsingGET1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin)
                 if (this.patient.ssin && this.api.tokenId) {
@@ -553,7 +646,6 @@
                                 this.patient.ssin)
                         ).then(consentResp => {
                                 if (consentResp) {
-                                    this.set('patientHubConsent', consentResp);
                                     return consentResp;
                                 } else {
                                     return null;
@@ -581,7 +673,6 @@
                                 this.patient.ssin, null, null, null)
                         ).then(tlResp => {
                                 if (tlResp) {
-                                    this.set('patientHubTherLinks', tlResp);
                                     return tlResp;
                                 } else {
                                     return null;
@@ -633,7 +724,6 @@
                                 this.patient.ssin, null, null, null, null, null)
                         ).then(tranResp => {
                                 if (tranResp) {
-                                    this.set('hubTransactionList', tranResp);
                                     return tranResp;
                                 } else {
                                     return null;
