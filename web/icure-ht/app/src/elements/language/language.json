@@ -413,9 +413,9 @@
     "pay" : "Payment",
     "info" : "Informations",
     "req_msg_lists" : "Request Messages Lists",
-    "get_msg" : "Get Messages"
-
- },
+    "get_msg" : "Get Messages",
+    "and": "and"
+},
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
     "a_pri_key_fil_is_nee_for_thi_use": "Un fichier de clef privée est requis pour cet utilisateur",
@@ -894,8 +894,9 @@
     "send": "Envoyer",
     "info" : "Informations",
     "req_msg_lists" : "Demande de Listes",
-    "get_msg" : "Obtenir les messages"
-  },
+    "get_msg" : "Obtenir les messages",
+    "and": "et"
+ },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
     "a_pri_key_fil_is_nee_for_thi_use": "A private key file is needed for this user",
@@ -1409,6 +1410,7 @@
     "Oct":"oct",
     "Nov":"nov",
     "Dec":"dec",
+    "and":"en",
     "send":"Send",
     "info" : "Informations",
     "req_msg_lists" : "Request Messages Lists",
