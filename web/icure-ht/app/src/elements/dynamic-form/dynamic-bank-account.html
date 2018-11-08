@@ -34,46 +34,90 @@
 			}
 
             .financialInstitutionInformationContainer {
-                display:flex;
-                flex-wrap:wrap;
-                flex-direction:row;
-                justify-content:space-between;
-                align-items:stretch;
-                align-content:space-between;
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                align-content: space-between;
                 width: 100%;
+                min-height: 620px;
             }
 
             /*.financialInstitutionInformationContainer::after { content: ""; flex: auto; flex-basis: 30% }*/
 
 
             .singleFinancialInstitutionInformationContainer {
-                flex-basis:30%;
-                border:1px solid var(--app-text-color-disabled);
-                background-color:#f5f5f5;
-                margin-top:1em;
-                padding:10px;
-                min-height:200px;
+                position: relative;
+                flex-basis: 30%;
+                flex-grow: 1;
+                background-color: white;
+                border-radius: 8px;
+                margin: 12px;
+                min-height: 200px;
+                overflow: hidden;
+                box-shadow: var(--app-shadow-elevation-1);
+                padding-bottom: 8px;
+                min-height:360px;
             }
 
             .singleFinancialInstitutionInformationContainer .header {
+                display:flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: flex-start;
                 text-align:center;
-                background-color: var(--app-primary-color-light);
-                padding:10px 0;
-                color:#ffffff;
+                background-color: var(--app-background-color-dark);
+                padding: 16px;
+                color: var(--app-text-color);
+                font-size: 14px;
                 font-weight: 400;
-                text-transform: uppercase;
+                text-transform: capitalize;
                 position: relative;
             }
-            .singleFinancialInstitutionInformationContainer .header .delete { position: absolute; top:0; right:0; }
-            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button:hover { color:var(--app-secondary-color); }
+            .singleFinancialInstitutionInformationContainer .header .delete { 
+                position: absolute;
+                top: 50%;
+                right: 4px;
+                transform: translate(0, -50%);            
+            }
+            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button{
+                padding: 4px;
+                height: 32px;
+                width: 32px;
+                color: var(--app-text-color-disabled);
+                transition: color .12s cubic-bezier(.075,.82,.165,1);
+            }
+            .singleFinancialInstitutionInformationContainer .header .delete paper-icon-button:hover { 
+                color:var(--app-text-color); 
+            }
 
-            .marginRight10 { margin-right:10px; }
 
             .modal-button--save{
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
-                margin-top:20%
+                text-transform: capitalize;
+                font-size: 14px;
+                font-weight: 400;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .modal-button--save iron-icon{
+                opacity: 0.7;
+            }
+
+            paper-input{
+                margin: 0 16px;
+                --paper-input-container-focus-color: var(--app-primary-color);
+				font-size:var(--form-font-size);
+            }
+
+            iron-icon{
+                margin-right: 8px;
             }
 
             @media (max-width:940px) {
@@ -94,7 +138,7 @@
             <template is="dom-repeat" items="{{hcp.financialInstitutionInformation}}">
 
                 <div class$="singleFinancialInstitutionInformationContainer [[_getFiiCssDisplayClass(item, index)]]" id="fiiContainer_{{index}}">
-                    <div class="header"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>Compte [[_plusOne(index)]]<div class="delete"><paper-icon-button icon="delete" on-tap="_deleteFii" id="fii_{{index}}_delete"></paper-icon-button></div></div>
+                    <div class="header"><iron-icon icon="icons:payment" class=""></iron-icon>Compte [[_plusOne(index)]]<div class="delete"><paper-icon-button icon="delete" on-tap="_deleteFii" id="fii_{{index}}_delete"></paper-icon-button></div></div>
                     <paper-input step="{{index}}" label="[[localize('bank_account_label','Libellé compte bancaire',language)]]" value="{{item.name}}" id="fii_{{index}}_name"></paper-input>
                     <paper-input step="{{index}}" label="[[localize('bank_account_iban','Compta bancaire / IBAN',language)]]" value="{{item.bankAccount}}" id="fii_{{index}}_bankAccount" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"></paper-input>
                     <paper-input step="{{index}}" label="BIC" value="{{item.bic}}" id="fii_{{index}}_bic" readonly></paper-input>
@@ -106,9 +150,9 @@
 
             <template is="dom-if" if="{{allowNewFii}}">
                 <div class="singleFinancialInstitutionInformationContainer textAlignCenter" id="newFiiContainer">
-                    <div class="header"><iron-icon icon="icons:account-balance" class="marginRight10"></iron-icon>Nouveau compte ?</div>
+                    <div class="header"><iron-icon icon="icons:payment" class=""></iron-icon>Nouveau compte ?</div>
                     <paper-button on-tap="_addNewFinancialInformation" class="modal-button--save">
-                        <iron-icon icon="icons:add-circle-outline" class="marginRight10"></iron-icon>
+                        <iron-icon icon="icons:add-circle-outline" class=""></iron-icon>
                         [[localize('add_an_account','Ajouter un compte',language)]]
                     </paper-button>
                 </div>

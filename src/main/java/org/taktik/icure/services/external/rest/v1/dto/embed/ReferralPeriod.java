@@ -23,6 +23,7 @@ import java.io.Serializable;
 public class ReferralPeriod implements Serializable {
     private Long startDate;
     private Long endDate;
+    private String comment;
 
     public Long getStartDate() {
         return startDate;
@@ -40,4 +41,11 @@ public class ReferralPeriod implements Serializable {
         this.endDate = endDate;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }
