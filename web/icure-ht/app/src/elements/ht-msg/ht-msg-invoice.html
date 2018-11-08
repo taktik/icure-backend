@@ -667,7 +667,7 @@
                                             <template><small>[[item.invoiceReference]]</small></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
-                                            <template><small>[[item.patient]]</small></template>
+                                            <template><small>[[item.patientName]]</small></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template><small>[[item.patientSsin]]</small></template>
@@ -873,7 +873,7 @@
                                                              <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
@@ -961,7 +961,7 @@
                                                             <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
@@ -1049,7 +1049,7 @@
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
                                                 <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                             </template>
                                         </vaadin-grid-column>
@@ -1120,7 +1120,7 @@
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
                                                 <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                             </template>
                                         </vaadin-grid-column>
@@ -1247,7 +1247,7 @@
                                                             <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
@@ -1280,9 +1280,9 @@
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="9%" class="recipient-col">
                                             <template class="header">
-                                                <vaadin-grid-sorter path="patient">Patient</vaadin-grid-sorter>
+                                                <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.patient]]</template>
+                                            <template>[[item.patientName]]</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template class="header">
@@ -1352,7 +1352,7 @@
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>-->
                                                     <!--</template>-->
                                                 <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.statut))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.statut)}}"></iron-icon> [[item.statut]]</span>
+                                                <span class$="invoice-status {{_getIconStatusClass(item.statut))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.statut)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                             </template>
                                         </vaadin-grid-column>
@@ -1648,10 +1648,11 @@
                         this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
                     ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
                         return ({
-                            patient: pat.lastName+" "+pat.firstName,
+                            patientName: pat.lastName+" "+pat.firstName,
                             invoiceId: inv.id,
                             sentMediumType: inv.sentMediumType,
                             insuranceCode: ins.code,
+                            insuranceParent: ins.parent,
                             invoiceReference: inv.invoiceReference,
                             patientSsin: pat.ssin,
                             invoiceDate: inv.invoiceDate,
@@ -1662,7 +1663,9 @@
                             statut : "Pending",
                             hasChildren : false,
                             uuid : inv.id,
-                            parentUuid : ins.code.charAt(0)
+                            parentUuid : ins.code.charAt(0),
+                            patient: pat,
+                            invoice: inv
                     })
                 }))
                 .then(invoiceStruct => {
@@ -1739,48 +1742,29 @@
 
 
                                             // STATUS_SUBMITTED 				= 1 << 8; envoyé
-                                            // STATUS_RECEIVED 				    = 1 << 9; ta ck reçu
+                                            // STATUS_RECEIVED 				    = 1 << 9; tack reçu
                                             // STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; 93100
                                             // STATUS_ACCEPTED 				    = 1 << 11; 92098 / 920900
-                                            // STATUS_REJECTED 				    = 1 << 12; 920999 / 920909
+                                            // STATUS_REJECTED 				    = 1 << 12; ?
 
                                             // STATUS_TACK 					    = 1 << 13;
                                             // STATUS_MASKED 					= 1 << 14;
 
                                             // STATUS_SUCCESS 					= 1 << 15;
                                             // STATUS_WARNING 					= 1 << 16; Partiellement accepte
-                                            // STATUS_ERROR 					= 1 << 17;
+                                            // STATUS_ERROR 					= 1 << 17; 920999 / 920909
 
                                             let invoiceStatus
                                             let rejectionReason
                                             if (zone200 && zone300) {
                                                 const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
 
-                                                switch (invoiceType) {
-                                                    case "920999" :
-                                                        invoiceStatus = "Rejected";
-                                                        rejectionReason = "Blocking error";
-                                                        break
-                                                    case '920099' :
-                                                        invoiceStatus = "Rejected";
-                                                        invoiceStatus = "More than 5% error";
-                                                        break
-                                                    case '931000' :
-                                                        invoiceStatus = "Pending";
-                                                        invoiceStatus = "Acknowledgment of receipt";
-                                                        break
-                                                    case '920098' :
-                                                        invoiceStatus = "Accepted";
-                                                        rejectionReason = "";
-                                                        break
-                                                    case '920900' :
-                                                        invoiceStatus = "Accepted";
-                                                        rejectionReason = "";
-                                                        break
-                                                    default :
-                                                        invoiceStatus = ""
-                                                        break
-                                                }
+                                                invoiceStatus = (mm.message.status & (1 << 17)) === 1 << 17 ? "Rejected" :  (mm.message.status & (1 << 16)) === 1 << 16 ? "Partially accepted" :  (mm.message.status & (1 << 12)) === 1 << 12 ? "Rejected" :   (mm.message.status & (1 << 11)) === 1 << 11 ? "Accepted" :  (mm.message.status & (1 << 10)) === 1 << 10 ?  "Accepted for treatment" :
+                                                    (mm.message.status & (1 << 9)) === 1 << 9 ?  "Successfully transmitted to OA" :  (mm.message.status & (1 << 8)) === 1 << 8 ?  "Pending" : ""
+
+
+                                                rejectionReason = ((mm.message.status & (1 << 17)) === 1 << 17 && invoiceType === "920999") ? "Blocking error" : ((mm.message.status & (1 << 17)) === 1 << 17 && invoiceType === "920909") ? "More than 5% error" : ""
+
                                             }
 
                                             return (zone200 && zone300) ?
@@ -2073,13 +2057,12 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
                     let prom = Promise.resolve()
                     _.chain(this.selectedPendingInvoices)
-                        .groupBy(fact => fact.insurance.parent)
+                        .groupBy(fact => fact.insuranceParent)
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
                         })
                 })
-                this.getPendingInvoices()
             }
 
             _showPendingDetail(){
@@ -2566,20 +2549,6 @@
                                 const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
                                 const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
 
-                                let invoiceStatus
-                                if(zone200 && zone300){
-                                    const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
-
-                                    switch(invoiceType){
-                                        case '920999' : invoiceStatus = "Rejected"; break;
-                                        case '920099' : invoiceStatus = "Rejected"; break;
-                                        case '931000' : invoiceStatus = "Receveid"; break;
-                                        case '920098' : invoiceStatus = "Accepted"; break;
-                                        case '920900' : invoiceStatus = "Accepted"; break;
-                                        default : invoiceStatus = ""; break;
-                                    }
-                                }
-
                                 let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones),
                                     zone400 && this.SEG_getErrSegment_400(zone400.zones),
@@ -2655,8 +2624,8 @@
                             const responses = chunk.filter(x => x && x.detail)
 
                             sprom = sprom
-                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
-                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                                //.then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
+                                //.then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
                         })
                         return sprom
                     })

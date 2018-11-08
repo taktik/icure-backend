@@ -1412,14 +1412,6 @@
                                 label: {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
                             },
                             {
-                                id: "cdrom",
-                                label: {"fr": "cdrom", "nl": "cdrom", "en": "cdrom"}
-                            },
-                            {
-                                id: "email",
-                                label: {"fr": "Email", "nl": "Email", "en": "Email"}
-                            },
-                            {
                                 id: "mediprima",
                                 label: {"fr": "Mediprima", "nl": "Mediprima", "en": "Mediprima"}
                             },
@@ -1820,6 +1812,14 @@
                     isJustif: {
                         type: Boolean,
                         value: false
+                    },
+                    searchOrgName: {
+                        type: String,
+                        value: ""
+                    },
+                    organisationList:{
+                        type: Array,
+                        value: () => []
                     }
                 }
 
@@ -2035,8 +2035,12 @@
                             preferentialstatus: (ins && ins.parameters) ? !!ins.parameters.preferentialstatus : false,
                             age: age,
                             dmg: (dmg && dmg.referral) ? !!dmg.referral : false,
-                            chronical: (ins && ins.parameters) ? !!ins.parameters.chronicalDisease : false
-                        }, hcp: {trainee: trainee, convention: convention}
+                            chronical: (ins && ins.parameters && ins.parameters.chronicalDisease) ? !!ins.parameters.chronicalDisease : false
+                        },
+                        hcp: {
+                            trainee: (this.hcp && this.hcp.statuses && this.hcp.statuses.find(st => st === "trainee")) ? true : false,
+                            convention: (this.hcp && this.hcp.statuses && this.hcp.statuses.find(st => st === "withconvention")) ? true : false
+                        }
                     })
 
                     nmcl.valorisations.map(val => {
@@ -2047,10 +2051,10 @@
                             status = gen.next()
                         }
 
-                        if (status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)) {
-                            newNmcl.totalAmount = Number(val.totalAmount).toFixed(2)
-                            newNmcl.reimbursement = Number(val.reimbursement).toFixed(2)
-                            newNmcl.patientIntervention = Number(val.patientIntervention).toFixed(2)
+                        if (status.value && moment().isBetween(this.api.moment(val.startOfValidity),this.api.moment(val.endOfValidity),"year","[]")) {
+                            newNmcl.totalAmount = Number(newNmcl.totalAmount) + Number(val.totalAmount)
+                            newNmcl.reimbursement = Number(newNmcl.reimbursement) + Number(val.reimbursement)
+                            newNmcl.patientIntervention = Number(newNmcl.patientIntervention) + Number(val.patientIntervention)
                         }
                     })
 
@@ -2396,7 +2400,6 @@
             }
 
             _formatAmount(amount) {
-                console.log("formatamount",amount)
                 if (amount == 0) {return "0.00"}
                 if (amount.toString().length < 3) {
                     let out = // if integer, add the decimals, else just besure it's float
@@ -3594,6 +3597,11 @@
             _cancelEattest(){
                 const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
                 window.open(url,"cancel");
+            }
+
+            _getAdresseBookInfo(){
+                this.api.fhc().addressbookcontrollerfhc().searchOrgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, '*'+this.searchOrgName+'*', this.activeNmclItem.locationNorm)
+                    .then(orgList => this.set('organisationList', orgList))
             }
         }
 
