@@ -68,6 +68,15 @@
             :host(#nmclGrid) [part~="cell"] {
                 padding: 4px 0;
             }
+            :host(#selectedMedicationTable) {
+                padding: 0 !important;
+            }
+            :host(#selectedMedicationTable) [part~="cell"] {
+                padding: 0 4px !important;
+            }
+            #items [part~="row"] {
+                z-index: -109;
+            }
         </style>
     </template>
 </dom-module>
