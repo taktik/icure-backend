@@ -54,10 +54,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ht-msg-detail{
                 padding: 16px;
-                z-index: 15;
+                z-index: 0;
                 transform: translateX(100vw);
                 opacity: 0;
-                transition: all .5s ease-out;
+                transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1);
             }
             ht-msg-detail.selected {
                 transform: none;
