@@ -27,7 +27,7 @@ import {Plugin} from "prosemirror-state"
 import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
 import Element = Polymer.Element;
-import {columnResizing, goToNextCell, tableEditing, TableMap, tableNodes} from "prosemirror-tables";
+import {addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, columnResizing, deleteColumn, deleteRow, deleteTable, goToNextCell, mergeCells, splitCell, tableEditing, tableNodes, toggleHeaderCell, toggleHeaderColumn, toggleHeaderRow} from "prosemirror-tables";
 import {fixTables} from "./fixtables";
 
 
@@ -619,6 +619,103 @@ export class ProseEditor extends Polymer.Element {
         }
       }
       return true
+    }
+  }
+
+  _addColumnBefore(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addColumnBefore(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addColumnAfter(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addColumnAfter(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteColumn(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteColumn(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addRowBefore(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addRowBefore(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addRowAfter(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addRowAfter(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteRow(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteRow(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteTable(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteTable(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _mergeCells(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      mergeCells(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _splitCell(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      splitCell(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderColumn(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderColumn(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderRow(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderRow(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderCell(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderCell(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
     }
   }
 
