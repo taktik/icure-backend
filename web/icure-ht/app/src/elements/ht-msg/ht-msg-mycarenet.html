@@ -40,8 +40,7 @@
                 }
 
                 .grid-panel {
-                    flex-basis: calc(100% - 60px);
-                    height: calc(100% - 60px);
+                    flex-basis: 100%;
                     display: flex;
                     flex-flow: row nowrap;
                     box-sizing: border-box;
@@ -49,19 +48,19 @@
                 }
 
                 #messagesGrid {
-                    flex-basis: calc(100% - 33vw - 24px);
-                    height: calc(100% - 73px);
+                    flex-basis: calc(100% - 33vw);
                     transition: .5s ease;
+                    position: relative;
                 }
+
                 #messagesGrid.no-detail {
                     flex-basis: 100%;
                 }
 
                 #detailGrid {
                     flex-basis: 40%;
-                    height: calc(100% - 197px);
-                    position: fixed;
-                    right: 24px;
+                    position: relative;
+                    right: 0;
                     width: 33vw;
                     transition: .5s ease;
                 }
@@ -71,12 +70,22 @@
                     transform: translateX(100vw);
                 }
 
+                .total {
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                    width: 240px;
+                    height: 40px;
+                }
+
                 .invoice-panel .btns-container{
                     padding: 0;
                     flex-basis: 60px;
                     position: fixed;
                     right: 20px;
                     bottom: 15px;
+                    z-index: 9999;
+                    background-color: var(--app-background-color);
                 }
 
                 .bottom-btn {
@@ -93,7 +102,15 @@
                 }
 
                 vaadin-grid{
-                    height: 100%;
+                    position: absolute;
+                    top: 64px;
+                    left: 0;
+                    right: 0;
+                    height: calc(100% - 64px);
+                }
+
+                #detailGrid vaadin-grid {
+                    height: calc(100% - 64px - 64px);
                 }
 
                 vaading-grid-column.icon-col {
@@ -208,6 +225,7 @@
                             <template>[[_formatPayments(item.payments)]]</template>
                         </vaadin-grid-column>
                     </vaadin-grid>
+                    <div class="total">Tot.: [[_total(tempoSubMessages)]]</div>
                 </div>
             </div>
             <div class="btns-container">
@@ -373,12 +391,13 @@
             }
 
             _formatPayments(payments) {
-                return payments && payments.map(p => this._formatDate(p.date)+`: ${p.amount} ${(p.currency="eur") ? "€" : p.currency}`+(p.ref ? `[${p.ref}]` : "")).join(', ')
+                return payments && payments.map(p => this._formatDate(p.date)+`: ${p.amount} ${(p.currency==="eur") ? "€" : p.currency}`+(p.ref ? `[${p.ref}]` : "")).join(', ')
             }
 
             detailPanelClass(subMessages) {
                 return subMessages && subMessages.length ? '' : 'no-detail'
             }
+
             _activeItemChanged(item, prevItem) {
                 item = item || prevItem
                 if (item && this.selectedItems.includes(item)) {
@@ -386,6 +405,10 @@
                 } else if (item) {
                     this.push('selectedItems',item)
                 }
+            }
+
+            _total(messages) {
+                return _.toPairs(messages.reduce((acc,m) => {m.payments.forEach(p=>acc[(p.currency||'eur').toLowerCase()] = (acc[(p.currency||'eur').toLowerCase()] || 0)+p.amount); return acc},{})).map(([c,a]) => `${a.toFixed(2)} ${c.replace('eur', '€')}`)
             }
 
             _selectedItemsChanged() {

@@ -1139,7 +1139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
 									<paper-tooltip for="edmgStatus"><div style="min-width: 280px;"><h4>[[localize('edmg','e-DMG',language)]]</h4>
 										<template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
-											Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]
+											<p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
 										</template>
 									</div></paper-tooltip>
 								</div>

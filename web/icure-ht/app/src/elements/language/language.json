@@ -892,7 +892,7 @@
     "Dec":"déc",
     "send": "Envoyer",
     "info" : "Informations",
-    "req_msg_lists" : "Requête pour les messages \"Listes\"",
+    "req_msg_lists" : "Demande de Listes",
     "get_msg" : "Obtenir les messages"
   },
   "nl": {
