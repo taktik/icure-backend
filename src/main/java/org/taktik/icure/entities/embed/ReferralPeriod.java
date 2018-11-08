@@ -40,6 +40,8 @@ public class ReferralPeriod implements Serializable,Comparable<ReferralPeriod> {
     @JsonDeserialize(using = InstantDeserializer.class)
     private Instant endDate;
 
+    private String comment;
+
     public Instant getStartDate() {
         return startDate;
     }
@@ -54,6 +56,14 @@ public class ReferralPeriod implements Serializable,Comparable<ReferralPeriod> {
 
     public void setEndDate(Instant endDate) {
         this.endDate = endDate;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override

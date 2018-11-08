@@ -49,6 +49,14 @@
                 align-items: flex-start;
                 padding-top: 14px;
             }
+
+            :host(#mail-list) [part~=row]:hover {
+                background: var(--app-background-color-dark);
+            }
+
+            :host(#nmclGrid) [part~="cell"] {
+                padding: 4px 0;
+            }
         </style>
     </template>
 </dom-module>
