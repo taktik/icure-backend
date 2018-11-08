@@ -48,11 +48,11 @@ public class ParagraphAgreement implements Serializable {
 		this.paragraph = paragraph;
 	}
 
-	public Boolean getIsAccepted() {
+	public Boolean getAccepted() {
 		return isAccepted;
 	}
 
-	public void setIsAccepted(Boolean accepted) {
+	public void setAccepted(Boolean accepted) {
 		isAccepted = accepted;
 	}
 
@@ -64,11 +64,11 @@ public class ParagraphAgreement implements Serializable {
 		isInTreatment = inTreatment;
 	}
 
-	public Boolean getIsCanceled() {
+	public Boolean getCanceled() {
 		return isCanceled;
 	}
 
-	public void setIsCanceled(Boolean canceled) {
+	public void setCanceled(Boolean canceled) {
 		isCanceled = canceled;
 	}
 
