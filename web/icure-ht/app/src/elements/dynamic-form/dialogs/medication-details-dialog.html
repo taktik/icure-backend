@@ -394,8 +394,8 @@
                 <!--</template>-->
                 <div class="buttons">
                     <!--<paper-button dialog-confirm autofocus on-tap="_closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>-->
-                    <paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                    <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
+                    <paper-button dialog-confirm autofocus on-tap="close" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
+                    <paper-button dialog-confirm autofocus on-tap="save" class="modal-button modal-button--save">[[localize('save','Save',language)]]</paper-button>
                 </div>
             </div>
         </paper-dialog>
@@ -687,6 +687,7 @@
                 this.close()
                 // this.parentNode.dispatchEvent(new CustomEvent('newMedicFromChild',{}) )
             }
+
             save() {
                 this._valueChanged()
             }
