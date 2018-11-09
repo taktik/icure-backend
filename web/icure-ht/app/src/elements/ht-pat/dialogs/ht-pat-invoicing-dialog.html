@@ -891,7 +891,7 @@
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
-                                    <label>N° [[item.invoiceReference]]</label>
+                                    <label>N° [[item.invoiceReference]] [[item.id]]</label>
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
@@ -1006,12 +1006,14 @@
                             <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
                                               label="[[localize('location','Location',language)]]"
                                               filtered-items="[[locationType]]" item-label-path="label.[[language]]"
-                                              item-value-path="id" value="{{selectedInvoice.locationNorm}}"
+                                              item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
                                               on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                             <template is="dom-if" if="[[isLocationIsNeeded]]">
-                                <paper-input class="flex-container-nmcl-row"
-                                             label="[[localize('location_nihii','Location nihii',language)]]"
-                                             value="{{selectedInvoice.encounterLocation}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                <vaadin-combo-box id="locations" class="flex-container-nmcl-row"
+                                                  label="[[localize('location','Locations',language)]]"
+                                                  filtered-items="[[organisationList]]" item-label-path="name"
+                                                  selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation"
+                                                  on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                             </template>
                         </template>
                         <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
@@ -1883,7 +1885,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
             }
 
             ready() {
@@ -1915,11 +1917,12 @@
                         }
                     })
                 ).finally(() => {
-                    if(!selected.locationNorm){
-                        selected.locationNorm=0;
-                        selected.encounterLocation=null;
+                    if(!selected.encounterLocationNorm){
+                        selected.encounterLocationNorm=0;
+                        selected.encounterLocationName=null;
+                        selected.encounterLocationNihii=null;
                     }
-                    else if(selected.locationNorm!==0){
+                    else if(selected.encounterLocationNorm!==0){
                         this.set("isLocationIsNeeded", true)
                     }
                     this.set('selectedInvoice', selected)
@@ -1962,8 +1965,9 @@
                         newInvoice.longDelayJustification = 0
                         newInvoice.gnotionNihii = null
                         newInvoice.internshipNihii = null
-                        newInvoice.locationNorm = 0
-                        newInvoice.encounterLocation = null
+                        newInvoice.encounterLocationNorm = 0
+                        newInvoice.encounterLocationName = null
+                        newInvoice.encounterLocationNihii = null
                         newInvoice.creditNote = 0
                         newInvoice.careProviderType = "persphysician"
 
@@ -2416,7 +2420,8 @@
                     })
                 }
 
-                this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
+                if(!this._isSelectedInvoiceEattest())
+                    this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
 
                 this.api.entityRef().getLatest("Invoice::").then(latest => {
                     console.log(latest)
@@ -2440,10 +2445,7 @@
                                     if(this.selectedInvoice.sentMediumType==="efact"){
                                         this.generateJustificatory()
                                     }else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                        console.log("sending")
                                         this.sendEattest();
-                                        this.eattest(this.selectedInvoice)
-                                        console.log("after sending and pdf")
                                     }
                                 })
                             }))
@@ -2505,11 +2507,13 @@
             _prescriptionDateAsStringChanged(prescriptionDateAsString) {
                 const dateNow = parseInt(this.api.moment(Date.now()).format('YYYYMMDD'));
                 const dateInt = parseInt(prescriptionDateAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
-                if (this.selectedInvoice && (this.selectedInvoice.invoiceDate !== dateInt)) {
-                    if (dateInt <= dateNow) {
+                if (this.selectedInvoice && (this.selectedInvoice.prescriptionDate !== dateInt)) {
+                    if ( dateInt <= dateNow) {
                         this.set('selectedInvoice.prescriptionDate', dateInt)
                     } else {
-                        this.$['prescription-date'].set(Date.now())
+                        if(this.shadowRoot.querySelector('#prescription-date')) {
+                            this.shadowRoot.querySelector('#prescription-date').set(Date.now())
+                        }
                     }
 
                 }
@@ -3146,9 +3150,8 @@
                 }
                 this.saveAction = () => {
                     this.isSelected=true;
-                    const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
-                    //invoice.longDelayJustification=invoice.longDelayJustification ? 1 : 0
-                    this.api.invoice().modifyInvoice(invoice)
+                    console.log(this.selectedInvoice)
+                    this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(response => {
                             this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
@@ -3285,14 +3288,27 @@
                         }
                     }
 
+                    if(this.selectedInvoice.encounterLocationNorm!==0){
+                        newCode.location={
+                            cdHcParty: this.locationType[this.selectedInvoice.encounterLocationNorm].location,
+                            firstName: null,
+                            idHcParty: this.selectedInvoice.encounterLocationNihii,
+                            idSsin: null,
+                            lastName: null
+                        }
+                    }
+
                     eattest.codes.push(newCode)
                 })
 
-                console.log(eattest)
+                console.log("invoice",eattest)
                 console.log("envoie")
-                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,this.selectedInvoice.printedDate)
+                const printedDate=moment().format("YYYYMMDD")
+                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,printedDate)
                     .then(response =>{
-                        console.log("reponse du send =",response)
+                        this.set("selectedInvoice",response)
+                        this.set("selectedInvoice.printedDate",printedDate)
+                        this.eattest(this.selectedInvoice)
                     })
             }
 
@@ -3702,9 +3718,34 @@
                 console.log(this.activeNmclItem)
             }
 
-            _getAdresseBookInfo(){
-                this.api.fhc().addressbookcontrollerfhc().searchOrgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, '*'+this.searchOrgName+'*', this.activeNmclItem.locationNorm)
+            _getAdressesBookInfo(){
+                this.api.fhc().Addressbookcontroller().searchOrgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, '*'+this.searchOrgName+'*',this.locationType[this.selectedInvoice.encounterLocationNorm].location)
                     .then(orgList => this.set('organisationList', orgList))
+            }
+
+            searchLocations(e){
+                if (this.saveAdressTimeout) {
+                    clearTimeout(this.saveAdressTimeout);
+                }
+                this.getAdresses = () => {
+                    if(e.detail.value){
+                        this.set("searchOrgName",e.detail.value);
+                        this._getAdressesBookInfo();
+                    }
+                };
+                this.saveAdressTimeout = setTimeout(this.getAdresses, 3000);
+            }
+
+            setLocation(e){
+                console.log("selection :",e.detail.value)
+                this.set("selectedInvoice.encounterLocationName",e.detail.value.name)
+                const regExp = new RegExp(/\W/,'g')
+                this.set("selectedInvoice.encounterLocationNihii",e.detail.value.ehp.replace(regExp,""))
+            }
+
+            locationNormChanged(){
+                this.set("selectedInvoice.encounterLocationName","")
+                this.set("selectedInvoice.encounterLocationNihii","")
             }
         }
 

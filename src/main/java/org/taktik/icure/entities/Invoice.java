@@ -80,8 +80,11 @@ public class Invoice extends StoredICureDocument {
 
 	private String error;
 
-	private String encounterLocation;
-	private Integer locationNorm;
+	private String encounterLocationName;
+	private String encounterLocationNihii;
+	private Integer encounterLocationNorm;
+
+
 	private Long prescriptionDate; // yyyyMMdd
 
 	private Integer longDelayJustification;
@@ -428,13 +431,21 @@ public class Invoice extends StoredICureDocument {
 		return supervisorFirstName;
 	}
 
-	public String getEncounterLocation() { return encounterLocation; }
+	public String getEncounterLocationName() { return encounterLocationName; }
 
-	public void setEncounterLocation(String encounterLocation) { this.encounterLocation = encounterLocation; }
+	public void setEncounterLocationName(String encounterLocationName) { this.encounterLocationName = encounterLocationName; }
 
-	public Integer getLocationNorm() { return locationNorm; }
+	public String getEncounterLocationNihii() { return encounterLocationNihii; }
 
-	public void setLocationNorm(Integer locationNorm) { this.locationNorm = locationNorm; }
+	public void setEncounterLocationNihii(String encounterLocationNihii) { this.encounterLocationNihii = encounterLocationNihii; }
+
+	public Integer getEncounterLocationNorm() {
+		return encounterLocationNorm;
+	}
+
+	public void setEncounterLocationNorm(Integer encounterLocationNorm) {
+		this.encounterLocationNorm = encounterLocationNorm;
+	}
 
 	public void setSupervisorFirstName(String supervisorFirstName) {
 		this.supervisorFirstName = supervisorFirstName;
