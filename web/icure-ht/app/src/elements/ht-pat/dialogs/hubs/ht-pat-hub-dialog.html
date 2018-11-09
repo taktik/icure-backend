@@ -1,4 +1,5 @@
 <link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../../../bower_components/vaadin-icons/vaadin-icons.html">
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-date-picker.html">
 <link rel="import" href="../../../../../bower_components/vaadin-material-theme/vaadin-text-field.html">
@@ -189,7 +190,20 @@
                     <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
                     <p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p>
                 </div>
-                <vaadin-grid id="transaction-list" class="material" overflow="bottom" items=[[hubTransactionList]] active-item="{{selectedTransaction}}">
+                <vaadin-grid id="transaction-list" class="material" overflow="bottom" on-tap="click"  items=[[hubTransactionList]] active-item="{{activeItem}}">
+                    <!--file-remove-->
+                    <vaadin-grid-column width="30px">
+                        <template class="header"></template>
+                        <template>
+                            <iron-icon class="icon type-icon" icon="vaadin:file-text-o" item="[[item]]" on-tap="_openTransactionViewer"></iron-icon>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="30px">
+                        <template class="header"></template>
+                        <template>
+                            <iron-icon class="icon type-icon" icon="vaadin:file-remove" item="[[item]]" on-tap="_runRevokeHubTransaction"></iron-icon>
+                        </template>
+                    </vaadin-grid-column>
                     <vaadin-grid-column width="120px">
                         <template class="header">[[localize('trans_typ','Type',language)]]</template>
                         <template>
@@ -218,11 +232,13 @@
                     </vaadin-grid-column>
                 </vaadin-grid>
 
-                <paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
+                <!--<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>-->
                 <!--<paper-button on-tap="_showTransaction">get transaction</paper-button>-->
-                <paper-button on-tap="_openTransactionViewer">view transaction</paper-button>
+                <!--<paper-button on-tap="_openTransactionViewer">view transaction</paper-button>-->
                 <paper-button on-tap="_runGetHubPatient">Get Patient</paper-button>
                 <paper-button on-tap="_runPutHubPatient">Put Patient</paper-button>
+                <paper-button on-tap="_runPutSumehr">Put Sumehr</paper-button>
+                <!--<paper-button on-tap="_runRevokeHubTransaction">Revoke transaction</paper-button>-->
 
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
             </template>
@@ -249,6 +265,9 @@
     </template>
     <script>
         import * as models from 'icc-api/dist/icc-api/model/models';
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+
 
         class HtPatHubDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
@@ -280,6 +299,10 @@
                         type: Boolean,
                         value: false
                     },
+                    activeItem: {
+                        type: Object,
+                        observer: '_activeItemChanged'
+                    },
                     eidCardNumber:{
                         type: String,
                         value : '',
@@ -288,9 +311,22 @@
                         type: String,
                         value : '',
                     },
+                    hubId:{
+                        type: Number,
+                        value : 0
+                    }
+                    ,
                     hubEndPoint:{
                         type: String,
                         value:'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx'
+                    },
+                    hubPackageId:{
+                        type: String,
+                        value:null
+                    },
+                    hubApplication : {
+                        type: String,
+                        value:null
                     },
                     hubSupportsConsent:{
                         type: Boolean,
@@ -320,6 +356,10 @@
                     },
                     selectedTransaction:{
                         type: Object
+                    },
+                    revokeTransactionResp:{
+                        type: String,
+                        value: ""
                     }
                 };
             }
@@ -377,20 +417,31 @@
 
                 switch (propHub.typedValue.stringValue) {
                     case 'rsb':
+                        this.hubId = 1990000728
                         this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx' : 'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx'
                         this.hubSupportsConsent = true
+                        this.hubPackageId = null
+                        this.hubApplication = null
                         break
                     case 'rsw':
+                        this.hubId = 1990000035
                         this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx'
                         this.hubSupportsConsent = true
+                        this.hubPackageId = null
+                        this.hubApplication = "RSW"
                         break
                     case 'cozo':
                         this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? '' : ''
                         this.hubSupportsConsent = true
+                        this.hubPackageId = null
+                        this.hubApplication = null
                         break
                     case 'vitalink':
+                        this.hubId = 1990001916
                         this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://vitalink-acpt.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService' : 'https://vitalink.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService'
                         this.hubSupportsConsent = false
+                        this.hubPackageId = propEnv.typedValue.stringValue === 'acc' ? "ACC_73424e1e-7eab-4b2c-9a8d-90a2bd1c078f" : ""; //TODO: add production value
+                        this.hubApplication = "VITALINKGATEWAY"
                         break
                 }
 
@@ -405,15 +456,74 @@
                 this.$.dialog.close();
             }
 
+            _activeItemChanged(item){
+
+            }
+
+            click(e) {
+                const selected = this.activeItem;
+                if(selected) {
+                    this.set('selectedTransaction', selected);
+                }
+                //this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
+                //console.log("selectedMessage",this.selectedMessages)
+            }
+
+            _runPutSumehr(){
+                this.generateAndPutSumehr().then(putResp => {
+                    this.set('putTransactionResponse', putResp);
+                    this._getHubTransactionList().then(tranResp => this.set('hubTransactionList', tranResp));
+                }).catch(error => {
+                    console.log(error);
+                });
+            }
+
+            generateAndPutSumehr(){
+                if (this.patient && this.patient.ssin && this.api.tokenId) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.patient().getPatient(this.patient.id)
+                            .then(patientDto =>
+                                this.api.crypto().extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
+                                    .then(secretForeignKeys =>
+                                        this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                            secretForeignKeys: secretForeignKeys,
+                                            recipient: hcp,
+                                            comment: "mycomment"
+                                        }).then(output =>
+                                            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                                                .then(hcp => this.api.fhc().Hubcontroller().putTransactionUsingPOST(this.hubEndPoint,
+                                                    this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                                    this.hubId,
+                                                    this.patient.ssin,
+                                                    output,
+                                                    this.hubPackageId, this.hubApplication
+                                                    )
+                                                ).then(putResp => {
+                                                        if (putResp) {
+                                                            return putResp;
+                                                        } else {
+                                                            return null;
+                                                        }
+                                                    }
+                                                )
+                                        )
+                                    )
+                            ))
+                }else{
+                    return Promise.resolve(null)
+                }
+            }
+
             _generateSumehr(){
                 if (this.patient) {
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
                         this.api.patient().getPatient(this.patient.id)
-                            .then(patientDto =>{
+                            .then(patientDto =>
                                 this.api.crypto()
                                     .extractDelegationsSFKs(patientDto, this.user.healthcarePartyId)
                                     .then(secretForeignKeys => {
-                                        this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
+                                        return this.api.bekmehr().generateSumehrExportWithEncryptionSupport(patientDto.id, this.user.healthcarePartyId, "fr", {
                                             secretForeignKeys: secretForeignKeys,
                                             recipient: hcp,
                                             comment: "mycomment"
@@ -436,12 +546,12 @@
                                             document.body.removeChild(a);
                                         }).catch( error=> console.log(error))
                                     })
-                            }))
+                            ))
                 }
             }
 
             _transactionId(tr){
-                this.set('selectedTransaction', tr);
+                this.set('selectedTransaction', tr); //is this needed ?
                 if(tr) {
                     const idLocal = tr.ids.find(id => id.s === "LOCAL");
                     if (idLocal) {
@@ -735,8 +845,12 @@
                 }
             }
 
-            _openTransactionViewer(){
-                this.$.transactionViewDialog.open(this.selectedTransaction, this._getHubTransaction());
+            _openTransactionViewer(e){
+                e.stopPropagation();
+                if(e && e.target && e.target.item) {
+                    this.set("selectedTransaction", e.target.item)
+                    this.$.transactionViewDialog.open( e.target.item, this._getHubTransaction( e.target.item));
+                }
             }
 
             _isTransactionSet(tr){
@@ -748,24 +862,21 @@
                 }
             }
 
-            _getHubTransaction(){
+            _getHubTransaction(transaction){
                 //getTransactionUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, ssin, sv, sl, value)
-                if(this._isTransactionSet(this.selectedTransaction)) {
-                    return this._getHubTransactionSet();
+                if(transaction && this._isTransactionSet(transaction)) {
+                    return this._getHubTransactionSet(transaction);
                 } else {
-                    if (this.patient.ssin && this.api.tokenId) {
+                    if (this.patient.ssin && this.api.tokenId && transaction) {
                         return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                             .then(hcp =>
                                 this.api.fhc().Hubcontroller().getTransactionUsingGET(this.hubEndPoint, this.api.keystoreId,
                                     this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
-                                    this.patient.ssin, this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sv,
-                                    this.selectedTransaction.ids.find(id => id.s === 'LOCAL').sl,
-                                    this.selectedTransaction.ids.find(id => id.s === 'LOCAL').value)
+                                    this.patient.ssin,
+                                    transaction.ids.find(id => id.s === 'LOCAL').sv, transaction.ids.find(id => id.s === 'LOCAL').sl, transaction.ids.find(id => id.s === 'LOCAL').value)
                             ).then(tranResp => {
                                     if (tranResp) {
-
-
                                         return tranResp;
                                     } else {
                                         return null;
@@ -778,33 +889,57 @@
                 }
             }
 
-            _getHubPatient(){
-                //getPatientUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin)
+            _runRevokeHubTransaction(e){
+                e.stopPropagation();
+                if(e && e.target && e.target.item) {
+                    this.set("selectedTransaction", e.target.item);
+                    this._revokeHubTransaction(e.target.item).then(tranResp =>{
+                        this.set("revokeTransactionResp", tranResp);
+                        this._getHubTransactionList().then(tranResp => this.set('hubTransactionList', tranResp));
+                    })
+                }
+            }
+            //revokeTransactionUsingDELETE(
+            // endpoint: string,
+            // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+            // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+            // ssin: string,
+            // sv: string, sl: string, id: string,
+            // hubPackageId?: string, breakTheGlassReason?: string): Promise<string | any>;
+            _revokeHubTransaction(transaction){
+                if (this.patient.ssin && this.api.tokenId && transaction) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                        .then(hcp => this.api.fhc().Hubcontroller().revokeTransactionUsingDELETE(this.hubEndPoint,
+                            this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                            hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                            this.patient.ssin,
+                            transaction.ids.find(id => id.s === 'LOCAL').sv, transaction.ids.find(id => id.s === 'LOCAL').sl, transaction.ids.find(id => id.s === 'LOCAL').value,
+                            this.hubPackageId, null
+                            ) //TODO: add break the glass reason
+                        ).then(tranResp => {
+                                if (tranResp) {
+                                    return tranResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                } else {
+                    return Promise.resolve(null)
+                }
             }
 
-            _putHubPatient(){
-                //putPatientUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, firstName, lastName, gender, dateOfBirth)
-            }
-
-            _putTransaction(){
-                //putTransactionUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, hubId, patientSsin, message, hubApplication)
-            }
-
-            _getHubTransactionSet(){
-                //getTransactionSetUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, ssin, sv, sl, value)
-                if (this.patient.ssin && this.api.tokenId) {
+            _getHubTransactionSet(transaction){
+                if (this.patient.ssin && this.api.tokenId && transaction) {
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
                             this.api.fhc().Hubcontroller().getTransactionSetUsingGET(this.hubEndPoint, this.api.keystoreId,
                                 this.api.tokenId, this.api.credentials.ehpassword,
                                 hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
-                                this.patient.ssin, this.selectedTransaction.ids.find(id => id.s==='LOCAL').sv,
-                                this.selectedTransaction.ids.find(id => id.s==='LOCAL').sl,
-                                this.selectedTransaction.ids.find(id => id.s==='LOCAL').value)
+                                this.patient.ssin,
+                                transaction.ids.find(id => id.s==='LOCAL').sv, transaction.ids.find(id => id.s==='LOCAL').sl, transaction.ids.find(id => id.s==='LOCAL').value)
                         ).then(tranResp => {
                                 if (tranResp) {
-
-
                                     return tranResp;
                                 } else {
                                     return null;
