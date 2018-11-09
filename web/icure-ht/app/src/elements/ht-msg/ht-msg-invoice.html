@@ -1463,10 +1463,10 @@
 
             dispatchMessages() {
                 this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
-                this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
-                this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
+                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
+                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
 
-                this.initializeBatchCounter(this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
+                !!this.initializeBatchCounter(this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
             }
 
             fetchMessages() {
@@ -1525,26 +1525,34 @@
                                             // STATUS_SUBMITTED 				= 1 << 8; envoyé
                                             // STATUS_RECEIVED 				    = 1 << 9; tack reçu
                                             // STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; 93100
-                                            // STATUS_ACCEPTED 				    = 1 << 11; 92098 / 920900
-                                            // STATUS_REJECTED 				    = 1 << 12; ?
+                                            // STATUS_ACCEPTED 				    = 1 << 11; 920098 / 920900
+                                            // STATUS_REJECTED 				    = 1 << 12; 920999
 
                                             // STATUS_TACK 					    = 1 << 13;
                                             // STATUS_MASKED 					= 1 << 14;
 
                                             // STATUS_SUCCESS 					= 1 << 15;
                                             // STATUS_WARNING 					= 1 << 16; Partiellement accepte
-                                            // STATUS_ERROR 					= 1 << 17; 920999 / 920909
+                                            // STATUS_ERROR 					= 1 << 17; 920999/920099
 
                                             let invoiceStatus
                                             let rejectionReason
                                             if (zone200 && zone300) {
                                                 const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
+                                                const st = mm.message.status
 
-                                                invoiceStatus = (mm.message.status & (1 << 17)) === 1 << 17 ? "Rejected" :  (mm.message.status & (1 << 16)) === 1 << 16 ? "Partially accepted" :  (mm.message.status & (1 << 12)) === 1 << 12 ? "Rejected" :   (mm.message.status & (1 << 11)) === 1 << 11 ? "Accepted" :  (mm.message.status & (1 << 10)) === 1 << 10 ?  "Accepted for treatment" :
-                                                    (mm.message.status & (1 << 9)) === 1 << 9 ?  "Successfully transmitted to OA" :  (mm.message.status & (1 << 8)) === 1 << 8 ?  "Pending" : ""
+                                                invoiceStatus = !!(st & (1 << 17))  ? "Error" :
+                                                    !!(st & (1 << 16)) ? "Partially accepted" :
+                                                    !!(st & (1 << 16)) ? "Fully accepted" :
+                                                    !!(st & (1 << 12)) ? "Rejected" :
+                                                    !!(st & (1 << 11)) ? "Treated" :
+                                                    !!(st & (1 << 10)) ? "Accepted for treatment" :
+                                                    !!(st & (1 << 9)) ?  "Successfully transmitted to OA" :
+                                                    !!(st & (1 << 8)) ?  "Pending" : ""
 
 
-                                                rejectionReason = ((mm.message.status & (1 << 17)) === 1 << 17 && invoiceType === "920999") ? "Blocking error" : ((mm.message.status & (1 << 17)) === 1 << 17 && invoiceType === "920909") ? "More than 5% error" : ""
+                                                rejectionReason = !!(st & (1 << 17)) ? "More than 5% error" :
+                                                                  !!(st & (1 << 12)) ? "Blocking error" : ""
 
                                             }
 
@@ -1852,7 +1860,7 @@
                         .groupBy(fact => fact.insuranceParent)
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
-                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
+                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
                         })
                 })
             }
@@ -2316,7 +2324,8 @@
                                 refusedAmount: "0.00",
                                 rejectionReason: inv.error,
                                 paid: false,
-                                status: ""
+                                status: "",
+                                invoice: inv
                             })))
                         )
                         .then(infos => this.set('invoicesFromBatch', _.flatten(infos)))
@@ -2336,21 +2345,19 @@
                                     try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
                                 }
 
-                                const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                const zone200 = a.message.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.message.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.message.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.message.find(enr => enr.zones.find(z => z.zone == "500"))
+
+
+
 
                                 let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones),
                                     zone400 && this.SEG_getErrSegment_400(zone400.zones),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones)]
-                                    .concat(a.map(r=> r.errorDetail && this.extractErrorMessage(r.errorDetail))).filter(x => x && x.length))
-
-                                this.set('invoicesFromBatch', _.clone(this.invoicesFromBatch.map(i=>{
-                                    i.rejectionReason = i.rejectionReason && i.rejectionReason.length ? i.rejectionReason : _.flatten(globalError);
-                                    return i
-                                })))
+                                    zone500 && this.SEG_getErrSegment_500(zone500.zones)])
+                                
 
                                 console.log(this.invoicesFromBatch)
 
@@ -2408,7 +2415,7 @@
                             })
                         )
                     })
-
+/*
                     prom = prom.then(treatedMessages => {
                         let sprom = Promise.resolve()
                         _.chunk(treatedMessages, 20).forEach(chunk => {
@@ -2416,11 +2423,11 @@
                             const responses = chunk.filter(x => x && x.detail)
 
                             sprom = sprom
-                                //.then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
-                                //.then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
+                                .then(() =>this.api.fhc().Efactcontroller().confirmAcksUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, tacks.map(t => t.hashValue)))
+                                .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
                         })
                         return sprom
-                    })
+                    })*/
                 })
             }
 
