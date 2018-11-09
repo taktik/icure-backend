@@ -37,7 +37,7 @@ public class PropertyDAOImpl extends CachedDAOImpl<Property> implements Property
 	private static final String IDENTIFIER = "type.identifier";
 
 	@Autowired
-    public PropertyDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+    public PropertyDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(Property.class, couchdb, idGenerator, cacheManager);
         initStandardDesignDocument();
     }

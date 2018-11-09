@@ -60,6 +60,25 @@ Custom property | Description | Default
                 font-size: 14px;
                 font-weight: 400;
                 text-transform: unset;
+                height: 40px;
+                width: 56px;
+                min-width: 56px;
+                justify-content: space-between;
+                padding: .7em 0;
+            }
+
+            paper-button span{
+                flex-grow: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            iron-icon{
+                height: 16px;
+                width: 16px;
+                min-width: 16px;
+                min-height: 16px;
             }
 
         </style>
@@ -69,7 +88,7 @@ Custom property | Description | Default
                     id="fontButton"
                     slot="dropdown-trigger"
                     alt="font size picker">
-                    [[_fontSize(fontSize)]]
+                    <span>[[_fontSize(fontSize)]]</span>
                     <iron-icon icon="arrow-drop-down"></iron-icon>
             </paper-button>
             <div slot="dropdown-content" class="dropdown-content box" id="box">

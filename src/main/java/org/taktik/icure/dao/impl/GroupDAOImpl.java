@@ -32,7 +32,7 @@ import org.taktik.icure.entities.Group;
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Group' && !doc.deleted) emit( null, doc._id )}")
 public class GroupDAOImpl extends GenericDAOImpl<Group> implements GroupDAO {
 	@Autowired
-	public GroupDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+	public GroupDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(Group.class, couchdb, idGenerator);
 		initStandardDesignDocument();
 	}
