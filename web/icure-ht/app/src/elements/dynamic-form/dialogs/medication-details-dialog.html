@@ -77,10 +77,13 @@
             }
 
             .regimen--datepicker {
-                flex-grow: 3;
+                width: 132px;
                 margin: auto;
                 padding: 0 8px 2px 8px;
                 cursor: pointer;
+            }
+            .regimen--priority {
+                width: 96px;
             }
 
             paper-input {
@@ -154,6 +157,8 @@
                 overflow-y: auto;
                 overflow-x: auto;
                 margin-top: 0;
+                border-top: 1px solid var(--app-background-color-dark);
+                border-bottom: 1px solid var(--app-background-color-dark);
             }
             .force-left {
                 left: 12px;
@@ -178,300 +183,316 @@
                 white-space: nowrap;
             }
 
+            span.regimen-txt {
+                height: 36px;
+            }
+
+            .display-type-regimen {margin-top: 0;}
+            .display-type-regimen .regimen-txt {flex:1;text-align: right;}
+            #medication-name {flex: 3;}
+
+            h4 {margin-bottom: 0;}
+
         </style>
 
         <paper-dialog id="medication-detail" always-on-top="true" no-cancel-on-outside-click="true">
 
             <h2 class="modal-title">[[localize('med_det','Medication detail',language)]]</h2>
 
-            <paper-tabs selected="{{selectedTab}}">
-                <paper-tab>
-                    <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>Lignes
-                </paper-tab>
-                <paper-tab>
-                    <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>Tableau
-                </paper-tab>
-            </paper-tabs>
-
-
-                <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
-                    <div class="scrollbox">
-                        <div class="regimen-line">
-                            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                                <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
-                                             disabled="true"></paper-input>
-                            </template>
-                            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                                <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
-                                             disabled="true"></paper-input>
-                            </template>
-                            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-                                <paper-input id="filter" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"
-                                             disabled="true"></paper-input>
-                            </template>
-
-                            <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
-                                                class="regimen--datepicker"></vaadin-date-picker>
-                            <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
-                                                class="regimen--datepicker"></vaadin-date-picker>
-
-                            <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
-                                <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}" on-iron-select="_selectFrequency">
-                                    <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
-                                    <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
-                                    <paper-item id="high">[[localize('high','High',language)]]</paper-item>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                        </div>
-                        <h4>[[localize('prefill','Préremplir les détails',language)]]</h4>
-                        <div class="regimen-line">
-                            <paper-input label="Nombre de prises diff" id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_setFrequencyList">
-                                <div slot="suffix">X</div>
-                            </paper-input>
-                            <paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]" class="regimen--frequency">
-                                <paper-listbox slot="dropdown-content" selected="[[bufferGeneralFrequency]]" on-iron-select="_selectFrequency">
-                                    <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
-                                    <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
-                                    <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                            <paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" on-change="_setFrequencyList"
-                                         min="0"></paper-input>
-                            <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units" on-keyup="_setUnits"></paper-input>
-                        </div>
-                        <h4>[[localize('med_det','Détails',language)]]</h4>
-                        <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
-                            <div class="regimen-line regimen-details">
-                                <!--<paper-dropdown-menu label="Frequency" class="regimen&#45;&#45;frequency">-->
-                                    <!--<paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-tap="_setFrequencyList">-->
-                                        <!--<paper-item id="daily" on-tap="_setFrequencyList">[[localize('dai','Daily',language)]]</paper-item>-->
-                                        <!--<paper-item id="weekly" on-tap="_setFrequencyList">[[localize('wee','Weekly',language)]]</paper-item>-->
-                                        <!--<paper-item id="monthly" on-tap="_setFrequencyList">[[localize('mon','Monthly',language)]]</paper-item>-->
-                                    <!--</paper-listbox>-->
-                                <!--</paper-dropdown-menu>-->
-                                <template is="dom-if" if="[[_isEqual(rg.freqType,'daily')]]">
-                                    <template is="dom-if" if="[[!rg.date]]">
-                                        <paper-dropdown-menu label="Time of day" class="regimen--tod">
-                                            <paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
-                                                <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
-                                                <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
-                                                <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
-                                                <paper-item id="morning">[[_localize("Morning")]]</paper-item>
-                                                <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
-                                                <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
-                                                <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
-                                                <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
-                                                <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
-                                                <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
-                                                <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
-                                                <paper-item id="evening">[[_localize("Evening")]]</paper-item>
-                                                <paper-item id="night">[[_localize("Night")]]</paper-item>
-                                                <hr>
-                                                <paper-item>[[_localize("Precise hour")]]</paper-item>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
-                                        <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
-                                                     class="regimen--quantity" min="0"></paper-input>
-                                        <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"-->
-                                        <paper-input class="quantity-paper" id="quantity" label="[[localize('uni', 'Units', language)]]" value="" class="regimen--units" on-change="_selectQuantity"></paper-input>
-                                    </template>
-                                </template>
-                                <template is="dom-if" if="[[_isEqual(rg.freqType,'weekly')]]">
-                                    <template is="dom-if" if="[[!rg.date]]">
-                                        <paper-dropdown-menu label="Day of week" class="regimen--tod">
-                                            <paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
-                                                <paper-item id="beforebreakfast">Monday</paper-item>
-                                                <paper-item id="duringbreakfast">Tuesday</paper-item>
-                                                <paper-item id="afterbreakfast">Wednesday</paper-item>
-                                                <paper-item id="morning">Thursday</paper-item>
-                                                <paper-item id="beforelunch">Friday</paper-item>
-                                                <paper-item id="afternoon">Saturday</paper-item>
-                                                <paper-item id="duringlunch">Sunday</paper-item>
-                                            </paper-listbox>
-                                        </paper-dropdown-menu>
-                                    </template>
-                                </template>
-                                <template is="dom-if" if="[[_isEqual(rg.freqType,'monthly')]]">
-                                    <!--<template is="dom-if" if="[[!rg.date]]">-->
-                                        <!--<paper-dropdown-menu label="Time of day" class="regimen&#45;&#45;tod">-->
-                                            <!--<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">-->
-                                                <!--<paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>-->
-                                                <!--<paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>-->
-                                                <!--<paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>-->
-                                                <!--<paper-item id="morning">[[_localize("Morning")]]</paper-item>-->
-                                                <!--<paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>-->
-                                                <!--<paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>-->
-                                                <!--<paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>-->
-                                                <!--<paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>-->
-                                                <!--<paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>-->
-                                                <!--<paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>-->
-                                                <!--<paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>-->
-                                                <!--<paper-item id="evening">[[_localize("Evening")]]</paper-item>-->
-                                                <!--<paper-item id="night">[[_localize("Night")]]</paper-item>-->
-                                                <!--<hr>-->
-                                                <!--<paper-item>[[_localize("Precise hour")]]</paper-item>-->
-                                            <!--</paper-listbox>-->
-                                        <!--</paper-dropdown-menu>-->
-                                    <!--</template>-->
-                                    Mois ???
-                                </template>
-                                <!--<template is="dom-if" if="[[!rg.weekday]]">-->
-                                    <!--<template is="dom-if" if="[[rg.date]]">-->
-                                    <!--</template>-->
-                                    <!--<template is="dom-if" if="[[!rg.date]]">-->
-                                        <!--<paper-dropdown-menu label="Time of day" class="regimen&#45;&#45;tod">-->
-                                            <!--<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">-->
-                                                <!--<paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>-->
-                                                <!--<paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>-->
-                                                <!--<paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>-->
-                                                <!--<paper-item id="morning">[[_localize("Morning")]]</paper-item>-->
-                                                <!--<paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>-->
-                                                <!--<paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>-->
-                                                <!--<paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>-->
-                                                <!--<paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>-->
-                                                <!--<paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>-->
-                                                <!--<paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>-->
-                                                <!--<paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>-->
-                                                <!--<paper-item id="evening">[[_localize("Evening")]]</paper-item>-->
-                                                <!--<paper-item id="night">[[_localize("Night")]]</paper-item>-->
-                                                <!--<hr>-->
-                                                <!--<paper-item>[[_localize("Precise hour")]]</paper-item>-->
-                                            <!--</paper-listbox>-->
-                                        <!--</paper-dropdown-menu>-->
-                                    <!--</template>-->
-                                <!--</template>-->
-                                <paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
-                            </div>
-                        </template>
-                        <template is="dom-if" if="[[rg.date]]">
-                            <paper-button class="posology-btn" on-tap="addPosologyRegimen">
-                                [[localize('add_pos_reg','Add posology regimen',language)]]
-                                <iron-icon icon="add"></iron-icon>
-                            </paper-button>
-                        </template>
-                    </div>
+            <div class="regimen-line display-type-regimen">
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
+                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
+                                 disabled="true"></paper-input>
                 </template>
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
+                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
+                                 disabled="true"></paper-input>
+                </template>
+                <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
+                    <paper-input id="medication-name" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"
+                                 disabled="true"></paper-input>
+                </template>
+
+                <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
+                                    class="regimen--datepicker"></vaadin-date-picker>
+                <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
+                                    class="regimen--datepicker"></vaadin-date-picker>
+
+                <paper-dropdown-menu id="medicPriority" label="Priority" class="regimen--priority">
+                    <paper-listbox slot="dropdown-content" class="dropdown-priority" selected="{{medicPriority}}" on-iron-select="_selectFrequency">
+                        <paper-item id="low">[[localize('low','Low',language)]]</paper-item>
+                        <paper-item id="middle">[[localize('middle','Middle',language)]]</paper-item>
+                        <paper-item id="high">[[localize('high','High',language)]]</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <span class="regimen-txt">Display by</span>
+                <paper-tabs selected="{{selectedTab}}">
+                    <paper-tab>
+                        <iron-icon icon="vaadin:list" class="marginRight10"></iron-icon>Lignes
+                    </paper-tab>
+                    <paper-tab>
+                        <iron-icon icon="vaadin:table" class="marginRight10"></iron-icon>Tableau
+                    </paper-tab>
+                </paper-tabs>
+            </div>
+
+
+            <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
+                <div class="scrollbox">
+                    <h4>[[localize('prefill','Préremplir les détails',language)]]</h4>
+                    <div class="regimen-line">
+                        <paper-input label="Nombre de " id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_setFrequencyList">
+                            <div slot="suffix">prises</div>
+                        </paper-input>
+                        <paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]" class="regimen--frequency">
+                            <paper-listbox slot="dropdown-content" selected="[[bufferGeneralFrequency]]" on-iron-select="_selectFrequency">
+                                <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
+                                <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                                <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <paper-input id="generalQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferQuantity}}" type="number" class="regimen--quantity" on-change="_setFrequencyList"
+                                     min="0"></paper-input>
+                        <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units" on-keyup="_setUnits"></paper-input>
+                    </div>
+                    <h4>[[localize('med_det','Détails',language)]]</h4>
+                    <template id="rgRepeat" is="dom-repeat" items="[[selectedMedicationContentWithId.medicationValue.regimen]]" as="rg">
+                        <div class="regimen-line regimen-details">
+                            <!--<paper-dropdown-menu label="Frequency" class="regimen&#45;&#45;frequency">-->
+                                <!--<paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]" on-tap="_setFrequencyList">-->
+                                    <!--<paper-item id="daily" on-tap="_setFrequencyList">[[localize('dai','Daily',language)]]</paper-item>-->
+                                    <!--<paper-item id="weekly" on-tap="_setFrequencyList">[[localize('wee','Weekly',language)]]</paper-item>-->
+                                    <!--<paper-item id="monthly" on-tap="_setFrequencyList">[[localize('mon','Monthly',language)]]</paper-item>-->
+                                <!--</paper-listbox>-->
+                            <!--</paper-dropdown-menu>-->
+                            <template is="dom-if" if="[[_isEqual(rg.freqType,'daily')]]">
+                                <paper-dropdown-menu label="Time of day" class="regimen--tod">
+                                    <paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
+                                        <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
+                                        <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
+                                        <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
+                                        <paper-item id="morning">[[_localize("Morning")]]</paper-item>
+                                        <paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>
+                                        <paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>
+                                        <paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>
+                                        <paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>
+                                        <paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>
+                                        <paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>
+                                        <paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>
+                                        <paper-item id="evening">[[_localize("Evening")]]</paper-item>
+                                        <paper-item id="night">[[_localize("Night")]]</paper-item>
+                                        <hr>
+                                        <paper-item>[[_localize("Precise hour")]]</paper-item>
+                                    </paper-listbox>
+                                </paper-dropdown-menu>
+                                <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                             class="regimen--quantity" min="0"></paper-input>
+                                <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"-->
+                                <span class="regimen-txt">[[bufferUnit]]</span>
+                            </template>
+                            <template is="dom-if" if="[[_isEqual(rg.freqType,'weekly')]]">
+                                <paper-dropdown-menu label="Day of week" class="regimen--tod">
+                                    <paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">
+                                        <paper-item id="beforebreakfast">Monday</paper-item>
+                                        <paper-item id="duringbreakfast">Tuesday</paper-item>
+                                        <paper-item id="afterbreakfast">Wednesday</paper-item>
+                                        <paper-item id="morning">Thursday</paper-item>
+                                        <paper-item id="beforelunch">Friday</paper-item>
+                                        <paper-item id="afternoon">Saturday</paper-item>
+                                        <paper-item id="duringlunch">Sunday</paper-item>
+                                    </paper-listbox>
+                                </paper-dropdown-menu>
+                                <paper-input id="quantity" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                             class="regimen--quantity" min="0"></paper-input>
+                            </template>
+                            <template is="dom-if" if="[[_isEqual(rg.freqType,'monthly')]]">
+                                <!--<template is="dom-if" if="[[!rg.date]]">-->
+                                    <!--<paper-dropdown-menu label="Time of day" class="regimen&#45;&#45;tod">-->
+                                        <!--<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">-->
+                                            <!--<paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>-->
+                                            <!--<paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>-->
+                                            <!--<paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>-->
+                                            <!--<paper-item id="morning">[[_localize("Morning")]]</paper-item>-->
+                                            <!--<paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>-->
+                                            <!--<paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>-->
+                                            <!--<paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>-->
+                                            <!--<paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>-->
+                                            <!--<paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>-->
+                                            <!--<paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>-->
+                                            <!--<paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>-->
+                                            <!--<paper-item id="evening">[[_localize("Evening")]]</paper-item>-->
+                                            <!--<paper-item id="night">[[_localize("Night")]]</paper-item>-->
+                                            <!--<hr>-->
+                                            <!--<paper-item>[[_localize("Precise hour")]]</paper-item>-->
+                                        <!--</paper-listbox>-->
+                                    <!--</paper-dropdown-menu>-->
+                                <!--</template>-->
+                                Mois ???
+                            </template>
+                            <!--<template is="dom-if" if="[[!rg.weekday]]">-->
+                                <!--<template is="dom-if" if="[[rg.date]]">-->
+                                <!--</template>-->
+                                <!--<template is="dom-if" if="[[!rg.date]]">-->
+                                    <!--<paper-dropdown-menu label="Time of day" class="regimen&#45;&#45;tod">-->
+                                        <!--<paper-listbox slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod">-->
+                                            <!--<paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>-->
+                                            <!--<paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>-->
+                                            <!--<paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>-->
+                                            <!--<paper-item id="morning">[[_localize("Morning")]]</paper-item>-->
+                                            <!--<paper-item id="beforelunch">[[_localize("Beforelunch")]]</paper-item>-->
+                                            <!--<paper-item id="afternoon">[[_localize("Afternoon")]]</paper-item>-->
+                                            <!--<paper-item id="duringlunch">[[_localize("Duringlunch")]]</paper-item>-->
+                                            <!--<paper-item id="afterlunch">[[_localize("Afterlunch")]]</paper-item>-->
+                                            <!--<paper-item id="beforedinner">[[_localize("Beforedinner")]]</paper-item>-->
+                                            <!--<paper-item id="duringdinner">[[_localize("Duringdinner")]]</paper-item>-->
+                                            <!--<paper-item id="afterdinner">[[_localize("Afterdinner")]]</paper-item>-->
+                                            <!--<paper-item id="evening">[[_localize("Evening")]]</paper-item>-->
+                                            <!--<paper-item id="night">[[_localize("Night")]]</paper-item>-->
+                                            <!--<hr>-->
+                                            <!--<paper-item>[[_localize("Precise hour")]]</paper-item>-->
+                                        <!--</paper-listbox>-->
+                                    <!--</paper-dropdown-menu>-->
+                                <!--</template>-->
+                            <!--</template>-->
+                            <paper-icon-button icon="clear" on-tap="clearPosologyRegimen"></paper-icon-button>
+                        </div>
+                    </template>
+                    <template is="dom-if" if="[[rg.date]]">
+                        <paper-button class="posology-btn" on-tap="addPosologyRegimen">
+                            [[localize('add_pos_reg','Add posology regimen',language)]]
+                            <iron-icon icon="add"></iron-icon>
+                        </paper-button>
+                    </template>
+                    <paper-button class="posology-btn" on-tap="addPosologyRegimen">
+                        [[localize('add_pos_reg','Add posology regimen',language)]]
+                        <iron-icon icon="add"></iron-icon>
+                    </paper-button>
+                </div>
+            </template>
 
             <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
                 <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
-                    <vaadin-grid-column flex-grow="0" width="10%">
-                        <template class="header">[[localize('name','Name',language)]]</template>
-                        <template>
-                            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.medicinalProduct]]">
-                                <paper-input id="medicNameInput" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.medicinalProduct.intendedname}}"
-                                             disabled="true"></paper-input>
-                            </template>
-                            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.substanceProduct]]">
-                                <paper-input id="medicNameInput" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.substanceProduct.intendedname}}"
-                                             disabled="true"></paper-input>
-                            </template>
-                            <template is="dom-if" if="[[selectedMedicationContentWithId.medicationValue.compoundPrescription]]">
-                                <paper-input id="medicNameInput" label="Medication" value="{{selectedMedicationContentWithId.medicationValue.compoundPrescription}}"
-                                             disabled="true"></paper-input>
-                            </template>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="0" width="80px">
-                        <template class="header">Frequency</template>
-                        <template>
-                            <paper-dropdown-menu label="[[localize('sel','Select',language)]]" class="regimen--frequency">
-                                <paper-listbox slot="dropdown-content" selected="[[_selectedFrequency(rg, rg.weekday, rg.date)]]">
-                                    <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
-                                    <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
-                                    <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="0" width="168px">
-                        <template class="header">Start Date</template>
-                        <template>
-                            <vaadin-date-picker id="beginMoment" label="[[localize('start-date', 'Start date', language)]]" value="{{beginMomentAsString}}"
-                                                class="regimen--datepicker"></vaadin-date-picker>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="0" width="168px">
-                        <template class="header">End Date</template>
-                        <template>
-                            <vaadin-date-picker id="endMoment" label="[[localize('end-date', 'End date', language)]]" value="{{endMomentAsString}}"
-                                                class="regimen--datepicker"></vaadin-date-picker>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="0" width="160px">
-                        <template class="header">Prescr</template>
-                        <template><div>this is a single column</div></template>
-                    </vaadin-grid-column>
+                    <template is="dom-if" if="[[_isEqual(item.freqType,'daily')]]">
+                        <vaadin-grid-column>
+                            <template class="header">Daily</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="160px">
+                            <template class="header">Prescr</template>
+                            <template><div>this is a single column</div></template>
+                        </vaadin-grid-column>
 
-                    <vaadin-grid-column-group class="med-det-moment">
-                        <template class="header">Morning</template>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">Before</template>
+                        <vaadin-grid-column-group class="med-det-moment">
+                            <template class="header">Morning</template>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">Before</template>
+                                <template>1</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">During</template>
+                                <template>2</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">After</template>
+                                <template>3</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+
+                        <vaadin-grid-column-group class="med-det-moment">
+                            <template class="header">Midday</template>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">Before</template>
+                                <template>1</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">During</template>
+                                <template>2</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">After</template>
+                                <template>3</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+
+                        <vaadin-grid-column-group>
+                            <template class="header">Evening</template>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">Before</template>
+                                <template>1</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">During</template>
+                                <template>2</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column width="50px">
+                                <template class="header">After</template>
+                                <template>3</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid-column-group>
+
+                        <vaadin-grid-column flex-grow="0" width="200px">
+                            <template class="header">Comments</template>
+                            <template><div>this is a single column</div></template>
+                        </vaadin-grid-column>
+                    </template>
+                    <template is="dom-if" if="[[_isEqual(item.freqType,'weekly')]]">
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Weekly</template>
+                            <template></template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Mon</template>
                             <template>1</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">During</template>
-                            <template>2</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">After</template>
-                            <template>3</template>
-                        </vaadin-grid-column>
-                    </vaadin-grid-column-group>
-
-                    <vaadin-grid-column-group class="med-det-moment">
-                        <template class="header">Midday</template>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">Before</template>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Tue</template>
                             <template>1</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">During</template>
-                            <template>2</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">After</template>
-                            <template>3</template>
-                        </vaadin-grid-column class=med-det-moment">
-                    </vaadin-grid-column-group>
-
-                    <vaadin-grid-column-group>
-                        <template class="header">Evening</template>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">Before</template>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Wed</template>
                             <template>1</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">During</template>
-                            <template>2</template>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Thu</template>
+                            <template>1</template>
                         </vaadin-grid-column>
-                        <vaadin-grid-column width="50px">
-                            <template class="header">After</template>
-                            <template>3</template>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Fri</template>
+                            <template>1</template>
                         </vaadin-grid-column>
-                    </vaadin-grid-column-group>
-
-                    <vaadin-grid-column flex-grow="0" width="200px">
-                        <template class="header">Comments</template>
-                        <template><div>this is a single column</div></template>
-                    </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Sat</template>
+                            <template>1</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
+                            <template class="header">Sun</template>
+                            <template>1</template>
+                        </vaadin-grid-column>
+                    </template>
+                    <template is="dom-if" if="[[_isEqual(item.freqType,'monthly')]]">
+                        <vaadin-grid-column flex-grow="0" width="100%">
+                            <template class="header">Monthly</template>
+                            <template>Calendar</template>
+                        </vaadin-grid-column>
+                    </template>
                 </vaadin-grid>
-                <paper-button class="posology-btn" on-tap="addPosologyRegimen">
-                    [[localize('add_pos_reg','Add posology regimen',language)]]
-                    <iron-icon icon="add"></iron-icon>
-                </paper-button>
-            </template>
 
+                <!--<paper-button class="posology-btn" on-tap="addPosologyRegimen">-->
+                    <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
+                    <!--<iron-icon icon="add"></iron-icon>-->
+                <!--</paper-button>-->
+            </template>
             <div class="regimen-line save-line">
                 <!--<template is="dom-if" if="[[!existingMedicine]]">-->
-                    <!--<div class="buttons force-left">-->
-                        <!--<paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button&#45;&#45;cancel">[[localize('cancel','Cancel',language)]]</paper-button>-->
-                    <!--</div>-->
+                <!--<div class="buttons force-left">-->
+                <!--<paper-button dialog-confirm autofocus on-tap="cancelAndDelete" class="modal-button modal-button&#45;&#45;cancel">[[localize('cancel','Cancel',language)]]</paper-button>-->
+                <!--</div>-->
                 <!--</template>-->
                 <!--<template is="dom-if" if="[[existingMedicine]]">-->
-                    <!--<div class="buttons force-left">-->
-                        <!--<paper-button dialog-confirm autofocus on-tap="removeMedic" class="modal-button modal-button&#45;&#45;delete">[[localize('del','Delete',language)]]</paper-button>-->
-                        <!--<paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button&#45;&#45;save">[[localize('cancel','Cancel',language)]]</paper-button>-->
-                    <!--</div>-->
+                <!--<div class="buttons force-left">-->
+                <!--<paper-button dialog-confirm autofocus on-tap="removeMedic" class="modal-button modal-button&#45;&#45;delete">[[localize('del','Delete',language)]]</paper-button>-->
+                <!--<paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button&#45;&#45;save">[[localize('cancel','Cancel',language)]]</paper-button>-->
+                <!--</div>-->
                 <!--</template>-->
                 <div class="buttons">
                     <!--<paper-button dialog-confirm autofocus on-tap="_closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>-->
@@ -480,7 +501,6 @@
                 </div>
             </div>
         </paper-dialog>
-
     </template>
     <script>
 
@@ -626,10 +646,15 @@
             addPosologyRegimen() {
                 const reg = this.selectedMedicationContentWithId.medicationValue.regimen
                 this.set("bufferNumberByFrequency",parseInt(this.bufferNumberByFrequency)+1)
+
                 this.push('selectedMedicationContentWithId.medicationValue.regimen', {
-                    weekday: null,
-                    date: null,
-                    administratedQuantity: {quantity: 1, unit: reg && reg[0] && reg[0].administratedQuantity && reg[0].administratedQuantity.unit}
+                    weekday: this.bufferGeneralFrequency === "weekly" ? {} : null,
+                    date: this.bufferGeneralFrequency === "monthly" ? -1 : null,
+                    freqType: this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
+                    administratedQuantity: {
+                        quantity: this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                        unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                    }
                 })
             }
 
