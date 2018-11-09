@@ -326,8 +326,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="second-panel col-right">
                 <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
 
-                <paper-icon-button id="del-button" class$="[[_itemSelected(activeItem)]]" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                <paper-tooltip for="del-button">[[localize('del','Delete',language)]]</paper-tooltip>
+                <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                <paper-tooltip for="del-button" offset="4">[[localize('del','Delete',language)]]</paper-tooltip>
                 <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
 
 
