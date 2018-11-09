@@ -80,6 +80,10 @@ public class Invoice extends StoredICureDocument {
 
 	private String error;
 
+	private String encounterLocation;
+	private Integer locationNorm;
+	private Long prescriptionDate; // yyyyMMdd
+
 	private Integer longDelayJustification;
 
 	private Boolean creditNote;
@@ -424,6 +428,14 @@ public class Invoice extends StoredICureDocument {
 		return supervisorFirstName;
 	}
 
+	public String getEncounterLocation() { return encounterLocation; }
+
+	public void setEncounterLocation(String encounterLocation) { this.encounterLocation = encounterLocation; }
+
+	public Integer getLocationNorm() { return locationNorm; }
+
+	public void setLocationNorm(Integer locationNorm) { this.locationNorm = locationNorm; }
+
 	public void setSupervisorFirstName(String supervisorFirstName) {
 		this.supervisorFirstName = supervisorFirstName;
 	}
@@ -463,6 +475,10 @@ public class Invoice extends StoredICureDocument {
 	public void setCareProviderType(String careProviderType) {
 		this.careProviderType = careProviderType;
 	}
+
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 
 	@Override
 	public boolean equals(Object o) {
