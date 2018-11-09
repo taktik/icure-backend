@@ -214,6 +214,21 @@
                     padding: 0;
                 }
 
+                .dropdown-content paper-item {
+                    cursor: pointer;
+                }
+
+                .ProseMirror table {
+                    margin: 0;
+                }
+                .ProseMirror th, .ProseMirror td {
+                    min-width: 1em;
+                    border: 1px solid #ddd;
+                    padding: 3px 5px;
+                }
+                .ProseMirror .tableWrapper {
+                    margin: 1em 0;
+                }
             </style>
         </custom-style>
         <div class="prose-editor-container">
@@ -251,20 +266,18 @@
                             alt="table options">
                     </paper-icon-button>
                     <div slot="dropdown-content" class="dropdown-content box" on-tap="_onTap" id="box">
-                        <ul>
-                            <li on-tap="_addColumnBefore">Insert column before</li>
-                            <li on-tap="_addColumnAfter">Insert column after</li>
-                            <li on-tap="_deleteColumn">Delete column</li>
-                            <li on-tap="_addRowBefore">Insert row before</li>
-                            <li on-tap="_addRowAfter">Insert row after</li>
-                            <li on-tap="_deleteRow">Delete row</li>
-                            <li on-tap="_deleteTable">Delete table</li>
-                            <li on-tap="_mergeCells">Merge cells</li>
-                            <li on-tap="_splitCell">Split cell</li>
-                            <li on-tap="_toggleHeaderColumn">Toggle header column</li>
-                            <li on-tap="_toggleHeaderRow">Toggle header row</li>
-                            <li on-tap="_toggleHeaderCell">Toggle header cells</li>
-                        </ul>
+                            <paper-item on-tap="_addColumnBefore">Insert column before</paper-item>
+                            <paper-item on-tap="_addColumnAfter">Insert column after</paper-item>
+                            <paper-item on-tap="_deleteColumn">Delete column</paper-item>
+                            <paper-item on-tap="_addRowBefore">Insert row before</paper-item>
+                            <paper-item on-tap="_addRowAfter">Insert row after</paper-item>
+                            <paper-item on-tap="_deleteRow">Delete row</paper-item>
+                            <paper-item on-tap="_deleteTable">Delete table</paper-item>
+                            <paper-item on-tap="_mergeCells">Merge cells</paper-item>
+                            <paper-item on-tap="_splitCell">Split cell</paper-item>
+                            <paper-item on-tap="_toggleHeaderColumn">Toggle header column</paper-item>
+                            <paper-item on-tap="_toggleHeaderRow">Toggle header row</paper-item>
+                            <paper-item on-tap="_toggleHeaderCell">Toggle header cells</paper-item>
                     </div>
                 </paper-menu-button>
 
@@ -281,6 +294,13 @@
                     <div style="display: none" id="content">
                         <div id="page_0" class="page">
                             <p>This is editable text. You can focus it and start typing.</p>
+
+                            <table>
+                                <tr><th colspan=3 data-colwidth="100,0,0">Wide header</td></tr>
+                                <tr><td>One</td><td>Two</td><td>Three</td></tr>
+                                <tr><td>Four</td><td>Five</td><td>Six</td></tr>
+                            </table>
+
                         </div>
                     </div>
                 </div>

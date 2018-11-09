@@ -1387,7 +1387,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</div>
 				<ht-pat-detail-ctc-detail-panel id="ctcDetailPanel" contacts="[[selectedContacts]]" all-contacts="[[contacts]]" health-elements="[[healthElements]]" main-health-elements="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]"
 												api="[[api]]" i18n="[[i18n]]" user="[[user]]" patient="[[patient]]" language="[[language]]" resources="[[resources]]" current-contact="[[currentContact]]" hidden-sub-contacts-id="[[hiddenSubContactsId]]"
-												on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-change="formsChanged" on-must-save-contact="_saveContact"></ht-pat-detail-ctc-detail-panel>
+												on-select-current-contact="_selectCurrentContact" on-plan-action="_planAction" on-change="formsChanged" on-must-save-contact="_saveContact" on-medication-selection="_selectMedication" on-medication-detail="_medicationDetail"></ht-pat-detail-ctc-detail-panel>
 			</template>
 
 		</div>
@@ -1780,8 +1780,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		</paper-dialog>
 
 		<ht-pat-action-plan-dialog id="planActionForm" api="[[api]]" user="[[user]]" language="[[language]]" i18n="[[i18n]]" linkables="[[_concat(activeHealthElements, allergies, risks, inactiveHealthElements, familyrisks)]]" current-contact="[[currentContact]]" on-create-service="_createService"></ht-pat-action-plan-dialog>
-		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
-		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
+		<medication-selection-dialog id="medication-selection" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationValueChanged" on-display-medication-details="_displayMedicationDetails" on-new-medication="_medicationCreated"></medication-selection-dialog>
+		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
 		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
 		<ht-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-hub-transaction-view>
@@ -2088,6 +2088,14 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
             isLoading:{
 			    type: Boolean,
                 value: false
+            },
+			currentSelectMedicationEventDetail: {
+			    type: Object,
+				value: () => {}
+			},
+            currentMedicationDetailEventDetail: {
+                type: Object,
+                value: () => {}
             }
 		};
 	}
@@ -3895,23 +3903,53 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$['medication-selection'].open(newMedication, { id: id, medicationValue: medicationValue, isNew: true } );
 	}
 
-    _medicationCreated(e) {
-        if (!this.currentContact) {
-            return;
-        }
-        this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+	_selectMedication(e) {
+        this.currentSelectMedicationEventDetail = e.detail
+        this.$['medication-selection'].open(e.detail.service, e.detail.content );
 	}
 
-    _displayMedicationDetails(e) {
-	    const m = e.detail
-        this.$['medication-details'].open(e.detail, { id: m.id, medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = { medicationValue: { regimen: [] } })).medicationValue, isNew: true } );
+    _medicationDetail(e) {
+        this.currentMedicationDetailEventDetail = e.detail
+		this.$['medication-detail'].open(e.detail.service, e.detail.content);
     }
 
-    _medicationChanged(e) {
-        if (!this.currentContact) {
-            return;
+    _medicationCreated(e) {
+	    if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onCreate) {
+            this.currentSelectMedicationEventDetail.onCreate(e)
+		} else {
+            if (!this.currentContact) {
+                return;
+            }
+            this._displayMedicationDetails(e)
         }
-        this.saveNewService(e.detail).then(() => this.refreshPatient())
+	}
+
+    _medicationValueChanged(e) {
+        if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onValueChanged) {
+            this.currentSelectMedicationEventDetail.onValueChanged(e)
+        }
+    }
+
+    _medicationDetailValueChanged(e) {
+        if (this.currentMedicationDetailEventDetail && this.currentMedicationDetailEventDetail.onValueChanged) {
+            this.currentMedicationDetailEventDetail.onValueChanged(e)
+        } else {
+            this.saveNewService(this.api.contact().service().newInstance(this.api.user, e.detail)).then(() => this.refreshPatient())
+        }
+    }
+
+
+    _displayMedicationDetails(e) {
+        if (this.currentSelectMedicationEventDetail && this.currentSelectMedicationEventDetail.onShowDetails) {
+            this.currentSelectMedicationEventDetail.onShowDetails(e)
+        } else {
+            const m = e.detail
+            this.$['medication-detail'].open(e.detail, {
+                id: m.id,
+                medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {medicationValue: {regimen: []}})).medicationValue,
+                isNew: true
+            });
+        }
     }
 
 	_healthElementsSelectorColumns() {
