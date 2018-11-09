@@ -243,6 +243,31 @@
                 <paper-icon-button icon="editor:format-align-right" active="[[isRight]]" on-tap="doRight"></paper-icon-button>
                 <paper-icon-button icon="editor:format-align-justify" active="[[isJustify]]" on-tap="doJustify"></paper-icon-button>
 
+                <paper-menu-button id="button" vertical-offset="42" horizontal-offset="16" on-opened-changed="_layout">
+                    <paper-icon-button
+                            id="iconButton"
+                            icon="vaadin:table"
+                            slot="dropdown-trigger"
+                            alt="table options">
+                    </paper-icon-button>
+                    <div slot="dropdown-content" class="dropdown-content box" on-tap="_onTap" id="box">
+                        <ul>
+                            <li on-tap="_addColumnBefore">Insert column before</li>
+                            <li on-tap="_addColumnAfter">Insert column after</li>
+                            <li on-tap="_deleteColumn">Delete column</li>
+                            <li on-tap="_addRowBefore">Insert row before</li>
+                            <li on-tap="_addRowAfter">Insert row after</li>
+                            <li on-tap="_deleteRow">Delete row</li>
+                            <li on-tap="_deleteTable">Delete table</li>
+                            <li on-tap="_mergeCells">Merge cells</li>
+                            <li on-tap="_splitCell">Split cell</li>
+                            <li on-tap="_toggleHeaderColumn">Toggle header column</li>
+                            <li on-tap="_toggleHeaderRow">Toggle header row</li>
+                            <li on-tap="_toggleHeaderCell">Toggle header cells</li>
+                        </ul>
+                    </div>
+                </paper-menu-button>
+
                 <paper-icon-button icon="vaadin:code" active="[[isCode]]" on-tap="insertOrEditCode"></paper-icon-button>
 
                 <span class="divider"></span>

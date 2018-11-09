@@ -40,8 +40,7 @@
                 }
 
                 .grid-panel {
-                    flex-basis: calc(100% - 60px);
-                    height: calc(100% - 60px);
+                    flex-basis: 100%;
                     display: flex;
                     flex-flow: row nowrap;
                     box-sizing: border-box;
@@ -49,19 +48,19 @@
                 }
 
                 #messagesGrid {
-                    flex-basis: calc(100% - 33vw - 24px);
-                    height: calc(100% - 73px);
+                    flex-basis: calc(100% - 33vw);
                     transition: .5s ease;
+                    position: relative;
                 }
+
                 #messagesGrid.no-detail {
                     flex-basis: 100%;
                 }
 
                 #detailGrid {
                     flex-basis: 40%;
-                    height: calc(100% - 197px);
-                    position: fixed;
-                    right: 24px;
+                    position: relative;
+                    right: 0;
                     width: 33vw;
                     transition: .5s ease;
                 }
@@ -69,6 +68,14 @@
                 #detailGrid.no-detail {
                     flex-basis: 0;
                     transform: translateX(100vw);
+                }
+
+                .total {
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                    width: 240px;
+                    height: 40px;
                 }
 
                 .invoice-panel .btns-container{
@@ -93,11 +100,11 @@
                 }
 
                 vaadin-grid{
-                    height: 100%;
-                }
-
-                vaading-grid-column.icon-col {
-                    width: 50px;
+                    position: absolute;
+                    top: 64px;
+                    left: 0;
+                    right: 0;
+                    height: calc(100% - 64px - 64px);
                 }
 
                 iron-icon.list {
@@ -109,9 +116,25 @@
                 iron-icon.extension {
                     width: 16px;
                 }
+
+                paper-spinner {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    z-index: 9999;
+                    transform: translate(-50% -50%);
+                }
+
+                paper-button[disabled] {
+                    background-color: var(--app-secondary-color-dark);
+                    color: var(--app-text-color-disabled);
+                    box-shadow: none;
+                }
+
             </style>
         </custom-style>
         <div class="invoice-panel">
+            <template is="dom-if" if="[[isLoadingDmg]]"><paper-spinner class="center" active="[[isLoadingDmg]]"></paper-spinner></template>
             <div class="grid-panel">
                 <div  id="messagesGrid" class$="[[detailPanelClass(tempoSubMessages)]]">
                     <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{leftFilterValue}}"
@@ -192,12 +215,13 @@
                             <template>[[_formatPayments(item.payments)]]</template>
                         </vaadin-grid-column>
                     </vaadin-grid>
+                    <div class="total">Tot.: [[_total(tempoSubMessages)]]</div>
                 </div>
             </div>
             <div class="btns-container">
-                <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages">[[localize('req_msg_lists','Request Messages Lists',language)]]
+                <paper-button class="bottom-btn" id="requestMessagesBtn" on-tap="requestMessages" disabled="[[isLoadingDmg]]">[[localize('req_msg_lists','Request Messages Lists',language)]]
                 </paper-button>
-                <paper-button class="bottom-btn" id="getMessagesBtn" on-tap="getMessages">[[localize('get_msg','Get Messages',language)]]
+                <paper-button class="bottom-btn" id="getMessagesBtn" on-tap="getMessages" disabled="[[isLoadingDmg]]">[[localize('get_msg','Get Messages',language)]]
                 </paper-button>
             </div>
         </div>
@@ -357,12 +381,13 @@
             }
 
             _formatPayments(payments) {
-                return payments && payments.map(p => this._formatDate(p.date)+`: ${p.amount} ${(p.currency="eur") ? "€" : p.currency}`+(p.ref ? `[${p.ref}]` : "")).join(', ')
+                return payments && payments.map(p => this._formatDate(p.date)+`: ${p.amount} ${(p.currency==="eur") ? "€" : p.currency}`+(p.ref ? `[${p.ref}]` : "")).join(', ')
             }
 
             detailPanelClass(subMessages) {
                 return subMessages && subMessages.length ? '' : 'no-detail'
             }
+
             _activeItemChanged(item, prevItem) {
                 item = item || prevItem
                 if (item && this.selectedItems.includes(item)) {
@@ -370,6 +395,10 @@
                 } else if (item) {
                     this.push('selectedItems',item)
                 }
+            }
+
+            _total(messages) {
+                return _.toPairs(messages.reduce((acc,m) => {m.payments.forEach(p=>acc[(p.currency||'eur').toLowerCase()] = (acc[(p.currency||'eur').toLowerCase()] || 0)+p.amount); return acc},{})).map(([c,a]) => `${a.toFixed(2)} ${c.replace('eur', '€')}`)
             }
 
             _selectedItemsChanged() {
@@ -437,19 +466,19 @@
             }
 
             getMessages() {
+                this.set('isLoadingDmg', true)
                 this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", []).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
                     .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
-                    .then(([ackHashes, dmgHashes]) => Promise.all([
+                    /*.then(([ackHashes, dmgHashes]) => Promise.all([
                         this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
                         this.api.fhc().Dmgcontroller().confirmDmgMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, dmgHashes)
-                    ]))
+                    ]))*/.finally(() => this.set('isLoadingDmg', false))
             }
 
             requestMessages(){
+                this.set('isLoadingDmg', true)
                 this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) )
-                    .then(response =>{
-                        console.log(response)
-                    })
+                    .then( x => this.api.logMcn(x, this.user, this.hcp.id) ).finally(() => this.set('isLoadingDmg', false))
             }
 
             _formatDate(val){

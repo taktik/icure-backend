@@ -689,6 +689,15 @@
                 height: auto;
                 margin: 8px auto;
             }
+
+            .invalid {
+                background: rgba(252, 39, 31, 0.3) !important;
+            }
+
+            .willBeInvalid {
+                background: #fcdf354d !important;
+            }
+
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -719,20 +728,22 @@
                             <paper-material class="layout vertical chapter-item chapter--big"
                                             id="[[item.decisionReference]]">
                                 <paper-item class="chapter-text">
-                                    <div class="chapter-text-row chapter-text-date">
+                                    <div class$="chapter-text-row chapter-text-date [[_isInvalidClass(item)]] [[_willBeInvalidClass(item)]]">
                                         <label>
                                             <iron-icon icon="vaadin:book" class="chapterDateInfoIcon"></iron-icon>
                                             [[item.paragraph]]
                                         </label>
                                         <div>
-                                            <iron-icon icon="vaadin:calendar-clock"
-                                                        class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.start)]]</span>
+
+                                                <span id="from-[[item.decisionReference]][[item.ioRequestReference]]"><iron-icon icon="vaadin:calendar-clock"
+                                                                 class="chapterDateInfoIcon"></iron-icon>[[_formatDate(item.start)]]</span>
                                                 &nbsp;
-                                                <iron-icon icon="vaadin:calendar-clock"
-                                                        class="chapterDateInfoIcon"></iron-icon>
-                                                <span>[[_formatDate(item.end)]]</span>
+                                            <paper-tooltip for="from-[[item.decisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">Date de début de l'accord</paper-tooltip>
+
+                                            <span id="to-[[item.decisionReference]][[item.ioRequestReference]]"><iron-icon icon="vaadin:calendar-clock"
+                                                                 class="chapterDateInfoIcon"></iron-icon>[[_formatDate(item.end)]]</span>
                                             </div>
+                                        <paper-tooltip for="to-[[item.decisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">Date de fin de l'accord</paper-tooltip>
 
                                     </div>
                                     <div class="chapter-text-row grey">
@@ -762,9 +773,14 @@
                                                     [[localize('ch4Rejected','Rejected',language)]]
                                                 </span>
                                             </template>
+                                            <template is="dom-if" if="[[item.canceled]]">
+                                                 <span class="pending-status">
+                                                    <iron-icon icon="vaadin:close" class="ch4RejectedStatus"></iron-icon>
+                                                    [[localize('ch4Canceled','Canceled',language)]]: [[_formatDate(item.cancelationDate)]]
+                                                </span>
+                                            </template>
                                             <iron-icon class="chapterDateInfoIcon ioref-icon" id="ioref-[[item.decisionReference]][[item.ioRequestReference]]" icon="info"></iron-icon>
                                             <paper-tooltip for="ioref-[[item.decisionReference]][[item.ioRequestReference]]" position="left" animation-delay="0">[[item.decisionReference]] [[item.ioRequestReference]]</paper-tooltip>
-
                                         </div>
                                     </div>
                                 </paper-item>
@@ -887,7 +903,7 @@
                                                             </p></div>
                                                         </template>
                                                         <div class="fleft third">
-                                                            <p><b>[[localize('ref_io','Reference IO',language)]]:</b> [[t.decisionReference]]</p>
+                                                            <p><b>[[localize('ref_io','Reference IO',language)]]:</b> [[t.decisionReference]] [[t.ioRequestReference]]</p>
                                                         </div>
                                                     <template is="dom-if" if="[[t.start]]">
                                                         <div class="fleft third">
@@ -966,9 +982,6 @@
                                 <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialFrom]]"
                                                     label="[[localize('from','From',language)]]"
                                                     value="{{fromAsString}}"></vaadin-date-picker>
-                                <vaadin-date-picker class="tool" i18n="[[i18n]]" initial-position="[[initialTo]]"
-                                                    label="[[localize('to','To',language)]]"
-                                                    value="{{toAsString}}"></vaadin-date-picker>
                                 <tk-token-field class="tool" label="[[localize('appendices','Appendices',language)]]" value="{{appendicesTokens}}"
                                                 on-value-splices-change="_localizedValueChanged" data-value-path="id"
                                                 data-label-path="descr" always-float-label></tk-token-field>
@@ -986,25 +999,25 @@
                             </template>
 
                             <div class="btns-container">
-                                <!--<template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">-->
-                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isCancellingAgreement]]">[[localize('can_agr','Cancel
+                                <template is="dom-if" if="[[_cancellation(isAgreementSelected, displayedParagraph)]]">
+                                    <paper-button class="bottom-btn" id="cancelChapter" on-tap="_cancelChapter" disabled="[[isClosingAgreement]]">[[localize('can_agr','Cancel
                                         agreement',language)]]
                                     </paper-button>
-                                    <paper-spinner class="asking" active="[[isCancellingAgreement]]"></paper-spinner>
-                                <!--</template>-->
-                                <!--<template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">-->
+                                    <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
+                                </template>
+                                <template is="dom-if" if="[[_closure(isAgreementSelected, displayedParagraph)]]">
                                     <paper-button class="bottom-btn" id="closeChapter" on-tap="_closeChapter" disabled="[[isClosingAgreement]]">[[localize('clos_agr','Close
                                         agreement',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isClosingAgreement]]"></paper-spinner>
-                                <!--</template>-->
+                                </template>
                                 <template is="dom-if" if="[[_complimentaryAnnex(isAgreementSelected, displayedParagraph, appendicesTokens.*)]]">
                                     <paper-button class="bottom-btn" id="complimentaryAnnex" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">
                                         [[localize('sen_com_app','Send complimentary annex',language)]]
                                     </paper-button>
                                     <paper-spinner class="asking" active="[[isAskingAgreement]]"></paper-spinner>
                                 </template>
-                                <template is="dom-if" if="[[isAgreementSelected]]">
+                                <template is="dom-if" if="[[_extension(isAgreementSelected, displayedParagraph)]]">
                                     <template is="dom-if" if="[[displayedParagraph.end]]">
                                         <paper-button class="bottom-btn" id="extendChapter" on-tap="_requestChapter4" disabled="[[isAskingAgreement]]">[[localize('ext_agr','Extend
                                             agreement',language)]]
@@ -1147,7 +1160,7 @@
                     },
                     fromAsString: {
                         type: String,
-                        value: () => moment().startOf('month').format('YYYY-MM-DD')
+                        value: () => moment().format('YYYY-MM-DD')
                     },
                     toAsString: {
                         type: String
@@ -1207,6 +1220,10 @@
             attached() {
                 super.attached()
                 this.async(this.notifyResize, 1)
+            }
+
+            _fromLabel() {
+                return this._extension() ? this.localize('sta_of_pro','Start of extension') : this.localize('from','From')
             }
 
             _isNull(v) {
@@ -1272,6 +1289,7 @@
             _displayedParagraphChanged() {
                 const grid = this.shadowRoot.querySelector('#medications-list')
                 this.incomplete = null
+                this.fromAsString = this._extension() && this.displayedParagraph && this.displayedParagraph.end && this.api.moment(this.displayedParagraph.end).add(1,'day').format('YYYY-MM-DD') || moment().format('YYYY-MM-DD')
                 if (this.displayedParagraph && this.displayedParagraph.id) {
                     (this.displayedParagraph.ioRequestReference || this.displayedParagraph.decisionReference) ? this.set('isAgreementSelected', true) : this.set('isAgreementSelected', false)
                     this.set('checkedVerses', [])
@@ -1294,18 +1312,26 @@
                 }
             }
 
+            _isInvalidClass(item) {
+                return item && (item.canceled || item.end && this.api.moment(item.end).isSameOrBefore(moment())) ? 'invalid' : ''
+            }
+
+            _willBeInvalidClass(item) {
+                return !this._isInvalidClass(item).length && item && item.end && this.api.moment(item.end).isSameOrBefore(moment().add(2,'month')) ? 'willBeInvalid' : ''
+            }
+
             _closure(){
-                return this.isAgreementSelected && this.displayedParagraph && (!this.displayedParagraph.end || this.api.moment(this.displayedParagraph.end).isAfter(moment())) &&
+                return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.canceled && (!this.displayedParagraph.end || this.api.moment(this.displayedParagraph.end).isAfter(moment())) &&
                     (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isBefore(moment()))
             }
 
 
             _cancellation() {
-                return this.isAgreementSelected && this.displayedParagraph &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isSameOrAfter(moment(),"day")))
+                return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.canceled &&  (this.displayedParagraph.inTreatment || (this.displayedParagraph.start && this.api.moment(this.displayedParagraph.start).isSameOrAfter(moment(),"day")))
             }
 
             _extension() {
-                return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.inTreatment
+                return this.isAgreementSelected && this.displayedParagraph && !this.displayedParagraph.canceled && !this.displayedParagraph.inTreatment
             }
 
             _complimentaryAnnex() {
@@ -1325,7 +1351,7 @@
                     && (v.otherAddedDocumentInd === 'Y') ? 1 : 0)
                 }
 
-                const num = scanVerse(dp.paragraphInfo.headerVerse)
+                const num = dp.paragraphInfo.headerVerse && scanVerse(dp.paragraphInfo.headerVerse) || 0
                 return  (pt === 2 || pt === 3 && extension || pt === 4 && !extension) ? num : 0
             }
 
@@ -1439,7 +1465,7 @@
                     console.log(agreements)
 
                     return Promise.all(
-                        agreements.transactions.map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph)]).then(([vtm, pi]) => [t, vtm, pi]))
+                        agreements.transactions.map(t => Promise.all([this.api.fhc().chaptercontrollerfhc.getVtmNamesForParagraphUsingGET('IV', t.paragraph, this.language).catch(() => ''), this.api.fhc().chaptercontrollerfhc.getParagraphInfosUsingGET('IV', t.paragraph).catch(() => [])]).then(([vtm, pi]) => [t, vtm, pi]))
                     ).then((transactions) => {
                         return (this.convertedMedications ? Promise.resolve(this.convertedMedications) : this._convertedMedications()).then(medications => {
                             const ioRequestReferences = medications.map(x => x.ioRequestReference)
@@ -1567,20 +1593,17 @@
                                     return svcs
                                 })
                             } else {
-                                const svcs = _.compact(links.map( l => {
-                                    const m = this.convertedMedications.find(t =>  t.decisionReference && t.decisionReference === l.transaction.decisionReference || t.ioRequestReference && t.ioRequestReference === l.transaction.ioRequestReference)
-                                    if (m) {
-                                        const content = Object.values((m.service || {}).content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[m.paragraph])
-                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[m.paragraph]
+                                return Promise.all(((res || {}) && res.transactions || []).map(t => {
+                                    const svc = this.displayedParagraph.service
+                                    if (svc && t.accepted && t.decisionReference && t.end) {
+                                        const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
+                                        const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                         if (paragraphAgreement) {
-                                            Object.assign(paragraphAgreement, l.transaction)
-                                            return m.service
+                                            Object.assign(paragraphAgreement, {end: res.transaction.end})
+                                            this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
                                         }
                                     }
-                                    return null
                                 }))
-
-                                this.dispatchEvent(new CustomEvent('update-services', {detail: {services: svcs}, bubbles: true, composed: true}))
                             }
                         })
                     }).finally(() => {this.isAskingAgreement = false;})
@@ -1738,7 +1761,7 @@
                                     const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
                                     const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
-                                        Object.assign(paragraphAgreement, {end: l.transaction.end})
+                                        Object.assign(paragraphAgreement, {end: t.end})
                                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
                                     }
                                 }
@@ -1763,7 +1786,7 @@
                                     const content = Object.values(svc.content || {}).find( c => c.medicationValue && c.medicationValue.paragraphAgreements && c.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph])
                                     const paragraphAgreement = content.medicationValue.paragraphAgreements[this.displayedParagraph.paragraph]
                                     if (paragraphAgreement) {
-                                        Object.assign(paragraphAgreement, {canceled: true})
+                                        Object.assign(paragraphAgreement, {canceled: true, cancelationDate: +new Date()})
                                         this.dispatchEvent(new CustomEvent('update-services', {detail: {services: [svc]}, bubbles: true, composed: true}))
                                     }
                                 }

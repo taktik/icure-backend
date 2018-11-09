@@ -106,7 +106,7 @@
 			}
 
 			.contact-card-frame {
-				padding-bottom: 64px;
+				padding-bottom: 24px;
 			}
 
 			.contact-title{
@@ -962,14 +962,12 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
 				medications: drugsToBePrescribed.filter(s => c.includes(s.id)).map(s => this.api.contact().medicationValue(s, this.language)),
 				deliveryDate: moment(this.deliveryDateString).format("YYYYMMDD")
 			}))).then(rids => {
-                let prescriToPrint = [] // all the prescriptions
-                let allPages = [{'body':null,'poso':{}}]
+                let prescriToPrint = [], allPages = []
                 let prescNum = 0, pageNum = 1
                 splitColumns.forEach((c, idx) => {
                     prescNum += 1
                     if (prescNum > 2 * pageNum) { // if doesn't fit in page
                         pageNum += 1 // add a page
-                        allPages.push({'body':"",'poso':{}}) // prepare the page
                     } // will be set on next page
                     const element = this.root.querySelector("#barCode");
                     JsBarcode(element, rids[idx].rid, {format: "CODE128A", displayValue: false, height: 75});
@@ -980,24 +978,25 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                     _.flatMap(drugsToBePrescribed.filter(s => c.includes(s.id)), s => {
                         const medicationApi = this.api.contact().medication();
                         const med = this.api.contact().medicationValue(s, this.language);
-                        const medPoso = this.api.contact().medication().posologyToString(this.api.contact().medicationValue(med, this.language), this.language) || "N/A";
-                        const medS = "S/ " + medicationApi.medicationNameToString(med, this.language)
-                        const medR = "R/ " + medicationApi.posologyToString(med, this.language)
+                        const medPoso = this.api.contact().medication().posologyToString(med, this.language) || "N/A";
+                        const medS = medicationApi.medicationNameToString(med, this.language)
+                        const medR = medicationApi.posologyToString(med, this.language)
                         const thisMed = {'S': medS, 'R': medR, 'poso':medPoso};
                         prescArray.push(thisMed) // add to the medications list
                     }) // flatmap end
                     console.log("prescArray",prescArray)
 
                     let prescriContent = ""
-                    let articlePoso = [{}]
+                    let articlePoso = []
+                    let medicName = ""
                     prescArray.map(that => { // create prescription content
                         prescriContent += `<article>
-                            ${that.S}<br>
-                            ${that.R}
+                            S/ ${that.S}<br>
+                            R/ ${that.R}
                         </article>`;
                         articlePoso.push(that.poso) // add posology to the list
+                        medicName = that.S
                     }) // map end
-                    console.log("allPages",allPages)
                     const prescri = `<article class="prescription">
                         <header>
                             <img src="${jpegUrl}" alt="code-bar">
@@ -1040,41 +1039,48 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             <p class="center">${moment(this.deliveryDateString).format("DD/MM/YYYY")}</p>
                         </footer>
                     </article>`; // create single prescription body
-                    prescriToPrint.push({'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
+                    prescriToPrint.push({name:medicName,'prescriBody':prescri,'page':pageNum,'posology':articlePoso}) // add a prescription with its datas
                 }) // splitCol forEach end
                 console.log("prescriToPrint",prescriToPrint)
 
+                console.log("allPages before map",allPages)
                 prescriToPrint.map((that)=>{ // for every prescription found in list
-                    if (!allPages[that.page]) {allPages[that.page].body = ""}
-                    allPages[that.page].body += (that.prescriBody) // get the body
-                    let thatPoso = []
+                    let singlePage = {body:'',poso:[]}
+                    singlePage.body += (that.prescriBody) // get the body
+                    singlePage.name = that.name
                     that.posology.map((poso)=>{ // check if there's posology
-                        thatPoso.push(poso)
+                        singlePage.poso.push(poso)
                     })
-                    allPages[that.page].poso = thatPoso // assign posology to prescription
+                    if (!allPages[that.page-1]) {
+                        allPages.push([singlePage]) // assign posology to prescription
+                    } else {
+                        allPages[that.page-1].push(singlePage)
+                    }
                 })
-                console.log("allPages",allPages)
+                console.log("allPages after map",allPages)
                 let onePageBody = ""
+                let thatI = 0
                 allPages.map((that)=>{
-                    let posoByDay = {
+                    let posoByDay = { // make the arrays that will receive sorted posologies
                             'byMoment':[],
                             'byHour':[]
                         },
                         posoByWeek = [],
                         posoByMonth = []
-                    if (typeof that != 'object') {
-                        let onePageBodyTop = `<div class="page">
-                            <main>
-                                ${that.body}
-                            </main>
-                            <footer>`; // prepare the PDF's pages
-                        that.poso.map((singlePoso)=>{ // construct the posology body
-                            console.log("singlePoso",singlePoso) // WIP
+                    if (typeof that == 'object') {
+                        let rows = ''
+                        let thatBody = ''
+                        that.map((single)=>{
+                            let singleName = single.name
+                            thatBody += single.body
+                            single.poso.map((singlePoso)=>{rows += "<tr><td><b>"+singleName+"</b></td><td>"+singlePoso.toString()+"</td></tr>"}) // construct the posology body
                         })
-                        let onepageBodyBottom = `</footer></div>`;
-                        onePageBody = onePageBodyTop+" poso goes here "+onepageBodyBottom;
+                        const onePageBodyTop = `<div class="page"><main>${thatBody}</main><footer><table><thead><tr><td>Nom</td><td>Fréquence</td></tr></thead><tbody>`; // prepare the PDF's pages
+                        const onepageBodyBottom = `</tbody></table></footer></div>`;
+                        onePageBody += onePageBodyTop+rows+onepageBodyBottom;
                     }
-                })
+                    thatI++
+                }) // allPage map end
                 const toPrint = `<html>
                     <head>
                         <style>
@@ -1100,10 +1106,11 @@ class HtPatDetailCtcDetailPanel extends Polymer.TkLocalizerMixin(Polymer.Element
                             body > div.page > footer {border-top: .5px dashed lightgrey;text-align:center;padding:25px 20px 0 20px;}
                             body > div.page > footer table {width: 100%;border-collapse: collapse;border-top:1px solid black;}
                             body > div.page > footer table:first-child {border-top:none;}
-                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: center;}
-                            body > div.page > footer table tr td:first-child {width:258px;border-right:2px solid black;}
-                            body > div.page > footer table thead {font-weight: bold;background: rgba(0,0,0,.075);}
-                            body > div.page > footer table thead tr td:first-child{text-decoration: underline;}
+                            body > div.page > footer table tr td {border-bottom:1px solid black;text-align: left;}
+                            body > div.page > footer table tr td:first-child {width:258px;border-right:1px solid black;}
+                            body > div.page > footer table tr td:not(:first-child){padding: 0 5px;}
+                            body > div.page > footer table thead {font-weight: bold;border-bottom: 2px solid black;}
+                            body > div.page > footer table thead tr td {text-align: center;background-color: lightgrey;}
                         </style>
                     </head>
                     <body>

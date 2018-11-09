@@ -1351,7 +1351,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (newTimer > 0) {
                         this.set('disconnectionTimer', newTimer)
                     } else {
+                        const creds = _.clone(this.credentials)
                         this.set('routeData.page', 'logout')
+                        this.credentials.username = creds.username
+                        this.credentials.ehpassword = creds.ehpassword
                         this._triggerMenu()
                     }
                 }, 10000)
@@ -1427,8 +1430,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 overlay.classList.toggle('open')
                 menu.classList.toggle('open')
-
-
             }
 
             _viewChanged(view) {

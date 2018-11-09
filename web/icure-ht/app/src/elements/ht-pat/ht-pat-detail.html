@@ -63,6 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
+<link rel="import" href="dialogs/hubs/ht-hub-transaction-view.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -1137,7 +1138,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 									<paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
 									<paper-tooltip for="hubStatus">Hub</paper-tooltip>
 									<paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
-									<paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]</paper-tooltip>
+									<paper-tooltip for="edmgStatus"><div style="min-width: 280px;"><h4>[[localize('edmg','e-DMG',language)]]</h4>
+										<template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
+											<p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
+										</template>
+									</div></paper-tooltip>
 								</div>
 							</div>
 						</paper-item>
@@ -1728,6 +1733,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
 				<paper-button on-tap="_showTransaction">get transaction</paper-button>
+				<paper-button on-tap="_openTransactionViewer">view transaction</paper-button>
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
 			</template>
 			<template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
@@ -1778,6 +1784,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_valueChanged"></medication-details-dialog>
 		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
+		<ht-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-hub-transaction-view>
 	</template>
 	<script>
 
@@ -2118,6 +2125,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		this.set('selectedContacts', this.selectedContactIds.map(i => allContacts.find(c => c && c.id === i.substr(4) /* skip ctc_ */)))
 	}
 
+    _myReferralPeriods(refPeriods) {
+	    return refPeriods && (refPeriods.find(r => r.healthcarePartyId === this.user.healthcarePartyId) || {}).referralPeriods
+	}
+
 	_shortId(id) {
 		return id && id.substr(0, 8);
 	}
@@ -2210,7 +2221,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _trueOrUnknown(b){
-	    return b ? '+' : '?'
+	    return b ? this.localize('yes','yes',this.language) : '?'
 	}
 
 	_yesOrNo(b){
@@ -2657,6 +2668,10 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         }
     }
 
+    _openTransactionViewer(){
+		this.$.transactionViewDialog.open(this.selectedTransaction, this._getHubTransaction());
+	}
+
     _showTransaction(){
 	    this.$.transactionDialog.open();
         //this.shadowRoot.querySelector("#transaction_name").innerHTML = "" // erase previous title
@@ -2697,7 +2712,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
                     req.send(null);
 				} else {
                     var slot = this.shadowRoot.querySelector("#kmehr_slot");
-                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype
+                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype + ":" + tranResp
 				}
 
             } else {
@@ -4097,74 +4112,46 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this.$['chapterivdialog'].open()
 	}
 
+    updateEdmgClassList( cssClassToAssign ) {
+        this.$.edmgStatus.classList.remove('edmgPending');
+        this.$.edmgStatus.classList.remove('edmgOk');
+        this.$.edmgStatus.classList.add(cssClassToAssign||'');
+    }
+
 
     updateEdmgStatus(){
-        let edmgDialogComponent = this.root.querySelector("#edmgDialog");
 
-        // Drop statuses, if any
-	    this.$.edmgStatus.classList.remove('edmgPending'); this.$.edmgStatus.classList.remove('edmgOk');
+        if (!this.api.tokenId || this.isLoading) return;
 
-        // Everything that isn't today
-        this.flushOldEdmgStatusCache();
+        this.set('isLoading', true);
 
-        // Do we have an existing cache file ? (One hit a day by HCP & Patient)
-        const cachedEdmgRespStorageName = 'org.taktik.icure.edmgStatus' + moment().format('YYYYMMDD') + '.' + this.user.healthcarePartyId + '.' + edmgDialogComponent.patient.ssin;
+        this.api.getUpdatedEdmgStatus(
+            this.user,
+            this.patient,
+            null, // requestDate
+            null, // edmgNiss,
+            null, // edmgOA,
+            this.genInsOA,
+            this.genInsAFF
+        ).then(edmgStatusResponse => {
 
-        // Try to get data from cache
-        const cachedEdmgResp = localStorage.getItem( cachedEdmgRespStorageName ) || null;
-        if( cachedEdmgResp ) { this.visualUpdateEdmgStatus( JSON.parse(cachedEdmgResp), edmgDialogComponent ); return; }
+            if(!edmgStatusResponse ||(edmgStatusResponse.errors && edmgStatusResponse.errors.length > 0 ) ||!edmgStatusResponse.hcParty){ this.set('isLoading',false); return; }
 
-        // Couldn't get data from cache, do hit + trigger status visual update
-        edmgDialogComponent.getDmgConsult().then( edmgResp => { this.visualUpdateEdmgStatus( edmgResp, edmgDialogComponent ); localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) ); }).catch((e) => { console.log('error getDmgConsult' , e); });
-    }
-
-
-
-    visualUpdateEdmgStatus( edmgResp, edmgDialogComponent ){
-
-        // Define now
-        let currentTstamp = moment().valueOf();
-
-	    // Something wrong ?
-        if( !edmgResp || edmgDialogComponent._hasErrors(edmgResp) || !edmgResp.hcParty || !this.user || !this.user.healthcarePartyId ) return;
-
-        // Get connected user's HCP.nihii
-        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(
-            thisHcp => {
-                // Connected doctor !== the one that has patient's EDMG
-                if( thisHcp.nihii !== edmgDialogComponent._getHcpNihii(edmgResp) ) { console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; }
-
-                // Valid status (last consultation between start & end of eDMG)
-                if( edmgResp.from <= currentTstamp && edmgResp.to >= currentTstamp ) { console.log( 'EDMG OK: last consultation less than 1 year ago' ); this.$.edmgStatus.classList.add('edmgOk'); return; }
-
-                // Pending status (last consultation more than a year ago but less than 2 years ago)
-                if( edmgResp.from > currentTstamp && currentTstamp >= moment(edmgResp.from).subtract(1, 'year').valueOf() ) { console.log( 'EDMG PENDING: last consultation less than 2 years ago (but more than one)' ); this.$.edmgStatus.classList.add('edmgPending'); return; }
-
-                /// Anything else
-                console.log( 'EDMG FAILED: last consultation more than 2 years ago' );
-
-            }
-        ).catch(() => { console.log( 'error getHealthcareParty' ); console.log(e); })
+            // Get connected user's HCP.nihii (the only comparaison key with EDMG's result
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(
+                thisHcp => {
+                    this.set('isLoading', false);
+                    const currentTstamp = moment().valueOf();
+                    if( thisHcp.nihii !== ( edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY') ? edmgStatusResponse.hcParty.ids.find(id => id.s === 'ID_HCPARTY').value : '' ) ) { console.log( 'EDMG Failed : patient is NOT mine (based on nihii) ' ); return; } // Connected doctor !== the one that has patient's EDMG
+                    if( edmgStatusResponse.from <= currentTstamp && edmgStatusResponse.to >= currentTstamp ) { this.updateEdmgClassList('edmgOk'); console.log( 'EDMG OK: last consultation less than 1 year ago' ); return; } // Valid status (last consultation between start & end of eDMG)
+                    if( edmgStatusResponse.from > currentTstamp && currentTstamp >= moment(edmgStatusResponse.from).subtract(1, 'year').valueOf() ) { this.updateEdmgClassList('edmgPending');console.log( 'EDMG PENDING: last consultation less than 2 years ago (but more than one)' ); return; } // Pending status (last consultation more than a year ago but less than 2 years ago)
+                    console.log( 'EDMG FAILED: last consultation more than 2 years ago' ); // Anything else
+                }
+            ).catch(() => { this.set('isLoading', false); })
+        }).catch(() => { this.set('isLoading', false); });
 
     }
 
-
-
-    flushOldEdmgStatusCache() {
-
-        // Target what's for us
-	    let patternToLookFor= 'org.taktik.icure.edmgStatus';
-
-        // Loop and drop old ones
-	    Object.keys(localStorage).filter(k => k.startsWith(patternToLookFor)).forEach(k => {
-            // patternToLookFor . YYYYMMDD . userHcpId. patientSsin
-	        const [dateFormCache] = k.replace(patternToLookFor,'').split('.');
-
-            // Drop if older than today
-	        if(moment(dateFormCache).isBefore(moment(), 'day')) { localStorage.removeItem(k) }
-        });
-
-    }
 
 }
 
