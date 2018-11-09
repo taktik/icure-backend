@@ -63,8 +63,8 @@
             }
 
             #dialog{
-                min-height: 600px;
-                min-width: 800px;
+                min-height: 800px;
+                min-width: 1024px;
             }
 
             .links {
@@ -183,13 +183,23 @@
         <paper-dialog id="dialog" opened="{{opened}}">
             <h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
             <div>
-                <p><b>[[localize('pat_hub_info','Pat Hub info',language)]]</b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
+                <paper-dropdown-menu id="preferredHub" label="[[localize('cur_hub','Current hub',language)]]">
+                    <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{curHub}}">
+                        <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+                        <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+                        <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
             </div>
-            <template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent) || !hubSupportsConsent]]">
+            <template is="dom-if" if="[[hubSupportsConsent]]">
                 <div>
+                    <p><b>[[localize('pat_hub_info','Pat Hub info',language)]]</b>[[_getHubPatientInfoDesc(patientHubInfo)]]</p>
                     <p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p>
                     <p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p>
                 </div>
+            </template>
+            <template is="dom-if" if="[[_enableTransactionList(patientHubConsent, hubSupportsConsent)]]">
+
                 <vaadin-grid id="transaction-list" class="material" overflow="bottom" on-tap="click"  items=[[hubTransactionList]] active-item="{{activeItem}}">
                     <!--file-remove-->
                     <vaadin-grid-column width="30px">
@@ -242,19 +252,19 @@
 
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
             </template>
-            <template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
+            <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
                 <paper-input id="idCardNo" label="[[localize('eid_no','eID Card Number',language)]]" value="{{eidCardNumber}}"></paper-input>
                 <paper-input id="isiCardNo" label="[[localize('isi_no','ISI+ Card Number',language)]]" value="{{isiCardNumber}}"></paper-input>
             </template>
             <!--<paper-button on-tap="_getConsent">[[localize('get_cons','Get consent',language)]]</paper-button>-->
             <div class="buttons">
                 <!--<paper-button on-tap="_revokeConsent" dialog-confirm>[[localize('revoke_cons','Revoke consent',language)]]</paper-button>-->
-                <template is="dom-if" if="[[!_patientHasHubConsent(patientHubConsent)]]">
+                <template is="dom-if" if="[[_enableRegisterConsent(patientHubConsent, hubSupportsConsent)]]">
                     <paper-button on-tap="_registerHubPatConsent" dialog-confirm>[[localize('register_cons','Register consent',language)]]</paper-button>
                     <paper-button on-tap="_registerHubPatientTherapeuticLink" dialog-confirm>[[localize('register_therlink','Register therapeutic link',language)]]</paper-button>
                 </template>
 
-                <template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent)]]">
+                <template is="dom-if" if="[[_enableRevokeConsent(patientHubConsent, hubSupportsConsent)]]">
                     <paper-button on-tap="_revokeHubPatientTherapeuticLink" dialog-confirm>[[localize('revoke_therlink','Revoke therapeutic link',language)]]</paper-button>
                 </template>
 
@@ -310,6 +320,15 @@
                     isiCardNumber:{
                         type: String,
                         value : '',
+                    },
+                    curHub:{
+                        type: String,
+                        value: null,
+                        observer: '_curHubChanged'
+                    },
+                    curEnv:{
+                        type: String,
+                        value: null
                     },
                     hubId:{
                         type: Number,
@@ -415,41 +434,72 @@
                         typedValue: {type: 'STRING', stringValue: 'prd'}
                     })
 
-                switch (propHub.typedValue.stringValue) {
+                this.set("curHub", propHub.typedValue.stringValue);
+                this.set("curEnv", propEnv.typedValue.stringValue);
+
+                this._setHub();
+
+
+            }
+
+            _enableTransactionList(hubconsent, supportConsent){
+                return this._patientHasHubConsent(hubconsent)|| !supportConsent;
+            }
+
+            _enableRegisterConsent(hubconsent, supportConsent){
+                return !this._patientHasHubConsent(hubconsent) && supportConsent;
+            }
+
+            _enableRevokeConsent(hubconsent, supportConsent){
+                return this._patientHasHubConsent(hubconsent) && supportConsent;
+            }
+
+
+            _curHubChanged(){
+                this._setHub();
+            }
+
+            _setHub(){
+                this.set('hcpHubConsent', null);
+                this.set('patientHubConsent', null);
+                this.set('patientHubTherLinks', null);
+                this.set('hubTransactionList', null);
+                this.set('patientHubInfo', null);
+                switch (this.curHub) {
                     case 'rsb':
                         this.hubId = 1990000728
-                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx' : 'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx'
+                        this.hubEndPoint = this.curEnv === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx' : 'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx'
                         this.hubSupportsConsent = true
                         this.hubPackageId = null
                         this.hubApplication = null
                         break
                     case 'rsw':
                         this.hubId = 1990000035
-                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx'
+                        this.hubEndPoint = this.curEnv === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx'
                         this.hubSupportsConsent = true
                         this.hubPackageId = null
                         this.hubApplication = "RSW"
                         break
                     case 'cozo':
-                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? '' : ''
+                        this.hubEndPoint = this.curEnv === 'acc' ? '' : ''
                         this.hubSupportsConsent = true
                         this.hubPackageId = null
                         this.hubApplication = null
                         break
                     case 'vitalink':
                         this.hubId = 1990001916
-                        this.hubEndPoint = propEnv.typedValue.stringValue === 'acc' ? 'https://vitalink-acpt.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService' : 'https://vitalink.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService'
+                        this.hubEndPoint = this.curEnv === 'acc' ? 'https://vitalink-acpt.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService' : 'https://vitalink.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService'
                         this.hubSupportsConsent = false
-                        this.hubPackageId = propEnv.typedValue.stringValue === 'acc' ? "ACC_73424e1e-7eab-4b2c-9a8d-90a2bd1c078f" : ""; //TODO: add production value
+                        this.hubPackageId = this.curEnv === 'acc' ? "ACC_73424e1e-7eab-4b2c-9a8d-90a2bd1c078f" : ""; //TODO: add production value
                         this.hubApplication = "VITALINKGATEWAY"
                         break
                 }
 
-                this._getHubHcpConsent().then(consentResp => this.set('hcpHubConsent', consentResp));
-                this._getHubPatientConsent().then(consentResp => this.set('patientHubConsent', consentResp));
-                this._getHubTherapeuticLinks().then(tlResp => this.set('patientHubTherLinks', tlResp));
+                if (this.hubSupportsConsent) this._getHubHcpConsent().then(consentResp => this.set('hcpHubConsent', consentResp));
+                if (this.hubSupportsConsent) this._getHubPatientConsent().then(consentResp => this.set('patientHubConsent', consentResp));
+                if (this.hubSupportsConsent) this._getHubTherapeuticLinks().then(tlResp => this.set('patientHubTherLinks', tlResp));
                 this._getHubTransactionList().then(tranResp => this.set('hubTransactionList', tranResp));
-                this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat));
+                if (this.hubSupportsConsent) this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat));
             }
 
             close() {
