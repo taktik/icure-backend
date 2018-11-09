@@ -26,6 +26,8 @@ import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Invoice;
+import org.taktik.icure.entities.embed.InvoiceType;
+import org.taktik.icure.entities.embed.MediumType;
 
 public interface InvoiceDAO extends GenericDAO<Invoice> {
 	PaginatedList<Invoice> findByHcParty(String hcParty, Long fromDate, Long toDate, PaginationOffset<ComplexKey> paginationOffset);
@@ -33,13 +35,23 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 	List<Invoice> listByHcPartyReferences(String hcParty, Set<String> invoiceReferences);
 	List<Invoice> listByHcPartyReferences(String hcParty, String from, String to, boolean descending, int limit);
 
+	List<Invoice> listByHcPartyGroupId(String hcParty, String groupId);
 	List<Invoice> listByHcPartyRecipientIds(String hcParty, Set<String> recipientId);
 	List<Invoice> listByHcPartyPatientFk(String hcParty, Set<String> secretPatientKeys);
 	List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientFkUnsent(String hcParty, Set<String> secretPatientKeys);
 
+	List<Invoice> listByHcPartyEfactUnsent(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactPending(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactToBeCorrected(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactTreated(String hcParty, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactArchived(String hcParty, Long fromDate, Long toDate);
+ 	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
+	List<Invoice> listByHcPartyEfactStatus(String hcParty, Boolean pending, Boolean canceled, Boolean accepted, Boolean resent, Boolean archived, Long fromDate, Long toDate);
+
 	List<Invoice> listByServiceIds(Set<String> serviceIds);
 
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
 	List<Invoice> listConflicts();
+
 }

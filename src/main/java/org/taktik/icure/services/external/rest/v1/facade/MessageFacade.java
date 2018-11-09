@@ -277,9 +277,11 @@ public class MessageFacade implements OpenApiFacade{
 	)
 	@GET
 	@Path("/byTransportGuid")
-	public Response findMessagesByTransportGuid(@QueryParam("transportGuid") String transportGuid, @QueryParam("startKey") String startKey,
+	public Response findMessagesByTransportGuid(@QueryParam("transportGuid") String transportGuid, @QueryParam("received") Boolean received, @QueryParam("startKey") String startKey,
 												@QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit) throws LoginException {
 		Response response;
+
+		boolean receivedPrimitive = (received != null ? received : false);
 
 		ArrayList<Object> startKeyList = null;
 		if (startKey != null && startKey.length() > 0) {
@@ -287,7 +289,14 @@ public class MessageFacade implements OpenApiFacade{
 		}
 		PaginationOffset paginationOffset = new PaginationOffset<List<Object>>(startKeyList, startDocumentId, null, limit == null ? null : limit);
 
-		PaginatedList<Message> messages = messageLogic.findByTransportGuid(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), transportGuid, paginationOffset);
+		PaginatedList<Message> messages;
+
+		if(receivedPrimitive){
+            messages = messageLogic.findByTransportGuidReceived(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), transportGuid, paginationOffset);
+        } else {
+            messages = messageLogic.findByTransportGuid(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), transportGuid, paginationOffset);
+        }
+
 		if (messages != null) {
 			response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
 		} else {

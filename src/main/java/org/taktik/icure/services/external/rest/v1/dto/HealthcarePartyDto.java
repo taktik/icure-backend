@@ -37,7 +37,6 @@ public class HealthcarePartyDto extends StoredDto {
      */
     private static final long serialVersionUID = 1L;
 
-	protected Set<AddressDto> addressDtos;
     protected String name;
     protected String lastName;
     protected String firstName;
@@ -56,6 +55,8 @@ public class HealthcarePartyDto extends StoredDto {
     protected String ssin;
 	protected String cbe;
 	protected Integer convention; //0,1,2,9
+    protected String userId;
+	protected String supervisorId;
 
     protected String notes;
 
@@ -74,15 +75,6 @@ public class HealthcarePartyDto extends StoredDto {
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
 	protected Map<String, String> options = new HashMap<>();
-
-
-	public Set<AddressDto> getAddressDtoEmbeds() {
-		return addressDtos;
-	}
-
-	public void setAddressDtoEmbeds(Set<AddressDto> addressDtos) {
-		this.addressDtos = addressDtos;
-	}
 
 	public String getName() {
         return name;
@@ -212,14 +204,6 @@ public class HealthcarePartyDto extends StoredDto {
         this.ssin = ssin;
     }
 
-    public Set<AddressDto> getAddressDtos() {
-        return addressDtos;
-    }
-
-    public void setAddressDtos(Set<AddressDto> addressDtos) {
-        this.addressDtos = addressDtos;
-    }
-
     public Gender getGender() {
         return gender;
     }
@@ -292,6 +276,15 @@ public class HealthcarePartyDto extends StoredDto {
 		this.convention = convention;
 	}
 
+    public String getSupervisorId() {
+        return supervisorId;
+    }
+
+    public void setSupervisorId(String supervisorId) {
+        this.supervisorId = supervisorId;
+    }
+
+
 	public List<FinancialInstitutionInformationDto> getFinancialInstitutionInformation() {
         return financialInstitutionInformation;
     }
@@ -307,4 +300,8 @@ public class HealthcarePartyDto extends StoredDto {
 	public void setOptions(Map<String, String> options) {
 		this.options = options;
 	}
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
 }

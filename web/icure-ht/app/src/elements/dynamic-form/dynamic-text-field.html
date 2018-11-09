@@ -9,6 +9,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
 
 <link rel="import" href="dynamic-link.html">
+<link rel="import" href="validator/ht-ssin-validator.html">
 
 <dom-module id="dynamic-text-field">
 	<template>
@@ -98,7 +99,8 @@
 						<span class="modified-after-out">[[localize('obs_val','obsolete value',language)]]<iron-icon class="modified-icon" icon="report-problem"></iron-icon></span>
 					</template>
 				</label>
-				<iron-input slot="input" bind-value="{{value}}">
+				<ht-ssin-validator validator-name="ht-ssin-validator"></ht-ssin-validator>
+				<iron-input slot="input" auto-validate validator="[[_validator(pattern)]]" bind-value="{{value}}">
 					<input type="text" value="{{value::input}}">
 				</iron-input>
 			</paper-input-container>
@@ -130,7 +132,10 @@ class DynamicTextField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			label: {
 				type: String
 			},
-			context: {
+            pattern: {
+                type: String
+            },
+            context: {
 				type: String
 			},
 			value: {
@@ -165,6 +170,10 @@ class DynamicTextField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 	_valueChanged(value) {
 		this.dispatchEvent(new CustomEvent('field-changed', { detail: { context: this.context, value: value } }));
+	}
+
+	_validator(pattern) {
+	    return pattern === ':ssin' ? 'ht-ssin-validator' : null
 	}
 
 }

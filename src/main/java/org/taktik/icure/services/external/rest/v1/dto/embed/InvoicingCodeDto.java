@@ -49,7 +49,8 @@ public class InvoicingCodeDto implements Serializable {
 	//Etarif
 	protected String code;
     protected String error;
-    protected String contract;
+	protected String contract;
+	protected Long contractDate;
     protected Integer units;
     protected Integer side;
     protected Integer timeOfDay;
@@ -65,6 +66,7 @@ public class InvoicingCodeDto implements Serializable {
 	protected Boolean accepted;
 	protected Boolean pending;
 	protected Boolean resent;
+	protected Boolean archived;
 
     protected Integer insuranceJustification;
 	protected Integer cancelPatientInterventionReason;
@@ -77,6 +79,7 @@ public class InvoicingCodeDto implements Serializable {
 	protected String locationNihii;
 	protected String locationCdHcParty;
 
+	protected Long status;
 
 	public Long getDateCode() {
         return dateCode;
@@ -206,7 +209,15 @@ public class InvoicingCodeDto implements Serializable {
         this.contract = contract;
     }
 
-    public Integer getUnits() {
+	public Long getContractDate() {
+		return contractDate;
+	}
+
+	public void setContractDate(Long contractDate) {
+		this.contractDate = contractDate;
+	}
+
+	public Integer getUnits() {
         return units;
     }
 
@@ -335,6 +346,10 @@ public class InvoicingCodeDto implements Serializable {
 		this.resent = resent;
 	}
 
+	public Boolean getArchived() { return archived; }
+
+	public void setArchived(Boolean archived) { this.archived = archived; }
+
 	public String getEidReadingValue() {
 		return eidReadingValue;
 	}
@@ -403,4 +418,7 @@ public class InvoicingCodeDto implements Serializable {
 
 	public void setCode(String code) { this.code = code; }
 
+    public Long getStatus() { return status; }
+
+    public void setStatus(Long status) { this.status = status; }
 }

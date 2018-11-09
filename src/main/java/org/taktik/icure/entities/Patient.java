@@ -31,6 +31,7 @@ import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.entities.embed.FinancialInstitutionInformation;
 import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.entities.embed.Insurability;
+import org.taktik.icure.entities.embed.MedicalHouseContract;
 import org.taktik.icure.entities.embed.Partnership;
 import org.taktik.icure.entities.embed.PatientHealthCareParty;
 import org.taktik.icure.entities.embed.PersonalStatus;
@@ -90,11 +91,14 @@ public class Patient extends StoredICureDocument implements Person {
     protected List<Partnership> partnerships = new ArrayList<>();
 	protected List<PatientHealthCareParty> patientHealthCareParties = new ArrayList<>();
     protected List<FinancialInstitutionInformation> financialInstitutionInformation = new ArrayList<>();
+	protected List<MedicalHouseContract> medicalHouseContracts = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
 
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
+
+	protected Boolean openNote;
 
 
 	public @Nullable
@@ -345,7 +349,15 @@ public class Patient extends StoredICureDocument implements Person {
 		this.warning = warning;
 	}
 
-	@Override
+    public List<MedicalHouseContract> getMedicalHouseContracts() {
+        return medicalHouseContracts;
+    }
+
+    public void setMedicalHouseContracts(List<MedicalHouseContract> medicalHouseContracts) {
+        this.medicalHouseContracts = medicalHouseContracts;
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -537,4 +549,8 @@ public class Patient extends StoredICureDocument implements Person {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public Boolean getOpenNote() { return openNote; }
+
+    public void setOpenNote(Boolean openNote) { this.openNote = openNote; }
 }

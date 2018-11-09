@@ -1,0 +1,33 @@
+{
+  "sections": [
+    {
+      "formColumns": [
+        {
+          "formDataList": [
+            {
+              "editor" : {
+                "readOnly" : false,
+                "height" : 22,
+                "labelPosition" : "Left",
+                "width" : 820,
+                "multiline" : false,
+                "left" : 340,
+                "top" : 5,
+                "key" : "StringEditor"
+              },
+              "sortOrder" : 1463236439,
+              "codeTypes" : [
+
+              ],
+              "label" : "Medical house ID",
+              "type" : "TKString",
+              "subForm" : false,
+              "name" : "mmNihii",
+              "irrelevant" : true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -297,6 +297,27 @@ public abstract class GenericResultFormatLogicImpl {
 		}
 	}
 
+	class PatientSSINLine {
+		protected String protocol;
+		protected String ssin;
+
+		public String getProtocol() {
+			return protocol;
+		}
+
+		public void setProtocol(String protocol) {
+			this.protocol = protocol;
+		}
+
+		public String getSsin() {
+			return ssin;
+		}
+
+		public void setSsin(String ssin) {
+			this.ssin = ssin;
+		}
+	}
+
 	class ProtocolLine {
 		protected String protocol;
 		protected String code;

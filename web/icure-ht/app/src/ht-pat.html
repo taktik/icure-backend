@@ -17,6 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/ht-pat/ht-pat-detail.html">
 
 <link rel="import" href="./shared-styles.html">
+<link rel="import" href="./scrollbar-style.html">
 
 <script src="../bower_components/moment/moment.js"></script>
 <script src="../bower_components/base64-js/base64js.min.js"></script>
@@ -28,7 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="ht-pat">
 
 	<template>
-		<style include="shared-styles">
+		<style include="shared-styles scrollbar-style">
 			:host {
 				display: block;
 				height: calc(100% - 20px);
@@ -55,7 +56,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	static get properties() {
 		return {
 			api: {
-				type: Object
+				type: Object,
+                noReset: true
 			},
 			user: {
 				type: Object
@@ -66,6 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			},
 			routeData: {
 				type: Object,
+                noReset: true,
 				value: {}
 			},
 			selectedPatient: {
@@ -82,6 +85,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	constructor() {
 		super();
+	}
+
+	reset() {
+		const props = HtPat.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
 	}
 
 	ready() {
@@ -104,7 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				this.set('selectedPatient', null);
 			}
 		} else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
-			this.api.patient().getPatient(this.routeData.selectedPatientId).then(p => this.set('selectedPatient', p));
+			this.api.patient().getPatient(this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
 		}
 	}
 

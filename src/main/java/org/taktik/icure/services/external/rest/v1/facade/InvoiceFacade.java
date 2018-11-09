@@ -20,15 +20,7 @@ package org.taktik.icure.services.external.rest.v1.facade;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -177,7 +169,6 @@ public class InvoiceFacade implements OpenApiFacade{
 			Invoice invoice = invoiceLogic.modifyInvoice(mapper.map(invoiceDto, Invoice.class));
 			if (invoice != null) {
 				response = ResponseUtils.ok(mapper.map(invoice, InvoiceDto.class));
-
 			} else {
 				response = ResponseUtils.internalServerError("Invoice modification failed");
 			}
@@ -341,6 +332,136 @@ public class InvoiceFacade implements OpenApiFacade{
 
 		Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
 		return Response.ok().entity(invoiceLogic.listByHcPartyPatientSks(hcPartyId, new HashSet<>(secretPatientKeys)).stream().map(contact -> mapper.map(contact, IcureStubDto.class)).collect(Collectors.toList())).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/unsent")
+	public Response listByHcPartyEfactUnsent(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactUnsent(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/pending")
+	public Response listByHcPartyEfactPending(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactPending(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List efact invoices to be corrected by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/tobecorrected")
+	public Response listByHcPartyEfactToBeCorrected(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactToBeCorrected(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List treated efact invoices by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/treated")
+	public Response listByHcPartyEfactTreated(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactTreated(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List archived efact invoices by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/archived")
+	public Response listByHcPartyEfactArchived(@PathParam("hcPartyId") String hcParty, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactArchived(hcParty, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List efact invoices to be corrected by hcp",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/efact/status")
+	public Response listByHcPartyEfactStatus(
+			@PathParam("hcPartyId") String hcParty,
+			@DefaultValue("false") @QueryParam("pending") Boolean pending,
+			@DefaultValue("false") @QueryParam("canceled") Boolean canceled,
+			@DefaultValue("false") @QueryParam("accepted") Boolean accepted,
+			@DefaultValue("false") @QueryParam("resent") Boolean resent,
+			@DefaultValue("false") @QueryParam("archived") Boolean archived,
+			@QueryParam("from") Long fromDate,
+			@QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyEfactStatus(hcParty, pending, canceled, accepted, resent, archived, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by groupId",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcPartyGroupId/{hcPartyId}/{groupId}")
+	public Response listByHcPartyGroupId(@PathParam("hcPartyId") String hcParty, @PathParam("groupId") String groupId) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartyGroupId(hcParty, groupId);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
+	}
+
+	@ApiOperation(
+			value = "List invoices by type, sent or unsent",
+			response = InvoiceDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Keys have to delimited by coma"
+	)
+	@GET
+	@Path("/byHcParty/{hcPartyId}/mediumType/{sentMediumType}/invoiceType/{invoiceType}/sent/{sent}")
+	public Response listByHcPartySentMediumTypeInvoiceTypeSentDate(@PathParam("hcPartyId") String hcParty, @PathParam("sentMediumType") MediumType sentMediumType,
+																   @PathParam("invoiceType") InvoiceType invoiceType, @PathParam("sent") boolean sent,
+																   @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate) {
+		List<Invoice> invoices = invoiceLogic.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate);
+		List<InvoiceDto> invoicesDto = invoices.stream().map(el -> mapper.map(el, InvoiceDto.class)).collect(Collectors.toList());
+		return Response.ok().entity(invoicesDto).build();
 	}
 
 	@ApiOperation(

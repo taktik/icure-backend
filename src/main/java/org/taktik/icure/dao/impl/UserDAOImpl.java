@@ -45,7 +45,7 @@ import java.util.List;
 public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Autowired
-	public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+	public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(User.class, couchdb, idGenerator, cacheManager);
 		initStandardDesignDocument();
 	}
@@ -121,11 +121,22 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User getUserOnUserDb(String userId, String groupId) {
+	@View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
+	public List<User> getUsersByPartialIdOnFallback(String id) {
+		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_id").includeDocs(true).key(id), type);
+	}
+
+	@Override
+	public List<User> findByUsernameOnFallback(String login) {
+		return ((CouchDbICureConnector) db).getFallbackConnector().queryView(createQuery("by_username").includeDocs(true).key(login), type);
+	}
+
+	@Override
+	public User getUserOnUserDb(String userId, String groupId, boolean bypassCache) {
 		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
 
 		String fullId = userDb.getUuid() + ":" + userId;
-		Cache.ValueWrapper value = cache.get(fullId);
+		Cache.ValueWrapper value = bypassCache ? null : cache.get(fullId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);
@@ -142,11 +153,11 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	public User findUserOnUserDb(String userId, String groupId) {
+	public User findUserOnUserDb(String userId, String groupId, boolean bypassCache) {
 		CouchDbICureConnector userDb = ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId);
 
 		String fullId = userDb.getUuid() + ":" + userId;
-		Cache.ValueWrapper value = cache.get(fullId);
+		Cache.ValueWrapper value = bypassCache ? null : cache.get(fullId);
 
 		if (value == null) {
 			User user = userDb.find(User.class, userId);

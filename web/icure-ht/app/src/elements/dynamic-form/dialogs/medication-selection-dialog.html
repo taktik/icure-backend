@@ -11,12 +11,10 @@
 
 <link rel="import" href="../../../../bower_components/paper-tabs/paper-tabs.html">
 
-<link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
-<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 
-
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
 
 <dom-module id="medication-selection-dialog">
     <template>
@@ -58,6 +56,7 @@
                 height: 40px;
                 min-width: 100px;
                 padding: 10px 1.2em;
+                text-transform: capitalize;
             }
 
             .modal-button--save {
@@ -148,6 +147,7 @@
                 height: 40px;
                 min-width: 100px;
                 padding: 10px 1.2em;
+                text-transform: capitalize;
             }
 
             .modal-button--save{
@@ -157,9 +157,18 @@
                 font-weight: 700;
 
             }
+
+            paper-spinner {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                z-index: 150;
+                transform: translate(-50%,-50%);
+            }
         </style>
 
         <paper-dialog id="medication-selection" always-on-top="true">
+            <paper-spinner class="center" active="[[isLoadingEntities]]"></paper-spinner>
             <h2 class="modal-title">[[localize('sel_med','Select medication',language)]]</h2>
             <paper-tabs selected="{{medicationType}}" attr-for-selected="name">
                 <paper-tab name="medicinalProduct" on-tap="setMedicationType">
@@ -179,8 +188,7 @@
                 </paper-input-container>
             </template>
             <div class$="grid-container [[_noGridClass(medicationType)]]">
-                <paper-input id="filter" label="Filter" value="{{filterValue}}" on-keydown="refresh"></paper-input>
-
+                <paper-input id="filter" label="Search a medicine" value="{{filterValue}}" on-keydown="refresh"></paper-input>
                 <vaadin-grid id="entities-list" active-item="{{selectedMedicationFromList}}" on-tap="click">
                     <template is="dom-repeat" items="[[_getColumns(medicationType)]]" as="column">
                         <vaadin-grid-column width="[[_columnWidth(column)]]">
@@ -257,7 +265,14 @@
                         value: null,
                         notify: true
                     },
-
+                    filterValue: {
+                        type: String,
+                        value: ''
+                    },
+                    isLoadingEntities: {
+                        type: Boolean,
+                        value: false
+                    }
                 }
             }
 
@@ -366,6 +381,7 @@
             setGridSize(grid, size) {
                 console.log('setSize', size)
                 grid.set('size', size)
+                this.set('isLoadingEntities',false)
             }
 
             _cellContent(item, column) {
@@ -393,6 +409,11 @@
                         this.set("bufferUnit",mppInfos.gal.name)
                         this.set("bufferQuantity",1)
 
+                        if (this.selectedMedicationContentWithId.isNew) {
+                            this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                        } else {
+                            this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                        }
                     })
                 } else {
                     if (med.inncluster) {
@@ -412,11 +433,12 @@
                     }])
                     this.set("bufferUnit",this.localize('generic_unit','unit',language))
                     this.set("bufferQuantity",1)
-                }
-                if (this.selectedMedicationContentWithId.isNew) {
-                    this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
-                } else {
-                    this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+
+                    if (this.selectedMedicationContentWithId.isNew) {
+                        this.dispatchEvent(new CustomEvent('new-medication', {detail:this.newMedication, bubbles: true, composed: true}))
+                    } else {
+                        this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
+                    }
                 }
             }
 
@@ -470,6 +492,7 @@
                     }
                     setTimeout(function () {
                         if (currentValue === this.filterValue) {
+                            this.set('isLoadingEntities',true)
                             console.log("Triggering search for " + this.filterValue);
 
                             this.selectedMedicationFromList = null
@@ -481,12 +504,15 @@
                             grid.clearCache();
                         } else {
                             console.log("Skipping search for " + this.filterValue + " != " + currentValue);
+                            this.set('isLoadingEntities',false)
                         }
                     }.bind(this), 500); //Wait for the user to stop typing
                 }.bind(this), 100);
             }
 
             confirm() {
+                this.set('filterValue','')
+                this.set('medicationType','medicinalProduct')
                 if (this.compoundPrescriptionText) {
                     this.select({name: this.compoundPrescriptionText})
                 } else if (this.selectedMedicationFromList) {
@@ -495,13 +521,17 @@
             }
 
             skip() {
+                this.set('filterValue','')
+                this.set('medicationType','medicinalProduct')
+                this.$['entities-list'].clearCache();
             }
 
             close() {
                 if (!this.customFrequencyTable) {
                     this._setFrequencyList()
                 }
-
+                this.set('filterValue','')
+                this.$['entities-list'].clearCache();
                 this.set('customFrequencyTable', false)
                 this.set('selectedMedicationContentWithId', null)
                 this.set('flagTableFrequency', false)
@@ -510,6 +540,8 @@
             select(item) {
                 if (item) {
                     this.selectMedicationFromList(item);
+                    this.set('filterValue','')
+                    this.$['entities-list'].clearCache();
                     this.$['medication-selection'].close();
                 }
             }

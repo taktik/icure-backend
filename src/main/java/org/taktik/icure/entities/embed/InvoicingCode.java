@@ -65,6 +65,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
     protected String error;
 	//TODO... Might want to encrypt this as it could be used to identify the patient
     protected String contract;
+	protected Long contractDate;
     protected Integer units;
     protected Integer side;
     protected Integer timeOfDay;
@@ -92,6 +93,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Boolean accepted;
 	protected Boolean pending;
 	protected Boolean resent;
+	protected Boolean archived;
 
     protected Integer insuranceJustification;
 
@@ -135,6 +137,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.accepted = this.accepted == null ? other.accepted : this.accepted;
 		this.pending = this.pending == null ? other.pending : this.pending;
 		this.resent = this.resent == null ? other.resent : this.resent;
+		this.archived = this.archived == null ? other.archived : this.archived;
 		this.insuranceJustification = this.insuranceJustification == null ? other.insuranceJustification : this.insuranceJustification;
 		this.cancelPatientInterventionReason = this.cancelPatientInterventionReason == null ? other.cancelPatientInterventionReason : this.cancelPatientInterventionReason;
 		this.status = this.status == null ? other.status : this.status;
@@ -318,8 +321,15 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
         this.override3rdPayerReason = override3rdPayerReason;
     }
 
+	public Long getContractDate() {
+		return contractDate;
+	}
 
-    public Integer getPrescriberNorm() {
+	public void setContractDate(Long contractDate) {
+		this.contractDate = contractDate;
+	}
+
+	public Integer getPrescriberNorm() {
         return prescriberNorm;
     }
 
@@ -413,6 +423,14 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
 	public void setResent(Boolean resent) {
 		this.resent = resent;
+	}
+
+	public Boolean getArchived() {
+		return archived;
+	}
+
+	public void setArchived(Boolean archived) {
+		this.archived = archived;
 	}
 
 	public Long getStatus() {
@@ -513,6 +531,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.vat = this.vat == null ? other.vat : this.vat;
 		this.error = this.error == null ? other.error : this.error;
 		this.contract = this.contract == null ? other.contract : this.contract;
+		this.contractDate = this.contractDate == null ? other.contractDate : this.contractDate;
 		this.units = this.units == null ? other.units : this.units;
 		this.side = this.side == null ? other.side : this.side;
 		this.timeOfDay = this.timeOfDay == null ? other.timeOfDay : this.timeOfDay;

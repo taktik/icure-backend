@@ -10,6 +10,17 @@
     </template>
 </dom-module>
 
+<dom-module id="vaadin-date-picker-style" theme-for="vaadin-date-picker">
+    <template>
+        <style>
+            :host {
+                height: 50px !important;
+            }
+        </style>
+    </template>
+</dom-module>
+
+
 <dom-module id="vaadin-text-field-style" theme-for="vaadin-text-field">
     <template>
         <style>
@@ -17,7 +28,45 @@
                 color: var(--app-primary-color) !important;
             }
             [part="input-field"]::after, [part="input-field"]::before{
-                background-color: var(--app-primary-color);
+                background-color: var(--app-primary-color) !important;
+            }
+        </style>
+    </template>
+</dom-module>
+
+<dom-module id="invoice-grid-style" theme-for="vaadin-grid">
+    <template>
+        <style>
+            .pendingTable vaadin-grid{
+                width: 100px;
+            }
+            [part~="cell"]:not([part~="details-cell"]) {
+            }
+
+            :host [part~="header-cell"]:not([part~="details-cell"]) {
+            }
+
+            :host(#invoiceGrid) [part~=body-cell]:not([part~="details-cell"]){
+                background-color: var(--app-background-color);
+            }
+
+            :host(#invoiceGrid) [part~="footer-cell"]{
+                background-color: red;
+            }
+
+            :host(#invoiceGridDetail) [part~=body-cell]:not([part~="details-cell"]){
+                max-height: 48px;
+                overflow-y: auto;
+                align-items: flex-start;
+                padding-top: 14px;
+            }
+
+            :host(#mail-list) [part~=row]:hover {
+                background: var(--app-background-color-dark);
+            }
+
+            :host(#nmclGrid) [part~="cell"] {
+                padding: 4px 0;
             }
         </style>
     </template>

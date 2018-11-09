@@ -13,14 +13,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+
 <link rel="import" href="./shared-styles.html">
+<link rel="import" href="./scrollbar-style.html">
+<link rel="import" href="./spinner-style.html">
 
 <script src="../bower_components/webcrypto-shim/webcrypto-shim.js"></script>
 
 <dom-module id="ht-main">
 	<template>
 		<style include="iron-flex iron-flex-alignment"></style>
-		<style include="shared-styles">
+		<style include="shared-styles scrollbar-style spinner-style">
 			:host {
 				display: block;
 				padding: 24px;
@@ -69,6 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				padding: 16px;
 				height: calc(100% - 96px);
 				overflow: auto;
+				position: relative;
 			}
 
 			.consultations-list {
@@ -246,9 +251,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 			paper-checkbox {
 				--paper-checkbox-unchecked-color: var(--app-text-color);
-				--paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
-				--paper-checkbox-checkmark-color: var(--app-secondary-color);
-				--paper-checkbox-checked-color: var(--app-primary-color);
+				--paper-checkbox-label-color: var(--app-text-color);
+				--paper-checkbox-checked-color: var(--app-secondary-color);
+				--paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
 			}
 
 			paper-listbox {
@@ -381,6 +386,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				}
 			}
 
+			.spinner {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+            }
+
 		</style>
 
 		<div class="grid-container">
@@ -397,6 +409,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 						</div>
 					</template>
+					<paper-spinner class="spinner" alt="Loading latest patients" active=[[_isLoadingLatestPatients]]></paper-spinner>
 				</div>
 			</div>
 			<div class="card todays-consultations">
@@ -415,6 +428,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</div>
 						</template>
 					</div>
+					<paper-spinner class="spinner" alt="Loading today's consultations" active=[[_isLoadingTodaysConsultations]]></paper-spinner>
+
 				</div>
 			</div>
 			<div class="card latest-lab-result">
@@ -434,6 +449,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							<div class="card-table-cell">[[msg.subject]] </div>
 						</div>
 					</template>
+					<paper-spinner class="spinner" alt="Loading latest lab results" active=[[_isLoadingLatestLabResults]]></paper-spinner>
 				</div>
 			</div>
 			<div class="card todo-card">
@@ -460,6 +476,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							</paper-item>
 						</paper-listbox>
 					</template>
+					<paper-spinner class="spinner" alt="Loading to-do list" active=[[_isLoadingToDoList]]></paper-spinner>
 				</div>
 			</div>
 		</div>
@@ -484,10 +501,12 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	static get properties() {
 		return {
 			api: {
-				type: Object
+				type: Object,
+                noReset: true
 			},
 			user: {
-				type: Object
+				type: Object,
+                noReset: true
 			},
 			accessLogs: {
 				type: Array,
@@ -522,13 +541,30 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		};
 	}
 
-	constructor() {
+    static get observers() {
+        return ['apiReady(user,api)'];
+    }
+
+    constructor() {
 		super();
 	}
 
-	ready() {
-		super.ready();
+    reset() {
+        const props = HtMain.properties
+        Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
+    }
 
+    ready() {
+        super.ready();
+    }
+
+    apiReady() {
+	    if (!this.user || !this.api) { return }
+
+		this._isLoadingLatestPatients = true;
+		this._isLoadingLatestLabResults = true;
+		this._isLoadingTodaysConsultations = true;
+		this._isLoadingToDoList = true;
 		this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
 			const language = (hcp.languages || ['fr']).find(lng => lng && lng.length === 2);
 			language && this.set('language', language);
@@ -544,6 +580,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				}, {});
 				return this.api.patient().getPatients({ ids: Object.keys(accesses) }).then(patients => {
 					patients.forEach(p => accesses[p.id] && (accesses[p.id].patient = p));
+					this._isLoadingLatestPatients = false;
 					return accesses;
 				});
 			}).then(accesses => this.set('accessLogs', _.sortBy(Object.values(accesses), a => -a.access.date)));
@@ -557,6 +594,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				messages.rows.sort(function (a, b) {
 					return a.status && (1 << 0) - b.status && 1 << 0;
 				});
+				this._isLoadingLatestLabResults = false;
 				return messages.rows;
 			}).then(messages => this.set('messages', messages || []));
 
@@ -564,6 +602,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 				return appointments && this.api.patient().getPatients(new models.ListOfIdsDto({ ids: appointments.map(a => a.patientId) })).then(patients => {
 					//todo wtf JSON not valid
 					patients.forEach((p, idx) => appointments[idx].patient = p);
+					this._isLoadingTodaysConsultations = false;
 					return appointments;
 				});
 			}).then(appointments => this.set('appointments', appointments || []));
@@ -604,6 +643,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 					});
 				}).then(patients => services.map(s => ({ service: s, patient: patients.rows.find(p => p.id === s.patId) })));
 			}).then(services => this.set('services', (services || []).filter(it => it.patient)));
+			this._isLoadingToDoList = false;
 		});
 	}
 

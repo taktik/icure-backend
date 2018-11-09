@@ -13,14 +13,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-button.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-progress-bar/vaadin-progress-bar.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
@@ -62,6 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     flex-wrap: wrap;
                     flex-basis: 100%;
                     align-items: center;
+                    width:100%
                 }
 
                 .horizontal paper-input {
@@ -80,6 +84,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .horizontal vaadin-date-picker {
                     @apply --padding-right-left-16;
                     padding-top: 4px;
+                    height: 48px;
                 }
 
                 vaadin-grid.material {
@@ -120,16 +125,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 vaadin-grid.material .cell {
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    padding-right: 56px;
+                    padding-right: 0;
                 }
 
                 vaadin-grid.material .cell.last {
                     padding-right: 24px;
                 }
 
-                vaadin-grid.material .cell.numeric {
-                    text-align: right;
-                }
 
                 vaadin-grid.material paper-checkbox {
                     --primary-color: var(--paper-indigo-500);
@@ -219,7 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     @apply --shadow-elevation-2dp;
                     padding: 10px 1.2em;
                 }
-                
+
                 .add-btn, .exportcsv-btn {
                     text-transform: capitalize;
                 }
@@ -269,9 +271,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container {
                     width: 100%;
                     height: calc(100vh - 64px);
-                    /*display: grid;*/
-                    /*grid-template-columns: 20% 30% 50%;*/
-                    /*grid-template-rows: 100%;*/
                     position: fixed;
                     top: 64px;
                     left: 0;
@@ -280,11 +279,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
 
                 .first-filter-panel {
-                    /*width:20%;
-                    height:calc(100% - 64px);*/
                     height: 100%;
                     background: var(--app-background-color-dark);
-                    /*position:fixed;*/
                     top: 64px;
                     left: 0;
                     @apply --shadow-elevation-3dp;
@@ -345,10 +341,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     background: var(--app-primary-color);
                 }
 
-                .filterNameInput {
-                    width: 400px;
-                }
-
                 .deleteFilterIcon {
                     color: var(--app-text-color-disabled);
                 }
@@ -381,7 +373,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     border-left: 1px solid rgba(0,0,0,.05);
                     border-right: 1px solid rgba(0,0,0,.05);
 
-                }ht-hcp-list
+                }
 
                 #selectPatientOption_back {
                     min-width: 80px;
@@ -403,6 +395,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #sharePatientDialog {
                     width: 1000px;
+                }
+
+                #sharePatientDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 #inputGender {
@@ -430,6 +427,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 #sharePatientDelegationDialog{
                     width : 920px;
                 }
+                #sharePatientDelegationDialog > * {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
                 .delegationCheckBox {
                     width: 220px;
                 }
@@ -456,6 +457,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     height: 40px;
                     min-width: 100px;
                     padding: 10px 1.2em;
+                    text-transform: capitalize;
                 }
 
                 .modal-button--save{
@@ -464,9 +466,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     color: var(--app-primary-color-dark);
                     font-weight: 700;
                 }
-                paper-dialog > div {
+                paper-dialog > div:not(.buttons) {
                     margin-top:0;
+                    flex-grow: 1;
                 }
+
+                paper-dialog {
+                    width: 80%;
+                    display:flex;
+                    flex-flow: row wrap;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                }
+                paper-input{
+                    --paper-input-container-focus-color: var(--app-primary-color);
+                    font-size:var(--form-font-size);
+                }
+
+                #saveFilterDialog{
+                    align-items: center;
+                }
+                
+                #saveFilterDialog .buttons{
+                    padding: 8px 24px;
+                }
+
 
                 .saved-filters {
                     display: flex;
@@ -540,7 +564,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         z-index: 99;
                         padding: 8px 0;
 
-                        transition: .25s ease-out;
+                        transition: .25s cubic-bezier(0.075, 0.82, 0.165, 1);
                         transform: scaleY(0);
                         transform-origin: bottom;
                     }
@@ -558,6 +582,93 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .add-elem-mobile:hover {
                         background: rgba(0,0,0,.1);
                     }
+
+                    .eid {
+                        padding-top: 12px;
+                    }
+
+                    .administrative-panel {
+                        height:100%;
+                        background: var(--app-background-color);
+                        margin: 0;
+                        width:100%;
+                        grid-column: 2 / 4;
+                        /*grid-template-columns: 40px 200px 200px 40px;*/
+                        grid-row: 1 / 1;
+                    }
+
+                    paper-tabs {
+                        background: var(--app-secondary-color);
+                        --paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+                        --paper-tabs: {
+                            color: var(--app-text-color);
+                        };
+                    }
+
+                    paper-tab {
+                        --paper-tab-ink: var(--app-text-color);
+                    }
+
+                    paper-tab.iron-selected {
+                        font-weight: bold;
+                    }
+
+                    paper-tab.iron-selected iron-icon{
+                        opacity: 1;
+                    }
+
+                    paper-tab iron-icon{
+                        opacity: 0.5;
+                        color: var(--app-text-color);
+                    }
+
+                    .horizontal paper-input {
+                        @apply --padding-right-left-16;
+                        height: 65px;
+                    }
+
+                    .horizontal paper-input-container {
+                        @apply --padding-right-left-16;
+                        padding:0;
+                    }
+
+                    .horizontal paper-menu-button{
+                        padding:0;
+                    }
+
+                    .horizontal vaadin-date-picker {
+                        @apply --padding-right-left-16;
+                        padding-top: 4px;
+                        height: 48px;
+                    }
+
+                    .dialog {
+                        width: 80%;
+                        min-height:320px;
+                        display:flex;
+                        flex-flow: row wrap;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    }
+                }
+                paper-spinner {
+                    position: fixed;
+                    top: 210px;
+                    left: 50%;
+                    z-index: 9999;
+                    transform: translateX(-50%);
+                }
+                #add-patient-dialog {
+                    border-radius: 2px;
+                }
+                #add-patient-dialog .administrative-panel {
+                    padding: 0;
+                }
+                #add-patient-dialog .administrative-panel paper-tabs {
+                    border-radius: 2px 2px 0 0;
+                }
+                #add-patient-dialog .administrative-panel iron-pages {
+                    padding: 0 24px;
                 }
             </style>
         </custom-style>
@@ -599,15 +710,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <iron-icon class="del-filter" icon="clear" id="[[filter.name]]"
                                                on-tap="deleteFilter"></iron-icon>
                                 </div>
+                            </paper-button>
                         </template>
                     </div>
                 </template>
 
 
-
+                <paper-spinner class="center" active="[[isLoadingPatient]]"></paper-spinner>
                 <vaadin-grid id="patients-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}"
                              on-tap="click">
-                    <vaadin-grid-column width="32px">
+                    <vaadin-grid-column flex-grow="0" width="5%">
                         <template class="header">
                             <div class="cell frozen">[[localize('pic','Picture',language)]]</div>
                         </template>
@@ -622,7 +734,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
                     </vaadin-grid-column>
 
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
                             </vaadin-grid-sorter>
@@ -631,7 +743,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.lastName]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
                             </vaadin-grid-sorter>
@@ -640,7 +752,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.firstName]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="7%">
                         <template class="header">
                             <vaadin-grid-sorter path="dateOfBirth">[[localize('dat_of_bir','Date of birth',language)]]
                             </vaadin-grid-sorter>
@@ -649,7 +761,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[formatDateOfBirth(item.dateOfBirth)]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column width="100px">
+                    <vaadin-grid-column flex-grow="0" width="20%">
                         <template class="header">
                             <div class="cell frozen">[[localize('ema','Email',language)]]</div>
                         </template>
@@ -657,7 +769,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell frozen">[[item.email]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column>
+                    <vaadin-grid-column flex-grow="0" width="14%">
                         <template class="header">
                             <div class="cell numeric">[[localize('pho','Phone',language)]]</div>
                         </template>
@@ -665,7 +777,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="cell numeric">[[item.phone]]</div>
                         </template>
                     </vaadin-grid-column>
-                    <vaadin-grid-column>
+                    <vaadin-grid-column flex-grow="0" width="14%">
                         <template class="header">
                             <div class="cell numeric">[[localize('mob','Mobile',language)]]</div>
                         </template>
@@ -694,7 +806,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     patients',language)]]
                                 </div>
                             </template>
-                            <div class="add-elem-mobile" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
+                            <div class="add-elem-mobile" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                             </div>
                         </template>
                         <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
@@ -726,7 +838,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 patients',language)]]
                             </paper-button>
                         </template>
-                        <paper-button class="exportcsv-btn" on-tap="_exportListToCsv">[[localize('export_csv','Export to CSV',language)]]
+                        <paper-button class="exportcsv-btn" on-tap="_exportListToXls">[[localize('export_xls','Export to XLS',language)]]
                         </paper-button>
                     </template>
                     <template is="dom-if" if="[[_optionsChecked(shareOption.*,exportOption.*,fusionOption.*)]]">
@@ -744,84 +856,122 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </div>
 
-        <paper-dialog id="add-patient-dialog">
-            <div class="horizontal">
-                <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
-                <paper-input label="First name" value="{{firstName}}"></paper-input>
-                <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
-                <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
-                <paper-input-container>
-                    <label slot="label">[[localize("gender","Gender",language)]]
-                    </label>
-                    <iron-input slot="input" bind-value="{{valueGender}}">
-                        <input id="inputGender"  readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
-                    </iron-input>
-                    <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
-                        <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
-                        <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
-                            <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
-                            <template is="dom-repeat" items="[[option]]">
-                                <paper-item>[[item]]</paper-item>
-                            </template>
-                        </paper-listbox>
-                    </paper-menu-button>
-                </paper-input-container>
-            </div>
-            <div>
-                <template is="dom-if" if="[[displayResult]]">
-                    <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('las_nam','Last name',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.lastName]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('fir_nam','First name',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.firstName]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('dat_of_bir','Date of birth',language)]]
-                            </template>
-                            <template>
-                                <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('ssin','SSIN',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.ssin]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">
-                                [[localize('remark','Remarks',language)]]
-                            </template>
-                            <template>
-                                <div>[[item.remarks]]</div>
-                            </template>
-                        </vaadin-grid-column>
-                    </vaadin-grid>
-                </template>
-            </div>
-            <div class="buttons">
-                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
-                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]
-                </paper-button>
+
+
+
+
+
+
+            <paper-dialog id="add-patient-dialog" class="dialog">
+
+                <div class="administrative-panel" style="width:100%">
+
+
+                    <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
+                        <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon> [[localize('subscription_form_physical_person','Physical person',language)]]</paper-tab>
+                        <paper-tab class="adm-tab"><iron-icon style="margin-right:10px" icon="vaadin:family"></iron-icon> [[localize('subscription_form_medical_house','Medical houses',language)]]</paper-tab>
+                    </paper-tabs>
+
+
+                    <iron-pages selected="[[tabs]]" class="">
+                        <page>
+                            <div class="horizontal" style="margin-top:20px">
+                                    <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
+                                    <paper-input label="Last name" style="min-width:200px" value="{{lastName}}"></paper-input>
+                                    <paper-input label="First name" value="{{firstName}}"></paper-input>
+                                    <vaadin-date-picker label="Date of Birth" i18n="[[i18n]]" value="{{dateAsString}}"></vaadin-date-picker>
+                                    <paper-input label="Ssin" value="{{ssin}}" on-keyup="_searchDuplicate"></paper-input>
+                                    <paper-input-container>
+                                        <label slot="label">[[localize("gender","Gender",language)]]
+                                        </label>
+                                        <iron-input slot="input" bind-value="{{valueGender}}">
+                                            <input id="inputGender"  readonly value="{{valueGender::input}}" on-tap="_openPopupMenu"></input>
+                                        </iron-input>
+                                        <paper-menu-button id="paper-menu-button" slot="suffix" horizontal-offset="[[listBoxOffsetWidth]]">
+                                            <iron-icon icon="paper-dropdown-menu:arrow-drop-down" slot="dropdown-trigger"></iron-icon>
+                                            <paper-listbox id="dropdown-listbox" slot="dropdown-content" selected="{{selected}}">
+                                                <paper-item>[[localize('auc','Aucun',language)]]</paper-item>
+                                                <template is="dom-repeat" items="[[option]]">
+                                                    <paper-item>[[item]]</paper-item>
+                                                </template>
+                                            </paper-listbox>
+                                        </paper-menu-button>
+                                    </paper-input-container>
+                            </div>
+                        </page>
+                        <page>
+                            <!--Medical houses-->
+                            <div class="horizontal" style="margin-top:20px">
+                                <paper-input label="Medical house ID" value="{{medicalHouseContract.mmNihii}}" always-float-label style="width:20%"></paper-input>
+                                <vaadin-date-picker label="Subscription date" value="{{medicalHouseContract.startOfContract}}" i18n="[[i18n]]" value="" id="startOfContract" always-float-label on-value-changed="updateStartOfCoverage"  style="width:20%"></vaadin-date-picker>
+                                <paper-input label="Subscription evaluation months" value="" i18n="[[i18n]]" value="0" id="evalutationMonths" on-value-changed="updateStartOfCoverage" type="number" always-float-label min="0" max="12" style="min-width: 20%"></paper-input>
+                                <vaadin-date-picker label="Coverage start" value="{{medicalHouseContract.startOfCoverage}}" i18n="[[i18n]]" value="" id="startOfCoverage"  always-float-label readonly  style="width:20%"></vaadin-date-picker>
+                            </div>
+                            <div class="horizontal" style="margin-top:30px">
+                                <label style="font-weight: 700; display:inline-block; margin-right:30px;"><iron-icon icon="icons:check" style="margin-right:10px; color:var(--app-secondary-color);"></iron-icon> [[localize('patient_subscriptions','Patient subscriptions',language)]]:</label>
+                                <paper-checkbox value="{{medicalHouseContract.gp}}" id="medicalHouseContractGpCheckBox" label="Has doctor subscription" always-float-label style="margin-right:30px">Has doctor subscription?</paper-checkbox>
+                                <paper-checkbox value="{{medicalHouseContract.kine}}" id="medicalHouseContractKineCheckBox" label="Has physiotherapist subscription" always-float-label style="margin-right:30px">Has physiotherapist subscription?</paper-checkbox>
+                                <paper-checkbox value="{{medicalHouseContract.nurse}}" id="medicalHouseContractNurseCheckBox" label="Has nurse subscription" always-float-label>Has nurse subscription?</paper-checkbox>
+                            </div>
+                        </page>
+                    </iron-pages>
+
+
+                    <div>
+                        <template is="dom-if" if="[[displayResult]]">
+                            <vaadin-grid id="duplicate-list" class="material" items="[[listResultPatients]]">
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('las_nam','Last name',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.lastName]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('fir_nam','First name',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.firstName]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('dat_of_bir','Date of birth',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[formatDateOfBirth(item.dateOfBirth)]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('ssin','SSIN',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.ssin]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column>
+                                    <template class="header">
+                                        [[localize('remark','Remarks',language)]]
+                                    </template>
+                                    <template>
+                                        <div>[[item.remarks]]</div>
+                                    </template>
+                                </vaadin-grid-column>
+                            </vaadin-grid>
+                        </template>
+                    </div>
+                    <div class="buttons" style="margin-top:30px; float:right">
+                        <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                        <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm">[[localize('cre','Create',language)]]</paper-button>
+                    </div>
             </div>
         </paper-dialog>
 
         <paper-dialog id="saveFilterDialog">
-            <h4 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h4>
+            <h2 class="modal-title">[[localize('save_filter','Save Filter',language)]]</h2>
             <div>
                 <paper-input class="filterNameInput" label="Filter name" value="{{filterName}}"></paper-input>
             </div>
@@ -964,6 +1114,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         import _ from 'lodash/lodash'
         import filterExParser from '../../../scripts/filterExParser'
         import {FilterExPrinter} from '../icc-x-api/filterExPrinter'
+
+        // To generate download xlsx file
+        import '../../../bower_components/js-xlsx/shim.js'
+        const XLSX = require( '../../../bower_components/js-xlsx/dist/xlsx.full.min.js')
 
         class HtPatList extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -1151,6 +1305,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     isShown: {
                         type: String,
                         value: ""
+                    },
+                    tabs: {
+                        type: Number,
+                        value: 0
+                    },
+                    medicalHouseContract: {
+                        type: Object,
+                        value: () => ({
+                            mmNihii: '',
+                            startOfContract: '',
+                            startOfCoverage: '',
+                            endOfContract: '',
+                            endOfCoverage: '',
+                            kine: '',
+                            gp: '',
+                            nurse: '',
+                        })
+                    },
+                    isLoadingPatient: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -1169,6 +1344,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready()
+
+                this.medicalHouseContractShadowObject = {
+                    mmNihii : null,
+                    startOfContract : null,
+                    startOfCoverage : null,
+                    kine : false,
+                    gp : false,
+                    nurse : false
+                }
 
                 var grid = this.$['patients-list']
 
@@ -1330,10 +1514,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                     setTimeout(function () {
                         if (currentValue === this.filterValue) {
+                            this.set('hideSpinner', false)
+                            this.set('isLoadingPatient', true)
                             console.log("Triggering search for " + this.filterValue)
                             this.$['patients-list'].clearCache()
+                            this.set('isLoadingPatient', false)
                         } else {
                             console.log("Skipping search for " + this.filterValue + " != " + currentValue)
+                            this.set('isLoadingPatient', false)
                         }
                     }.bind(this), 500) //Wait for the user to stop typing
                 }.bind(this), 100)
@@ -1349,14 +1537,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             click(e) {
+                if (!this.hideSpinner) {
+                    this.set('isLoadingPatient', true)
+                }
                 if(this.shareOption || this.exportOption || this.fusionOption) return;
+
+                // Must click on a row
+                if( e.path[0].nodeName == 'TABLE' ) return;
+
                 const selected = this.activeItem
                 console.log('selected ' + selected + ' - ' + this.latestSelected)
                 this.set('selectedPatient', selected)
+                this.set('isLoadingPatient', false)
             }
 
             _addPatient() {
                 this.$['add-patient-dialog'].open()
+            }
+
+            _readEid() {
+                fetch('http://127.0.0.1:16042/read')
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then(res => {
+                        if (res.cards[0]) {
+                            this.set('firstName',res.cards[0].firstName)
+                            this.set('lastName',res.cards[0].surname)
+                            this.set('dateAsString', this.api.moment(res.cards[0].dateOfBirth*1000).format('YYYY-MM-DD'))
+                            this.set('ssin', res.cards[0].nationalNumber)
+                            this.set('valueGender', res.cards[0].gender === 'M' ? 'male' : 'female')
+                        }
+                    });
             }
 
             _exportListToCsv() {
@@ -1382,15 +1594,168 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            _exportListToCsv() {
+                // Data mapping
+                var dataColumns = [
+                    "lastName",
+                    "firstName",
+                    "gender",
+                    "dateOfBirth",
+                    "ssin",
+                    "email",
+                    "phone",
+                    "mobile"
+                ];
+
+                // Human readable columns
+                var hrColumns = [
+                    this.localize('lastname','Last name'),
+                    this.localize('firstname','First name'),
+                    this.localize('gender','Gender'),
+                    this.localize('birthdate','Birthdate'),
+                    this.localize('ssin','SSIN'),
+                    this.localize('email_address','Email address'),
+                    this.localize('phone_number','Phone number'),
+                    this.localize('mobile_number','Mobile number')
+                ];
+
+                // Define csv content, header = column names
+                var csvFileContent = hrColumns.join(";") + "\n\n";
+
+                // Get grid / we're going to read data from it
+                var grid = this.$['patients-list'];
+
+                // Loop grid with a max of X results (csv)
+                grid.dataProvider({pageSize:10000}, function(items) {
+
+                    // Rewrite date for HR, input = yyyymmdd, output = dd/mm/yyyy
+                    items.forEach( item => item.dateOfBirth = item.dateOfBirth ? ("" + item.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A') )
+
+                    // Populate / collect
+                    items.forEach( item => csvFileContent += dataColumns.map( col => item[col] ).join( ";" ) + '\n' );
+
+                    var fileBlob = new Blob([csvFileContent] ,{type: "text/csv"});
+                    var downloadLink = document.createElement("a");
+                    document.body.appendChild( downloadLink );
+                    downloadLink.style = "display: none";
+
+                    var urlObject = window.URL.createObjectURL( fileBlob );
+
+                    downloadLink.href = urlObject;
+                    downloadLink.download = "patients-list.csv";
+                    downloadLink.click();
+                    window.URL.revokeObjectURL( urlObject )
+                })
+
+            }
+
+
+
+            getAllPatients() {
+
+                return this.api.getRowsUsingPagination(
+                    (key,docId) => this.api.patient().listPatientsByHcParty(this.user.healthcarePartyId, null, key || null, docId || null, 1000, null).then(pl => ({
+                        rows: pl.rows.map(
+                            p => (
+                                p.languages = p.languages.join(' / '),
+                                p.dateOfBirth = ( p.dateOfBirth ? ("" + p.dateOfBirth).replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, '$3/$2/$1') : this.localize('na_short','N/A') ),
+                                _.assign(
+                                    _.pick( p, ['lastName'], ['firstName'], ['dateOfBirth'], ['gender'], ['languages'], ['ssin'] ),
+                                    _.fromPairs(
+                                        _.flatMap(
+                                            p.addresses,
+                                            a => [
+                                                [a.addressType+'_street', a.street],
+                                                [a.addressType+'_number', a.houseNumber],
+                                                [a.addressType+'_zip', a.postalCode],
+                                                [a.addressType+'_city', a.city]
+                                            ]
+                                            .concat(
+                                                _.map(
+                                                    a.telecoms,
+                                                    t => [
+                                                        a.addressType+'_'+t.telecomType, t.telecomNumber
+                                                    ]
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                    ),
+                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                    done:!pl.nextKeyPair
+                    }))
+                )
+            }
+
+            _exportListToXls() {
+                this.getAllPatients().then(
+                    pl => ({
+                        rows: this.generateXlsFile(pl),
+                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                        done: !pl.nextKeyPair
+                    })
+                )
+            }
+
+            generateXlsFile( data ) {
+
+                // Create xls work book and assign properties
+                const xlsWorkBook = { SheetNames: [], Sheets: {} };
+                xlsWorkBook.Props = { Title: "Patients list", Author: "iCure" };
+
+                // Create sheet based on json data collection
+                var xlsWorkSheet = XLSX.utils.json_to_sheet( data );
+
+                // Link sheet to workbook
+                XLSX.utils.book_append_sheet(xlsWorkBook, xlsWorkSheet, 'Patients list');
+
+                // Virtual data output
+                var xlsWorkBookOutput = new Buffer(XLSX.write(xlsWorkBook, { bookType: 'xls', type: 'buffer' }));
+
+                // Put output to virtual "file"
+                var fileBlob = new Blob([xlsWorkBookOutput] ,{type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+
+                // Create download link and append to page's body
+                var downloadLink = document.createElement("a"); document.body.appendChild( downloadLink ); downloadLink.style = "display: none";
+
+                // Create url
+                var urlObject = window.URL.createObjectURL( fileBlob );
+
+                // Link to url
+                downloadLink.href = urlObject; downloadLink.download = "patients-list.xls";
+
+                // Trigger download and drop object
+                downloadLink.click(); window.URL.revokeObjectURL( urlObject );
+
+                // Free mem
+                fileBlob = false;
+                xlsWorkBookOutput = false;
+
+                return;
+            }
+
             confirm() {
                 this.api.patient().newInstance(this.user, {
                     lastName: this.lastName,
                     firstName: this.firstName,
                     active: true,
-                    dateOfBirth: this.dateAsString && parseInt(this.dateAsString.replace(/-/g, '')),
+                    dateOfBirth: this.dateAsString && this.dateAsString.length && parseInt(this.dateAsString.replace(/-/g, '')) || null,
                     ssin : this.ssin,
                     gender : this.valueGender,
-                }).then(p => this.api.patient().createPatient(p)).then(p => this.api.register(p,'patient')).then(p => this.set('selectedPatient', p))
+                    medicalHouseContracts: [this.medicalHouseContractShadowObject]
+                }).then(
+                    p => this.api.patient().createPatient(p)
+                ).then(
+                    p => this.api.register(p,'patient')
+                ).then(
+                    p => {
+                        this.set('selectedPatient', p)
+                    }
+                )
             }
 
             confirmFilter() {
@@ -1465,7 +1830,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _activeFilters() {
-                const filters = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
+                const filters = this.user && this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.datafilters')
                 if (filters) {
                     const parsedFilters = JSON.parse(filters.typedValue.stringValue)
                     return _.sortBy(Object.keys(parsedFilters).map(k => ({name: k, filter: parsedFilters[k]})))
@@ -1518,6 +1883,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _sharePatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('shareOption', true)
                 this.set('exportOption', false)
                 this.set('fusionOption', false)
@@ -1526,6 +1892,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _exportPatient(e) {
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('exportOption', true)
                 this.set('shareOption', false)
                 this.set('fusionOption', false)
@@ -1533,6 +1900,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _fusionPatient(e){
                 e.stopPropagation()
+                this.set('hideSpinner', true)
                 this.set('fusionOption', true)
                 this.set('shareOption', false)
                 this.set('exportOption', false)
@@ -1711,6 +2079,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _searchDuplicate() {
+                if (!this.user) return
                 const fingerPrint = this.firstName + '|' + this.lastName + '|' + this.dateAsString + '|' + this.ssin
                 //creation of filters
                 const totalChars = (this.firstName && this.firstName.length || 0) + (this.lastName && this.lastName.length || 0)
@@ -1846,6 +2215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             updateDelegation(){
+                if (!this.user) return
                 let userDelegation = this.user.autoDelegations
 
                 this.hcpSelectedForSharing.forEach( userShared =>{
@@ -1932,8 +2302,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _isPatientsSelected(){
                 return this.patientSelected.filter( x => x.check==true).length;
             }
+
+
+
+
+            updateStartOfCoverage( event, object ) {
+
+                // Busy status
+                this.updateStartOfCoverageBusy = this.updateStartOfCoverageBusy || false;
+
+                // Already busy ?
+                if( this.updateStartOfCoverageBusy ) return;
+
+                // Set to busy
+                this.updateStartOfCoverageBusy = true;
+
+                // Grab final object
+                let startOfContractObject = this.$['startOfContract'];
+                let startOfCoverageObject = this.$['startOfCoverage'];
+                let evalutationMonthsObject = this.$['evalutationMonths'];
+
+                // No value defined yet (first call), set to today
+                if( object.value == "" ) startOfContractObject.value = moment().format('YYYY-MM-DD');
+
+                // By default, start of coverage date = 1st day of next month
+                startOfCoverageObject.value = moment( startOfContractObject.value ).add( ( 1 + parseInt( evalutationMonthsObject.value || 0 ) ), 'months').startOf('month').format('YYYY-MM-DD');
+
+                // Cast values
+                this.medicalHouseContractShadowObject = {
+                    mmNihii : this.medicalHouseContract.mmNihii,
+                    startOfContract : this.medicalHouseContract.startOfContract.replace(/-/g, ''),
+                    startOfCoverage : this.medicalHouseContract.startOfCoverage.replace(/-/g, ''),
+                    kine : this.$['medicalHouseContractKineCheckBox'].checked,
+                    gp : this.$['medicalHouseContractGpCheckBox'].checked,
+                    nurse : this.$['medicalHouseContractNurseCheckBox'].checked
+                }
+
+                // We're finished
+                this.updateStartOfCoverageBusy = false;
+
+            }
+
+
+
+
+
+
         }
 
         customElements.define(HtPatList.is, HtPatList)
+
+
+
+
+
     </script>
 </dom-module>

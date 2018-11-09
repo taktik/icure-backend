@@ -81,6 +81,11 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	}
 
 	@Override
+	public PaginatedList<Message> findByTransportGuidReceived(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset) {
+		return messageDAO.findByTransportGuidReceived(partyId, transportGuid, paginationOffset);
+	}
+
+	@Override
 	public PaginatedList<Message> findByTransportGuid(String partyId, String transportGuid, PaginationOffset<List<Object>> paginationOffset) {
 		return messageDAO.findByTransportGuid(partyId, transportGuid, paginationOffset);
 	}
@@ -129,11 +134,8 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 			if (message == null) {
 				logger.error("Cannot create 'null' message. ");
 			} else {
-				if (message.getAuthor()==null) { message.setAuthor(loggedUser.getHealthcarePartyId()); }
 				if (message.getFromAddress()==null) { message.setFromAddress(loggedUser.getEmail()); }
 				if (message.getFromHealthcarePartyId()==null) { message.setFromHealthcarePartyId(loggedUser.getHealthcarePartyId()); }
-
-				message.setResponsible(loggedUser.getHealthcarePartyId());
 
 				success = success && super.createEntities(Collections.singletonList(message), createdEntities);
 			}

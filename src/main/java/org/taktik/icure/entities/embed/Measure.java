@@ -45,6 +45,8 @@ public class Measure implements Serializable {
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	Set<CodeStub> unitCodes;
 
+	String comment;
+
 	public Double getValue() {
 		return value;
 	}
@@ -99,5 +101,13 @@ public class Measure implements Serializable {
 
 	public void setUnitCodes(Set<CodeStub> unitCodes) {
 		this.unitCodes = unitCodes;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 }

@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import org.taktik.icure.services.external.rest.v1.dto.embed.MedicalHouseContractDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
@@ -82,11 +83,15 @@ public class PatientDto extends IcureDto {
     protected List<PartnershipDto> partnerships = new ArrayList<>();
 	protected List<PatientHealthCarePartyDto> patientHealthCareParties = new ArrayList<>();
 
+        protected List<MedicalHouseContractDto> medicalHouseContracts = new ArrayList<>();
+
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
+
+    protected Boolean openNote;
 
 
     public String getMergeToPatientId() {
@@ -378,7 +383,19 @@ public class PatientDto extends IcureDto {
 		this.encryptedSelf = encryptedSelf;
 	}
 
-	@Override
+    public List<MedicalHouseContractDto> getMedicalHouseContracts() {
+        return medicalHouseContracts;
+    }
+
+    public void setMedicalHouseContracts(List<MedicalHouseContractDto> medicalHouseContracts) {
+        this.medicalHouseContracts = medicalHouseContracts;
+    }
+
+    public Boolean getOpenNote() { return openNote; }
+
+    public void setOpenNote(Boolean openNote) { this.openNote = openNote; }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

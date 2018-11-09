@@ -13,12 +13,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-list">
@@ -41,6 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         width: 80%;
                         margin: 0 auto;
                         height: 48px;
+                        text-transform: capitalize;
                     };
                     --paper-button-ink-color: var(--app-secondary-color-dark);
                 }
@@ -63,7 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     flex-flow: column nowrap;
                     align-items: flex-start;
                     height: 100%;
-                    width: 100%;
+                    width: calc(100vw - 38%)
                 }
 
                 .card-title-container{
@@ -184,12 +185,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 vaadin-grid.material .cell {
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    padding-right: 56px;
+                    padding-right: 8px;
                 }
 
                 vaadin-grid.material .cell.last {
-                    padding-right: 24px;
-                    text-al;
+                    padding-right: 8px;
                 }
 
                 vaadin-grid.material .cell.numeric {
@@ -237,9 +237,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 paper-checkbox {
                     --paper-checkbox-unchecked-color: var(--app-text-color);
-                    --paper-checkbox-unchecked-ink-color: var(--app-secondary-color);
-                    --paper-checkbox-checkmark-color: var(--app-secondary-color);
-                    --paper-checkbox-checked-color: var(--app-primary-color);
+                    --paper-checkbox-label-color: var(--app-text-color);
+                    --paper-checkbox-checked-color: var(--app-secondary-color);
+                    --paper-checkbox-checked-ink-color: var(--app-secondary-color-dark);
                 }
 
                 .buttons{
@@ -253,71 +253,105 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     font-weight: 700;
                 }
 
-                .del-button {
-                    position: fixed;
-                    bottom: 40px;
+                .modal-button{
+                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                    background: var(--app-background-color-light);
+                    color: var(--app-primary-color-dark);
+                    font-weight: 700;
+                }
+
+                #del-button {
+                    position: absolute;
+                    right: 64px;
+                    top: 30px;
+                    z-index: 1;
+                    height: 35px;
+                }
+                #del-button.selected {
+                    right: calc(42% + 64px);
+                }
+
+                #restore-button {
+                    position: absolute;
+                    left: 53%;
+                    top: 30px;
+                    z-index: 1;
+                    height: 35px;
                 }
 
                 #mail-list {
                     padding-right: 0;
                     margin-right: 0;
-                    height: 85vh;
-                    height: calc(100vh - 110px);
-                    height: -webkit-fill-available;
-                    /* cascading compatibility */
+                    height: 100%;
+                }
+
+                .get-msg-btn{
+                    margin-bottom: 16px;
+                    --paper-button: {
+                        background: var(--app-secondary-color);
+                        color: var(--app-text-color);
+                        width: 100%;
+                        margin: 0 auto;
+                        font-size: 14px;
+                        font-weight: bold;
+                        text-transform: capitalize;
+                    };
+                    --paper-button-ink-color: var(--app-secondary-color-dark);
+                }
+                paper-spinner.center {
+                    z-index: 999999;
+                    position: fixed;
+                    left: 33vw;
+                    top: 150px;
+                }
+                @media screen and (max-width:1025px) {
+                    .col-right {
+                        width: 100vw;
+                        transition: all .5s ease;
+                        box-shadow: none;
+                    }
+                    #del-button {
+                        left: initial;
+                        right: 64px !important;
+                    }
+
+                    paper-spinner.center {
+                        left: 50vw;
+                    }
                 }
 
             </style>
         </custom-style>
         <template is="dom-if" if="[[selectList]]">
             <div class="second-panel col-right">
-                <div class="del-button">
-                    <div>
-                        <paper-button class="modal-button--delete" on-tap="_removeMsgs"><iron-icon icon="delete-forever"></iron-icon>[[localize('del','Delete',language)]]</paper-button>
-                    </div>
-                </div>
+                <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
+
+                <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
+                <paper-tooltip for="del-button" offset="4">[[localize('del','Delete',language)]]</paper-tooltip>
+                <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
+
+
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
-                    <!-- <template is="dom-if" if="[[selectList.selection.item]] === 'sentbox'">
-                        <vaadin-grid-column width="100px">
+                    <vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>
+                    <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
+                        <vaadin-grid-column flex-grow="0" width="110px">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize('sen_to','Send To',language)]]
-                                </vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="received">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen">[[getToAddresses(item)]]</div>
+                                <div class="cell frozen">[[_timeFormat(item.received)]]</div>
                             </template>
                         </vaadin-grid-column>
-                    </template> -->
-                    <vaadin-grid-selection-column></vaadin-grid-selection-column>
-                    <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
-                        <vaadin-grid-column flex-grow="2">
+                        <vaadin-grid-column flex-grow="1">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
+                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b> [[localize('and','and',language)]] [[localize('sub','Subject',language)]]
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen">[[item.fromAddress]]</div>
+                                <div class="cell frozen"><b>[[item.fromAddress]]</b> - [[item.subject]]</div>
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column flex-grow="2">
-                        <template class="header">
-                            <div>[[localize('dat','Date',language)]]</div>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[_timeFormat(item.received)]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="3">
-                        <template class="header">
-                            <vaadin-grid-sorter class="cell frozen" path="subject">
-                                [[localize('sub','Subject',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.subject]]</div>
-                        </template>
-                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
         </template>
@@ -389,6 +423,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     listTitle:{
                     	type: String
+                    },
+                    isLoadingMailList: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -403,6 +441,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
+            }
+
+            _itemSelected(e) {
+                return (e) ? 'selected' : ''
             }
 
 			_newMsg(){
@@ -475,6 +517,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.findMessagesByTransportGUID('REPORT:IN:*').then(messages => this.set('messages', messages || []));
             }
 
+            getMycarenetIn() {
+                this.findMessagesByTransportGUID('GMD:IN:*').then(messages => this.set('messages', messages || []));
+            }
+
             getEInvIn(){
                 this.findMessagesByTransportGUID('EFACT:IN:*').then(messages => this.set('messages', messages || []));
             }
@@ -512,6 +558,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             getEhealthMessages(){
+				// return this.findMessagesByTransportGUID('SENTBOX:*', null, null, 1000)
+                //     .then(messages => this.set('messages', messages || []));
+
 				this.api.message().findMessagesByTransportGuid('SENTBOX:*', null, null, 1000).then(messages => {
                     const msg = messages.rows.reduce((acc, m) => {
                         if (!(m.status && 1 << 8 == 0)) {//status STATUS_SUBMITTED
@@ -523,16 +572,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }).then(messages => this.set('messages', messages || []));
             }
 
+            getTrash(){
+				return this.findMessagesByTransportGUIDs(['BININBOX:*','BINSENTBOX:*'], null, null, 1000)
+					.then(messages => this.set('messages', messages || []));
+            }
+
             findMessagesByTransportGUID(guid){
                 return this.api.message().findMessagesByTransportGuid(guid, null, null, 1000).then(messages => {
                     return this.sortByDatesAndGUID(messages.rows);
                 })
             }
 
+            findMessagesByTransportGUIDs(guids){
+				let p = []
+				guids.forEach(guid => {
+					p.push(this.findMessagesByTransportGUID(guid))
+				});
+                return Promise.all(p).then(items =>{
+                	let results = [];
+                	items.forEach(item => results = results.concat(item));
+                    return results;
+                });
+            }
+
             _refresh() {
                 if (this.selectList && this.selectList.selection) {
+                    this.set('isLoadingMailList', true)
                 	let item = this.selectList.selection.item
-					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item)
+					if(!['newMsg','Refresh'].includes(item)) this.setListTitle(item);
+					let restoreButton = this.shadowRoot.querySelector('#restore-button');
+					restoreButton && (restoreButton.hidden = true);
                     switch (item) {
                         case 'newMsg':
                         	this._newMsg();
@@ -570,8 +639,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'eheIn' :
                             this.getEheIn();
                             break;
+                        case 'mycarenet' :
+                            this.getMycarenetIn();
+                            break;
                         case 'Chap4In' :
                         	this.getChap4In();
+                        	break;
                         case 'protIn' :
                             this.getProtIn();
                             break;
@@ -587,6 +660,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         case 'GMD' :
                             this.getGMD();
                             break;
+                        case 'trash' :
+							restoreButton && (restoreButton.hidden = false);
+                        	this.getTrash();
+                        	break;
                         case 'Refresh':
                         	// Fake selection to refresh binding
                         	break;
@@ -595,12 +672,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             sortByDates(messages){
+                this.set('isLoadingMailList', false)
 				return messages.sort(function (a, b) {
 					return b.received - a.received ;
 				});
 			}
 
 			sortByDatesAndGUID(messages){
+                this.set('isLoadingMailList', false)
 				return messages.sort(function (a, b) {
 					if(b.received === a.received){
 						let bGuid = b.transportGuid.split(":")[1] || "";
@@ -621,16 +700,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selected = this.activeItem;
                 this.set('selectedMessages', selected);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
+                console.log("selectedMessage",this.selectedMessages)
             }
 
 			_removeMsgs(){
+				let mailListSelectionColumn = this.shadowRoot.querySelector('#mail-list-selection-column');
 				let mailList = this.shadowRoot.querySelector('#mail-list');
 				let msgs = mailList.selectedItems;
-				if(msgs) this.api.message().deleteMessages(msgs.map(msg => msg.id))
-                    .then(x=> {
-                    	this._refresh();
-					});
+				if(msgs) {
+                    msgs.forEach(msg =>{
+                            if(msg.transportGuid.startsWith("BIN")){
+                                this.api.message().deleteMessages(msg.id)
+                                    .then(() => {
+										this._refresh();
+                                    	this.dispatchEvent(new CustomEvent('item-delete', { detail: { selection: { item: "Refresh" } } }))
+									});
+                            } else {
+								msg.transportGuid = "BIN" + msg.transportGuid;
+                                this.api.message().modifyMessage(msg)
+                                    .then(() => {
+										this._refresh();
+                                    	this.dispatchEvent(new CustomEvent('item-delete', {detail: {selection: {item: "Refresh"}}}))
+									});
+                            }
+                    });
+					mailListSelectionColumn.selectAll = false;
+				}
             }
+
+			_restoreMsgs(){
+				let mailList = this.shadowRoot.querySelector('#mail-list');
+				let msgs = mailList.selectedItems;
+				console.log(msgs);
+				if(msgs) {
+					msgs.forEach(msg =>{
+						while(msg.transportGuid.startsWith("BIN")){
+							msg.transportGuid = msg.transportGuid.substring(3);
+						}
+						this.api.message().modifyMessage(msg)
+                            .then(()=> this._refresh());
+                    })
+				}
+			}
 
             _timeFormat(date) {
                 return date && this.api.moment(date).format('DD/MM/YYYY') || '';
@@ -643,6 +754,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             setListTitle(title){
             	this.set("listTitle",this.localize("boxtitle." + title,'List',this.language))
+            }
+
+            _displayRestoreButton(){
+                return (this.selectList.selection.item == 'trash')
             }
 
 		}
