@@ -2450,12 +2450,6 @@
 
             _validateAndPrepareInvoiceForBatchSending() {
 
-                console.log( '---selectedInvoice---' );
-                console.log( this.selectedInvoice );
-                console.log( '---_isSelectedInvoiceEattest---' );
-                console.log( this._isSelectedInvoiceEattest() );
-                console.log( '---latest invoice---' );
-                this.api.entityRef().getLatest("Invoice::").then(latest => {console.log(latest);});
 
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
@@ -3362,10 +3356,8 @@
                         else{
                             let errorMsg="";
                             response.acknowledge.errors.map(error => {
-                                console.log("Error :"+error)
                                 errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
                             })
-                            console.log("erreur message :"+errorMsg)
                             this.set("errorMessage",errorMsg)
                         }
                     })
