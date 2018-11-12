@@ -1048,7 +1048,7 @@
                                 <h4 class="mb0">Détail des envois selectionnés</h4>
                                 <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
                                 <div id="invoiceDetailContainer" class="invoiceDetailContainer">
-                                    <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider]]" active-item="{{activeDetailGridItem}}" on-tap="">
+                                    <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
                                         <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                             <template class="header">
                                                 <vaadin-grid-sorter path="invoiceReference">N° fact.</vaadin-grid-sorter>
@@ -1408,7 +1408,7 @@
             }
 
             static get observers() {
-                return ['_invoicesChange(invoices.*)'];
+                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)'];
             }
 
             ready() {
@@ -1417,6 +1417,11 @@
                     this.set("hcp",response)
                     this.getMessage()
                 })
+            }
+
+            _detailsChanged() {
+                const igd = this.root.querySelector('#invoiceGridDetail')
+                igd && igd.clearCache()
             }
 
             fetchPendingMessages(){
@@ -1798,12 +1803,14 @@
                 } // endif
             }
 
-            _batchDetailDataProvider(params, callback) {
-                const startIndex = params.page * params.pageSize;
-                if (!params.parentItem) {
-                    this.invoicesFromBatch ? callback(this.invoicesFromBatch.slice(startIndex, startIndex + params.pageSize), this.invoicesFromBatch.length) : callback([], 0)
-                } else {
-                    callback(params.parentItem.invoicingCodes.slice(startIndex, startIndex + params.pageSize), params.parentItem.invoicingCodes.length)
+            _batchDetailDataProvider() {
+                return (params, callback) => {
+                    const startIndex = params.page * params.pageSize
+                    if (!params.parentItem) {
+                        this.invoicesFromBatch ? callback(this.invoicesFromBatch.slice(startIndex, startIndex + params.pageSize), this.invoicesFromBatch.length) : callback([], 0)
+                    } else {
+                        callback(params.parentItem.invoicingCodes.slice(startIndex, startIndex + params.pageSize), params.parentItem.invoicingCodes.length)
+                    }
                 }
             }
 
@@ -2313,22 +2320,30 @@
                         .then(invAndIdsPat =>
                             this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                         )
-                        .then(invAndPats => _.flatMap(invAndPats, ([inv, pat]) => inv.invoicingCodes.map(code => ({
-                                invoiceReference: inv.invoiceReference,
-                                patient: pat.lastName + " " + pat.firstName,
-                                ssin: pat.ssin,
+                        .then(invAndPats => invAndPats.map( ([inv, pat]) => ({
+                            invoiceReference: inv.invoiceReference,
+                            patient: pat.lastName + " " + pat.firstName,
+                            ssin: pat.ssin,
+                            invoiceDate: inv.invoiceDate,
+                            invoicedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
+                            acceptedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
+                            refusedAmount: "0.00",
+                            rejectionReason: inv.error,
+                            paid: false,
+                            status: "",
+                            invoice: inv,
+                            invoicingCodes: inv.invoicingCodes.map(code => ({
                                 invoicingCode: code.code,
-                                invoiceDate: inv.invoiceDate,
+                                invoiceDate: code.dateCode,
                                 invoicedAmount: code.reimbursement,
-                                acceptedAmount: "0.00",
+                                acceptedAmount: code.reimbursement,
                                 refusedAmount: "0.00",
-                                rejectionReason: inv.error,
+                                rejectionReason: code.error,
                                 paid: false,
-                                status: "",
-                                invoice: inv
-                            })))
-                        )
-                        .then(infos => this.set('invoicesFromBatch', _.flatten(infos)))
+                                status: ""
+                            }))
+                        })))
+                        .then(infos => this.set('invoicesFromBatch', infos))
                         .then(() => this.api.message().getChildren(this.activeGridItem.message.id))
                         .then((msgs) => Promise.all(_.map(msgs.filter(m => m.subject && ['920999','920099'].includes(m.subject.substr(0,6))), (msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg)))))
                         .then((docs) => Promise.all(_.flatMap(docs).filter(d => !_.endsWith(d.name, '_parsed_records') && _.endsWith(d.name, '_records') && d.mainUti === "public.json").map(d => this.api.document().getAttachment(d.id, d.attachmentId))))
@@ -2345,21 +2360,15 @@
                                     try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
                                 }
 
-                                const zone200 = a.message.find(enr => enr.zones.find(z => z.zone == "200"))
-                                const zone300 = a.message.find(enr => enr.zones.find(z => z.zone == "300"))
-                                const zone400 = a.message.find(enr => enr.zones.find(z => z.zone == "400"))
-                                const zone500 = a.message.find(enr => enr.zones.find(z => z.zone == "500"))
+                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "500"))
 
-
-
-
-                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones),
-                                    zone300 && this.SEG_getErrSegment_300(zone300.zones),
-                                    zone400 && this.SEG_getErrSegment_400(zone400.zones),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones)])
-                                
-
-                                console.log(this.invoicesFromBatch)
+                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
+                                    zone300 && this.SEG_getErrSegment_300(zone300.zones || []),
+                                    zone400 && this.SEG_getErrSegment_400(zone400.zones || []),
+                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])])
 
                             })
                         })
@@ -2390,7 +2399,7 @@
             }
 
             receiveInvoices() {
-                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) ).then(response => {
+                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "eFact", "loadMessages") ).then(response => {
                     let prom = Promise.resolve()
                     response.forEach(message => {
                         // console.log(message)

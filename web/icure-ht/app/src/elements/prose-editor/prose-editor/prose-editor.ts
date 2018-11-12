@@ -61,9 +61,9 @@ export class ProseEditor extends Polymer.Element {
   pageNodeSpec: NodeSpec = {
     inline: false,
     draggable: false,
-    selectable: false,
+    isolating: true,
     attrs: {
-      id: {default: -1}
+      id: {default: 0}
     },
     content: "block+",
 
@@ -342,7 +342,7 @@ export class ProseEditor extends Polymer.Element {
 
     let paginationPlugin = new Plugin({
       appendTransaction(tr, oldState, newState) {
-        //setTimeout(() => proseEditor.layout(), 0)
+        setTimeout(() => proseEditor.layout(), 0)
         if (oldState.doc.childCount > newState.doc.childCount && tr[0].steps[0] instanceof ReplaceStep) {
           const loc: number = (tr[0].steps[0] as any).from
           const lastNode = newState.doc.nodeAt(loc)
