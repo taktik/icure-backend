@@ -272,8 +272,8 @@
                                 <!--</paper-listbox>-->
                                 <!--</paper-dropdown-menu>-->
                                 <template is="dom-if" if="[[_isEqual(rg.freqType,'daily')]]">
-                                    <paper-dropdown-menu label="Time of day" class="regimen--tod" id="[[rg.dayPeriod.code]]">
-                                        <paper-listbox id="dayListbox" slot="dropdown-content" selected="[[rg.dayPeriod.code]]" attr-for-selected="id" on-iron-select="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
+                                    <paper-dropdown-menu label="Time of day" class="regimen--tod" id="{{rg.dayPeriod.code}}">
+                                        <paper-listbox id="dayListbox" slot="dropdown-content" selected="{{rg.dayPeriod.code}}" attr-for-selected="id" on-iron-select="_selectDayPeriod" value="[[rg.dayPeriod.code]]">
                                             <paper-item id="beforebreakfast">[[_localize("Beforebreakfast")]]</paper-item>
                                             <paper-item id="duringbreakfast">[[_localize("Duringbreakfast")]]</paper-item>
                                             <paper-item id="afterbreakfast">[[_localize("Afterbreakfast")]]</paper-item>
@@ -292,14 +292,14 @@
                                         </paper-listbox>
                                         <div class="hidden">[[rg.dayPeriod.code]]</div>
                                     </paper-dropdown-menu>
-                                    <paper-input id="[[rg.administratedQuantity.quantity]]" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
+                                    <paper-input id="{{rg.administratedQuantity.quantity}}" label="[[localize('qua', 'Quantity', language)]]" value="{{rg.administratedQuantity.quantity}}" type="number"
                                                  class="regimen--quantity" min="0" on-change="_selectSingleQuantity"></paper-input>
                                     <!--<paper-input id="quantity" label="[[localize('uni', 'Units', language)]]" value="{{rg.administratedQuantity.unit}}" class="regimen--units"-->
                                     <span class="regimen-txt">[[bufferUnit]]</span>
                                 </template>
                                 <template is="dom-if" if="[[_isEqual(rg.freqType,'weekly')]]">
-                                    <paper-dropdown-menu id="[[rg.dayPeriod.code]]" label="Day of week" class="regimen--tod">
-                                        <paper-listbox slot="dropdown-content" selected="{{rg.dayPeriod.code}}}" attr-for-selected="id" on-iron-select="_selectWeekPeriod">
+                                    <paper-dropdown-menu id="[[rg.weekPeriod.code]]" label="Day of week" class="regimen--tod">
+                                        <paper-listbox slot="dropdown-content" selected="{{rg.weekPeriod.code}}" attr-for-selected="id" on-iron-select="_selectWeekPeriod">
                                             <paper-item id="mon">Monday</paper-item>
                                             <paper-item id="tue">Tuesday</paper-item>
                                             <paper-item id="wed">Wednesday</paper-item>
@@ -646,7 +646,7 @@
                     this.set('bufferUnit', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit : "not found :(")
                     this.set('bufferQuantity', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.quantity : 1)
                     this.set('bufferNumberByFrequency', selectedMedicationContentWithId.medicationValue.regimen.length > 0 ? selectedMedicationContentWithId.medicationValue.regimen.length : 1)
-                    this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
+                    this.set('bufferGeneralFrequency', selectedMedicationContentWithId.medicationValue.regimen[0] ? selectedMedicationContentWithId.medicationValue.regimen[0].freqType : 'daily')// this._selectedFrequency(selectedMedicationContentWithId.medicationValue.regimen[0]) : 0)
                     const previousPriority = selectedMedicationContentWithId.medicationValue.medicinalProduct.priority
                     this.set('medicPriority', previousPriority == "high" ? 2 : previousPriority == "middle" ? 1 : 0 )
 
@@ -692,6 +692,10 @@
                 if (this.bufferNumberByFrequency == 0) {this.set('bufferNumberByFrequency',1)}
                 this._prefillDetails()
             }
+
+            _formatFreq(freq) {
+                return (freq == 'monthly') ? 2 : (freq == 'weekly') ? 1 : 0
+            }
             
             _selectFrequency(event, target) {
                 console.log(event,target)
@@ -699,13 +703,13 @@
                 // if (!rgModel) {
                 //     return
                 // }
-                if (target.item.id === 'daily') {
-                    this.set('bufferGeneralFrequency',0)
-                } else if (target.item.id === 'weekly') {
-                    this.set('bufferGeneralFrequency',1)
-                } else if (target.item.id === 'monthly') {
-                    this.set('bufferGeneralFrequency',2)
-                }
+                // if (target.item.id === 'daily') {
+                //     this.set('bufferGeneralFrequency',0)
+                // } else if (target.item.id === 'weekly') {
+                //     this.set('bufferGeneralFrequency',1)
+                // } else if (target.item.id === 'monthly') {
+                //     this.set('bufferGeneralFrequency',2)
+                // }
                 this.set('bufferGeneralFrequency',
                     (target.item.id === 'monthly') ? 2 : (target.item.id === 'weekly') ? 1 : 0
                 )
@@ -714,7 +718,7 @@
             }
             
             _selectUnitQuantity() {
-                if (this.bufferQuantity == 0) {this.set('bufferQuantity',1)}
+                if (this.bufferQuantity == 0 || !this.bufferQuantity) {this.set('bufferQuantity',1)}
                 this._prefillDetails()
             }
 
@@ -765,6 +769,7 @@
 
             _selectSingleQuantity(event, target) {
                 console.log('selectSingleQuantity(',target)
+                this._makeRegimenList()
             }
 
             _makeRegimenList(param) {
@@ -773,6 +778,7 @@
                 console.log('setQuantity, dom',dom)
                 if (param) {console.log('withParam',param)}
                 Array.prototype.map.call(dom, that=>{
+                    console.log('dom map, that',that)
                     const thatLine =
                     (this.bufferGeneralFrequency == 2) ? {time:[],quantity:this.bufferQuantity,unit:this.bufferUnit} :
                     (this.bufferGeneralFrequency == 1) ? { // weekly
@@ -795,7 +801,7 @@
 
             _valueChanged() {
                 this.dispatchEvent(new CustomEvent('value-changed', {detail: this.medicationDetail, bubbles: true, composed: true}))
-                console.log("_valueChanged()")
+                console.log("_valueChanged()",this.medicationDetail)
             }
 
             _preselectQuantity() {
@@ -821,11 +827,14 @@
                     })
                 }
                 console.log("setFreqList(), out :",bufferTable)
-
                 this.set("customFrequencyTable", true)
                 this.set("flagTableFrequency", true)
                 this.set("selectedMedicationContentWithId.medicationValue.regimen", bufferTable)
+                let medicDetails = this.medicationDetail; medicDetails.content[this.language].medicationValue.regimen = bufferTable
                 this.set('bufferTable',bufferTable)
+                this.set('medicationDetail',medicDetails)
+                console.log('selectedMedicValueRegimen',this.selectedMedicationContentWithId.medicationValue.regimen)
+                this.save()
             }
 
             _addFrequency() {
@@ -853,7 +862,7 @@
                 if (this.selectedMedicationContentWithId && this.beginMomentAsString) {
                     const beginMoment = parseInt(this.beginMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment", beginMoment)
-                    // this._valueChanged()
+                    this.save()
                 }
             }
 
@@ -861,7 +870,7 @@
                 if (this.selectedMedicationContentWithId && this.endMomentAsString) {
                     const endMoment = parseInt(this.endMomentAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment", endMoment)
-                    // this._valueChanged()
+                    this.save()
                 }
             }
 
@@ -869,7 +878,7 @@
                 if (this.selectedMedicationContentWithId) {
                     const priority = this.medicPriority ? this.medicPriority === 2 ? 'high' : this.medicPriority === 1 ? 'middle' : 'low' : 'low'
                     this.set("selectedMedicationContentWithId.medicationValue.medicinalProduct.priority", priority)
-                    // this._valueChanged()
+                    this.save()
                 }
             }
             close() {
@@ -878,7 +887,7 @@
             _closeAndNew() {
                 const target = this.parentNode
                 console.log("target",target)
-                this._valueChanged()
+                this.save()
                 this.close()
                 // this.parentNode.dispatchEvent(new CustomEvent('newMedicFromChild',{}) )
             }
