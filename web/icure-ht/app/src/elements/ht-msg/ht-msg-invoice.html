@@ -847,7 +847,7 @@
                                                              <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
@@ -1415,7 +1415,6 @@
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
-                    this.getMessage()
                 })
             }
 
@@ -1485,7 +1484,7 @@
                                 messageInfo: {
                                     messageType: m.subject,
                                     hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                    oa: insurances.find(i => i.id === m.recipients[0]).code,
+                                    oa: insurances && insurances.find(i => i.id === m.recipients[0])? insurances.find(i => i.id === m.recipients[0]).code : "",
                                     hcpReference: "",
                                     invoiceNumber: m.externalRef,
                                     invoiceMonth: "",
@@ -1520,68 +1519,54 @@
                                                 try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
                                             }
 
-                                            const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                            const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                            const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                            const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
-                                            const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
+                                            const zone200 = a && a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                            const zone300 = a && a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                            const zone400 = a && a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                            const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                            const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
-
-                                            // STATUS_SUBMITTED 				= 1 << 8; envoyé
-                                            // STATUS_RECEIVED 				    = 1 << 9; tack reçu
-                                            // STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; 93100
-                                            // STATUS_ACCEPTED 				    = 1 << 11; 920098 / 920900
-                                            // STATUS_REJECTED 				    = 1 << 12; 920999
-
-                                            // STATUS_TACK 					    = 1 << 13;
-                                            // STATUS_MASKED 					= 1 << 14;
-
-                                            // STATUS_SUCCESS 					= 1 << 15;
-                                            // STATUS_WARNING 					= 1 << 16; Partiellement accepte
-                                            // STATUS_ERROR 					= 1 << 17; 920999/920099
 
                                             let invoiceStatus
                                             let rejectionReason
                                             if (zone200 && zone300) {
-                                                const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
-                                                const st = mm.message.status
 
-                                                invoiceStatus = !!(st & (1 << 17))  ? "Error" :
-                                                    !!(st & (1 << 16)) ? "Partially accepted" :
-                                                    !!(st & (1 << 16)) ? "Fully accepted" :
-                                                    !!(st & (1 << 12)) ? "Rejected" :
-                                                    !!(st & (1 << 11)) ? "Treated" :
-                                                    !!(st & (1 << 10)) ? "Accepted for treatment" :
-                                                    !!(st & (1 << 9)) ?  "Successfully transmitted to OA" :
-                                                    !!(st & (1 << 8)) ?  "Pending" : ""
+                                                const st = mm.message && mm.message.status
+                                                invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
+                                                    !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
+                                                    !!(st & (1 << 16)) ? this.localize('inv_full_acc','Fully accepted',this.language):
+                                                    !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
+                                                    !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
+                                                    !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
+                                                    !!(st & (1 << 9)) ?  this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
+                                                    !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
 
 
-                                                rejectionReason = !!(st & (1 << 17)) ? "More than 5% error" :
-                                                                  !!(st & (1 << 12)) ? "Blocking error" : ""
+                                                rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
+                                                                  !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
 
                                             }
 
                                             return (zone200 && zone300) ?
                                                 ({
-                                                    message: mm.message,
+                                                    message: mm && mm.message,
                                                     messageInfo: {
-                                                        messageType: zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
-                                                        hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                                        oa: zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
-                                                        hcpReference: enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
-                                                        invoiceNumber: zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
-                                                        invoiceMonth: zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
-                                                        invoiceDate: zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                        invoicedAmount: zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
-                                                        acceptedAmount: zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
-                                                        refusedAmount: zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
-                                                        invoiceStatus: invoiceStatus,
-                                                        rejectionReason: rejectionReason,
-                                                        paymentReference: zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
-                                                        paymentDate: "",
-                                                        amountPaid: "0.00",
-                                                        paymentAccount: enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                        paidAmount: ""
+                                                        messageType:        zone200.zones && zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
+                                                        hcp:                this.hcp.firstName + " " + this.hcp.lastName,
+                                                        oa:                 zone500.zones && zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
+                                                        hcpReference:       enr10.zones && enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
+                                                        invoiceNumber:      zone300.zones && zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
+                                                        invoiceMonth:       zone300.zones &&zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
+                                                        invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
+                                                        invoicedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
+                                                        acceptedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
+                                                        refusedAmount:      zone500.zones && zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
+                                                        invoiceStatus:      invoiceStatus,
+                                                        rejectionReason:    rejectionReason,
+                                                        paymentReference:   zone400.zones && zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
+                                                        paymentDate:        "",
+                                                        amountPaid:         "0.00",
+                                                        paymentAccount:     enr10.zones && enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
+                                                        paidAmount:         ""
                                                     }
                                                 }) : mm
                                         }) : mm
@@ -1868,6 +1853,7 @@
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
+                                       .finally(() => this.getMessage())
                         })
                 })
             }
@@ -2437,7 +2423,7 @@
                         })
                         return sprom
                     })*/
-                })
+                }).finally(() => this.getMessage())
             }
 
             _dateFormat(date) {
