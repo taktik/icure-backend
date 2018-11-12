@@ -212,6 +212,7 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
+                max-width: calc(100% - 80px);
 			}
 
 			paper-icon-button {
@@ -235,7 +236,7 @@
 
 		<ul>
 		<template is="dom-repeat" items="[[_localizedValue(value, value.*, refresher)]]" as="lv">
-			<li id="[[lv.id]]" class="medication-line"><span>[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
+			<li id="[[lv.id]]" class="medication-line"><span class="medication-text">[[lv.stringValue]]</span><div class="action-buttons"><paper-icon-button icon="create" on-tap="editMedication"></paper-icon-button><paper-icon-button icon="clear" on-tap="clearMedication"></paper-icon-button></div></li>
 		</template>
 		</ul>
 
