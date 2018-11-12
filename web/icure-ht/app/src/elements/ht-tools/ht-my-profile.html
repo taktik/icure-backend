@@ -265,10 +265,10 @@
 			}
 
             /* @keyframes woohoo{
-                0%{ 
+                0%{
                     transform: rotate(0) scale(1);
                 }
-                100%{ 
+                100%{
                     transform: rotate(360deg) scale(2);
                 }
             } */
@@ -324,7 +324,7 @@
 
             paper-radio-button{
                 --paper-radio-button-unchecked-ink-color: var(--app-secondary-color-dark);
-                --paper-radio-button-checked-color: var(--app-secondary-color);  
+                --paper-radio-button-checked-color: var(--app-secondary-color);
                 --paper-radio-button-checked-ink-color: var(--app-secondary-color);
             }
 
@@ -849,7 +849,7 @@
                                 return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
                                     this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.bic.replace(/ /g, '').toUpperCase(), reg.iban.replace(/ /g, '').toUpperCase())
-                                    .then(r => this.api.logMcn(r, this.user, hcp.id))
+                                    .then(r => this.api.logMcn(r, this.user, hcp.id, "DMG", "register"))
                             }
                         ).then(regResp => {
                                 if (regResp) {
