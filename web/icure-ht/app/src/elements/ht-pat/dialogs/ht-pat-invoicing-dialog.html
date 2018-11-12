@@ -1847,6 +1847,52 @@
 
                 this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                     nmcls.map(nmcl =>{
+
+
+
+
+                        //
+                        // console.log( nmcl.valorisations );
+                        // console.log( nmcl.valorisations.filter( i => moment(i.startOfValidity).isBefore() && moment(i.endOfValidity).isAfter() ) );
+                        //
+                        // const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
+                        // const age = moment().diff(this.patient.dateOfBirth, 'years', true)
+                        // const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
+                        //
+                        // const trainee = this.hcp.statuses
+                        // const convention = this.hcp.convention
+                        //
+                        // const env = new evaljs.Environment({
+                        //     patient: {
+                        //         preferentialstatus: (ins && ins.parameters) ? !!ins.parameters.preferentialstatus : false,
+                        //         age: age,
+                        //         dmg: (dmg && dmg.referral) ? !!dmg.referral : false,
+                        //         chronical: (ins && ins.parameters) ? !!ins.parameters.chronicalDisease : false
+                        //     }, hcp: {trainee: trainee, convention: convention}
+                        // })
+                        //
+                        // nmcl.valorisations.map(val => {
+                        //     const gen = (env.gen(val.predicate)())
+                        //     let status = {done: false}
+                        //
+                        //     while (!status.done) {
+                        //         status = gen.next()
+                        //     }
+                        //
+                        //     if (status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)) {
+                        //         console.log( 'total amount: ' + Number(val.totalAmount).toFixed(2) )
+                        //         console.log( 'reimbursement: ' + Number(val.reimbursement).toFixed(2) )
+                        //         console.log( 'patientIntervention: ' + Number(val.patientIntervention).toFixed(2) )
+                        //     }
+                        // })
+
+
+
+
+
+
+
+
                         const sn = selected.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
                         if(sn){
                             sn.prescriberNeeded = nmcl.needsPrescriber
