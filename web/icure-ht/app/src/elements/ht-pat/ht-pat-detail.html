@@ -63,7 +63,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../dynamic-form/dialogs/medication-details-dialog.html">
 <link rel="import" href="dialogs/mycarenet/ht-pat-mcn-chapteriv-agreement.html">
 <link rel="import" href="dialogs/ht-pat-edmg-dialog.html">
-<link rel="import" href="dialogs/hubs/ht-hub-transaction-view.html">
+<link rel="import" href="dialogs/hubs/ht-pat-hub-dialog.html">
+<link rel="import" href="dialogs/hubs/ht-pat-hub-transaction-view.html">
 
 <dom-module id="ht-pat-detail">
 	<template>
@@ -1699,9 +1700,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
 			<!--<paper-input id="hcpHubConsent" label="[[localize('hub_hcp_cons','Hcp Hub consent',language)]]" value="{{_getHubHcpConsentDesc(hcpHubConsent)}}"></paper-input>-->
 			<template is="dom-if" if="[[_patientHasHubConsent(patientHubConsent) || !hubSupportsConsent]]">
-				<paper-input id="patientHubConsent" label="[[localize('pat_hub_cons','Pat Hub consent',language)]]" value="{{_getHubPatientConsentDesc(patientHubConsent)}}"></paper-input>
-				<paper-input id="patientHubTherLink" label="[[localize('hub_tl','Hub therapeutic link',language)]]" value="{{patientHubTherLink}}"></paper-input>
-
+				<div>
+					<div><p><b>[[localize('pat_hub_cons','Pat Hub consent',language)]]</b>[[_getHubPatientConsentDesc(patientHubConsent)]]</p></div>
+					<div><p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p></div>
+				</div>
 				<vaadin-grid id="transaction-list" class="material" overflow="bottom" items=[[hubTransactionList]] active-item="{{selectedTransaction}}">
 					<vaadin-grid-column width="120px">
 						<template class="header">[[localize('trans_typ','Type',language)]]</template>
@@ -1732,7 +1734,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</vaadin-grid>
 
 				<paper-input id="currentTrans" label="[[localize('hub_sel_tra','Selected transaction',language)]]" value="{{_transactionId(selectedTransaction)}}"></paper-input>
-				<paper-button on-tap="_showTransaction">get transaction</paper-button>
+				<!--<paper-button on-tap="_showTransaction">get transaction</paper-button>-->
 				<paper-button on-tap="_openTransactionViewer">view transaction</paper-button>
                 <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
 			</template>
@@ -1754,11 +1756,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <paper-button class="modal-button--save" dialog-dismiss autofocus >[[localize('can','Cancel',language)]]</paper-button>
 			</div>
-		</paper-dialog>
-
-		<paper-dialog id="transactionDialog">
-			<h2 class="modal-title">[[localize('trn','Transaction',language)]] [[_transactionId(selectedTransaction)]]</h2>
-            <div id="kmehr_slot"></div>
 		</paper-dialog>
 
 		<paper-dialog id="select-more-options-dialog">
@@ -1784,7 +1781,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<medication-details-dialog id="medication-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" selected-medication-content-with-id="{{selectedMedicationContentWithId}}" on-value-changed="_medicationDetailValueChanged"></medication-details-dialog>
 		<ht-pat-mcn-chapteriv-agreement id="chapterivdialog" api="[[api]]" user="[[user]]" patient="[[patient]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" medications="[[medications]]" on-create-service="_createService" on-update-services="_updateServices"></ht-pat-mcn-chapteriv-agreement>
 		<ht-pat-edmg-dialog id="edmgDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-edmg-dialog>
-		<ht-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-hub-transaction-view>
+		<ht-pat-hub-transaction-view id="transactionViewDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-transaction-view>
+		<ht-pat-hub-dialog id="patHubDialog" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patient]]" i18n="[[i18n]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-hub-dialog>
 	</template>
 	<script>
 
@@ -2219,7 +2217,9 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
         this._getHubPatientConsent();
         this._getHubTherapeuticLinks();
         this._getHubTransactionList();
-        this.$.hubDialog.open();
+        this.$.patHubDialog.open();
+
+        // this.$.hubDialog.open();
     }
 
     _openEdmgDialog(e){
@@ -2678,56 +2678,6 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _openTransactionViewer(){
 		this.$.transactionViewDialog.open(this.selectedTransaction, this._getHubTransaction());
-	}
-
-    _showTransaction(){
-	    this.$.transactionDialog.open();
-        //this.shadowRoot.querySelector("#transaction_name").innerHTML = "" // erase previous title
-        this.shadowRoot.querySelector("#kmehr_slot").innerHTML = "Loading..." // erase previous content
-	    this._getHubTransaction().then(tranResp =>
-	    {
-            var slot = this.shadowRoot.querySelector("#kmehr_slot");
-	        if(tranResp) {
-
-                //this.shadowRoot.querySelector("#transaction_name").innerHTML = this._transactionId(this.selectedTransaction)
-
-                const req = new XMLHttpRequest();
-
-                req.onreadystatechange = function(event) {
-                    if (this.readyState === XMLHttpRequest.DONE) {
-                        if (this.status === 200) {
-
-                            var xsltProcessor = new XSLTProcessor();
-                            var xslStylesheet = this.responseXML;
-                            xsltProcessor.importStylesheet(xslStylesheet);
-
-                            var fragment = xsltProcessor.transformToFragment(tranResp, document);
-
-                            slot.innerHTML = "";
-                            slot.appendChild(fragment);
-
-                        } else {
-                            slot.innerHTML = "ERROR: XSLT not found";
-                        }
-                    }
-                };
-
-                var transtype =  this._transactionType(this.selectedTransaction);
-				var xslt;
-                if(transtype == "sumehr") {
-                    xslt = "sumehr_to_html.xslt"
-                    req.open("GET", xslt, true);
-                    req.send(null);
-				} else {
-                    var slot = this.shadowRoot.querySelector("#kmehr_slot");
-                    slot.innerHTML = "No visualizer implemented for transaction of type " + transtype + ":" + tranResp
-				}
-
-            } else {
-                slot.innerHTML = "No transaction found";
-            }
-		}
-		)
 	}
 
 	_isTransactionSet(tr){
