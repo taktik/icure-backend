@@ -112,6 +112,11 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	}
 
 	@Override
+	public List<List<Message>> getChildren(List<String> parentIds) {
+		return messageDAO.getChildren(parentIds);
+	}
+
+	@Override
 	public List<Message> getByTransportGuids(String hcpId, Set<String> transportGuids) {
 		return messageDAO.getByTransportGuids(hcpId, transportGuids);
 	}
