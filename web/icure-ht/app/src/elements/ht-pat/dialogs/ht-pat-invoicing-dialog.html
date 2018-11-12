@@ -1542,7 +1542,8 @@
                             {
                                 id: 0,
                                 label: {"fr": "Pas de lieu de prestation", "nl": "Geen location", "en": "No location"},
-                                location: ""
+                                location: "",
+                                cdHcParty: ""
                             },
                             {
                                 id: 1,
@@ -1551,7 +1552,8 @@
                                     "nl": "The benefit is provided at a hospital",
                                     "en": "The benefit is provided at a hospital"
                                 },
-                                location: "HOSPITAL"
+                                location: "HOSPITAL",
+                                cdHcParty: "orghospital"
                             },
                             {
                                 id: 2,
@@ -1560,7 +1562,8 @@
                                     "nl": "The benefit is provided at a labo",
                                     "en": "The benefit is provided at a labo"
                                 },
-                                location: "LABO"
+                                location: "LABO",
+                                cdHcParty: "orglaboratory"
                             }
                         ]
                     },
@@ -3163,7 +3166,7 @@
                                     }
                                 })
                             ).finally(()=>{
-                                this.set("invoices."+this.invoices.indexOf(invoice),response)
+                                this.set("invoices."+this.invoices.indexOf(this.selectedInvoice),response)
                                 this.isSelected=true;
                                 this.set("selectedInvoice",response)
                                 console.log("invoice saved :",response)
@@ -3290,9 +3293,9 @@
 
                     if(this.selectedInvoice.encounterLocationNorm!==0){
                         newCode.location={
-                            cdHcParty: this.locationType[this.selectedInvoice.encounterLocationNorm].location,
+                            cdHcParty: this.locationType[this.selectedInvoice.encounterLocationNorm].cdHcParty,
                             firstName: null,
-                            idHcParty: this.selectedInvoice.encounterLocationNihii,
+                            idHcParty: _.padEnd(this.selectedInvoice.encounterLocationNihii,11, '0'),
                             idSsin: null,
                             lastName: null
                         }
@@ -3306,9 +3309,18 @@
                 const printedDate=moment().format("YYYYMMDD")
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,printedDate)
                     .then(response =>{
-                        this.set("selectedInvoice",response)
-                        this.set("selectedInvoice.printedDate",printedDate)
-                        this.eattest(this.selectedInvoice)
+                        if(response.acknowledge.errors.length===0){
+                            this.set("selectedInvoice",response)
+                            this.set("selectedInvoice.printedDate",printedDate)
+                            this.eattest(this.selectedInvoice)
+                        }
+                        else{
+                            let errorMsg="";
+                            response.acknowledge.errors.map(error => {
+                                errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
+                            })
+                            this.set("errorMessage",errorMsg)
+                        }
                     })
             }
 
@@ -3744,8 +3756,10 @@
             }
 
             locationNormChanged(){
-                this.set("selectedInvoice.encounterLocationName","")
-                this.set("selectedInvoice.encounterLocationNihii","")
+                if(!this.isSelected){
+                    this.set("selectedInvoice.encounterLocationName","")
+                    this.set("selectedInvoice.encounterLocationNihii","")
+                }
             }
         }
 
