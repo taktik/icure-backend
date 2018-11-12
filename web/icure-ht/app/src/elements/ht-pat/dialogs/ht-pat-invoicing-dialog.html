@@ -3296,7 +3296,7 @@
                 console.log("invoice",eattest)
                 console.log("envoie")
                 const sentDate=moment().format("YYYYMMDD")
-                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
+                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
                     .then(response =>{
                         console.log("recu reponse :",response)
                         if(response.acknowledge.errors.length===0){
@@ -3304,12 +3304,15 @@
                             this.set('selectedInvoice.thirdPartyReference',response.invoicingNumber)
                             this.set("selectedInvoice.sentDate",sentDate)
                             this.eattest(this.selectedInvoice)
+                            this.set("errorMessage","")
                         }
                         else{
                             let errorMsg="";
                             response.acknowledge.errors.map(error => {
+                                console.log("Error :"+error)
                                 errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
                             })
+                            console.log("erreur message :"+errorMsg)
                             this.set("errorMessage",errorMsg)
                         }
                     })
