@@ -181,7 +181,7 @@
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
-            <h2 class="modal-title">[[localize('hub','Hubs',language)]]</h2>
+            <h2 class="modal-title">[[localize('hub','Hubs',language)]]<paper-spinner active="[[isLoading]]"></paper-spinner></h2>
             <div>
                 <paper-dropdown-menu id="preferredHub" label="[[localize('cur_hub','Current hub',language)]]">
                     <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{curHub}}">
@@ -420,8 +420,6 @@
 
             open() {
                 this.$.dialog.open();
-                this.set('isLoading',true);
-
                 const propHub = this.user.properties.find(p => p.type && p.type.identifier === 'org.taktik.icure.user.preferredhub') ||
                     (this.user.properties[this.user.properties.length] = {
                         type: {identifier: 'org.taktik.icure.user.preferredhub'},
@@ -433,13 +431,9 @@
                         type: {identifier: 'org.taktik.icure.user.eHealthEnv'},
                         typedValue: {type: 'STRING', stringValue: 'prd'}
                     })
-
                 this.set("curHub", propHub.typedValue.stringValue);
                 this.set("curEnv", propEnv.typedValue.stringValue);
-
                 this._setHub();
-
-
             }
 
             _enableTransactionList(hubconsent, supportConsent){
@@ -460,6 +454,7 @@
             }
 
             _setHub(){
+                this.set('isLoading',true);
                 this.set('hcpHubConsent', null);
                 this.set('patientHubConsent', null);
                 this.set('patientHubTherLinks', null);
@@ -498,7 +493,10 @@
                 if (this.hubSupportsConsent) this._getHubHcpConsent().then(consentResp => this.set('hcpHubConsent', consentResp));
                 if (this.hubSupportsConsent) this._getHubPatientConsent().then(consentResp => this.set('patientHubConsent', consentResp));
                 if (this.hubSupportsConsent) this._getHubTherapeuticLinks().then(tlResp => this.set('patientHubTherLinks', tlResp));
-                this._getHubTransactionList().then(tranResp => this.set('hubTransactionList', tranResp));
+                this._getHubTransactionList().then(tranResp => {
+                    this.set('hubTransactionList', tranResp);
+                    this.set('isLoading', false);
+                });
                 if (this.hubSupportsConsent) this.getHubPatient().then(hubPat => this.set('patientHubInfo', hubPat));
             }
 
