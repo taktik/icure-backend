@@ -2286,28 +2286,6 @@
                 return erreur;
             }
 
-            extractErrorMessage(errorDetail) {
-                const e = errorDetail
-                return e &&
-                ((e.rejectionCode1 && e.rejectionCode1 !== "000000") ||
-                    e.rejectionDescr1 ||
-                    (e.rejectionCode2 && e.rejectionCode2 !== "000000") ||
-                    e.rejectionDescr2 ||
-                    (e.rejectionCode3 && e.rejectionCode3 !== "000000") ||
-                    e.rejectionDescr3)
-                    ? _.compact([
-                        e.rejectionCode1 || (e.rejectionDescr1 && e.rejectionDescr1.trim().length)
-                            ? `${e.rejectionCode1 || "XXXXXX"}: ${e.rejectionDescr1 || "-"}`
-                            : null,
-                        e.rejectionCode2 || (e.rejectionDescr2 && e.rejectionDescr2.trim().length)
-                            ? `${e.rejectionCode2 || "XXXXXX"}: ${e.rejectionDescr2 || "-"}`
-                            : null,
-                        e.rejectionCode3 || (e.rejectionDescr3 && e.rejectionDescr3.trim().length)
-                            ? `${e.rejectionCode3 || "XXXXXX"}: ${e.rejectionDescr3 || "-"}`
-                            : null
-                    ]) : null
-            }
-
 
             _showDetail() {
 
@@ -2329,7 +2307,7 @@
                             invoiceDate: inv.invoiceDate,
                             invoicedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
                             acceptedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
-                            refusedAmount: "0.00",
+                            refusedAmount: 0.00,
                             rejectionReason: inv.error,
                             paid: false,
                             status: "",
@@ -2339,7 +2317,7 @@
                                 invoiceDate: code.dateCode,
                                 invoicedAmount: code.reimbursement,
                                 acceptedAmount: code.reimbursement,
-                                refusedAmount: "0.00",
+                                refusedAmount: 0.00,
                                 rejectionReason: code.error,
                                 paid: false,
                                 status: ""
@@ -2347,7 +2325,7 @@
                         })))
                         .then(infos => this.set('invoicesFromBatch', infos))
                         .then(() => this.api.message().getChildren(this.activeGridItem.message.id))
-                        .then((msgs) => Promise.all(_.map(msgs.filter(m => m.subject && ['920999','920099'].includes(m.subject.substr(0,6))), (msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg)))))
+                        .then((msgs) => Promise.all(_.map(msgs.filter(m => m.subject && ['920999','920099', '920098', '920900'].includes(m.subject.substr(0,6))), (msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg)))))
                         .then((docs) => Promise.all(_.flatMap(docs).filter(d => !_.endsWith(d.name, '_parsed_records') && _.endsWith(d.name, '_records') && d.mainUti === "public.json").map(d => this.api.document().getAttachment(d.id, d.attachmentId))))
                         .then((attachs) => {
                             attachs.forEach( a => {
