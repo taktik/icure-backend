@@ -12,6 +12,9 @@ public class ReceiptDto extends IcureDto {
 
 	//The ICureDocument (Invoice, Contact, ...) this document is linked to
 	private String documentId;
+	private String category;
+	private String subCategory;
+
 	private String encryptedSelf;
 
 	public Map<ReceiptBlobType, String> getAttachmentIds() {
@@ -44,5 +47,21 @@ public class ReceiptDto extends IcureDto {
 
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
 	}
 }
