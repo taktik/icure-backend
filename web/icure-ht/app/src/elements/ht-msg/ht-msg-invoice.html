@@ -2553,13 +2553,10 @@
                                     try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
                                 }
 
-                                const zone200 = a.message.find(enr => enr.zones.find(z => z.zone == "200"))
-                                const zone300 = a.message.find(enr => enr.zones.find(z => z.zone == "300"))
-                                const zone400 = a.message.find(enr => enr.zones.find(z => z.zone == "400"))
-                                const zone500 = a.message.find(enr => enr.zones.find(z => z.zone == "500"))
-
-
-
+                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "500"))
 
                                 let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones),
