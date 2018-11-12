@@ -18,6 +18,7 @@
 
 package org.taktik.icure.logic;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -58,6 +59,8 @@ public interface MessageLogic extends EntityPersister<Message, String> {
 
 	List<Message> getChildren(String messageId);
 
+	List<List<Message>> getChildren(List<String> parentIds);
+
 	List<Message> getByTransportGuids(String hcpId, Set<String> transportGuids);
 
 	List<Message> listMessagesByInvoiceIds(List<String> ids);
@@ -65,4 +68,5 @@ public interface MessageLogic extends EntityPersister<Message, String> {
 	List<Message> listMessagesByExternalRefs(String hcPartyId, List<String> externalRefs);
 
 	void solveConflicts();
+
 }

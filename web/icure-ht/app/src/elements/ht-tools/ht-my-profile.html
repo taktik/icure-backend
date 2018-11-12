@@ -310,11 +310,12 @@
                 padding: 0;
             }
             .administrative-panel .panel-content {
-                min-height: 620px;
                 padding: 0 12px;
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
                 box-sizing: border-box;
+                height: 50vh;
+                overflow-y: auto;
             }
 
             paper-radio-group{
@@ -984,9 +985,18 @@
                     // Only save if we actually have data
                     this.hcp.financialInstitutionInformation =  _.filter( this.hcp.financialInstitutionInformation, 'bankAccount' );
 
+                    // this.api.user().modifyUser(this.user)
+                    //     .then(user => this.api.register(user,"user"))
+                    //     .then(user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true})))
+                    //     .then(() => this.api.hcparty().modifyHealthcareParty(this.hcp))
+                    //     .then(hcp => this.api.register(hcp,"hcp"))
+                    //     .then(hcp => this.hcp = hcp)
+                    //     .finally(() => this.$.dialog.close())
+
                     this.api.user().modifyUser(this.user).then(
                         user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
                     ).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).then(hcp => this.hcp = hcp).finally(() => this.$.dialog.close())
+
                 }
             }
 

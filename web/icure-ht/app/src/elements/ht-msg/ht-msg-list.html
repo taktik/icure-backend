@@ -682,8 +682,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('isLoadingMailList', false)
 				return messages.sort(function (a, b) {
 					if(b.received === a.received){
-						let bGuid = b.transportGuid.split(":")[1] || "";
-						let aGuid = a.transportGuid.split(":")[1] || "";
+						let bGuid = (b.transportGuid+'').split(":")[1] || "";
+						let aGuid = (a.transportGuid+'').split(":")[1] || "";
 						return bGuid > aGuid? 1: -1;
                     }
                     else{
