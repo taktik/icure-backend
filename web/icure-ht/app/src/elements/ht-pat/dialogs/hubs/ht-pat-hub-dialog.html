@@ -205,13 +205,15 @@
                         <p><b>[[localize('hub_tl','Hub therapeutic link',language)]]</b>[[patientHubTherLink]]</p>
                     </div>
                 </template>
+                <template is="dom-if" if="[[supportBreakTheGlass]]">
+                    <div>
+                        <p>test</p>
+                        <paper-input id="BTG" label="[[localize('BTG_rea','Break the glass reason',language)]]" value="{{breakTheGlassReason}}"></paper-input>
+                        <paper-button on-tap="_runGetTransactionList">[[localize('get_lst','Get list',language)]]</paper-button>
+                    </div>
+                </template>
                 <template is="dom-if" if="[[_enableTransactionList(patientHubConsent, hubSupportsConsent)]]">
-                    <temmplate is="dom-if" if="[[supportBreakTheGlass]]">
-                        <div>
-                            <paper-input id="BTG" label="[[localize('BTG_rea','Break the glass reason',language)]]" value="{{breakTheGlassReason}}"></paper-input>
-                            <paper-button on-tap="_runGetTransactionList">[[localize('get_lst','Get list',language)]]</paper-button>
-                        </div>
-                    </temmplate>
+
                     <vaadin-grid id="transaction-list" class="material" overflow="bottom" on-tap="click"  items=[[hubTransactionList]] active-item="{{activeItem}}">
                         <!--file-remove-->
                         <vaadin-grid-column width="30px">
@@ -454,7 +456,12 @@
                     })
                 this.set("curHub", propHub.typedValue.stringValue);
                 this.set("curEnv", propEnv.typedValue.stringValue);
+                this.set("supportBreakTheGlass", false);
                 this._setHub();
+            }
+
+            _enableBreakTheGlass(btg){
+                return btg;
             }
 
             _enableTransactionList(hubconsent, supportConsent){
@@ -486,33 +493,33 @@
                     case 'rsb':
                         this.hubId = 1990000728;
                         this.hubEndPoint = this.curEnv === 'acc' ? 'https://hub.abrumet.be/standards/hubservices/intrahub/intrahubservice.asmx' : 'https://hub.abrumet.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
-                        this.hubSupportsConsent = true;
+                        this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = "RSB" ;//TODO: verify value
-                        this.supportBreakTheGlass = false;
+                        this.set("supportBreakTheGlass", false);
                         break;
                     case 'rsw':
                         this.hubId = 1990000035;
                         this.hubEndPoint = this.curEnv === 'acc' ? 'https://acchub.reseausantewallon.be/HubServices/IntraHub/V3/IntraHub.asmx' : 'https://hub.reseausantewallon.be/standards/hubservices/production/intrahub/intrahubservice.asmx';
-                        this.hubSupportsConsent = true;
+                        this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = "RSW";
-                        this.supportBreakTheGlass = false;
+                        this.set("supportBreakTheGlass", false);
                         break;
                     case 'cozo':
                         this.hubEndPoint = this.curEnv === 'acc' ? '' : '';
-                        this.hubSupportsConsent = true;
+                        this.set("hubSupportsConsent", true);
                         this.hubPackageId = null;
                         this.hubApplication = null;
-                        this.supportBreakTheGlass = false;
+                        this.set("supportBreakTheGlass", false);
                         break;
                     case 'vitalink':
                         this.hubId = 1990001916;
                         this.hubEndPoint = this.curEnv === 'acc' ? 'https://vitalink-acpt.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService' : 'https://vitalink.ehealth.fgov.be/vpmg/vitalink-gateway/IntraHubService';
-                        this.hubSupportsConsent = false;
+                        this.set("hubSupportsConsent", false);
                         this.hubPackageId = this.curEnv === 'acc' ? "ACC_73424e1e-7eab-4b2c-9a8d-90a2bd1c078f" : ""; //TODO: add production value
                         this.hubApplication = "VITALINKGATEWAY";
-                        this.supportBreakTheGlass = true;
+                        this.set("supportBreakTheGlass", true);
                         break
                 }
 
