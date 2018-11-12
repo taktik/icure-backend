@@ -1566,14 +1566,14 @@
                                                 const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
                                                 const st = mm.message.status
 
-                                                invoiceStatus = !!(st & (1 << 17))  ? "Error" :
-                                                    !!(st & (1 << 16)) ? "Partially accepted" :
-                                                    !!(st & (1 << 16)) ? "Fully accepted" :
-                                                    !!(st & (1 << 12)) ? "Rejected" :
-                                                    !!(st & (1 << 11)) ? "Treated" :
-                                                    !!(st & (1 << 10)) ? "Accepted for treatment" :
-                                                    !!(st & (1 << 9)) ?  "Successfully transmitted to OA" :
-                                                    !!(st & (1 << 8)) ?  "Pending" : ""
+                                                invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
+                                                !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
+                                                !!(st & (1 << 16)) ? this.localize('inv_full_acc','Fully accepted',this.language):
+                                                !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
+                                                !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
+                                                !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
+                                                !!(st & (1 << 9)) ?  this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
+                                                !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
 
 
                                                 rejectionReason = !!(st & (1 << 17)) ? "More than 5% error" :
@@ -2483,24 +2483,23 @@
 
             _getIconStatusClass(status) {
                 console.log("geticonstatus",status)
-                return (status == "Accepted for treatment") ? "invoice-status--blueStatus" :
-                    (status == "Pending") ? ((!this.statusPending) && (!this.isProcess(status))) ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
-                    (status == "Partially accepted") ? "invoice-status--orangeStatus" :
-                    (status == "Accepted") ? "invoice-status--greenStatus" :
-                    (status == "Accepted for treatment") ? "invoice-status--blueStatus" :
-                    (status == "Treated") ? "invoice-status--greenStatus" :
-                    (status == "Process") ? "invoice-status--greenStatus" :
-                    (status == "Error") ? "invoice-status--redStatus" :
+                return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? ((!this.statusPending) && (!this.isProcess(status))) ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
                     ""
             }
             _getTxtStatusColor(status,amount) {
                 console.log("gettxtstatus",status,amount)
                 if (amount > 0) {
-                    return (status == "Partially accepted") ? "txtcolor--orangeStatus" :
-                    (status == "Accepted") ? "txtcolor--greenStatus" :
-                    (status == "Accepted for treatment") ? "txtcolor--blueStatus" :
-                    (status == "Treated") ? "txtcolor--greenStatus" :
-                    (status == "Error") ? "txtcolor--redStatus" :
+                    return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
                     ""
                 }
             }
