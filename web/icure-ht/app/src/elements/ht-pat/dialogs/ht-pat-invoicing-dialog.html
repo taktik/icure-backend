@@ -1994,11 +1994,11 @@
             }
 
             _isTrainee(careProviderType) {
-                return careProviderType === "persphysician" ? false : true
+                return careProviderType && careProviderType === "persphysician" ? false : true
             }
 
             _checkInvoiceMediumType() {
-                return this.selectedInvoice.sentMediumType === "efact" ? true : false
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === "efact" ? true : false
             }
 
             getFavoritesCodes() {
@@ -2016,7 +2016,7 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
-                return e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
+                return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
 
             _nmclSearch(e) {
@@ -2058,7 +2058,7 @@
             }
 
             _getDescription(label) {
-                return label[this.language]
+                return label && label[this.language]
             }
 
             _addNmcl(e) {
@@ -2339,7 +2339,7 @@
             }
 
             _getErrorMsg(item, language) {
-                return language === "fr" ? item.msgFr : item.msgNl
+                return item && language && language === "fr" ? item.msgFr : item.msgNl
             }
 
             _showDetail() {
@@ -2523,11 +2523,13 @@
             }
 
             findAndReplace(string, target, replacement) {
+                if(!(string && target && replacement))return;
                 for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
                 return string;
             }
 
             getInvoiceType(invoiceType){
+                if(!invoiceType) return;
                 const type = this.invoiceType.find(type => type.id === invoiceType)
                 return type && type.label && type.label[this.language]
             }
@@ -3309,9 +3311,9 @@
                 const printedDate=moment().format("YYYYMMDD")
                 this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,printedDate)
                     .then(response =>{
+                        console.log("recu reponse :",response)
                         if(response.acknowledge.errors.length===0){
-                            this.set("selectedInvoice",response)
-                            this.set("selectedInvoice.printedDate",printedDate)
+                            this.set('selectedInvoice.thirdPartyReference',response.invoicingNumber)
                             this.eattest(this.selectedInvoice)
                         }
                         else{
@@ -3367,6 +3369,8 @@
             }
 
             eattest(invoice){
+
+                console.log("print",invoice)
 
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
@@ -3704,7 +3708,10 @@
                         a.href = url;
                         a.download = invoice.id+moment()+".pdf";
                         a.click();
-                        window.URL.revokeObjectURL(url);
+                        window.URL.revokeObjectURL(url)
+                    })
+                    .then( rep =>{
+                        this.set("selectedInvoice.printedDate",moment().format("YYYYMMDD"))
                     })
             }
 
@@ -3713,7 +3720,7 @@
             }
 
             _cancelEattest(){
-                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
                 window.open(url,"cancel");
             }
 
