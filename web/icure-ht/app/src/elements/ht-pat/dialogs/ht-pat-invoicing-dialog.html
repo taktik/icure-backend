@@ -901,7 +901,7 @@
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
-                                    <label>N° [[item.invoiceReference]] [[item.id]]</label>
+                                    <label rel="[[item.id]]">N° [[item.invoiceReference]]</label>
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
@@ -2449,6 +2449,8 @@
             }
 
             _validateAndPrepareInvoiceForBatchSending() {
+
+
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
                     this.set('isJustif',true)
@@ -2610,22 +2612,19 @@
                 }
                 let totTotal=0.00,totOA=0.00,totPers=0.00,totSupp=0.00
 
-                console.log("selected Invoice",this.selectedInvoice.invoicingCodes)
-                console.log("this patient",this.patient)
-
                 this.selectedInvoice.invoicingCodes.map(code => {
                     const invoiceDate = this._formatInvoiceDate(code.dateCode)
                     const invDate = invoiceDate
                     const thisCode = code.code.toString()
-                    const reimbursement = this.formatAmount(code.reimbursement.toString())
-                    const patientIntervention = this.formatAmount(code.patientIntervention.toString())
-                    const doctorSupplement = this.formatAmount(code.doctorSupplement.toString())
-                    const totalAmount = this.formatAmount(code.totalAmount.toString())
+                    const reimbursement = this.formatAmount(code.reimbursement+'')
+                    const patientIntervention = this.formatAmount(code.patientIntervention+'')
+                    const doctorSupplement = this.formatAmount(code.doctorSupplement+'')
+                    const totalAmount = this.formatAmount(code.totalAmount+'')
 
-                    totTotal+=code.totalAmount;
-                    totOA+=code.reimbursement;
-                    totPers+=code.patientIntervention;
-                    totSupp+=code.doctorSupplement;
+                    totTotal = Number(totTotal) + Number(code.totalAmount);
+                    totOA = Number(totOA) + Number(code.reimbursement);
+                    totPers = Number(totPers) + Number(code.patientIntervention);
+                    totSupp = Number(totSupp) + Number(code.doctorSupplement);
 
                     totTotal = this.formatAmount(totTotal)
                     totOA = this.formatAmount(totOA)
@@ -3357,10 +3356,8 @@
                         else{
                             let errorMsg="";
                             response.acknowledge.errors.map(error => {
-                                console.log("Error :"+error)
                                 errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
                             })
-                            console.log("erreur message :"+errorMsg)
                             this.set("errorMessage",errorMsg)
                         }
                     })
