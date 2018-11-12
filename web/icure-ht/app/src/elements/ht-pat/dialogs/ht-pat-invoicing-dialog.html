@@ -891,7 +891,7 @@
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
-                                    <label>N° [[item.invoiceReference]] [[item.id]]</label>
+                                    <label>N° [[item.invoiceReference]]</label>
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
@@ -1244,6 +1244,7 @@
 
                 </div>
                 <div class="buttons">
+                    <span>[[errorMessage]]</span>
                     <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
                     <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
@@ -1273,15 +1274,22 @@
                             </paper-button>
                         </template>
 
-                        <template is="dom-if" if="[[isNmclVerified]]">
+                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
-                        <template is="dom-if" if="[[!isNmclVerified]]">
-                            <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
-                                create invoice',language)]]
-                            </paper-button>
+                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <template is="dom-if" if="[[isNmclVerified]]">
+                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
+                                    [[localize('val_invoice','Justificatory + create invoice',language)]]
+                                </paper-button>
+                            </template>
+                            <template is="dom-if" if="[[!isNmclVerified]]">
+                                <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
+                                    create invoice',language)]]
+                                </paper-button>
+                            </template>
                         </template>
                     </template>
                     <template is="dom-if" if="[[isInvoiceClosed]]">
@@ -1881,6 +1889,10 @@
                     organisationList:{
                         type: Array,
                         value: () => []
+                    },
+                    errorMessage :{
+                        type : String,
+                        value :""
                     }
                 }
 
@@ -1919,6 +1931,7 @@
                         }
                     })
                 ).finally(() => {
+
                     if(!selected.encounterLocationNorm){
                         selected.encounterLocationNorm=0;
                         selected.encounterLocationName=null;
@@ -3135,7 +3148,6 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-                    this.isSelected=true;
                     console.log(this.selectedInvoice)
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
@@ -3283,12 +3295,14 @@
 
                 console.log("invoice",eattest)
                 console.log("envoie")
-                const printedDate=moment().format("YYYYMMDD")
-                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,printedDate)
+                const sentDate=moment().format("YYYYMMDD")
+                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
                     .then(response =>{
                         console.log("recu reponse :",response)
                         if(response.acknowledge.errors.length===0){
+                            this.api.logMcn(response, this.user, this.selectedInvoice.id, "eAttest", "invoice")
                             this.set('selectedInvoice.thirdPartyReference',response.invoicingNumber)
+                            this.set("selectedInvoice.sentDate",sentDate)
                             this.eattest(this.selectedInvoice)
                         }
                         else{
@@ -3686,7 +3700,23 @@
                         window.URL.revokeObjectURL(url)
                     })
                     .then( rep =>{
-                        this.set("selectedInvoice.printedDate",moment().format("YYYYMMDD"))
+                        if(this.selectedInvoice)
+                            this.set("selectedInvoice.printedDate",moment().format("YYYYMMDD"))
+
+                        this.api.invoice().modifyInvoice(this.selectedInvoice)
+                            .then(invoice => this.api.register(invoice,'invoice'))
+                            .then(response => {
+                                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                                    nmcls.map(nmcl =>{
+                                        const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                        if(sn){
+                                            sn.prescriberNeeded = nmcl.needsPrescriber
+                                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                                        }
+                                    })
+                                )
+                                console.log("saved:",response)
+                            })
                     })
             }
 
