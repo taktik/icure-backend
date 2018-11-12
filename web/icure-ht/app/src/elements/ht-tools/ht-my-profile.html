@@ -20,16 +20,6 @@
 <link rel="import" href="../dynamic-form/validator/ht-iban-validator.html">
 <link rel="import" href="../dynamic-form/dynamic-bank-account.html">
 
-
-
-
-
-
-
-
-
-
-
 <dom-module id="ht-my-profile">
 	<template>
 		<style>
@@ -46,6 +36,20 @@
 				font-size:var(--form-font-size);
 			}
 
+            .top-gradient{
+                line-height:0;
+                font-size:0;
+                display:block;
+                background: linear-gradient(90deg, var(--app-secondary-color-dark), var(--app-secondary-color));
+                height:10px;
+                position:relative;
+                top:0;
+                left:0;
+                right:0;
+                margin:0;
+                border-radius:2px 2px 0 0;
+            }
+
 			.error {
 				color: #e53935;
 			}
@@ -53,7 +57,6 @@
 			.buttons{
 				width:100%;
 				text-align:center;
-				margin-top:10px
 			}
 
 			.modal-button{
@@ -87,6 +90,7 @@
             .col-30 { flex-grow: 1; width: 30%; box-sizing: border-box; float:left }
             .col-35 { flex-grow: 1; width: 35%; box-sizing: border-box; float:left }
             .col-40 { flex-grow: 1; width: 40%; box-sizing: border-box; float:left }
+            .col-45 { flex-grow: 1; width: 45%; box-sizing: border-box; float:left }
             .col-50 { flex-grow: 1; width: 50%; box-sizing: border-box; float:left }
 			#dialog{
                 position: fixed;
@@ -102,6 +106,7 @@
 			}
 			#printable {
 				width: fit-content;
+                padding: 0 16px;
 			}
 
 			@media screen and (max-width:650px) {
@@ -116,8 +121,8 @@
 			}
 
 			paper-tabs {
-				background: var(--app-secondary-color);
-				--paper-tabs-selection-bar-color: var(--app-text-color-disabled);
+				background: var(--app-background-color);
+				--paper-tabs-selection-bar-color: var(--app-secondary-color);
 				--paper-tabs: {
 					color: var(--app-text-color);
 				};
@@ -182,9 +187,8 @@
 
 			.statusBullet {
 				display:block;
-				width:16px;
-				height:16px;
-				border:1px solid var(--app-status-color-nok);
+                width: 12px;
+                height: 12px;
 				background-color: var(--app-status-color-nok);
 				-webkit-border-radius: 12px;
 				-moz-border-radius: 12px;
@@ -193,14 +197,18 @@
 			}
 
 			.statusBullet.ok {
-				border:1px solid var(--app-status-color-ok);
 				background-color: var(--app-status-color-ok);
 			}
 
 			.textAlignCenter { text-align: center; }
 
 			.headerField {
-				background-color: #EEEEEE;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: center;
+                align-items: center;
+				background-color: var(--app-background-color-dark);
+                height: 48px;
 				--paper-input-container-underline: {
 					display: none
 				};
@@ -214,10 +222,10 @@
 				color: var(--app-primary-color);
 			}
 
-			.borderTop { border-top:1px solid var(--app-primary-color); }
+			/* .borderTop { border-top:1px solid var(--app-primary-color); }
 			.borderLeft { border-left:1px solid var(--app-primary-color); }
 			.borderRight { border-right:1px solid var(--app-primary-color); }
-			.borderBottom { border-bottom:1px solid var(--app-primary-color); }
+			.borderBottom { border-bottom:1px solid var(--app-primary-color); } */
 
 			.icon-button {
 				cursor: pointer;
@@ -226,27 +234,44 @@
 			#edmgRegistrationComplete {
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0, 0, 0, 0.1);
+                background: linear-gradient(rgba(255,255,255,.3) 0%,rgba(255,255,255,.85) 50%);
                 position: absolute;
                 z-index: 10;
-                font-size: 3em;
+                font-size: 1.8em;
                 text-align: center;
-                color: var(--app-background-color);
-                -webkit-text-stroke-width: 1px;
-                -webkit-text-stroke-color: #666;
+                color: var(--app-secondary-color);
 			}
 
+            #edmgRegistrationComplete iron-icon{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-120%);
+                height: 20%;
+                width: 20%;
+            }
+
 			#edmgRegistrationComplete p {
-				-ms-transform: rotate(-25deg);
-				-webkit-transform: rotate(-25deg);
-				transform: rotate(-25deg);
-				width:80%;
-				line-height: 2em;
-				margin-left:10%;
-				font-weight: 700;
-				margin-top:5em;
-				text-transform:uppercase;
+                position: relative;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+                width: 30%;
+                padding: .5em 2em;
+                line-height: 1.5;
+                font-weight: 700;
+                text-transform: none;
+                border-top: 2px solid var(--app-secondary-color);
 			}
+
+            /* @keyframes woohoo{
+                0%{ 
+                    transform: rotate(0) scale(1);
+                }
+                100%{ 
+                    transform: rotate(360deg) scale(2);
+                }
+            } */
 
 			.marginRight10 { margin-right:10px; }
 
@@ -285,10 +310,32 @@
                 padding: 0;
             }
             .administrative-panel .panel-content {
-                padding: 0 24px;
-                height: 70vh;
-                overflow-y: auto;
+                min-height: 620px;
+                padding: 0 12px;
+                overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+            }
+
+            paper-radio-group{
+                padding-left: 16px;
+            }
+
+            paper-radio-button{
+                --paper-radio-button-unchecked-ink-color: var(--app-secondary-color-dark);
+                --paper-radio-button-checked-color: var(--app-secondary-color);  
+                --paper-radio-button-checked-ink-color: var(--app-secondary-color);
+            }
+
+            paper-listbox{
+                margin: 0 16px;
+                padding: 0;
+            }
+
+            vaadin-combo-box{
+                width: 100%;
+                padding: 0 16px;
+                box-sizing: border-box;
             }
 
 		</style>
@@ -301,7 +348,7 @@
 
 
 			<div class="administrative-panel">
-
+                <div class="top-gradient"></div>
 				<paper-tabs selected="{{tabs}}">
                     <paper-tab class="adm-tab"><iron-icon icon="icons:lock" class="marginRight10"></iron-icon>[[localize('my_access','Mes accès',language)]]</paper-tab>
                     <paper-tab class="adm-tab"><iron-icon icon="icons:account-circle" class="marginRight10"></iron-icon>[[localize('my_details','Mes coordonées',language)]]</paper-tab>
@@ -340,7 +387,6 @@
                                     </div>
 
                                     <vaadin-combo-box
-                                            style="width:100%"
                                             id="supervisor-search" filtered-items="[[supervisorListItem]]" item-label-path="hrLabel"
                                             item-value-path="id" on-filter-changed="_superVisorSearch" on-keydown="isEnterPressed"
                                             label="[[localize('supervisor','Votre médecin référent (uniquement si vous êtes stagiaire)',language)]]"
@@ -420,8 +466,13 @@
                             <template is="dom-if" if="[[allEDmgregistered]]">
                                 <ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
                                 <div class="row" style="position:relative">
-                                    <div id="edmgRegistrationComplete"><p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p></div>
-                                    <div class="col-20">
+                                    <div id="edmgRegistrationComplete">
+                                        <iron-icon icon="check-circle"></iron-icon>
+                                        <p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p>
+                                    </div>
+                                    <div class="col-15">
+
+
                                         <paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
                                         <paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
                                         <paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
@@ -431,7 +482,7 @@
                                         <paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
                                         <paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
                                     </div>
-                                    <div class="col-40">
+                                    <div class="col-45">
                                         <paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
                                         <paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
                                         <paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
@@ -741,11 +792,19 @@
                         return reg
                     })
                 )).then( regs => {
-                    this.set('allEDmgregistered', regs.every(r => !!r.registered))
-                    return this.api.user().modifyUser(this.user).then(
-                        user => {
+                    let allDone = regs.every(r => !!r.registered)
+                    this.set('allEDmgregistered', allDone)
+                    return this.api.user().modifyUser(this.user)
+                        .then(user => {
                             this.user = user
                             this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
+                        })
+                        .finally(() => {
+                            if (!allDone) {
+                                setTimeout(() => {
+                                    this._registerToEDMG()
+                                }, 300000)
+                            }
                         })
                 }).finally(() => this.set('registerEnabled', true))
             }
@@ -781,7 +840,9 @@
 
             registerToEDMGbyOA(reg) {
                 if (this.api.tokenId) {
-                    if (!iban.isValid(reg.iban)) { return Promise.resolve(reg) }
+                    if (!iban.isValid(reg.iban)) {
+                        return Promise.resolve(reg)
+                    }
                     return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp => {
                                 return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
@@ -815,13 +876,14 @@
                                     return reg
                                 }
                             }
-                        ).catch(function (error) {
-                                reg.Comment = 'exception caugh:' + error
-                                reg.response = JSON.stringify(error)
-                                reg.lastExecution = (new Date).getTime()
-                                return Promise.resolve(reg)
-                            }
                         )
+                        .catch((error) => {
+                            reg.Comment = 'exception caugh:' + error
+                            reg.response = JSON.stringify(error)
+                            reg.lastExecution = (new Date).getTime()
+
+                            return Promise.resolve(reg)
+                        })
                 } else {
                     reg.Comment = 'err: no tokenid'
                     return Promise.resolve(reg)
@@ -937,9 +999,6 @@
                 }
             }
 
-
-
-
             // Resolve and assign BIC based on IBAN
             _evalBic( event, fieldObject ) {
 
@@ -967,9 +1026,7 @@
                     if(oaValue==900) this.userBIC_900 = bicValue;
 
                 }
-
             }
-
 
             replicateIbanValueToAllFields() {
                 // Copy iban values to all fields (including us)
@@ -982,11 +1039,7 @@
                 this.set( 'tabs', 3 )
             }
 
-
-
-
             _superVisorSearch(e) {
-
                 let latestSearchValue = e && e.detail.value
                 this.latestSearchValue = latestSearchValue
 
@@ -1003,8 +1056,6 @@
                     this.set('supervisorListItem', res.rows)
                 })
             }
-
-
 
             _supervisorDataProvider() {
                 return {
@@ -1043,23 +1094,14 @@
                 }
             }
 
-
-
             isEnterPressed(e){
                 if(e.keyCode==13){
                     // this._addSupervisor(e);
                 }
             }
 
-
-
             _gotoMyProfile() {
-
             }
-
-
-
-
         }
 
         customElements.define(HtExportKey.is, HtExportKey);

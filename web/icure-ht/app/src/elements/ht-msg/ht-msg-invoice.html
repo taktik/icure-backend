@@ -229,7 +229,7 @@
                     box-shadow: var(--app-shadow-elevation-1);
                 }
                 .gridContainer.grid-pending {
-                    height: calc(100vh - 190px - 30px);
+                    height: calc(100vh - 190px - 36px);
                 }
 
                 .invoice-status {
@@ -493,7 +493,7 @@
                     position: absolute;
                     right: 0;
                     bottom: 0;
-                    margin: 5px 15px;
+                    margin: 8px 16px;
                 }
 
                 .modal-button{
@@ -521,6 +521,10 @@
                     color: var(--app-primary-color-dark);
                     font-weight: 700;
 
+                }
+
+                @media screen and (max-width: 1024px) {
+                    .hideOnMobile {display: none;opacity: 0;}
                 }
             </style>
         </custom-style>
@@ -606,7 +610,7 @@
                         <template is="dom-repeat" items="[[toggledDatas]]">
                             <iron-collapse-button>
                                 <div slot="collapse-trigger" class="flex-header">
-                                    <span class="center" style="width: 4%;">[[localize('grp','Groupe',language)]]</span>
+                                    <span class="center hideOnMobile" style="width: 4%;">[[localize('grp','Groupe',language)]]</span>
                                     <span style="width: 54%;">OA: [[item.code]]</span>
                                     <!--<span class="center" style="width: 8%;">[[localize('tot_sub','Sous-total',language)]]</span>-->
                                     <span class="center" style="width: 7%;">[[item.sum.oa]]€</span>

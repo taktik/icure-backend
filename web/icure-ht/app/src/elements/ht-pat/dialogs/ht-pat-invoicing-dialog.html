@@ -1022,7 +1022,7 @@
                                 <!--<paper-spinner class="spinner chapter-list-spinner" alt="Loading eTar" active=[[isLoadingEattest]]></paper-spinner>-->
                                 <vaadin-grid id="nmclGrid" items="[[selectedInvoice.invoicingCodes]]" class="material"
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
-                                    <vaadin-grid-column width="20px">
+                                    <vaadin-grid-column width="20px" style="padding: 0;">
                                         <template>
                                             <div class="cell frozen">
                                                 <template is="dom-if" if="[[item.valid]]">
@@ -1039,7 +1039,7 @@
                                             <div class="cell frozen">[[item.code]]</div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="650px">
+                                    <vaadin-grid-column width="50%">
                                         <template class="header">
                                             <div class="cell frozen">[[localize('lab','Label',language)]]</div>
                                         </template>
@@ -2402,8 +2402,10 @@
                                     if(this.selectedInvoice.sentMediumType==="efact"){
                                         this.generateJustificatory()
                                     }else if(this.selectedInvoice.sentMediumType==="eattest"){
+                                        console.log("sending")
                                         this.sendEattest();
                                         this.eattest(this.selectedInvoice)
+                                        console.log("after sending and pdf")
                                     }
                                 })
                             }))
@@ -2972,214 +2974,6 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                     })
-
-                // const width = 210
-                // const height = 297
-                //
-                // const center = function (pdf, x, txt, fontSize) {
-                //     return x - pdf.getStringUnitWidth(txt) * fontSize / pdf.internal.scaleFactor / 2;
-                // };
-                //
-                // const pdf = new jsPDF('p', 'mm', [width, height]);
-                //
-                // pdf.setFontSize(9);
-                // pdf.setFont('Arial');
-                // pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
-                // pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU PATIENT", 86, 24)
-                // pdf.text("Patient", 38.5, 31.5)
-                // pdf.text("Dispensateur de soins", 117, 31.5)
-                // pdf.text("Identification", 20, 38.5)
-                // pdf.text("Identification", 77, 38.5)
-                // pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
-                // pdf.text("Nom: "+this.patient.firstName, 20, 45.5)
-                // pdf.text("Nom: "+this.hcp.firstName, 77, 45.5)
-                // pdf.text("Nom: ", 135, 45.5)
-                // pdf.text("Prénom: "+this.patient.lastName, 20, 52)
-                // pdf.text("Prénom: "+this.hcp.firstName, 77, 52)
-                // pdf.text("BCE: ", 135, 52)
-                // pdf.text("NISS: "+this.patient.inss, 20, 58)
-                // pdf.text("Adresse: "+this.patient.firstName, 77, 58)
-                // pdf.text("INAMI: "+this.hcp.nihii, 77, 70)
-                // pdf.text("BCE: "+this.hcp.cbe, 77, 76)
-                //
-                //
-                // pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
-                // pdf.text("Date des prestations", 20, 96)
-                // pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
-                //
-                // pdf.text("Code prestation", 51, 102)
-                // pdf.text("Intervention OA", 80, 102)
-                // pdf.text("Intervention personnelle", 110, 102)
-                // pdf.text("Supplément", 150, 102)
-                // pdf.text("Total", 180, 102)
-                //
-                // let startNmclHeight = 108
-                //
-                // let totTotal=0;
-                // let totOA=0;
-                // let totPers=0;
-                // let totSupp=0;
-                //
-                // this.selectedInvoice.invoicingCodes.map(code => {
-                //     let invoiceDate = this._formatInvoiceDate(code.dateCode)
-                //     pdf.text(invoiceDate,20, startNmclHeight)
-                //     pdf.text(code.code.toString(),50, startNmclHeight)
-                //     pdf.text(code.reimbursement.toString(),95, startNmclHeight)
-                //     pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
-                //     pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
-                //     pdf.text(code.totalAmount.toString(),184, startNmclHeight)
-                //
-                //     startNmclHeight = Number(startNmclHeight) + 6
-                //
-                //     totTotal+=code.totalAmount;
-                //     totOA+=code.reimbursement;
-                //     totPers+=code.patientIntervention;
-                //     totSupp+=code.doctorSupplement;
-                // })
-                //
-                // pdf.text("Total", 20, 260)
-                // pdf.text(totOA.toString(), 95, 260)
-                // pdf.text(totPers.toString(), 132, 260)
-                // pdf.text(totSupp.toString(), 160, 260)
-                // pdf.text(totTotal.toString(), 184, 260)
-                //
-                // pdf.text("Total dû par le patient", 20, 266)
-                // pdf.text(totPers.toString(), 184, 266)
-                //
-                // pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
-                // pdf.text(totOA.toString(), 184, 272)
-                //
-                // pdf.text("Montant total à payer par le patient ", 20, 278)
-                // pdf.text((totPers+totSupp).toString(), 184, 278)
-                //
-                // pdf.setFontSize(6);
-                // pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
-                //
-                //
-                // //Horizontals lines
-                // pdf.lines([[0, 0], [180, 0]], 18, 20);
-                // pdf.lines([[0, 0], [180, 0]], 18, 27.5);
-                // pdf.lines([[0, 0], [180, 0]], 18, 34.5);
-                // pdf.lines([[0, 0], [180, 0]], 18, 80);
-                // pdf.lines([[0, 0], [180, 0]], 18, 86);
-                // pdf.lines([[0, 0], [180, 0]], 18, 92);
-                // pdf.lines([[0, 0], [180, 0]], 18, 98);
-                // pdf.lines([[0, 0], [180, 0]], 18, 262);
-                // pdf.lines([[0, 0], [180, 0]], 18, 268);
-                // pdf.lines([[0, 0], [180, 0]], 18, 274);
-                // pdf.lines([[0, 0], [180, 0]], 18, 280);
-                //
-                //
-                // //Verticals lines
-                // pdf.lines([[0, 60], [0, 0]], 18, 20);
-                // pdf.lines([[0, 60], [0, 0]], 68, 20);
-                // pdf.lines([[0, 45], [0, 0]], 75, 34.5);
-                // pdf.lines([[0, 45], [0, 0]], 132, 34.5);
-                // pdf.lines([[0, 60], [0, 0]], 198, 20);
-                //
-                // pdf.lines([[0, 194], [0, 0]], 18, 86);
-                // pdf.lines([[0, 194], [0, 0]], 198, 86);
-                //
-                // pdf.addPage()
-                //
-                // pdf.setFontSize(9);
-                // pdf.setFont('Arial');
-                // pdf.text("Numéro d'ordre:"+this.selectedInvoice.invoiceReference, 20, 24)
-                // pdf.text("DOCUMENT JUSTIFICATIF DE SOINS DE SANTE DESTINE AU MEDECIN", 86, 24)
-                // pdf.text("Dispensateur de soins", 117, 31.5)
-                // pdf.text("Identification", 20, 38.5)
-                // pdf.text("Les prestations de santé ont été effectuées pour le\n compte de :", 134, 38.5)
-                // pdf.text("Nom: "+this.hcp.firstName, 20, 45.5)
-                // pdf.text("Nom: ", 135, 45.5)
-                // pdf.text("Prénom: "+this.hcp.lastName, 20, 52)
-                // pdf.text("BCE: ", 135, 52)
-                // pdf.text("Adresse: ", 20, 58)
-                // pdf.text("INAMI: "+this.hcp.nihii, 20, 64)
-                // pdf.text("BCE: "+this.hcp.cbe, 20, 70)
-                // pdf.text("N° mutuelle: "+ "/ N° OA", 20, 76)
-                //
-                //
-                // pdf.text("PRESTATION(S) DE SANTE REMBOURSABLE(S)", 86, 90)
-                // pdf.text("Date des prestations", 20, 96)
-                // pdf.text("Prestation(s) facturée(s) en tiers payant", 86, 96)
-                //
-                // pdf.text("Code prestation", 51, 102)
-                // pdf.text("Intervention OA", 80, 102)
-                // pdf.text("Intervention personnelle", 110, 102)
-                // pdf.text("Supplément", 150, 102)
-                // pdf.text("Total", 180, 102)
-                //
-                // startNmclHeight = 108
-                //
-                // totTotal=0;
-                // totOA=0;
-                // totPers=0;
-                // totSupp=0;
-                //
-                // this.selectedInvoice.invoicingCodes.map(code => {
-                //     let invoiceDate = this._formatInvoiceDate(code.dateCode)
-                //     pdf.text(invoiceDate,20, startNmclHeight)
-                //     pdf.text(code.code.toString(),50, startNmclHeight)
-                //     pdf.text(code.reimbursement.toString(),95, startNmclHeight)
-                //     pdf.text(code.patientIntervention.toString(),132, startNmclHeight)
-                //     pdf.text(code.doctorSupplement.toString(),160, startNmclHeight)
-                //     pdf.text(code.totalAmount.toString(),184, startNmclHeight)
-                //
-                //     startNmclHeight = Number(startNmclHeight) + 6
-                //
-                //     totTotal+=code.totalAmount;
-                //     totOA+=code.reimbursement;
-                //     totPers+=code.patientIntervention;
-                //     totSupp+=code.doctorSupplement;
-                // })
-                //
-                // pdf.text("Total", 20, 260)
-                // pdf.text(totOA.toString(), 95, 260)
-                // pdf.text(totPers.toString(), 132, 260)
-                // pdf.text(totSupp.toString(), 160, 260)
-                // pdf.text(totTotal.toString(), 184, 260)
-                //
-                // pdf.text("Total dû par le patient", 20, 266)
-                // pdf.text(totPers.toString(), 184, 266)
-                //
-                // pdf.text("Montant total facturé à l'organisme assureur (OA)", 20, 272)
-                // pdf.text(totOA.toString(), 184, 272)
-                //
-                // pdf.text("Montant total à payer par le patient ", 20, 278)
-                // pdf.text((totPers+totSupp).toString(), 184, 278)
-                //
-                // pdf.setFontSize(6);
-                // pdf.text("Le présent document justificatif ne donne aucun droit au remboursement", 20, 284)
-                //
-                // //Horizontals lines
-                // pdf.lines([[0, 0], [180, 0]], 18, 20);
-                // pdf.lines([[0, 0], [180, 0]], 18, 27.5);
-                // pdf.lines([[0, 0], [180, 0]], 18, 34.5);
-                // pdf.lines([[0, 0], [180, 0]], 18, 80);
-                // pdf.lines([[0, 0], [180, 0]], 18, 86);
-                // pdf.lines([[0, 0], [180, 0]], 18, 92);
-                // pdf.lines([[0, 0], [180, 0]], 18, 98);
-                // pdf.lines([[0, 0], [180, 0]], 18, 262);
-                // pdf.lines([[0, 0], [180, 0]], 18, 268);
-                // pdf.lines([[0, 0], [180, 0]], 18, 274);
-                // pdf.lines([[0, 0], [180, 0]], 18, 280);
-                //
-                //
-                // //Verticals lines
-                // pdf.lines([[0, 60], [0, 0]], 18, 20);
-                // pdf.lines([[0, 7], [0, 0]], 68, 20);
-                // pdf.lines([[0, 45], [0, 0]], 132, 34.5);
-                // pdf.lines([[0, 60], [0, 0]], 198, 20);
-                //
-                // pdf.lines([[0, 194], [0, 0]], 18, 86);
-                // pdf.lines([[0, 194], [0, 0]], 198, 86);
-                //
-                //
-                //
-                // pdf.autoPrint();
-                //
-                // pdf.save(`efactJustificatory_${this.patient.lastName || 'Doe'}_${this.patient.firstName || 'John'}_${this.selectedInvoice.invoiceDate || '00000000'}.pdf`);
-
             }
 
             _ifStatusDateExist(date){
@@ -3408,10 +3202,10 @@
                             date: this.selectedInvoice.invoiceDate ,
                             hcp: {
                                 cdHcParty: "persphysician",
-                                firstName: this.hcp[0].firstName,
-                                idHcParty: this.hcp[0].nihii,
-                                idSsin: this.hcp[0].ssin,
-                                lastName: this.hcp[0].lastName
+                                firstName: this.hcp.firstName,
+                                idHcParty: this.hcp.nihii,
+                                idSsin: this.hcp.ssin,
+                                lastName: this.hcp.lastName
                             }
                         },
                         riziv : code.code
@@ -3444,9 +3238,10 @@
                 })
 
                 console.log(eattest)
-                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp[0].nihii,this.hcp[0].ssin,this.hcp[0].firstName,this.hcp[0].lastName,this.hcp[0].cbe,eattest,this.selectedInvoice.printedDate)
+                console.log("envoie")
+                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,this.selectedInvoice.printedDate)
                     .then(response =>{
-                        console.log(response)
+                        console.log("reponse du send =",response)
                     })
             }
 
@@ -3784,7 +3579,7 @@
                                 </td>
                             </tr>
                             <tr class="item last">
-                                <td class="minw30">T{{totOne}}</td>
+                                <td class="minw30">{{totOne}}</td>
                                 <td class="right">
                                     {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
                                 </td>

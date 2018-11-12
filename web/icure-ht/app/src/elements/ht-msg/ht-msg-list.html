@@ -64,7 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     flex-flow: column nowrap;
                     align-items: flex-start;
                     height: 100%;
-                    width: 100%;
+                    width: calc(100vw - 38%)
                 }
 
                 .card-title-container{
@@ -262,10 +262,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #del-button {
                     position: absolute;
-                    left: 51%;
+                    right: 64px;
                     top: 30px;
                     z-index: 1;
                     height: 35px;
+                }
+                #del-button.selected {
+                    right: calc(42% + 64px);
                 }
 
                 #restore-button {
@@ -305,13 +308,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .col-right {
                         width: 100vw;
                         transition: all .5s ease;
-                    }
-                    .col-right.mobile-open {
-                        height: calc(50vh - 64px);
+                        box-shadow: none;
                     }
                     #del-button {
                         left: initial;
-                        right: 30px;
+                        right: 64px !important;
                     }
 
                     paper-spinner.center {
@@ -326,41 +327,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
 
                 <paper-icon-button id="del-button" icon="delete" on-tap="_removeMsgs"></paper-icon-button>
-                <paper-tooltip for="del-button">[[localize('del','Delete',language)]]</paper-tooltip>
+                <paper-tooltip for="del-button" offset="4">[[localize('del','Delete',language)]]</paper-tooltip>
                 <paper-icon-button id="restore-button" icon="icons:undo" on-tap="_restoreMsgs" hidden></paper-icon-button>
 
 
                 <vaadin-grid id="mail-list" class="material" multi-sort="[[multiSort]]" active-item="{{activeItem}}" items="[[messages]]" on-tap="click" selection-mode="multi" width="100%">
                     <vaadin-grid-selection-column id="mail-list-selection-column"></vaadin-grid-selection-column>
                     <template is="dom-if" if="[[selectList.selection.item]] != 'sentbox'">
-                        <vaadin-grid-column flex-grow="2">
+                        <vaadin-grid-column flex-grow="0" width="110px">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize('sen','Sender',language)]]
+                                <vaadin-grid-sorter path="received">[[localize('dat','Date',language)]]</vaadin-grid-sorter>
+                            </template>
+                            <template>
+                                <div class="cell frozen">[[_timeFormat(item.received)]]</div>
+                            </template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column flex-grow="1">
+                            <template class="header">
+                                <vaadin-grid-sorter path="fromAddress"><b>[[localize('sen','Sender',language)]]</b> [[localize('and','and',language)]] [[localize('sub','Subject',language)]]
                                 </vaadin-grid-sorter>
                             </template>
                             <template>
-                                <div class="cell frozen">[[item.fromAddress]]</div>
+                                <div class="cell frozen"><b>[[item.fromAddress]]</b> - [[item.subject]]</div>
                             </template>
                         </vaadin-grid-column>
                     </template>
-                    <vaadin-grid-column flex-grow="1">
-                        <template class="header">
-                            <div>[[localize('dat','Date',language)]]</div>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[_timeFormat(item.received)]]</div>
-                        </template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column flex-grow="3">
-                        <template class="header">
-                            <vaadin-grid-sorter class="cell frozen" path="subject">
-                                [[localize('sub','Subject',language)]]
-                            </vaadin-grid-sorter>
-                        </template>
-                        <template>
-                            <div class="cell frozen">[[item.subject]]</div>
-                        </template>
-                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
         </template>
@@ -450,6 +441,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             ready() {
                 super.ready();
+            }
+
+            _itemSelected(e) {
+                return (e) ? 'selected' : ''
             }
 
 			_newMsg(){
@@ -705,6 +700,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const selected = this.activeItem;
                 this.set('selectedMessages', selected);
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: this.selectedMessages } } }));
+                console.log("selectedMessage",this.selectedMessages)
             }
 
 			_removeMsgs(){
