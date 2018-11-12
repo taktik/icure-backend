@@ -15,7 +15,7 @@
 <link rel="import" href="../../../dynamic-form/dynamic-link.html">
 <link rel="import" href="../../../dynamic-form/dynamic-pills.html">
 
-<dom-module id="ht-hub-transaction-view">
+<dom-module id="ht-pat-hub-transaction-view">
     <template>
         <style>
 
@@ -204,9 +204,9 @@
     <script>
         import * as models from 'icc-api/dist/icc-api/model/models';
 
-        class HtHubTransactionView extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+        class HtPatHubTransactionView extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
             static get is() {
-                return 'ht-hub-transaction-view';
+                return 'ht-pat-hub-transaction-view';
             }
 
             static get properties() {
@@ -429,6 +429,6 @@
 
 
         }
-        customElements.define(HtHubTransactionView.is, HtHubTransactionView);
+        customElements.define(HtPatHubTransactionView.is, HtPatHubTransactionView);
     </script>
 </dom-module>

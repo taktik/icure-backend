@@ -38,6 +38,8 @@ public class Receipt extends StoredICureDocument implements Serializable {
 
     //The ICureDocument (Invoice, Contact, ...) this document is linked to
     private String documentId;
+	private String category;
+	private String subCategory;
 
 	public Receipt solveConflictWith(Receipt other) {
 		super.solveConflictsWith(other);
@@ -88,5 +90,21 @@ public class Receipt extends StoredICureDocument implements Serializable {
 	@Override
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
 	}
 }
