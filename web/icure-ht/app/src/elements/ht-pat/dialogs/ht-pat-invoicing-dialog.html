@@ -2253,7 +2253,7 @@
                                     hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                     this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
                                     this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference, sup.ssin, sup.nihii, sup.firstName, sup.lastName
-                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id)
+                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id, "eTar", "consult")
                                 ))
                                 :
                                 this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
@@ -2261,7 +2261,7 @@
                                 hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                 this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
                                 this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference
-                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
+                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id, "eTar", "consult"))
                         )
                         .then(r => {
                             console.log(r)

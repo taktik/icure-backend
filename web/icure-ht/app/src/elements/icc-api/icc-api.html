@@ -465,15 +465,12 @@
             return foundResult.length ? foundResult[0].bicCode : '';
         }
 
-        logMcn(obj, user, docId) {
-            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
+        logMcn(obj, user, docId, cat, subcat) {
+            this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
-
-
         getUpdatedEdmgStatus( user, patient, requestDate, edmgNiss, edmgOA, genInsOA, genInsAFF, byPassCache=false ){
-
             if(!user||!patient) return Promise.resolve(null);
 
             // Everything that isn't today
@@ -551,9 +548,6 @@
             });
 
         }
-
-
-
     }
 
     customElements.define(IccApi.is, IccApi)
