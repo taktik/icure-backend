@@ -12,10 +12,12 @@ public class ParagraphAgreementDto implements Serializable {
 	private String paragraph;
 	private Boolean isAccepted;
 	private Boolean isInTreatment;
+	private Boolean isCanceled;
 	private String careProviderReference;
 	private String decisionReference;
 	private Long start;
 	private Long end;
+	private Long cancelationDate;
 	private Double quantityValue;
 	private String quantityUnit;
 	private String ioRequestReference;
@@ -68,6 +70,14 @@ public class ParagraphAgreementDto implements Serializable {
 		isInTreatment = inTreatment;
 	}
 
+	public Boolean getCanceled() {
+		return isCanceled;
+	}
+
+	public void setCanceled(Boolean canceled) {
+		isCanceled = canceled;
+	}
+
 	public String getCareProviderReference() {
 		return careProviderReference;
 	}
@@ -82,6 +92,14 @@ public class ParagraphAgreementDto implements Serializable {
 
 	public void setDecisionReference(String decisionReference) {
 		this.decisionReference = decisionReference;
+	}
+
+	public Long getCancelationDate() {
+		return cancelationDate;
+	}
+
+	public void setCancelationDate(Long cancelationDate) {
+		this.cancelationDate = cancelationDate;
 	}
 
 	public Long getStart() {

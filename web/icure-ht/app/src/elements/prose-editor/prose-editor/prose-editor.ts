@@ -26,6 +26,10 @@ import {baseKeymap, toggleMark, setBlockType} from "prosemirror-commands";
 import {Plugin} from "prosemirror-state"
 import {ReplaceStep} from "prosemirror-transform";
 import {history, undo, redo} from "prosemirror-history";
+import Element = Polymer.Element;
+import {addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, columnResizing, deleteColumn, deleteRow, deleteTable, goToNextCell, mergeCells, splitCell, tableEditing, tableNodes, toggleHeaderCell, toggleHeaderColumn, toggleHeaderRow} from "prosemirror-tables";
+import {fixTables} from "./fixtables";
+
 
 
 /**
@@ -76,6 +80,16 @@ export class ProseEditor extends Polymer.Element {
     draggable: false,
 
     toDOM: (node: any) => ["span", {style: "padding-left:100px", class: "tab"}],
+    parseDOM: [{tag: "span.var", getAttrs(dom) { return {expr: (dom as HTMLElement).dataset.expr} }}]
+  }
+
+  varNodeSpec: NodeSpec = {
+    inline: true,
+    group: "inline",
+    draggable: true,
+    attrs: { expr: {default: ''} },
+
+    toDOM: (node: any) => ["span", {style: "padding-left:100px", class: "var", "data-expr":node.attrs.expr}],
     parseDOM: [{
       tag: "span.tab"
     }]
@@ -97,6 +111,17 @@ export class ProseEditor extends Polymer.Element {
         }})),
         toDOM(node: any) {
           return ["h" + node.attrs.level, {style: "text-align: "+(node.attrs.align || 'inherit')}, 0]
+        }
+      }))
+      .append(tableNodes({
+        tableGroup: "block",
+        cellContent: "block+",
+        cellAttributes: {
+          background: {
+            default: null,
+            getFromDOM(dom) { return (dom as HTMLElement).style.backgroundColor || null },
+            setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
+          }
         }
       }))
       .addBefore("image", "tab", this.tabNodeSpec),
@@ -178,6 +203,22 @@ export class ProseEditor extends Polymer.Element {
         toDOM(mark:Mark) {
           let {size} = mark.attrs
           return ['span', {style: `font-size: ${size}`}, 0]
+        }
+      }).addToEnd("var", {
+        attrs: {
+          expr: {default: ''}
+        },
+        parseDOM: [
+          {
+            tag: 'span.var',
+            getAttrs(value:HTMLElement) {
+              return {expr: value.dataset.expr}
+            }
+          }
+        ],
+        toDOM(mark:Mark) {
+          let {expr} = mark.attrs
+          return ['span', {class:'var', 'data-expr': expr}, 0]
         }
       })
   })
@@ -274,6 +315,7 @@ export class ProseEditor extends Polymer.Element {
               const underlinedMark = marks.find(m => m.type === proseEditor.editorSchema.marks.underlined)
               const colorMark = marks.find(m => m.type === proseEditor.editorSchema.marks.color)
               const bgcolorMark = marks.find(m => m.type === proseEditor.editorSchema.marks.bgcolor)
+              const varMark = marks.find(m => m.type === proseEditor.editorSchema.marks.var)
 
               proseEditor.set('currentFont', fontMark && fontMark.attrs.font || 'Roboto')
               proseEditor.set('currentSize', sizeMark && sizeMark.attrs.size || '11px')
@@ -282,6 +324,8 @@ export class ProseEditor extends Polymer.Element {
               proseEditor.set('isUnderlined', !!underlinedMark )
               proseEditor.set('currentColor', colorMark && colorMark.attrs.color || '#000000' )
               proseEditor.set('currentBgColor', bgcolorMark && bgcolorMark.attrs.color || '#000000' )
+              proseEditor.set('isCode',  varMark && varMark.attrs.expr &&  varMark && varMark.attrs.expr.length)
+              proseEditor.set('codeExpression',  varMark && varMark.attrs.expr || '')
 
               proseEditor.set('isLeft', align && align === 'left')
               proseEditor.set('isCenter',  align && align === 'center' )
@@ -339,29 +383,41 @@ export class ProseEditor extends Polymer.Element {
       })
     });
 
-    this.editorView = new EditorView(this.$.editor, {
-      state: EditorState.create({
-        doc: DOMParser.fromSchema(this.editorSchema).parse(this.$.content),
-        plugins: [
-          keymap({
-            "Tab": (state: EditorState, dispatch: any, editorView: EditorView) => {
-              let tabType = this.editorSchema.nodes.tab
-              let {$from} = state.selection, index = $from.index()
-              if (!$from.parent.canReplaceWith(index, index, this.editorSchema.nodes.tab))
-                return false
-              if (dispatch)
-                dispatch(state.tr.replaceSelectionWith(tabType.create()))
-              return true
-            }
-          }),
-          keymap(baseKeymap),
-          history(),
-          selectionTrackingPlugin,
-          paginationPlugin,
-          paragraphPlugin
-        ]
-      })
+    let state = EditorState.create({
+      doc: DOMParser.fromSchema(this.editorSchema).parse(this.$.content),
+      plugins: [
+        keymap({
+          "Tab": (state: EditorState, dispatch: any, editorView: EditorView) => {
+            let tabType = this.editorSchema.nodes.tab
+            let {$from} = state.selection, index = $from.index()
+            if (!$from.parent.canReplaceWith(index, index, this.editorSchema.nodes.tab))
+              return false
+            if (dispatch)
+              dispatch(state.tr.replaceSelectionWith(tabType.create()))
+            return true
+          }
+        }),
+        keymap(baseKeymap),
+        history(),
+        columnResizing({}),
+        tableEditing(),
+        keymap({
+          "Tab": goToNextCell(1),
+          "Shift-Tab": goToNextCell(-1)
+        }),
+        selectionTrackingPlugin,
+        paginationPlugin,
+        paragraphPlugin
+      ]
     })
+
+    let fix = fixTables(state)
+    if (fix) state = state.apply(fix.setMeta("addToHistory", false))
+
+    this.editorView = new EditorView(this.$.editor, {
+      state: state
+    })
+
   }
 
   doUndo(e: CustomEvent) {
@@ -501,6 +557,12 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
+  insertOrEditCode(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+
+  }
+
   setAlignment(align: String) {
     const proseEditor = this
     return function(state: EditorState, dispatch?: (tr: Transaction) => void)  {
@@ -517,6 +579,7 @@ export class ProseEditor extends Polymer.Element {
       return true
     }
   }
+
   addMark(markType: MarkType, attrs?: { [key: string]: any }): (state: EditorState, dispatch?: (tr: Transaction) => void) => boolean {
     return function (state, dispatch) {
       let {empty, $cursor, ranges} = state.selection as TextSelection
@@ -556,6 +619,103 @@ export class ProseEditor extends Polymer.Element {
         }
       }
       return true
+    }
+  }
+
+  _addColumnBefore(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addColumnBefore(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addColumnAfter(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addColumnAfter(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteColumn(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteColumn(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addRowBefore(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addRowBefore(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _addRowAfter(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      addRowAfter(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteRow(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteRow(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _deleteTable(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      deleteTable(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _mergeCells(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      mergeCells(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _splitCell(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      splitCell(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderColumn(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderColumn(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderRow(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderRow(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
+    }
+  }
+  _toggleHeaderCell(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      toggleHeaderCell(this.editorView.state, this.editorView.dispatch)
+      this.editorView.focus()
     }
   }
 

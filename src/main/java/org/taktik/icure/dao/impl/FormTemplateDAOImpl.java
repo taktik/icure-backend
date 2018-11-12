@@ -57,7 +57,7 @@ class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTem
 	}
 
 	@Autowired
-    public FormTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("cacheManager") CacheManager cacheManager) {
+    public FormTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(FormTemplate.class, couchdb, idGenerator, cacheManager);
         initStandardDesignDocument();
     }

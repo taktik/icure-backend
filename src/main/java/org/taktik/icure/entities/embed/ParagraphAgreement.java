@@ -10,10 +10,12 @@ public class ParagraphAgreement implements Serializable {
 	private String paragraph;
 	private Boolean isAccepted;
 	private Boolean isInTreatment;
+	private Boolean isCanceled;
 	private String careProviderReference;
 	private String decisionReference;
 	private Long start;
 	private Long end;
+	private Long cancelationDate;
 	private Double quantityValue;
 	private String quantityUnit;
 	private String ioRequestReference;
@@ -60,6 +62,14 @@ public class ParagraphAgreement implements Serializable {
 
 	public void setInTreatment(Boolean inTreatment) {
 		isInTreatment = inTreatment;
+	}
+
+	public Boolean getCanceled() {
+		return isCanceled;
+	}
+
+	public void setCanceled(Boolean canceled) {
+		isCanceled = canceled;
 	}
 
 	public String getCareProviderReference() {
@@ -188,5 +198,13 @@ public class ParagraphAgreement implements Serializable {
 
 	public void setVerses(Set<Long> verses) {
 		this.verses = verses;
+	}
+
+	public Long getCancelationDate() {
+		return cancelationDate;
+	}
+
+	public void setCancelationDate(Long cancelationDate) {
+		this.cancelationDate = cancelationDate;
 	}
 }

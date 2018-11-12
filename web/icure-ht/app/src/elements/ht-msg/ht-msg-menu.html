@@ -75,6 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			.col-left{
+				position: relative;
 				box-sizing: border-box;
 				grid-column: 1 / 1;
     			grid-row: 1 / 1;
@@ -207,7 +208,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             collapse-button paper-item.opened{
                 background: #fff;
 			}
-			
+
 			collapse-button paper-item.iron-selected iron-icon{
 				color: var(--app-secondary-color) !important;
 				opacity: 1;
@@ -217,7 +218,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: white;
                 background: var(--app-primary-color);
 			}
-			
+
 			collapse-button paper-item iron-icon, paper-item iron-icon{
 				height: 20px;
 				width: 20px;
@@ -235,10 +236,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				color:var(--app-text-color);
 				background:var(--app-text-color-light);
 				border-radius:2px 2px 0 0;
-				
+
 			}
 
-			
+
 
 			.sublist{
 				background:var(--app-light-color);
@@ -475,16 +476,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				flex-flow: row wrap;
 				justify-content: flex-start;
 			}
-            
+
             .force-ellipsis {
                 max-width: 100%;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 overflow: hidden;
             }
-            .box-txt.force-ellipsis {
+            /* .box-txt.force-ellipsis {
                 max-width: 60%;
-            }
+            } */
             @media screen and (max-width: 1480px) {
                 .inbox-txt.force-ellipsis {
                     max-width: 50%;
@@ -498,15 +499,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             paper-spinner {
-                position: fixed;
-                top: 150px;
-                left: 19vw;
+                position: absolute;
+                top: 50%;
+                left: 50%;
                 z-index: 9999;
-                transform: translateX(-50%);
+                transform: translate(-50% -50%);
             }
 		</style>
 		<div class="col-left">
-            <paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner>
+            <template is="dom-if" if="[[isLoadingMailList]]"><paper-spinner class="center" active="[[isLoadingMailList]]"></paper-spinner></template>
 			<paper-button class="new-msg-btn" on-tap="_newMsg" >[[localize('new_mes','New Message',language)]]</paper-button>
 			<collapse-button id="inboxcollapse">
 				<paper-item id="inbox" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_inbox" elevation="">
@@ -527,9 +528,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
 				</paper-item>
 				<paper-listbox id="sentboxlist" class="menu-content sublist" selected="{{sentboxSelectionIndex}}" selected-item="{{sentboxSelectionItem}}" selectable="paper-item">
-						<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
-						<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
-						<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('ehe_mes','Ehealth Messages',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" id="ehealthMessages">[[localize('all_msgs','All messages',language)]]</paper-item>
+					<paper-item class="one-line-menu menu-item" on-tap="_report">[[localize('rep','Report',language)]]</paper-item>
+					<!--<paper-item on-tap="_e_inv">[[localize('e_inv','E-Invoicing',language)]]</paper-item>-->
 				</paper-listbox>
 			</collapse-button>
             <collapse-button  id="invoiceboxcollapse">

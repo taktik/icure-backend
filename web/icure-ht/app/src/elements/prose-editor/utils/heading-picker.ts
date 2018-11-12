@@ -30,6 +30,6 @@ export class HeadingPicker extends Polymer.mixinBehaviors([], Polymer.Element) {
   }
 
   _heading(heading? : string) {
-    return heading && heading.length ? heading : "Style"
+    return heading && heading.length ? heading : "Normal"
   }
 }
