@@ -99,10 +99,10 @@ public class ClassificationTemplateFacade implements OpenApiFacade{
 	}
 
     @ApiOperation(
-        value = "Get a list of classificatiosn Templates",
+        value = "Get a list of classifications Templates",
         response = ClassificationTemplateDto.class,
         httpMethod = "GET",
-        notes = ""
+        notes = "Ids are seperated by a coma"
     )
     @GET
     @Path("/byIds/{ids}")

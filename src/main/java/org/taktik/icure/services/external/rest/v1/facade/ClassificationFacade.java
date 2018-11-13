@@ -97,6 +97,12 @@ public class ClassificationFacade implements OpenApiFacade{
 		}
 	}
 
+    @ApiOperation(
+        value = "Get a list of classifications",
+        response = ClassificationDto.class,
+        httpMethod = "GET",
+        notes = "Ids are seperated by a coma"
+    )
     @GET
     @Path("/byIds/{ids}")
     public Response getClassificationByHcPartyId(@PathParam( "ids") String ids) {
