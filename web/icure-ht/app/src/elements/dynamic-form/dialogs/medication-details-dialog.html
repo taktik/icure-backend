@@ -15,7 +15,7 @@
                 width: 80%;
                 top: 50vh !important;
                 transform: translateY(-50%);
-                max-height: initial !important;
+                max-height: 75vh !important;
             }
 
             #medication-detail .save-line {
@@ -152,11 +152,12 @@
                 cursor: pointer;
             }
 
-            .scrollbox {
+            .containTabs {
                 max-height: 50vh;
                 overflow-y: auto;
-                overflow-x: auto;
+                overflow-x: hidden;
                 margin-top: 0;
+                padding: 16px;
                 border-top: 1px solid var(--app-background-color-dark);
                 border-bottom: 1px solid var(--app-background-color-dark);
             }
@@ -241,9 +242,8 @@
                 </paper-tabs>
             </div>
 
-
-            <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
-                <div class="scrollbox">
+            <div class="containTabs">
+                <template is="dom-if" if="{{_isEqual(selectedTab,0)}}">
                     <h4>[[localize('prefill','Préremplir les détails',language)]]</h4>
                     <div class="regimen-line">
                         <paper-input label="" id="numberByFrequency" type="number" min="0" step="1" class="regimen--frequency first-freq" value="{{bufferNumberByFrequency}}" on-change="_selectTakeQuantity">
@@ -376,121 +376,126 @@
                         [[localize('add_pos_reg','Add posology regimen',language)]]
                         <iron-icon icon="add"></iron-icon>
                     </paper-button>
-                </div>
-            </template>
+                </template>
 
-            <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
-                <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
-                    <template is="dom-if" if="[[_isEqual(item.freqType,'daily')]]">
-                        <vaadin-grid-column>
-                            <template class="header">Daily</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="160px">
-                            <template class="header">Prescr</template>
-                            <template><div>this is a single column</div></template>
-                        </vaadin-grid-column>
+                <template is="dom-if" if="{{_isEqual(selectedTab,1)}}">
+                    <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqType,'daily')]]">
+                        <vaadin-grid id="selectedMedicationTable">
+                            <vaadin-grid-column>
+                                <template class="header">Daily</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column flex-grow="0" width="160px">
+                                <template class="header">Prescr</template>
+                                <template><div>[[selectedMedicationContentWithId.medicationValue.regimen[0].administratedQuantity.unit]]</div></template>
+                            </vaadin-grid-column>
 
-                        <vaadin-grid-column-group class="med-det-moment">
-                            <template class="header">Morning</template>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">Before</template>
+                            <vaadin-grid-column-group class="med-det-moment">
+                                <template class="header">Morning</template>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">Before</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">During</template>
+                                    <template>2</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">After</template>
+                                    <template>3</template>
+                                </vaadin-grid-column>
+                            </vaadin-grid-column-group>
+
+                            <vaadin-grid-column-group class="med-det-moment">
+                                <template class="header">Midday</template>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">Before</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">During</template>
+                                    <template>2</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">After</template>
+                                    <template>3</template>
+                                </vaadin-grid-column>
+                            </vaadin-grid-column-group>
+
+                            <vaadin-grid-column-group>
+                                <template class="header">Evening</template>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">Before</template>
+                                    <template>1</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">During</template>
+                                    <template>2</template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column width="50px">
+                                    <template class="header">After</template>
+                                    <template>3</template>
+                                </vaadin-grid-column>
+                            </vaadin-grid-column-group>
+
+                            <vaadin-grid-column flex-grow="0" width="200px">
+                                <template class="header">Comments</template>
+                                <template><div>this is a single column</div></template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </template>
+                    <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqType,'weekly')]]">
+                        <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Weekly</template>
+                                <template></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Mon</template>
                                 <template>1</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">During</template>
-                                <template>2</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">After</template>
-                                <template>3</template>
-                            </vaadin-grid-column>
-                        </vaadin-grid-column-group>
-
-                        <vaadin-grid-column-group class="med-det-moment">
-                            <template class="header">Midday</template>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">Before</template>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Tue</template>
                                 <template>1</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">During</template>
-                                <template>2</template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">After</template>
-                                <template>3</template>
-                            </vaadin-grid-column>
-                        </vaadin-grid-column-group>
-
-                        <vaadin-grid-column-group>
-                            <template class="header">Evening</template>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">Before</template>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Wed</template>
                                 <template>1</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">During</template>
-                                <template>2</template>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Thu</template>
+                                <template>1</template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column width="50px">
-                                <template class="header">After</template>
-                                <template>3</template>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Fri</template>
+                                <template>1</template>
                             </vaadin-grid-column>
-                        </vaadin-grid-column-group>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Sat</template>
+                                <template>1</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column flex-grow="0" width="calc(100% / 8)">
+                                <template class="header">Sun</template>
+                                <template>1</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </template>
+                    <template is="dom-if" if="[[_isEqual(selectedMedicationContentWithId.medicationValue.regimen[0].freqType,'monthly')]]">
+                        <vaadin-grid id="selectedMedicationTable" items="[[selectedMedicationContentWithId.medicationValue.regimen]]">
+                            <vaadin-grid-column flex-grow="0" width="100%">
+                                <template class="header">Monthly</template>
+                                <template>Calendar</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </template>
 
-                        <vaadin-grid-column flex-grow="0" width="200px">
-                            <template class="header">Comments</template>
-                            <template><div>this is a single column</div></template>
-                        </vaadin-grid-column>
-                    </template>
-                    <template is="dom-if" if="[[_isEqual(item.freqType,'weekly')]]">
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Weekly</template>
-                            <template></template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Mon</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Tue</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Wed</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Thu</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Fri</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Sat</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column flex-grow="0" width="calc(100% / 7)">
-                            <template class="header">Sun</template>
-                            <template>1</template>
-                        </vaadin-grid-column>
-                    </template>
-                    <template is="dom-if" if="[[_isEqual(item.freqType,'monthly')]]">
-                        <vaadin-grid-column flex-grow="0" width="100%">
-                            <template class="header">Monthly</template>
-                            <template>Calendar</template>
-                        </vaadin-grid-column>
-                    </template>
-                </vaadin-grid>
-
-                <!--<paper-button class="posology-btn" on-tap="_addPosologyRegimen">-->
+                    <!--<paper-button class="posology-btn" on-tap="_addPosologyRegimen">-->
                     <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
                     <!--<iron-icon icon="add"></iron-icon>-->
-                <!--</paper-button>-->
-            </template>
+                    <!--</paper-button>-->
+                </template>
+            </div>
+
             <div class="regimen-line save-line">
                 <!--<template is="dom-if" if="[[!existingMedicine]]">-->
                 <!--<div class="buttons force-left">-->
@@ -622,7 +627,8 @@
             }
 
             _isEqual(a,b) {
-                return (a == b)
+                console.log(a+' ?= '+b)
+                return (a === b)
             }
             setSelectedTab(e) {
                 this.set('selectedTab',e)
@@ -653,7 +659,8 @@
                     this.set("beginMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.beginMoment))
                     this.set("endMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment))
 
-                    // this.set("bufferTable", {freqType:null,administratedQuantity:selectedMedicationContentWithId.medicationValue.regimen})
+                    this.set("bufferTable", selectedMedicationContentWithId.medicationValue.regimen)
+                    if(this.bufferTable.administratedQuantity) {this._setFrequencyList(this.bufferTable)}
                 }
                 this.$['medication-detail'].open()
             }
@@ -744,59 +751,58 @@
                     prefillTable.administratedQuantity.push(thatLine)
                 }
                 this.set('bufferTable', prefillTable)
-                console.log('prefillDetails',this.bufferTable)
-                this._setFrequencyList()
+                this._setFrequencyList(this.bufferTable)
             }
 
             _selectDayPeriod(event, target) {
-                console.log('selectDayPeriod(',target)
                 const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (!rgModel) {
                     return
                 }
                 rgModel.set('rg.dayPeriod', {type: "CD-DAYPERIOD", code: (target.item)?target.item.id:'error'})
-                this._makeRegimenList(rgModel)
+                this._makeBufferTable()
             }
             _selectWeekPeriod(event, target) {
-                console.log('selectWeekPeriod(',target)
                 const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
                 if (!rgModel) {
                     return
                 }
                 rgModel.set('rg.weekPeriod', {type: "CD-WEEKPERIOD", code: (target.item)?target.item.id:'error'})
-                this._makeRegimenList(rgModel)
+                this._makeBufferTable()
             }
 
             _selectSingleQuantity(event, target) {
-                console.log('selectSingleQuantity(',target)
-                this._makeRegimenList()
+                const rgModel = this.root.querySelector("#rgRepeat").modelForElement(event.target)
+                if (!rgModel) {
+                    return
+                }
+                console.log(event.path[0].id)
+                // this._makeBufferTable()
             }
 
-            _makeRegimenList(param) {
+            _makeBufferTable(param) {
                 const dom = this.shadowRoot.getElementById('lineDomMap').querySelectorAll('div.regimen-line')
                 let quantitiesList = []
-                console.log('setQuantity, dom',dom)
                 if (param) {console.log('withParam',param)}
-                Array.prototype.map.call(dom, that=>{
-                    console.log('dom map, that',that)
-                    const thatLine =
+                Array.prototype.map.call(dom, oneDomRegimen=>{
+                    const builtRegimen =
                     (this.bufferGeneralFrequency == 2) ? {time:[],quantity:this.bufferQuantity,unit:this.bufferUnit} :
                     (this.bufferGeneralFrequency == 1) ? { // weekly
-                        time: Array(that)[0].children[4].id,
-                        quantity: Array(that)[0].children[5].id, // .$['nativeinput'].valueAsNumber,
+                        time: (param) ? param : Array(oneDomRegimen)[0].children[4].id,
+                        quantity: Array(oneDomRegimen)[0].children[5].id, // .$['nativeinput'].valueAsNumber,
                         unit: this.bufferUnit
                     } :  { // daily
-                        time: Array(that)[0].children[0].id,
-                        quantity: Array(that)[0].children[1].id, // .$['nativeinput'].valueAsNumber,
+                        time: (param) ? param : Array(oneDomRegimen)[0].children[0].id,
+                        quantity: Array(oneDomRegimen)[0].children[1].id, // .$['nativeinput'].valueAsNumber,
                         unit: this.bufferUnit
                     }
-                    quantitiesList.push(thatLine)
+                    quantitiesList.push(builtRegimen)
                 })
                 this.set('bufferTable',{
                     freqType: (this.bufferGeneralFrequency == 2) ? 'monthly' : (this.bufferGeneralFrequency == 1) ? 'weekly' : 'daily',
                     administratedQuantity:quantitiesList})
-                console.log("selectQuantity, output :",this.bufferTable)
-                this._setFrequencyList()
+                this.set('selectedMedicationContentWithId.medicationValue.regimen',this.bufferTable)
+                this.save()
             }
 
             _valueChanged() {
@@ -812,29 +818,32 @@
                 })
             }
 
-            _setFrequencyList() {
+            _setFrequencyList(preset) {
                 let bufferTable = []
-                console.log("setFreqList(), in :",this.bufferTable)
-                for (let cpt = 0; cpt < this.bufferNumberByFrequency; cpt++) {
-                    // get fields values
-                    bufferTable.push({
-                        freqType: this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
-                        administratedQuantity: {
-                            time: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].time : null,
-                            quantity: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].quantity : this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
-                            unit: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].unit : this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
-                        }
-                    })
+                if (preset) { console.log('preset',preset)
+                    Array.prototype.map.call(preset,regimen=>{bufferTable.push({time: regimen.administratedQuantity.time,quantity: regimen.administratedQuantity.quantity,unit: regimen.administratedQuantity.unit})})
                 }
-                console.log("setFreqList(), out :",bufferTable)
+                if (!preset) {
+                    console.log("setFreqList(), in :",this.bufferTable)
+                    for (let cpt = 0; cpt < this.bufferNumberByFrequency; cpt++) {
+                        // get fields values
+                        bufferTable.push({
+                            freqType: this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
+                            administratedQuantity: {
+                                time: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].time : null,
+                                quantity: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].quantity : this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                                unit: (this.bufferTable.administratedQuantity[cpt]) ? this.bufferTable.administratedQuantity[cpt].unit : this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
+                            }
+                        })
+                    }
+                }
                 this.set("customFrequencyTable", true)
                 this.set("flagTableFrequency", true)
                 this.set("selectedMedicationContentWithId.medicationValue.regimen", bufferTable)
                 let medicDetails = this.medicationDetail; medicDetails.content[this.language].medicationValue.regimen = bufferTable
                 this.set('bufferTable',bufferTable)
                 this.set('medicationDetail',medicDetails)
-                console.log('selectedMedicValueRegimen',this.selectedMedicationContentWithId.medicationValue.regimen)
-                this.save()
+                if (!preset) {this.save()}
             }
 
             _addFrequency() {
