@@ -896,9 +896,9 @@
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
             <div class="invoice-panel">
-                <paper-listbox id="_invoice_listbox" focused multi toggle-shift selectable="paper-material" selected="{{selectValue}}">
+                <paper-listbox id="_invoice_listbox" focused selectable="paper-material" selected="{{selectedInvoiceIndex}}">
                     <template is="dom-repeat" items="[[invoices]]">
-                        <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
+                        <paper-material class="layout vertical invoice-item invoice--big" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
                                     <label>N° [[item.invoiceReference]]</label>
@@ -1869,7 +1869,7 @@
                     },
                     bufferTypeCode:{
                         type : String,
-                        observer: '_tranferNmcl'
+                        observer: '_transferNmcl'
                     },
                     childRelativeCodeId:{
                         type: String,
@@ -1903,6 +1903,10 @@
                     errorMessage :{
                         type : String,
                         value : null
+                    },
+                    selectedInvoiceIndex:{
+                        type : Number,
+                        observer: '_selectInvoice'
                     }
                 }
 
@@ -1917,20 +1921,24 @@
             }
 
 
-            _selectInvoice(e) {
+            _selectInvoice(idx) {
                 console.log('select invoice')
                 // Drop all should there be any
-                this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
+                //this.shadowRoot.querySelectorAll(".iron-selected").forEach(item => { item && item.classList.remove("iron-selected") });
 
-                this.isSelected=true;
-                const invoiceId = (e.currentTarget) ? e.currentTarget.id : e
+                const selected = (idx >= 0) ?  this.invoices[idx] : null
+                const invoiceId = selected && selected.id
+
                 this.set("isTarificationError", false)
                 this.set("isTarificationMcnError", false)
                 this.set('isDetailNmcl', false)
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
 
-                let selected = this.invoices.find(inv => inv.id === invoiceId)
+                if (!selected) {
+
+                    return
+                }
 
                 this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                     nmcls.map(nmcl =>{
@@ -1954,18 +1962,11 @@
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
-                    this.set('prescriptionDateAsString', this.returnDatePickerDate(selected.prescriptionDate))
+                    selected.prescriptionDate ? this.set('prescriptionDateAsString', this.returnDatePickerDate(selected.prescriptionDate)) : this.set('prescriptionDateAsString', moment().format("YYYY-MM-DD"))
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                     this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
-                    this.isSelected=false;
-
-                    // Ain't set upon first load, target (either we already have one for today or we target the first node)
-                    var targetObject = this.shadowRoot.querySelector('[id="' + selected.id + '"]') || this.shadowRoot.querySelector('[class="invoice-text"]').parentElement;
-
-                    // Do set
-                    targetObject.classList.add('iron-selected')
                 })
             }
 
@@ -1974,7 +1975,6 @@
                 Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => invoices.map(i => this.api.register(i, 'invoice')))]).then(([hcp, invoices]) => {
 
                     this.set('hcp', hcp)
-                    this.set('invoices',invoices)
                     this.set('nmcl-value','')
 
                     const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
@@ -1999,15 +1999,13 @@
                         newInvoice.creditNote = 0
                         newInvoice.careProviderType = "persphysician"
 
-                        this.push('invoices',newInvoice)
-
-                        this._selectInvoice("")
+                        this.set('invoices', _.orderBy(invoices.concat(newInvoice), ['invoiceDate'], ['desc']))
+                        this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
                     }else{
-                        console.log("on passe")
-                        this._selectInvoice(invoiceOfDay.id)
+                        this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
+                        this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
                     }
 
-                    this.set('invoices', _.orderBy(this.invoices, ['invoiceDate'], ['desc']))
 
                     this.$.invoiceDialog.open()
 
@@ -2181,38 +2179,49 @@
                         const patientKeys = secretForeignKeys.join(",")
                         this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl]).then(inv => {
 
-                            inv.map(invoice => {
-                                if (!invoice.id) {
-                                    invoice.invoiceDate = this.selectedInvoice.invoiceDate
-                                    invoice.invoiceReference = this.selectedInvoice.invoiceReference
-                                    invoice.thirdPartyPaymentJustification = this.selectedInvoice.thirdPartyPaymentJustification
-                                    invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
-                                    invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
-                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
-                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
-                                    invoice.creditNote = this.selectedInvoice.creditNote
-                                    invoice.careProviderType = this.selectedInvoice.careProviderType
+                            let invoice=inv[0] || null;
+                            if(!invoice){return null;}
+                            if (!invoice.id) {
+                                invoice.invoiceDate = this.selectedInvoice.invoiceDate
+                                invoice.invoiceReference = this.selectedInvoice.invoiceReference
+                                invoice.thirdPartyPaymentJustification = this.selectedInvoice.thirdPartyPaymentJustification
+                                invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
+                                invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
+                                invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
+                                invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
+                                invoice.creditNote = this.selectedInvoice.creditNote
+                                invoice.careProviderType = this.selectedInvoice.careProviderType
 
-                                    return this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                        .then(invoice => this.api.invoice().createInvoice(invoice))
-                                        .then(invoice => this.api.register(invoice,'invoice'))
-                                        .then(invoice => {
-                                            this.$['nmclGrid'].clearCache()
-                                            console.log(this.selectedInvoice)
-                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)
-                                                .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
-                                                .then(invoices => {
-                                                    this.set('invoices', invoices)
-                                                    this._selectInvoice(invoice.id)
+                                return this.api.invoice().newInstance(this.user, this.patient, invoice)
+                                    .then(invoice => this.api.invoice().createInvoice(invoice))
+                                    .then(invoice => this.api.register(invoice,'invoice'))
+                                    .then(invoice => {
+                                        this.$['nmclGrid'].clearCache()
+                                        console.log(this.selectedInvoice)
+                                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)
+                                            .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
+                                            .then(invoices => {
+                                                this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
+                                                this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.id === invoice.id))
+                                                this.$['nmclGrid'].clearCache()
 
-                                                    return invoice
-                                                })
-                                        })
-                                } else {
-                                    return this.api.register(invoice, 'invoice')
-                                    //this._selectInvoice(response.id)
-                                }
-                            })
+                                                return invoice
+                                            })
+                                    })
+                            } else {
+                                this.$['nmclGrid'].clearCache()
+                                const response = this.api.register(invoice, 'invoice')
+
+                                const selInvIdx = this.invoices.indexOf(response)
+
+                                Object.keys(response).forEach(k=>{
+                                    this.notifyPath(`selectedInvoice.${k}`)
+                                    selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
+                                })
+
+                                return response;
+                            }
+
                         })
                     })
                 }
@@ -2438,6 +2447,14 @@
                             this.$['nmclGrid'].clearCache()
                             this.calculateTotalOfInvoice()
 
+                            const selInvIdx = this.invoices.indexOf(invoice)
+
+                            Object.keys(invoice).forEach(k=>{
+                                this.notifyPath(`selectedInvoice.${k}`)
+                                selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
+                            })
+
+
                             return invoice
                         })
                 }
@@ -2452,8 +2469,6 @@
             }
 
             _validateAndPrepareInvoiceForBatchSending() {
-
-
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
                     this.set('isJustif',true)
@@ -2484,18 +2499,11 @@
                                 id: "Invoice::" + newReference
                             }).then(() => {
                                 console.log(invoice)
-
-                                this.set('selectedInvoice', invoice)
-                                this._selectInvoice(invoice.id)
-                                this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                    this.set('invoices', invoices)
-
-                                    if(this.selectedInvoice.sentMediumType==="efact"){
-                                        return this.generateJustificatory(invoice)
-                                    } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                        return this.sendEattest(invoice);
-                                    }
-                                })
+                                if(this.selectedInvoice.sentMediumType==="efact"){
+                                    return this.generateJustificatory(invoice)
+                                } else if(this.selectedInvoice.sentMediumType==="eattest"){
+                                    return this.sendEattest(invoice);
+                                }
                             }))
                 })
                 this.set('isJustif',false)
@@ -3092,7 +3100,7 @@
 
             }
 
-            _tranferNmcl(){
+            _transferNmcl(){
                 if(this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.join(",")
@@ -3118,15 +3126,29 @@
                                     .then(invoice => this.api.register(invoice, 'invoice'))
                                     .then(invoice => {
                                         this.$['nmclGrid'].clearCache()
-                                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => invoices.map(i => this.api.register(i, 'invoice'))).then(invoices => {
-                                            this.set('invoices', invoices)
-                                            this._selectInvoice(invoice.id)
+                                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)
+                                            .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
+                                            .then(invoices => {
+                                                this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
+                                                this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.id === invoice.id))
+                                                this.$['nmclGrid'].clearCache()
 
                                             return invoice
                                         })
                                     })
                             } else {
-                                return this.api.register(invoice, 'invoice')
+                                const response = this.api.register(invoice, 'invoice')
+                                this.$['nmclGrid'].clearCache()
+                                this.calculateTotalOfInvoice()
+
+                                const selInvIdx = this.invoices.indexOf(response)
+
+                                Object.keys(response).forEach(k=>{
+                                    this.notifyPath(`selectedInvoice.${k}`)
+                                    selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
+                                })
+
+                                return response
                             }
                         }).then (invoice => {
                             this.set('isDetailNmcl', false)
@@ -3148,10 +3170,17 @@
                                     this.$['nmclGrid'].clearCache()
                                     this.calculateTotalOfInvoice()
 
+                                    const selInvIdx = this.invoices.indexOf(invoice)
+
+                                    Object.keys(invoice).forEach(k=>{
+                                        this.notifyPath(`selectedInvoice.${k}`)
+                                        selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
+                                    })
+
                                     return invoice
                                 })
                         })
-                    })
+                    }).finally(() => this.$["transferDialog"].close())
                 }
             }
 
@@ -3438,7 +3467,7 @@
 
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
-                JsBarcode(element,invoice.override3rdPayerCode, { format: "CODE128A", displayValue: false, height: 75 });
+                JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
 
                 //totaux
