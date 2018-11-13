@@ -466,7 +466,7 @@
         }
 
         logMcn(obj, user, docId, cat, subcat) {
-            this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
