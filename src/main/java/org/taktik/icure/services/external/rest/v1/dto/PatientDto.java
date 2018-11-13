@@ -65,6 +65,7 @@ public class PatientDto extends IcureDto {
     protected String education;
     protected String profession;
     protected String note;
+    protected String administrativeNote;
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
@@ -90,8 +91,6 @@ public class PatientDto extends IcureDto {
     protected Map<String,List<String>> parameters = new HashMap<>();
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
-
-    protected Boolean openNote;
 
 
     public String getMergeToPatientId() {
@@ -391,11 +390,7 @@ public class PatientDto extends IcureDto {
         this.medicalHouseContracts = medicalHouseContracts;
     }
 
-    public Boolean getOpenNote() { return openNote; }
-
-    public void setOpenNote(Boolean openNote) { this.openNote = openNote; }
-
-    @Override
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -447,4 +442,12 @@ public class PatientDto extends IcureDto {
 			return false;
 		return true;
 	}
+
+    public String getAdministrativeNote() {
+        return administrativeNote;
+    }
+
+    public void setAdministrativeNote(String administrativeNote) {
+        this.administrativeNote = administrativeNote;
+    }
 }
