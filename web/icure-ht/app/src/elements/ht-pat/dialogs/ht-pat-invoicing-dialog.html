@@ -3309,7 +3309,7 @@
                 this.set("activeNmclItem.patientIntervention",(total-remb[this.activeNmclItem.units-1]).toFixed(2))
                 this.set("activeNmclItem.reimbursement",remb[this.activeNmclItem.units-1])
 
-                return  this.activeNmclItem && this.activeNmclItem.gteAll && Math.round(this.activeNmclItem.qteAll*2)
+                return  this.activeNmclItem && this.activeNmclItem.qteAll && Math.round(this.activeNmclItem.qteAll*2)
             }
 
             sendEattest(){
