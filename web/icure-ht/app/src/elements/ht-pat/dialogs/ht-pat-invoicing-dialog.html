@@ -2454,7 +2454,6 @@
 
 
                 if (this.selectedInvoice.creditNote) {
-                    console.log(this.selectedInvoice)
                     this.set('isJustif',true)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".reimbursement", 0 - invoiceCode.reimbursement)
@@ -2470,7 +2469,6 @@
 
 
                 this.api.entityRef().getLatest("Invoice::").then(latest => {
-                    console.log(latest)
                     const lastReference = latest.id.replace(/Invoice:[^_]/g, '')
                     const newReference = Number(lastReference) + 1
 
@@ -2482,7 +2480,6 @@
                                 docId: invoice.id,
                                 id: "Invoice::" + newReference
                             }).then(() => {
-                                console.log('Result createEntityReference', invoice);
                                 this.set('selectedInvoice', invoice)
                                 this._selectInvoice(invoice.id)
 
@@ -2490,9 +2487,9 @@
                                     this.set('invoices', invoices)
 
                                     if(this.selectedInvoice.sentMediumType==="efact"){
-                                        return this.generateJustificatory(invoice)
+                                        this.generateJustificatory(invoice)
                                     } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                        return this.sendEattest(invoice);
+                                        this.sendEattest(invoice);
                                     }
                                 })
                             }))
@@ -3067,11 +3064,10 @@
                 this.api.pdfReport(mustache.render(html, template))
                     .then(data =>{
                         let blob = new Blob([data],{type :'application/pdf'});
-
                         let url = window.URL.createObjectURL(blob)
 
                         let a = document.createElement("a");
-                        document.body.appendChild(a);
+                        this.$.invoiceDialog.appendChild(a);
                         a.style = "display: none";
 
                         a.href = url;
@@ -3341,13 +3337,10 @@
                     eattest.codes.push(newCode)
                 })
 
-                console.log("invoice",eattest)
-                console.log("envoie")
 
                 const sentDate=moment().format("YYYYMMDD")
                 this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
                     .then(response =>{
-                        console.log("recu reponse :",response)
                         if(response.acknowledge.errors.length===0){
                             this.api.logMcn(response, this.user, this.selectedInvoice.id, "eAttest", "invoice")
                             this.set('selectedInvoice.thirdPartyReference',response.invoicingNumber)
@@ -3357,9 +3350,7 @@
                         }
                         else{
                             let errorMsg="";
-                            response.acknowledge.errors.map(error => {
-                                errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
-                            })
+                            response.acknowledge.errors.map(error => { errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ") })
                             this.set("errorMessage",errorMsg)
                         }
                     })
@@ -3409,7 +3400,7 @@
 
             eattest(invoice){
 
-                console.log("print",invoice)
+                console.log("print eattest",invoice)
 
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
@@ -3436,8 +3427,6 @@
                 templatePat.addresses.map(addr=>{addr.telecoms.map(telcom=>{
                     telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
                 })})
-                console.log("hcp",templateHcp,typeof templateHcp)
-                console.log("pat",templatePat,typeof templatePat)
                 templateHcp.addresses.map(addr=>{addr.telecoms.map(telcom=>{
                     telcom.telecomType = (telcom.telecomType === "phone") ? "Tel" : telcom.telecomType
                 })})
@@ -3734,6 +3723,7 @@
                     </body>
                 </html>`;
 
+
                 this.api.pdfReport(mustache.render(html, template))
                     .then(data =>{
                         let blob = new Blob([data],{type :'application/pdf'});
@@ -3741,7 +3731,7 @@
                         let url = window.URL.createObjectURL(blob)
 
                         let a = document.createElement("a");
-                        document.body.appendChild(a);
+                        this.$.invoiceDialog.appendChild(a);
                         a.style = "display: none";
 
                         a.href = url;
