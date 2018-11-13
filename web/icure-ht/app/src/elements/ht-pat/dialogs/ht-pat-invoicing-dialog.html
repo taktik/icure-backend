@@ -541,12 +541,10 @@
 
             .verifiedNmcl {
                 color: var(--app-status-color-ok);
-                height: 20px;
             }
 
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
-                height: 20px;
             }
 
             vaadin-grid.material {
@@ -892,6 +890,14 @@
                 text-align: center;
             }
 
+            .f-s-12em {
+                font-size:1.2em;
+            }
+
+            .cursorPointer{
+                cursor:pointer;
+            }
+
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -972,15 +978,12 @@
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]"></vaadin-checkbox>
-                                    [[localize('inv_cr_no','Credit note',language)]]<br/>
-
-                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]"></vaadin-checkbox>
-                                    [[localize('inv_llp','Lifting limitation period',language)]]
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]</vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
 
                                 <template is="dom-if" if="[[isInvoiceClosed]]">
-                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
+                                    <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]</vaadin-checkbox>
                                     <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
                             </div>
@@ -1047,10 +1050,7 @@
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px" style="padding: 0;">
                                         <template>
-                                            <div class="cell frozen textAlignCenter">
-                                                <template is="dom-if" if="[[item.contract]]"><iron-icon icon="vaadin:check" class="verifiedNmcl" title="[[localize('verified_etarif','E-Tarif vérifié',language)]]"></iron-icon></template>
-                                                <template is="dom-if" if="[[!item.contract]]"><iron-icon icon="vaadin:close" class="unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]"></iron-icon></template>
-                                            </div>
+                                            <div class="cell frozen textAlignCenter"></div>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
@@ -1075,9 +1075,10 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp;€</template>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
@@ -1085,27 +1086,28 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp;€</div></template>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp;€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp;€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
@@ -1994,7 +1996,7 @@
                         newInvoice.encounterLocationNorm = 0
                         newInvoice.encounterLocationName = null
                         newInvoice.encounterLocationNihii = null
-                        newInvoice.creditNote = 0
+                        newInvoice.creditNote = false
                         newInvoice.careProviderType = "persphysician"
 
                         this.push('invoices',newInvoice)
@@ -2480,10 +2482,10 @@
                                 docId: invoice.id,
                                 id: "Invoice::" + newReference
                             }).then(() => {
-                                console.log(invoice)
-
+                                console.log('Result createEntityReference', invoice);
                                 this.set('selectedInvoice', invoice)
                                 this._selectInvoice(invoice.id)
+
                                 this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
                                     this.set('invoices', invoices)
 
@@ -3193,7 +3195,7 @@
                 }
                 this.saveAction = () => {
 
-                    console.log(this.selectedInvoice)
+                    console.log('saveAction', this.selectedInvoice)
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(response => {
@@ -3206,7 +3208,7 @@
                                     }
                                 })
                             )
-                            console.log("saved:",response)
+                            console.log("Invoice saved:",response)
                         })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
@@ -3819,6 +3821,8 @@
             }
 
             _hasInsurability() { return ( this.patient && this.patient && !!this.patient.insurabilities.length ); }
+
+            _evalVerifiedTarifCssClass(input){ return !input||typeof input==='undefined'||!!input||!parseInt(input)?'unverifiedNmcl':''; }
 
 
         }
