@@ -901,7 +901,7 @@
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
-                                    <label>N° [[item.invoiceReference]] [[item.id]]</label>
+                                    <label>N° [[item.invoiceReference]]</label>
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
@@ -1188,6 +1188,11 @@
                             </div>
                         </template>
                     </template>
+                    <template is="dom-if" if="[[isEattestError(isDetailNmcl.*,errorMessage.*)]]">
+                        <div class="tarificationError">
+                            [[errorMessage]]
+                        </div>
+                    </template>
                     <template is="dom-if" if="[[isDetailNmcl]]">
                         <div class="flex-container-nmcl">
                             <paper-input class="flex-container-nmcl-row" label="[[localize('co','Code',language)]]"
@@ -1252,7 +1257,6 @@
                 </div>
 
                 <div class="buttons">
-                    <span>[[errorMessage]]</span>
                     <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
                     <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
@@ -1867,9 +1871,6 @@
                         type : String,
                         observer: '_tranferNmcl'
                     },
-                    isSelected:{
-                        type: Boolean
-                    },
                     childRelativeCodeId:{
                         type: String,
                         value: "",
@@ -1901,7 +1902,7 @@
                     },
                     errorMessage :{
                         type : String,
-                        value :""
+                        value : null
                     }
                 }
 
@@ -1953,6 +1954,7 @@
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
+                    this.set('prescriptionDateAsString', this.returnDatePickerDate(selected.prescriptionDate))
 
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
@@ -2001,6 +2003,7 @@
 
                         this._selectInvoice("")
                     }else{
+                        console.log("on passe")
                         this._selectInvoice(invoiceOfDay.id)
                     }
 
@@ -2207,11 +2210,11 @@
                                         })
                                 } else {
                                     return this.api.register(invoice, 'invoice')
+                                    //this._selectInvoice(response.id)
                                 }
                             })
                         })
                     })
-                    console.log("test:",newNmcl)
                 }
 
                 this.set('nmcl-value','')
@@ -3347,18 +3350,33 @@
                 this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
                     .then(response =>{
                         console.log("recu reponse :",response)
-                        if(response.acknowledge.errors.length===0){
-                            this.api.logMcn(response, this.user, this.selectedInvoice.id, "eAttest", "invoice")
-                            this.set('selectedInvoice.thirdPartyReference',response.invoicingNumber)
-                            this.set("selectedInvoice.sentDate",sentDate)
-                            this.eattest(this.selectedInvoice)
-                            this.set("errorMessage","")
+                        if(response.acknowledge.errors.length===0) {
+                            //console.log("atob",atob(response.kmehrMessage))
+                            this.api.receipticc.createReceipt({
+                                documentId: this.selectedInvoice.id,
+                                references: [
+                                    `mycarenet:eattest:inputReference:${response.commonOutput}`
+                                ],
+                                category: "eattest",
+                                subCategory:"invoice"
+                            })
+                            .then(rcpt => this.api.receipticc.setAttachment(rcpt.id, "tack", undefined, (this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(atob(response.kmehrMessage))))))
+                            .then(receipt => {
+                                console.log(receipt)
+                                if(receipt.id){
+                                    this.set('selectedInvoice.thirdPartyReference', response.invoicingNumber)
+                                    this.set("selectedInvoice.sentDate", sentDate)
+                                    this.set("selectedInvoice.receipts",{"id" : receipt.id})
+                                    this.eattest(this.selectedInvoice)
+                                    this.set("errorMessage", null)
+                                }
+                            });
                         }
                         else{
                             let errorMsg="";
                             response.acknowledge.errors.map(error => {
-                                console.log("Error :"+error)
-                                errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
+                                console.log("Error :",error)
+                                errorMsg+=error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", "
                             })
                             console.log("erreur message :"+errorMsg)
                             this.set("errorMessage",errorMsg)
@@ -3388,6 +3406,14 @@
                 e.preventDefault();
 
                 const invoice = JSON.parse(e.target.dataset.item)
+
+                console.log("invoice for get Attachment :",invoice)
+
+                this.api.receipticc.getReceipt(invoice.receipts.id)
+                    .then(response =>{
+                    console.log("getReceipt",response)
+                        this.api.receipticc.getAttachment(invoice.receipts.id,response.attachmentIds.tack,response.encryptionKeys || "").then(response => console.log(response))
+                })
 
                 this.$['xml_dialog'].open()
             }
@@ -3822,6 +3848,10 @@
             }
 
             _hasInsurability() { return ( this.patient && this.patient && !!this.patient.insurabilities.length ); }
+
+            isEattestError(){
+                return (!this.isDetailNmcl) && this.errorMessage!==null;
+            }
 
 
         }
