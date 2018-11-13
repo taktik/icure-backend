@@ -5,6 +5,7 @@
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-tree-toggle.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-filter.html">
@@ -241,15 +242,19 @@
                     width: fit-content;
                 }
 
-                .invoice-status--pendingStatus{
+                .invoice-status--orangeStatus{
                     background: #fcdf354d;
                 }
 
-                .invoice-status--okStatus{
+                .invoice-status--greenStatus{
                     background: #07f8804d;
                 }
 
-                .invoice-status--nokStatus{
+                .invoice-status--blueStatus {
+                    background: #84c8ff;
+                }
+
+                .invoice-status--redStatus{
                     background: #ff4d4d4d;
                 }
 
@@ -257,19 +262,35 @@
                     height: 8px;
                     width: 8px;
                 }
-                .statusIcon.invoice-status--pendingStatus {
+                .statusIcon.invoice-status--orangeStatus {
                     color: var(--app-status-color-pending);
                 }
-                .statusIcon.invoice-status--okStatus {
+                .statusIcon.invoice-status--greenStatus {
                     color: var(--app-status-color-ok);
                 }
-                .statusIcon.invoice-status--nokStatus {
+                .statusIcon.invoice-status--blueStatus {
+                    color: var(--paper-blue-400);
+                }
+                .statusIcon.invoice-status--redStatus {
                     color: var(--app-status-color-nok);
                 }
-                .statusIcon.invoice-status--pendingStatus,
-                .statusIcon.invoice-status--okStatus,
-                .statusIcon.invoice-status--nokStatus {
+                .statusIcon.invoice-status--orangeStatus,
+                .statusIcon.invoice-status--greenStatus,
+                .statusIcon.invoice-status--redStatus {
                     background: transparent !important;
+                }
+
+                *.txtcolor--orangeStatus {
+                    color: var(--app-status-color-pending);
+                }
+                *.txtcolor--greenStatus {
+                    color: var(--app-status-color-ok);
+                }
+                *.txtcolor--blueStatus {
+                    color: var(--paper-blue-400);
+                }
+                *.txtcolor--redStatus {
+                    color: var(--app-status-color-nok);
                 }
 
                 #pendingDetailDialog{
@@ -612,46 +633,10 @@
                                 <div slot="collapse-trigger" class="flex-header">
                                     <span class="center hideOnMobile" style="width: 4%;">[[localize('grp','Groupe',language)]]</span>
                                     <span style="width: 54%;">OA: [[item.code]]</span>
-                                    <!--<span class="center" style="width: 8%;">[[localize('tot_sub','Sous-total',language)]]</span>-->
-                                    <span class="center" style="width: 7%;">[[item.sum.oa]]€</span>
-                                    <span class="center" style="width: 7%;">[[item.sum.pat]]€</span>
-                                    <span class="center" style="width: 7%;">[[item.sum.sup]]€</span>
-                                    <span class="center" style="width: 7%;">[[item.sum.tot]]€</span>
-                                    <!-- <vaadin-grid id="collapse-grid" items="[[item.grp]]">
-                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
-                                            <template class="header">[[localize('grp','Groupe',language)]] <iron-icon icon="unfold-more"></iron-icon></template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
-                                            <template class="header"><h3 class="header">OA: [[item.code]]</h3></template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
-                                            <template class="header">[[localize('tot_sub','Sous-total',language)]] :</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column-group>
-                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="header"><small>[[item.sum.oa]]€</small></template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="header"><small>[[item.sum.pat]]€</small></template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="header"><small>[[item.sum.sup]]€</small></template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
-                                                <template class="header"><small>[[item.sum.tot]]€</small></template>
-                                            </vaadin-grid-column>
-                                        </vaadin-grid-column-group>
-                                        <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
-                                        </vaadin-grid-column>
-                                    </vaadin-grid> -->
+                                    <span class="center" style="width: 7%;">[[_formatAmount(item.sum.oa)]]€</span>
+                                    <span class="center" style="width: 7%;">[[_formatAmount(item.sum.pat)]]€</span>
+                                    <span class="center" style="width: 7%;">[[_formatAmount(item.sum.sup)]]€</span>
+                                    <span class="center" style="width: 7%;">[[_formatAmount(item.sum.tot)]]€</span>
                                 </div>
                                 <div slot="collapse-content">
                                     <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showPendingDetail">
@@ -667,7 +652,7 @@
                                             <template><small>[[item.invoiceReference]]</small></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="20%" class="recipient-col">
-                                            <template><small>[[item.patient]]</small></template>
+                                            <template><small>[[item.patientName]]</small></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template><small>[[item.patientSsin]]</small></template>
@@ -677,19 +662,19 @@
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="border-left"><small>[[_formatAmount(item.reimbursement)]]€</small></template>
+                                                <template class="border-left"><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalReimbursement)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template><small>[[_formatAmount(item.patientIntervention)]]€</small></template>
+                                                <template><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalPatientIntervention)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template><small>[[_formatAmount(item.doctorSupplement)]]€</small></template>
+                                                <template><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalDoctorSupplement)]]€</template>-->
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
-                                                <template class="border-right"><small>[[_formatAmount(item.totalAmount)]]€</small></template>
+                                                <template class="border-right"><small><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]€</span></small></template>
                                                 <!--<template class="footer">[[_formatAmount(totalPendingInvoices.totalAmount)]]€</template>-->
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
@@ -731,16 +716,16 @@
                                         </vaadin-grid-column>
                                         <vaadin-grid-column-group>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="footer"><b>[[item.sum.oa]]€</b></template>
+                                                <template class="footer"><b>[[_formatAmount(item.sum.oa)]]€</b></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="footer"><b>[[item.sum.pat]]€</b></template>
+                                                <template class="footer"><b>[[_formatAmount(item.sum.pat)]]€</b></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                                <template class="footer"><b>[[item.sum.sup]]€</b></template>
+                                                <template class="footer"><b>[[_formatAmount(item.sum.sup)]]€</b></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col border-right">
-                                                <template class="footer"><b>[[item.sum.tot]]€</b></template>
+                                                <template class="footer"><b>[[_formatAmount(item.sum.tot)]]€</b></template>
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
                                         <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
@@ -791,8 +776,7 @@
                     <paper-button on-tap="sendInvoices" class="modal-button">Envoyer</paper-button>
                 </div>
             </template>
-
-                <template is="dom-if" if="[[!statusPending]]">
+            <template is="dom-if" if="[[!statusPending]]">
                     <div class="gridContainer">
                         <!--<paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterInputInvoices}}" on-keyup="refreshFilter" param="messagesGrid"></paper-input>-->
                         <div class="invoiceContainer">
@@ -840,21 +824,21 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant<br/>facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="8%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant<br/>accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="8%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant<br/>refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.refusedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
@@ -873,7 +857,7 @@
                                                              <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
@@ -928,21 +912,21 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</template>
+                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.refusedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
@@ -961,7 +945,7 @@
                                                             <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
@@ -973,203 +957,6 @@
                                             </vaadin-grid-column>
                                         </vaadin-grid>
                                     </div>
-                                </template>
-                                <template is="dom-if" if="[[isArchOrAcc(invoicesStatus.*)]]">
-                                    <vaadin-grid id="messagesGrid" items="[[messagesByStatus(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]" active-item="{{activeGridItem}}" on-tap="_showDetail">
-                                        <vaadin-grid-column class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.hcp">Prestataire</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.hcp]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="oa-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.oa">OA</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.oa]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="ref-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.hcpReference]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="invoice-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.invoiceNumber]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="month-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[formatDate(item.messageInfo.invoiceMonth,'month')]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="invoiceDate-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[formatDate(item.messageInfo.invoiceDate,'date')]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="invAmount-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</template>
-                                            <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="accAmount-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</template>
-                                            <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="refAmount-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[_formatAmount(item.messageInfo.refusedAmount)]]€</template>
-                                            <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="stat-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
-                                            </template>
-                                            <template>
-                                                <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                    <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
-                                                <!--</template>-->
-                                                <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
-                                                    <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
-                                                <!--</template>-->
-                                                <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
-                                                        <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
-                                                    <!--</template>-->
-                                                <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
-                                                <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                            </template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="reject-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.rejectionReason">Motif rejet</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.rejectionReason]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="ref-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.hcpReference">Réf. du médecin</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.hcpReference]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="invoice-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoiceNumber">N° envoi</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.invoiceNumber]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="month-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoiceMonth">Mois fact.</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[formatDate(item.messageInfo.invoiceMonth,'month')]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="invoiceDate-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoiceDate">Date d'envoi</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[formatDate(item.messageInfo.invoiceDate,'date')]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="invAmount-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</template>
-                                            <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="accAmount-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</template>
-                                            <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="refAmount-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[_formatAmount(item.messageInfo.refusedAmount)]]€</template>
-                                            <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="stat-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
-                                            </template>
-                                            <template>
-                                                <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                    <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
-                                                <!--</template>-->
-                                                <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
-                                                    <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
-                                                <!--</template>-->
-                                                <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
-                                                        <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
-                                                    <!--</template>-->
-                                                <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
-                                                <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                            </template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column class="reject-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="messageInfo.rejectionReason">Motif rejet</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.messageInfo.rejectionReason]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column-group class="hasBorder">
-                                            <template class="header hasBorder">Informations de paiement</template>
-                                            <vaadin-grid-column class="payRef-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.paymentReference">Réf</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.messageInfo.paymentReference]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column class="payDate-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.paymentDate">Date</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[formatDate(item.messageInfo.paymentDate)]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column class="payTot-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.amountPaid">Montant</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[_formatAmount(item.messageInfo.amountPaid)]]€</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column class="payBank-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.paymentAccount">Compte bancaire</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[item.messageInfo.paymentAccount]]</template>
-                                            </vaadin-grid-column>
-                                            <vaadin-grid-column class="payPaid-col">
-                                                <template class="header">
-                                                    <vaadin-grid-sorter path="messageInfo.paidAmount">Payé</vaadin-grid-sorter>
-                                                </template>
-                                                <template>[[_formatAmount(item.messageInfo.paidAmount)]]€</template>
-                                            </vaadin-grid-column>
-                                        </vaadin-grid-column-group>
-                                        <vaadin-grid-column class="payPaid-col">
-                                            <template class="header"></template>
-                                            <template>
-                                                <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
-                                            </template>
-                                        </vaadin-grid-column>
-                                    </vaadin-grid>
                                 </template>
                                 <template is="dom-if" if="[[isReject(invoicesStatus.*)]]">
                                     <div class="scrollBox">
@@ -1214,21 +1001,21 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.invoicedAmount"> Montant facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.invoicedAmount)]]€</span></template>
                                                 <template class="footer">[[_invoicedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="accAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="7%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.messageInfo.refusedAmount)]]€</template>
+                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.refusedAmount)}}">[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="6%" class="stat-col">
@@ -1247,7 +1034,7 @@
                                                             <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
-                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.statut]]</span>
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
@@ -1271,18 +1058,22 @@
                                 <h4 class="mb0">Détail des envois selectionnés</h4>
                                 <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
                                 <div id="invoiceDetailContainer" class="invoiceDetailContainer">
-                                    <vaadin-grid id="invoiceGridDetail" items="[[invoicesFromBatch]]" active-item="{{activeDetailGridItem}}" on-tap="">
+                                    <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
                                         <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                             <template class="header">
                                                 <vaadin-grid-sorter path="invoiceReference">N° fact.</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.invoiceReference]]</template>
+                                            <template>
+                                                <vaadin-grid-tree-toggle leaf="[[!item.invoicingCodes.length]]" expanded="{{expanded}}" level="[[level]]">
+                                                    [[item.invoiceReference]]
+                                                </vaadin-grid-tree-toggle>
+                                            </template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="9%" class="recipient-col">
                                             <template class="header">
-                                                <vaadin-grid-sorter path="patient">Patient</vaadin-grid-sorter>
+                                                <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.patient]]</template>
+                                            <template>[[item.patientName]]</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template class="header">
@@ -1307,19 +1098,29 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="invoicedAmount">Montant<br/>Facturé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.invoicedAmount)]]€</template>
+                                                <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="acceptedAmount">Montant<br/>Accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.acceptedAmount)]]€</template>
+                                                <template is="dom-if" is="[[_isStatus(item.messageInfo.invoiceStatus,'Accepted')]]">
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                </template>
+                                                <template is="dom-if" is="[[!_isStatus(item.messageInfo.invoiceStatus,'Accepted')]]">
+                                                    <template><span>[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="refusedAmount">Montant<br/>Refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template>[[_formatAmount(item.refusedAmount)]]€</template>
+                                                <template is="dom-if" is="[[_isStatus(item.messageInfo.invoiceStatus,'Refused')]]">
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)}}">[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                </template>
+                                                <template is="dom-if" is="[[!_isStatus(item.messageInfo.invoiceStatus,'Refused')]]">
+                                                    <template><span>[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                </template>
                                             </vaadin-grid-column>
                                         </vaadin-grid-column-group>
                                         <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
@@ -1334,7 +1135,7 @@
                                             <template class="header">
                                                 <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[_formatAmount(item.paid)]]€</template>
+                                            <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.paid)}}">[[_formatAmount(item.paid)]]€</span></template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
                                             <template class="header">
@@ -1352,7 +1153,7 @@
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>-->
                                                     <!--</template>-->
                                                 <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.statut))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.statut)}}"></iron-icon> [[item.statut]]</span>
+                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
                                                 <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                             </template>
                                         </vaadin-grid-column>
@@ -1406,22 +1207,22 @@
                             <template class="header">Montants</template>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">OA</template>
-                                <template>[[item.reimbursement]]</template>
+                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Patient</template>
-                                <template>[[item.patientIntervention]]</template>
+                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Supplément</template>
-                                <template>[[item.doctorSupplement]]</template>
+                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                             <vaadin-grid-column class="recipient-col">
                                 <template class="header">Total</template>
-                                <template>[[item.totalAmount]]</template>
+                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]</span></template>
                                 <template class="footer">0.00€</template>
                             </vaadin-grid-column>
                         </vaadin-grid-column-group>
@@ -1627,15 +1428,19 @@
             }
 
             static get observers() {
-                return ['_invoicesChange(invoices.*)'];
+                return ['_invoicesChange(invoices.*)', '_detailsChanged(invoicesFromBatch.*)'];
             }
 
             ready() {
                 super.ready();
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(response =>{
                     this.set("hcp",response)
-                    this.getMessage()
                 })
+            }
+
+            _detailsChanged() {
+                const igd = this.root.querySelector('#invoiceGridDetail')
+                igd && igd.clearCache()
             }
 
             fetchPendingMessages(){
@@ -1648,10 +1453,11 @@
                         this.api.insurance().getInsurances(new models.ListOfIdsDto({ids : _.uniq(_.flatten(invAndPats).filter(i => i.insurabilities).map(i => i.insurabilities[0].insuranceId))})).then(ins => invAndPats.map(it => [it[0], it[1], ins.find(i => i.id === it[1].insurabilities[0].insuranceId)]))
                     ).then(invAndPatsAndInsurances => _.flatMap(invAndPatsAndInsurances, ([inv, pat, ins]) => {
                         return ({
-                            patient: pat.lastName+" "+pat.firstName,
+                            patientName: pat.lastName+" "+pat.firstName,
                             invoiceId: inv.id,
                             sentMediumType: inv.sentMediumType,
                             insuranceCode: ins.code,
+                            insuranceParent: ins.parent,
                             invoiceReference: inv.invoiceReference,
                             patientSsin: pat.ssin,
                             invoiceDate: inv.invoiceDate,
@@ -1662,7 +1468,9 @@
                             statut : "Pending",
                             hasChildren : false,
                             uuid : inv.id,
-                            parentUuid : ins.code.charAt(0)
+                            parentUuid : ins.code.charAt(0),
+                            patient: pat,
+                            invoice: inv
                     })
                 }))
                 .then(invoiceStruct => {
@@ -1679,10 +1487,10 @@
 
             dispatchMessages() {
                 this.set("messagesProcessed", this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0))
-                this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
-                this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
+                !!this.set("messagesAccepted", this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0))
+                !!this.set("messagesRejected", this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0))
 
-                this.initializeBatchCounter(this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
+                !!this.initializeBatchCounter(this.allMessages.filter(m => (m.message.status & (1 << 15 | 1 << 16 | 1 << 17)) === 0).length, this.allMessages.filter( m => (m.message.status & (1 << 15 | 1 << 16 )) !== 0).length, this.allMessages.filter( m => (m.message.status & (1 << 17)) !== 0).length)
             }
 
             fetchMessages() {
@@ -1696,7 +1504,7 @@
                                 messageInfo: {
                                     messageType: m.subject,
                                     hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                    oa: insurances.find(i => i.id === m.recipients[0]).code,
+                                    oa: insurances && insurances.find(i => i.id === m.recipients[0])? insurances.find(i => i.id === m.recipients[0]).code : "",
                                     hcpReference: "",
                                     invoiceNumber: m.externalRef,
                                     invoiceMonth: "",
@@ -1722,88 +1530,59 @@
                                         return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 
                                             if (typeof a === "string"){
-                                                try {
-                                                    let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
-                                                    readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
-                                                    a = JSON.parse(readyToParse)
-                                                } catch (ignored) {}
+                                                try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
                                             } else if (typeof a === "object") {
-                                                try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
+                                                try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                             }
 
-                                            const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                            const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                            const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                            const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
-                                            const enr10 = a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
+                                            const zone200 = a && a.find(enr => enr.zones.find(z => z.zone == "200"))
+                                            const zone300 = a && a.find(enr => enr.zones.find(z => z.zone == "300"))
+                                            const zone400 = a && a.find(enr => enr.zones.find(z => z.zone == "400"))
+                                            const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                            const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
-
-                                            // STATUS_SUBMITTED 				= 1 << 8; envoyé
-                                            // STATUS_RECEIVED 				    = 1 << 9; ta ck reçu
-                                            // STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; 93100
-                                            // STATUS_ACCEPTED 				    = 1 << 11; 92098 / 920900
-                                            // STATUS_REJECTED 				    = 1 << 12; 920999 / 920909
-
-                                            // STATUS_TACK 					    = 1 << 13;
-                                            // STATUS_MASKED 					= 1 << 14;
-
-                                            // STATUS_SUCCESS 					= 1 << 15;
-                                            // STATUS_WARNING 					= 1 << 16; Partiellement accepte
-                                            // STATUS_ERROR 					= 1 << 17;
 
                                             let invoiceStatus
                                             let rejectionReason
                                             if (zone200 && zone300) {
                                                 const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
+                                                const st = mm.message.status
 
-                                                switch (invoiceType) {
-                                                    case "920999" :
-                                                        invoiceStatus = "Rejected";
-                                                        rejectionReason = "Blocking error";
-                                                        break
-                                                    case '920099' :
-                                                        invoiceStatus = "Rejected";
-                                                        invoiceStatus = "More than 5% error";
-                                                        break
-                                                    case '931000' :
-                                                        invoiceStatus = "Pending";
-                                                        invoiceStatus = "Acknowledgment of receipt";
-                                                        break
-                                                    case '920098' :
-                                                        invoiceStatus = "Accepted";
-                                                        rejectionReason = "";
-                                                        break
-                                                    case '920900' :
-                                                        invoiceStatus = "Accepted";
-                                                        rejectionReason = "";
-                                                        break
-                                                    default :
-                                                        invoiceStatus = ""
-                                                        break
-                                                }
+                                                invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
+                                                !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
+                                                !!(st & (1 << 16)) ? this.localize('inv_full_acc','Fully accepted',this.language):
+                                                !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
+                                                !!(st & (1 << 11)) ? this.localize('inv_tre','Treated',this.language):
+                                                !!(st & (1 << 10)) ? this.localize('inv_acc_tre','Accepted for treatment',this.language):
+                                                !!(st & (1 << 9)) ?  this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language):
+                                                !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
+
+
+                                                                                                                                                             rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
+                                                                                                                                                             !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
                                             }
 
                                             return (zone200 && zone300) ?
                                                 ({
-                                                    message: mm.message,
+                                                    message: mm && mm.message,
                                                     messageInfo: {
-                                                        messageType: zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
-                                                        hcp: this.hcp.firstName + " " + this.hcp.lastName,
-                                                        oa: zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
-                                                        hcpReference: enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
-                                                        invoiceNumber: zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
-                                                        invoiceMonth: zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
-                                                        invoiceDate: zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                        invoicedAmount: zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
-                                                        acceptedAmount: zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
-                                                        refusedAmount: zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
-                                                        invoiceStatus: invoiceStatus,
-                                                        rejectionReason: rejectionReason,
-                                                        paymentReference: zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
-                                                        paymentDate: "",
-                                                        amountPaid: "0.00",
-                                                        paymentAccount: enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                        paidAmount: ""
+                                                        messageType:        zone200.zones && zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : "",
+                                                        hcp:                this.hcp.firstName + " " + this.hcp.lastName,
+                                                        oa:                 zone500.zones && zone500.zones.find(z => z.zone === "501") ? (zone500.zones.find(z => z.zone === "501").value).charAt(0) + "00" : "",
+                                                        hcpReference:       enr10.zones && enr10.zones.find(z => z.zone === "28") ? enr10.zones.find(z => z.zone === "28").value : "",
+                                                        invoiceNumber:      zone300.zones && zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
+                                                        invoiceMonth:       zone300.zones &&zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
+                                                        invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
+                                                        invoicedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
+                                                        acceptedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
+                                                        refusedAmount:      zone500.zones && zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
+                                                        invoiceStatus:      invoiceStatus,
+                                                        rejectionReason:    rejectionReason,
+                                                        paymentReference:   zone400.zones && zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
+                                                        paymentDate:        "",
+                                                        amountPaid:         "0.00",
+                                                        paymentAccount:     enr10.zones && enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
+                                                        paidAmount:         ""
                                                     }
                                                 }) : mm
                                         }) : mm
@@ -1826,6 +1605,8 @@
 
 
             _toggleDataProvider(input) {
+                //TODO rewrite lodash
+
                 let inputList = input
                 let mutGroups = []
                 inputList.map(patient => {
@@ -2023,6 +1804,17 @@
                 } // endif
             }
 
+            _batchDetailDataProvider() {
+                return (params, callback) => {
+                    const startIndex = params.page * params.pageSize
+                    if (!params.parentItem) {
+                        this.invoicesFromBatch ? callback(this.invoicesFromBatch.slice(startIndex, startIndex + params.pageSize), this.invoicesFromBatch.length) : callback([], 0)
+                    } else {
+                        callback(params.parentItem.invoicingCodes.slice(startIndex, startIndex + params.pageSize), params.parentItem.invoicingCodes.length)
+                    }
+                }
+            }
+
             checkFilters(str) { // will (set the path type for vaadin filter and) format search output
                 let searchType = "invoice.patient.firstName"
                 let output = str
@@ -2073,13 +1865,13 @@
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
                     let prom = Promise.resolve()
                     _.chain(this.selectedPendingInvoices)
-                        .groupBy(fact => fact.insurance.parent)
+                        .groupBy(fact => fact.insuranceParent)
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
-                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, fedId, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller(), this.api.document()))
+                            prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
+                                       .finally(() => this.getMessage())
                         })
                 })
-                this.getPendingInvoices()
             }
 
             _showPendingDetail(){
@@ -2494,28 +2286,6 @@
                 return erreur;
             }
 
-            extractErrorMessage(errorDetail) {
-                const e = errorDetail
-                return e &&
-                ((e.rejectionCode1 && e.rejectionCode1 !== "000000") ||
-                    e.rejectionDescr1 ||
-                    (e.rejectionCode2 && e.rejectionCode2 !== "000000") ||
-                    e.rejectionDescr2 ||
-                    (e.rejectionCode3 && e.rejectionCode3 !== "000000") ||
-                    e.rejectionDescr3)
-                    ? _.compact([
-                        e.rejectionCode1 || (e.rejectionDescr1 && e.rejectionDescr1.trim().length)
-                            ? `${e.rejectionCode1 || "XXXXXX"}: ${e.rejectionDescr1 || "-"}`
-                            : null,
-                        e.rejectionCode2 || (e.rejectionDescr2 && e.rejectionDescr2.trim().length)
-                            ? `${e.rejectionCode2 || "XXXXXX"}: ${e.rejectionDescr2 || "-"}`
-                            : null,
-                        e.rejectionCode3 || (e.rejectionDescr3 && e.rejectionDescr3.trim().length)
-                            ? `${e.rejectionCode3 || "XXXXXX"}: ${e.rejectionDescr3 || "-"}`
-                            : null
-                    ]) : null
-            }
-
 
             _showDetail() {
 
@@ -2530,68 +2300,51 @@
                         .then(invAndIdsPat =>
                             this.api.patient().getPatients(new models.ListOfIdsDto({ids: _.uniq(invAndIdsPat.map(x => x[1]))})).then(pats => invAndIdsPat.map(it => [it[0], pats.find(p => p.id === it[1])]))
                         )
-                        .then(invAndPats => _.flatMap(invAndPats, ([inv, pat]) => inv.invoicingCodes.map(code => ({
-                                invoiceReference: inv.invoiceReference,
-                                patient: pat.lastName + " " + pat.firstName,
-                                ssin: pat.ssin,
+                        .then(invAndPats => invAndPats.map( ([inv, pat]) => ({
+                            invoiceReference: inv.invoiceReference,
+                            patient: pat.lastName + " " + pat.firstName,
+                            ssin: pat.ssin,
+                            invoiceDate: inv.invoiceDate,
+                            invoicedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
+                            acceptedAmount: inv.invoicingCodes.reduce((t,c) => t + (c.reimbursement || 0), 0),
+                            refusedAmount: 0.00,
+                            rejectionReason: inv.error,
+                            paid: false,
+                            status: "",
+                            invoice: inv,
+                            invoicingCodes: inv.invoicingCodes.map(code => ({
                                 invoicingCode: code.code,
-                                invoiceDate: inv.invoiceDate,
+                                invoiceDate: code.dateCode,
                                 invoicedAmount: code.reimbursement,
-                                acceptedAmount: "0.00",
-                                refusedAmount: "0.00",
-                                rejectionReason: inv.error,
+                                acceptedAmount: code.reimbursement,
+                                refusedAmount: 0.00,
+                                rejectionReason: code.error,
                                 paid: false,
                                 status: ""
-                            })))
-                        )
-                        .then(infos => this.set('invoicesFromBatch', _.flatten(infos)))
+                            }))
+                        })))
+                        .then(infos => this.set('invoicesFromBatch', infos))
                         .then(() => this.api.message().getChildren(this.activeGridItem.message.id))
-                        .then((msgs) => Promise.all(_.map(msgs.filter(m => m.subject && ['920999','920099'].includes(m.subject.substr(0,6))), (msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg)))))
+                        .then((msgs) => Promise.all(_.map(msgs.filter(m => m.subject && ['920999','920099', '920098', '920900'].includes(m.subject.substr(0,6))), (msg => this.api.document().findByMessage(this.user.healthcarePartyId, msg)))))
                         .then((docs) => Promise.all(_.flatMap(docs).filter(d => !_.endsWith(d.name, '_parsed_records') && _.endsWith(d.name, '_records') && d.mainUti === "public.json").map(d => this.api.document().getAttachment(d.id, d.attachmentId))))
                         .then((attachs) => {
                             attachs.forEach( a => {
 
                                 if (typeof a === "string"){
-                                    try {
-                                        let readyToParse = a.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f")
-                                        readyToParse = readyToParse.replace(/[\u0000-\u0019]+/g,"")
-                                        a = JSON.parse(readyToParse)
-                                    } catch (ignored) {}
+                                    try { a = JSON.parse( this.cleanStringForJsonParsing(a) ) } catch (ignored) {}
                                 } else if (typeof a === "object") {
-                                    try { a = JSON.parse(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), '')) } catch (ignored) {}
+                                    try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                 }
 
-                                const zone200 = a.find(enr => enr.zones.find(z => z.zone == "200"))
-                                const zone300 = a.find(enr => enr.zones.find(z => z.zone == "300"))
-                                const zone400 = a.find(enr => enr.zones.find(z => z.zone == "400"))
-                                const zone500 = a.find(enr => enr.zones.find(z => z.zone == "500"))
+                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "500"))
 
-                                let invoiceStatus
-                                if(zone200 && zone300){
-                                    const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
-
-                                    switch(invoiceType){
-                                        case '920999' : invoiceStatus = "Rejected"; break;
-                                        case '920099' : invoiceStatus = "Rejected"; break;
-                                        case '931000' : invoiceStatus = "Receveid"; break;
-                                        case '920098' : invoiceStatus = "Accepted"; break;
-                                        case '920900' : invoiceStatus = "Accepted"; break;
-                                        default : invoiceStatus = ""; break;
-                                    }
-                                }
-
-                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones),
-                                    zone300 && this.SEG_getErrSegment_300(zone300.zones),
-                                    zone400 && this.SEG_getErrSegment_400(zone400.zones),
-                                    zone500 && this.SEG_getErrSegment_500(zone500.zones)]
-                                    .concat(a.map(r=> r.errorDetail && this.extractErrorMessage(r.errorDetail))).filter(x => x && x.length))
-
-                                this.set('invoicesFromBatch', _.clone(this.invoicesFromBatch.map(i=>{
-                                    i.rejectionReason = i.rejectionReason && i.rejectionReason.length ? i.rejectionReason : _.flatten(globalError);
-                                    return i
-                                })))
-
-                                console.log(this.invoicesFromBatch)
+                                let globalError = _.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
+                                    zone300 && this.SEG_getErrSegment_300(zone300.zones || []),
+                                    zone400 && this.SEG_getErrSegment_400(zone400.zones || []),
+                                    zone500 && this.SEG_getErrSegment_500(zone500.zones || [])])
 
                             })
                         })
@@ -2622,7 +2375,7 @@
             }
 
             receiveInvoices() {
-                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id) ).then(response => {
+                this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "eFact", "loadMessages") ).then(response => {
                     let prom = Promise.resolve()
                     response.forEach(message => {
                         // console.log(message)
@@ -2647,7 +2400,7 @@
                             })
                         )
                     })
-
+/*
                     prom = prom.then(treatedMessages => {
                         let sprom = Promise.resolve()
                         _.chunk(treatedMessages, 20).forEach(chunk => {
@@ -2659,8 +2412,8 @@
                                 .then(() => this.api.fhc().Efactcontroller().confirmMessagesUsingPUT(this.hcp.nihii, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName, responses.map(t => t.hashValue)))
                         })
                         return sprom
-                    })
-                })
+                    })*/
+                }).finally(() => this.getMessage())
             }
 
             _dateFormat(date) {
@@ -2685,11 +2438,43 @@
             }
 
             _getIconStatusClass(status) {
-                return (status == "Pending") ? "invoice-status--pendingStatus" : (status == "Process") ? "invoice-status--okStatus" : "invoice-status--nokStatus"
+                console.log("geticonstatus",status)
+                return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? ((!this.statusPending) && (!this.isProcess(status))) ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
+                    ""
+            }
+            _getTxtStatusColor(status,amount) {
+                console.log("gettxtstatus",status,amount)
+                if (amount > 0) {
+                    return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
+                    ""
+                }
             }
 
             _isStatus(status,test) {
                 return status == test
+            }
+
+            cleanStringForJsonParsing(inputValue) {
+                return inputValue
+                    .replace(/\\n/g, "\\n")
+                    .replace(/\\'/g, "\\'")
+                    .replace(/\\"/g, '\\"')
+                    .replace(/\\&/g, "\\&")
+                    .replace(/\\r/g, "\\r")
+                    .replace(/\\t/g, "\\t")
+                    .replace(/\\b/g, "\\b")
+                    .replace(/\\f/g, "\\f")
+                    .replace(/[\u0000-\u0019]+/g,"")
             }
 
         }

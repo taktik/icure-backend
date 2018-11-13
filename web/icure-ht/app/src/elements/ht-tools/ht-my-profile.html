@@ -265,10 +265,10 @@
 			}
 
             /* @keyframes woohoo{
-                0%{ 
+                0%{
                     transform: rotate(0) scale(1);
                 }
-                100%{ 
+                100%{
                     transform: rotate(360deg) scale(2);
                 }
             } */
@@ -310,11 +310,12 @@
                 padding: 0;
             }
             .administrative-panel .panel-content {
-                min-height: 620px;
                 padding: 0 12px;
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
                 box-sizing: border-box;
+                height: 50vh;
+                overflow-y: auto;
             }
 
             paper-radio-group{
@@ -323,7 +324,7 @@
 
             paper-radio-button{
                 --paper-radio-button-unchecked-ink-color: var(--app-secondary-color-dark);
-                --paper-radio-button-checked-color: var(--app-secondary-color);  
+                --paper-radio-button-checked-color: var(--app-secondary-color);
                 --paper-radio-button-checked-ink-color: var(--app-secondary-color);
             }
 
@@ -848,7 +849,7 @@
                                 return this.api.fhc().Dmgcontroller().registerDoctorUsingPOST(
                                     this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
                                     hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName, reg.OA, reg.bic.replace(/ /g, '').toUpperCase(), reg.iban.replace(/ /g, '').toUpperCase())
-                                    .then(r => this.api.logMcn(r, this.user, hcp.id))
+                                    .then(r => this.api.logMcn(r, this.user, hcp.id, "DMG", "register"))
                             }
                         ).then(regResp => {
                                 if (regResp) {
@@ -984,9 +985,18 @@
                     // Only save if we actually have data
                     this.hcp.financialInstitutionInformation =  _.filter( this.hcp.financialInstitutionInformation, 'bankAccount' );
 
+                    // this.api.user().modifyUser(this.user)
+                    //     .then(user => this.api.register(user,"user"))
+                    //     .then(user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true})))
+                    //     .then(() => this.api.hcparty().modifyHealthcareParty(this.hcp))
+                    //     .then(hcp => this.api.register(hcp,"hcp"))
+                    //     .then(hcp => this.hcp = hcp)
+                    //     .finally(() => this.$.dialog.close())
+
                     this.api.user().modifyUser(this.user).then(
                         user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
                     ).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).then(hcp => this.hcp = hcp).finally(() => this.$.dialog.close())
+
                 }
             }
 

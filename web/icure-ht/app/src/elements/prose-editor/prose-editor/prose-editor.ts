@@ -31,7 +31,6 @@ import {addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, columnResizi
 import {fixTables} from "./fixtables";
 
 
-
 /**
  * MyApp main class.
  *
@@ -46,6 +45,9 @@ export class ProseEditor extends Polymer.Element {
   @property({type: Number, observer: '_zoomChanged'})
   zoomLevel = 120
 
+  @property({type: Array})
+  sizes = ['4px','5px','6px','7px','8px','9px','10px','11px','12px','13px','14px','16px','18px','20px','24px','28px','36px','48px','72px']
+
   _zoomChanged() {
     if (this.$.container) {
       this.$.container.style.transform = "translateX(-50%)  translateY(" + (this.zoomLevel - 100) / 2 + "%) scale(" + (this.zoomLevel / 100) + ")"
@@ -59,6 +61,7 @@ export class ProseEditor extends Polymer.Element {
   pageNodeSpec: NodeSpec = {
     inline: false,
     draggable: false,
+    isolating: true,
     attrs: {
       id: {default: 0}
     },
@@ -403,7 +406,15 @@ export class ProseEditor extends Polymer.Element {
         tableEditing(),
         keymap({
           "Tab": goToNextCell(1),
-          "Shift-Tab": goToNextCell(-1)
+          "Shift-Tab": goToNextCell(-1),
+          "Mod-b": toggleMark(this.editorSchema.marks.strong, {}),
+          "Mod-i": toggleMark(this.editorSchema.marks.em, {}),
+          "Mod-u": toggleMark(this.editorSchema.marks.underlined, {}),
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-+': (e: EditorState, d?: (tr: Transaction) => void) => this.addMark(this.editorSchema.marks.size, {size: proseEditor.sizes[Math.min(proseEditor.currentSizeIdx(), proseEditor.sizes.length-2) + 1]})(e,d),
+          'Mod--': (e: EditorState, d?: (tr: Transaction) => void) => this.addMark(this.editorSchema.marks.size, {size: proseEditor.sizes[Math.max(proseEditor.currentSizeIdx(), 1) - 1]})(e,d),
+          'Mod-Shift-k' : this.clearMarks()
         }),
         selectionTrackingPlugin,
         paginationPlugin,
@@ -418,6 +429,15 @@ export class ProseEditor extends Polymer.Element {
       state: state
     })
 
+    document.execCommand("enableObjectResizing", false, false)
+    document.execCommand("enableInlineTableEditing", false, false)
+
+  }
+
+  currentSizeIdx() {
+    if (!this.sizes) { return 0 }
+    const idx = this.sizes.indexOf(this.get('currentSize'))
+    return idx >= 0 ? idx : this.sizes.length/2
   }
 
   doUndo(e: CustomEvent) {
@@ -429,7 +449,6 @@ export class ProseEditor extends Polymer.Element {
     }
   }
 
-
   doRedo(e: CustomEvent) {
     e.stopPropagation()
     e.preventDefault()
@@ -438,7 +457,6 @@ export class ProseEditor extends Polymer.Element {
       this.editorView.focus()
     }
   }
-
 
   toggleBold(e: Event) {
     e.stopPropagation()
@@ -617,6 +635,22 @@ export class ProseEditor extends Polymer.Element {
           }
           dispatch(tr.scrollIntoView())
         }
+      }
+      return true
+    }
+  }
+
+  _insertTable(e: CustomEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (this.editorView) {
+      const state = this.editorView.state;
+
+      let {$from} = state.selection, index = $from.index()
+      if (this.editorView.dispatch) {
+        const scNodes = state.schema.nodes;
+        const newState = state.tr.replaceSelectionWith(scNodes.table.create({},[scNodes.table_row.create({},[scNodes.table_cell.create({},[scNodes.paragraph.create({})])])]))
+        this.editorView.dispatch(newState)
       }
       return true
     }

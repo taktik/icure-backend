@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Message;
@@ -258,6 +259,17 @@ public class MessageFacade implements OpenApiFacade{
 	@Path("/{messageId}/children")
 	public List<MessageDto> getChildren(@PathParam("messageId") String messageId) throws LoginException {
 		return messageLogic.getChildren(messageId).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList());
+	}
+
+	@ApiOperation(
+			value = "Get children messages of provided message",
+			httpMethod = "GET"
+	)
+
+	@POST
+	@Path("/children/batch")
+	public List<MessageDto> getChildrenOfList(@RequestBody ListOfIdsDto parentIds) throws LoginException {
+		return messageLogic.getChildren(parentIds.getIds()).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList());
 	}
 
 	@ApiOperation(

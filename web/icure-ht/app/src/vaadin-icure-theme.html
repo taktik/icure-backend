@@ -68,6 +68,20 @@
             :host(#nmclGrid) [part~="cell"] {
                 padding: 4px 0;
             }
+            :host(#selectedMedicationTable) {
+                padding: 0 !important;
+                margin-top: 0 !important;
+            }
+            :host(#selectedMedicationTable) [part~="cell"] {
+                padding: 0 4px !important;
+            }
+            #items [part~="row"] {
+                z-index: -109;
+            }
+            :host(#selectedMedicationTable) .med-det-moment {
+                border-left: 1px solid var(--app-background-color-dark);
+                border-right: 1px solid var(--app-background-color-dark);
+            }
         </style>
     </template>
 </dom-module>

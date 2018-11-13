@@ -541,12 +541,12 @@
 
             .verifiedNmcl {
                 color: var(--app-status-color-ok);
-                height: 8px;
+                height: 20px;
             }
 
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
-                height: 8px;
+                height: 20px;
             }
 
             vaadin-grid.material {
@@ -882,6 +882,16 @@
                 top: 10px;
                 transform: translateX(-10px);
             }
+
+            .modal-button-red {
+                background-color:#ff0000!important;
+                color:#ffffff!important;
+            }
+
+            .textAlignCenter {
+                text-align: center;
+            }
+
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -891,7 +901,7 @@
                         <paper-material class="layout vertical invoice-item invoice--big" on-tap="_selectInvoice" id="[[item.id]]">
                             <paper-item class="invoice-text">
                                 <div class="invoice-text-row invoice-text-date">
-                                    <label>N° [[item.invoiceReference]]</label>
+                                    <label rel="[[item.id]]">N° [[item.invoiceReference]]</label>
                                     <label>[[_formatInvoiceDate(item.invoiceDate)]]</label>
                                 </div>
                                 <div class="invoice-text-row grey">
@@ -943,7 +953,7 @@
                                           item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
                                           label="[[localize('inv_type','Invoice type',language)]]"
                                           value="{{selectedInvoice.invoiceType}}"
-                                          on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                                          on-value-changed="" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice.*)]]"></vaadin-combo-box>
                         <vaadin-combo-box id="invoice-mode" filtered-items="[[sentMediumType]]"
                                           item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
                                           label="[[localize('inv_smt','Sent Medium Type',language)]]"
@@ -951,15 +961,15 @@
                                           on-value-changed="analyzeMediumType" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                         <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]"
                                      value="{{selectedInvoice.invoiceReference}}" readonly always-float-label="true"></paper-input>
-                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]"
-                                            value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker>
-                        <vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]"
-                                          item-label-path="label.[[language]]" item-value-path="id" on-filter-changed=""
-                                          label="[[localize('inv_per','Invoice period',language)]]"
-                                          value="{{selectedInvoice.invoicePeriod}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+
+                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice.*)]]"></vaadin-date-picker>
+
+                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
+                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription de',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvceClosed]]"></vaadin-date-picker></template>
                     </div>
-                    <template is="dom-if" if="[[_checkInvoiceMediumType]]">
-                        <div class="flex-container">
+
+                    <div class="flex-container">
+                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <div id="invoice-creditNote">
                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
                                     <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]"></vaadin-checkbox>
@@ -973,26 +983,45 @@
                                     <vaadin-checkbox on-checked-changed="_isCreditNote" checked="[[selectedInvoice.creditNote]]">[[localize('inv_cr_no','Credit note',language)]]<br/></vaadin-checkbox>
                                     <vaadin-checkbox on-checked-changed="_isLiftingLimitationPeriod" checked="[[_handleCheckboxCheckedStatusFromInteger(selectedInvoice.longDelayJustification)]]">[[localize('inv_llp','Lifting limitation period',language)]]</vaadin-checkbox>
                                 </template>
-
-
                             </div>
+                        </template>
+
                             <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]"
                                               item-label-path="label.[[language]]" item-value-path="id"
                                               on-value-changed="analyzeCareProviderType"
                                               label="[[localize('inv_care_prov_ty','Care provider type',language)]]"
                                               value="{{selectedInvoice.careProviderType}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+
                             <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
                                 <paper-input id="invoice-nihiiTrainee"
                                              label="[[localize('train_nihii','NIHII trainee',language)]]"
                                              value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             </template>
-                            <vaadin-combo-box id="invoice-thirdPartyJustification"
-                                              filtered-items="[[thirdPartyJustification]]"
-                                              item-label-path="label.[[language]]" item-value-path="id"
-                                              on-filter-changed=""
-                                              label="[[localize('inv_tpj','Third party justification',language)]]"
-                                              value="{{selectedInvoice.thirdPartyReference}}"
-                                              on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+
+                            <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                                <vaadin-combo-box id="invoice-thirdPartyJustification"
+                                                  filtered-items="[[thirdPartyJustification]]"
+                                                  item-label-path="label.[[language]]" item-value-path="id"
+                                                  on-filter-changed=""
+                                                  label="[[localize('inv_tpj','Third party justification',language)]]"
+                                                  value="{{selectedInvoice.thirdPartyReference}}"
+                                                  on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                            </template>
+
+
+
+                            <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                                <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
+                                                  label="[[localize('location','Location',language)]]"
+                                                  filtered-items="[[locationType]]" item-label-path="label.[[language]]"
+                                                  item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
+                                                  on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
+                                </vaadin-combo-box>
+                                <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
+                            </template>
+
+
+
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
                                          value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
                                 <div slot="suffix">
@@ -1002,7 +1031,7 @@
                             </paper-input>
                             <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
                         </div>
-                    </template>
+
                 </div>
                 <div class="invoice-nomenclature-code">
                     <div class="invoice-nomenclature-code-container">
@@ -1018,10 +1047,9 @@
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px" style="padding: 0;">
                                         <template>
-                                            <div class="cell frozen">
-                                                <template is="dom-if" if="[[item.valid]]">
-                                                    <iron-icon icon="vaadin:check" class="verifiedNmcl"></iron-icon>
-                                                </template>
+                                            <div class="cell frozen textAlignCenter">
+                                                <template is="dom-if" if="[[item.contract]]"><iron-icon icon="vaadin:check" class="verifiedNmcl" title="[[localize('verified_etarif','E-Tarif vérifié',language)]]"></iron-icon></template>
+                                                <template is="dom-if" if="[[!item.contract]]"><iron-icon icon="vaadin:close" class="unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]"></iron-icon></template>
                                             </div>
                                         </template>
                                     </vaadin-grid-column>
@@ -1182,18 +1210,7 @@
                                          label="[[localize('tot','Fee',language)]]"
                                          value="{{activeNmclItem.totalAmount}}" readonly></paper-input>
                         </div>
-                        <div class="flex-container-nmcl">
-                            <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
-                                              label="[[localize('prescriber','Prescriber',language)]]"
-                                              filtered-items="[[prescriberType]]" item-label-path="label.[[language]]"
-                                              item-value-path="id" value="{{activeNmclItem.prescriberNorm}}"
-                                              on-value-changed="_checkIfPrescriberIsNeeded" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
-                            <template is="dom-if" if="[[isPrescriberIsNeeded]]">
-                                <paper-input class="flex-container-nmcl-row"
-                                             label="[[localize('prescriber_nihii','Prescriber nihii',language)]]"
-                                             value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
-                            </template>
-                        </div>
+
                         <template is="dom-if" if="[[isTravellingExpenses(activeNmclItem.*)]]">
                             <div class="flex-container-nmcl">
                                 <paper-input class="flex-container-nmcl-row"
@@ -1208,6 +1225,18 @@
                             </div>
                         </template>
                         <div class="flex-container-nmcl">
+                            <vaadin-combo-box id="prescriberType" class="flex-container-nmcl-row"
+                                              label="[[localize('prescriber','Prescriber',language)]]"
+                                              filtered-items="[[prescriberType]]" item-label-path="label.[[language]]"
+                                              item-value-path="id" value="{{activeNmclItem.prescriberNorm}}"
+                                              on-value-changed="_checkIfPrescriberIsNeeded" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                            <template is="dom-if" if="[[isPrescriberIsNeeded]]">
+                                <paper-input class="flex-container-nmcl-row"
+                                             label="[[localize('prescriber_nihii','Prescriber nihii',language)]]"
+                                             value="{{activeNmclItem.prescriberNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                            </template>
+                        </div>
+                        <div class="flex-container-nmcl">
                             <paper-input class="flex-container-nmcl-row"
                                          label="[[localize('valid','Validation',language)]]"
                                          value="{{activeNmclItem.valid}}" readonly></paper-input>
@@ -1221,7 +1250,9 @@
                     </template>
 
                 </div>
+
                 <div class="buttons">
+                    <span>[[errorMessage]]</span>
                     <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
                     <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
@@ -1234,38 +1265,44 @@
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">
-                                    [[localize('eTarif','Validation eTarif',language)]]
-                                </paper-button>
+                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                             </template>
                             <template is="dom-if" if="[[!npi]]">
-                                <paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation
-                                    eTarif',language)]]
-                                </paper-button>
+                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                             </template>
                         </template>
 
                         <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">
-                                [[localize('eTarif','Validation eTarif',language)]]
-                            </paper-button>
+                            <template is="dom-if" if="[[_hasInsurability()]]"><paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                            <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                         </template>
 
-                        <template is="dom-if" if="[[isNmclVerified]]">
-                            <paper-button on-tap="_createInvoice" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
+
+                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
-                        <template is="dom-if" if="[[!isNmclVerified]]">
-                            <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
-                                create invoice',language)]]
-                            </paper-button>
+                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <template is="dom-if" if="[[isNmclVerified]]">
+                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
+                                    [[localize('val_invoice','Justificatory + create invoice',language)]]
+                                </paper-button>
+                            </template>
+                            <template is="dom-if" if="[[!isNmclVerified]]">
+                                <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
+                                    create invoice',language)]]
+                                </paper-button>
+                            </template>
                         </template>
                     </template>
                     <template is="dom-if" if="[[isInvoiceClosed]]">
-                        <paper-button on-tap="_createInvoice" class="modal-button invoiceBtnEnable">
+                        <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button invoiceBtnEnable">
                             [[localize('val_justificatory','Justificatory',language)]]
                         </paper-button>
+
                     </template>
                 </div>
             </div>
@@ -1412,14 +1449,6 @@
                                 label: {"fr": "eAttest", "nl": "eAttest", "en": "eAttest"}
                             },
                             {
-                                id: "cdrom",
-                                label: {"fr": "cdrom", "nl": "cdrom", "en": "cdrom"}
-                            },
-                            {
-                                id: "email",
-                                label: {"fr": "Email", "nl": "Email", "en": "Email"}
-                            },
-                            {
                                 id: "mediprima",
                                 label: {"fr": "Mediprima", "nl": "Mediprima", "en": "Mediprima"}
                             },
@@ -1519,6 +1548,38 @@
                                     "en": "The benefit is prescribed by different prescribers and has been substituted"
                                 },
                                 prescriber: true
+                            }
+                        ]
+                    },
+                    locationType: {
+                        type: Array,
+                        value: () => [
+                            {
+                                id: 0,
+                                label: {"fr": "Pas de lieu de prestation", "nl": "Geen location", "en": "No location"},
+                                location: "",
+                                cdHcParty: ""
+                            },
+                            {
+                                id: 1,
+                                label: {
+                                    "fr": "La prestation est dispensée effectuée dans un hôpital",
+                                    "nl": "The benefit is provided at a hospital",
+                                    "en": "The benefit is provided at a hospital"
+                                },
+                                location: "HOSPITAL",
+                                cdHcParty: "orghospital"
+                            },
+                            {
+                                id: 2,
+                                label: {
+                                    "fr": "La prestation est dispensée dans un labo",
+                                    "nl": "The benefit is provided at a labo",
+                                    "en": "The benefit is provided at a labo"
+                                },
+                                location: "LABO",
+                                cdHcParty: "orglaboratory"
+
                             }
                         ]
                     },
@@ -1757,9 +1818,14 @@
                         type: Array
                     },
                     activeNmclItem: {
-                        type: Object
+                        type: Object,
+                        observer : 'checkHere'
                     },
                     isPrescriberIsNeeded: {
+                        type: Boolean,
+                        value: false
+                    },
+                    isLocationIsNeeded: {
                         type: Boolean,
                         value: false
                     },
@@ -1788,6 +1854,10 @@
                     invoiceDateAsString: {
                         type: String,
                         observer: '_invoiceDateAsStringChanged'
+                    },
+                    prescriptionDateAsString:{
+                        type: String,
+                        observer: '_prescriptionDateAsStringChanged'
                     },
                     isInvoiceClosed:{
                         type: Boolean,
@@ -1820,13 +1890,25 @@
                     isJustif: {
                         type: Boolean,
                         value: false
+                    },
+                    searchOrgName: {
+                        type: String,
+                        value: ""
+                    },
+                    organisationList:{
+                        type: Array,
+                        value: () => []
+                    },
+                    errorMessage :{
+                        type : String,
+                        value :""
                     }
                 }
 
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)']
+                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
             }
 
             ready() {
@@ -1847,10 +1929,11 @@
                 this.set('isNmclVerified', false)
                 this.set('npi', false)
 
-                const selected = this.invoices.find(inv => inv.id === invoiceId)
+                let selected = this.invoices.find(inv => inv.id === invoiceId)
 
                 this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: selected.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                     nmcls.map(nmcl =>{
+
                         const sn = selected.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
                         if(sn){
                             sn.prescriberNeeded = nmcl.needsPrescriber
@@ -1858,6 +1941,15 @@
                         }
                     })
                 ).finally(() => {
+
+                    if(!selected.encounterLocationNorm){
+                        selected.encounterLocationNorm=0;
+                        selected.encounterLocationName=null;
+                        selected.encounterLocationNihii=null;
+                    } else if(selected.encounterLocationNorm!==0){
+                        this.set("isLocationIsNeeded", true)
+                    }
+
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
                     this.set('invoiceDateAsString', this.returnDatePickerDate(selected.invoiceDate))
@@ -1877,7 +1969,8 @@
 
             open() {
                 if (!this.user) return
-                Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)]).then(([hcp, invoices]) => {
+                Promise.all([this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId), this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => invoices.map(i => this.api.register(i, 'invoice')))]).then(([hcp, invoices]) => {
+
                     this.set('hcp', hcp)
                     this.set('invoices',invoices)
                     this.set('nmcl-value','')
@@ -1891,13 +1984,16 @@
                         newInvoice.invoicingCodes = []
                         newInvoice.invoiceDate = moment().format("YYYYMMDD")
                         newInvoice.invoiceReference = null
-                        newInvoice.thirdPartyReference = "0"
-                        newInvoice.invoiceType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient"
-                        newInvoice.sentMediumType = (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest"
+                        newInvoice.override3rdPayerCode = parseInt( this.patient.insurabilities.length ) ? (this.patient.insurabilities[0].parameters.tc1 % 2 ===1) ? "3" : "0" : 0,
+                        newInvoice.invoiceType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient" ) : 'patient';
+                        newInvoice.sentMediumType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest" ) : 'paper';
                         newInvoice.invoicePeriod = 0
                         newInvoice.longDelayJustification = 0
                         newInvoice.gnotionNihii = null
                         newInvoice.internshipNihii = null
+                        newInvoice.encounterLocationNorm = 0
+                        newInvoice.encounterLocationName = null
+                        newInvoice.encounterLocationNihii = null
                         newInvoice.creditNote = 0
                         newInvoice.careProviderType = "persphysician"
 
@@ -1921,11 +2017,11 @@
             }
 
             _isTrainee(careProviderType) {
-                return careProviderType === "persphysician" ? false : true
+                return careProviderType && careProviderType === "persphysician" ? false : true
             }
 
             _checkInvoiceMediumType() {
-                return this.selectedInvoice.sentMediumType === "efact" ? true : false
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === "efact" ? true : false
             }
 
             getFavoritesCodes() {
@@ -1943,7 +2039,7 @@
 
             analyzeMediumType(e) {
                 this.set('selectedMediumCodeType', e.detail.value)
-                return e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
+                return e && e.detail && e.detail.value && e.detail.value === "efact" ? this.set('isThirdParty', true) : this.set('isThirdParty', false)
             }
 
             _nmclSearch(e) {
@@ -1967,7 +2063,7 @@
                 return {
                     filter: function (nmclFilterValue) {
                         let count = 10
-                        return Promise.all([this.api.tarification().findPaginatedTarificationsByLabel('be', 'INAMI-RIZIV', 'fr', nmclFilterValue, null, count)]).then(results => {
+                        return Promise.all([this.api.tarification().findPaginatedTarificationsByLabel('be', 'INAMI-RIZIV', this.language, nmclFilterValue, null, count)]).then(results => {
                             const nmclList = results[0]
                             const filtered = _.flatten(nmclList.rows.map(nmcl => ({
                                 id: nmcl.id,
@@ -1985,7 +2081,7 @@
             }
 
             _getDescription(label) {
-                return label[this.language]
+                return label && label[this.language]
             }
 
             _addNmcl(e) {
@@ -2019,10 +2115,10 @@
                         valid: false,
                         id: this.api.crypto().randomUuid(),
                         prescriberNihii: null,
-                        prescriberNorm: 0
+                        prescriberNorm: 0,
 
                     }
-                    const ins = this.patient.insurabilities.find(i => !i.endDate)
+                    const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
 
@@ -2032,12 +2128,16 @@
 
                     const env = new evaljs.Environment({
                         patient: {
-                            preferentialstatus: (ins && ins.parameters) ? !!ins.parameters.preferentialstatus : false,
+                            preferentialstatus: (ins && ins.parameters && ins.parameters.chronicalDisease) ? !!ins.parameters.preferentialstatus : false,
                             age: age,
                             dmg: (dmg && dmg.referral) ? !!dmg.referral : false,
-                            chronical: (ins && ins.parameters) ? !!ins.parameters.chronicalDisease : false
-                        }, hcp: {trainee: trainee, convention: convention}
-                    })
+                            chronical: (ins && ins.parameters && ins.parameters.chronicalDisease) ? !!ins.parameters.chronicalDisease : false
+                        },
+                        hcp: {
+                            trainee: !!(this.hcp && this.hcp.statuses && this.hcp.statuses.find(st => st === "trainee")),
+                            convention: !!(this.hcp && this.hcp.statuses && this.hcp.statuses.find(st => st === "withconvention"))
+                        }
+                    });
 
                     nmcl.valorisations.map(val => {
                         const gen = (env.gen(val.predicate)())
@@ -2047,25 +2147,42 @@
                             status = gen.next()
                         }
 
-                        if (status.value && (moment().format('YYYYMMDD') > val.startOfValidity && moment().format('YYYYMMDD') < val.endOfValidity)) {
-                            newNmcl.totalAmount = Number(val.totalAmount).toFixed(2)
-                            newNmcl.reimbursement = Number(val.reimbursement).toFixed(2)
-                            newNmcl.patientIntervention = Number(val.patientIntervention).toFixed(2)
+
+                        val.totalAmount = Number(val.totalAmount).toFixed(2)
+                        val.reimbursement = Number(val.reimbursement).toFixed(2)
+                        val.patientIntervention = Number(val.patientIntervention).toFixed(2)
+                        val.doctorSupplement = Number(val.doctorSupplement||'0').toFixed(2)
+
+                        // Patient has NO ins, charge it with all due fees
+                        if( !this._hasInsurability() ) {
+                            val.patientIntervention = Number( Number(val.patientIntervention) + Number(val.reimbursement) ).toFixed(2);
+                            val.reimbursement = Number('0').toFixed(2);
+                        }
+
+                        if (status.value && moment().isBetween(this.api.moment(val.startOfValidity),this.api.moment(val.endOfValidity),"year","[]")) {
+
+                            newNmcl.totalAmount = Number(Number(newNmcl.totalAmount) + Number(val.totalAmount)).toFixed(2);
+                            newNmcl.reimbursement = Number(Number(newNmcl.reimbursement) + Number(val.reimbursement)).toFixed(2);
+                            newNmcl.patientIntervention = Number(Number(newNmcl.patientIntervention) + Number(val.patientIntervention)).toFixed(2);
+
+                            // Patient has NO ins, charge it with all due fees
+                            if( !this._hasInsurability() ) {
+                                newNmcl.patientIntervention = Number( Number(newNmcl.patientIntervention) + Number(newNmcl.reimbursement) ).toFixed(2);
+                                newNmcl.reimbursement = Number('0').toFixed(2);
+                            }
                         }
                     })
 
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
 
                         const patientKeys = secretForeignKeys.join(",")
-
-                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [newNmcl]).then(inv => {
+                        this.api.invoice().appendCodes(this.user.id, this.selectedInvoice.invoiceType, this.selectedMediumCodeType, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [newNmcl]).then(inv => {
 
                             inv.map(invoice => {
                                 if (!invoice.id) {
-
                                     invoice.invoiceDate = this.selectedInvoice.invoiceDate
                                     invoice.invoiceReference = this.selectedInvoice.invoiceReference
-                                    invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
+                                    invoice.override3rdPayerCode = this.selectedInvoice.override3rdPayerCode
                                     invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
                                     invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
                                     invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
@@ -2073,29 +2190,28 @@
                                     invoice.creditNote = this.selectedInvoice.creditNote
                                     invoice.careProviderType = this.selectedInvoice.careProviderType
 
-                                    this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                        .then(invoice => this.api.register(invoice,'invoice'))
+                                    return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                         .then(invoice => this.api.invoice().createInvoice(invoice))
                                         .then(invoice => this.api.register(invoice,'invoice'))
                                         .then(invoice => {
                                             this.$['nmclGrid'].clearCache()
                                             console.log(this.selectedInvoice)
-                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                                this.set('invoices', invoices)
-                                                this._selectInvoice(invoice.id)
-                                            })
+                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient)
+                                                .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
+                                                .then(invoices => {
+                                                    this.set('invoices', invoices)
+                                                    this._selectInvoice(invoice.id)
 
+                                                    return invoice
+                                                })
                                         })
-                                }else{
-                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                        this.set('invoices', invoices)
-                                        const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
-                                        this._selectInvoice(selectedInvoice.id)
-                                    })
+                                } else {
+                                    return this.api.register(invoice, 'invoice')
                                 }
                             })
                         })
                     })
+                    console.log("test:",newNmcl)
                 }
 
                 this.set('nmcl-value','')
@@ -2173,20 +2289,20 @@
                         .then(hcp =>
                             this.selectedInvoice.careProviderType === 'traineesupervised' && hcp.supervisorId ?
                                 this.api.hcparty().getHealthcareParty(hcp.supervisorId).then(sup =>
+                                    this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
+                                        this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
+                                        hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
+                                        this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
+                                        this.selectedInvoice.override3rdPayerCode === "0" ? null : this.selectedInvoice.override3rdPayerCode, sup.ssin, sup.nihii, sup.firstName, sup.lastName
+                                    ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id, "eTar", "consult")
+                                    ))
+                                :
                                 this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
                                     this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                     hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                     this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
-                                    this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference, sup.ssin, sup.nihii, sup.firstName, sup.lastName
-                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id)
-                                ))
-                                :
-                                this.api.fhc().Tarificationcontroller().consultTarificationUsingPOST(
-                                this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
-                                hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
-                                this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
-                                this.selectedInvoice.thirdPartyReference === "0" ? null : this.selectedInvoice.thirdPartyReference
-                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id))
+                                    this.selectedInvoice.override3rdPayerCode === "0" ? null : this.selectedInvoice.override3rdPayerCode
+                                ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id, "eTar", "consult"))
                         )
                         .then(r => {
                             console.log(r)
@@ -2241,6 +2357,8 @@
                 }
             }
 
+
+
             calculateTotalOfInvoice() {
                 let totalAmount = 0
                 let patientIntervention = 0
@@ -2261,7 +2379,7 @@
             }
 
             _getErrorMsg(item, language) {
-                return language === "fr" ? item.msgFr : item.msgNl
+                return item && language && language === "fr" ? item.msgFr : item.msgNl
             }
 
             _showDetail() {
@@ -2283,8 +2401,18 @@
                 } else {
                     this.set("isPrescriberIsNeeded", true)
                 }
+            }
+
+
+            _checkIfLocationIsNeeded(e) {
+                if (e.detail.value === 0) {
+                    this.set("isLocationIsNeeded", false)
+                } else {
+                    this.set("isLocationIsNeeded", true)
+                }
 
             }
+
 
             _deleteNmclCode(e) {
                 e.stopPropagation()
@@ -2304,14 +2432,11 @@
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(invoice => {
-                            console.log(invoice)
-                            this.set('selectedInvoice', invoice)
-                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                            this.$['nmclGrid'].clearCache()
+                            this.calculateTotalOfInvoice()
+
+                            return invoice
                         })
-
-                    this.$['nmclGrid'].clearCache()
-
-                    this.calculateTotalOfInvoice()
                 }
             }
 
@@ -2323,7 +2448,9 @@
                 }
             }
 
-            _createInvoice() {
+            _validateAndPrepareInvoiceForBatchSending() {
+
+
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
                     this.set('isJustif',true)
@@ -2336,34 +2463,34 @@
                     })
                 }
 
-                this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
+                if(!this._isSelectedInvoiceEattest())
+                    this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
+
 
                 this.api.entityRef().getLatest("Invoice::").then(latest => {
                     console.log(latest)
-                    const lastReference = latest.id.replace(/\Invoice:[^_]/g, '')
+                    const lastReference = latest.id.replace(/Invoice:[^_]/g, '')
                     const newReference = Number(lastReference) + 1
 
                     this.set("selectedInvoice.invoiceReference", newReference)
                     this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice, 'invoice'))
-                        .then(invoice => this.api.entityRef().createEntityReference({
-                            docId: invoice.id,
-                            id: "Invoice::" + newReference
-                        })
-                            .then(() => {
+                        .then(invoice =>
+                            this.api.entityRef().createEntityReference({
+                                docId: invoice.id,
+                                id: "Invoice::" + newReference
+                            }).then(() => {
                                 console.log(invoice)
+
                                 this.set('selectedInvoice', invoice)
                                 this._selectInvoice(invoice.id)
                                 this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
                                     this.set('invoices', invoices)
 
                                     if(this.selectedInvoice.sentMediumType==="efact"){
-                                        this.generateJustificatory()
-                                    }else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                        console.log("sending")
-                                        this.sendEattest();
-                                        this.eattest(this.selectedInvoice)
-                                        console.log("after sending and pdf")
+                                        return this.generateJustificatory(invoice)
+                                    } else if(this.selectedInvoice.sentMediumType==="eattest"){
+                                        return this.sendEattest(invoice);
                                     }
                                 })
                             }))
@@ -2396,7 +2523,10 @@
             }
 
             _formatAmount(amount) {
-                console.log("formatamount",amount)
+
+                // Make sure
+                amount = typeof amount==='undefined'?0:amount;
+
                 if (amount == 0) {return "0.00"}
                 if (amount.toString().length < 3) {
                     let out = // if integer, add the decimals, else just besure it's float
@@ -2422,12 +2552,30 @@
 
                 }
             }
+
+            _prescriptionDateAsStringChanged(prescriptionDateAsString) {
+                const dateNow = parseInt(this.api.moment(Date.now()).format('YYYYMMDD'));
+                const dateInt = parseInt(prescriptionDateAsString.replace(/(....)-(..)-(..)/, '$1$2$3'))
+                if (this.selectedInvoice && (this.selectedInvoice.prescriptionDate !== dateInt)) {
+                    if ( dateInt <= dateNow) {
+                        this.set('selectedInvoice.prescriptionDate', dateInt)
+                    } else {
+                        if(this.shadowRoot.querySelector('#prescription-date')) {
+                            this.shadowRoot.querySelector('#prescription-date').set(Date.now())
+                        }
+                    }
+
+                }
+            }
+
             findAndReplace(string, target, replacement) {
+                if(!(string && target && replacement))return;
                 for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
                 return string;
             }
 
             getInvoiceType(invoiceType){
+                if(!invoiceType) return;
                 const type = this.invoiceType.find(type => type.id === invoiceType)
                 return type && type.label && type.label[this.language]
             }
@@ -2438,7 +2586,7 @@
             }
 
             formatAmount(value) {
-                return parseFloat(Math.round(value * 100) / 100).toFixed(2);
+                return value && parseFloat(Math.round(value * 100) / 100).toFixed(2);
             }
 
             generateJustificatory(){
@@ -2464,22 +2612,19 @@
                 }
                 let totTotal=0.00,totOA=0.00,totPers=0.00,totSupp=0.00
 
-                console.log("selected Invoice",this.selectedInvoice.invoicingCodes)
-                console.log("this patient",this.patient)
-
                 this.selectedInvoice.invoicingCodes.map(code => {
                     const invoiceDate = this._formatInvoiceDate(code.dateCode)
                     const invDate = invoiceDate
                     const thisCode = code.code.toString()
-                    const reimbursement = this.formatAmount(code.reimbursement.toString())
-                    const patientIntervention = this.formatAmount(code.patientIntervention.toString())
-                    const doctorSupplement = this.formatAmount(code.doctorSupplement.toString())
-                    const totalAmount = this.formatAmount(code.totalAmount.toString())
+                    const reimbursement = this.formatAmount(code.reimbursement+'')
+                    const patientIntervention = this.formatAmount(code.patientIntervention+'')
+                    const doctorSupplement = this.formatAmount(code.doctorSupplement+'')
+                    const totalAmount = this.formatAmount(code.totalAmount+'')
 
-                    totTotal+=code.totalAmount;
-                    totOA+=code.reimbursement;
-                    totPers+=code.patientIntervention;
-                    totSupp+=code.doctorSupplement;
+                    totTotal = Number(totTotal) + Number(code.totalAmount);
+                    totOA = Number(totOA) + Number(code.reimbursement);
+                    totPers = Number(totPers) + Number(code.patientIntervention);
+                    totSupp = Number(totSupp) + Number(code.doctorSupplement);
 
                     totTotal = this.formatAmount(totTotal)
                     totOA = this.formatAmount(totOA)
@@ -2508,7 +2653,7 @@
                 template.pageTwo.tot.totSupp = totSupp
 
                 const html =
-                `<html>
+                    `<html>
                     <head>
                         <style>
                             body {
@@ -2948,42 +3093,39 @@
                 if(this.bufferTypeCode!=this.selectedMediumCodeType){
                     this.api.crypto().extractDelegationsSFKs(this.patient, this.user.healthcarePartyId).then(secretForeignKeys => {
                         const patientKeys = secretForeignKeys.join(",")
-                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, this.patient.insurabilities[0].insuranceId, patientKeys, null, 0, [this.activeNmclItem]).then(response => {
-                            response.map(invoice => {
-                                if (!invoice.id) {
-                                    invoice.invoiceDate = this.selectedInvoice.invoiceDate
-                                    invoice.invoiceReference = this.selectedInvoice.invoiceReference
-                                    invoice.thirdPartyReference = this.selectedInvoice.thirdPartyReference
-                                    invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
-                                    invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
-                                    invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
-                                    invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
-                                    invoice.creditNote = this.selectedInvoice.creditNote
-                                    invoice.careProviderType = this.selectedInvoice.careProviderType
 
-                                    this.api.invoice().newInstance(this.user, this.patient, invoice)
-                                        .then(invoice => this.api.register(invoice,'invoice'))
-                                        .then(invoice => this.api.invoice().createInvoice(invoice))
-                                        .then(invoice => this.api.register(invoice,'invoice'))
-                                        .then(invoice => {
-                                            this.$['nmclGrid'].clearCache()
-                                            this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                                this.set('invoices', invoices)
-                                                this._selectInvoice(invoice.id)
-                                            })
+                        this.api.invoice().appendCodes(this.user.id,this.selectedInvoice.invoiceType, this.bufferTypeCode, (!!this.patient.insurabilities.length?this.patient.insurabilities[0].insuranceId:''), patientKeys, null, 0, [this.activeNmclItem]).then( response => {
+                            const invoice = response[0]
+                            if (!invoice) {
+                                return null
+                            }
+                            if (!invoice.id) {
+                                invoice.invoiceDate = this.selectedInvoice.invoiceDate
+                                invoice.invoiceReference = this.selectedInvoice.invoiceReference
+                                invoice.override3rdPayerCode = this.selectedInvoice.override3rdPayerCode
+                                invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
+                                invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
+                                invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
+                                invoice.internshipNihii = this.selectedInvoice.internshipNihii === "" ? null : this.selectedInvoice.internshipNihii
+                                invoice.creditNote = this.selectedInvoice.creditNote
+                                invoice.careProviderType = this.selectedInvoice.careProviderType
 
+                                return this.api.invoice().newInstance(this.user, this.patient, invoice)
+                                    .then(invoice => this.api.invoice().createInvoice(invoice))
+                                    .then(invoice => this.api.register(invoice, 'invoice'))
+                                    .then(invoice => {
+                                        this.$['nmclGrid'].clearCache()
+                                        this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => invoices.map(i => this.api.register(i, 'invoice'))).then(invoices => {
+                                            this.set('invoices', invoices)
+                                            this._selectInvoice(invoice.id)
+
+                                            return invoice
                                         })
-                                }else{
-                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
-                                        this.set('invoices', invoices)
-                                        const selectedInvoice = invoices.find(i => i.id === this.selectedInvoice.id)
-                                        this._selectInvoice(selectedInvoice.id)
                                     })
-                                }
-                            })
-
-
-
+                            } else {
+                                return this.api.register(invoice, 'invoice')
+                            }
+                        }).then (invoice => {
                             this.set('isDetailNmcl', false)
                             let tabNmcl = this.selectedInvoice.invoicingCodes
 
@@ -2998,15 +3140,13 @@
                             this.api.invoice().modifyInvoice(this.selectedInvoice)
                                 .then(invoice => this.api.register(invoice,'invoice'))
                                 .then(invoice => {
-                                    this.set('selectedInvoice', invoice)
-                                    this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => this.set('invoices', invoices))
+                                    //TODO check that it was in the list of invoices or do a findBy and that it was selected or do a select
+
+                                    this.$['nmclGrid'].clearCache()
+                                    this.calculateTotalOfInvoice()
+
+                                    return invoice
                                 })
-
-                            this.$['nmclGrid'].clearCache()
-
-                            this.calculateTotalOfInvoice()
-
-                            this._selectInvoice(this.selectedInvoice.id)
                         })
                     })
                 }
@@ -3047,16 +3187,14 @@
                 }
             }
 
-            savingInvoices(){
+            scheduleInvoiceUpdate(){
                 if (this.saveTimeout) {
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-                    this.isSelected=true;
-                    const invoice = this.invoices.find(invoice => invoice===this.selectedInvoice)
-                    //console.log(invoice)
-                    //invoice.longDelayJustification=invoice.longDelayJustification ? 1 : 0
-                    this.api.invoice().modifyInvoice(invoice)
+
+                    console.log(this.selectedInvoice)
+                    this.api.invoice().modifyInvoice(this.selectedInvoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(response => {
                             this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
@@ -3067,20 +3205,16 @@
                                         sn.isRelativePrestation = nmcl.hasRelatedCode
                                     }
                                 })
-                            ).finally(()=>{
-                                this.set("invoices."+this.invoices.indexOf(invoice),response)
-                                this.isSelected=true;
-                                this.set("selectedInvoice",response)
-                                this.isSelected=false;
-                            })
+                            )
+                            console.log("saved:",response)
                         })
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
 
+
             selectedInvoiceChanged(){
-                if(this.isSelected) return;
-                this.savingInvoices();
+                this.scheduleInvoiceUpdate();
             }
 
             isEnterPressed(e){
@@ -3127,7 +3261,7 @@
             }
 
             isTravellingExpenses(){
-                return this.activeNmclItem.code==="109955"
+                return  this.activeNmclItem &&  this.activeNmclItem.code && this.activeNmclItem.code==="109955"
             }
 
             quantityAllHasChanged(){
@@ -3143,7 +3277,7 @@
                 this.set("activeNmclItem.patientIntervention",(total-remb[this.activeNmclItem.units-1]).toFixed(2))
                 this.set("activeNmclItem.reimbursement",remb[this.activeNmclItem.units-1])
 
-                return Math.round(this.activeNmclItem.qteAll*2)
+                return  this.activeNmclItem && this.activeNmclItem.gteAll && Math.round(this.activeNmclItem.qteAll*2)
             }
 
             sendEattest(){
@@ -3192,19 +3326,45 @@
                         }
                     }
 
+                    if(this.selectedInvoice.encounterLocationNorm!==0){
+                        newCode.location={
+                            cdHcParty: this.locationType[this.selectedInvoice.encounterLocationNorm].cdHcParty,
+                            firstName: null,
+                            idHcParty: _.padEnd(this.selectedInvoice.encounterLocationNihii,11, '0'),
+                            idSsin: null,
+                            lastName: null
+                        }
+                    }
+
                     eattest.codes.push(newCode)
                 })
 
-                console.log(eattest)
+                console.log("invoice",eattest)
                 console.log("envoie")
-                this.api.fhc().Eattestcontroller().sendAttestUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,this.selectedInvoice.printedDate)
+
+                const sentDate=moment().format("YYYYMMDD")
+                this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
                     .then(response =>{
-                        console.log("reponse du send =",response)
+                        console.log("recu reponse :",response)
+                        if(response.acknowledge.errors.length===0){
+                            this.api.logMcn(response, this.user, this.selectedInvoice.id, "eAttest", "invoice")
+                            this.set('selectedInvoice.thirdPartyReference',response.invoicingNumber)
+                            this.set("selectedInvoice.sentDate",sentDate)
+                            this.eattest(this.selectedInvoice)
+                            this.set("errorMessage","")
+                        }
+                        else{
+                            let errorMsg="";
+                            response.acknowledge.errors.map(error => {
+                                errorMsg.concat(error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", ")
+                            })
+                            this.set("errorMessage",errorMsg)
+                        }
                     })
             }
 
             _ifEattestSaved(item){
-                return item.printedDate && item.sentMediumType==="eattest"
+                return item && item.printedDate && item.sentMediumType && item.sentMediumType==="eattest"
             }
 
             _toggleEditHE(e) {
@@ -3247,9 +3407,11 @@
 
             eattest(invoice){
 
+                console.log("print",invoice)
+
                 //generate jpeg
                 const element = this.root.querySelector("#barCode");
-                JsBarcode(element,invoice.thirdPartyReference, { format: "CODE128A", displayValue: false, height: 75 });
+                JsBarcode(element,invoice.override3rdPayerCode, { format: "CODE128A", displayValue: false, height: 75 });
                 const jpegUrl = element.toDataURL("image/jpeg");
 
                 //totaux
@@ -3537,7 +3699,7 @@
                                 </td>
                             </tr>
                             <tr class="item last">
-                                <td class="minw30">{{totOne}}</td>
+                                <td class="minw30">T{{totOne}}</td>
                                 <td class="right">
                                     {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
                                 </td>
@@ -3583,7 +3745,26 @@
                         a.href = url;
                         a.download = invoice.id+moment()+".pdf";
                         a.click();
-                        window.URL.revokeObjectURL(url);
+                        window.URL.revokeObjectURL(url)
+                    })
+                    .then( rep =>{
+                        if(this.selectedInvoice)
+                            this.set("selectedInvoice.printedDate",moment().format("YYYYMMDD"))
+
+                        this.api.invoice().modifyInvoice(this.selectedInvoice)
+                            .then(invoice => this.api.register(invoice,'invoice'))
+                            .then(response => {
+                                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                                    nmcls.map(nmcl =>{
+                                        const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                        if(sn){
+                                            sn.prescriberNeeded = nmcl.needsPrescriber
+                                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                                        }
+                                    })
+                                )
+                                console.log("saved:",response)
+                            })
                     })
             }
 
@@ -3592,9 +3773,54 @@
             }
 
             _cancelEattest(){
-                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp[0].lastName+"&entry.156031164="+this.hcp[0].firstName+"&entry.1335787920="+this.hcp[0].nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
                 window.open(url,"cancel");
             }
+
+            _isSelectedInvoiceEattest(){
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType && this.selectedInvoice.sentMediumType === 'eattest'
+            }
+
+            _isInvoiceClosedOrSelectedInvoiceEattest(){
+                return this.selectedInvoice && this.selectedInvoice.sentMediumType &&  this.selectedInvoice.sentMediumType === 'eattest' || this.isInvoiceClosed;
+
+            }
+
+            _getAdressesBookInfo(){
+                this.api.fhc().Addressbookcontroller().searchOrgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, '*'+this.searchOrgName+'*',this.locationType[this.selectedInvoice.encounterLocationNorm].location)
+                    .then(orgList => this.set('organisationList', orgList))
+            }
+
+            searchLocations(e){
+                if (this.saveAdressTimeout) {
+                    clearTimeout(this.saveAdressTimeout);
+                }
+                this.getAdresses = () => {
+                    if(e.detail.value){
+                        this.set("searchOrgName",e.detail.value);
+                        this._getAdressesBookInfo();
+                    }
+                };
+                this.saveAdressTimeout = setTimeout(this.getAdresses, 3000);
+            }
+
+            setLocation(e){
+                console.log("selection :",e.detail.value)
+                this.set("selectedInvoice.encounterLocationName",e.detail.value.name)
+                const regExp = new RegExp(/\W/,'g')
+                this.set("selectedInvoice.encounterLocationNihii",e.detail.value.ehp.replace(regExp,""))
+            }
+
+            locationNormChanged(){
+                if(!this.isSelected){
+                    this.set("selectedInvoice.encounterLocationName","")
+                    this.set("selectedInvoice.encounterLocationNihii","")
+                }
+            }
+
+            _hasInsurability() { return ( this.patient && this.patient && !!this.patient.insurabilities.length ); }
+
+
         }
 
         customElements.define(HtPatInvoicingDialog.is, HtPatInvoicingDialog)
