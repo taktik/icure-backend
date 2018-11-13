@@ -44,6 +44,9 @@ public class InvoiceDto extends IcureDto {
 	private String invoiceReference;
 	private String thirdPartyReference;
 
+	private String thirdPartyPaymentJustification;
+	protected String thirdPartyPaymentReason;
+
 	protected String gnotionNihii;
 	protected String gnotionSsin;
 	protected String gnotionLastName;
@@ -308,4 +311,20 @@ public class InvoiceDto extends IcureDto {
 	public Long getPrescriptionDate() {	return prescriptionDate;	}
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+	public String getThirdPartyPaymentJustification() {
+		return thirdPartyPaymentJustification;
+	}
+
+	public void setThirdPartyPaymentJustification(String thirdPartyPaymentJustification) {
+		this.thirdPartyPaymentJustification = thirdPartyPaymentJustification;
+	}
+
+	public String getThirdPartyPaymentReason() {
+		return thirdPartyPaymentReason;
+	}
+
+	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
+		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
 }

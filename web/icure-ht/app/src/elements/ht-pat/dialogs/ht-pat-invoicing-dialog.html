@@ -1004,7 +1004,7 @@
                                                   item-label-path="label.[[language]]" item-value-path="id"
                                                   on-filter-changed=""
                                                   label="[[localize('inv_tpj','Third party justification',language)]]"
-                                                  value="{{selectedInvoice.thirdPartyReference}}"
+                                                  value="{{selectedInvoice.thirdPartyPaymentJustification}}"
                                                   on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
                             </template>
 
@@ -1107,7 +1107,7 @@
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="80px">
+                                    <vaadin-grid-column width="80px" class="textAlignCenter">
                                         <template class="header">
                                             <div class="cell numeric"></div>
                                         </template>
@@ -1117,9 +1117,9 @@
                                             </template>
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
                                                 <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
-                                                <template id="dom-if" if="[[!!isInvoiceClosed]]">
+                                               <template is="dom-if" if="[[!isInvoiceClosed]]">
                                                     <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
-                                                </template>
+                                               </template>
                                                 [[item.relatedCode]]
                                             </template>
 
@@ -1984,7 +1984,7 @@
                         newInvoice.invoicingCodes = []
                         newInvoice.invoiceDate = moment().format("YYYYMMDD")
                         newInvoice.invoiceReference = null
-                        newInvoice.override3rdPayerCode = parseInt( this.patient.insurabilities.length ) ? (this.patient.insurabilities[0].parameters.tc1 % 2 ===1) ? "3" : "0" : 0,
+                        newInvoice.thirdPartyPaymentJustification = parseInt(this.patient.insurabilities.length ) ? ((this.patient.insurabilities[0].parameters.tc1 % 2 === 1 ) ? "3" : "0") : "0",
                         newInvoice.invoiceType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient" ) : 'patient';
                         newInvoice.sentMediumType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest" ) : 'paper';
                         newInvoice.invoicePeriod = 0
@@ -2115,7 +2115,7 @@
                         valid: false,
                         id: this.api.crypto().randomUuid(),
                         prescriberNihii: null,
-                        prescriberNorm: 0,
+                        prescriberNorm: 0
 
                     }
                     const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
@@ -2182,7 +2182,7 @@
                                 if (!invoice.id) {
                                     invoice.invoiceDate = this.selectedInvoice.invoiceDate
                                     invoice.invoiceReference = this.selectedInvoice.invoiceReference
-                                    invoice.override3rdPayerCode = this.selectedInvoice.override3rdPayerCode
+                                    invoice.thirdPartyPaymentJustification = this.selectedInvoice.thirdPartyPaymentJustification
                                     invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
                                     invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
                                     invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii
@@ -2293,7 +2293,7 @@
                                         this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                         hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                         this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
-                                        this.selectedInvoice.override3rdPayerCode === "0" ? null : this.selectedInvoice.override3rdPayerCode, sup.ssin, sup.nihii, sup.firstName, sup.lastName
+                                        this.selectedInvoice.thirdPartyPaymentJustification === "0" ? null : this.selectedInvoice.thirdPartyPaymentJustification, sup.ssin, sup.nihii, sup.firstName, sup.lastName
                                     ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id, "eTar", "consult")
                                     ))
                                 :
@@ -2301,7 +2301,7 @@
                                     this.patient.ssin, this.api.tokenId, this.api.keystoreId, this.api.credentials.ehpassword,
                                     hcp.firstName, hcp.lastName, hcp.nihii, hcp.ssin,
                                     this.selectedInvoice.invoicingCodes.filter(ic => ic.code!=="109955").map(ic=>ic.code), this.selectedInvoice.invoiceDate, this.selectedInvoice.gnotionNihii === ""  ? null : this.selectedInvoice.gnotionNihii,
-                                    this.selectedInvoice.override3rdPayerCode === "0" ? null : this.selectedInvoice.override3rdPayerCode
+                                    this.selectedInvoice.thirdPartyPaymentJustification === "0" ? null : this.selectedInvoice.thirdPartyPaymentJustification
                                 ).then(r => this.api.logMcn(r, this.user, this.selectedInvoice.id, "eTar", "consult"))
                         )
                         .then(r => {
@@ -2314,7 +2314,7 @@
                                 this.set("tarificationError", errors)
                                 this.set("isTarificationError", true)
 
-                                if (errors[0].code === "999999") {
+                                if (errors[0].code === "999999" || errors[0].code === "166") {
                                     this.set("isTarificationMcnError", true)
                                     this.set("isNmclVerified", true)
                                 }
@@ -3102,7 +3102,7 @@
                             if (!invoice.id) {
                                 invoice.invoiceDate = this.selectedInvoice.invoiceDate
                                 invoice.invoiceReference = this.selectedInvoice.invoiceReference
-                                invoice.override3rdPayerCode = this.selectedInvoice.override3rdPayerCode
+                                invoice.thirdPartyPaymentJustification = this.selectedInvoice.thirdPartyPaymentJustification
                                 invoice.invoicePeriod = this.selectedInvoice.invoicePeriod
                                 invoice.longDelayJustification = this.selectedInvoice.longDelayJustification
                                 invoice.gnotionNihii = this.selectedInvoice.gnotionNihii === "" ? null : this.selectedInvoice.gnotionNihii

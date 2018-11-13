@@ -949,12 +949,45 @@
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
-                                                <template class="header"></template>
-                                                <template>
-                                                    <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
-                                                </template>
-                                            </vaadin-grid-column>
+                                            <vaadin-grid-column-group>
+                                               <template class="header hasBorder">Informations paiement</template>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentReference">Réf</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paymentReference]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentDate">Date</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paymentDate]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[_formatAmount(item.messageInfo.amountPaid)]]€</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentAccount">Compte bancaire</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paymentAccount]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentReference">Payé</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paid]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
+                                                    <template class="header"></template>
+                                                    <template>
+                                                        <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
+                                                    </template>
+                                                </vaadin-grid-column>
+                                            </vaadin-grid-column-group>
                                         </vaadin-grid>
                                     </div>
                                 </template>
@@ -1073,13 +1106,13 @@
                                             <template class="header">
                                                 <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.patientName]]</template>
+                                            <template>[[item.patient]]</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template class="header">
                                                 <vaadin-grid-sorter path="ssin">Niss</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.patientSsin]]</template>
+                                            <template>[[item.ssin]]</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                             <template class="header">
@@ -1509,20 +1542,18 @@
                                     invoiceNumber: m.externalRef,
                                     invoiceMonth: "",
                                     invoiceDate: "",
-                                    invoicedAmount: "0",
-                                    acceptedAmount: "0",
-                                    refusedAmount: "0",
+                                    invoicedAmount: m.metas && m.metas.totalAmount ? Number(m.metas.totalAmount).toFixed(2) : "0.00",
+                                    acceptedAmount: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00",
+                                    refusedAmount: m.metas && m.metas.totalRejectedAmount ? Number(m.metas.totalRejectedAmount).toFixed(2) : "0.00",
                                     invoiceStatus: "",
                                     rejectionReason: "",
-                                    paymentReference: "",
+                                    paymentReference: m.metas && m.metas.paymentReferenceAccount1 ? m.metas.paymentReferenceAccount1 : "",
                                     paymentDate: "",
-                                    amountPaid: "0",
-                                    paymentAccount: "",
-                                    paidAmount: "0"
+                                    amountPaid: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00"
                                 }
                             })))
 
-                            Promise.all(this.allMessages.map(mm =>
+                            Promise.all( this.allMessages.map(mm =>
                                 this.api.document().findByMessage(this.user.healthcarePartyId, mm.message)
                                     .then(docs => {
                                         const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
@@ -1541,14 +1572,9 @@
                                             const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
                                             const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
+                                            const st = mm.message.status
 
-                                            let invoiceStatus
-                                            let rejectionReason
-                                            if (zone200 && zone300) {
-                                                const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
-                                                const st = mm.message.status
-
-                                                invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
+                                            const invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
                                                 !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
                                                 !!(st & (1 << 16)) ? this.localize('inv_full_acc','Fully accepted',this.language):
                                                 !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
@@ -1558,9 +1584,8 @@
                                                 !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
 
 
-                                                                                                                                                             rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
-                                                                                                                                                             !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
-                                            }
+                                            const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
+                                                     !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
 
                                             return (zone200 && zone300) ?
                                                 ({
@@ -1573,24 +1598,24 @@
                                                         invoiceNumber:      zone300.zones && zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
                                                         invoiceMonth:       zone300.zones &&zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
                                                         invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                        invoicedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
-                                                        acceptedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
-                                                        refusedAmount:      zone500.zones && zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
+                                                        invoicedAmount:     (mm && mm.messageInfo && mm.messageInfo.invoicedAmount) ? mm.messageInfo.invoicedAmount : "0.00",
+                                                        acceptedAmount:     (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
+                                                        refusedAmount:      (mm && mm.messageInfo && mm.messageInfo.refusedAmount) ? mm.messageInfo.refusedAmount : "0.00",
                                                         invoiceStatus:      invoiceStatus,
                                                         rejectionReason:    rejectionReason,
-                                                        paymentReference:   zone400.zones && zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
+                                                        paymentReference:   (mm && mm.messageInfo && mm.messageInfo.paymentReference) ? mm.messageInfo.paymentReference : "",
                                                         paymentDate:        "",
-                                                        amountPaid:         "0.00",
+                                                        amountPaid:         (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
                                                         paymentAccount:     enr10.zones && enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                        paidAmount:         ""
+                                                        paid: false
                                                     }
                                                 }) : mm
                                         }) : mm
                                     }))).then(msgsStructs => {
-                                this._isLoadingMessages = false
-                                this.set('allMessages', msgsStructs)
-                                this.dispatchMessages()
-                            })
+                                                this._isLoadingMessages = false
+                                                this.set('allMessages', msgsStructs)
+                                                this.dispatchMessages()
+                                        })
 
                         })
                     })
@@ -2162,13 +2187,13 @@
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
                 if(zones.find(z => z.zone === "4101") != '00'){
-                    if(segment.substr(0,2) == '95'){
+                    if(zones.find(z => z.zone === "400") == '95'){
                         if(zones.find(z => z.zone === "4101") == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "4101") == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(segment.substr(0,2) == '96'){
+                    }else if(zones.find(z => z.zone === "400") == '96'){
                         if(zones.find(z => z.zone === "4101") == '10'){
                             erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "4101") == '11'){
@@ -2268,13 +2293,13 @@
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
                 if(zones.find(z => z.zone === "5101") != '00'){
-                    if(segment.substr(0,2) == '95'){
+                    if(zones.find(z => z.zone === "500" === '95')){
                         if(zones.find(z => z.zone === "5101") == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "5101") == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(segment.substr(0,2) == '96'){
+                    }else if(zones.find(z => z.zone === "500" === '96')){
                         if(zones.find(z => z.zone === "5101") == '10'){
                             erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "5101") == '11'){
@@ -2440,7 +2465,7 @@
             _getIconStatusClass(status) {
                 console.log("geticonstatus",status)
                 return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status == this.localize('inv_pen','Pending',this.language)) ? ((!this.statusPending) && (!this.isProcess(status))) ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusPending)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
                     (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
                     (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :

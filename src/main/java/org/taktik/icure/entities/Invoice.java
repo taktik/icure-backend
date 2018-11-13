@@ -52,6 +52,9 @@ public class Invoice extends StoredICureDocument {
 	private String invoiceReference;
 	private String thirdPartyReference;
 
+	private String thirdPartyPaymentJustification;
+	protected String thirdPartyPaymentReason;
+
 	private InvoiceType invoiceType;
 	private MediumType sentMediumType;
 	private InvoiceInterventionType interventionType;
@@ -490,6 +493,22 @@ public class Invoice extends StoredICureDocument {
 	public Long getPrescriptionDate() {	return prescriptionDate;	}
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+	public String getThirdPartyPaymentJustification() {
+		return thirdPartyPaymentJustification;
+	}
+
+	public void setThirdPartyPaymentJustification(String thirdPartyPaymentJustification) {
+		this.thirdPartyPaymentJustification = thirdPartyPaymentJustification;
+	}
+
+	public String getThirdPartyPaymentReason() {
+		return thirdPartyPaymentReason;
+	}
+
+	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
+		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
 
 	@Override
 	public boolean equals(Object o) {
