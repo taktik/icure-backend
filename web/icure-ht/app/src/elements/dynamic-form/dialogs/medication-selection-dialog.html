@@ -401,10 +401,11 @@
                             "intendedname": med.name,
                             "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
                         })
+                        console.log('mpp',mppInfos)
+                        console.log('med',med)
                         this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                            weekday: null,
-                            date: null,
-                            administratedQuantity: {quantity: 1, unit: mppInfos.gal.name}
+                            freqType: 'daily',
+                            administratedQuantity: {time:'',quantity: 1, unit: mppInfos.gal.name}
                         }])
                         this.set("bufferUnit",mppInfos.gal.name)
                         this.set("bufferQuantity",1)
@@ -427,11 +428,10 @@
                         })
                     }
                     this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                        weekday: null,
-                        date: null,
-                        administratedQuantity: {quantity: 1, unit: this.localize('generic_unit','unit',language)}
+                        freqType: 'daily',
+                        administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}
                     }])
-                    this.set("bufferUnit",this.localize('generic_unit','unit',language))
+                    this.set("bufferUnit",this.localize('generic_unit','unit',this.language))
                     this.set("bufferQuantity",1)
 
                     if (this.selectedMedicationContentWithId.isNew) {
@@ -440,6 +440,7 @@
                         this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
                     }
                 }
+                console.log('made regimen like this : ',this.selectedMedicationContentWithId.medicationValue.regimen)
             }
 
             click(e) {
