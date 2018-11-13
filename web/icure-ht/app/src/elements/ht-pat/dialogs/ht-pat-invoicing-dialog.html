@@ -57,6 +57,12 @@
     <template>
         <style include="spinner-style">
 
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
+            }
+
             .invoice-item {
                 height: 90px;
                 width: auto;
@@ -927,9 +933,11 @@
                                             <div class="he-edit-btn-container">
                                                 <paper-icon-button id="he-edit-btn-open_[[item.id]]" class="he-edit-btn" icon="vaadin:chevron-left" on-tap="_toggleEditHE"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-open_[[item.id]]">[[localize('ext','Extend',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="openXmlDialog" data-item$="[[item]]"></paper-icon-button>
-                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Generate Xml',language)]]</paper-tooltip>
-                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item]]"></paper-icon-button>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:file-code" on-tap="downloadKmehr" data-item$="[[item.id]]"></paper-icon-button>
+                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Download Kmehr',language)]]</paper-tooltip>
+                                                <paper-icon-button id="he-edit-btn-xml_[[item.id]]" class="he-edit-btn" icon="vaadin:flag-o" on-tap="downloadXades" data-item$="[[item.id]]"></paper-icon-button>
+                                                <paper-tooltip position="top" for="he-edit-btn-xml_[[item.id]]">[[localize('gen_xml','Download Xades',language)]]</paper-tooltip>
+                                                <paper-icon-button id="he-edit-btn-duplicate_[[item.id]]" class="he-edit-btn" icon="vaadin:copy" on-tap="duplicate" data-item$="[[item.id]]"></paper-icon-button>
                                                 <paper-tooltip position="top" for="he-edit-btn-duplicate_[[item.id]]">[[localize('gen_duplicate','Generate duplicata',language)]]</paper-tooltip>
                                             </div>
                                         </template>
@@ -1293,13 +1301,13 @@
 
 
                         <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isLoadingJustif]]">
+                            <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <template is="dom-if" if="[[isNmclVerified]]">
-                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isLoadingJustif]]">
+                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
                                     [[localize('val_invoice','Justificatory + create invoice',language)]]
                                 </paper-button>
                             </template>
@@ -2365,13 +2373,13 @@
                                 console.log(this.selectedInvoice)
                             }
                             return null
-                        }).catch((e) => {
-                        console.log("Exception", e)
-                    }).finally(() => {
-                        this.isLoadingEattest = false
-                        this.set('isLoadingValidation',false)
-                    })
-
+                        })
+                        .catch((e) => {
+                            console.log("Exception", e)
+                        }).finally(() => {
+                            this.isLoadingEattest = false
+                            this.set('isLoadingValidation',false)
+                        })
                 } else {
                     //Todo manage mandatory fields
                 }
@@ -2488,9 +2496,9 @@
                     })
                 }
 
-                if(!this._isSelectedInvoiceEattest())
+                if(!this._isSelectedInvoiceEattest()) {
                     this.set('selectedInvoice.printedDate', moment().format("YYYYMMDD"))
-
+                }
 
                 this.api.entityRef().getLatest("Invoice::").then(latest => {
                     console.log(latest)
@@ -2607,7 +2615,6 @@
             }
 
             generateJustificatory(){
-                this.set('isLoadingJustif',true)
                 let template = {
                     "pageOne": {
                         entries: [],
@@ -3094,7 +3101,6 @@
                         a.download = this.selectedInvoice.id+moment()+".pdf";
                         a.click();
                         window.URL.revokeObjectURL(url);
-                        this.set('isLoadingJustif',false)
                     })
             }
 
@@ -3320,8 +3326,10 @@
                 return  this.activeNmclItem && this.activeNmclItem.qteAll && Math.round(this.activeNmclItem.qteAll*2)
             }
 
-            sendEattest(){
-                let eattest = {codes : []};
+            sendEattest() {
+                this.set('isLoadingJustif',true)
+
+                const eattest = { codes : [] };
                 this.selectedInvoice.invoicingCodes.map(code =>{
                     let newCode = {
                         date : code.dateCode,
@@ -3384,39 +3392,45 @@
 
                 const sentDate=moment().format("YYYYMMDD")
                 this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
-                    .then(response =>{
-                        console.log("recu reponse :",response)
-                        if(response.acknowledge.errors.length===0) {
-                            //console.log("atob",atob(response.kmehrMessage))
-                            this.api.receipticc.createReceipt({
-                                documentId: this.selectedInvoice.id,
-                                references: [
-                                    `mycarenet:eattest:inputReference:${response.commonOutput}`
-                                ],
-                                category: "eattest",
-                                subCategory:"invoice"
-                            })
-                            .then(rcpt => this.api.receipticc.setAttachment(rcpt.id, "tack", undefined, (this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(atob(response.kmehrMessage))))))
-                            .then(receipt => {
-                                console.log(receipt)
-                                if(receipt.id){
-                                    this.set('selectedInvoice.thirdPartyReference', response.invoicingNumber)
-                                    this.set("selectedInvoice.sentDate", sentDate)
-                                    this.set("selectedInvoice.receipts",{"id" : receipt.id})
-                                    this.eattest(this.selectedInvoice)
-                                    this.set("errorMessage", null)
-                                }
-                            });
-                        }
-                        else{
+                    .then(fhcEattest => this.api.logMcn(fhcEattest, user, this.selectedInvoice.id, 'eattest', 'notify'))
+                    .then(fhcEattest => {
+                        if(fhcEattest.acknowledge.errors.length===0) {
+                            this.set('selectedInvoice.thirdPartyReference', fhcEattest.invoicingNumber)
+                            this.set("selectedInvoice.sentDate", sentDate)
+                            this.set("errorMessage", null)
+
+                            Promise.all([
+                                this.api.receipticc.createReceipt({
+                                    documentId: this.selectedInvoice.id,
+                                    references: Object.values(fhcEattest.commonOutput),
+                                    category: "eattest",
+                                    subCategory:"kmehr"
+                                }),
+                                this.api.receipticc.createReceipt({
+                                    documentId: this.selectedInvoice.id,
+                                    references: Object.values(fhcEattest.commonOutput),
+                                    category: "eattest",
+                                    subCategory:"xades"
+                                })
+                            ])
+                                .then(([kmehr,xades]) => Promise.all([
+                                    this.api.receipt().setAttachment(kmehr.id, "kmehrResponse", undefined, (this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(atob(fhcEattest.kmehrMessage))))),
+                                    this.api.receipt().setAttachment(xades.id, "xades", undefined, (this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(atob(fhcEattest.xades)))))
+                                ]))
+                                .then(([kmehr, xades]) => {
+                                    kmehr.id && this.set('selectedInvoice.receipts', _.assign(this.selectedInvoice.receipts || {}, {kmehr: kmehr.id}))
+                                    xades.id && this.set('selectedInvoice.receipts', _.assign(this.selectedInvoice.receipts || {}, {xades: xades.id}))
+                                })
+                                .finally(() => this.eattest(this.selectedInvoice))
+                        } else {
                             let errorMsg="";
-                            response.acknowledge.errors.map(error => {
+                            fhcEattest.acknowledge.errors.map(error => {
                                 console.log("Error :",error)
                                 errorMsg+=error.code+" "+(this.language==="fr" ? error.msgFr : error.msgNl)+", "
                             })
                             this.set("errorMessage",errorMsg)
                         }
-                    })
+                    }).finally(() => this.set('isLoadingJustif', false))
             }
 
             _ifEattestSaved(item){
@@ -3436,21 +3450,46 @@
                 }
             }
 
-            openXmlDialog(e){
+            downloadKmehr(e){
                 e.stopPropagation();
                 e.preventDefault();
 
-                const invoice = JSON.parse(e.target.dataset.item)
+                const invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
 
                 console.log("invoice for get Attachment :",invoice)
 
-                this.api.receipticc.getReceipt(invoice.receipts.id)
-                    .then(response =>{
-                    console.log("getReceipt",response)
-                        this.api.receipticc.getAttachment(invoice.receipts.id,response.attachmentIds.tack,response.encryptionKeys || "").then(response => console.log(response))
-                })
+                var a = document.createElement('a')
 
-                this.$['xml_dialog'].open()
+                this.api.receipt().getReceipt(invoice.receipts.kmehr)
+                    .then(receipt => this.api.receipt().getAttachment(receipt.id, receipt.attachmentIds.kmehrResponse))
+                    .then(attach => {
+                        a.href = window.URL.createObjectURL(new Blob([new Uint8Array(attach)]))
+                        a.download = `invoice_kmehr-${invoice.invoiceDate}-${+new Date()}.xml`
+                        a.click()
+                        return null
+                    })
+                    .finally(() => a.remove())
+            }
+
+            downloadXades(e){
+                e.stopPropagation();
+                e.preventDefault();
+
+                const invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
+
+                console.log("invoice for get Attachment :",invoice)
+
+                var a = document.createElement('a')
+
+                this.api.receipt().getReceipt(invoice.receipts.xades)
+                    .then(receipt => this.api.receipt().getAttachment(receipt.id, receipt.attachmentIds.xades))
+                    .then(attach => {
+                        a.href = window.URL.createObjectURL(new Blob([new Uint8Array(attach)]))
+                        a.download = `invoice_xades-${invoice.invoiceDate}-${+new Date()}.xml`
+                        a.click()
+                        return null
+                    })
+                    .finally(() => a.remove())
             }
 
             conventionAmountChanged(){
@@ -3466,7 +3505,9 @@
                 e.preventDefault();
 
                 console.log(e.target.dataset.item)
-                this.eattest(JSON.parse(e.target.dataset.item))
+
+                const invoice = this.invoices.find(iv => iv.id === e.target.dataset.item)
+                invoice && this.eattest(invoice)
             }
 
             eattest(invoice){
@@ -3763,7 +3804,7 @@
                                 </td>
                             </tr>
                             <tr class="item last">
-                                <td class="minw30">T{{totOne}}</td>
+                                <td class="minw30">{{totOne}}</td>
                                 <td class="right">
                                     {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
                                 </td>
