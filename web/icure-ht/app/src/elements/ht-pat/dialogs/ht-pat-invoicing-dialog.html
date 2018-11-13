@@ -627,7 +627,8 @@
 
             .clearBtn {
                 height: 16px;
-                width: 16px;
+                width: 16px
+                cursor: pointer;
             }
 
             .nmclFavoriteCode {
@@ -892,6 +893,10 @@
                 text-align: center;
             }
 
+            .locations-spinner {
+                transform: translate(0,40px);
+            }
+
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -1018,6 +1023,9 @@
                                                   on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
                                 </vaadin-combo-box>
                                 <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
+                                <template is="dom-if" if="[[isLoadingLocations]]">
+                                    <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
+                                </template>
                             </template>
 
 
@@ -1098,7 +1106,7 @@
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="80px">
+                                    <vaadin-grid-column width="88px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
@@ -1107,7 +1115,7 @@
                                         </template>
                                         <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="80px">
+                                    <vaadin-grid-column width="24px">
                                         <template class="header">
                                             <div class="cell numeric"></div>
                                         </template>
@@ -1125,7 +1133,7 @@
 
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="20px">
+                                    <vaadin-grid-column width="24px">
                                         <template>
                                             <div class="cell frozen">
                                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
@@ -1135,7 +1143,7 @@
                                             </div>
                                         </template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column width="20px">
+                                    <vaadin-grid-column width="24px">
                                         <template>
                                             <div class="cell frozen">
                                                 <template is="dom-if" if="[[!isInvoiceClosed]]">
@@ -1253,8 +1261,8 @@
 
                 <div class="buttons">
                     <span>[[errorMessage]]</span>
-                    <paper-spinner class="validAndTarif" active="[[isValidate]]"></paper-spinner>
-                    <paper-spinner class="validAndTarif" active="[[isJustif]]"></paper-spinner>
+                    <paper-spinner class="validAndTarif" active="[[isLoadingValidation]]"></paper-spinner>
+                    <paper-spinner class="validAndTarif" active="[[isLoadingJustif]]"></paper-spinner>
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
@@ -1265,7 +1273,7 @@
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
                         <template is="dom-if" if="[[!isTarificationMcnError]]">
                             <template is="dom-if" if="[[npi]]">
-                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isValidate]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isLoadingValidation]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
                                 <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                             </template>
                             <template is="dom-if" if="[[!npi]]">
@@ -1275,19 +1283,19 @@
                         </template>
 
                         <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <template is="dom-if" if="[[_hasInsurability()]]"><paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isValidate]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                            <template is="dom-if" if="[[_hasInsurability()]]"><paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isLoadingValidation]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
                             <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
                         </template>
 
 
                         <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
+                            <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isLoadingJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <template is="dom-if" if="[[isNmclVerified]]">
-                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isJustif]]">
+                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" active="[[isLoadingJustif]]">
                                     [[localize('val_invoice','Justificatory + create invoice',language)]]
                                 </paper-button>
                             </template>
@@ -1883,11 +1891,11 @@
                         type:Boolean,
                         value:false
                     },
-                    isValidate: {
+                    isLoadingValidation: {
                         type: Boolean,
                         value: false
                     },
-                    isJustif: {
+                    isLoadingJustif: {
                         type: Boolean,
                         value: false
                     },
@@ -2283,7 +2291,7 @@
 
             _verifyTarification() {
                 if (this.patient.ssin && this.api.tokenId && this.selectedInvoice.invoiceDate !== "" && this.api.patient().isValidSsin(this.patient.ssin)) {
-                    this.set('isValidate',true)
+                    this.set('isLoadingValidation',true)
                     this.isLoadingEattest = true
                     this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
                         .then(hcp =>
@@ -2349,7 +2357,7 @@
                         console.log("Exception", e)
                     }).finally(() => {
                         this.isLoadingEattest = false
-                        this.set('isValidate',false)
+                        this.set('isLoadingValidation',false)
                     })
 
                 } else {
@@ -2453,7 +2461,6 @@
 
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
-                    this.set('isJustif',true)
                     this.selectedInvoice.invoicingCodes.map(invoiceCode => {
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".reimbursement", 0 - invoiceCode.reimbursement)
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".patientIntervention", 0 - invoiceCode.patientIntervention)
@@ -2486,7 +2493,6 @@
                                 this._selectInvoice(invoice.id)
                                 this.api.invoice().findBy(this.user.healthcarePartyId, this.patient).then(invoices => {
                                     this.set('invoices', invoices)
-
                                     if(this.selectedInvoice.sentMediumType==="efact"){
                                         return this.generateJustificatory(invoice)
                                     } else if(this.selectedInvoice.sentMediumType==="eattest"){
@@ -2495,7 +2501,6 @@
                                 })
                             }))
                 })
-                this.set('isJustif',false)
             }
 
             _invoicingCodeChange() {
@@ -2590,6 +2595,7 @@
             }
 
             generateJustificatory(){
+                this.set('isLoadingJustif',true)
                 let template = {
                     "pageOne": {
                         entries: [],
@@ -3076,6 +3082,7 @@
                         a.download = this.selectedInvoice.id+moment()+".pdf";
                         a.click();
                         window.URL.revokeObjectURL(url);
+                        this.set('isLoadingJustif',false)
                     })
             }
 
@@ -3787,8 +3794,12 @@
             }
 
             _getAdressesBookInfo(){
+                this.set('isLoadingLocations',true)
                 this.api.fhc().Addressbookcontroller().searchOrgUsingGET(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, '*'+this.searchOrgName+'*',this.locationType[this.selectedInvoice.encounterLocationNorm].location)
-                    .then(orgList => this.set('organisationList', orgList))
+                    .then(orgList => {
+                        this.set('organisationList', orgList)
+                        this.set('isLoadingLocations',false)
+                    })
             }
 
             searchLocations(e){
