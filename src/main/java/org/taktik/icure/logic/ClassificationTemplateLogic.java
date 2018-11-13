@@ -21,6 +21,7 @@ package org.taktik.icure.logic;
 import org.taktik.icure.entities.ClassificationTemplate;
 import org.taktik.icure.entities.embed.Delegation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -42,4 +43,6 @@ public interface ClassificationTemplateLogic extends EntityPersister<Classificat
 	ClassificationTemplate addDelegations(String classificationTemplateId, List<Delegation> delegations);
 
     List<ClassificationTemplate> getClassificationTemplateByIds(List<String> asList);
+
+    List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> strings);
 }
