@@ -41,4 +41,5 @@ public interface ClassificationTemplateLogic extends EntityPersister<Classificat
 
 	ClassificationTemplate addDelegations(String classificationTemplateId, List<Delegation> delegations);
 
+    List<ClassificationTemplate> getClassificationTemplateByIds(List<String> asList);
 }

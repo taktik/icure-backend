@@ -96,6 +96,29 @@ public class ClassificationTemplateFacade implements OpenApiFacade{
 		}
 	}
 
+    @ApiOperation(
+        value = "Get a list of classificatiosn Templates",
+        response = ClassificationTemplateDto.class,
+        httpMethod = "GET",
+        notes = ""
+    )
+    @GET
+    @Path("/byIds/{ids}")
+    public Response getClassificationTemplateByIds(@PathParam("ids") String ids) {
+        if (ids == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<ClassificationTemplate> elements = classificationTemplateLogic.getClassificationTemplateByIds(Arrays.asList(ids.split(",")));
+
+        boolean succeed = (elements != null);
+        if (succeed) {
+            return Response.ok().entity(elements.stream().map(x -> mapper.map(x, ClassificationTemplateDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.").build();
+        }
+    }
+
 
 	@ApiOperation(
 			value = "Delete classification Templates.",

@@ -133,4 +133,9 @@ public class ClassificationTemplateLogicImpl extends GenericLogicImpl<Classifica
 
 	}
 
+    @Override
+    public List<ClassificationTemplate> getClassificationTemplateByIds(List<String> ids) {
+        return classificationTemplateDAO.getList(ids);
+    }
+
 }
