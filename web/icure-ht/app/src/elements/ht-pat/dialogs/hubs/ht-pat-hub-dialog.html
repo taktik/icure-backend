@@ -207,7 +207,6 @@
                 </template>
                 <template is="dom-if" if="[[supportBreakTheGlass]]">
                     <div>
-                        <p>test</p>
                         <paper-input id="BTG" label="[[localize('BTG_rea','Break the glass reason',language)]]" value="{{breakTheGlassReason}}"></paper-input>
                         <paper-button on-tap="_runGetTransactionList">[[localize('get_lst','Get list',language)]]</paper-button>
                     </div>
@@ -261,6 +260,7 @@
                     <paper-button on-tap="_runGetHubPatient">Get Patient</paper-button>
                     <paper-button on-tap="_runPutHubPatient">Put Patient</paper-button>
                     <paper-button on-tap="_runPutSumehr">Put Sumehr</paper-button>
+                    <paper-button on-tap="_getTSfromFileAndPut">Put TSet</paper-button>
                     <!--<paper-button on-tap="_runRevokeHubTransaction">Revoke transaction</paper-button>-->
                     <paper-button on-tap="_generateSumehr">Generate sumehr</paper-button>
                 </template>
@@ -1095,9 +1095,64 @@
                 }
             }
 
-            _putHubTransactionSet(){
-                //putTransactionSetUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, hubId, patientSsin, message, hubApplication)
+            _putHubTransactionSet(tsXML){
+                //putTransactionSetUsingPOST(
+                // endpoint: string,
+                // xFHCKeystoreId: string, xFHCTokenId: string, xFHCPassPhrase: string,
+                // hcpLastName: string, hcpFirstName: string, hcpNihii: string, hcpSsin: string, hcpZip: string,
+                // hubId: number,
+                // patientSsin: string,
+                // essage: string,
+                // hubPackageId?: string, hubApplication?: string): Promise<models.PutTransactionSetResponse | any>;
+                if (this.patient && this.patient.ssin && this.api.tokenId) {
+                    return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                        this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                            .then(hcp => this.api.fhc().Hubcontroller().putTransactionSetUsingPOST(this.hubEndPoint,
+                                this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+                                hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                                this.hubId,
+                                this.patient.ssin,
+                                tsXML,
+                                this.hubPackageId, this.hubApplication
+                                )
+                            ).then(putResp => {
+                                if (putResp) {
+                                    return putResp;
+                                } else {
+                                    return null;
+                                }
+                            }
+                        )
+                    )
+                }else{
+                    return Promise.resolve(null)
+                }
             }
+
+            _getTSfromFileAndPut(){
+                //TODO: this is testing code, not for production
+                const req = new XMLHttpRequest();
+                const pht = this._putHubTransactionSet;
+
+                req.onreadystatechange = function(event){
+
+                    if (this.readyState === XMLHttpRequest.DONE) {
+                        if (this.status === 200) {
+                            const msSam = this.responseXML;
+                            const txtSam = new XMLSerializer().serializeToString(msSam.documentElement);
+                            pht(txtSam).then(resp => this.set("tsResp", resp))
+                        } else {
+                            slot.innerHTML = "ERROR: XSLT not found";
+                        }
+                    }
+                };
+
+                req.open("GET", "ts_sam.xml", true);
+                req.send(null);
+
+            }
+
+
         }
         customElements.define(HtPatHubDialog.is, HtPatHubDialog);
     </script>
