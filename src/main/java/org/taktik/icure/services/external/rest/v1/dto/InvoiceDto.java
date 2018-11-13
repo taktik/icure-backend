@@ -71,6 +71,11 @@ public class InvoiceDto extends IcureDto {
 
 	protected String error;
 
+	protected String encounterLocationName;
+	protected String encounterLocationNihii;
+	protected Integer encounterLocationNorm;
+	protected Long prescriptionDate; // yyyyMMdd
+
 	private Map<String,String> receipts = new HashMap<>();
 
 	public Long getInvoiceDate() {
@@ -283,4 +288,24 @@ public class InvoiceDto extends IcureDto {
 	public String getError() { return error; }
 
 	public void setError(String error) { this.error = error; }
+
+	public String getEncounterLocationName() { return encounterLocationName; }
+
+	public void setEncounterLocationName(String encounterLocationName) { this.encounterLocationName = encounterLocationName; }
+
+	public String getEncounterLocationNihii() { return encounterLocationNihii; }
+
+	public void setEncounterLocationNihii(String encounterLocationNihii) { this.encounterLocationNihii = encounterLocationNihii; }
+
+	public Integer getEncounterLocationNorm() {
+		return encounterLocationNorm;
+	}
+
+	public void setEncounterLocationNorm(Integer encounterLocationNorm) {
+		this.encounterLocationNorm = encounterLocationNorm;
+	}
+
+	public Long getPrescriptionDate() {	return prescriptionDate;	}
+
+	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 }
