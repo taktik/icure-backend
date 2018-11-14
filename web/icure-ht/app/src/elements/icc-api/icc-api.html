@@ -114,8 +114,8 @@
             this.formicc = new IccFormXApi(this.host, this.headers, this.cryptoicc)
             this.helementicc = new IccHelementXApi(this.host, this.headers, this.cryptoicc)
             this.patienticc = new IccPatientXApi(this.host, this.headers, this.cryptoicc, this.contacticc, this.helementicc, this.invoiceicc, this.documenticc, this.hcpartyicc)
-            this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc)
-            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.receipticc, this.invoiceicc, this.patienticc)
+            this.invoiceicc = new IccInvoiceXApi(this.host, this.headers, this.cryptoicc, this.entityreficc)
+            this.messageicc = new IccMessageXApi(this.host, this.headers, this.cryptoicc, this.insuranceicc, this.entityreficc, this.invoiceicc, this.documenticc, this.receipticc, this.patienticc)
             this.bekmehricc = new IccBekmehrXApi(this.host, this.headers, this.contacticc, this.helementicc)
 
             this.dispatchEvent(new CustomEvent('refresh', {detail: {}}))
@@ -271,6 +271,10 @@
 
         replication() {
             return this.replicationicc
+        }
+
+        receipt() {
+            return this.receipticc
         }
 
         tarification() {
@@ -438,7 +442,6 @@
         }
 
         loadBicData() {
-
             // Already existing, take no action
             if( typeof this.bicsData !== 'undefined' ) return;
 
@@ -446,10 +449,7 @@
             this.bicsData = require('../bic/bics-list.json') || {};
         }
 
-
-
         getBicByIban( inputString ){
-
             // Get from json file -> casted in this.bicsData
             this.loadBicData();
 
@@ -467,22 +467,18 @@
 
             // Up with results, if any
             return foundResult.length ? foundResult[0].bicCode : '';
-
         }
 
-        logMcn(obj, user, docId) {
-            this.receipticc.logSCReceipt(obj, user, docId).catch(e => console.log(e))
+        logMcn(obj, user, docId, cat, subcat) {
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
-
-
         getUpdatedEdmgStatus( user, patient, requestDate, edmgNiss, edmgOA, genInsOA, genInsAFF, byPassCache=false ){
-
             if(!user||!patient) return Promise.resolve(null);
 
             // Everything that isn't today
-            this.flushOldEdmgStatusCache();
+            this.flushObsoleteEdmgStatusCache();
 
             const cachedEdmgRespStorageName = 'org.taktik.icure.edmgStatus.' + moment().format('YYYYMMDD') + '.' + user.healthcarePartyId + '.' + patient.ssin;
 
@@ -506,7 +502,7 @@
                             null,
                             null,
                             requestDate
-                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                     }).then(edmgResp => {
                         localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
                         return edmgResp||Promise.resolve(null);
@@ -530,7 +526,7 @@
                                     (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
                                     (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
                                     requestDate
-                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                             }
                         ).then(edmgResp => {
                             localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
@@ -541,7 +537,7 @@
 
         }
 
-        flushOldEdmgStatusCache() {
+        flushObsoleteEdmgStatusCache() {
 
             // Target what's for us
             const patternToLookFor= 'org.taktik.icure.edmgStatus.';
@@ -556,9 +552,6 @@
             });
 
         }
-
-
-
     }
 
     customElements.define(IccApi.is, IccApi)
