@@ -547,12 +547,10 @@
 
             .verifiedNmcl {
                 color: var(--app-status-color-ok);
-                height: 20px;
             }
 
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
-                height: 20px;
             }
 
             vaadin-grid.material {
@@ -903,6 +901,14 @@
                 transform: translate(0,40px);
             }
 
+            .f-s-12em {
+                font-size:1.2em;
+            }
+
+            .cursorPointer{
+                cursor:pointer;
+            }
+
         </style>
 
         <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
@@ -1063,10 +1069,7 @@
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px" style="padding: 0;">
                                         <template>
-                                            <div class="cell frozen textAlignCenter">
-                                                <template is="dom-if" if="[[item.contract]]"><iron-icon icon="vaadin:check" class="verifiedNmcl" title="[[localize('verified_etarif','E-Tarif vérifié',language)]]"></iron-icon></template>
-                                                <template is="dom-if" if="[[!item.contract]]"><iron-icon icon="vaadin:close" class="unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]"></iron-icon></template>
-                                            </div>
+                                            <div class="cell frozen textAlignCenter"></div>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
@@ -1091,9 +1094,11 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp;€</template>
+
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
@@ -1101,27 +1106,28 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
+                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
+                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp;€</div></template>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp;€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="88px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp;€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp;€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="24px" class="textAlignCenter">
                                         <template class="header">
@@ -2012,7 +2018,7 @@
                         newInvoice.encounterLocationNorm = 0
                         newInvoice.encounterLocationName = null
                         newInvoice.encounterLocationNihii = null
-                        newInvoice.creditNote = 0
+                        newInvoice.creditNote = false
                         newInvoice.careProviderType = "persphysician"
 
                         this.set('invoices', _.orderBy(invoices.concat(newInvoice), ['invoiceDate'], ['desc']))
