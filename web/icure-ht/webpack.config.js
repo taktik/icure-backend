@@ -28,7 +28,8 @@ module.exports = {
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.html']
     },
-    devtool: 'eval-source-map',
+    // devtool: 'eval-source-map',
+    devtool: 'inline-source-map',
     node: {
         fs: 'empty'
     },
