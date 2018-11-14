@@ -395,19 +395,17 @@
             }
 
             selectMedicationFromList(med) {
+                console.log("Select Medication From List",med)
                 if (med.id) {
                     this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
                         this.set('selectedMedicationContentWithId.medicationValue.medicinalProduct', {
                             "intendedname": med.name,
-                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}]
+                            "intendedcds": [{type: "CD-DRUG-CNK", code: med.id.id}],
+                            "priority": 'low'
                         })
                         console.log('mpp',mppInfos)
-                        console.log('med',med)
-                        this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                            freqType: 'daily',
-                            administratedQuantity: {time:'',quantity: 1, unit: mppInfos.gal.name}
-                        }])
-                        this.set("bufferUnit",mppInfos.gal.name)
+                        this.set('selectedMedicationContentWithId.medicationValue.regimen', []) // {frequency: 'daily',administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}
+                        this.set("bufferUnit",mppInfos.gal.name ? mppInfos.gal.name : this.localize('generic_unit','unit',this.language))
                         this.set("bufferQuantity",1)
 
                         if (this.selectedMedicationContentWithId.isNew) {
@@ -420,18 +418,16 @@
                     if (med.inncluster) {
                         this.set('selectedMedicationContentWithId.medicationValue.substanceProduct', {
                             "intendedname": med.name,
-                            "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}]
+                            "intendedcds": [{type: "CD-INNCLUSTER", code: med.inncluster}],
+                            "priority": 'low'
                         })
                     } else {
                         this.set('selectedMedicationContentWithId.medicationValue', {
                             "compoundPrescription": med.name
                         })
                     }
-                    this.set('selectedMedicationContentWithId.medicationValue.regimen', [{
-                        freqType: 'daily',
-                        administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}
-                    }])
-                    this.set("bufferUnit",this.localize('generic_unit','unit',this.language))
+                    this.set('selectedMedicationContentWithId.medicationValue.regimen', []) // {frequency: 'daily',administratedQuantity: {time:'',quantity: 1, unit: this.localize('generic_unit','unit',this.language)}}
+                    this.set("bufferUnit",mppInfos.gal.name ? mppInfos.gal.name : this.localize('generic_unit','unit',this.language))
                     this.set("bufferQuantity",1)
 
                     if (this.selectedMedicationContentWithId.isNew) {
@@ -440,7 +436,6 @@
                         this.dispatchEvent(new CustomEvent('display-medication-details',{detail:this.newMedication, bubbles: true, composed: true}))
                     }
                 }
-                console.log('made regimen like this : ',this.selectedMedicationContentWithId.medicationValue.regimen)
             }
 
             click(e) {
