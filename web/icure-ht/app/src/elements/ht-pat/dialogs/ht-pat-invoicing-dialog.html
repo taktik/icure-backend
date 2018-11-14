@@ -2521,9 +2521,9 @@
                             }).then(() => {
                                 console.log(invoice)
                                 if(this.selectedInvoice.sentMediumType==="efact"){
-                                    return this.generateJustificatory(invoice)
+                                    this.generateJustificatory(invoice)
                                 } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    return this.sendEattest(invoice);
+                                    this.sendEattest(invoice);
                                 }
                             }))
                 })
@@ -3100,7 +3100,7 @@
                         let url = window.URL.createObjectURL(blob)
 
                         let a = document.createElement("a");
-                        document.body.appendChild(a);
+                        this.$.invoiceDialog.appendChild(a);
                         a.style = "display: none";
 
                         a.href = url;
@@ -3850,7 +3850,7 @@
                         let url = window.URL.createObjectURL(blob)
 
                         let a = document.createElement("a");
-                        document.body.appendChild(a);
+                        this.$.invoiceDialog.appendChild(a);
                         a.style = "display: none";
 
                         a.href = url;
