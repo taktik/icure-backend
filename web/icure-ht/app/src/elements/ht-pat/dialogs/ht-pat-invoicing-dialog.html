@@ -3390,6 +3390,10 @@
                         if(fhcEattest.acknowledge.errors.length===0) {
                             this.set('selectedInvoice.thirdPartyReference', fhcEattest.invoicingNumber)
                             this.set("selectedInvoice.sentDate", sentDate)
+                            fhcEattest.attest.codes.map(code =>{
+                                const currentCode = this.selectedInvoice.invoicingCodes.find(i => i.code===code.riziv)
+                                currentCode.conventionAmount=code.fee;
+                            })
                             this.set("errorMessage", null)
 
                             Promise.all([
@@ -3515,14 +3519,12 @@
                 //totaux
                 let totalACharge=0.00;
                 let totalSuppl=0.00;
-                let totalRemb=0.00;
                 let totalConv=0.00;
                 let totalDelta=0.00;
 
                 invoice.invoicingCodes.map((code)=>{
-                    totalACharge+=code.reimbursement+code.patientIntervention;
-                    totalSuppl+=Number(code.doctorSupplement)
-                    totalRemb+=Number(code.reimbursement)
+                    totalACharge+=Number(code.reimbursement+code.patientIntervention);
+                    totalSuppl+=Number(code.totalAmount - code.conventionAmount)
                     totalConv+=Number(code.conventionAmount)
                     totalDelta+=Number(code.reimbursement)+Number(code.patientIntervention)+Number(code.doctorSupplement)
                 })
@@ -3580,11 +3582,12 @@
                     "totFinal": this.localize('pdf_totFinal','totFinal',this.language),
                     "totalACharge" : totalACharge,
                     "totalSuppl" : totalSuppl,
-                    "totalRemb" : totalRemb,
                     "totalConv" : totalConv,
                     "totalDelta" : totalDelta,
                     "jpegUrl" : jpegUrl
                 }
+
+                console.log("template",template)
 
                 const html = `
                 <html>
@@ -3754,22 +3757,13 @@
                                 <tr class="item">
                                     <td class="minw30"> {{unit}} {{code}} : {{label}}</td>
                                     <td class="right">
-                                        {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
+                                        {{#formatNumber}}{{patientIntervention}} + {{reimbursement}}{{/formatNumber}}
                                     </td>
                                     <td class="right">
-                                        {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
+                                        {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
                                     </td>
                                     <td class="right">
-                                        {{#conventionAmount}}
-                                            {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
-                                        {{/conventionAmount}}
-                                        {{^conventionAmount}}na{{/conventionAmount}}
-                                    </td>
-                                    <td class="right">
-                                        {{#conventionAmount}}
-                                            {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
-                                        {{/conventionAmount}}
-                                        {{^conventionAmount}}na{{/conventionAmount}}
+                                        {{#formatNumber}}{{totalAmount}} - {{conventionAmount}}{{/formatNumber}}
                                     </td>
                                 </tr>
                             {{/invoice.invoicingCodes}}
@@ -3779,49 +3773,48 @@
                                     {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
                                 </td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
+                                    {{#formatNumber}}{{totalConv}}{{/formatNumber}}
                                 </td>
                                 <td class="right">
-                                    {{#totalConv}}
-                                        {{#formatNumber}}{{totalConv}}{{/formatNumber}}
-                                    {{/totalConv}}
-                                    {{^totalConv}}na{{/totalConv}}
-                                </td>
-                                <td class="right">
-                                    {{#totalDelta}}
-                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                                    {{/totalDelta}}
-                                    {{^totalDelta}}na{{/totalDelta}}
+                                    {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
                                 </td>
                             </tr>
                             <tr class="item last">
                                 <td class="minw30">{{totOne}}</td>
                                 <td class="right">
+                                    {{#formatNumber}}{{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
                                     {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
-                                </td>
-                                <td></td>
-                                <td class="right">
-                                    {{#totalConv}}
-                                        {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
-                                    {{/totalConv}}
-                                    {{^totalConv}}na{{/totalConv}}
-                                </td>
-                                <td class="right">
-                                    {{#totalDelta}}
-                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                                    {{/totalDelta}}
-                                    {{^totalDelta}}na{{/totalDelta}}
                                 </td>
                             </tr>
 
                             <tr class="total">
                                 <td class="minw30">{{totFinal}}</td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
+                                    {{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}
                                 </td>
                                 <td class="right"></td>
                                 <td class="right"></td>
                                 <td class="right"></td>
+                            </tr>
+                        </table>
+
+                        <table class="fact-details">
+                            <tr>
+                                <th>Total à payer</th>
+                                <td>{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}</td>
+                            </tr>
+                            <tr>
+                                <th>Montant payé</th>
+                                <td>- {{#formatNumber}}{{invoice.paid}}{{/formatNumber}}</td>
+                            </tr>
+                            <tr>
+                                <th>Solde</th>
+                                <td>{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}} - {{invoice.paid}}{{/formatNumber}}</td>
                             </tr>
                         </table>
                     </div>
