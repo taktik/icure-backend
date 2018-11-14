@@ -2059,7 +2059,7 @@
             }
 
             static get observers() {
-                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
+                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)','_checkIfLocationNeeds(selectedInvoiceIndex.*,invoices.*)']
             }
 
             ready() {
@@ -2559,6 +2559,15 @@
 
             _checkIfLocationIsNeeded(e) {
                 if (e.detail.value === 0) {
+                    this.set("isLocationIsNeeded", false)
+                } else {
+                    this.set("isLocationIsNeeded", true)
+                }
+
+            }
+
+            _checkIfLocationNeeds() {
+                if (this.selectedInvoice.encounterLocationNorm === 0) {
                     this.set("isLocationIsNeeded", false)
                 } else {
                     this.set("isLocationIsNeeded", true)
