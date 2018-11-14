@@ -56,7 +56,7 @@ public class ArticleFacade implements OpenApiFacade {
         Response response;
 
         if (articleDto == null) {
-            response = ResponseUtils.badRequest("Cannot create calendar item: supplied ArticleDto is null");
+            response = ResponseUtils.badRequest("Cannot create article: supplied ArticleDto is null");
 
         } else {
             Article article = articleLogic.createArticle(mapper.map(articleDto, Article.class));
@@ -120,7 +120,7 @@ public class ArticleFacade implements OpenApiFacade {
         Response response;
 
         if (articleDto == null) {
-            response = ResponseUtils.badRequest("Cannot modify calendar Item: supplied articleDto is null");
+            response = ResponseUtils.badRequest("Cannot modify article: supplied articleDto is null");
 
         } else {
             Article article = articleLogic.modifyArticle(mapper.map(articleDto, Article.class));
@@ -134,15 +134,6 @@ public class ArticleFacade implements OpenApiFacade {
 
         return response;
     }
-
-
-    @ApiOperation(
-        value = "Get Articles by Period and HcPartyId",
-        response = ArticleDto.class,
-        responseContainer = "Array",
-        httpMethod = "POST",
-        notes = ""
-    )
 
     @Context
     public void setarticleLogic(ArticleLogic articleLogic) {
