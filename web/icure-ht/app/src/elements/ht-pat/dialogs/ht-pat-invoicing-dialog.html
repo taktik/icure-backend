@@ -904,9 +904,10 @@
             }
 
             .reasonCancel {
-                height: calc(100% - 500px);
-                width: calc(100% - 100px);
+                display : flex;
             }
+
+
 
         </style>
 
@@ -1844,11 +1845,10 @@
                     },
                     selectedInvoice: {
                         type: Object,
-                        value: () => {
-                        }
+                        value: () => {}
                     },
                     invoices: {
-                        type: Object,
+                        type: Array,
                         value: () => {
                         }
                     },
@@ -1974,8 +1974,7 @@
                         value : null
                     },
                     selectedInvoiceIndex:{
-                        type : Number,
-                        observer: '_selectInvoice'
+                        type : Number
                     },
                     reasonOfCancel:{
                         type: Object,
@@ -2047,7 +2046,7 @@
             }
 
             static get observers() {
-                return ['_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
+                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
             }
 
             ready() {
@@ -2070,7 +2069,7 @@
                 this.set('npi', false)
 
                 if (!selected) {
-
+                    this.set('selectedInvoice', {})
                     return
                 }
 
@@ -2084,7 +2083,6 @@
                         }
                     })
                 ).finally(() => {
-
                     if(!selected.encounterLocationNorm){
                         selected.encounterLocationNorm=0;
                         selected.encounterLocationName=null;
@@ -2101,6 +2099,8 @@
                     invoiceId !== "" ? this.calculateTotalOfInvoice() : null
                     this.selectedInvoice.invoicingCodes.length > 0 ? this.set('npi', true) : this.set('npi', false)
                     this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
+
+                    this.$['nmclGrid'].clearCache()
                 })
             }
 
@@ -2348,12 +2348,11 @@
                                             })
                                     })
                             } else {
+                                const registered = this.api.register(invoice, 'invoice')
+                                this.updateGui(registered)
                                 this.$['nmclGrid'].clearCache()
-                                const invoice = this.api.register(invoice, 'invoice')
-                                this.updateGui(invoice)
-                                return invoice;
+                                return registered;
                             }
-
                         })
                     })
                 }
@@ -3268,13 +3267,13 @@
                                         })
                                     })
                             } else {
-                                const response = this.api.register(invoice, 'invoice')
+                                const registered = this.api.register(invoice, 'invoice')
                                 this.$['nmclGrid'].clearCache()
                                 this.calculateTotalOfInvoice()
 
-                                this.updateGui(invoice)
+                                this.updateGui(registered)
 
-                                return response
+                                return registered
                             }
                         }).then (invoice => {
                             this.set('isDetailNmcl', false)
@@ -3349,11 +3348,12 @@
 
             scheduleInvoiceUpdate(){
                 const invoice = this.selectedInvoice
+                const rev = invoice && invoice.rev
                 if (this.saveTimeout) {
                     clearTimeout(this.saveTimeout);
                 }
-                this.saveAction = () => {
-                    console.log(invoice)
+                const saveAction = () => {
+                    if (rev !== invoice.rev) { return }
                     this.api.invoice().modifyInvoice(invoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
                         .then(invoice => {
@@ -3370,8 +3370,8 @@
                             console.log("saved:",invoice)
                         })
                 };
-                if (invoice.id) {
-                    this.saveTimeout = setTimeout(this.saveAction, 10000);
+                if (invoice.id && rev) {
+                    this.saveTimeout = setTimeout(saveAction, 10000);
                 } else {
                     this.updateGui(invoice)
                 }
