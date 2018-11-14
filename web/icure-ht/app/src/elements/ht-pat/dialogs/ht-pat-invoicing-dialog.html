@@ -908,6 +908,10 @@
                 flex-direction: row;
             }
 
+            .paid {
+                min-width: 100px;
+            }
+
             #paymentCheckDialog {
                 min-height: 280px;
             }
@@ -1408,9 +1412,8 @@
                                   item-label-path="label.[[language]]" item-value-path="id"
                                   label="Type de paiement"
                                   value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
-                <paper-input class="paid"
-                             label="Montant encaissé"
-                             value="{{selectedInvoice.paid}}" type="number"></paper-input>
+                <paper-input class="paid" label="Montant encaissé"
+                         value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
@@ -2513,7 +2516,7 @@
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
                 if(this._isSelectedInvoiceEattest()) {
-                    if (this.selectedInvoice) { this.selectedInvoice.paid = Number(this.selectedInvoice.invoicingCodes.reduce((tot, c) => tot+(c.reimbursement || 0)+(c.patientIntervention || 0)+(c.doctorSupplement || 0), 0).toFixed(2)) }
+                    if (this.selectedInvoice) { this.set('selectedInvoice.paid', Number(this.selectedInvoice.invoicingCodes.reduce((tot, c) => tot+(c.reimbursement || 0) + (c.patientIntervention || 0) + (c.doctorSupplement || 0), 0).toFixed(2))) }
                     this.$['paymentCheckDialog'].open()
                 } else {
                     this._validateAndPrepareInvoiceForBatchSending()
