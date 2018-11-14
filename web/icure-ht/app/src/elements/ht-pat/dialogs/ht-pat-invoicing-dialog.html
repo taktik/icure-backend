@@ -1391,9 +1391,12 @@
             </div>
         </paper-dialog>
 
-        <paper-dialog id="xml_dialog">
+        <paper-dialog id="cancel-dialog">
             <div>
-
+                <vaadin-combo-box id="reasonOfCancel" filtered-items="[[reasonOfCancel]]"
+                                  item-label-path="label.[[language]]" item-value-path="id"
+                                  label="Raison"
+                                  value="{{reason}}" class="manualEncodingContainerChild"></vaadin-combo-box>
             </div>
         </paper-dialog>
 
@@ -3806,15 +3809,15 @@
                         <table class="fact-details">
                             <tr>
                                 <th>Total à payer</th>
-                                <td>{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}</td>
+                                <td class="right">{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}</td>
                             </tr>
                             <tr>
                                 <th>Montant payé</th>
-                                <td>- {{#formatNumber}}{{invoice.paid}}{{/formatNumber}}</td>
+                                <td class="right">{{#formatNumber}}{{invoice.paid}}{{/formatNumber}}</td>
                             </tr>
                             <tr>
                                 <th>Solde</th>
-                                <td>{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}} - {{invoice.paid}}{{/formatNumber}}</td>
+                                <td class="right">{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}} - {{invoice.paid}}{{/formatNumber}}</td>
                             </tr>
                         </table>
                     </div>
@@ -3862,6 +3865,7 @@
             }
 
             _cancelEattest(){
+
                 const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.thirdPartyReference
                 window.open(url,"cancel");
             }
