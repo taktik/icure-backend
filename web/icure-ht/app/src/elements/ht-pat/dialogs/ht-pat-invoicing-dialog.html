@@ -903,11 +903,24 @@
                 transform: translate(0,40px);
             }
 
+
             .reasonCancel {
                 display : flex;
             }
 
+            #cancelDialog{
+                height: 200px;
+                width: 1000px;
+            }
 
+            .inputs-line {
+                display: flex;
+                flex-direction: row;
+            }
+
+            #paymentCheckDialog {
+                min-height: 280px;
+            }
 
         </style>
 
@@ -1412,15 +1425,12 @@
         </paper-dialog>
 
         <paper-dialog id="paymentCheckDialog">
-            <p>Veuillez introduire le type de paiement et le montant <b>encaissé</b></p>
-            <p>Le document repris sur le justificatif a valeur fiscale et sera repris sur le jsutificatif</p>
-            <div class="paymentType">
+            <p>Veuillez introduire le type de paiement et le montant <b>encaissé</b><br>Le montant indiqué sera repris sur le justificatif et a valeur fiscale</p>
+            <div class="inputs-line">
                 <vaadin-combo-box id="paymentType" filtered-items="[[paymentTypes]]"
                                   item-label-path="label.[[language]]" item-value-path="id"
                                   label="Type de paiement"
                                   value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
-            </div>
-            <div class="paid">
                 <paper-input class="paid"
                              label="Montant encaissé"
                              value="{{selectedInvoice.paid}}" type="number"></paper-input>
@@ -2591,6 +2601,7 @@
 
             _prevalidateAndPrepareInvoiceForBatchSending() {
                 if(this._isSelectedInvoiceEattest()) {
+                    if (this.selectedInvoice) { this.selectedInvoice.paid = Number(this.selectedInvoice.invoicingCodes.reduce((tot, c) => tot+(c.reimbursement || 0)+(c.patientIntervention || 0)+(c.doctorSupplement || 0), 0).toFixed(2)) }
                     this.$['paymentCheckDialog'].open()
                 } else {
                     this._validateAndPrepareInvoiceForBatchSending()
@@ -3988,6 +3999,7 @@
             }
 
             _cancelDialogOpen(){
+                this.set("reason","A")
                 this.$["cancelDialog"].open()
             }
 
