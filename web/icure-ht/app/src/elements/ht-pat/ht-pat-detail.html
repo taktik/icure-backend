@@ -2573,24 +2573,23 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	    return desc;
 	}
 
-    _getHubPatientConsent(){
+    _getHubPatientConsent() {
         //getPatientConsentUsingGET1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin)
-		if (this.patient.ssin && this.api.tokenId) {
+        if (this.patient.ssin && this.api.tokenId) {
             return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
-                    .then(hcp =>
-                this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
-					this.api.tokenId, this.api.credentials.ehpassword,
-                    hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
-                    this.patient.ssin)
-        ).then(consentResp => {
-                if (consentResp) {
-                    this.set('patientHubConsent', consentResp);
-                    return consentResp;
-                } else {
-                    return null;
-        }
-        }
-        )
+                .then(hcp =>
+                    this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
+                        this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                        this.patient.ssin)
+                ).then(consentResp => {
+                    if (consentResp) {
+                        this.set('patientHubConsent', consentResp)
+                        return consentResp
+                    } else {
+                        return null
+                    }
+                })
         } else {
             return Promise.resolve(null)
         }

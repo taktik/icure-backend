@@ -903,9 +903,14 @@
                 transform: translate(0,40px);
             }
 
+            .reasonCancel {
+                height: calc(100% - 500px);
+                width: calc(100% - 100px);
+            }
+
         </style>
 
-        <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
+        <paper-dialog id="invoiceDialog" opened="{{opened}}">
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused selectable="paper-material" selected="{{selectedInvoiceIndex}}">
                     <template is="dom-repeat" items="[[invoices]]">
@@ -1278,7 +1283,7 @@
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
-                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
+                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">
                             [[localize('can_eattest','Cancel eattest',language)]]
                         </paper-button>
                     </template>
@@ -1301,7 +1306,7 @@
 
 
                         <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
+                            <paper-button on-tap="_prevalidateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
                                 [[localize('val_invoice','Justificatory + create invoice',language)]]
                             </paper-button>
                         </template>
@@ -1344,6 +1349,7 @@
                               label="Link"
                               value="{{childRelativeCodeId}}"></vaadin-combo-box>
         </paper-dialog>
+
 
         <paper-dialog id="eidDialog">
             <h4>Type de lecture</h4>
@@ -1391,15 +1397,38 @@
             </div>
         </paper-dialog>
 
-        <paper-dialog id="cancel-dialog">
-            <div>
+        <paper-dialog id="cancelDialog">
+            <div class="reasonCancel">
                 <vaadin-combo-box id="reasonOfCancel" filtered-items="[[reasonOfCancel]]"
                                   item-label-path="label.[[language]]" item-value-path="id"
                                   label="Raison"
                                   value="{{reason}}" class="manualEncodingContainerChild"></vaadin-combo-box>
             </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm on-tap="_cancelEattest">[[localize('validate','Validate',language)]]</paper-button>
+            </div>
         </paper-dialog>
 
+        <paper-dialog id="paymentCheckDialog">
+            <p>Veuillez introduire le type de paiement et le montant <b>encaissé</b></p>
+            <p>Le document repris sur le justificatif a valeur fiscale et sera repris sur le jsutificatif</p>
+            <div class="paymentType">
+                <vaadin-combo-box id="paymentType" filtered-items="[[paymentTypes]]"
+                                  item-label-path="label.[[language]]" item-value-path="id"
+                                  label="Type de paiement"
+                                  value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
+            </div>
+            <div class="paid">
+                <paper-input class="paid"
+                             label="Montant encaissé"
+                             value="{{selectedInvoice.paid}}" type="number"></paper-input>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm on-tap="_confirmPayment">[[localize('validate','Validate',language)]]</paper-button>
+            </div>
+        </paper-dialog>
     </template>
     <script>
         import * as models from 'icc-api/dist/icc-api/model/models'
@@ -1442,6 +1471,27 @@
                     opened: {
                         type: Boolean,
                         value: false
+                    },
+                    paymentTypes: {
+                        type: Array,
+                        value: () => [
+                            {
+                                id: "wired",
+                                label: {"fr": "Virement", "nl": "Overschrijving", "en": "Wired"}
+                            },
+                            {
+                                id: "cash",
+                                label: {"fr": "En espèces", "nl": "Cash", "en": "Cash"}
+                            },
+                            {
+                                id: "debitcard",
+                                label: {"fr": "Carte de débit", "nl": "Debit kaart", "en": "Debit card"}
+                            },
+                            {
+                                id: "creditcard",
+                                label: {"fr": "Carte de crédit", "nl": "Credit kaart", "en": "Credit card"}
+                            }
+                        ]
                     },
                     invoiceType: {
                         type: Array,
@@ -1926,6 +1976,71 @@
                     selectedInvoiceIndex:{
                         type : Number,
                         observer: '_selectInvoice'
+                    },
+                    reasonOfCancel:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: "A",
+                                label: {
+                                    "fr": "Erreur de patient",
+                                    "nl": "Erreur de patient",
+                                    "en": "Patient error"
+                                }
+                            },
+                            {
+                                id: "B",
+                                label: {
+                                    "fr": "Erreur de prestataire (médecin B en lieu et place du médecin A)",
+                                    "nl": "Erreur de prestataire (médecin B en lieu et place du médecin A)",
+                                    "en": "Provider error (doctor B instead of doctor A)"
+                                }
+                            },
+                            {
+                                id: "C",
+                                label: {
+                                    "fr": "Erreur dans un des éléments de l’ASD (ex. : code nomenclature, n° de dent, montant de l’honoraire/montant à payer par le patient, …)",
+                                    "nl": "Erreur dans un des éléments de l’ASD (ex. : code nomenclature, n° de dent, montant de l’honoraire/montant à payer par le patient, …)",
+                                    "en": "Error in one of the elements of the ASD (ex. : nomenclature code, tooth number, amount of fee / amount to be paid by the patient, …)"
+                                }
+                            },
+                            {
+                                id: "D",
+                                label: {
+                                    "fr": "Double envoi de la même e-Attest",
+                                    "nl": "Double envoi de la même e-Attest",
+                                    "en": "Double sending of the same e-Attest"
+                                }
+                            },
+                            {
+                                id: "E",
+                                label: {
+                                    "fr": "e-Attest remplacée par e-Fact",
+                                    "nl": "e-Attest remplacée par e-Fact",
+                                    "en": "e-Attest replaced by e-Fact"
+                                }
+                            },
+                            {
+                                id: "F",
+                                label: {
+                                    "fr": "e-Attest remplacée par ASD papier. Envoi d’une eASD pour un patient devant ou souhaitant recevoir une ASD papier (ex. : versement sur un autre compte, accident de travail, police, problème technique, …)",
+                                    "nl": "e-Attest remplacée par ASD papier. Envoi d’une eASD pour un patient devant ou souhaitant recevoir une ASD papier (ex. : versement sur un autre compte, accident de travail, police, problème technique, …)",
+                                    "en": "e-Attest replaced by ASD paper. Sending an eASD for a patient in front of or wishing to receive a paper-based ASD (ex .: payment to another account, accident at work, police, technical problem, …)"
+                                }
+                            },
+                            {
+                                id: "G",
+                                label: {
+                                    "fr": "Situation ne permettant pas l'établissement d'une e-Attest (eASD établie par erreur ex : pas de consultation mais délivrance d’une prescription, simple contact téléphonique, …). Il s’agit donc d’une annulation pure et simple de l’eASD",
+                                    "nl": "Situation ne permettant pas l'établissement d'une e-Attest (eASD établie par erreur ex : pas de consultation mais délivrance d’une prescription, simple contact téléphonique, …). Il s’agit donc d’une annulation pure et simple de l’eASD",
+                                    "en": "Situation not allowing the establishment of an e-Attest (eASD established by mistake ex: no consultation but issue of a prescription, simple telephone contact, …). It is therefore a pure and simple cancellation of the eASD"
+                                }
+                            }
+                        ]
+                    },
+                    reason : {
+                        type : String,
+                        value : "A"
                     }
                 }
 
@@ -1999,26 +2114,25 @@
                     const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
 
                     if(!invoiceOfDay){
-                        const newInvoice = {}
+                        const newInvoice = {
+                            invoicingCodes: [],
+                            invoiceDate: moment().format("YYYYMMDD"),
+                            invoiceReference: null,
+                            thirdPartyPaymentJustification: parseInt(this.patient.insurabilities.length) ? ((this.patient.insurabilities[0].parameters.tc1 % 2 === 1) ? "3" : "0") : "0",
+                            invoiceType: parseInt(this.patient.insurabilities.length) ? ((this.patient.insurabilities[0].parameters.tc1 % 2 === 1) ? "mutualfund" : "patient") : 'patient',
+                            sentMediumType: parseInt(this.patient.insurabilities.length) ? ((this.patient.insurabilities[0].parameters.tc1 % 2 === 1) ? "efact" : "eattest") : 'paper',
+                            invoicePeriod: 0,
+                            longDelayJustification: 0,
+                            gnotionNihii: null,
+                            internshipNihii: null,
+                            encounterLocationNorm: 0,
+                            encounterLocationName: null,
+                            encounterLocationNihii: null,
+                            creditNote: 0,
+                            careProviderType: "persphysician"
+                        }
 
-                        newInvoice.id = ""
-                        newInvoice.invoicingCodes = []
-                        newInvoice.invoiceDate = moment().format("YYYYMMDD")
-                        newInvoice.invoiceReference = null
-                        newInvoice.thirdPartyPaymentJustification = parseInt(this.patient.insurabilities.length ) ? ((this.patient.insurabilities[0].parameters.tc1 % 2 === 1 ) ? "3" : "0") : "0",
-                        newInvoice.invoiceType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient" ) : 'patient';
-                        newInvoice.sentMediumType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest" ) : 'paper';
-                        newInvoice.invoicePeriod = 0
-                        newInvoice.longDelayJustification = 0
-                        newInvoice.gnotionNihii = null
-                        newInvoice.internshipNihii = null
-                        newInvoice.encounterLocationNorm = 0
-                        newInvoice.encounterLocationName = null
-                        newInvoice.encounterLocationNihii = null
-                        newInvoice.creditNote = 0
-                        newInvoice.careProviderType = "persphysician"
-
-                        this.set('invoices', _.orderBy(invoices.concat(newInvoice), ['invoiceDate'], ['desc']))
+                        this.set('invoices', _.orderBy(invoices.concat([newInvoice]), ['invoiceDate'], ['desc']))
                         this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
                     }else{
                         this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
@@ -2059,7 +2173,6 @@
                         this.set("favoriteCode", t)
                     })
                 }
-
             }
 
             analyzeMediumType(e) {
@@ -2216,6 +2329,8 @@
                                 invoice.creditNote = this.selectedInvoice.creditNote
                                 invoice.careProviderType = this.selectedInvoice.careProviderType
 
+                                const icId = invoice.invoicingCodes[0] && invoice.invoicingCodes[0].id
+
                                 return this.api.invoice().newInstance(this.user, this.patient, invoice)
                                     .then(invoice => this.api.invoice().createInvoice(invoice))
                                     .then(invoice => this.api.register(invoice,'invoice'))
@@ -2226,7 +2341,7 @@
                                             .then(invoices => invoices.map(i => this.api.register(i, 'invoice')))
                                             .then(invoices => {
                                                 this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
-                                                this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.id === invoice.id))
+                                                this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.invoicingCodes.map(c => c.id.includes(icId))))
                                                 this.$['nmclGrid'].clearCache()
 
                                                 return invoice
@@ -2386,8 +2501,6 @@
                 }
             }
 
-
-
             calculateTotalOfInvoice() {
                 let totalAmount = 0
                 let patientIntervention = 0
@@ -2432,7 +2545,6 @@
                 }
             }
 
-
             _checkIfLocationIsNeeded(e) {
                 if (e.detail.value === 0) {
                     this.set("isLocationIsNeeded", false)
@@ -2441,7 +2553,6 @@
                 }
 
             }
-
 
             _deleteNmclCode(e) {
                 e.stopPropagation()
@@ -2478,6 +2589,19 @@
                 }
             }
 
+
+            _prevalidateAndPrepareInvoiceForBatchSending() {
+                if(this._isSelectedInvoiceEattest()) {
+                    this.$['paymentCheckDialog'].open()
+                } else {
+                    this._validateAndPrepareInvoiceForBatchSending()
+                }
+            }
+
+            _confirmPayment() {
+                this._validateAndPrepareInvoiceForBatchSending()
+            }
+
             _validateAndPrepareInvoiceForBatchSending() {
                 if (this.selectedInvoice.creditNote) {
                     console.log(this.selectedInvoice)
@@ -2486,7 +2610,6 @@
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".patientIntervention", 0 - invoiceCode.patientIntervention)
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".doctorSupplement", 0 - invoiceCode.doctorSupplement)
                         this.set("selectedInvoice.invoicingCodes." + this.selectedInvoice.invoicingCodes.indexOf(invoiceCode) + ".totalAmount", 0 - invoiceCode.totalAmount)
-
                     })
                 }
 
@@ -3181,10 +3304,10 @@
                 }
             }
 
-            updateGui(invoice) {
+            updateGui(invoice, justLeftPart) {
                 const selInvIdx = this.invoices.indexOf(invoice)
                 Object.keys(invoice).forEach(k => {
-                    this.notifyPath(`selectedInvoice.${k}`)
+                    !justLeftPart && this.notifyPath(`selectedInvoice.${k}`)
                     selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
                 })
             }
@@ -3243,7 +3366,7 @@
                                             sn.isRelativePrestation = nmcl.hasRelatedCode
                                         }
                                     }))
-                                .finally(() => this.updateGui(invoice))
+                                .finally(() => this.updateGui(invoice, true))
                             console.log("saved:",invoice)
                         })
                 };
@@ -3388,7 +3511,7 @@
 
                 const sentDate=moment().format("YYYYMMDD")
                 this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,this.hcp.cbe,eattest,sentDate)
-                    .then(fhcEattest => this.api.logMcn(fhcEattest, user, this.selectedInvoice.id, 'eattest', 'notify'))
+                    .then(fhcEattest => this.api.logMcn(fhcEattest, this.user, this.selectedInvoice.id, 'eattest', 'notify'))
                     .then(fhcEattest => {
                         if(fhcEattest.acknowledge.errors.length===0) {
                             this.set('selectedInvoice.thirdPartyReference', fhcEattest.invoicingNumber)
@@ -3864,9 +3987,17 @@
                 this.set("isEattestClosed",this.selectedInvoice.sentMediumType==="eattest" && this.selectedInvoice.printedDate)
             }
 
+            _cancelDialogOpen(){
+                this.$["cancelDialog"].open()
+            }
+
             _cancelEattest(){
 
-                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.thirdPartyReference
+                this.$["cancelDialog"].close()
+
+                const reason = this.reason+":"+(this.reasonOfCancel.find(reason => reason.id===this.reason).label[this.language])
+
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.thirdPartyReference+"&entry.802032397="+reason
                 window.open(url,"cancel");
             }
 

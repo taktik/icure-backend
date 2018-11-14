@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
 
 public class InvoiceDto extends IcureDto {
@@ -30,6 +31,7 @@ public class InvoiceDto extends IcureDto {
 	private Long printedDate;
 
 	private Double paid;
+	private PaymentType paymentType;
 
 	private List<InvoicingCodeDto> invoicingCodes;
 	private String invoiceType;
