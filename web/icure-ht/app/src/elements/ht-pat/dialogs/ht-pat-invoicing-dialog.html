@@ -2125,10 +2125,6 @@
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
 
-                    const trainee = this.hcp.statuses
-                    const convention = this.hcp.convention
-
-
                     const env = new evaljs.Environment({
                         patient: {
                             preferentialstatus: (ins && ins.parameters && ins.parameters.chronicalDisease) ? !!ins.parameters.preferentialstatus : false,
