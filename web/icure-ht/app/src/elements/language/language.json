@@ -425,7 +425,11 @@
     "info" : "Informations",
     "req_msg_lists" : "Request Messages Lists",
     "get_msg" : "Get Messages",
-    "and": "and"
+    "and": "and",
+    "gen_duplicate" : "Generate a duplicata",
+    "gen_kmehr" : "Generate Kmehr response",
+    "gen_xades" : "Generate Xades message",
+    "location" : "Location"
 },
   "fr": {
     "(pd_ima_and_vid": "(PDF, images et videos)",
@@ -917,7 +921,11 @@
     "info" : "Informations",
     "req_msg_lists" : "Demande de Listes",
     "get_msg" : "Obtenir les messages",
-    "and": "et"
+    "and": "et",
+    "gen_duplicate" : "Générer un duplicata",
+    "gen_kmehr" : "Générer la réponse Kmehr",
+    "gen_xades" : "Générer le message Xades",
+    "location" : "Lieu de prestation"
  },
   "nl": {
     "(pd_ima_and_vid": "(PDF, images and videos)",
@@ -1447,6 +1455,10 @@
     "send":"Send",
     "info" : "Informations",
     "req_msg_lists" : "Request Messages Lists",
-    "get_msg" : "Get Messages"
+    "get_msg" : "Get Messages",
+    "gen_duplicate" : "Generate a duplicata",
+    "gen_kmehr" : "Generate Kmehr message",
+    "gen_xades" : "Generate Xades message",
+    "location" : "Location"
   }
 }
