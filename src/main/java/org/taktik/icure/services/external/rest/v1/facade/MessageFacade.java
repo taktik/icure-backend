@@ -263,13 +263,12 @@ public class MessageFacade implements OpenApiFacade{
 
 	@ApiOperation(
 			value = "Get children messages of provided message",
-			httpMethod = "GET"
+			httpMethod = "POST"
 	)
-
 	@POST
 	@Path("/children/batch")
-	public List<MessageDto> getChildrenOfList(@RequestBody ListOfIdsDto parentIds) throws LoginException {
-		return messageLogic.getChildren(parentIds.getIds()).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList());
+	public List<List<MessageDto>> getChildrenOfList(@RequestBody ListOfIdsDto parentIds) throws LoginException {
+		return messageLogic.getChildren(parentIds.getIds()).stream().map(m->m.stream().map(mm->mapper.map(mm,MessageDto.class)).collect(Collectors.toList())).collect(Collectors.toList());
 	}
 
 	@ApiOperation(

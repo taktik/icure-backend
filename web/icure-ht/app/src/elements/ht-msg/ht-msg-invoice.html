@@ -13,6 +13,7 @@
 <link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 <link rel="import" href="../../vaadin-icure-theme.html">
 <link rel="import" href="../../spinner-style.html">
@@ -544,6 +545,28 @@
 
                 }
 
+                .modal-button[disabled] {
+                    background: var(--app-secondary-color-dark);
+                }
+
+                .batchNumber{
+                    color: var(--app-text-color-light);
+                    border-radius: 10px;
+                    min-height: 0;
+                    display: block;
+                    padding: 0 4px;
+                    margin-left: 8px;
+                }
+                .batchPending{background-color: var(--paper-orange-400);}
+                .batchProcessed{background-color: var(--paper-blue-400);}
+                .batchRejected{background-color: var(--paper-red-400);}
+                .batchAccepted{background-color: var(--paper-green-400);}
+                .batchArchived{background-color: var(--paper-purple-300);}
+
+                paper-spinner {
+                    transform: translateY(8px);
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
@@ -552,6 +575,11 @@
         <div class="invoice-panel">
             <div id="batchStatus" class="batch-status">
                 [[_displayInvoiceStatus(invoicesStatus)]]
+                <template is="dom-if" if="[[_isEqual(invoicesStatus,'pending')]]"><span class="batchNumber batchPending">{{_forceZeroNum(totalPendingInvoices.length)}}</span></template>
+                <template is="dom-if" if="[[_isEqual(invoicesStatus,'process')]]"><span class="batchNumber batchProcessed">{{_forceZeroNum(messagesProcessed.length)}}</span></template>
+                <template is="dom-if" if="[[_isEqual(invoicesStatus,'accept')]]"><span class="batchNumber batchAccepted">{{_forceZeroNum(messagesAccepted.length)}}</span></template>
+                <template is="dom-if" if="[[_isEqual(invoicesStatus,'reject')]]"><span class="batchNumber batchRejected">{{_forceZeroNum(messagesRejected.length)}}</span></template>
+                <template is="dom-if" if="[[_isEqual(invoicesStatus,'archive')]]"><span class="batchNumber batchArchived">{{_forceZeroNum(messagesArchived.length)}}</span></template>
                 <paper-spinner class="spinner" alt="Loading invoices" active=[[_isLoadingMessages]]></paper-spinner>
             </div>
 
@@ -680,14 +708,14 @@
                                         </vaadin-grid-column-group>
                                         <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
                                             <template>
-                                                <!--<template is="dom-if" if="[[_isStatus(item.statut,'Pending')]]">-->
+                                                <!--<template is="dom-if" if="[[_isEqual(item.statut,'Pending')]]">-->
                                                     <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.statut]]</span>-->
                                                 <!--</template>-->
-                                                <!--<template is="dom-if" if="[[_isStatus(item.statut,'Process')]]">-->
+                                                <!--<template is="dom-if" if="[[_isEqual(item.statut,'Process')]]">-->
                                                     <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.statut]]</span>-->
                                                 <!--</template>-->
-                                                <!--<template is="dom-if" if="[[!_isStatus(item.statut,'Pending')]]">-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.statut,'Process')]]">-->
+                                                <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Pending')]]">-->
+                                                    <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Process')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>-->
                                                     <!--</template>-->
                                                 <!--</template>-->
@@ -772,8 +800,10 @@
                     </div>
                 </div>
                 <div class="buttons">
-                    <paper-button on-tap="receiveInvoices" class="modal-button">Recevoir</paper-button>
-                    <paper-button on-tap="sendInvoices" class="modal-button">Envoyer</paper-button>
+                    <paper-spinner class="center" active="[[isReceiving]]"></paper-spinner>
+                    <paper-spinner class="center" active="[[isSending]]"></paper-spinner>
+                    <paper-button on-tap="receiveInvoices" class="modal-button" disabled="[[isReceiving]]">Recevoir</paper-button>
+                    <paper-button on-tap="sendInvoices" class="modal-button" disabled="[[isSending]]">Envoyer</paper-button>
                 </div>
             </template>
             <template is="dom-if" if="[[!statusPending]]">
@@ -846,14 +876,14 @@
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
                                                 <template>
-                                                    <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.messageInfo.invoiceStatus,'Pending')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
-                                                    <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.messageInfo.invoiceStatus,'Process')]]">-->
                                                          <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                        <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
+                                                    <!--<template is="dom-if" if="[[!_isEqual(item.messageInfo.invoiceStatus,'Pending')]]">-->
+                                                        <!--<template is="dom-if" if="[[!_isEqual(item.messageInfo.invoiceStatus,'Process')]]">-->
                                                              <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
@@ -919,14 +949,30 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>
+                                                <!--<template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.acceptedAmount)}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span></template>-->
+                                                <template>
+                                                    <template is="dom-if" if="[[_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
+                                                        <span class$="{{_isMoreThen(item.messageInfo.acceptedAmount,0,'txtcolor--greenStatus')}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
+                                                    </template>
+                                                    <template is="dom-if" if="[[!_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
+                                                        <span>[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
+                                                    </template>
+                                                </template>
                                                 <template class="footer">[[_acceptedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Montant refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>
+                                                <!--<template><span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span></template>-->
+                                                <template>
+                                                    <template is="dom-if" if="[[_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
+                                                        <span class$="{{_isMoreThen(item.messageInfo.refusedAmount,0,'txtcolor--redStatus')}}">[[_formatAmount(item.messageInfo.acceptedAmount)]]€</span>
+                                                    </template>
+                                                    <template is="dom-if" if="[[!_isPartiallyAccepted(item.messageInfo.invoiceStatus)]]">
+                                                        <span>[[_formatAmount(item.messageInfo.refusedAmount)]]€</span>
+                                                    </template>
+                                                </template>
                                                 <template class="footer">[[_refusedAmount(invoicesStatus,messagesProcessed,messagesRejected,messagesAccepted)]]€</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
@@ -934,14 +980,14 @@
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
                                                 <template>
-                                                    <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.messageInfo.invoiceStatus,'Pending')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
-                                                    <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.messageInfo.invoiceStatus,'Process')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                        <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
+                                                    <!--<template is="dom-if" if="[[!_isEqual(item.messageInfo.invoiceStatus,'Pending')]]">-->
+                                                        <!--<template is="dom-if" if="[[!_isEqual(item.messageInfo.invoiceStatus,'Process')]]">-->
                                                             <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
@@ -949,12 +995,45 @@
                                                     <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
                                                 </template>
                                             </vaadin-grid-column>
-                                            <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
-                                                <template class="header"></template>
-                                                <template>
-                                                    <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
-                                                </template>
-                                            </vaadin-grid-column>
+                                            <vaadin-grid-column-group>
+                                               <template class="header hasBorder">Informations paiement</template>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentReference">Réf</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paymentReference]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentDate">Date</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paymentDate]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.acceptedAmount">Montant</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[_formatAmount(item.messageInfo.amountPaid)]]€</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentAccount">Compte bancaire</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paymentAccount]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="7%" class="reject-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="messageInfo.paymentReference">Payé</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template>[[item.messageInfo.paid]]</template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="3%" class="payPaid-col">
+                                                    <template class="header"></template>
+                                                    <template>
+                                                        <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogSupp"></iron-icon>
+                                                    </template>
+                                                </vaadin-grid-column>
+                                            </vaadin-grid-column-group>
                                         </vaadin-grid>
                                     </div>
                                 </template>
@@ -1023,14 +1102,14 @@
                                                     <vaadin-grid-sorter path="messageInfo.refusedAmount">Statut</vaadin-grid-sorter>
                                                 </template>
                                                 <template>
-                                                    <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.messageInfo.invoiceStatus,'Pending')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
-                                                    <!--<template is="dom-if" if="[[_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.messageInfo.invoiceStatus,'Process')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                     <!--</template>-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Pending')]]">-->
-                                                        <!--<template is="dom-if" if="[[!_isStatus(item.messageInfo.invoiceStatus,'Process')]]">-->
+                                                    <!--<template is="dom-if" if="[[!_isEqual(item.messageInfo.invoiceStatus,'Pending')]]">-->
+                                                        <!--<template is="dom-if" if="[[!_isEqual(item.messageInfo.invoiceStatus,'Process')]]">-->
                                                             <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.messageInfo.invoiceStatus]]</span>-->
                                                         <!--</template>-->
                                                     <!--</template>-->
@@ -1073,13 +1152,13 @@
                                             <template class="header">
                                                 <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.patientName]]</template>
+                                            <template>[[item.patient]]</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
                                             <template class="header">
                                                 <vaadin-grid-sorter path="ssin">Niss</vaadin-grid-sorter>
                                             </template>
-                                            <template>[[item.patientSsin]]</template>
+                                            <template>[[item.ssin]]</template>
                                         </vaadin-grid-column>
                                         <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                             <template class="header">
@@ -1104,10 +1183,10 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="acceptedAmount">Montant<br/>Accepté</vaadin-grid-sorter>
                                                 </template>
-                                                <template is="dom-if" is="[[_isStatus(item.messageInfo.invoiceStatus,'Accepted')]]">
+                                                <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
                                                     <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
                                                 </template>
-                                                <template is="dom-if" is="[[!_isStatus(item.messageInfo.invoiceStatus,'Accepted')]]">
+                                                <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
                                                     <template><span>[[_formatAmount(item.acceptedAmount)]]€</span></template>
                                                 </template>
                                             </vaadin-grid-column>
@@ -1115,10 +1194,10 @@
                                                 <template class="header">
                                                     <vaadin-grid-sorter path="refusedAmount">Montant<br/>Refusé</vaadin-grid-sorter>
                                                 </template>
-                                                <template is="dom-if" is="[[_isStatus(item.messageInfo.invoiceStatus,'Refused')]]">
+                                                <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Refused')]]">
                                                     <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)}}">[[_formatAmount(item.refusedAmount)]]€</span></template>
                                                 </template>
-                                                <template is="dom-if" is="[[!_isStatus(item.messageInfo.invoiceStatus,'Refused')]]">
+                                                <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Refused')]]">
                                                     <template><span>[[_formatAmount(item.refusedAmount)]]€</span></template>
                                                 </template>
                                             </vaadin-grid-column>
@@ -1142,14 +1221,14 @@
                                                 <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
                                             </template>
                                             <template>
-                                                <!--<template is="dom-if" if="[[_isStatus(item.statut,'Pending')]]">-->
+                                                <!--<template is="dom-if" if="[[_isEqual(item.statut,'Pending')]]">-->
                                                     <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.statut]]</span>-->
                                                 <!--</template>-->
-                                                <!--<template is="dom-if" if="[[_isStatus(item.statut,'Process')]]">-->
+                                                <!--<template is="dom-if" if="[[_isEqual(item.statut,'Process')]]">-->
                                                     <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.statut]]</span>-->
                                                 <!--</template>-->
-                                                <!--<template is="dom-if" if="[[!_isStatus(item.statut,'Pending')]]">-->
-                                                    <!--<template is="dom-if" if="[[!_isStatus(item.statut,'Process')]]">-->
+                                                <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Pending')]]">-->
+                                                    <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Process')]]">-->
                                                         <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>-->
                                                     <!--</template>-->
                                                 <!--</template>-->
@@ -1509,20 +1588,18 @@
                                     invoiceNumber: m.externalRef,
                                     invoiceMonth: "",
                                     invoiceDate: "",
-                                    invoicedAmount: "0",
-                                    acceptedAmount: "0",
-                                    refusedAmount: "0",
+                                    invoicedAmount: m.metas && m.metas.totalAmount ? Number(m.metas.totalAmount).toFixed(2) : "0.00",
+                                    acceptedAmount: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00",
+                                    refusedAmount: m.metas && m.metas.totalRejectedAmount ? Number(m.metas.totalRejectedAmount).toFixed(2) : "0.00",
                                     invoiceStatus: "",
                                     rejectionReason: "",
-                                    paymentReference: "",
+                                    paymentReference: m.metas && m.metas.paymentReferenceAccount1 ? m.metas.paymentReferenceAccount1 : "",
                                     paymentDate: "",
-                                    amountPaid: "0",
-                                    paymentAccount: "",
-                                    paidAmount: "0"
+                                    amountPaid: m.metas && m.metas.totalAcceptedAmount ? Number(m.metas.totalAcceptedAmount).toFixed(2) : "0.00"
                                 }
                             })))
 
-                            Promise.all(this.allMessages.map(mm =>
+                            Promise.all( this.allMessages.map(mm =>
                                 this.api.document().findByMessage(this.user.healthcarePartyId, mm.message)
                                     .then(docs => {
                                         const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
@@ -1541,14 +1618,9 @@
                                             const zone500 = a && a.find(enr => enr.zones.find(z => z.zone == "500"))
                                             const enr10 = a && a.find(enr => enr.zones.find(z => z.zone == "1" && z.value == "10"))
 
+                                            const st = mm.message.status
 
-                                            let invoiceStatus
-                                            let rejectionReason
-                                            if (zone200 && zone300) {
-                                                const invoiceType = zone200.zones.find(z => z.zone === "200") ? zone200.zones.find(z => z.zone === "200").value : ""
-                                                const st = mm.message.status
-
-                                                invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
+                                            const invoiceStatus = !!(st & (1 << 17))  ? this.localize('inv_err','Error',this.language):
                                                 !!(st & (1 << 16)) ? this.localize('inv_par_acc','Partially accepted',this.language):
                                                 !!(st & (1 << 16)) ? this.localize('inv_full_acc','Fully accepted',this.language):
                                                 !!(st & (1 << 12)) ? this.localize('inv_rej','Rejected',this.language):
@@ -1558,9 +1630,8 @@
                                                 !!(st & (1 << 8)) ?  this.localize('inv_pen','Pending',this.language): ""
 
 
-                                                                                                                                                             rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
-                                                                                                                                                             !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
-                                            }
+                                            const rejectionReason = !!(st & (1 << 17)) ? this.localize('inv_rej_5%','More than 5% error',this.language) :
+                                                     !!(st & (1 << 12)) ? this.localize('inv_rej_block','Blocking error',this.language): ""
 
                                             return (zone200 && zone300) ?
                                                 ({
@@ -1573,24 +1644,24 @@
                                                         invoiceNumber:      zone300.zones && zone300.zones.find(z => z.zone === "301") ? zone300.zones.find(z => z.zone === "301").value : "",
                                                         invoiceMonth:       zone300.zones &&zone300.zones.find(z => z.zone === "300") ? zone300.zones.find(z => z.zone === "300").value : "",
                                                         invoiceDate:        zone300.zones && zone300.zones.find(z => z.zone === "302") ? zone300.zones.find(z => z.zone === "302").value : "",
-                                                        invoicedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "508") ? (Number(zone500.zones.find(z => z.zone === "508").value) / 100).toFixed(2) : "0.00",
-                                                        acceptedAmount:     zone500.zones && zone500.zones.find(z => z.zone === "520") ? (Number(zone500.zones.find(z => z.zone === "520").value) / 100).toFixed(2) : "0.00",
-                                                        refusedAmount:      zone500.zones && zone500.zones.find(z => z.zone === "522") ? (Number(zone500.zones.find(z => z.zone === "522").value) / 100).toFixed(2) : "0.00",
+                                                        invoicedAmount:     (mm && mm.messageInfo && mm.messageInfo.invoicedAmount) ? mm.messageInfo.invoicedAmount : "0.00",
+                                                        acceptedAmount:     (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
+                                                        refusedAmount:      (mm && mm.messageInfo && mm.messageInfo.refusedAmount) ? mm.messageInfo.refusedAmount : "0.00",
                                                         invoiceStatus:      invoiceStatus,
                                                         rejectionReason:    rejectionReason,
-                                                        paymentReference:   zone400.zones && zone400.zones.find(z => z.zone === "423") ? zone400.zones.find(z => z.zone === "423").value : "",
+                                                        paymentReference:   (mm && mm.messageInfo && mm.messageInfo.paymentReference) ? mm.messageInfo.paymentReference : "",
                                                         paymentDate:        "",
-                                                        amountPaid:         "0.00",
+                                                        amountPaid:         (mm && mm.messageInfo && mm.messageInfo.acceptedAmount) ? mm.messageInfo.acceptedAmount : "0.00",
                                                         paymentAccount:     enr10.zones && enr10.zones.find(z => z.zone === "36") ? enr10.zones.find(z => z.zone === "36").value : "",
-                                                        paidAmount:         ""
+                                                        paid: false
                                                     }
                                                 }) : mm
                                         }) : mm
                                     }))).then(msgsStructs => {
-                                this._isLoadingMessages = false
-                                this.set('allMessages', msgsStructs)
-                                this.dispatchMessages()
-                            })
+                                                this._isLoadingMessages = false
+                                                this.set('allMessages', msgsStructs)
+                                                this.dispatchMessages()
+                                        })
 
                         })
                     })
@@ -1727,6 +1798,10 @@
             _formatAmount(amount){
                 return this.findAndReplace(((Number(amount).toFixed(2)).toString()),'.',',')
             }
+            _forceZeroNum(num) {
+                console.log('num',num)
+                return (!num) ? '0' : num.toString()
+            }
 
             findAndReplace(string, target, replacement) {
                 for (let i = 0; i < string.length; i++) { string = string.replace(target, replacement); }
@@ -1862,6 +1937,7 @@
             }
 
             sendInvoices(){
+                this.set('isSending',true)
                 this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp=> {
                     let prom = Promise.resolve()
                     _.chain(this.selectedPendingInvoices)
@@ -1869,7 +1945,10 @@
                         .toPairs().value()
                         .forEach(([fedId,invoices]) => {
                             prom = prom.then(() => this.api.message().sendBatch(this.user, hcp, invoices.map(iv=>({invoiceDto:iv.invoice, patientDto:iv.patient})), this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.api.fhc().Efactcontroller()))
-                                       .finally(() => this.getMessage())
+                                       .finally(() => {
+                                           this.getMessage()
+                                           this.set('isSending',false)
+                                       })
                         })
                 })
             }
@@ -2162,13 +2241,13 @@
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
                 if(zones.find(z => z.zone === "4101") != '00'){
-                    if(segment.substr(0,2) == '95'){
+                    if(zones.find(z => z.zone === "400") == '95'){
                         if(zones.find(z => z.zone === "4101") == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "4101") == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(segment.substr(0,2) == '96'){
+                    }else if(zones.find(z => z.zone === "400") == '96'){
                         if(zones.find(z => z.zone === "4101") == '10'){
                             erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "4101") == '11'){
@@ -2268,13 +2347,13 @@
 
                 //Erreur sur le num de controle par mutualite si 95 ou num de controle de l'envoi si 96
                 if(zones.find(z => z.zone === "5101") != '00'){
-                    if(segment.substr(0,2) == '95'){
+                    if(zones.find(z => z.zone === "500" === '95')){
                         if(zones.find(z => z.zone === "5101") == '10'){
                             erreur += 'N° de contrôle par mutualité => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "5101") == '11'){
                             erreur +='N° de contrôle par mutualité => Erreur de format<br>';
                         }
-                    }else if(segment.substr(0,2) == '96'){
+                    }else if(zones.find(z => z.zone === "500" === '96')){
                         if(zones.find(z => z.zone === "5101") == '10'){
                             erreur += 'N° de contrôle de l\'envoi => zone obligaoire non complétée<br>';
                         }else if(zones.find(z => z.zone === "5101") == '11'){
@@ -2375,6 +2454,7 @@
             }
 
             receiveInvoices() {
+                this.set('isReceiving',true)
                 this.api.fhc().Efactcontroller().loadMessagesUsingGET(this.hcp.nihii, this.language, this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword, this.hcp.ssin, this.hcp.firstName, this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "eFact", "loadMessages") ).then(response => {
                     let prom = Promise.resolve()
                     response.forEach(message => {
@@ -2384,17 +2464,25 @@
                             new Promise((resolve) => {
                                 if (message.detail) {
                                     this.api.message().processEfactMessage(this.user, this.hcp, message, this.api.document())
-                                        .then(msg => msg ? resolve(message) : resolve())
+                                        .then(msg => {
+                                            msg ? resolve(message) : resolve()
+                                            this.set('isReceiving',false)
+                                        })
                                         .catch(e => {
                                             // console.log(e)
                                             resolve()
+                                            this.set('isReceiving',false)
                                         })
                                 } else if (message.tack) {
                                     this.api.message().processTack(this.user, this.hcp, message)
-                                        .then(rcpt => rcpt ? resolve(message) : resolve())
+                                        .then(rcpt => {
+                                            rcpt ? resolve(message) : resolve()
+                                            this.set('isReceiving',false)
+                                        })
                                         .catch(e => {
                                             // console.log(e)
                                             resolve()
+                                            this.set('isReceiving',false)
                                         })
                                 }
                             })
@@ -2440,7 +2528,7 @@
             _getIconStatusClass(status) {
                 console.log("geticonstatus",status)
                 return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status == this.localize('inv_pen','Pending',this.language)) ? ((!this.statusPending) && (!this.isProcess(status))) ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusPending)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
                     (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
                     (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
                     (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
@@ -2460,9 +2548,9 @@
                 }
             }
 
-            _isStatus(status,test) {
-                return status == test
-            }
+            _isEqual(a,b) {console.log('a',a);return (a == b)}
+            _isPartiallyAccepted(test) { return (test == this.localize('inv_par_acc','Partially accepted',this.language))}
+            _isMoreThen(a,b,so) {return (a>b)? so : 'false'}
 
             cleanStringForJsonParsing(inputValue) {
                 return inputValue

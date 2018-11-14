@@ -273,6 +273,10 @@
             return this.replicationicc
         }
 
+        receipt() {
+            return this.receipticc
+        }
+
         tarification() {
             return this.tarificationicc
         }
@@ -466,7 +470,7 @@
         }
 
         logMcn(obj, user, docId, cat, subcat) {
-            this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
+            obj && obj.mycarenetConversation && this.receipticc.logSCReceipt(obj, user, docId, cat, subcat).catch(e => console.log(e))
             return obj
         }
 
@@ -498,7 +502,7 @@
                             null,
                             null,
                             requestDate
-                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                        ).then( dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                     }).then(edmgResp => {
                         localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
                         return edmgResp||Promise.resolve(null);
@@ -522,7 +526,7 @@
                                     (genInsOA && genInsOA != '') ? genInsOA.trim() : insu.code,
                                     (genInsAFF && genInsAFF != '') ? genInsAFF.trim() : pi.identificationNumber,
                                     requestDate
-                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id))
+                                ).then(dmgConsult => this.logMcn(dmgConsult, user, patient.id, 'dmg', 'consult'))
                             }
                         ).then(edmgResp => {
                             localStorage.setItem( cachedEdmgRespStorageName, JSON.stringify(edmgResp) );
