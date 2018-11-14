@@ -975,7 +975,7 @@
                         <paper-input id="invoice-number" label="[[localize('inv_num','Invoice number',language)]]"
                                      value="{{selectedInvoice.invoiceReference}}" readonly always-float-label="true"></paper-input>
 
-                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice.*)]]"></vaadin-date-picker>
+                        <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice, selectedInvoice.sentMediumType)]]"></vaadin-date-picker>
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
                         <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription de',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvceClosed]]"></vaadin-date-picker></template>
@@ -1929,7 +1929,7 @@
             }
 
             static get observers() {
-                return ['_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
+                return ['_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
             }
 
             ready() {
@@ -2029,6 +2029,11 @@
                 })
             }
 
+            _mediumTypeChanged(mediumType) {
+                if (mediumType === 'eattest') {
+                    this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
+                }
+            }
             _closeDialog() {
                 this.$.invoiceDialog.close()
             }
@@ -2226,16 +2231,9 @@
                                     })
                             } else {
                                 this.$['nmclGrid'].clearCache()
-                                const response = this.api.register(invoice, 'invoice')
-
-                                const selInvIdx = this.invoices.indexOf(response)
-
-                                Object.keys(response).forEach(k=>{
-                                    this.notifyPath(`selectedInvoice.${k}`)
-                                    selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
-                                })
-
-                                return response;
+                                const invoice = this.api.register(invoice, 'invoice')
+                                this.updateGui(invoice)
+                                return invoice;
                             }
 
                         })
@@ -2462,14 +2460,7 @@
                         .then(invoice => {
                             this.$['nmclGrid'].clearCache()
                             this.calculateTotalOfInvoice()
-
-                            const selInvIdx = this.invoices.indexOf(invoice)
-
-                            Object.keys(invoice).forEach(k=>{
-                                this.notifyPath(`selectedInvoice.${k}`)
-                                selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
-                            })
-
+                            this.updateGui(invoice)
 
                             return invoice
                         })
@@ -3155,12 +3146,7 @@
                                 this.$['nmclGrid'].clearCache()
                                 this.calculateTotalOfInvoice()
 
-                                const selInvIdx = this.invoices.indexOf(response)
-
-                                Object.keys(response).forEach(k=>{
-                                    this.notifyPath(`selectedInvoice.${k}`)
-                                    selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
-                                })
+                                this.updateGui(invoice)
 
                                 return response
                             }
@@ -3183,19 +3169,21 @@
 
                                     this.$['nmclGrid'].clearCache()
                                     this.calculateTotalOfInvoice()
-
-                                    const selInvIdx = this.invoices.indexOf(invoice)
-
-                                    Object.keys(invoice).forEach(k=>{
-                                        this.notifyPath(`selectedInvoice.${k}`)
-                                        selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
-                                    })
+                                    this.updateGui(invoice)
 
                                     return invoice
                                 })
                         })
                     }).finally(() => this.$["transferDialog"].close())
                 }
+            }
+
+            updateGui(invoice) {
+                const selInvIdx = this.invoices.indexOf(invoice)
+                Object.keys(invoice).forEach(k => {
+                    this.notifyPath(`selectedInvoice.${k}`)
+                    selInvIdx >= 0 && this.notifyPath(`invoices.${selInvIdx}.${k}`)
+                })
             }
 
             _openTransfertDialog(e){
@@ -3234,28 +3222,33 @@
             }
 
             scheduleInvoiceUpdate(){
+                const invoice = this.selectedInvoice
                 if (this.saveTimeout) {
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-
-                    console.log(this.selectedInvoice)
-                    this.api.invoice().modifyInvoice(this.selectedInvoice)
+                    console.log(invoice)
+                    this.api.invoice().modifyInvoice(invoice)
                         .then(invoice => this.api.register(invoice,'invoice'))
-                        .then(response => {
-                            this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
-                                nmcls.map(nmcl =>{
-                                    const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
-                                    if(sn){
-                                        sn.prescriberNeeded = nmcl.needsPrescriber
-                                        sn.isRelativePrestation = nmcl.hasRelatedCode
-                                    }
-                                })
-                            )
-                            console.log("saved:",response)
+                        .then(invoice => {
+                            this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)}))
+                                .then(nmcls =>
+                                    nmcls.map(nmcl => {
+                                        const sn = invoice.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                        if (sn) {
+                                            sn.prescriberNeeded = nmcl.needsPrescriber
+                                            sn.isRelativePrestation = nmcl.hasRelatedCode
+                                        }
+                                    }))
+                                .finally(() => this.updateGui(invoice))
+                            console.log("saved:",invoice)
                         })
                 };
-                this.saveTimeout = setTimeout(this.saveAction, 10000);
+                if (invoice.id) {
+                    this.saveTimeout = setTimeout(this.saveAction, 10000);
+                } else {
+                    this.updateGui(invoice)
+                }
             }
 
 
@@ -3580,7 +3573,6 @@
                     "patCord": this.localize('pdf_patCord','patCord',this.language),
                     "remboursPrest": this.localize('pdf_remboursPrest','remboursPrest',this.language),
                     "honorPort": this.localize('pdf_honorPort','honorPort',this.language),
-                    "intervMut": this.localize('pdf_intervMut','intervMut',this.language),
                     "honorConv": this.localize('pdf_honorConv','honorConv',this.language),
                     "deltaSupp": this.localize('pdf_deltaSupp','deltaSupp',this.language),
                     "subTot": this.localize('pdf_subTot','subTot',this.language),
@@ -3755,8 +3747,7 @@
                             <tr class="heading">
                                 <td class="minw30">{{remboursPrest}}</td>
                                 <td class="p12">{{honorPort}}</td>
-                                <td class="p12">{{intervMut}}</td>
-                                <td class="p12">{{intervMut}}</td>
+                                <td class="p12">{{honorConv}}</td>
                                 <td class="p12">{{deltaSupp}}</td>
                             </tr>
                             {{#invoice.invoicingCodes}}
@@ -3858,17 +3849,17 @@
 
                         this.api.invoice().modifyInvoice(this.selectedInvoice)
                             .then(invoice => this.api.register(invoice,'invoice'))
-                            .then(response => {
-                                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: response.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
+                            .then(invoice => {
+                                this.api.tarification().getTarifications(new models.ListOfIdsDto({ids: invoice.invoicingCodes.map(tar => tar.tarificationId)})).then(nmcls =>
                                     nmcls.map(nmcl =>{
-                                        const sn = response.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
+                                        const sn = invoice.invoicingCodes.find(n => n.tarificationId === nmcl.id) || null
                                         if(sn){
                                             sn.prescriberNeeded = nmcl.needsPrescriber
                                             sn.isRelativePrestation = nmcl.hasRelatedCode
                                         }
                                     })
-                                )
-                                console.log("saved:",response)
+                                ).finally(() => this.updateGui(invoice))
+                                console.log("saved:",invoice)
                             })
                     })
             }
