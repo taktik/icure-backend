@@ -2996,6 +2996,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
     saveNewService(svc) {
+	    console.log("saveNewService",svc,"curentcontact:",this.currentContact)
 		svc.modified = +new Date();
 		if (!svc.id) {
 			svc.id = this.api.crypto().randomUuid();
@@ -3032,7 +3033,7 @@ class HtPatDetail extends Polymer.TkLocalizerMixin(Polymer.Element) {
     saveContact(ctc) {
 		return (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
 			ctc.rev = c.rev;
-			console.log("contact saved: " + ctc.id + ":" + ctc.rev);
+			console.log(ctc,"contact saved: " + ctc.id + ":" + ctc.rev);
 
 			setTimeout(() => this.$.savedIndicator.classList.remove("saved"), 2000);
 			this.$.savedIndicator.classList.add("saved");
