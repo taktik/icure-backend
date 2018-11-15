@@ -267,8 +267,10 @@
             .add-first-regimen .modal-button--save {
                 display: flex;
                 justify-content: flex-end;
-                padding: 8px;
                 box-sizing: border-box;
+            }
+            .add-first-regimen .modal-button--save span {
+                padding: 8px;
             }
             .add-first-regimen .modal-button--save span:first-child {
                 flex: 1;
@@ -284,6 +286,9 @@
                 background: white;
                 z-index: 10;
                 width: 216px;
+            }
+            .add-first-regimen .btn-drpdwn-container paper-item  {
+                text-transform: capitalize;
             }
             .add-first-regimen .btn-drpdwn-container paper-item:hover  {
                 background: var(--app-background-color-dark);
@@ -311,6 +316,9 @@
                     height: auto;
                 }
                 .regimen-add > * {
+                    width: 100%;
+                }
+                .regimen-add .add-first-regimen .btn-drpdwn-container {
                     width: 100%;
                 }
 
@@ -790,6 +798,7 @@
                     this.set("endMomentAsString", this.dateLongToStr(selectedMedicationContentWithId.medicationValue.medicinalProduct.endMoment))
 
                     this.set('displayAddRegimen',false)
+                    this.set('dpdwn',false)
                     this.set("bufferTable", selectedMedicationContentWithId.medicationValue.regimen)
                     console.log('bufferTable',this.bufferTable)
                     // if(this.bufferTable.administratedQuantity) {this._setFrequencyList(this.bufferTable)}
