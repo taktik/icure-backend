@@ -1026,7 +1026,7 @@
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
                             <vaadin-combo-box id="invoice-thirdPartyJustification"
-                                              filtered-items="[[thirdPartyJustification]]"
+                                              filtered-items="[[_filterThirdPartyJustitifications(thirdPartyJustification)]]"
                                               item-label-path="label.[[language]]" item-value-path="id"
                                               on-filter-changed=""
                                               label="[[localize('inv_tpj','Third party justification',language)]]"
@@ -2053,7 +2053,7 @@
                             encounterLocationNorm: 0,
                             encounterLocationName: null,
                             encounterLocationNihii: null,
-                            creditNote: 0,
+                            creditNote: false,
                             careProviderType: "persphysician"
                         }
 
@@ -3974,6 +3974,11 @@
 
             isEattestError(){
                 return (!this.isDetailNmcl) && this.errorMessage!==null;
+            }
+
+
+            _filterThirdPartyJustitifications(inputData) {
+                return _.filter( inputData, (v)=>{ return v.id != 9; });
             }
 
 
