@@ -3978,7 +3978,7 @@
 
 
             _filterThirdPartyJustitifications(inputData) {
-                return _.filter( inputData, (v)=>{ return v.id != 9; });
+                return _.filter( inputData, (v)=>{ return parseInt(v.id) !== 9; });
             }
 
 
