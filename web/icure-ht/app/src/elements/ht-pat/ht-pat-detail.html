@@ -3418,11 +3418,87 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.tlStatus.classList.remove('noTl');
                         this.$.tlStatus.classList.remove('tlOk');
 
+<<<<<<< HEAD
                         if(therLinks[0]) {
                             tlOk = true;
                         }
                         this.$.tlStatus.classList.add(tlOk ? 'tlOk' : 'noTl');
                         Polymer.updateStyles(this.$.tlStatus)
+=======
+		if(cs && cs.author && cs.author.hcparties && cs.author.hcparties[0]) {
+            const hcp = cs.author.hcparties[0]
+			desc += hcp.familyname + ' ' + hcp.firstname;
+            desc += ' [' + hcp.ids.find(id => id.s === 'ID-HCPARTY').value + ']';
+        }
+        if(cs && cs.signdate) {
+            desc += ' ' + this.api.moment(cs.signdate).format('DD/MM/YYYY');
+        }
+	    return desc;
+	}
+
+    _getHubPatientConsent() {
+        //getPatientConsentUsingGET1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin)
+        if (this.patient.ssin && this.api.tokenId) {
+            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                .then(hcp =>
+                    this.api.fhc().Hubcontroller().getPatientConsentUsingGET1(this.hubEndPoint, this.api.keystoreId,
+                        this.api.tokenId, this.api.credentials.ehpassword,
+                        hcp.lastName, hcp.firstName, hcp.nihii, hcp.ssin, this.hcpZip,
+                        this.patient.ssin)
+                ).then(consentResp => {
+                    if (consentResp) {
+                        this.set('patientHubConsent', consentResp)
+                        return consentResp
+                    } else {
+                        return null
+                    }
+                })
+        } else {
+            return Promise.resolve(null)
+        }
+    }
+
+    _registerHubPatientConsent(){
+        //registerPatientConsentUsingPOST1: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber)
+
+    }
+
+    _getHubTherapeuticLinks(){
+        //getTherapeuticLinksUsingGET: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, therLinkType, from, to)
+        if (this.patient.ssin && this.api.tokenId) {
+            return this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                    .then(hcp =>
+                this.api.fhc().Hubcontroller().getTherapeuticLinksUsingGET(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                   hcp.lastName, hcp.firstName,  hcp.nihii, hcp.ssin, this.hcpZip,
+                    this.patient.ssin, null, null, null)
+        ).then(tlResp => {
+                if (tlResp) {
+                    this.set('patientHubTherLinks', tlResp);
+                    return tlResp;
+                } else {
+                    return null;
+        }
+        }
+        )
+        } else {
+            return Promise.resolve(null)
+        }
+    }
+
+    _registerHubPatientTherapeuticLink(){
+        //registerTherapeuticLinkUsingPOST: function (endpoint, keystoreId, tokenId, passPhrase, hcpNihii, hcpSsin, hcpZip, patientSsin, patientEidCardNumber)
+        if (this.patient.ssin && this.api.tokenId) {
+            this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
+                this.api.fhc().Hubcontroller().registerTherapeuticLinkUsingPOST(this.hubEndPoint, this.api.keystoreId,
+					this.api.tokenId, this.api.credentials.ehpassword,
+                    hcp.ssin, hcp.firstName, hcp.lastName, hcp.nihii,
+                    this.patient.ssin, this.patient.firstName, this.patient.lastName, this.eidCardNumber)
+            ).then(therLinkResp => {
+                    if(therLinkResp.therapeuticLink) {
+                        this.showPatientTherLinkState()
+                        return(therLinkResp.therapeuticLink)
+>>>>>>> 03091013cee4a78d96408ab850baad5bf3603355
                     }
                 )
             }

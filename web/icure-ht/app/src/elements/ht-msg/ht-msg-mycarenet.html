@@ -13,6 +13,8 @@
 <link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
 <link rel="import" href="../../../bower_components/vaadin-themes/material/vaadin-date-picker.html">
 <link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 
 <dom-module id="ht-msg-mycarenet">
@@ -116,12 +118,14 @@
                     left: 0;
                     width: 20px;
                 }
+
                 iron-icon.closure {
                     position: absolute;
                     top: 2px;
                     left: 0;
                     width: 16px;
                 }
+
                 iron-icon.extension {
                     position: absolute;
                     top: 2px;
@@ -129,12 +133,12 @@
                     width: 16px;
                 }
 
-.icon-container {
-    position: relative;
-    height: 20px;
-    width: 20px;
-}
-            
+                .icon-container {
+                    position: relative;
+                    height: 20px;
+                    width: 20px;
+                }
+
                 paper-spinner.center {
                     position: absolute;
                     top: 50%;
@@ -197,7 +201,7 @@
                         </vaadin-grid-column>
                         <vaadin-grid-column class="adress-col" width="80px">
                             <template class="header">
-                                <vaadin-grid-sorter path="fromAddress">[[localize("OA","OA",language)]]</vaadin-grid-sorter>
+                                <vaadin-grid-sorter path="fromAddress">[[localize("From","From",language)]]</vaadin-grid-sorter>
                             </template>
                             <template>[[item.fromAddress]]</template>
                         </vaadin-grid-column>
@@ -215,15 +219,18 @@
                                 <template is="dom-if" if="[[_listRequest(item.metas.type)]]">
                                     <template is="dom-repeat" items="[[ios]]" as="io">
                                         <template is="dom-if" if="[[_tack(item.metas,io)]]">
-                                            <iron-icon icon="done">: [[io]]
+                                            <iron-icon class="status" id="status_[[item.id]]_[[io]]" class="status" icon="done"></iron-icon>
+                                            <paper-tooltip position="right" id="tt_status_[[item.id]]_[[io]]" for="status_[[item.id]]_[[io]]">
+                                                [[io]]: [[localize("req_rec","request received",language)]]
+                                            </paper-tooltip>
                                         </template>
                                         <template is="dom-if" if="[[!_tack(item.metas,io)]]">
-                                            <iron-icon icon="schedule">: [[io]]
+                                            <iron-icon class="status" id="status_[[item.id]]_[[io]]" icon="schedule"></iron-icon>
+                                            <paper-tooltip position="right" id="tt_status_[[item.id]]_[[io]]" for="status_[[item.id]]_[[io]]">
+                                                [[io]]: [[localize("req_not_yet_rec","request not yet received",language)]]
+                                            </paper-tooltip>
                                         </template>
                                     </template>
-                                </template>
-                                <template is="dom-if" if="[[!_listRequest(item.metas.type)]]">
-                                    [[_displayMetas(item.metas)]]
                                 </template>
                             </template>
                         </vaadin-grid-column>
@@ -532,19 +539,31 @@
 
             getMessages() {
                 this.set('isLoadingDmg', true)
-                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", []).then( x => this.api.logMcn(x, this.user, this.hcp.id, "DMG", "loadMessages") )
+                this.api.fhc().Dmgcontroller().getDmgMessagesUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName,"", [])
+                    .then( x => this.api.logMcn(x, this.user, this.hcp.id, "DMG", "loadMessages") )
                     .then(list => this.api.message().processDmgMessagesList(this.user,this.hcp,list,this.api.document()))
                     .then(([ackHashes, dmgHashes]) => Promise.all([
                         this.api.fhc().Dmgcontroller().confirmAcksUsingPOST(this.api.keystoreId, this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, ackHashes),
                         this.api.fhc().Dmgcontroller().confirmDmgMessagesUsingPOST(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName, dmgHashes)
-                    ])).finally(() => this.set('isLoadingDmg', false))
+                    ])).finally(() => {
+                        this.set('isLoadingDmg', false)
+                        this.refresh()
+                    })
             }
 
             requestMessages(){
                 this.set('isLoadingReq', true)
 
-                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName).then( x => this.api.logMcn(x, this.user, this.hcp.id, "DMG", "listrequest") )
-                    .then(m=>this.api.message().saveDmgsListRequest(this.user, m)).finally(() => this.set('isLoadingReq', false))
+                this.api.fhc().Dmgcontroller().postDmgsListRequestUsingPOST(this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,this.hcp.nihii,this.hcp.ssin,this.hcp.firstName,this.hcp.lastName)
+                    .then( m => {
+                        return this.api.message().saveDmgsListRequest(this.user, m)
+                            .then(x => this.api.logMcn(x, this.user, m.id, "DMG", "listrequest"))
+                            .catch(e => this.api.logMcn(x, this.user, this.hcp.id, "DMG", "listrequest"))
+                    })
+                    .finally(() => {
+                        this.set('isLoadingReq', false)
+                        this.refresh()
+                    })
             }
 
             _formatDate(v1,v2){

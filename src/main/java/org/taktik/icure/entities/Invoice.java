@@ -26,6 +26,7 @@ import org.taktik.icure.entities.embed.InvoiceInterventionType;
 import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
 import org.taktik.icure.entities.embed.MediumType;
+import org.taktik.icure.entities.embed.PaymentType;
 import org.taktik.icure.entities.utils.MergeUtil;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class Invoice extends StoredICureDocument {
 
 	private String groupId;
 
+	private PaymentType paymentType;
 	private Double paid;
 
 	private String gnotionNihii;
@@ -508,6 +510,14 @@ public class Invoice extends StoredICureDocument {
 
 	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
 		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	@Override
