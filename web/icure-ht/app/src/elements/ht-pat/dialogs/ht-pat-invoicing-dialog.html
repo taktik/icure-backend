@@ -547,10 +547,12 @@
 
             .verifiedNmcl {
                 color: var(--app-status-color-ok);
+                height: 20px;
             }
 
             .unverifiedNmcl {
                 color: var(--app-status-color-nok);
+                height: 20px;
             }
 
             vaadin-grid.material {
@@ -901,14 +903,6 @@
                 transform: translate(0,40px);
             }
 
-<<<<<<< HEAD
-            .f-s-12em {
-                font-size:1.2em;
-            }
-
-            .cursorPointer{
-                cursor:pointer;
-=======
             .inputs-line {
                 display: flex;
                 flex-direction: row;
@@ -920,7 +914,6 @@
 
             #paymentCheckDialog {
                 min-height: 280px;
->>>>>>> 03091013cee4a78d96408ab850baad5bf3603355
             }
 
         </style>
@@ -1019,54 +1012,54 @@
                             </div>
                         </template>
 
-                            <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]"
+                        <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]"
+                                          item-label-path="label.[[language]]" item-value-path="id"
+                                          on-value-changed="analyzeCareProviderType"
+                                          label="[[localize('inv_care_prov_ty','Care provider type',language)]]"
+                                          value="{{selectedInvoice.careProviderType}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+
+                        <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
+                            <paper-input id="invoice-nihiiTrainee"
+                                         label="[[localize('train_nihii','NIHII trainee',language)]]"
+                                         value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                        </template>
+
+                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <vaadin-combo-box id="invoice-thirdPartyJustification"
+                                              filtered-items="[[thirdPartyJustification]]"
                                               item-label-path="label.[[language]]" item-value-path="id"
-                                              on-value-changed="analyzeCareProviderType"
-                                              label="[[localize('inv_care_prov_ty','Care provider type',language)]]"
-                                              value="{{selectedInvoice.careProviderType}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                                              on-filter-changed=""
+                                              label="[[localize('inv_tpj','Third party justification',language)]]"
+                                              value="{{selectedInvoice.thirdPartyPaymentJustification}}"
+                                              on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                        </template>
 
-                            <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
-                                <paper-input id="invoice-nihiiTrainee"
-                                             label="[[localize('train_nihii','NIHII trainee',language)]]"
-                                             value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+
+
+                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
+                                              label="[[localize('location','Location',language)]]"
+                                              filtered-items="[[locationType]]" item-label-path="label.[[language]]"
+                                              item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
+                                              on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
+                            </vaadin-combo-box>
+                            <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
+                            <template is="dom-if" if="[[isLoadingLocations]]">
+                                <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
                             </template>
-
-                            <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                                <vaadin-combo-box id="invoice-thirdPartyJustification"
-                                                  filtered-items="[[thirdPartyJustification]]"
-                                                  item-label-path="label.[[language]]" item-value-path="id"
-                                                  on-filter-changed=""
-                                                  label="[[localize('inv_tpj','Third party justification',language)]]"
-                                                  value="{{selectedInvoice.thirdPartyPaymentJustification}}"
-                                                  on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
-                            </template>
+                        </template>
 
 
 
-                            <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                                <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
-                                                  label="[[localize('location','Location',language)]]"
-                                                  filtered-items="[[locationType]]" item-label-path="label.[[language]]"
-                                                  item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
-                                                  on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
-                                </vaadin-combo-box>
-                                <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
-                                <template is="dom-if" if="[[isLoadingLocations]]">
-                                    <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
-                                </template>
-                            </template>
-
-
-
-                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
-                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
-                                <div slot="suffix">
-                                    <iron-icon icon="info" id="invoice-dmg-icon"
-                                               class="infoDmg"></iron-icon>
-                                </div>
-                            </paper-input>
-                            <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
-                        </div>
+                        <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
+                                     value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
+                            <div slot="suffix">
+                                <iron-icon icon="info" id="invoice-dmg-icon"
+                                           class="infoDmg"></iron-icon>
+                            </div>
+                        </paper-input>
+                        <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
+                    </div>
 
                 </div>
                 <div class="invoice-nomenclature-code">
@@ -1083,7 +1076,10 @@
                                              active-item="{{activeNmclItem}}" on-tap="_showDetail">
                                     <vaadin-grid-column width="20px" style="padding: 0;">
                                         <template>
-                                            <div class="cell frozen textAlignCenter"></div>
+                                            <div class="cell frozen textAlignCenter">
+                                                <template is="dom-if" if="[[item.contract]]"><iron-icon icon="vaadin:check" class="verifiedNmcl" title="[[localize('verified_etarif','E-Tarif vérifié',language)]]"></iron-icon></template>
+                                                <template is="dom-if" if="[[!item.contract]]"><iron-icon icon="vaadin:close" class="unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]"></iron-icon></template>
+                                            </div>
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
@@ -1108,11 +1104,9 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.patientIntervention)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
-                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp;€</template>
-
+                                            <div class="cell numeric">[[_formatAmount(item.patientIntervention)]]&nbsp€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp;€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.patientIntervention]]&nbsp€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
@@ -1120,28 +1114,27 @@
                                             </div>
                                         </template>
                                         <template>
-                                            <template is="dom-if" if="[[!item.contract]]"><div class="cell numeric unverifiedNmcl" title="[[localize('unverified_etarif','Cet E-Tarif n\'est pas (encore) vérifié',language)]]">[[_formatAmount(item.reimbursement)]]&nbsp;€ <em class="unverifiedNmcl f-s-12em cursorPointer">*</em></div></template>
-                                            <template is="dom-if" if="[[item.contract]]"><div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp;€</div></template>
+                                            <div class="cell numeric">[[_formatAmount(item.reimbursement)]]&nbsp€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp;€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.reimbursement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="80px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('extra','Extra',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp;€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.doctorSupplement)]]&nbsp€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp;€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.doctorSupplement]]&nbsp€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="88px">
                                         <template class="header">
                                             <div class="cell numeric">[[localize('tot','Fees',language)]]</div>
                                         </template>
                                         <template>
-                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp;€</div>
+                                            <div class="cell numeric">[[_formatAmount(item.totalAmount)]]&nbsp€</div>
                                         </template>
-                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp;€</div></template>
+                                        <template class="footer"> <div class="cell numeric">[[totalInvoice.totalAmount]]&nbsp€</div></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="24px" class="textAlignCenter">
                                         <template class="header">
@@ -1153,9 +1146,9 @@
                                             </template>
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
                                                 <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
-                                               <template is="dom-if" if="[[!isInvoiceClosed]]">
+                                                <template is="dom-if" if="[[!isInvoiceClosed]]">
                                                     <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
-                                               </template>
+                                                </template>
                                                 [[item.relatedCode]]
                                             </template>
 
@@ -1420,7 +1413,7 @@
                                   label="Type de paiement"
                                   value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
                 <paper-input class="paid" label="Montant encaissé"
-                         value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
+                             value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
@@ -1722,14 +1715,14 @@
                                     "en": "8. Chronic condition"
                                 }
                             },
-                            // {
-                            //     id: "9",
-                            //     label: {
-                            //         "fr": "9. Interdiction de facturer en tiers-payant via efact",
-                            //         "nl": "9. Prohibition of third-party billing via efact",
-                            //         "en": "9. Prohibition of third-party billing via efact"
-                            //     }
-                            // },
+                            {
+                                id: "9",
+                                label: {
+                                    "fr": "9. Interdiction de facturer en tiers-payant via efact",
+                                    "nl": "9. Prohibition of third-party billing via efact",
+                                    "en": "9. Prohibition of third-party billing via efact"
+                                }
+                            },
                             {
                                 id: "p",
                                 label: {
@@ -2046,28 +2039,6 @@
                     const invoiceOfDay = invoices.find( i=> i.invoiceDate+'' === moment().format("YYYYMMDD") && !i.printedDate )
 
                     if(!invoiceOfDay){
-<<<<<<< HEAD
-                        const newInvoice = {}
-
-                        newInvoice.id = ""
-                        newInvoice.invoicingCodes = []
-                        newInvoice.invoiceDate = moment().format("YYYYMMDD")
-                        newInvoice.invoiceReference = null
-                        newInvoice.thirdPartyPaymentJustification = parseInt(this.patient.insurabilities.length ) ? ((this.patient.insurabilities[0].parameters.tc1 % 2 === 1 ) ? "3" : "0") : "0",
-                        newInvoice.invoiceType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "mutualfund" : "patient" ) : 'patient';
-                        newInvoice.sentMediumType = parseInt( this.patient.insurabilities.length ) ? ( (this.patient.insurabilities[0].parameters.tc1%2===1) ? "efact" : "eattest" ) : 'paper';
-                        newInvoice.invoicePeriod = 0
-                        newInvoice.longDelayJustification = 0
-                        newInvoice.gnotionNihii = null
-                        newInvoice.internshipNihii = null
-                        newInvoice.encounterLocationNorm = 0
-                        newInvoice.encounterLocationName = null
-                        newInvoice.encounterLocationNihii = null
-                        newInvoice.creditNote = false
-                        newInvoice.careProviderType = "persphysician"
-
-                        this.set('invoices', _.orderBy(invoices.concat(newInvoice), ['invoiceDate'], ['desc']))
-=======
                         const newInvoice = {
                             invoicingCodes: [],
                             invoiceDate: moment().format("YYYYMMDD"),
@@ -2087,7 +2058,6 @@
                         }
 
                         this.set('invoices', _.orderBy(invoices.concat([newInvoice]), ['invoiceDate'], ['desc']))
->>>>>>> 03091013cee4a78d96408ab850baad5bf3603355
                         this.set('selectedInvoiceIndex', this.invoices.indexOf(newInvoice))
                     }else{
                         this.set('invoices', _.orderBy(invoices, ['invoiceDate'], ['desc']))
@@ -2447,9 +2417,9 @@
                         .catch((e) => {
                             console.log("Exception", e)
                         }).finally(() => {
-                            this.isLoadingEattest = false
-                            this.set('isLoadingValidation',false)
-                        })
+                        this.isLoadingEattest = false
+                        this.set('isLoadingValidation',false)
+                    })
                 } else {
                     //Todo manage mandatory fields
                 }
@@ -2587,9 +2557,9 @@
                             }).then(() => {
                                 console.log(invoice)
                                 if(this.selectedInvoice.sentMediumType==="efact"){
-                                    this.generateJustificatory(invoice)
+                                    return this.generateJustificatory(invoice)
                                 } else if(this.selectedInvoice.sentMediumType==="eattest"){
-                                    this.sendEattest(invoice);
+                                    return this.sendEattest(invoice);
                                 }
                             }))
                 })
@@ -3166,7 +3136,7 @@
                         let url = window.URL.createObjectURL(blob)
 
                         let a = document.createElement("a");
-                        this.$.invoiceDialog.appendChild(a);
+                        document.body.appendChild(a);
                         a.style = "display: none";
 
                         a.href = url;
@@ -3219,8 +3189,8 @@
                                                 this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.id === invoice.id))
                                                 this.$['nmclGrid'].clearCache()
 
-                                            return invoice
-                                        })
+                                                return invoice
+                                            })
                                     })
                             } else {
                                 const registered = this.api.register(invoice, 'invoice')
@@ -3917,7 +3887,7 @@
                         let url = window.URL.createObjectURL(blob)
 
                         let a = document.createElement("a");
-                        this.$.invoiceDialog.appendChild(a);
+                        document.body.appendChild(a);
                         a.style = "display: none";
 
                         a.href = url;
