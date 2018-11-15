@@ -1,6 +1,7 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/vaadin-material-theme/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-button/vaadin-button.html">
 <link rel="import" href="../../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
@@ -205,8 +206,7 @@
 
             .regimen-add {
                 justify-content: flex-end;
-                margin: 0;
-                height: 59px;
+                margin: 4px 0 8px 0;
             }
 
             .regimen--quantity {
@@ -248,13 +248,46 @@
                 flex: 1;
             }
             .add-btn {
-                min-width: 210px;
+                min-width: 216px;
             }
 
             .regimen-add .one-line {
                 display: flex;
             }
             .regimen-add .one-line.fields { flex:1; }
+
+            .add-first-regimen {
+                width: 216px;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+            .regimen-line .add-first-regimen {
+                margin: initial;
+            }
+            .add-first-regimen .modal-button--save {
+                display: flex;
+                justify-content: flex-end;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            .add-first-regimen .modal-button--save span:first-child {
+                flex: 1;
+                text-align: center;
+            }
+            .add-first-regimen .modal-button--save span:last-child {
+                border-left: 1px solid var(--app-secondary-color-dark);
+                padding-left: 8px;
+            }
+            .add-first-regimen .btn-drpdwn-container {
+                box-shadow: var(--app-shadow-elevation-1);
+                position: absolute;
+                background: white;
+                z-index: 10;
+                width: 216px;
+            }
+            .add-first-regimen .btn-drpdwn-container paper-item:hover  {
+                background: var(--app-background-color-dark);
+            }
 
             @media screen and (max-width: 768px) {
                 .display-type-regimen {
@@ -336,64 +369,68 @@
             </div>
             <template is="dom-if" if="[[bufferTable.length]]">
                 <div class="regimen-line regimen-add">
-                    <template is="dom-if" if="[[!displayAddRegimen]]">
-                    <paper-button on-tap="_openRegimenAdd" class="add-btn">
-                        [[localize('add_pos_reg','Add posology regimen',language)]]
-                        <iron-icon icon="add"></iron-icon>
-                    </paper-button>
-                    </template>
-                    <template is="dom-if" if="[[displayAddRegimen]]">
-                        <div class="one-line fields">
-                            <paper-input id="takeQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferNumberByFrequency}}" type="number" class="regimen--quantity"
-                                         min="0" class="regimen--quantity" on-change="_selectTakeQuantity">
-                                <div slot="suffix">X</div>
-                            </paper-input>
-                            <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
-                            <paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]"
-                                                 class="regimen--frequency">
-                                <paper-listbox slot="dropdown-content" selected="0" on-iron-select="_selectFrequency">
-                                    <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
-                                    <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
-                                    <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
+                    <div class="add-first-regimen">
+                        <div class="modal-button--save add-btn">
+                            <span on-tap="_confirmRegimenAdd">[[localize('add_pos_reg','Add posology regimen',language)]]</span>
+                            <span on-tap="_toggleDpdwn"><iron-icon icon="menu"></iron-icon></span>
                         </div>
-                        <div class="one-line">
-                            <paper-button on-tap="_closeRegimenAdd">
-                                [[localize('can','Cancel',language)]] <iron-icon icon="clear"></iron-icon>
-                            </paper-button>
-                            <paper-button class="modal-button--save add-btn" on-tap="_confirmRegimenAdd">
-                                [[localize('add','Add',language)]] <iron-icon icon="done"></iron-icon>
-                            </paper-button>
-                        </div>
-                    </template>
+                        <template is="dom-if" if="[[dpdwn]]">
+                            <div class="btn-drpdwn-container">
+                                <paper-item id="daily" on-tap="_confirmRegimenAdd" data-item="daily">[[localize('dai','Daily',language)]]</paper-item>
+                                <paper-item id="weekly" on-tap="_confirmRegimenAdd" data-item="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                                <paper-item id="monthly" on-tap="_confirmRegimenAdd" data-item="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                            </div>
+                        </template>
+                    </div>
+                    <!--<template is="dom-if" if="[[!displayAddRegimen]]">-->
+                    <!--<paper-button on-tap="_openRegimenAdd" class="add-btn">-->
+                        <!--[[localize('add_pos_reg','Add posology regimen',language)]]-->
+                        <!--<iron-icon icon="add"></iron-icon>-->
+                    <!--</paper-button>-->
+                    <!--</template>-->
+                    <!--<template is="dom-if" if="[[displayAddRegimen]]">-->
+                        <!--<div class="one-line fields">-->
+                            <!--<paper-input id="takeQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferNumberByFrequency}}" type="number" class="regimen&#45;&#45;quantity"-->
+                                         <!--min="0" class="regimen&#45;&#45;quantity" on-change="_selectTakeQuantity">-->
+                                <!--<div slot="suffix">X</div>-->
+                            <!--</paper-input>-->
+                            <!--<paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen&#45;&#45;units"></paper-input>-->
+                            <!--<paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]"-->
+                                                 <!--class="regimen&#45;&#45;frequency">-->
+                                <!--<paper-listbox slot="dropdown-content" selected="0" on-iron-select="_selectFrequency">-->
+                                    <!--<paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>-->
+                                    <!--<paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>-->
+                                    <!--<paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>-->
+                                <!--</paper-listbox>-->
+                            <!--</paper-dropdown-menu>-->
+                        <!--</div>-->
+                        <!--<div class="one-line">-->
+                            <!--<paper-button on-tap="_closeRegimenAdd">-->
+                                <!--[[localize('can','Cancel',language)]] <iron-icon icon="clear"></iron-icon>-->
+                            <!--</paper-button>-->
+                            <!--<paper-button class="modal-button&#45;&#45;save add-btn" on-tap="_confirmRegimenAdd">-->
+                                <!--[[localize('add','Add',language)]] <iron-icon icon="done"></iron-icon>-->
+                            <!--</paper-button>-->
+                        <!--</div>-->
+                    <!--</template>-->
                 </div>
             </template>
 
             <div class="containTabs">
                 <template is="dom-if" if="[[!bufferTable.length]]">
-                    <div class="regimen-line regimen-add">
-                        <div class="one-line fields">
-                            <paper-input id="takeQuantity" label="[[localize('qua', 'Quantity', language)]]" value="{{bufferNumberByFrequency}}" type="number" class="regimen--quantity"
-                                         min="0" class="regimen--quantity" on-change="_selectTakeQuantity">
-                                <div slot="suffix">X</div>
-                            </paper-input>
-                            <paper-input id="generalUnit" label="[[localize('uni', 'Units', language)]]" value="{{bufferUnit}}" class="regimen--units"></paper-input>
-                            <paper-dropdown-menu id="generalFrequency" label="[[localize('freq','Frequency',language)]]"
-                                                 class="regimen--frequency">
-                                <paper-listbox slot="dropdown-content" selected="0" on-iron-select="_selectFrequency">
-                                    <paper-item id="daily">[[localize('dai','Daily',language)]]</paper-item>
-                                    <paper-item id="weekly">[[localize('wee','Weekly',language)]]</paper-item>
-                                    <paper-item id="monthly">[[localize('mon','Monthly',language)]]</paper-item>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
+                        <div class="add-first-regimen">
+                            <div class="modal-button--save add-btn">
+                                <span on-tap="_confirmRegimenAdd">[[localize('add_pos_reg','Add posology regimen',language)]]</span>
+                                <span on-tap="_toggleDpdwn"><iron-icon icon="menu"></iron-icon></span>
+                            </div>
+                            <template is="dom-if" if="[[dpdwn]]">
+                                <div class="btn-drpdwn-container">
+                                    <paper-item id="daily" on-tap="_confirmRegimenAdd" data-item="daily">[[localize('dai','Daily',language)]]</paper-item>
+                                    <paper-item id="weekly" on-tap="_confirmRegimenAdd" data-item="weekly">[[localize('wee','Weekly',language)]]</paper-item>
+                                    <paper-item id="monthly" on-tap="_confirmRegimenAdd" data-item="monthly">[[localize('mon','Monthly',language)]]</paper-item>
+                                </div>
+                            </template>
                         </div>
-                        <div class="one-line">
-                            <paper-button class="modal-button--save add-btn" on-tap="_confirmRegimenAdd">
-                                [[localize('add','Add',language)]] <iron-icon icon="done"></iron-icon>
-                            </paper-button>
-                        </div>
-                    </div>
                 </template>
                 <template is="dom-if" if="[[bufferTable.length]]">
                     <h4>Prescriptions</h4>
@@ -588,6 +625,7 @@
                 <!--<paper-button dialog-confirm autofocus on-tap="cancelEdits" class="modal-button modal-button&#45;&#45;save">[[localize('cancel','Cancel',language)]]</paper-button>-->
                 <!--</div>-->
                 <!--</template>-->
+
                 <div class="buttons">
                     <!--<paper-button dialog-confirm autofocus on-tap="_closeAndNew" class="modal-button modal-button--save">[[localize('saveandadd','Save and add another',language)]]</paper-button>-->
                     <paper-button dialog-confirm autofocus on-tap="cancel" class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
@@ -689,6 +727,10 @@
                     displayAddRegimen: {
                         type: Boolean,
                         value: false
+                    },
+                    dpdwn: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }
@@ -723,6 +765,8 @@
             formatRegimenToMomentArray(regimen) {
 
             }
+
+            _toggleDpdwn() {this.set('dpdwn',!this.dpdwn)}
 
             open(medicationDetail, selectedMedicationContentWithId) {
                 if (selectedMedicationContentWithId) {
@@ -771,13 +815,16 @@
                 this.set('displayAddRegimen',false)
             }
 
-            _confirmRegimenAdd() {
+            _confirmRegimenAdd(e) {
+                this.set('dpdwn',false)
+                const dropDownSelectedFreq = e.target.dataset.item;
+                console.log('dropDownSelectedFreq',dropDownSelectedFreq)
                 for (let i = 0; i < this.bufferNumberByFrequency; i++) {
                     this.push('bufferTable', {
-                        frequency: this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
+                        frequency: dropDownSelectedFreq ? dropDownSelectedFreq : this.bufferGeneralFrequency == 2 ? 'monthly' : this.bufferGeneralFrequency == 1 ? 'weekly' : 'daily',
                         administratedQuantity: {
                             time: null,
-                            quantity: this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
+                            quantity: dropDownSelectedFreq ? 1 :this.bufferQuantity,//quantity: !reg[0] || reg[0].administratedQuantity.quantity === 0 ? this.bufferQuantity : reg[0].administratedQuantity.quantity,
                             unit: this.bufferUnit//unit: !reg[0] || reg[0].administratedQuantity.unit==="" ? this.bufferUnit : reg[0].administratedQuantity.unit
                         }
                     })
