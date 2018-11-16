@@ -17,6 +17,9 @@
 <link rel="import" href="../dynamic-form/ckmeans-grouping.html">
 <link rel="import" href="../../vaadin-icure-theme.html">
 <link rel="import" href="../../spinner-style.html">
+
+<link rel="import" href="../ht-pat/dialogs/ht-pat-invoicing-dialog.html">
+
 <dom-module id="ht-msg-invoice">
     <template>
         <custom-style>
@@ -364,6 +367,19 @@
                     overflow-y: auto;
                 }
                 .invoiceDetailContainer.open {
+                    opacity: 1;
+                    width: 100%;
+                    height: 37%;
+                }
+
+                .toBeCorrectedDetailContainerC{
+                    height: 50%;
+                    opacity: 0;
+                    transition: all .75s ease-out;
+                    overflow-y: auto;
+                }
+
+                .toBeCorrectedDetailContainerC.open{
                     opacity: 1;
                     width: 100%;
                     height: 37%;
@@ -1219,116 +1235,174 @@
                                 </template>
                             </div>
                             <template is="dom-if" if="[[ifInvoiceSelected]]">
-                                <h4 class="mb0">Détail des envois selectionnés</h4>
-                                <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
-                                <div id="invoiceDetailContainer" class="invoiceDetailContainer">
-                                    <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
-                                        <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="invoiceReference">N° fact.</vaadin-grid-sorter>
-                                            </template>
-                                            <template>
-                                                <vaadin-grid-tree-toggle leaf="[[!item.invoicingCodes.length]]" expanded="{{expanded}}" level="[[level]]">
-                                                    [[item.invoiceReference]]
-                                                </vaadin-grid-tree-toggle>
-                                            </template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="9%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.patient]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="ssin">Niss</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.ssin]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="invoicingCode">Nmcl</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[item.invoicingCode]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="invoiceDate">Date presta.</vaadin-grid-sorter>
-                                            </template>
-                                            <template>[[formatDate(item.invoiceDate,'date')]]</template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column-group>
+                                <template is="dom-if" if="[[isToBeCorrected(invoicesStatus.*)]]">
+                                    <h4 class="mb0">Contenu de la facture à corriger</h4>
+                                    <div id="toBeCorrectedDetailContainer" class="toBeCorrectedDetailContainerC">
+                                        <vaadin-grid id="toBeCorrectedGridDetail" items="[[toBeCorrectedMessageDetail]]">
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header">Date</template>
+                                                <template>[[formatDate(item.dateCode)]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header">Code</template>
+                                                <template>[[item.code]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header">Libellé</template>
+                                                <template>[[item.label]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header">PR</template>
+                                                <template>[[item.relatedCode]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header">Tp</template>
+                                                <template>[[item.insuranceJustification]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column-group class="hasBorder">
+                                                <template class="header">Montants</template>
+                                                <vaadin-grid-column class="recipient-col">
+                                                    <template class="header">OA</template>
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.reimbursement)}}">[[_formatAmount(item.reimbursement)]]</span></template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column class="recipient-col">
+                                                    <template class="header">Patient</template>
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.patientIntervention)}}">[[_formatAmount(item.patientIntervention)]]</span></template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column class="recipient-col">
+                                                    <template class="header">Supplément</template>
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.doctorSupplement)}}">[[_formatAmount(item.doctorSupplement)]]</span></template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column class="recipient-col">
+                                                    <template class="header">Total</template>
+                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.totalAmount)}}">[[_formatAmount(item.totalAmount)]]</span></template>
+                                                </vaadin-grid-column>
+                                            </vaadin-grid-column-group>
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header">Erreur</template>
+                                                <template>[[item.error]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column class="recipient-col">
+                                                <template class="header"></template>
+                                                <template>
+                                                    <iron-icon icon="vaadin:pencil" id="[[item.contactId]]" on-tap="_openInvoicingDialog"></iron-icon>
+                                                </template>
+                                            </vaadin-grid-column>
+                                        </vaadin-grid>
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="[[!isToBeCorrected(invoicesStatus.*)]]">
+                                    <h4 class="mb0">Détail des envois selectionnés</h4>
+                                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{selectedInputDetail}}" on-keyup="refreshFilter" param="selectedInputDetail" where="invoiceSelected"></paper-input>
+                                    <div id="invoiceDetailContainer" class="invoiceDetailContainer">
+                                        <vaadin-grid id="invoiceGridDetail" data-provider="[[_batchDetailDataProvider()]]">
                                             <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                 <template class="header">
-                                                    <vaadin-grid-sorter path="invoicedAmount">Montant<br/>Facturé</vaadin-grid-sorter>
+                                                    <vaadin-grid-sorter path="invoiceReference">N° fact.</vaadin-grid-sorter>
                                                 </template>
-                                                <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
+                                                <template>
+                                                    <vaadin-grid-tree-toggle leaf="[[!item.invoicingCodes.length]]" expanded="{{expanded}}" level="[[level]]">
+                                                        [[item.invoiceReference]]
+                                                    </vaadin-grid-tree-toggle>
+                                                </template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column flex-grow="0" width="9%" class="recipient-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="patientName">Patient</vaadin-grid-sorter>
+                                                </template>
+                                                <template>[[item.patient]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column flex-grow="0" width="8%" class="recipient-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="ssin">Niss</vaadin-grid-sorter>
+                                                </template>
+                                                <template>[[item.ssin]]</template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                 <template class="header">
-                                                    <vaadin-grid-sorter path="acceptedAmount">Montant<br/>Accepté</vaadin-grid-sorter>
+                                                    <vaadin-grid-sorter path="invoicingCode">Nmcl</vaadin-grid-sorter>
                                                 </template>
-                                                <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                <template>[[item.invoicingCode]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="invoiceDate">Date presta.</vaadin-grid-sorter>
                                                 </template>
-                                                <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
-                                                    <template><span>[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                <template>[[formatDate(item.invoiceDate,'date')]]</template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column-group>
+                                                <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="invoicedAmount">Montant<br/>Facturé</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template><span>[[_formatAmount(item.invoicedAmount)]]€</span></template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="acceptedAmount">Montant<br/>Accepté</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
+                                                        <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.acceptedAmount)}}">[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                    </template>
+                                                    <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Accepted')]]">
+                                                        <template><span>[[_formatAmount(item.acceptedAmount)]]€</span></template>
+                                                    </template>
+                                                </vaadin-grid-column>
+                                                <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
+                                                    <template class="header">
+                                                        <vaadin-grid-sorter path="refusedAmount">Montant<br/>Refusé</vaadin-grid-sorter>
+                                                    </template>
+                                                    <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Refused')]]">
+                                                        <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)}}">[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                    </template>
+                                                    <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Refused')]]">
+                                                        <template><span>[[_formatAmount(item.refusedAmount)]]€</span></template>
+                                                    </template>
+                                                </vaadin-grid-column>
+                                            </vaadin-grid-column-group>
+                                            <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="rejectionReason">Motif de rejet</vaadin-grid-sorter>
+                                                </template>
+                                                <template style="align-self: flex-start;">
+                                                    <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
                                                 </template>
                                             </vaadin-grid-column>
                                             <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                                 <template class="header">
-                                                    <vaadin-grid-sorter path="refusedAmount">Montant<br/>Refusé</vaadin-grid-sorter>
+                                                    <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
                                                 </template>
-                                                <template is="dom-if" is="[[_isEqual(item.messageInfo.invoiceStatus,'Refused')]]">
-                                                    <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.refusedAmount)}}">[[_formatAmount(item.refusedAmount)]]€</span></template>
-                                                </template>
-                                                <template is="dom-if" is="[[!_isEqual(item.messageInfo.invoiceStatus,'Refused')]]">
-                                                    <template><span>[[_formatAmount(item.refusedAmount)]]€</span></template>
-                                                </template>
+                                                <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.paid)}}">[[_formatAmount(item.paid)]]€</span></template>
                                             </vaadin-grid-column>
-                                        </vaadin-grid-column-group>
-                                        <vaadin-grid-column flex-grow="0" width="36%" class="rejectionReason-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="rejectionReason">Motif de rejet</vaadin-grid-sorter>
-                                            </template>
-                                            <template style="align-self: flex-start;">
-                                                <div class="rejectionReason-cell">[[item.rejectionReason]]</div>
-                                            </template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="paid">Payé</vaadin-grid-sorter>
-                                            </template>
-                                            <template><span class$="{{_getTxtStatusColor(item.messageInfo.invoiceStatus,item.paid)}}">[[_formatAmount(item.paid)]]€</span></template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
-                                            <template class="header">
-                                                <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
-                                            </template>
-                                            <template>
-                                                <!--<template is="dom-if" if="[[_isEqual(item.statut,'Pending')]]">-->
-                                                    <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.statut]]</span>-->
-                                                <!--</template>-->
-                                                <!--<template is="dom-if" if="[[_isEqual(item.statut,'Process')]]">-->
-                                                    <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.statut]]</span>-->
-                                                <!--</template>-->
-                                                <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Pending')]]">-->
-                                                    <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Process')]]">-->
-                                                        <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>-->
+                                            <vaadin-grid-column flex-grow="0" width="7%" class="recipient-col">
+                                                <template class="header">
+                                                    <vaadin-grid-sorter path="status">Statut</vaadin-grid-sorter>
+                                                </template>
+                                                <template>
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.statut,'Pending')]]">-->
+                                                        <!--<span class="invoice-status invoice-status&#45;&#45;pendingStatus"><iron-icon icon="vaadin:circle" class="statusIcon pendingStatus"></iron-icon>[[item.statut]]</span>-->
                                                     <!--</template>-->
-                                                <!--</template>-->
-                                                <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
-                                                <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
-                                            </template>
-                                        </vaadin-grid-column>
-                                        <vaadin-grid-column flex-grow="0" width="3%" class="recipient-col">
-                                            <template class="header"></template>
-                                            <template>
-                                                <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogDet"></iron-icon>
-                                            </template>
-                                        </vaadin-grid-column>
-                                    </vaadin-grid>
-                                </div>
+                                                    <!--<template is="dom-if" if="[[_isEqual(item.statut,'Process')]]">-->
+                                                        <!--<span class="invoice-status invoice-status&#45;&#45;okStatus"><iron-icon icon="vaadin:circle" class="statusIcon okStatus"></iron-icon>[[item.statut]]</span>-->
+                                                    <!--</template>-->
+                                                    <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Pending')]]">-->
+                                                        <!--<template is="dom-if" if="[[!_isEqual(item.statut,'Process')]]">-->
+                                                            <!--<span class="invoice-status invoice-status&#45;&#45;nokStatus"><iron-icon icon="vaadin:circle" class="statusIcon nokStatus"></iron-icon>[[item.statut]]</span>-->
+                                                        <!--</template>-->
+                                                    <!--</template>-->
+                                                    <span class$="invoice-status {{_getIconStatusClass(item.messageInfo.invoiceStatus))}}"><iron-icon icon="vaadin:circle" class$="statusIcon {{_getIconStatusClass(item.messageInfo.invoiceStatus)}}"></iron-icon> [[item.messageInfo.invoiceStatus]]</span>
+                                                    <!--<iron-icon icon="vaadin:circle" class="statusIcon" on-load="_getIconStatusClass" data-item$="[[item.messageInfo.invoiceStatus]]"></iron-icon>-->
+                                                </template>
+                                            </vaadin-grid-column>
+                                            <vaadin-grid-column flex-grow="0" width="3%" class="recipient-col">
+                                                <template class="header"></template>
+                                                <template>
+                                                    <iron-icon icon="vaadin:info-circle" id="[[item.id]]" class="helpdeskIcon" data-item$="[[item]]" on-tap="_openHelpDeskDialogDet"></iron-icon>
+                                                </template>
+                                            </vaadin-grid-column>
+                                        </vaadin-grid>
+                                    </div>
+                                </template>
                             </template>
                         </div>
                     </div>
@@ -1336,7 +1410,9 @@
 
             </div>
 
-            <paper-dialog id="pendingDetailDialog">
+            <ht-pat-invoicing-dialog id="invoicingForm" api="[[api]]" user="[[user]]" language="[[language]]" patient="[[patientFromSelectedInvoice]]" current-contact="[[currentContact]]" i18n="[[i18n]]" resources="[[resources]]"></ht-pat-invoicing-dialog>
+
+        <paper-dialog id="pendingDetailDialog">
                 <div>
                     Détail de l'envoi n° [[activeGridItem.invoice.invoiceReference]]
                     <paper-input label="Patient" value="[[activeGridItem.patient.firstName]] [[activeGridItem.patient.lastName]]"readonly></paper-input>
@@ -1597,6 +1673,9 @@
                     toBeCorr:{
                         type: Boolean,
                         value: false
+                    },
+                    patientFromSelectedInvoice:{
+                        type: Object
                     }
                 };
             }
@@ -2542,17 +2621,14 @@
             _showMessagesToBeCorrectedDetail(){
                 if (this.activeGridItem){
                     this.shadowRoot.getElementById("messagesGridContainer").classList.add("half")
-                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.add("open")
+                    this.shadowRoot.getElementById("toBeCorrectedDetailContainer").classList.add("open")
 
-                    this.activeGridItem.inv.invoicingCodes.map(c => {
-                        //this.set("toBeCorrectedMessageDetail")
-                    })
-
-
+                    this.set("toBeCorrectedMessageDetail", this.activeGridItem.invoice.invoicingCodes)
+                    this.set("patientFromSelectedInvoice", this.activeGridItem.patient)
 
                 }else{
                     this.shadowRoot.getElementById("messagesGridContainer").classList.remove("half")
-                    this.shadowRoot.getElementById("invoiceDetailContainer").classList.remove("open")
+                    this.shadowRoot.getElementById("toBeCorrectedDetailContainer").classList.remove("open")
                 }
             }
 
@@ -2623,7 +2699,7 @@
                         })
                         return sprom
                     })*/
-                }).finally(() => this.getMessage())
+                })
             }
 
             _dateFormat(date) {
@@ -2691,6 +2767,13 @@
                     .replace(/\\b/g, "\\b")
                     .replace(/\\f/g, "\\f")
                     .replace(/[\u0000-\u0019]+/g,"")
+            }
+
+            _openInvoicingDialog(e){
+                if(e && e.target && e.target.id){
+                    this.currentContact = e.target.id
+                    this.$.invoicingForm.open()
+                }
             }
 
         }
