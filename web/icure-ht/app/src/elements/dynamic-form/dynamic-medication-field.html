@@ -338,11 +338,12 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _medicationCreated(e) {
     	this.push('value',e.detail)
+        this.set('selectedMedicationContentWithId',this.extractContentWithIdFromMedicationService(e.detail,true))
         this._displayMedicationDetails(e)
 	}
 
 	_displayMedicationDetails(e) {
-        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail, content: this.extractContentWithIdFromMedicationService(e.detail, true), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+        this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: e.detail, content: this.selectedMedicationContentWithId, onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
     }
 
 	localizedMedicationValueWithId(id, e, lng) {
@@ -354,12 +355,19 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 	}
 
 	extractContentWithIdFromMedicationService(m, isNew) {
+        console.log('extractContentWithIdFromMedicationService',m,isNew)
 		return {
 		    id: m.id,
             codes: m.codes,
-            medicationValue: (this.api.localize(m.content, this.language) || (m.content[this.language] = {
-                medicationValue: { regimen: [] }
-            })).medicationValue,
+            medicationValue:
+            (
+                this.api.localize(m.content, this.language) // ||
+                // (m.content[this.language] =
+                //     {
+                //         medicationValue: { regimen: [] }
+                //     }
+                // )
+            ).medicationValue,
             isNew: isNew || false };
 	}
 
@@ -391,7 +399,7 @@ class DynamicMedicationField extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		const id = el.target.parentElement.parentElement.id;
 		const item = this.value.find(s => s.id === id);
 		if (item) {
-            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, true), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
+            this.dispatchEvent(new CustomEvent('medication-detail', { detail: {service: item, content: this.extractContentWithIdFromMedicationService(item, false), onValueChanged: this._valueChanged.bind(this)}, bubbles: true, composed: true} ))
 		}
 	}
 

@@ -105,9 +105,8 @@ public class AgendaFacade implements OpenApiFacade {
             Agenda agenda = agendaLogic.getAgenda(agendaId);
             if (agenda != null) {
                 response = ResponseUtils.ok(mapper.map(agenda, AgendaDto.class));
-
             } else {
-                response = ResponseUtils.internalServerError("Agenda fetching failed");
+                response = Response.noContent().build();
             }
         }
         return response;
