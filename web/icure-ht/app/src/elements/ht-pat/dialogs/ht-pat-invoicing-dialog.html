@@ -1051,17 +1051,20 @@
                                               label="[[localize('location','Location',language)]]"
                                               filtered-items="[[locationType]]" item-label-path="label.[[language]]"
                                               item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
-                                              on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
+                                              readOnly="[[isInvoiceClosed]]">
                             </vaadin-combo-box>
-                            <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
+                            <template is="dom-if" if="[[isLocationIsNeeded]]">
+                                <vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                                <paper-input id="invoice-nihii-location" label="[[localize('nissLocation','Niss du Lieu',language)]]"
+                                             value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                            </template>
                             <template is="dom-if" if="[[isLoadingLocations]]">
                                 <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
                             </template>
                         </template>
 
 
-
-                        <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
+                            <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
                                      value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
                             <div slot="suffix">
                                 <iron-icon icon="info" id="invoice-dmg-icon"
@@ -3355,7 +3358,6 @@
                 }
             }
 
-
             selectedInvoiceChanged(){
                 this.scheduleInvoiceUpdate();
             }
@@ -3691,7 +3693,7 @@
                     "jpegUrl" : jpegUrl
                 }
 
-        
+
                 const html = `
                 <html>
                     <head>
