@@ -2657,6 +2657,7 @@
             }
 
             generateJustificatory(){
+                this.set('isLoadingJustif',true)
                 let template = {
                     "pageOne": {
                         entries: [],
@@ -3143,6 +3144,7 @@
                         a.download = this.selectedInvoice.id+moment()+".pdf";
                         a.click();
                         window.URL.revokeObjectURL(url);
+                        this.set('isLoadingJustif',false)
                     })
             }
 
