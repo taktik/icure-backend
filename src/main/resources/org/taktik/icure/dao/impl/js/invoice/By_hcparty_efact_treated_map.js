@@ -1,7 +1,7 @@
 function isInvoiceBad(doc) {
   if(doc.invoicingCodes.length === 0) return false;
   return doc.invoicingCodes.some(function(code){
-    return code.accepted || code.canceled;
+    return (code.accepted || code.canceled) && !code.archived;
   });
 }
 
