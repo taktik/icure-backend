@@ -1051,9 +1051,13 @@
                                                   label="[[localize('location','Location',language)]]"
                                                   filtered-items="[[locationType]]" item-label-path="label.[[language]]"
                                                   item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
-                                                  on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
+                                                  readOnly="[[isInvoiceClosed]]">
                                 </vaadin-combo-box>
-                                <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
+                                <template is="dom-if" if="[[isLocationIsNeeded]]">
+                                    <vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                                    <paper-input id="invoice-nihii-location" label="[[localize('nissLocation','Niss du Lieu',language)]]"
+                                                 value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                                </template>
                                 <template is="dom-if" if="[[isLoadingLocations]]">
                                     <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
                                 </template>
@@ -1301,51 +1305,17 @@
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
-                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">
-                            [[localize('can_eattest','Cancel eattest',language)]]
-                        </paper-button>
+                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">[[localize('can_eattest','Cancel eattest',language)]]</paper-button>
                     </template>
+
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
-                        <template is="dom-if" if="[[!isTarificationMcnError]]">
-                            <template is="dom-if" if="[[npi]]">
-                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isLoadingValidation]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
-                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                            </template>
-                            <template is="dom-if" if="[[!npi]]">
-                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
-                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                            </template>
-                        </template>
-
-                        <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <template is="dom-if" if="[[_hasInsurability()]]"><paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isLoadingValidation]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
-                            <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                        </template>
-
-
-                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <paper-button on-tap="_prevalidateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
-                                [[localize('val_invoice','Justificatory + create invoice',language)]]
-                            </paper-button>
-                        </template>
-                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <template is="dom-if" if="[[isNmclVerified]]">
-                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
-                                    [[localize('val_invoice','Justificatory + create invoice',language)]]
-                                </paper-button>
-                            </template>
-                            <template is="dom-if" if="[[!isNmclVerified]]">
-                                <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
-                                    create invoice',language)]]
-                                </paper-button>
-                            </template>
-                        </template>
+                        <template is="dom-if" if="[[hasInsurability]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[_isETarButtonDisabled(selectedInvoice,isLoadingValidation,isTarificationMcnError,npi)]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                        <template is="dom-if" if="[[!hasInsurability]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
+                        <paper-button on-tap="_switchBetweenMethodForJustifAndCreation" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[_isJustifButtonDisabled(selectedInvoice,isNmclVerified,isLoadingJustif)]]">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
                     </template>
-                    <template is="dom-if" if="[[isInvoiceClosed]]">
-                        <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button invoiceBtnEnable">
-                            [[localize('val_justificatory','Justificatory',language)]]
-                        </paper-button>
 
+                    <template is="dom-if" if="[[isInvoiceClosed]]">
+                        <paper-button on-tap="_switchBetweenMethodForJustif" class="modal-button invoiceBtnEnable" disabled="[[isLoadingJustif]]">[[localize('val_justificatory','Justificatory',language)]]</paper-button>
                     </template>
                 </div>
             </div>
@@ -2053,13 +2023,17 @@
                     reason : {
                         type : String,
                         value : "A"
+                    },
+                    hasInsurability : {
+                        type: Boolean,
+                        value : false
                     }
                 }
 
             }
 
             static get observers() {
-                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)','_checkIfLocationNeeds(selectedInvoiceIndex.*,invoices.*)']
+                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','_checkIfLocationNeeds(selectedInvoice.encounterLocationNorm)']
             }
 
             ready() {
@@ -2096,13 +2070,6 @@
                         }
                     })
                 ).finally(() => {
-                    if(!selected.encounterLocationNorm){
-                        selected.encounterLocationNorm=0;
-                        selected.encounterLocationName=null;
-                        selected.encounterLocationNihii=null;
-                    } else if(selected.encounterLocationNorm!==0){
-                        this.set("isLocationIsNeeded", true)
-                    }
 
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
@@ -2141,7 +2108,7 @@
                             encounterLocationNorm: 0,
                             encounterLocationName: null,
                             encounterLocationNihii: null,
-                            creditNote: 0,
+                            creditNote: false,
                             careProviderType: "persphysician"
                         }
 
@@ -2152,6 +2119,7 @@
                         this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
                     }
 
+                    this.set("hasInsurability",this._hasInsurability())
 
                     this.$.invoiceDialog.open()
 
@@ -2163,6 +2131,8 @@
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
                 }
+                this.varIsEattestClosedChanged()
+                this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
             }
             _closeDialog() {
                 this.$.invoiceDialog.close()
@@ -2555,15 +2525,6 @@
                 } else {
                     this.set("isPrescriberIsNeeded", true)
                 }
-            }
-
-            _checkIfLocationIsNeeded(e) {
-                if (e.detail.value === 0) {
-                    this.set("isLocationIsNeeded", false)
-                } else {
-                    this.set("isLocationIsNeeded", true)
-                }
-
             }
 
             _checkIfLocationNeeds() {
@@ -4057,25 +4018,49 @@
             }
 
             setLocation(e){
+                if(!(e && e.detail && e.detail.value))return;
                 console.log("selection :",e.detail.value)
                 this.set("selectedInvoice.encounterLocationName",e.detail.value.name)
                 const regExp = new RegExp(/\W/,'g')
                 this.set("selectedInvoice.encounterLocationNihii",e.detail.value.ehp.replace(regExp,""))
             }
 
-            locationNormChanged(){
-                if(!this.isSelected){
-                    this.set("selectedInvoice.encounterLocationName","")
-                    this.set("selectedInvoice.encounterLocationNihii","")
-                }
-            }
-
-            _hasInsurability() { return ( this.patient && this.patient && !!this.patient.insurabilities.length ); }
+            _hasInsurability() { return ( this.patient && this.patient.insurabilities && !!this.patient.insurabilities.length ); }
 
             isEattestError(){
                 return (!this.isDetailNmcl) && this.errorMessage!==null;
             }
 
+            _invoiceDateIsToday(){
+                return this.api.moment(this.selectedInvoice.invoiceDate).isSame(moment(),"day")
+            }
+
+            _isETarButtonDisabled(){
+                const disabled = this.isLoadingValidation || this.isTarificationMcnError || !this.npi
+                return disabled;
+            }
+
+            _isJustifButtonDisabled(){
+                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && !this._invoiceDateIsToday()) || (!this._isSelectedInvoiceEattest() && !this.isNmclVerified));
+            }
+
+            _switchBetweenMethodForJustifAndCreation(){
+                if(this._isSelectedInvoiceEattest()){
+                    this._prevalidateAndPrepareInvoiceForBatchSending();
+                }
+                else{
+                    this._validateAndPrepareInvoiceForBatchSending();
+                }
+            }
+
+            _switchBetweenMethodForJustif(){
+                if(this._isSelectedInvoiceEattest()){
+                    this.eattest(this.selectedInvoice);
+                }
+                else{
+                    this._validateAndPrepareInvoiceForBatchSending();
+                }
+            }
 
         }
 
