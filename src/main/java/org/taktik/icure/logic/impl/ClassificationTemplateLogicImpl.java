@@ -22,20 +22,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.dao.ClassificationTemplateDAO;
-import org.taktik.icure.dao.Option;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.ClassificationTemplate;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.ClassificationTemplateLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.utils.FuzzyValues;
 import org.taktik.icure.validation.aspect.Check;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -132,5 +127,15 @@ public class ClassificationTemplateLogicImpl extends GenericLogicImpl<Classifica
 		return classificationTemplateDAO.save(classificationTemplate);
 
 	}
+
+    @Override
+    public List<ClassificationTemplate> getClassificationTemplateByIds(List<String> ids) {
+        return classificationTemplateDAO.getList(ids);
+    }
+
+    @Override
+    public List<ClassificationTemplate> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretPatientKeys) {
+        return classificationTemplateDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys);
+    }
 
 }

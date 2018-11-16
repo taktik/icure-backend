@@ -903,6 +903,16 @@
                 transform: translate(0,40px);
             }
 
+
+            .reasonCancel {
+                display : flex;
+            }
+
+            #cancelDialog{
+                height: 200px;
+                width: 1000px;
+            }
+
             .inputs-line {
                 display: flex;
                 flex-direction: row;
@@ -918,7 +928,7 @@
 
         </style>
 
-        <paper-dialog id="invoiceDialog" opened="{{opened}}" id="invoicingDialog">
+        <paper-dialog id="invoiceDialog" opened="{{opened}}">
             <div class="invoice-panel">
                 <paper-listbox id="_invoice_listbox" focused selectable="paper-material" selected="{{selectedInvoiceIndex}}">
                     <template is="dom-repeat" items="[[invoices]]">
@@ -991,7 +1001,7 @@
                         <vaadin-date-picker id="invoice-date" label="[[localize('inv_date','Invoice date',language)]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" value="{{invoiceDateAsString}}" i18n="[[i18n]]" readOnly="[[_isInvoiceClosedOrSelectedInvoiceEattest(selectedInvoice, selectedInvoice.sentMediumType)]]"></vaadin-date-picker>
 
                         <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-combo-box id="invoice-period" filtered-items="[[invoicePeriod]]" item-label-path="label.[[language]]" item-value-path="id" on-filter-changed="" label="[[localize('inv_per','Invoice period',language)]]" value="{{selectedInvoice.invoicePeriod}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
-                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription de',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvceClosed]]"></vaadin-date-picker></template>
+                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]"><vaadin-date-picker id="prescription-date" label="[[localize('prescr_date','prescription de',language)]]" value="{{prescriptionDateAsString}}" i18n="[[i18n]]" readOnly="[[isInvoiceClosed]]"></vaadin-date-picker></template>
                     </div>
 
                     <div class="flex-container">
@@ -1012,54 +1022,57 @@
                             </div>
                         </template>
 
-                            <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]"
+                        <vaadin-combo-box id="invoice-careProviderType" filtered-items="[[careProviderType]]"
+                                          item-label-path="label.[[language]]" item-value-path="id"
+                                          on-value-changed="analyzeCareProviderType"
+                                          label="[[localize('inv_care_prov_ty','Care provider type',language)]]"
+                                          value="{{selectedInvoice.careProviderType}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+
+                        <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
+                            <paper-input id="invoice-nihiiTrainee"
+                                         label="[[localize('train_nihii','NIHII trainee',language)]]"
+                                         value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+                        </template>
+
+                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <vaadin-combo-box id="invoice-thirdPartyJustification"
+                                              filtered-items="[[_filterThirdPartyJustitifications(thirdPartyJustification)]]"
                                               item-label-path="label.[[language]]" item-value-path="id"
-                                              on-value-changed="analyzeCareProviderType"
-                                              label="[[localize('inv_care_prov_ty','Care provider type',language)]]"
-                                              value="{{selectedInvoice.careProviderType}}" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                                              on-filter-changed=""
+                                              label="[[localize('inv_tpj','Third party justification',language)]]"
+                                              value="{{selectedInvoice.thirdPartyPaymentJustification}}"
+                                              on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                        </template>
 
-                            <template is="dom-if" if="[[_isTrainee(selectedInvoice.careProviderType)]]">
-                                <paper-input id="invoice-nihiiTrainee"
-                                             label="[[localize('train_nihii','NIHII trainee',language)]]"
-                                             value="{{selectedInvoice.internshipNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
+
+
+                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
+                            <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
+                                              label="[[localize('location','Location',language)]]"
+                                              filtered-items="[[locationType]]" item-label-path="label.[[language]]"
+                                              item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
+                                              readOnly="[[isInvoiceClosed]]">
+                            </vaadin-combo-box>
+                            <template is="dom-if" if="[[isLocationIsNeeded]]">
+                                <vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                                <paper-input id="invoice-nihii-location" label="[[localize('nissLocation','Niss du Lieu',language)]]"
+                                             value="{{selectedInvoice.encounterLocationNihii}}" readOnly="[[isInvoiceClosed]]"></paper-input>
                             </template>
-
-                            <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                                <vaadin-combo-box id="invoice-thirdPartyJustification"
-                                                  filtered-items="[[thirdPartyJustification]]"
-                                                  item-label-path="label.[[language]]" item-value-path="id"
-                                                  on-filter-changed=""
-                                                  label="[[localize('inv_tpj','Third party justification',language)]]"
-                                                  value="{{selectedInvoice.thirdPartyPaymentJustification}}"
-                                                  on-value-changed="" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box>
+                            <template is="dom-if" if="[[isLoadingLocations]]">
+                                <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
                             </template>
-
-
-
-                            <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                                <vaadin-combo-box id="locationType" class="flex-container-nmcl-row"
-                                                  label="[[localize('location','Location',language)]]"
-                                                  filtered-items="[[locationType]]" item-label-path="label.[[language]]"
-                                                  item-value-path="id" value="{{selectedInvoice.encounterLocationNorm}}"
-                                                  on-value-changed="_checkIfLocationIsNeeded" readOnly="[[isInvoiceClosed]]">
-                                </vaadin-combo-box>
-                                <template is="dom-if" if="[[isLocationIsNeeded]]"><vaadin-combo-box id="locations" class="flex-container-nmcl-row" label="[[localize('location','Locations',language)]]" filtered-items="[[organisationList]]" item-label-path="name" selected-item="[[selectedInvoice.encounterLocationName]]" on-selected-item-changed="setLocation" on-filter-changed="searchLocations" readOnly="[[isInvoiceClosed]]"></vaadin-combo-box></template>
-                                <template is="dom-if" if="[[isLoadingLocations]]">
-                                    <paper-spinner class="locations-spinner" active="[[isLoadingLocations]]"></paper-spinner>
-                                </template>
-                            </template>
-
+                        </template>
 
 
                             <paper-input id="invoice-dmg" label="[[localize('inv_dmgOwner','Dmg owner',language)]]"
-                                         value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
-                                <div slot="suffix">
-                                    <iron-icon icon="info" id="invoice-dmg-icon"
-                                               class="infoDmg"></iron-icon>
-                                </div>
-                            </paper-input>
-                            <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
-                        </div>
+                                     value="{{selectedInvoice.gnotionNihii}}" readOnly="[[isInvoiceClosed]]">
+                            <div slot="suffix">
+                                <iron-icon icon="info" id="invoice-dmg-icon"
+                                           class="infoDmg"></iron-icon>
+                            </div>
+                        </paper-input>
+                        <paper-tooltip for="invoice-dmg-icon">[[localize('gnotion','Gnotion',language)]]</paper-tooltip>
+                    </div>
 
                 </div>
                 <div class="invoice-nomenclature-code">
@@ -1146,9 +1159,9 @@
                                             </template>
                                             <template is="dom-if" if="[[item.isRelativePrestation]]">
                                                 <!--<related-code-link language="[[language]]" linkables="[[selectedInvoice.invoicingCodes]]" represented-object-id="[[item.id]]" api="[[api]]" on-link-nmcl-to-related-code="linkNmclToRelatedCode"></related-code-link>-->
-                                               <template is="dom-if" if="[[!isInvoiceClosed]]">
+                                                <template is="dom-if" if="[[!isInvoiceClosed]]">
                                                     <iron-icon class="clearBtn" icon="vaadin:link" id="[[item.id]]" on-tap="_openlinkRelativePrestationDialog"></iron-icon>
-                                               </template>
+                                                </template>
                                                 [[item.relatedCode]]
                                             </template>
 
@@ -1291,51 +1304,17 @@
                     <paper-button class="modal-button" on-tap="_closeDialog">[[localize('can','Cancel',language)]]</paper-button>
 
                     <template is="dom-if" if="[[isEattestClosed]]">
-                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelEattest">
-                            [[localize('can_eattest','Cancel eattest',language)]]
-                        </paper-button>
+                        <paper-button disabled="[[isLoadingEattest]]" class="modal-button modal-button--save invoiceBtnEnable" on-tap="_cancelDialogOpen">[[localize('can_eattest','Cancel eattest',language)]]</paper-button>
                     </template>
+
                     <template is="dom-if" if="[[!isInvoiceClosed]]">
-                        <template is="dom-if" if="[[!isTarificationMcnError]]">
-                            <template is="dom-if" if="[[npi]]">
-                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[isLoadingValidation]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
-                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                            </template>
-                            <template is="dom-if" if="[[!npi]]">
-                                <template is="dom-if" if="[[_hasInsurability()]]"><paper-button class="modal-button tarificationBtnDisable" on-tap="">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
-                                <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                            </template>
-                        </template>
-
-                        <template is="dom-if" if="[[isTarificationMcnError]]">
-                            <template is="dom-if" if="[[_hasInsurability()]]"><paper-button on-tap="_verifyTarification" class="tarificationBtnEnableWithWarning" disabled="[[isLoadingValidation]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
-                            <template is="dom-if" if="[[!_hasInsurability()]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
-                        </template>
-
-
-                        <template is="dom-if" if="[[_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <paper-button on-tap="_prevalidateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
-                                [[localize('val_invoice','Justificatory + create invoice',language)]]
-                            </paper-button>
-                        </template>
-                        <template is="dom-if" if="[[!_isSelectedInvoiceEattest(selectedInvoice.*)]]">
-                            <template is="dom-if" if="[[isNmclVerified]]">
-                                <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[isLoadingJustif]]">
-                                    [[localize('val_invoice','Justificatory + create invoice',language)]]
-                                </paper-button>
-                            </template>
-                            <template is="dom-if" if="[[!isNmclVerified]]">
-                                <paper-button on-tap="" class="modal-button invoiceBtnDisable">[[localize('val_invoice','Justificatory +
-                                    create invoice',language)]]
-                                </paper-button>
-                            </template>
-                        </template>
+                        <template is="dom-if" if="[[hasInsurability]]"><paper-button class="modal-button modal-button--save tarificationBtnEnable" on-tap="_verifyTarification" disabled="[[_isETarButtonDisabled(selectedInvoice,isLoadingValidation,isTarificationMcnError,npi)]]">[[localize('eTarif','Validation eTarif',language)]]</paper-button></template>
+                        <template is="dom-if" if="[[!hasInsurability]]"><paper-button class="modal-button modal-button--save modal-button-red" on-tap="" disabled="true">[[localize('patient_has_no_insurance','Ce patient n\'est pas assuré',language)]]</paper-button></template>
+                        <paper-button on-tap="_switchBetweenMethodForJustifAndCreation" class="modal-button modal-button--save invoiceBtnEnable" disabled="[[_isJustifButtonDisabled(selectedInvoice,isNmclVerified,isLoadingJustif,npi)]]">[[localize('val_invoice','Justificatory + create invoice',language)]]</paper-button>
                     </template>
-                    <template is="dom-if" if="[[isInvoiceClosed]]">
-                        <paper-button on-tap="_validateAndPrepareInvoiceForBatchSending" class="modal-button invoiceBtnEnable">
-                            [[localize('val_justificatory','Justificatory',language)]]
-                        </paper-button>
 
+                    <template is="dom-if" if="[[isInvoiceClosed]]">
+                        <paper-button on-tap="_switchBetweenMethodForJustif" class="modal-button invoiceBtnEnable" disabled="[[isLoadingJustif]]">[[localize('val_justificatory','Justificatory',language)]]</paper-button>
                     </template>
                 </div>
             </div>
@@ -1405,6 +1384,19 @@
             </div>
         </paper-dialog>
 
+        <paper-dialog id="cancelDialog">
+            <div class="reasonCancel">
+                <vaadin-combo-box id="reasonOfCancel" filtered-items="[[reasonOfCancel]]"
+                                  item-label-path="label.[[language]]" item-value-path="id"
+                                  label="Raison"
+                                  value="{{reason}}" class="manualEncodingContainerChild"></vaadin-combo-box>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button dialog-confirm on-tap="_cancelEattest">[[localize('validate','Validate',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
         <paper-dialog id="paymentCheckDialog">
             <p>Veuillez introduire le type de paiement et le montant <b>encaissé</b><br>Le montant indiqué sera repris sur le justificatif et a valeur fiscale</p>
             <div class="inputs-line">
@@ -1413,7 +1405,7 @@
                                   label="Type de paiement"
                                   value="{{selectedInvoice.paymentType}}" class="manualEncodingContainerChild"></vaadin-combo-box>
                 <paper-input class="paid" label="Montant encaissé"
-                         value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
+                             value="{{selectedInvoice.paid}}" type="number" min="0" max="100000" step="0.01"></paper-input>
             </div>
             <div class="buttons">
                 <paper-button dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
@@ -1881,8 +1873,7 @@
                         type: Array
                     },
                     activeNmclItem: {
-                        type: Object,
-                        observer : 'checkHere'
+                        type: Object
                     },
                     isPrescriberIsNeeded: {
                         type: Boolean,
@@ -1965,13 +1956,82 @@
                     },
                     selectedInvoiceIndex:{
                         type : Number
+                    },
+                    reasonOfCancel:{
+                        type: Object,
+                        value: () => [
+                            {
+                                id: "A",
+                                label: {
+                                    "fr": "Erreur de patient",
+                                    "nl": "Erreur de patient",
+                                    "en": "Patient error"
+                                }
+                            },
+                            {
+                                id: "B",
+                                label: {
+                                    "fr": "Erreur de prestataire (médecin B en lieu et place du médecin A)",
+                                    "nl": "Erreur de prestataire (médecin B en lieu et place du médecin A)",
+                                    "en": "Provider error (doctor B instead of doctor A)"
+                                }
+                            },
+                            {
+                                id: "C",
+                                label: {
+                                    "fr": "Erreur dans un des éléments de l’ASD (ex. : code nomenclature, n° de dent, montant de l’honoraire/montant à payer par le patient, …)",
+                                    "nl": "Erreur dans un des éléments de l’ASD (ex. : code nomenclature, n° de dent, montant de l’honoraire/montant à payer par le patient, …)",
+                                    "en": "Error in one of the elements of the ASD (ex. : nomenclature code, tooth number, amount of fee / amount to be paid by the patient, …)"
+                                }
+                            },
+                            {
+                                id: "D",
+                                label: {
+                                    "fr": "Double envoi de la même e-Attest",
+                                    "nl": "Double envoi de la même e-Attest",
+                                    "en": "Double sending of the same e-Attest"
+                                }
+                            },
+                            {
+                                id: "E",
+                                label: {
+                                    "fr": "e-Attest remplacée par e-Fact",
+                                    "nl": "e-Attest remplacée par e-Fact",
+                                    "en": "e-Attest replaced by e-Fact"
+                                }
+                            },
+                            {
+                                id: "F",
+                                label: {
+                                    "fr": "e-Attest remplacée par ASD papier. Envoi d’une eASD pour un patient devant ou souhaitant recevoir une ASD papier (ex. : versement sur un autre compte, accident de travail, police, problème technique, …)",
+                                    "nl": "e-Attest remplacée par ASD papier. Envoi d’une eASD pour un patient devant ou souhaitant recevoir une ASD papier (ex. : versement sur un autre compte, accident de travail, police, problème technique, …)",
+                                    "en": "e-Attest replaced by ASD paper. Sending an eASD for a patient in front of or wishing to receive a paper-based ASD (ex .: payment to another account, accident at work, police, technical problem, …)"
+                                }
+                            },
+                            {
+                                id: "G",
+                                label: {
+                                    "fr": "Situation ne permettant pas l'établissement d'une e-Attest (eASD établie par erreur ex : pas de consultation mais délivrance d’une prescription, simple contact téléphonique, …). Il s’agit donc d’une annulation pure et simple de l’eASD",
+                                    "nl": "Situation ne permettant pas l'établissement d'une e-Attest (eASD établie par erreur ex : pas de consultation mais délivrance d’une prescription, simple contact téléphonique, …). Il s’agit donc d’une annulation pure et simple de l’eASD",
+                                    "en": "Situation not allowing the establishment of an e-Attest (eASD established by mistake ex: no consultation but issue of a prescription, simple telephone contact, …). It is therefore a pure and simple cancellation of the eASD"
+                                }
+                            }
+                        ]
+                    },
+                    reason : {
+                        type : String,
+                        value : "A"
+                    },
+                    hasInsurability : {
+                        type: Boolean,
+                        value : false
                     }
                 }
 
             }
 
             static get observers() {
-                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','locationNormChanged(selectedInvoice.encounterLocationNorm.*)']
+                return ['_selectInvoice(selectedInvoiceIndex, invoices.*)', '_mediumTypeChanged(selectedInvoice.sentMediumType)','_invoicingCodeChange(activeNmclItem, activeNmclItem.*)','selectedInvoiceChanged(selectedInvoice.*)','conventionAmountChanged(activeNmclItem.*)','varIsEattestClosedChanged(selectedInvoice.*)','_checkIfLocationNeeds(selectedInvoice.encounterLocationNorm)']
             }
 
             ready() {
@@ -2008,13 +2068,6 @@
                         }
                     })
                 ).finally(() => {
-                    if(!selected.encounterLocationNorm){
-                        selected.encounterLocationNorm=0;
-                        selected.encounterLocationName=null;
-                        selected.encounterLocationNihii=null;
-                    } else if(selected.encounterLocationNorm!==0){
-                        this.set("isLocationIsNeeded", true)
-                    }
 
                     this.set('selectedInvoice', selected)
                     this.set('selectedMediumCodeType', selected.sentMediumType)
@@ -2053,7 +2106,7 @@
                             encounterLocationNorm: 0,
                             encounterLocationName: null,
                             encounterLocationNihii: null,
-                            creditNote: 0,
+                            creditNote: false,
                             careProviderType: "persphysician"
                         }
 
@@ -2064,6 +2117,7 @@
                         this.set('selectedInvoiceIndex', this.invoices.indexOf(invoiceOfDay))
                     }
 
+                    this.set("hasInsurability",this._hasInsurability())
 
                     this.$.invoiceDialog.open()
 
@@ -2074,7 +2128,10 @@
             _mediumTypeChanged(mediumType) {
                 if (mediumType === 'eattest') {
                     this.set('invoiceDateAsString', moment().format('YYYY-MM-DD'))
+                    this.set('selectedInvoice.encounterLocationNorm',0)
                 }
+                this.varIsEattestClosedChanged()
+                this.set('isInvoiceClosed', !!this.selectedInvoice.printedDate)
             }
             _closeDialog() {
                 this.$.invoiceDialog.close()
@@ -2184,10 +2241,6 @@
                     const ins = this.patient.insurabilities.find(i => !i.endDate) || null;
                     const age = moment().diff(this.patient.dateOfBirth, 'years', true)
                     const dmg = this.patient.patientHealthCareParties.find(hcp => !hcp.referral)
-
-                    const trainee = this.hcp.statuses
-                    const convention = this.hcp.convention
-
 
                     const env = new evaljs.Environment({
                         patient: {
@@ -2417,9 +2470,9 @@
                         .catch((e) => {
                             console.log("Exception", e)
                         }).finally(() => {
-                            this.isLoadingEattest = false
-                            this.set('isLoadingValidation',false)
-                        })
+                        this.isLoadingEattest = false
+                        this.set('isLoadingValidation',false)
+                    })
                 } else {
                     //Todo manage mandatory fields
                 }
@@ -2469,8 +2522,8 @@
                 }
             }
 
-            _checkIfLocationIsNeeded(e) {
-                if (e.detail.value === 0) {
+            _checkIfLocationNeeds() {
+                if (this.selectedInvoice.encounterLocationNorm === 0) {
                     this.set("isLocationIsNeeded", false)
                 } else {
                     this.set("isLocationIsNeeded", true)
@@ -3191,8 +3244,8 @@
                                                 this.set('selectedInvoiceIndex', _.findIndex(invoices, i => i.id === invoice.id))
                                                 this.$['nmclGrid'].clearCache()
 
-                                            return invoice
-                                        })
+                                                return invoice
+                                            })
                                     })
                             } else {
                                 const registered = this.api.register(invoice, 'invoice')
@@ -3304,7 +3357,6 @@
                     this.updateGui(invoice)
                 }
             }
-
 
             selectedInvoiceChanged(){
                 this.scheduleInvoiceUpdate();
@@ -3444,6 +3496,10 @@
                         if(fhcEattest.acknowledge.errors.length===0) {
                             this.set('selectedInvoice.thirdPartyReference', fhcEattest.invoicingNumber)
                             this.set("selectedInvoice.sentDate", sentDate)
+                            fhcEattest.attest.codes.map(code =>{
+                                const currentCode = this.selectedInvoice.invoicingCodes.find(i => i.code===code.riziv)
+                                currentCode.conventionAmount=code.fee;
+                            })
                             this.set("errorMessage", null)
 
                             Promise.all([
@@ -3569,14 +3625,12 @@
                 //totaux
                 let totalACharge=0.00;
                 let totalSuppl=0.00;
-                let totalRemb=0.00;
                 let totalConv=0.00;
                 let totalDelta=0.00;
 
                 invoice.invoicingCodes.map((code)=>{
-                    totalACharge+=code.reimbursement+code.patientIntervention;
-                    totalSuppl+=Number(code.doctorSupplement)
-                    totalRemb+=Number(code.reimbursement)
+                    totalACharge+=Number(code.reimbursement+code.patientIntervention);
+                    totalSuppl+=Number(code.totalAmount - code.conventionAmount)
                     totalConv+=Number(code.conventionAmount)
                     totalDelta+=Number(code.reimbursement)+Number(code.patientIntervention)+Number(code.doctorSupplement)
                 })
@@ -3634,11 +3688,11 @@
                     "totFinal": this.localize('pdf_totFinal','totFinal',this.language),
                     "totalACharge" : totalACharge,
                     "totalSuppl" : totalSuppl,
-                    "totalRemb" : totalRemb,
                     "totalConv" : totalConv,
                     "totalDelta" : totalDelta,
                     "jpegUrl" : jpegUrl
                 }
+
 
                 const html = `
                 <html>
@@ -3808,22 +3862,13 @@
                                 <tr class="item">
                                     <td class="minw30"> {{unit}} {{code}} : {{label}}</td>
                                     <td class="right">
-                                        {{#formatNumber}}{{reimbursement}} + {{patientIntervention}}{{/formatNumber}}
+                                        {{#formatNumber}}{{patientIntervention}} + {{reimbursement}}{{/formatNumber}}
                                     </td>
                                     <td class="right">
-                                        {{#formatNumber}}{{reimbursement}}{{/formatNumber}}
+                                        {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
                                     </td>
                                     <td class="right">
-                                        {{#conventionAmount}}
-                                            {{#formatNumber}}{{conventionAmount}}{{/formatNumber}}
-                                        {{/conventionAmount}}
-                                        {{^conventionAmount}}na{{/conventionAmount}}
-                                    </td>
-                                    <td class="right">
-                                        {{#conventionAmount}}
-                                            {{#formatNumber}}{{reimbursement}} + {{patientIntervention}} + {{doctorSupplement}}{{/formatNumber}}
-                                        {{/conventionAmount}}
-                                        {{^conventionAmount}}na{{/conventionAmount}}
+                                        {{#formatNumber}}{{totalAmount}} - {{conventionAmount}}{{/formatNumber}}
                                     </td>
                                 </tr>
                             {{/invoice.invoicingCodes}}
@@ -3833,49 +3878,48 @@
                                     {{#formatNumber}}{{totalACharge}}{{/formatNumber}}
                                 </td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalRemb}}{{/formatNumber}}
+                                    {{#formatNumber}}{{totalConv}}{{/formatNumber}}
                                 </td>
                                 <td class="right">
-                                    {{#totalConv}}
-                                        {{#formatNumber}}{{totalConv}}{{/formatNumber}}
-                                    {{/totalConv}}
-                                    {{^totalConv}}na{{/totalConv}}
-                                </td>
-                                <td class="right">
-                                    {{#totalDelta}}
-                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                                    {{/totalDelta}}
-                                    {{^totalDelta}}na{{/totalDelta}}
+                                    {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
                                 </td>
                             </tr>
                             <tr class="item last">
                                 <td class="minw30">{{totOne}}</td>
                                 <td class="right">
+                                    {{#formatNumber}}{{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
+                                    {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
+                                </td>
+                                <td class="right">
                                     {{#formatNumber}}{{totalSuppl}}{{/formatNumber}}
-                                </td>
-                                <td></td>
-                                <td class="right">
-                                    {{#totalConv}}
-                                        {{#formatNumber}}{{totalACharge}} - {{totalConv}}{{/formatNumber}}
-                                    {{/totalConv}}
-                                    {{^totalConv}}na{{/totalConv}}
-                                </td>
-                                <td class="right">
-                                    {{#totalDelta}}
-                                        {{#formatNumber}}{{totalDelta}}{{/formatNumber}}
-                                    {{/totalDelta}}
-                                    {{^totalDelta}}na{{/totalDelta}}
                                 </td>
                             </tr>
 
                             <tr class="total">
                                 <td class="minw30">{{totFinal}}</td>
                                 <td class="right">
-                                    {{#formatNumber}}{{totalACharge}} + {{totalSuppl}}{{/formatNumber}}
+                                    {{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}
                                 </td>
                                 <td class="right"></td>
                                 <td class="right"></td>
                                 <td class="right"></td>
+                            </tr>
+                        </table>
+
+                        <table class="fact-details">
+                            <tr>
+                                <th>Total à payer</th>
+                                <td class="right">{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}}{{/formatNumber}}</td>
+                            </tr>
+                            <tr>
+                                <th>Montant payé</th>
+                                <td class="right">{{#formatNumber}}{{invoice.paid}}{{/formatNumber}}</td>
+                            </tr>
+                            <tr>
+                                <th>Solde</th>
+                                <td class="right">{{#formatNumber}}{{totalACharge}} + {{totalSuppl}} - {{totalACharge}} + {{totalConv}} - {{invoice.paid}}{{/formatNumber}}</td>
                             </tr>
                         </table>
                     </div>
@@ -3922,8 +3966,18 @@
                 this.set("isEattestClosed",this.selectedInvoice.sentMediumType==="eattest" && this.selectedInvoice.printedDate)
             }
 
+            _cancelDialogOpen(){
+                this.set("reason","A")
+                this.$["cancelDialog"].open()
+            }
+
             _cancelEattest(){
-                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.invoiceReference
+
+                this.$["cancelDialog"].close()
+
+                const reason = this.reason+":"+(this.reasonOfCancel.find(reason => reason.id===this.reason).label[this.language])
+
+                const url = "https://docs.google.com/forms/d/e/1FAIpQLSfUoc69iwFaTeOteXOaFHEghIv8SHLV5eZwOFRS0FJxVjzObQ/viewform?usp=pp_url&entry.1429469566="+this.hcp.lastName+"&entry.156031164="+this.hcp.firstName+"&entry.1335787920="+this.hcp.nihii+"&entry.1193011163="+this.user.email+"&entry.1773887602="+this.selectedInvoice.thirdPartyReference+"&entry.802032397="+reason
                 window.open(url,"cancel");
             }
 
@@ -3955,27 +4009,56 @@
                         this._getAdressesBookInfo();
                     }
                 };
-                this.saveAdressTimeout = setTimeout(this.getAdresses, 3000);
+                this.saveAdressTimeout = setTimeout(this.getAdresses, 1000);
             }
 
             setLocation(e){
+                if(!(e && e.detail && e.detail.value))return;
                 console.log("selection :",e.detail.value)
                 this.set("selectedInvoice.encounterLocationName",e.detail.value.name)
                 const regExp = new RegExp(/\W/,'g')
                 this.set("selectedInvoice.encounterLocationNihii",e.detail.value.ehp.replace(regExp,""))
             }
 
-            locationNormChanged(){
-                if(!this.isSelected){
-                    this.set("selectedInvoice.encounterLocationName","")
-                    this.set("selectedInvoice.encounterLocationNihii","")
-                }
-            }
-
-            _hasInsurability() { return ( this.patient && this.patient && !!this.patient.insurabilities.length ); }
+            _hasInsurability() { return ( this.patient && this.patient.insurabilities && !!this.patient.insurabilities.length ); }
 
             isEattestError(){
                 return (!this.isDetailNmcl) && this.errorMessage!==null;
+            }
+
+            _invoiceDateIsToday(){
+                return this.api.moment(this.selectedInvoice.invoiceDate).isSame(moment(),"day")
+            }
+
+            _isETarButtonDisabled(){
+                const disabled = this.isLoadingValidation || this.isTarificationMcnError || !this.npi
+                return disabled;
+            }
+
+            _isJustifButtonDisabled(){
+                return this.isLoadingJustif || !!((this._isSelectedInvoiceEattest() && (!this._invoiceDateIsToday() || !this.npi)) || (!this._isSelectedInvoiceEattest() && !this.isNmclVerified));
+            }
+
+            _switchBetweenMethodForJustifAndCreation(){
+                if(this._isSelectedInvoiceEattest()){
+                    this._prevalidateAndPrepareInvoiceForBatchSending();
+                }
+                else{
+                    this._validateAndPrepareInvoiceForBatchSending();
+                }
+            }
+
+            _switchBetweenMethodForJustif(){
+                if(this._isSelectedInvoiceEattest()){
+                    this.eattest(this.selectedInvoice);
+                }
+                else{
+                    this._validateAndPrepareInvoiceForBatchSending();
+                }
+            }
+
+            _filterThirdPartyJustitifications(inputData) {
+                return _.filter( inputData, (v)=>{ return parseInt(v.id) !== 9; });
             }
 
 

@@ -451,6 +451,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				background-color: var(--paper-orange-400);
 			}
 
+			.batchToBeSend{
+				background-color: var(--paper-orange-400);
+			}
+
+			.batchToBeCorrected{
+				background-color: var(--paper-red-400);
+			}
+
 			.batchProcessed{
 				background-color: var(--paper-blue-400);
 			}
@@ -544,7 +552,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
                 </paper-item>
                 <paper-listbox id="invoiceboxlist" class="menu-content sublist"  selected="{{invoiceSelectionIndex}}" selected-item="{{invoiceSelectionItem}}" selectable="paper-item">
-                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="pending">[[localize('_e_inv_pen','Pending',language)]] <span class="batchNumber batchPending">[[batchCounter.pending]]</span></paper-item>
+					<paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeCorrected">[[localize('_e_inv_toBeCorrected','To be corrected',language)]] <span class="batchNumber batchToBeCorrected">[[batchCounter.toBeCorrected]]</span></paper-item>
+                    <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="toBeSend">[[localize('_e_inv_toBeSend','To be send',language)]] <span class="batchNumber batchToBeSend">[[batchCounter.toBeSend]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="process">[[localize('_e_inv_pro','Processing',language)]] <span class="batchNumber batchProcessed">[[batchCounter.processing]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="reject">[[localize('_e_inv_rej','Rejected',language)]] <span class="batchNumber batchRejected">[[batchCounter.rejected]]</span></paper-item>
                     <paper-item class="one-line-menu menu-item" id="e_invOut" data-status="accept">[[localize('_e_inv_acc','Accepted',language)]] <span class="batchNumber batchAccepted">[[batchCounter.accepted]]</span></paper-item>
@@ -624,7 +633,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			batchCounter: {
 			    type: Object,
 				value: () => ({
-					pending: 0,
+					toBeSend: 0,
+					toBeCorrected: 0,
 					processing: 0,
 					rejected: 0,
 					accepted: 0,
@@ -745,7 +755,7 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
         e.stopPropagation()
         e.preventDefault()
 
-        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'pending'} } }));
+        this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: 'e_invOut', status: 'toBeSend'} } }));
 
         this.set('sentboxSelectionIndex', null)
         this.set('inboxSelectionIndex', null)
@@ -859,7 +869,8 @@ class HtMsgMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     initializeBatchCounter(e){
 
-	    this.set("batchCounter.pending", e.detail.pending)
+	    this.set("batchCounter.toBeSend", e.detail.toBeSend)
+		this.set("batchCounter.toBeCorrected", e.detail.toBeCorrected)
         this.set("batchCounter.processing", e.detail.processing)
         this.set("batchCounter.rejected", e.detail.rejected)
         this.set("batchCounter.accepted", e.detail.accepted)

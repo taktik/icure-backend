@@ -26,9 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.taktik.icure.entities.Classification;
 import org.taktik.icure.entities.ClassificationTemplate;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.ClassificationTemplateLogic;
+import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto;
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.utils.ResponseUtils;
@@ -95,6 +97,56 @@ public class ClassificationTemplateFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.").build();
 		}
 	}
+
+    @ApiOperation(
+        value = "Get a list of classifications Templates",
+        response = ClassificationTemplateDto.class,
+        httpMethod = "GET",
+        notes = "Ids are seperated by a coma"
+    )
+    @GET
+    @Path("/byIds/{ids}")
+    public Response getClassificationTemplateByIds(@PathParam("ids") String ids) {
+        if (ids == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<ClassificationTemplate> elements = classificationTemplateLogic.getClassificationTemplateByIds(Arrays.asList(ids.split(",")));
+
+        boolean succeed = (elements != null);
+        if (succeed) {
+            return Response.ok().entity(elements.stream().map(x -> mapper.map(x, ClassificationTemplateDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.").build();
+        }
+    }
+
+    @ApiOperation(
+        value = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.",
+        response = ClassificationDto.class,
+        responseContainer = "Array",
+        httpMethod = "GET",
+        notes = "Keys hast to delimited by coma"
+    )
+    @GET
+    @Path("/byHcPartySecretForeignKeys")
+    public Response findByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId, @QueryParam("secretFKeys") String secretFKeys) {
+        if (hcPartyId == null || secretFKeys == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+        List<ClassificationTemplate> elementList = classificationTemplateLogic.findByHCPartySecretPatientKeys(hcPartyId, new ArrayList<String>(secretPatientKeys));
+
+        boolean succeed = (elementList != null);
+        if (succeed) {
+            // mapping to Dto
+            List<ClassificationDto> elementDtoList = elementList.stream().map(element -> mapper.map(element, ClassificationDto.class)).collect(Collectors.toList());
+            return Response.ok().entity(elementDtoList).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting the classification failed. Please try again or read the server log.").build();
+        }
+    }
 
 
 	@ApiOperation(
